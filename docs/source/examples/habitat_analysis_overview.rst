@@ -92,6 +92,11 @@ Primary API: :class:`~habit.recipes.Study`
 Factories ``two_step_habitat`` / ``one_step_habitat`` /
 ``direct_pooling_habitat`` declare the intended design.
 
+A :class:`~habit.report.Report` is a **run** object (persist + figures +
+memory retain), not a scientific stage. Pass it to ``fit_predict`` when a
+one-step cohort must stream artefacts per subject
+(:doc:`one_step_habitat`).
+
 What must stay paired
 ---------------------
 

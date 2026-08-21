@@ -27,7 +27,7 @@
 #   3) registration   : 用 elastix 把其它模态配准到参考模态 (delay2)
 #
 # External tools:
-#   tools/bin/elastix.exe and tools/bin/transformix.exe are included with the release package.
+#   tools/bin/elastix.exe and tools/bin/transformix.exe ship in the source checkout when present.
 #   demo_data/Par0040affine.txt is the demo registration parameter file.
 #
 # 输入 / Input : demo_data/preprocessed（模态键 pre_contrast/LAP/PVP/delay_3min）

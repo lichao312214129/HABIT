@@ -21,10 +21,25 @@ from .TorchRadiomicsBase import TorchRadiomicsBase
 
 class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
   """
-  RadiomicsFirstOrder PyTorch implement
+  RadiomicsFirstOrder PyTorch implement.
+
+  All per-batch work (kernel-window gathering, the gray-level histogram and
+  the feature math itself) runs on ``self.device`` as float64 tensors. The
+  getters still return numpy arrays, so results stay drop-in compatible with
+  the PyRadiomics reference implementation.
   """
 
   def __init__(self, inputImage, inputMask, **kwargs):
+    # Device mirrors must exist before super().__init__(), because the base
+    # constructor already triggers _initVoxelBasedCalculation().
+    self._early_device = kwargs.get("device", "cuda")
+    self._early_dtype = kwargs.get("dtype", torch.float64)
+    self._image_t = None
+    self._disc_t = None
+    self._kernel_offsets_t = None
+    self._target_t = None
+    self._target_np = None
+
     super(TorchRadiomicsFirstOrder, self).__init__(inputImage, inputMask, **kwargs)
 
     self.dtype = kwargs.get("dtype", torch.float64)
@@ -33,6 +48,38 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     self.pixelSpacing = inputImage.GetSpacing()
     self.voxelArrayShift = kwargs.get('voxelArrayShift', 0)
     self.discretizedImageArray = self._applyBinning(self.imageArray.copy())
+
+  def _dev(self):
+    # self.device is assigned only after the base constructor ran; fall back
+    # to the constructor kwarg during _initVoxelBasedCalculation().
+    return getattr(self, "device", self._early_device)
+
+  def _dt(self):
+    return getattr(self, "dtype", self._early_dtype)
+
+  @property
+  def targetVoxelArray(self) -> numpy.ndarray:
+    """
+    numpy mirror of the per-voxel kernel windows, shape (Nvox, Nk).
+
+    The canonical copy lives on the GPU (``_target_t``); the numpy view is
+    rebuilt lazily so the voxel hot path never pays for a device-to-host
+    copy. External consumers (e.g. supervoxel batching) may also assign a
+    plain numpy array, which is uploaded to the device by the setter.
+    """
+    if self._target_np is None and self._target_t is not None:
+      self._target_np = self._target_t.cpu().numpy()
+    return self._target_np
+
+  @targetVoxelArray.setter
+  def targetVoxelArray(self, value: numpy.ndarray) -> None:
+    if value is None:
+      self._target_np = None
+      self._target_t = None
+      return
+    arr = numpy.ascontiguousarray(value, dtype='float')
+    self._target_np = arr
+    self._target_t = torch.as_tensor(arr, dtype=self._dt(), device=self._dev())
 
   def _initVoxelBasedCalculation(self):
     super(TorchRadiomicsFirstOrder, self)._initVoxelBasedCalculation()
@@ -66,43 +113,116 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
                                pad_width=self.settings.get('kernelRadius', 1),
                                mode='constant', constant_values=False)
 
+    # Upload the padded image and kernel offsets once; neither is modified
+    # afterwards, so per-batch work is a pure on-device gather.
+    self._image_t = torch.as_tensor(self.imageArray, dtype=self._dt(), device=self._dev())
+    self._kernel_offsets_t = torch.as_tensor(
+        numpy.ascontiguousarray(self.kernelOffsets), dtype=torch.long, device=self._dev())
+
   def _initCalculation(self, voxelCoordinates=None):
+    device = self._dev()
+    dtype = self._dt()
+
+    if self._disc_t is None:
+      # discretizedImageArray is created in __init__ (i.e. after the
+      # voxel-based padding), so it can only be uploaded lazily here.
+      self._disc_t = torch.as_tensor(
+          numpy.ascontiguousarray(self.discretizedImageArray), dtype=dtype, device=device)
+    if self._image_t is None:
+      # Segment-based mode: imageArray was never padded or NaN-masked.
+      self._image_t = torch.as_tensor(
+          numpy.ascontiguousarray(self.imageArray.astype('float')), dtype=dtype, device=device)
 
     if voxelCoordinates is None:
-      self.targetVoxelArray = self.imageArray[self.maskArray].astype('float').reshape((1, -1))
-      _, p_i = numpy.unique(self.discretizedImageArray[self.maskArray], return_counts=True)
-      p_i = p_i.reshape((1, -1))
+      # maskArray may be reassigned between calls (supervoxel batching), so
+      # it is uploaded fresh every time; it is a small boolean array.
+      mask_t = torch.as_tensor(numpy.ascontiguousarray(self.maskArray), dtype=torch.bool, device=device)
+      self._target_t = self._image_t[mask_t].reshape(1, -1)
+      self._target_np = None
+
+      # Segment mode histograms the gray levels actually present (like
+      # numpy.unique(..., return_counts=True)), not all possible levels.
+      disc_masked = self._disc_t[mask_t]
+      _, counts = torch.unique(disc_masked, return_counts=True)
+      p_i = counts.to(dtype).reshape(1, -1)
     else:
       # voxelCoordinates shape (Nd, Nvox)
-      voxelCoordinates = voxelCoordinates.copy() + self.settings.get('kernelRadius', 1)  # adjust for padding
-      kernelCoords = self.kernelOffsets[:, None, :] + voxelCoordinates[:, :, None]  # Shape (Nd, Nvox, Nk)
-      kernelCoords = tuple(kernelCoords)  # shape (Nd, (Nvox, Nk))
+      kernelRadius = self.settings.get('kernelRadius', 1)
+      coords = numpy.ascontiguousarray(voxelCoordinates + kernelRadius)  # adjust for padding
+      coords_t = torch.as_tensor(coords, dtype=torch.long, device=device)
+      kernelCoords = self._kernel_offsets_t[:, None, :] + coords_t[:, :, None]  # Shape (Nd, Nvox, Nk)
+      kernelCoords = tuple(kernelCoords)  # tuple of Nd tensors, each (Nvox, Nk)
 
-      self.targetVoxelArray = self.imageArray[kernelCoords]  # shape (Nvox, Nk)
+      self._target_t = self._image_t[kernelCoords]  # shape (Nvox, Nk)
+      self._target_np = None  # numpy mirror invalidated; rebuilt lazily
 
-      p_i = numpy.empty((voxelCoordinates.shape[1], len(self.coefficients['grayLevels'])))  # shape (Nvox, Ng)
-      for gl_idx, gl in enumerate(self.coefficients['grayLevels']):
-        p_i[:, gl_idx] = numpy.nansum(self.discretizedImageArray[kernelCoords] == gl, 1)
+      disc_gathered = self._disc_t[kernelCoords]  # shape (Nvox, Nk)
 
-    sumBins = numpy.sum(p_i, 1, keepdims=True).astype('float')
-    sumBins[sumBins == 0] = 1  # Prevent division by 0 errors
-    p_i = p_i.astype('float') / sumBins
-    self.coefficients['p_i'] = p_i
+      # Histogram over all possible gray levels. One broadcasted comparison
+      # replaces the reference Python loop over gray levels; chunking over
+      # the gray-level axis bounds the (Nvox, Nk, block) boolean tensor.
+      gl_t = torch.as_tensor(
+          numpy.ascontiguousarray(self.coefficients['grayLevels']), dtype=dtype, device=device)
+      n_vox, n_k = disc_gathered.shape
+      n_gl = int(gl_t.shape[0])
+      p_i = torch.empty((n_vox, n_gl), dtype=dtype, device=device)
+      block = max(1, (1 << 26) // max(1, n_vox * n_k))
+      for g0 in range(0, n_gl, block):
+        g1 = min(n_gl, g0 + block)
+        # NaN entries compare False, matching numpy.nansum(... == gl, 1).
+        p_i[:, g0:g1] = (disc_gathered.unsqueeze(-1) == gl_t[g0:g1]).sum(dim=1, dtype=dtype)
+
+    sumBins = p_i.sum(dim=1, keepdim=True)
+    sumBins = torch.where(sumBins == 0, torch.ones_like(sumBins), sumBins)  # Prevent division by 0 errors
+    self.coefficients['p_i'] = p_i / sumBins
 
     self.logger.debug('First order feature class initialized')
 
   @staticmethod
-  def _moment(a, moment=1):
+  def _moment(a: torch.Tensor, moment: int = 1) -> torch.Tensor:
     r"""
-    Calculate n-order moment of an array for a given axis
+    Calculate n-order moment of a tensor along axis 1 (NaN-aware).
     """
-
     if moment == 1:
-      return numpy.float(0.0)
-    else:
-      mn = numpy.nanmean(a, 1, keepdims=True)
-      s = numpy.power((a - mn), moment)
-      return numpy.nanmean(s, 1)
+      # By definition the first central moment is 0; kept for API parity.
+      return torch.zeros(a.shape[0], dtype=a.dtype, device=a.device)
+    mn = torch.nanmean(a, dim=1, keepdim=True)
+    return torch.nanmean((a - mn) ** moment, dim=1)
+
+  @staticmethod
+  def _nanmin(x: torch.Tensor, dim: int) -> torch.Tensor:
+    """torch.nanmin equivalent (not exposed by this torch build): NaN entries
+    are ignored and all-NaN rows reduce to NaN, like numpy.nanmin."""
+    valid = ~torch.isnan(x)
+    out = torch.amin(torch.where(valid, x, torch.full_like(x, float('inf'))), dim=dim)
+    return torch.where(valid.any(dim=dim), out, torch.full_like(out, float('nan')))
+
+  @staticmethod
+  def _nanmax(x: torch.Tensor, dim: int) -> torch.Tensor:
+    """torch.nanmax equivalent: NaN entries are ignored and all-NaN rows
+    reduce to NaN, like numpy.nanmax."""
+    valid = ~torch.isnan(x)
+    out = torch.amax(torch.where(valid, x, torch.full_like(x, float('-inf'))), dim=dim)
+    return torch.where(valid.any(dim=dim), out, torch.full_like(out, float('nan')))
+
+  @staticmethod
+  def _nanmedian(x: torch.Tensor, dim: int) -> torch.Tensor:
+    """numpy.nanmedian equivalent along ``dim``.
+
+    torch.nanmedian returns the *lower* of the two middle values for an even
+    number of valid entries, while numpy averages the two middle values, so
+    the median is computed explicitly from the sorted row. torch.sort places
+    NaN at the end, so the first ``n`` sorted entries are the valid ones.
+    """
+    xs, _ = torch.sort(x, dim=dim)
+    n = (~torch.isnan(x)).sum(dim=dim, keepdim=True)  # valid count per row
+    hi = (n // 2).clamp(min=0)  # upper middle index (middle for odd n)
+    lo = ((n - 1) // 2).clamp(min=0)  # lower middle index (== hi for odd n)
+    v_lo = xs.gather(dim, lo)
+    v_hi = xs.gather(dim, hi)
+    med = (v_lo + v_hi) / 2
+    # All-NaN rows gathered element 0, which is NaN there anyway.
+    return med.squeeze(dim)
 
   def getEnergyFeatureValue(self):
     r"""
@@ -121,10 +241,9 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     .. note::
       This feature is volume-confounded, a larger value of :math:`c` increases the effect of volume-confounding.
     """
+    shiftedParameterArray = self._target_t + self.voxelArrayShift
 
-    shiftedParameterArray = self.targetVoxelArray + self.voxelArrayShift
-
-    return numpy.nansum(shiftedParameterArray ** 2, 1)
+    return torch.nansum(shiftedParameterArray ** 2, dim=1).cpu().numpy()
 
   def getTotalEnergyFeatureValue(self):
     r"""
@@ -145,7 +264,6 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     .. note::
       Not present in IBSI feature definitions
     """
-
     cubicMMPerVoxel = numpy.multiply.reduce(self.pixelSpacing)
 
     return self.getEnergyFeatureValue() * cubicMMPerVoxel
@@ -168,7 +286,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     p_i = self.coefficients['p_i']
 
     eps = numpy.spacing(1)
-    return -1.0 * numpy.sum(p_i * numpy.log2(p_i + eps), 1)
+    return (-1.0 * torch.sum(p_i * torch.log2(p_i + eps), dim=1)).cpu().numpy()
 
   def getMinimumFeatureValue(self):
     r"""
@@ -177,8 +295,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     .. math::
       \textit{minimum} = \min(\textbf{X})
     """
-
-    return numpy.nanmin(self.targetVoxelArray, 1)
+    return self._nanmin(self._target_t, 1).cpu().numpy()
 
   def get10PercentileFeatureValue(self):
     r"""
@@ -186,8 +303,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
 
     The 10\ :sup:`th` percentile of :math:`\textbf{X}`
     """
-    targetVoxelArray = self.tensor(self.targetVoxelArray)
-    return torch.nanquantile(targetVoxelArray, 0.1, 1).cpu().numpy()
+    return torch.nanquantile(self._target_t, 0.1, 1).cpu().numpy()
 
   def get90PercentileFeatureValue(self):
     r"""
@@ -195,8 +311,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
 
     The 90\ :sup:`th` percentile of :math:`\textbf{X}`
     """
-    targetVoxelArray = self.tensor(self.targetVoxelArray)
-    return torch.nanquantile(targetVoxelArray, 0.9, 1).cpu().numpy()
+    return torch.nanquantile(self._target_t, 0.9, 1).cpu().numpy()
 
   def getMaximumFeatureValue(self):
     r"""
@@ -207,8 +322,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
 
     The maximum gray level intensity within the ROI.
     """
-
-    return numpy.nanmax(self.targetVoxelArray, 1)
+    return self._nanmax(self._target_t, 1).cpu().numpy()
 
   def getMeanFeatureValue(self):
     r"""
@@ -219,8 +333,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
 
     The average gray level intensity within the ROI.
     """
-
-    return numpy.nanmean(self.targetVoxelArray, 1)
+    return torch.nanmean(self._target_t, dim=1).cpu().numpy()
 
   def getMedianFeatureValue(self):
     r"""
@@ -228,8 +341,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
 
     The median gray level intensity within the ROI.
     """
-
-    return numpy.nanmedian(self.targetVoxelArray, 1)
+    return self._nanmedian(self._target_t, 1).cpu().numpy()
 
   def getInterquartileRangeFeatureValue(self):
     r"""
@@ -241,9 +353,8 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     Here :math:`\textbf{P}_{25}` and :math:`\textbf{P}_{75}` are the 25\ :sup:`th` and 75\ :sup:`th` percentile of the
     image array, respectively.
     """
-    
-    targetVoxelArray = self.tensor(self.targetVoxelArray)
-    return (torch.nanquantile(targetVoxelArray, 0.75, 1) - torch.nanquantile(targetVoxelArray, 0.25, 1)).cpu().numpy()
+    return (torch.nanquantile(self._target_t, 0.75, 1)
+            - torch.nanquantile(self._target_t, 0.25, 1)).cpu().numpy()
 
   def getRangeFeatureValue(self):
     r"""
@@ -254,8 +365,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
 
     The range of gray values in the ROI.
     """
-
-    return numpy.nanmax(self.targetVoxelArray, 1) - numpy.nanmin(self.targetVoxelArray, 1)
+    return (self._nanmax(self._target_t, 1) - self._nanmin(self._target_t, 1)).cpu().numpy()
 
   def getMeanAbsoluteDeviationFeatureValue(self):
     r"""
@@ -264,11 +374,10 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     .. math::
       \textit{MAD} = \frac{1}{N_p}\displaystyle\sum^{N_p}_{i=1}{|\textbf{X}(i)-\bar{X}|}
 
-    Mean Absolute Deviation is the mean distance of all intensity values from the Mean Value of the image array.
+    Mean Absolute Deviation is the mean distance of all intensity values from the Mean value of the image array.
     """
-
-    u_x = numpy.nanmean(self.targetVoxelArray, 1, keepdims=True)
-    return numpy.nanmean(numpy.absolute(self.targetVoxelArray - u_x), 1)
+    u_x = torch.nanmean(self._target_t, dim=1, keepdim=True)
+    return torch.nanmean(torch.abs(self._target_t - u_x), dim=1).cpu().numpy()
 
   def getRobustMeanAbsoluteDeviationFeatureValue(self):
     r"""
@@ -282,19 +391,17 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     from the Mean Value calculated on the subset of image array with gray levels in between, or equal
     to the 10\ :sup:`th` and 90\ :sup:`th` percentile.
     """
+    X = self._target_t
+    prcnt10 = torch.nanquantile(X, 0.1, 1)
+    prcnt90 = torch.nanquantile(X, 0.9, 1)
 
-    prcnt10 = self.get10PercentileFeatureValue()
-    prcnt90 = self.get90PercentileFeatureValue()
-    percentileArray = self.targetVoxelArray.copy()
+    # Keep only voxels inside the closed 10-90th percentile range; NaN
+    # entries compare False and therefore stay NaN, matching the reference.
+    in_range = (X >= prcnt10[:, None]) & (X <= prcnt90[:, None])
+    percentileArray = torch.where(in_range, X, torch.full_like(X, float('nan')))
 
-    # First get a mask for all valid voxels
-    msk = ~numpy.isnan(percentileArray)
-    # Then, update the mask to reflect all valid voxels that are outside the the closed 10-90th percentile range
-    msk[msk] = ((percentileArray - prcnt10[:, None])[msk] < 0) | ((percentileArray - prcnt90[:, None])[msk] > 0)
-    # Finally, exclude the invalid voxels by setting them to numpy.nan.
-    percentileArray[msk] = numpy.nan
-
-    return numpy.nanmean(numpy.absolute(percentileArray - numpy.nanmean(percentileArray, 1, keepdims=True)), 1)
+    mean = torch.nanmean(percentileArray, dim=1, keepdim=True)
+    return torch.nanmean(torch.abs(percentileArray - mean), dim=1).cpu().numpy()
 
   def getRootMeanSquaredFeatureValue(self):
     r"""
@@ -311,14 +418,13 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     the image values. This feature is volume-confounded, a larger value of :math:`c` increases the effect of
     volume-confounding.
     """
-
     # If no voxels are segmented, prevent division by 0 and return 0
-    if self.targetVoxelArray.size == 0:
+    if self._target_t.numel() == 0:
       return 0
 
-    shiftedParameterArray = self.targetVoxelArray + self.voxelArrayShift
-    Nvox = numpy.sum(~numpy.isnan(self.targetVoxelArray), 1).astype('float')
-    return numpy.sqrt(numpy.nansum(shiftedParameterArray ** 2, 1) / Nvox)
+    shiftedParameterArray = self._target_t + self.voxelArrayShift
+    Nvox = torch.sum(~torch.isnan(self._target_t), dim=1).to(self._dt())
+    return torch.sqrt(torch.nansum(shiftedParameterArray ** 2, dim=1) / Nvox).cpu().numpy()
 
   @deprecated
   def getStandardDeviationFeatureValue(self):
@@ -328,7 +434,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     .. math::
       \textit{standard deviation} = \sqrt{\frac{1}{N_p}\sum^{N_p}_{i=1}{(\textbf{X}(i)-\bar{X})^2}}
 
-    Standard Deviation measures the amount of variation or dispersion from the Mean Value. By definition,
+    Standard deviation measures the amount of variation or dispersion from the Mean value. By definition,
     :math:`\textit{standard deviation} = \sqrt{\textit{variance}}`
 
     .. note::
@@ -338,8 +444,8 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
       but will be enabled when individual features are specified, including this feature).
       Not present in IBSI feature definitions (correlated with variance)
     """
-
-    return numpy.nanstd(self.targetVoxelArray, axis=1)
+    u_x = torch.nanmean(self._target_t, dim=1, keepdim=True)
+    return torch.sqrt(torch.nanmean((self._target_t - u_x) ** 2, dim=1)).cpu().numpy()
 
   def getSkewnessFeatureValue(self):
     r"""
@@ -363,14 +469,14 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
       In case of a flat region, the standard deviation and 4\ :sup:`rd` central moment will be both 0. In this case, a
       value of 0 is returned.
     """
+    m2 = self._moment(self._target_t, 2)
+    m3 = self._moment(self._target_t, 3)
 
-    m2 = self._moment(self.targetVoxelArray, 2)
-    m3 = self._moment(self.targetVoxelArray, 3)
+    # Flat Region: prevent division by 0 errors (m3 is 0 there, so the
+    # feature becomes 0, exactly like the reference implementation).
+    m2 = torch.where(m2 == 0, torch.ones_like(m2), m2)
 
-    m2[m2 == 0] = 1  # Flat Region, prevent division by 0 errors
-    m3[m2 == 0] = 0  # ensure Flat Regions are returned as 0
-
-    return m3 / m2 ** 1.5
+    return (m3 / m2 ** 1.5).cpu().numpy()
 
   def getKurtosisFeatureValue(self):
     r"""
@@ -384,8 +490,8 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     Where :math:`\mu_4` is the 4\ :sup:`th` central moment.
 
     Kurtosis is a measure of the 'peakedness' of the distribution of values in the image ROI. A higher kurtosis implies
-    that the mass of the distribution is concentrated towards the tail(s) rather than towards the mean. A lower kurtosis
-    implies the reverse: that the mass of the distribution is concentrated towards a spike near the Mean value.
+    that the mass of the distribution is concentrated towards the tail(s) rather than towards the mean value. A lower
+    kurtosis implies the reverse: that the mass of the distribution is concentrated towards a spike near the Mean value.
 
     Related links:
 
@@ -399,14 +505,13 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
       The IBSI feature definition implements excess kurtosis, where kurtosis is corrected by -3, yielding 0 for normal
       distributions. The PyRadiomics kurtosis is not corrected, yielding a value 3 higher than the IBSI kurtosis.
     """
+    m2 = self._moment(self._target_t, 2)
+    m4 = self._moment(self._target_t, 4)
 
-    m2 = self._moment(self.targetVoxelArray, 2)
-    m4 = self._moment(self.targetVoxelArray, 4)
+    # Flat Region: prevent division by 0 errors (m4 is 0 there).
+    m2 = torch.where(m2 == 0, torch.ones_like(m2), m2)
 
-    m2[m2 == 0] = 1  # Flat Region, prevent division by 0 errors
-    m4[m2 == 0] = 0  # ensure Flat Regions are returned as 0
-
-    return m4 / m2 ** 2.0
+    return (m4 / m2 ** 2.0).cpu().numpy()
 
   def getVarianceFeatureValue(self):
     r"""
@@ -418,8 +523,8 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     Variance is the the mean of the squared distances of each intensity value from the Mean value. This is a measure of
     the spread of the distribution about the mean. By definition, :math:`\textit{variance} = \sigma^2`
     """
-
-    return numpy.nanstd(self.targetVoxelArray, 1) ** 2
+    u_x = torch.nanmean(self._target_t, dim=1, keepdim=True)
+    return torch.nanmean((self._target_t - u_x) ** 2, dim=1).cpu().numpy()
 
   def getUniformityFeatureValue(self):
     r"""
@@ -428,7 +533,7 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
     .. math::
       \textit{uniformity} = \displaystyle\sum^{N_g}_{i=1}{p(i)^2}
 
-    Uniformity is a measure of the sum of the squares of each intensity value. This is a measure of the homogeneity of
+    Uniformity is a measure of the sum of the squares of each intensity value. It is a measure of the homogeneity of
     the image array, where a greater uniformity implies a greater homogeneity or a smaller range of discrete intensity
     values.
 
@@ -436,4 +541,4 @@ class TorchRadiomicsFirstOrder(TorchRadiomicsBase):
       Defined by IBSI as Intensity Histogram Uniformity.
     """
     p_i = self.coefficients['p_i']
-    return numpy.nansum(p_i ** 2, 1)
+    return torch.nansum(p_i ** 2, dim=1).cpu().numpy()

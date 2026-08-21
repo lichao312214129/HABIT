@@ -31,7 +31,7 @@ Arrays in, arrays / dicts out. No HABIT types, no IO.
 
 from __future__ import annotations
 
-from typing import Dict, Mapping, Optional, Tuple
+from typing import Dict, Iterable, Mapping, Optional, Tuple
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -252,17 +252,30 @@ def match_labels_by_overlap(
 def remap_label_array(
     label_array: np.ndarray,
     mapping: Mapping[int, int],
+    reserved_ids: Optional[Iterable[int]] = None,
 ) -> np.ndarray:
     """
     Rewrite non-zero labels according to ``{old_id: new_id}``.
 
-    Background (``0``) is never remapped. Unmapped positive ids keep their
-    original value. A two-pass shift avoids collisions when the mapping
-    swaps ids (the same trick the test-retest NRRD remapper uses).
+    Background (``0``) is never remapped. Matched ids follow ``mapping``.
+    Unmatched positive ids are **not** left as-is: that would merge them
+    with a habitat that was remapped onto the same integer (for example
+    moving ``{1, 2, 3}`` with ``{3: 1, 2: 2}`` would turn leftover ``1``
+    and remapped ``3`` into the same color). Leftovers are rewritten to
+    unused ids starting at ``max(reserved_ids ∪ mapping values) + 1``,
+    in sorted leftover order. ``reserved_ids`` should be the reference
+    habitat ids; when omitted, only the mapping targets are reserved.
+    An empty ``mapping`` is an identity (no leftover rewrite).
+
+    A two-pass shift avoids collisions when the mapping swaps ids. The
+    shift is larger than every old or new id so a leftover assigned to
+    ``max(old) + 1`` is not mistaken for a still-shifted voxel.
 
     Args:
         label_array: Integer habitat labels.
         mapping: ``{moving_id: reference_id}`` assignment.
+        reserved_ids: Ids that leftovers must not reuse (typically the
+            reference habitat ids). Mapping targets are always reserved.
 
     Returns:
         A new int32 array with remapped ids.
@@ -271,15 +284,36 @@ def remap_label_array(
     remapped = labels.copy()
     if not mapping:
         return remapped
-    max_value = int(labels.max()) if labels.size else 0
-    if max_value <= 0:
+
+    complete: Dict[int, int] = {int(old_id): int(new_id) for old_id, new_id in mapping.items()}
+    reserved = {int(new_id) for new_id in complete.values() if int(new_id) > 0}
+    if reserved_ids is not None:
+        reserved.update(int(habitat_id) for habitat_id in reserved_ids if int(habitat_id) > 0)
+    next_id = (max(reserved) if reserved else 0) + 1
+    # Sorted so leftover 1, 4 become max_ref+1, max_ref+2 rather than
+    # depending on unique() encounter order.
+    for old_id in present_habitat_ids(labels).tolist():
+        habitat_id = int(old_id)
+        if habitat_id in complete:
+            continue
+        complete[habitat_id] = next_id
+        next_id += 1
+
+    # Offset must exceed every source and destination id. Otherwise a
+    # leftover rewritten to max(old)+1 lands in the "still shifted"
+    # band and is subtracted back into a colliding original id.
+    offset_candidates = [int(labels.max()) if labels.size else 0]
+    offset_candidates.extend(complete.keys())
+    offset_candidates.extend(complete.values())
+    offset = max(offset_candidates)
+    if offset <= 0:
         return remapped
-    # Shift every positive voxel so old and new ids cannot collide.
-    remapped[remapped != 0] += max_value
-    for old_id, new_id in mapping.items():
-        remapped[remapped == int(old_id) + max_value] = int(new_id)
-    still_shifted = remapped > max_value
-    remapped[still_shifted] -= max_value
+
+    remapped[remapped != 0] += offset
+    for old_id, new_id in complete.items():
+        remapped[remapped == int(old_id) + offset] = int(new_id)
+    still_shifted = remapped > offset
+    remapped[still_shifted] -= offset
     return remapped
 
 
@@ -405,7 +439,9 @@ def align_label_array(
         moving_ids: Ids aligned with ``moving_centroids`` rows.
 
     Returns:
-        Remapped copy of ``moving``.
+        Remapped copy of ``moving``. Matched ids use the reference id
+        space. Extra moving habitats (more clusters than the reference)
+        receive unused ids starting at ``max(reference ids) + 1``.
 
     Raises:
         ValueError: If ``method`` is unknown or centroid inputs are incomplete.
@@ -422,4 +458,8 @@ def align_label_array(
         reference_ids=reference_ids,
         moving_ids=moving_ids,
     )
-    return remap_label_array(mov_labels, mapping)
+    return remap_label_array(
+        mov_labels,
+        mapping,
+        reserved_ids=present_habitat_ids(np.asarray(reference)),
+    )

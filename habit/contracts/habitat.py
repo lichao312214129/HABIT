@@ -611,6 +611,8 @@ class HabitatModel:
         """
         import io
 
+        from habit.utils.write_access import write_via_temp_then_replace
+
         destination = Path(path)
         destination.parent.mkdir(parents=True, exist_ok=True)
         manifest = {
@@ -627,12 +629,18 @@ class HabitatModel:
         }
         buffer = io.BytesIO()
         np.save(buffer, self.centroids, allow_pickle=False)
-        with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr(
-                "manifest.json",
-                json.dumps(manifest, indent=2, sort_keys=True),
-            )
-            zf.writestr("arrays/centroids.npy", buffer.getvalue())
+
+        def _write_archive(tmp_path: Path) -> None:
+            # Temp file + atomic replace: a crash mid-write must not leave a
+            # truncated archive that a later load would fail on opaquely.
+            with zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                zf.writestr(
+                    "manifest.json",
+                    json.dumps(manifest, indent=2, sort_keys=True),
+                )
+                zf.writestr("arrays/centroids.npy", buffer.getvalue())
+
+        write_via_temp_then_replace(destination, _write_archive)
         return destination
 
     @classmethod

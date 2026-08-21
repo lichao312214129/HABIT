@@ -42,9 +42,12 @@ from habit.domain.precision.registry import ImagePerturbationRegistry
 from habit.exceptions import HABITAPIError
 from habit.kernels.image_perturbation import (
     add_gaussian_noise,
+    boundary_weighted_perturbation,
     estimate_noise_sigma,
+    morphological_grow_shrink,
     rigid_transform_image,
     rotate_image,
+    slice_extent_perturbation,
     translate_image,
 )
 from habit.spec.specs import Spec
@@ -60,6 +63,12 @@ __all__ = [
     "RotationPerturbationParams",
     "RigidPerturbation",
     "RigidPerturbationParams",
+    "MorphologicalPerturbation",
+    "MorphologicalPerturbationParams",
+    "GradientWeightedPerturbation",
+    "GradientWeightedPerturbationParams",
+    "SliceExtentPerturbation",
+    "SliceExtentPerturbationParams",
     "prior2024_retest_perturbation",
 ]
 
@@ -665,8 +674,366 @@ class RigidPerturbation:
         )
 
 
-def prior2024_retest_perturbation(
-    *,
+def _perturb_masks(
+    subject: Subject,
+    fn,
+) -> Subject:
+    """
+    Apply a mask-array kernel to every ROI of a subject, images untouched.
+
+    Contour-variability perturbations change where the boundary lies, not
+    the underlying intensities, so only the masks are transformed.
+
+    Args:
+        subject: Source subject.
+        fn: Callable ``fn(mask_array, spacing_xyz) -> new_mask_array``.
+
+    Returns:
+        The perturbed subject copy with masks replaced.
+    """
+    masks: Dict[str, np.ndarray] = {}
+    for roi in subject.masks:
+        mask = subject.mask(roi)
+        mask_array = np.asarray(mask.data)
+        spacing = tuple(float(v) for v in mask.geometry.spacing)
+        masks[roi] = fn(mask_array, spacing).astype(mask_array.dtype, copy=False)
+    return _replace_images(subject, {}, masks)
+
+
+class MorphologicalPerturbationParams(BaseModel):
+    """Constructor parameters for :class:`MorphologicalPerturbation`."""
+
+    model_config = ConfigDict(extra="forbid")
+    grow_mm: Optional[float] = None
+    max_grow_mm: float = Field(default=1.0, ge=0.0)
+    roi: Optional[str] = None
+    connectivity: int = Field(default=1, ge=1, le=3)
+
+
+@ImagePerturbationRegistry.register("morphological")
+class MorphologicalPerturbation:
+    """
+    Uniformly grow or shrink every ROI (MIRP ``perturbation_roi_adapt_size``).
+
+    This is the systematic component of inter-rater contour variability:
+    one observer consistently traces slightly larger or smaller than
+    another. It complements the Prior 2024 simulated-retest chain (which
+    perturbs the *image*, not the contour). Only masks change; image
+    intensities are untouched. Applied per foreground label so multi-label
+    ROIs grow each region instead of merging them.
+
+    Args:
+        grow_mm: Fixed physical radius in millimetres; positive dilates,
+            negative erodes, zero is a no-op. ``None`` samples a signed
+            radius from ``Uniform(-max_grow_mm, +max_grow_mm)`` per call.
+        max_grow_mm: Sampling bound when ``grow_mm`` is unset.
+        roi: Restrict the perturbation to one mask key; ``None`` perturbs
+            all masks.
+        connectivity: Structuring-element connectivity in ``{1, 2, 3}``;
+            ``1`` (6-connected) is the MIRP-like default.
+    """
+
+    def __init__(
+        self,
+        grow_mm: Optional[float] = None,
+        max_grow_mm: float = 1.0,
+        roi: Optional[str] = None,
+        connectivity: int = 1,
+    ) -> None:
+        if max_grow_mm < 0.0:
+            raise HABITAPIError(
+                f"morphological: max_grow_mm must be >= 0; got {max_grow_mm}."
+            )
+        if connectivity not in (1, 2, 3):
+            raise HABITAPIError(
+                f"morphological: connectivity must be in {{1,2,3}}; got {connectivity}."
+            )
+        self.grow_mm = None if grow_mm is None else float(grow_mm)
+        self.max_grow_mm = float(max_grow_mm)
+        self.roi = roi
+        self.connectivity = int(connectivity)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification used for provenance."""
+        return Spec(
+            name="morphological",
+            params={
+                "grow_mm": self.grow_mm,
+                "max_grow_mm": self.max_grow_mm,
+                "roi": self.roi,
+                "connectivity": self.connectivity,
+            },
+        )
+
+    def __call__(self, subject: Subject, *, rng: np.random.Generator) -> Subject:
+        """
+        Return a copy of ``subject`` with each ROI grown or shrunk.
+
+        Args:
+            subject: Subject providing the masks.
+            rng: Random generator sampling the radius when ``grow_mm`` is
+                unset.
+
+        Returns:
+            The perturbed subject copy.
+        """
+        grow_mm = self.grow_mm
+        if grow_mm is None:
+            grow_mm = float(
+                rng.uniform(-self.max_grow_mm, self.max_grow_mm)
+            )
+        radius = grow_mm
+
+        def _fn(mask_array: np.ndarray, spacing) -> np.ndarray:
+            return morphological_grow_shrink(
+                mask_array, radius, spacing_xyz=spacing,
+                connectivity=self.connectivity,
+            )
+
+        if self.roi is not None:
+            masks = {
+                self.roi: _fn(
+                    np.asarray(subject.mask(self.roi).data),
+                    tuple(float(v) for v in subject.mask(self.roi).geometry.spacing),
+                )
+            }
+            return _replace_images(subject, {}, masks)
+        return _perturb_masks(subject, _fn)
+
+
+class GradientWeightedPerturbationParams(BaseModel):
+    """Constructor parameters for :class:`GradientWeightedPerturbation`."""
+
+    model_config = ConfigDict(extra="forbid")
+    modality: Optional[str] = None
+    roi: Optional[str] = None
+    max_radius_voxels: int = Field(default=2, ge=1)
+    probability: float = Field(default=0.5, ge=0.0, le=1.0)
+
+
+@ImagePerturbationRegistry.register("gradient_weighted")
+class GradientWeightedPerturbation:
+    """
+    Locally grow/shrink ROI boundaries where image gradient is low.
+
+    Inter-rater disagreement concentrates where contrast is poor: sharp
+    (high-gradient) edges are drawn consistently, fuzzy (low-gradient)
+    edges vary. This operator flips boundary voxels with a probability that
+    scales with ``1 - normalised_gradient`` of a reference image, so the
+    fuzzy parts of the contour move more than the sharp parts. Only masks
+    change.
+
+    Args:
+        modality: Image modality supplying the gradient-magnitude map;
+            ``None`` uses the subject's first image. The map is normalised
+            to ``[0, 1]`` over the ROI bounding region.
+        roi: Restrict the perturbation to one mask key; ``None`` perturbs
+            all masks.
+        max_radius_voxels: Neighbourhood radius bounding each local flip.
+        probability: Base flip probability at zero gradient; effective
+            probability is ``probability * (1 - gradient)``.
+    """
+
+    def __init__(
+        self,
+        modality: Optional[str] = None,
+        roi: Optional[str] = None,
+        max_radius_voxels: int = 2,
+        probability: float = 0.5,
+    ) -> None:
+        if max_radius_voxels < 1:
+            raise HABITAPIError(
+                "gradient_weighted: max_radius_voxels must be >= 1; "
+                f"got {max_radius_voxels}."
+            )
+        if not (0.0 <= float(probability) <= 1.0):
+            raise HABITAPIError(
+                f"gradient_weighted: probability must be in [0, 1]; got {probability}."
+            )
+        self.modality = modality
+        self.roi = roi
+        self.max_radius_voxels = int(max_radius_voxels)
+        self.probability = float(probability)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification used for provenance."""
+        return Spec(
+            name="gradient_weighted",
+            params={
+                "modality": self.modality,
+                "roi": self.roi,
+                "max_radius_voxels": self.max_radius_voxels,
+                "probability": self.probability,
+            },
+        )
+
+    def _gradient_weights(self, subject: Subject) -> np.ndarray:
+        """
+        Return the normalised gradient magnitude of the reference image.
+
+        Args:
+            subject: Subject providing the reference image.
+
+        Returns:
+            A ``float64`` map in ``[0, 1]``; high at sharp edges.
+
+        Raises:
+            HABITAPIError: When the subject has no images.
+        """
+        from scipy import ndimage as _ndi
+
+        if not list(subject.images):
+            raise HABITAPIError(
+                "gradient_weighted: subject has no images to derive a "
+                "gradient map from."
+            )
+        modality = self.modality or next(iter(subject.images))
+        image = np.asarray(subject.image(modality).data, dtype=np.float64)
+        gradient = _ndi.gaussian_gradient_magnitude(image, sigma=1.0)
+        peak = float(gradient.max())
+        if peak <= 0.0:
+            return np.zeros_like(gradient)
+        return gradient / peak
+
+    def __call__(self, subject: Subject, *, rng: np.random.Generator) -> Subject:
+        """
+        Return a copy of ``subject`` with ROI boundaries locally perturbed.
+
+        Args:
+            subject: Subject providing images (for the gradient) and masks.
+            rng: Random generator supplying the flip decisions.
+
+        Returns:
+            The perturbed subject copy.
+        """
+        weights = self._gradient_weights(subject)
+
+        def _fn(mask_array: np.ndarray, spacing) -> np.ndarray:
+            return boundary_weighted_perturbation(
+                mask_array,
+                weights,
+                rng,
+                max_radius_voxels=self.max_radius_voxels,
+                probability=self.probability,
+            )
+
+        if self.roi is not None:
+            masks = {
+                self.roi: _fn(
+                    np.asarray(subject.mask(self.roi).data),
+                    tuple(float(v) for v in subject.mask(self.roi).geometry.spacing),
+                )
+            }
+            return _replace_images(subject, {}, masks)
+        return _perturb_masks(subject, _fn)
+
+
+class SliceExtentPerturbationParams(BaseModel):
+    """Constructor parameters for :class:`SliceExtentPerturbation`."""
+
+    model_config = ConfigDict(extra="forbid")
+    grow_slices: int = Field(default=0, ge=0)
+    shrink_slices: int = Field(default=0, ge=0)
+    max_slices: int = Field(default=0, ge=0)
+    roi: Optional[str] = None
+
+
+@ImagePerturbationRegistry.register("slice_extent")
+class SliceExtentPerturbation:
+    """
+    Add or remove whole axial slices at the superior/inferior ROI ends.
+
+    Models z-axis delineation variability: observers often agree in-plane
+    but differ on the first and last slice they call tumour. Only the ``z``
+    (first) axis is touched. Only masks change.
+
+    Provide fixed ``grow_slices`` / ``shrink_slices`` (applied to each end),
+    or set ``max_slices > 0`` to draw a random per-end count in
+    ``[-max_slices, +max_slices]`` (positive grows, negative shrinks). When
+    ``max_slices`` is set the fixed counts are ignored.
+
+    Args:
+        grow_slices: Slices to append at each occupied end (copy of the
+            nearest occupied slice's labels).
+        shrink_slices: Occupied slices to remove at each end.
+        max_slices: Bound for random per-end counts; ``0`` uses the fixed
+            counts.
+        roi: Restrict the perturbation to one mask key; ``None`` perturbs
+            all masks.
+    """
+
+    def __init__(
+        self,
+        grow_slices: int = 0,
+        shrink_slices: int = 0,
+        max_slices: int = 0,
+        roi: Optional[str] = None,
+    ) -> None:
+        for name, value in (
+            ("grow_slices", grow_slices),
+            ("shrink_slices", shrink_slices),
+            ("max_slices", max_slices),
+        ):
+            if int(value) < 0:
+                raise HABITAPIError(
+                    f"slice_extent: {name} must be >= 0; got {value}."
+                )
+        self.grow_slices = int(grow_slices)
+        self.shrink_slices = int(shrink_slices)
+        self.max_slices = int(max_slices)
+        self.roi = roi
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification used for provenance."""
+        return Spec(
+            name="slice_extent",
+            params={
+                "grow_slices": self.grow_slices,
+                "shrink_slices": self.shrink_slices,
+                "max_slices": self.max_slices,
+                "roi": self.roi,
+            },
+        )
+
+    def __call__(self, subject: Subject, *, rng: np.random.Generator) -> Subject:
+        """
+        Return a copy of ``subject`` with ROI slice extents perturbed.
+
+        Args:
+            subject: Subject providing the masks.
+            rng: Random generator for random mode (``max_slices > 0``).
+
+        Returns:
+            The perturbed subject copy.
+        """
+        use_random = self.max_slices > 0
+
+        def _fn(mask_array: np.ndarray, spacing) -> np.ndarray:
+            if use_random:
+                return slice_extent_perturbation(
+                    mask_array, rng=rng, max_slices=self.max_slices
+                )
+            return slice_extent_perturbation(
+                mask_array,
+                grow_slices=self.grow_slices,
+                shrink_slices=self.shrink_slices,
+            )
+
+        if self.roi is not None:
+            masks = {
+                self.roi: _fn(
+                    np.asarray(subject.mask(self.roi).data),
+                    tuple(float(v) for v in subject.mask(self.roi).geometry.spacing),
+                )
+            }
+            return _replace_images(subject, {}, masks)
+        return _perturb_masks(subject, _fn)
+
+
+def prior2024_retest_perturbation(    *,
     shift_fraction: float = 0.5,
     angle_degrees: float = 0.5,
     interpolator: str = "bspline",
@@ -1068,4 +1435,13 @@ ImagePerturbationRegistry.register_params_model("rotation", RotationPerturbation
 ImagePerturbationRegistry.register_params_model("rigid", RigidPerturbationParams)
 ImagePerturbationRegistry.register_params_model(
     "bspline_deform", BSplineDeformPerturbationParams
+)
+ImagePerturbationRegistry.register_params_model(
+    "morphological", MorphologicalPerturbationParams
+)
+ImagePerturbationRegistry.register_params_model(
+    "gradient_weighted", GradientWeightedPerturbationParams
+)
+ImagePerturbationRegistry.register_params_model(
+    "slice_extent", SliceExtentPerturbationParams
 )

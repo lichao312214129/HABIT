@@ -16,6 +16,11 @@ import numpy
 import torch
 from radiomics import base, cMatrices
 
+from habit.kernels.radiomics.gpumatrices import (
+  calculate_glrlm as gpu_calculate_glrlm,
+  resolve_use_gpu_matrices,
+)
+
 from .TorchRadiomicsBase import TorchRadiomicsBase
 
 
@@ -48,20 +53,35 @@ class TorchRadiomicsGLRLM(TorchRadiomicsBase):
     Ng = self.coefficients['Ng']
     Nr = numpy.max(self.imageArray.shape)
 
-    matrix_args = [
-      self.imageArray,
-      self.maskArray,
-      Ng,
-      Nr,
-      self.settings.get('force2D', False),
-      self.settings.get('force2Ddimension', 0)
-    ]
-    if self.voxelBased:
-      matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
+    if resolve_use_gpu_matrices(self.settings, self.device):
+      # GPU matrix building: integer run counts bit-identical to cMatrices.
+      P_glrlm, angles = gpu_calculate_glrlm(
+        self.imageArray,
+        self.maskArray,
+        Ng,
+        int(Nr),
+        force2D=self.settings.get('force2D', False),
+        force2Ddimension=self.settings.get('force2Ddimension', 0),
+        kernelRadius=self.settings.get('kernelRadius', 1) if self.voxelBased else 0,
+        voxelCoordinates=voxelCoordinates if self.voxelBased else None,
+        device=self.device,
+        dtype=self.dtype,
+      )
+    else:
+      matrix_args = [
+        self.imageArray,
+        self.maskArray,
+        Ng,
+        Nr,
+        self.settings.get('force2D', False),
+        self.settings.get('force2Ddimension', 0)
+      ]
+      if self.voxelBased:
+        matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
 
-    P_glrlm, angles = cMatrices.calculate_glrlm(*matrix_args)  # shape (Nvox, Ng, Nr, Na)
-    P_glrlm = self.tensor(P_glrlm)
-    angles = self.tensor(angles)
+      P_glrlm, angles = cMatrices.calculate_glrlm(*matrix_args)  # shape (Nvox, Ng, Nr, Na)
+      P_glrlm = self.tensor(P_glrlm)
+      angles = self.tensor(angles)
 
     self.logger.debug('Process calculated matrix')
 

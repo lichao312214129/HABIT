@@ -16,6 +16,11 @@ import numpy
 import torch
 from radiomics import base, cMatrices
 
+from habit.kernels.radiomics.gpumatrices import (
+  calculate_glcm as gpu_calculate_glcm,
+  resolve_use_gpu_matrices,
+)
+
 from .TorchRadiomicsBase import TorchRadiomicsBase
 
 
@@ -53,20 +58,37 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
 
     Ng = self.coefficients['Ng']
 
-    matrix_args = [
-      self.imageArray,
-      self.maskArray,
-      numpy.array(self.settings.get('distances', [1])),
-      Ng,
-      self.settings.get('force2D', False),
-      self.settings.get('force2Ddimension', 0)
-    ]
-    if self.voxelBased:
-      matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
+    if resolve_use_gpu_matrices(self.settings, self.device):
+      # GPU matrix building: bit-identical counts to cMatrices, but the
+      # (Nvox, Ng, Ng, Na) array is built on-device, skipping both the
+      # single-threaded C voxel loop and the host-to-device copy.
+      P_glcm, angles = gpu_calculate_glcm(
+        self.imageArray,
+        self.maskArray,
+        numpy.array(self.settings.get('distances', [1])),
+        Ng,
+        force2D=self.settings.get('force2D', False),
+        force2Ddimension=self.settings.get('force2Ddimension', 0),
+        kernelRadius=self.settings.get('kernelRadius', 1) if self.voxelBased else 0,
+        voxelCoordinates=voxelCoordinates if self.voxelBased else None,
+        device=self.device,
+        dtype=self.dtype,
+      )
+    else:
+      matrix_args = [
+        self.imageArray,
+        self.maskArray,
+        numpy.array(self.settings.get('distances', [1])),
+        Ng,
+        self.settings.get('force2D', False),
+        self.settings.get('force2Ddimension', 0)
+      ]
+      if self.voxelBased:
+        matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
 
-    P_glcm, angles = cMatrices.calculate_glcm(*matrix_args)
-    P_glcm = self.tensor(P_glcm)
-    angles = self.tensor(angles)
+      P_glcm, angles = cMatrices.calculate_glcm(*matrix_args)
+      P_glcm = self.tensor(P_glcm)
+      angles = self.tensor(angles)
 
     self.logger.debug('Process calculated matrix')
 
@@ -152,14 +174,30 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
     # marginal column probabilities #shape = (Nv, 1, Ng, angles)
     py = self.P_glcm.sum(1, keepdims=True)
 
+    # ux = sum_i i * px_i (identical to summing i*P over both gray axes,
+    # but reuses the (Nv, Ngp, 1, Na) marginal instead of a second full
+    # pass over the (Nv, Ngp, Ngp, Na) matrix). Same for uy and py.
     # shape = (Nv, 1, 1, angles)
-    ux = torch.sum(i[None, :, :, None] * self.P_glcm, (1, 2), keepdims=True)
-    uy = torch.sum(j[None, :, :, None] * self.P_glcm, (1, 2), keepdims=True)
+    ux = (px[:, :, 0, :] * NgVector[None, :, None]).sum(1)[:, None, None, :]
+    uy = (py[:, 0, :, :] * NgVector[None, :, None]).sum(1)[:, None, None, :]
 
+    # Vectorised k-sum / k-diff marginals: one scatter over the flattened
+    # (i, j) cells replaces the per-k boolean-mask loops (2*Ng-1 + Ng-1
+    # iterations, each scanning the full (Nv, Ngp, Ngp, Na) matrix).
+    # Identical sums, different reduction order -> last-ulp float differences.
+    nvp = self.P_glcm.shape[0]
+    na = self.P_glcm.shape[3]
+    P_flat = self.P_glcm.reshape(nvp, -1, na)  # (Nv, Ngp*Ngp, Na)
+    # i, j hold gray-level VALUES in [1, Ng], so i+j-2 indexes kValuesSum
+    # and |i-j| indexes kValuesDiff; both are exact small integers.
+    sum_idx = (i + j - 2).reshape(-1).to(torch.long)
+    diff_idx = torch.abs(i - j).reshape(-1).to(torch.long)
     # shape = (Nv, 2*Ng-1, angles)
-    pxAddy = torch.concat([torch.sum(self.P_glcm[:, i + j == k, :], 1, keepdim=True) for k in kValuesSum], 1)
+    pxAddy = torch.zeros(nvp, Ng * 2 - 1, na, dtype=self.dtype, device=self.device)
+    pxAddy.index_add_(1, sum_idx, P_flat)
     # shape = (Nv, Ng, angles)
-    pxSuby = torch.concat([torch.sum(self.P_glcm[:, torch.abs(i - j) == k, :], 1, keepdim=True) for k in kValuesDiff], 1)
+    pxSuby = torch.zeros(nvp, Ng, na, dtype=self.dtype, device=self.device)
+    pxSuby.index_add_(1, diff_idx, P_flat)
 
     # shape = (Nv, angles)
     HXY = (-1) * torch.sum((self.P_glcm * torch.log2(self.P_glcm + eps)), (1, 2))

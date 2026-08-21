@@ -40,6 +40,7 @@ from habit.contracts.inspection import (
     StepObserver,
     StepRecord,
 )
+from habit.contracts.provenance import Provenance
 from habit.contracts.subject import Cohort, Subject
 from habit.contracts.table import FeatureTable
 from habit.domain.assembly import HabitatComponents, build_habitat_components
@@ -347,7 +348,16 @@ def _fit_cohort_from_units(
 
 @dataclass(frozen=True)
 class HabitatDataflowResult:
-    """In-memory products of :func:`execute_habitat_dataflow` (pre-StudyResult)."""
+    """In-memory products of :func:`execute_habitat_dataflow` (pre-StudyResult).
+
+    Attributes:
+        units_rows: Pre-aggregated per-subject units-table rows, present
+            when the one-step mapper slimmed voxel-level units away inside
+            its workers (streaming retention modes).
+        map_provenances: Per-subject provenance chains of the produced
+            habitat maps. Carried separately from ``habitat_maps`` so
+            streaming runs that drop maps still record full lineage.
+    """
 
     design: str
     spec: HabitatSpec
@@ -360,6 +370,8 @@ class HabitatDataflowResult:
     subject_ids: Tuple[str, ...]
     outcomes: Dict[str, str]
     inspection: Optional[StepObserver]
+    units_rows: Tuple[Any, ...] = ()
+    map_provenances: Tuple[Provenance, ...] = ()
 
 
 def execute_habitat_dataflow(
@@ -414,7 +426,16 @@ def execute_habitat_dataflow(
         )
         for subject_id, summary in failures.items():
             outcomes[subject_id] = summary
-        habitat_maps = tuple(habitat_map for _, habitat_map, _, _ in rows)
+        # Rows are ``_OneStepSubjectProduct`` from the recipe layer. The
+        # executor duck-types their attributes (rather than importing the
+        # recipe class) so the domain layer never depends on L4. Maps and
+        # voxel-level units may already have been persisted and stripped by
+        # the recipe's streaming hook, hence the None filters.
+        habitat_maps = tuple(
+            product.habitat_map
+            for product in rows
+            if product.habitat_map is not None
+        )
         for habitat_map in habitat_maps:
             outcomes[habitat_map.subject_id] = "success"
         return HabitatDataflowResult(
@@ -423,15 +444,22 @@ def execute_habitat_dataflow(
             components=components,
             model=None,
             subject_models={
-                habitat_map.subject_id: model
-                for model, habitat_map, _, _ in rows
+                product.subject_id: product.model for product in rows
             },
             habitat_maps=habitat_maps,
-            tables=tuple(table for _, _, table, _ in rows),
-            units=tuple(subject_units for _, _, _, subject_units in rows),
+            tables=tuple(product.table for product in rows),
+            units=tuple(
+                product.units for product in rows if product.units is not None
+            ),
             subject_ids=tuple(subject.subject_id for subject in survivors),
             outcomes=outcomes,
             inspection=inspect,
+            units_rows=tuple(
+                product.units_rows
+                for product in rows
+                if product.units_rows is not None
+            ),
+            map_provenances=tuple(product.map_provenance for product in rows),
         )
 
     # Cohort-level designs (two_step / direct_pooling): subject prefix → pool
@@ -472,4 +500,7 @@ def execute_habitat_dataflow(
         subject_ids=tuple(subject.subject_id for subject in labelled_cohort),
         outcomes=outcomes,
         inspection=inspect,
+        map_provenances=tuple(
+            habitat_map.provenance for habitat_map in habitat_maps
+        ),
     )

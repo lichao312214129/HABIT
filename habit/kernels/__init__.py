@@ -56,13 +56,17 @@ from habit.kernels.habitat_metrics import (
 from habit.kernels.icc import icc2_1, icc3_1, two_way_mean_squares
 from habit.kernels.image_perturbation import (
     add_gaussian_noise,
+    boundary_band_mask,
+    boundary_weighted_perturbation,
     estimate_noise_sigma,
+    morphological_grow_shrink,
     rigid_transform_image,
     rotate_image,
+    slice_extent_perturbation,
     translate_image,
 )
 from habit.kernels.label_postprocess import remove_small_connected_components
-from habit.kernels.voxel_icc import ICCEstimate, icc3a_1, icc3c_1
+from habit.kernels.voxel_icc import ICCEstimate, icc2_1_estimate, icc3a_1, icc3c_1
 from habit.kernels.voxel_texture import local_entropy_map
 from habit.kernels.statistics import (
     compute_midrank,
@@ -117,8 +121,13 @@ __all__ = [
     "translate_image",
     "rotate_image",
     "rigid_transform_image",
+    "morphological_grow_shrink",
+    "boundary_band_mask",
+    "boundary_weighted_perturbation",
+    "slice_extent_perturbation",
     "ICCEstimate",
     "icc3a_1",
     "icc3c_1",
+    "icc2_1_estimate",
     "remove_small_connected_components",
 ]

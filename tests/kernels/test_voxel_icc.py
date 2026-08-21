@@ -29,7 +29,7 @@ import pytest
 from scipy import stats
 
 from habit.kernels.icc import icc2_1, icc3_1
-from habit.kernels.voxel_icc import ICCEstimate, icc3a_1, icc3c_1
+from habit.kernels.voxel_icc import ICCEstimate, icc2_1_estimate, icc3a_1, icc3c_1
 
 #: Hand-computed reference: MSR = 1.5, MSC = 0, MSE = 0.5 (see module docstring).
 REFERENCE = np.array([[1.0, 2.0], [2.0, 1.0], [3.0, 3.0]])
@@ -157,3 +157,50 @@ class TestScreenBehaviour:
         wide = icc3a_1(data, alpha=0.01)
         assert wide.lcl <= narrow.lcl
         assert wide.ucl >= narrow.ucl
+
+
+class TestIcc21Estimate:
+    """ICC(2,1) random-rater estimate with Satterthwaite confidence limits."""
+
+    def test_point_estimate_matches_icc2_1_kernel(self) -> None:
+        rng = np.random.default_rng(5)
+        data = rng.normal(0.0, 1.0, size=(120, 3))
+        data += np.linspace(0.0, 6.0, 120)[:, None]
+        data += np.array([0.0, 2.0, -1.0])  # systematic rater bias
+        assert icc2_1_estimate(data).value == pytest.approx(icc2_1(data), abs=1e-12)
+
+    def test_bias_lowers_icc2_relative_to_icc3(self) -> None:
+        # A fixed rater offset penalises absolute agreement (model 2) more
+        # than consistency (model 3C), which ignores systematic bias.
+        rng = np.random.default_rng(6)
+        signal = np.linspace(0.0, 10.0, 80)
+        data = np.column_stack(
+            [signal + rng.normal(0, 0.5, 80) + off for off in (0.0, 5.0, -4.0)]
+        )
+        assert icc2_1_estimate(data).value < icc3c_1(data).value
+
+    def test_perfect_agreement(self) -> None:
+        column = np.linspace(0.0, 10.0, 40)
+        data = np.column_stack([column, column, column])
+        assert icc2_1_estimate(data) == ICCEstimate(1.0, 1.0, 1.0)
+
+    def test_confidence_limits_bracket_value(self) -> None:
+        rng = np.random.default_rng(7)
+        data = rng.normal(0.0, 1.0, size=(100, 3))
+        data += np.linspace(0.0, 5.0, 100)[:, None]
+        estimate = icc2_1_estimate(data)
+        assert 0.0 <= estimate.lcl <= estimate.value <= estimate.ucl <= 1.0
+
+    def test_alpha_widens_interval(self) -> None:
+        rng = np.random.default_rng(8)
+        data = rng.normal(0.0, 1.0, size=(100, 3))
+        data += np.linspace(0.0, 5.0, 100)[:, None]
+        narrow = icc2_1_estimate(data, alpha=0.05)
+        wide = icc2_1_estimate(data, alpha=0.01)
+        assert wide.lcl <= narrow.lcl
+        assert wide.ucl >= narrow.ucl
+
+    def test_negative_value_truncated_at_zero(self) -> None:
+        # Row variance far below residual: raw ICC(2,1) < 0 is clipped to 0.
+        data = np.array([[1.0, 2.0], [2.0, 1.0], [1.4, 1.6], [1.6, 1.4]])
+        assert icc2_1_estimate(data).value == 0.0

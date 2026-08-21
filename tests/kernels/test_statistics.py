@@ -218,6 +218,53 @@ def test_icc_kernels_match_pingouin() -> None:
 
 
 @pytest.mark.unit
+def test_icc2_1_estimate_matches_pingouin_including_ci() -> None:
+    """ICC(2,1) value AND Satterthwaite CI equal pingouin's ICC(A,1) row.
+
+    pingouin is the independent oracle for HABIT's own ICC kernels: the
+    voxel-level kernels must stay dependency-free and reproduce the Prior
+    2024 erratum formulas, which pingouin does not implement, so equality is
+    asserted here instead of calling pingouin at run time. pingouin rounds
+    its published CI, so its rounding option is disabled for the comparison.
+    """
+    pingouin = pytest.importorskip("pingouin")
+    from habit.kernels.voxel_icc import icc2_1_estimate
+
+    rng = np.random.RandomState(23)
+    n_targets, k_raters = 40, 3
+    target_effects = rng.normal(scale=3.0, size=(n_targets, 1))
+    matrix = target_effects + rng.normal(scale=0.7, size=(n_targets, k_raters))
+    # A systematic rater offset is what separates absolute agreement (model 2)
+    # from consistency, so the delineation-axis formula is exercised.
+    matrix = matrix + np.array([0.0, 1.5, -1.0])
+    long = pd.DataFrame(
+        {
+            "targets": np.repeat(np.arange(n_targets), k_raters),
+            "raters": np.tile(np.arange(k_raters), n_targets),
+            "ratings": matrix.ravel(),
+        }
+    )
+    # pingouin rounds CI95 through a column-specific option, not the global one.
+    saved = {key: pingouin.options.get(key) for key in ("round", "round.column.CI95")}
+    pingouin.options["round"] = None
+    pingouin.options["round.column.CI95"] = None
+    try:
+        reference = pingouin.intraclass_corr(
+            data=long, targets="targets", raters="raters", ratings="ratings"
+        ).set_index("Type")
+    finally:
+        pingouin.options.update(saved)
+    label = "ICC(A,1)" if "ICC(A,1)" in reference.index else "ICC2"
+    row = reference.loc[label]
+    lower, upper = (float(v) for v in row["CI95"])
+
+    estimate = icc2_1_estimate(matrix)
+    assert estimate.value == pytest.approx(float(row["ICC"]), abs=1e-10)
+    assert estimate.lcl == pytest.approx(lower, abs=1e-8)
+    assert estimate.ucl == pytest.approx(upper, abs=1e-8)
+
+
+@pytest.mark.unit
 def test_icc_perfect_agreement_and_constant_data() -> None:
     """Identical sessions give ICC 1; a constant matrix gives 0."""
     rng = np.random.RandomState(13)

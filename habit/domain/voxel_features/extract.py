@@ -156,6 +156,7 @@ def extract_voxel_texture(
     params: Optional[Dict[str, Any]] = None,
     voxel_batch: int = DEFAULT_VOXEL_BATCH,
     use_torch_radiomics: Union[str, bool] = "auto",
+    use_gpu_matrices: Union[str, bool] = "auto",
 ) -> VoxelFeatureField:
     """
     Extract a per-voxel texture table from one image and one mask.
@@ -182,6 +183,8 @@ def extract_voxel_texture(
             ``setting.binWidth``.
         voxel_batch: ROI voxels processed per batch.
         use_torch_radiomics: ``"auto"``, ``True``, or ``False``.
+        use_gpu_matrices: ``"auto"``, ``True``, or ``False`` -- build the
+            TorchRadiomics texture matrices on GPU (bit-identical counts).
 
     Returns:
         One row per ROI voxel, one column per enabled feature. Provenance
@@ -208,6 +211,7 @@ def extract_voxel_texture(
         kernel_radius=int(kernel_radius),
         voxel_batch=int(voxel_batch),
         use_torch_radiomics=use_torch_radiomics,
+        use_gpu_matrices=use_gpu_matrices,
     )
     subject = _subject_from_volumes(image, mask, modality=modality, roi=roi)
     return extractor(subject)

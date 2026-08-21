@@ -22,6 +22,7 @@ pairwise-complete NaN handling.
 
 from __future__ import annotations
 
+import dataclasses
 from typing import Tuple
 
 import numpy as np
@@ -38,11 +39,14 @@ from habit.contracts import (
 from habit.domain.precision import (
     BSplineDeformPerturbation,
     GaussianNoisePerturbation,
+    GradientWeightedPerturbation,
     ImagePerturbationRegistry,
+    MorphologicalPerturbation,
     PerturbationChain,
     PreciseFeatureSet,
     RigidPerturbation,
     RotationPerturbation,
+    SliceExtentPerturbation,
     TranslationPerturbation,
     aggregate_panels,
     align_habitat_map,
@@ -130,6 +134,9 @@ class TestPerturbationRegistry:
         assert "rotation" in available
         assert "rigid" in available
         assert "bspline_deform" in available
+        assert "morphological" in available
+        assert "gradient_weighted" in available
+        assert "slice_extent" in available
 
     def test_create_validates_params(self) -> None:
         component = ImagePerturbationRegistry.create("rotation", angle_degrees=1.5)
@@ -321,6 +328,157 @@ class TestPrior2024RetestPerturbation:
             subject, rng=np.random.default_rng(0)
         )
         assert perturbed.image("T1").data.shape == subject.image("T1").data.shape
+
+
+class TestMorphologicalPerturbation:
+    def test_grow_increases_mask_image_untouched(self) -> None:
+        subject = _blob_subject()
+        before = np.asarray(subject.mask("tumor").data)
+        perturbed = MorphologicalPerturbation(grow_mm=1.0)(
+            subject, rng=np.random.default_rng(0)
+        )
+        after = np.asarray(perturbed.mask("tumor").data)
+        assert int((after > 0).sum()) > int((before > 0).sum())
+        # Contour perturbations change the mask, never the intensities.
+        np.testing.assert_array_equal(
+            np.asarray(perturbed.image("T1").data),
+            np.asarray(subject.image("T1").data),
+        )
+
+    def test_shrink_decreases_mask(self) -> None:
+        subject = _blob_subject()
+        before = np.asarray(subject.mask("tumor").data)
+        perturbed = MorphologicalPerturbation(grow_mm=-1.0)(
+            subject, rng=np.random.default_rng(0)
+        )
+        after = np.asarray(perturbed.mask("tumor").data)
+        assert int((after > 0).sum()) < int((before > 0).sum())
+
+    def test_zero_is_identity(self) -> None:
+        subject = _blob_subject()
+        perturbed = MorphologicalPerturbation(grow_mm=0.0)(
+            subject, rng=np.random.default_rng(0)
+        )
+        np.testing.assert_array_equal(
+            np.asarray(perturbed.mask("tumor").data),
+            np.asarray(subject.mask("tumor").data),
+        )
+
+    def test_random_radius_is_seeded(self) -> None:
+        subject = _blob_subject()
+        step = MorphologicalPerturbation(max_grow_mm=1.5)
+        first = step(subject, rng=np.random.default_rng(7))
+        second = step(subject, rng=np.random.default_rng(7))
+        np.testing.assert_array_equal(
+            np.asarray(first.mask("tumor").data), np.asarray(second.mask("tumor").data)
+        )
+
+    def test_roi_restriction(self) -> None:
+        subject = _blob_subject()
+        # Add a second mask that must stay untouched.
+        other = np.zeros_like(subject.mask("tumor").data)
+        other[0:2, 0:2, 0:2] = 1
+        subject = dataclasses.replace(
+            subject,
+            masks={
+                **subject.masks,
+                "node": ArrayImageRef(array=other, geometry=subject.mask("tumor").geometry),
+            },
+        )
+        perturbed = MorphologicalPerturbation(grow_mm=1.0, roi="tumor")(
+            subject, rng=np.random.default_rng(0)
+        )
+        np.testing.assert_array_equal(
+            np.asarray(perturbed.mask("node").data), other
+        )
+
+
+class TestGradientWeightedPerturbation:
+    def test_sharp_edges_barely_move_fuzzy_edges_move(self) -> None:
+        subject = _blob_subject()
+        before = np.asarray(subject.mask("tumor").data)
+        from habit.kernels.image_perturbation import binary_mask_dice
+
+        # With the real (sharp-edged) gradient map the contour is largely
+        # preserved; forcing every weight to zero (all-fuzzy) moves far more.
+        real = GradientWeightedPerturbation(probability=0.6)(
+            subject, rng=np.random.default_rng(0)
+        )
+        dice_real = binary_mask_dice(before, np.asarray(real.mask("tumor").data))
+
+        step = GradientWeightedPerturbation(probability=0.6)
+        # Monkeypatch the weight map to a constant zero to simulate a fully
+        # fuzzy boundary under the identical seed.
+        step._gradient_weights = lambda s: np.zeros_like(
+            np.asarray(s.mask("tumor").data), dtype=np.float64
+        )
+        fuzzy = step(subject, rng=np.random.default_rng(0))
+        dice_fuzzy = binary_mask_dice(before, np.asarray(fuzzy.mask("tumor").data))
+
+        assert dice_real > dice_fuzzy
+        np.testing.assert_array_equal(
+            np.asarray(real.image("T1").data),
+            np.asarray(subject.image("T1").data),
+        )
+
+    def test_seeded_reproducible(self) -> None:
+        subject = _blob_subject()
+        step = GradientWeightedPerturbation(probability=0.6)
+        first = step(subject, rng=np.random.default_rng(3))
+        second = step(subject, rng=np.random.default_rng(3))
+        np.testing.assert_array_equal(
+            np.asarray(first.mask("tumor").data), np.asarray(second.mask("tumor").data)
+        )
+
+    def test_no_image_raises(self) -> None:
+        subject = _blob_subject()
+        subject = dataclasses.replace(subject, images={})
+        with pytest.raises(HABITAPIError, match="no images"):
+            GradientWeightedPerturbation()(subject, rng=np.random.default_rng(0))
+
+
+class TestSliceExtentPerturbation:
+    def test_grow_extends_z_extent_image_untouched(self) -> None:
+        subject = _blob_subject()
+        before = np.asarray(subject.mask("tumor").data)
+        first_before = int(np.flatnonzero(before.any((1, 2)))[0])
+        perturbed = SliceExtentPerturbation(grow_slices=1)(
+            subject, rng=np.random.default_rng(0)
+        )
+        after = np.asarray(perturbed.mask("tumor").data)
+        first_after = int(np.flatnonzero(after.any((1, 2)))[0])
+        assert first_after == first_before - 1
+        np.testing.assert_array_equal(
+            np.asarray(perturbed.image("T1").data),
+            np.asarray(subject.image("T1").data),
+        )
+
+    def test_shrink_reduces_z_extent(self) -> None:
+        subject = _blob_subject()
+        before = np.asarray(subject.mask("tumor").data)
+        first_before = int(np.flatnonzero(before.any((1, 2)))[0])
+        perturbed = SliceExtentPerturbation(shrink_slices=1)(
+            subject, rng=np.random.default_rng(0)
+        )
+        after = np.asarray(perturbed.mask("tumor").data)
+        first_after = int(np.flatnonzero(after.any((1, 2)))[0])
+        assert first_after == first_before + 1
+
+    def test_random_mode_is_seeded(self) -> None:
+        subject = _blob_subject()
+        step = SliceExtentPerturbation(max_slices=2)
+        first = step(subject, rng=np.random.default_rng(11))
+        second = step(subject, rng=np.random.default_rng(11))
+        np.testing.assert_array_equal(
+            np.asarray(first.mask("tumor").data), np.asarray(second.mask("tumor").data)
+        )
+
+    def test_shrink_beyond_extent_raises(self) -> None:
+        subject = _blob_subject()
+        with pytest.raises(ValueError, match="every occupied slice"):
+            SliceExtentPerturbation(shrink_slices=50)(
+                subject, rng=np.random.default_rng(0)
+            )
 
 
 class TestBSplineDeformPerturbation:
@@ -942,3 +1100,26 @@ class TestAlignHabitatMap:
             & ((aligned.label_array > 0) | (reference.label_array > 0))
         )
         assert int(np.count_nonzero(disagree)) > 0
+
+    def test_extra_moving_habitat_keeps_distinct_id(self) -> None:
+        """Leftover moving 1 must not merge with a habitat remapped onto 1."""
+        reference = make_habitat_map("P1")
+        moved_array = np.zeros((4, 4, 4), dtype=np.int32)
+        moved_array[0:2, 2:4, 2:4] = 1
+        moved_array[0:2, 0:2, 0:2] = 2
+        moved_array[2:4, 0:2, 0:2] = 3
+        moving = HabitatMap(
+            subject_id="P1",
+            label_array=moved_array,
+            geometry=reference.geometry,
+            model_id="other-model",
+            habitat_ids=(1, 2, 3),
+            provenance=provenance(),
+        )
+        aligned = align_habitat_map(reference, moving, method="overlap")
+        leftover = aligned.label_array[moved_array == 1]
+        assert np.all(aligned.label_array[moved_array == 2] == 1)
+        assert np.all(aligned.label_array[moved_array == 3] == 2)
+        assert int(leftover[0]) == 3
+        assert np.all(leftover == 3)
+        assert aligned.habitat_ids == (1, 2, 3)

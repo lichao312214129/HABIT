@@ -16,6 +16,11 @@ import numpy
 import torch
 from radiomics import base, cMatrices, deprecated
 
+from habit.kernels.radiomics.gpumatrices import (
+  calculate_gldm as gpu_calculate_gldm,
+  resolve_use_gpu_matrices,
+)
+
 from .TorchRadiomicsBase import TorchRadiomicsBase
 
 
@@ -93,24 +98,40 @@ class TorchRadiomicsGLDM(TorchRadiomicsBase):
     self.logger.debug('Feature class initialized, calculated GLDM with shape %s', self.P_gldm.shape)
 
   def _calculateMatrix(self, voxelCoordinates=None):
-    self.logger.debug('Calculating GLDM matrix in C')
+    self.logger.debug('Calculating GLDM matrix in PyTorch')
 
     Ng = self.coefficients['Ng']
 
-    matrix_args = [
-      self.imageArray,
-      self.maskArray,
-      numpy.array(self.settings.get('distances', [1])),
-      Ng,
-      self.gldm_a,
-      self.settings.get('force2D', False),
-      self.settings.get('force2Ddimension', 0)
-    ]
-    if self.voxelBased:
-      matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
+    if resolve_use_gpu_matrices(self.settings, self.device):
+      # GPU matrix building: integer counts bit-identical to cMatrices.
+      P_gldm = gpu_calculate_gldm(
+        self.imageArray,
+        self.maskArray,
+        numpy.array(self.settings.get('distances', [1])),
+        Ng,
+        alpha=self.gldm_a,
+        force2D=self.settings.get('force2D', False),
+        force2Ddimension=self.settings.get('force2Ddimension', 0),
+        kernelRadius=self.settings.get('kernelRadius', 1) if self.voxelBased else 0,
+        voxelCoordinates=voxelCoordinates if self.voxelBased else None,
+        device=self.device,
+        dtype=self.dtype,
+      )
+    else:
+      matrix_args = [
+        self.imageArray,
+        self.maskArray,
+        numpy.array(self.settings.get('distances', [1])),
+        Ng,
+        self.gldm_a,
+        self.settings.get('force2D', False),
+        self.settings.get('force2Ddimension', 0)
+      ]
+      if self.voxelBased:
+        matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
 
-    P_gldm = cMatrices.calculate_gldm(*matrix_args)  # shape (Nv, Ng, Nd)
-    P_gldm = self.tensor(P_gldm)
+      P_gldm = cMatrices.calculate_gldm(*matrix_args)  # shape (Nv, Ng, Nd)
+      P_gldm = self.tensor(P_gldm)
 
     # Delete rows that specify gray levels not present in the ROI
     # NgVector = range(1, Ng + 1)  # All possible gray values

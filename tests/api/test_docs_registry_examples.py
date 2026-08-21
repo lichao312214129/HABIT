@@ -27,6 +27,7 @@ from habit.domain import (
     HabitatAssignerRegistry,
     HabitatFeatureExtractorRegistry,
     HabitatModelFitterRegistry,
+    ImagePerturbationRegistry,
     RawVoxelFeatures,
     SupervoxelFeatureExtractorRegistry,
     SupervoxelizerRegistry,
@@ -87,3 +88,13 @@ def test_habitat_feature_and_voxel_creates_from_api_docs() -> None:
         "each_habitat",
     ):
         HabitatFeatureExtractorRegistry.create(name)
+
+
+def test_contour_perturbation_creates_from_docs() -> None:
+    """Registry kwargs on the contour-perturbation gallery page must validate."""
+    ImagePerturbationRegistry.create("morphological", grow_mm=4.0, connectivity=1)
+    ImagePerturbationRegistry.create("morphological", grow_mm=-4.0, connectivity=1)
+    ImagePerturbationRegistry.create(
+        "gradient_weighted", max_radius_voxels=2, probability=0.35
+    )
+    ImagePerturbationRegistry.create("slice_extent", grow_slices=2)

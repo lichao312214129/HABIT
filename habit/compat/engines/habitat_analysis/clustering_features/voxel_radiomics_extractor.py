@@ -32,7 +32,9 @@ from habit.utils.radiomics_params_utils import (
 )
 from habit.utils.torch_radiomics_utils import (
     DEFAULT_TORCH_DTYPE,
+    execute_voxel_based_with_class_progress,
     injected_torch_radiomics,
+    release_cuda_cache,
     resolve_torch_dtype,
     resolve_voxel_radiomics_backend,
 )
@@ -197,7 +199,10 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             settings_update: Dict[str, Any] = {
                 'kernelRadius': kernel_radius,
                 'voxelBatch': voxel_batch,
-                'geometryTolerance': 1e-3  # Allow small geometric differences
+                'geometryTolerance': 1e-3,  # Allow small geometric differences
+                # GPU texture-matrix building (gpumatrices); auto follows the
+                # torch device. Counts are bit-identical to the C extension.
+                'use_gpu_matrices': kwargs.get('use_gpu_matrices', 'auto'),
             }
             if backend == "torch" and torch_device is not None:
                 settings_update['device'] = torch_device
@@ -258,7 +263,15 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             )
             with injected_torch_radiomics(enabled=(backend == "torch")):
                 with radiomics_feature_class_logging(level=radiomics_log_level):
-                    result = extractor.execute(image, mask, voxelBased=True)
+                    # Default: one execute(), no per-class tqdm. Opt in with
+                    # class_progress=True (debug of a slow GLCM/GLRLM class).
+                    if bool(kwargs.get("class_progress", False)):
+                        result = execute_voxel_based_with_class_progress(
+                            extractor, image, mask, voxel_based=True
+                        )
+                    else:
+                        result = extractor.execute(image, mask, voxelBased=True)
+                        release_cuda_cache()
 
             # Release extractor before materialising many per-feature arrays; peak RAM
             # inside execute() is unchanged, but we avoid holding extractor + all maps.

@@ -1,8 +1,0 @@
-name: habit
-channels:
-  - conda-forge
-dependencies:
-  # The patch release is part of the Windows installer contract. Do not loosen
-  # this to ``3.10`` because a recreated environment must remain reproducible.
-  - python=3.10.20
-  - pip

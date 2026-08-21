@@ -16,6 +16,11 @@ import numpy
 import torch
 from radiomics import base, cMatrices
 
+from habit.kernels.radiomics.gpumatrices import (
+  calculate_ngtdm as gpu_calculate_ngtdm,
+  resolve_use_gpu_matrices,
+)
+
 from .TorchRadiomicsBase import TorchRadiomicsBase
 
 
@@ -38,19 +43,35 @@ class TorchRadiomicsNGTDM(TorchRadiomicsBase):
     self._calculateCoefficients()
 
   def _calculateMatrix(self, voxelCoordinates=None):
-    matrix_args = [
-      self.imageArray,
-      self.maskArray,
-      numpy.array(self.settings.get('distances', [1])),
-      self.coefficients['Ng'],
-      self.settings.get('force2D', False),
-      self.settings.get('force2Ddimension', 0)
-    ]
-    if self.voxelBased:
-      matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
+    if resolve_use_gpu_matrices(self.settings, self.device):
+      # GPU matrix building: n_i is an integer count (bit-identical to C);
+      # s_i is accumulated in float64 (C double) then cast to self.dtype.
+      P_ngtdm = gpu_calculate_ngtdm(
+        self.imageArray,
+        self.maskArray,
+        numpy.array(self.settings.get('distances', [1])),
+        self.coefficients['Ng'],
+        force2D=self.settings.get('force2D', False),
+        force2Ddimension=self.settings.get('force2Ddimension', 0),
+        kernelRadius=self.settings.get('kernelRadius', 1) if self.voxelBased else 0,
+        voxelCoordinates=voxelCoordinates if self.voxelBased else None,
+        device=self.device,
+        dtype=self.dtype,
+      )
+    else:
+      matrix_args = [
+        self.imageArray,
+        self.maskArray,
+        numpy.array(self.settings.get('distances', [1])),
+        self.coefficients['Ng'],
+        self.settings.get('force2D', False),
+        self.settings.get('force2Ddimension', 0)
+      ]
+      if self.voxelBased:
+        matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
 
-    P_ngtdm = cMatrices.calculate_ngtdm(*matrix_args)  # shape (Nvox, Ng, 3)
-    P_ngtdm = self.tensor(P_ngtdm)
+      P_ngtdm = cMatrices.calculate_ngtdm(*matrix_args)  # shape (Nvox, Ng, 3)
+      P_ngtdm = self.tensor(P_ngtdm)
 
     # Delete empty grey levels
     emptyGrayLevels = torch.where(torch.sum(P_ngtdm[:, :, 0], 0) == 0)

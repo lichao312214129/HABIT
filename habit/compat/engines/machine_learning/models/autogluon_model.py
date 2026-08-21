@@ -37,8 +37,7 @@ try:
     from autogluon.tabular import TabularPredictor
 except ImportError:
     raise OptionalDependencyError(
-        "AutoML support is not installed. Windows lightweight-release users "
-        "can run 'launchers/一键启用HABIT-AutoML.bat'; package users can install "
+        "AutoML support is not installed. Install "
         "'habitat-analysis[automl]'."
     )
 

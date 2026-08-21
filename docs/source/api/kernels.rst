@@ -112,9 +112,13 @@ composes translation+rotation into one affine (MIRP ≥ 2).
 
    from habit.kernels import (
        add_gaussian_noise,
+       boundary_band_mask,
+       boundary_weighted_perturbation,
        estimate_noise_sigma,
+       morphological_grow_shrink,
        rigid_transform_image,
        rotate_image,
+       slice_extent_perturbation,
        translate_image,
    )
 
@@ -124,6 +128,52 @@ composes translation+rotation into one affine (MIRP ≥ 2).
    rotated = rotate_image(image, angle_degrees=0.5, axis="z")
    # MIRP ≥ 2: translation + rotation in one resample
    rigid = rigid_transform_image(image, (0.5, 0.5, 0.5), angle_degrees=0.5)
+
+   # Mask-only contour kernels (image intensities are never touched).
+   grown = morphological_grow_shrink(mask, grow_mm=4.0, spacing_xyz=spacing)
+   band = boundary_band_mask(mask, band_mm=4.0, spacing_xyz=spacing)
+   local = boundary_weighted_perturbation(mask, weights, rng, max_radius_voxels=3)
+   ends = slice_extent_perturbation(mask, grow_slices=2)
+
+Subject-level wrappers (``morphological``, ``gradient_weighted``,
+``slice_extent``) live on :class:`~habit.domain.ImagePerturbationRegistry`.
+Copy-ready demo and figures: :doc:`../examples/precise_features`.
+
+.. figure:: ../_static/images/examples/contour_morphological_grow.png
+   :alt: Uniform morphological grow of an ROI contour
+   :width: 640
+
+   :func:`~habit.kernels.morphological_grow_shrink` via the
+   ``morphological`` registry name (grow +4 mm). Same PNG as the
+   gallery script ``contour_perturbation_demo.py``.
+
+.. figure:: ../_static/images/examples/contour_morphological_shrink.png
+   :alt: Uniform morphological shrink of an ROI contour
+   :width: 640
+
+   Same kernel, negative radius (shrink -4 mm).
+
+.. figure:: ../_static/images/examples/contour_boundary_band.png
+   :alt: Boundary band around an ROI
+   :width: 420
+
+   :func:`~habit.kernels.boundary_band_mask` (4 mm half-width).
+
+.. figure:: ../_static/images/examples/contour_gradient_weighted.png
+   :alt: Gradient-weighted boundary perturbation
+   :width: 640
+
+   :func:`~habit.kernels.boundary_weighted_perturbation` via
+   ``gradient_weighted``. Anatomy, gradient (bright = sharp), cyan vs
+   vermillion solid contours, plus sharp / fuzzy insets. Flip
+   probability scales with ``1 - normalised_gradient``.
+
+.. figure:: ../_static/images/examples/contour_slice_extent.png
+   :alt: First mid and last slices after z-extent grow
+   :width: 640
+
+   :func:`~habit.kernels.slice_extent_perturbation` via
+   ``slice_extent`` (``grow_slices=2``).
 
 Classification statistics
 -------------------------

@@ -113,9 +113,13 @@ def perturb_image(
     Return a same-grid perturbed copy of one image.
 
     This is the atomic teaching / experiment call: one volume, one
-    registered method, and that method's parameters. Built-in names are
-    ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``, and
-    ``bspline_deform`` (the last needs the optional ``monai`` extra).
+    registered method, and that method's parameters. Intensity methods
+    are ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``,
+    and ``bspline_deform`` (the last needs the optional ``monai`` extra).
+    Mask-only contour methods (``morphological``, ``gradient_weighted``,
+    ``slice_extent``) leave the image unchanged; call the registered
+    component on a :class:`~habit.contracts.subject.Subject` when you
+    need the edited mask.
     Geometric methods resample back onto the original voxel grid so the
     result stays voxel-wise comparable to ``image``.
 

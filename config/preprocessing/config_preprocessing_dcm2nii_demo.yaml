@@ -30,7 +30,7 @@
 #   “模态键 -> DICOM 序列文件夹”。原始 DICOM 在 demo_data/dicom/。
 #
 # External tool:
-#   tools/bin/dcm2niix.exe is included with the release package.
+#   tools/bin/dcm2niix.exe ships in the source checkout when present.
 #
 # 路径约定 / Path convention:
 #   相对路径相对“本 YAML 文件所在目录”解析，../../demo_data/... 即仓库 demo_data/。

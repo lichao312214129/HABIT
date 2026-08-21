@@ -183,7 +183,7 @@ analysis = [
     "plotly>=5.20,<7",
     # 0.5.4 is the oldest release exposing the ICC API HABIT calls, and the
     # verified Windows environment runs 0.5.5; do not raise this floor above
-    # the version the installer locks.
+    # that verified version.
     "pingouin>=0.5.4,<1",
     # Survival analysis: lifelines covers Kaplan-Meier, log-rank and CoxPH;
     # scikit-survival adds the sklearn-compatible estimators (random survival
@@ -196,7 +196,7 @@ automl = [
 ]
 # Convenience meta-extra: every optional workflow dependency at once.
 # Written as self-referencing extras (setuptools + pip both resolve them, and
-# it is verified by tests/test_installer_contracts.py) so this list cannot
+# it is verified by tests/test_packaging_contracts.py) so this list cannot
 # drift out of sync with the groups it aggregates.
 #
 # `torch` stays out on purpose: CUDA wheel selection needs a --index-url the

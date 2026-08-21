@@ -229,8 +229,7 @@ todo_include_todos = True
 # Custom download variables for project resource bundles. Maintainers update
 # these links and extraction codes.
 # demo_data, config, and tests are separate bundles; the tests bundle also
-# contains config.rar. The Windows lightweight installer ZIP is distributed
-# separately from these netdisk demo/config/test shares.
+# contains config.rar.
 #
 # Docutils does not expand substitutions inside the URL of
 # `` `text <|url_subst|>`_``. Define complete-link substitutions in the epilog

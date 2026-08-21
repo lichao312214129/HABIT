@@ -66,7 +66,9 @@ class VoxelRadiomicsFeaturesParams(BaseModel):
     use_torch_radiomics: Union[str, bool] = "auto"
     torch_device: str = "auto"
     torch_dtype: str = "float32"
+    use_gpu_matrices: Union[str, bool] = "auto"
     output_float32: bool = True
+    class_progress: bool = False
 
 
 @VoxelFeatureExtractorRegistry.register("voxel_radiomics")
@@ -98,8 +100,16 @@ class VoxelRadiomicsFeatures:
             use the TorchRadiomics path when torch and CUDA are present.
         torch_device: Torch device string, or ``"auto"`` to select one.
         torch_dtype: ``"float32"`` or ``"float64"`` for the torch path.
+        use_gpu_matrices: ``"auto"``, ``True`` or ``False`` -- whether the
+            TorchRadiomics texture matrices (GLCM, ...) are built on GPU by
+            ``habit.kernels.radiomics.gpumatrices`` instead of the
+            single-threaded PyRadiomics C extension. ``"auto"`` follows the
+            torch device. Bit-identical counts either way.
         output_float32: Downcast the feature columns to float32, the v0.1
             default that keeps large voxel tables manageable.
+        class_progress: When True, print and tqdm each PyRadiomics class
+            (firstorder, glcm, ...). Default False: one ``execute()`` with
+            no per-class lines; ``Cohort.map`` still shows subject progress.
     """
 
     def __init__(
@@ -113,7 +123,9 @@ class VoxelRadiomicsFeatures:
         use_torch_radiomics: Union[str, bool] = "auto",
         torch_device: str = "auto",
         torch_dtype: str = "float32",
+        use_gpu_matrices: Union[str, bool] = "auto",
         output_float32: bool = True,
+        class_progress: bool = False,
         modality: Optional[str] = None,
         as_: Optional[str] = None,
     ) -> None:
@@ -142,7 +154,9 @@ class VoxelRadiomicsFeatures:
         self.use_torch_radiomics = use_torch_radiomics
         self.torch_device = str(torch_device)
         self.torch_dtype = str(torch_dtype)
+        self.use_gpu_matrices = use_gpu_matrices
         self.output_float32 = bool(output_float32)
+        self.class_progress = bool(class_progress)
 
     @property
     def spec(self) -> Spec:
@@ -157,6 +171,7 @@ class VoxelRadiomicsFeatures:
             "use_torch_radiomics": self.use_torch_radiomics,
             "torch_device": self.torch_device,
             "torch_dtype": self.torch_dtype,
+            "use_gpu_matrices": self.use_gpu_matrices,
             "output_float32": self.output_float32,
         }
         # Fold the singular/alias forms in only when set so the historical
@@ -165,6 +180,9 @@ class VoxelRadiomicsFeatures:
             spec_params["modality"] = self.modality
         if self.as_ is not None:
             spec_params["as_"] = self.as_
+        # Default False is omitted so quiet extraction keeps the old fingerprint.
+        if self.class_progress:
+            spec_params["class_progress"] = True
         return Spec(name="voxel_radiomics", params=spec_params)
 
     def _resolved_params_file(self) -> Optional[str]:
@@ -210,7 +228,9 @@ class VoxelRadiomicsFeatures:
         )
         from habit.utils.parallel_gpu_utils import read_worker_gpu_slot_index
         from habit.utils.torch_radiomics_utils import (
+            execute_voxel_based_with_class_progress,
             injected_torch_radiomics,
+            release_cuda_cache,
             resolve_torch_dtype,
             resolve_voxel_radiomics_backend,
         )
@@ -238,6 +258,7 @@ class VoxelRadiomicsFeatures:
                 "kernelRadius": self.kernel_radius,
                 "voxelBatch": self.voxel_batch,
                 "geometryTolerance": 1e-3,
+                "use_gpu_matrices": self.use_gpu_matrices,
             }
         )
         if backend == "torch" and device is not None:
@@ -248,7 +269,15 @@ class VoxelRadiomicsFeatures:
         mask_label = 1 if configured_label is None else int(configured_label)
 
         with injected_torch_radiomics(enabled=(backend == "torch")):
-            result = extractor.execute(image_sitk, mask_sitk, voxelBased=True)
+            # Quiet by default: one execute() with no per-class tqdm / stderr.
+            # class_progress=True restores the instrumented per-class loop.
+            if self.class_progress:
+                result = execute_voxel_based_with_class_progress(
+                    extractor, image_sitk, mask_sitk, voxel_based=True
+                )
+            else:
+                result = extractor.execute(image_sitk, mask_sitk, voxelBased=True)
+                release_cuda_cache()
         del extractor
 
         return voxel_feature_frame(

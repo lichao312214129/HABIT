@@ -18,6 +18,11 @@ from radiomics import base, cMatrices
 # six.moves.range was historically imported here; the builtin range is
 # identical on Python 3, and six is no longer a HABIT dependency.
 
+from habit.kernels.radiomics.gpumatrices import (
+  calculate_glszm as gpu_calculate_glszm,
+  resolve_use_gpu_matrices,
+)
+
 from .TorchRadiomicsBase import TorchRadiomicsBase
 
 
@@ -97,19 +102,34 @@ class TorchRadiomicsGLSZM(TorchRadiomicsBase):
     Ns = numpy.sum(self.maskArray)
     # Ns = int(self.tensor(self.maskArray).sum().item())
 
-    matrix_args = [
-      self.imageArray,
-      self.maskArray,
-      Ng,
-      Ns,
-      self.settings.get('force2D', False),
-      self.settings.get('force2Ddimension', 0)
-    ]
-    if self.voxelBased:
-      matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
+    if resolve_use_gpu_matrices(self.settings, self.device):
+      # GPU matrix building: integer zone counts bit-identical to cMatrices.
+      P_glszm = gpu_calculate_glszm(
+        self.imageArray,
+        self.maskArray,
+        Ng,
+        int(Ns),
+        force2D=self.settings.get('force2D', False),
+        force2Ddimension=self.settings.get('force2Ddimension', 0),
+        kernelRadius=self.settings.get('kernelRadius', 1) if self.voxelBased else 0,
+        voxelCoordinates=voxelCoordinates if self.voxelBased else None,
+        device=self.device,
+        dtype=self.dtype,
+      )
+    else:
+      matrix_args = [
+        self.imageArray,
+        self.maskArray,
+        Ng,
+        Ns,
+        self.settings.get('force2D', False),
+        self.settings.get('force2Ddimension', 0)
+      ]
+      if self.voxelBased:
+        matrix_args += [self.settings.get('kernelRadius', 1), voxelCoordinates]
 
-    P_glszm = cMatrices.calculate_glszm(*matrix_args)  # shape (Nvox, Ng, Ns)
-    P_glszm = self.tensor(P_glszm)
+      P_glszm = cMatrices.calculate_glszm(*matrix_args)  # shape (Nvox, Ng, Ns)
+      P_glszm = self.tensor(P_glszm)
 
     # Delete rows that specify gray levels not present in the ROI
     # NgVector = range(1, Ng + 1)  # All possible gray values

@@ -1,7 +1,0 @@
-# Optional CUDA 12.1 replacement for the complete Torch layer only.
-# Apply this lock after the CPU runtime lock; it intentionally contains no
-# HABIT, PyRadiomics, or non-Torch runtime packages.
---find-links https://mirrors.aliyun.com/pytorch-wheels/cu121/
---trusted-host mirrors.aliyun.com
-
-torch==2.4.0+cu121

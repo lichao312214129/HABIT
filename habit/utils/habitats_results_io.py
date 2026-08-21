@@ -211,9 +211,20 @@ def save_habitats_results(
                 "write habitats.csv instead (no optional dependency needed)",
             ),
         )
-        results_df.to_parquet(out_path, index=False, engine="pyarrow")
+
+    # Write through a sibling temp file + atomic replace so an interrupted
+    # run never leaves a truncated table that a later resume would trust.
+    from habit.utils.write_access import write_via_temp_then_replace
+
+    if fmt == "parquet":
+        write_via_temp_then_replace(
+            out_path,
+            lambda tmp: results_df.to_parquet(tmp, index=False, engine="pyarrow"),
+        )
     else:
-        results_df.to_csv(out_path, index=False)
+        write_via_temp_then_replace(
+            out_path, lambda tmp: results_df.to_csv(tmp, index=False)
+        )
 
     elapsed_sec = time.monotonic() - started_at
     if logger is not None:

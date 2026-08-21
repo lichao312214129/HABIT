@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Contour perturbation gallery (``morphological`` / ``gradient_weighted``
+  / ``slice_extent``) with one figure per operator, plus public L0
+  exports ``morphological_grow_shrink``, ``boundary_band_mask``,
+  ``boundary_weighted_perturbation``, ``slice_extent_perturbation``.
 - Graph topology opt-in edge method ``min_distance``: an edge exists when
   the closest-voxel Euclidean distance between two regions is within
   ``distance_threshold`` (voxel-index units). This is not centroid

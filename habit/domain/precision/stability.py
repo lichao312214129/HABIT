@@ -117,10 +117,12 @@ def align_habitat_map(
             content) and need ``force=True``.
 
     Returns:
-        A new map with remapped labels, ``model_id`` / ``habitat_ids``
-        taken from ``reference`` so a later compare treats the pair as
-        sharing a definition. The input ``moving`` map is returned as-is
-        when the model ids already match and ``force`` is False.
+        A new map with remapped labels. ``model_id`` is taken from
+        ``reference``. ``habitat_ids`` starts with the reference ids and
+        appends leftover moving habitats (rewritten to unused ids after
+        ``max(reference ids)``) when the moving map had more clusters.
+        The input ``moving`` map is returned as-is when the model ids
+        already match and ``force`` is False.
 
     Raises:
         HABITAPIError: If the grids differ or centroid inputs are incomplete.
@@ -173,12 +175,19 @@ def align_habitat_map(
         )
     except ValueError as exc:
         raise HABITAPIError(f"align_habitat_map: {exc}") from exc
+    reference_ids = tuple(int(habitat_id) for habitat_id in reference.habitat_ids)
+    reserved = set(reference_ids)
+    leftover_ids = tuple(
+        int(habitat_id)
+        for habitat_id in present_habitat_ids(remapped).tolist()
+        if int(habitat_id) not in reserved
+    )
     return HabitatMap(
         subject_id=moving.subject_id,
         label_array=remapped,
         geometry=moving.geometry,
         model_id=reference.model_id,
-        habitat_ids=reference.habitat_ids,
+        habitat_ids=reference_ids + leftover_ids,
         provenance=moving.provenance.derive(
             produced_by="align_habitat_map",
             spec_fingerprint=f"align_habitat_map:{resolved}",

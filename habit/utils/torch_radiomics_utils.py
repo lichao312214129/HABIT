@@ -21,10 +21,17 @@ to conventional CPU PyRadiomics when unavailable.
 
 from __future__ import annotations
 
+import gc
 import hashlib
 import logging
+import os
+import shutil
+import subprocess
+import sys
+import time
+from collections import OrderedDict
 from contextlib import contextmanager
-from typing import Any, Iterator, List, Literal, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterator, List, Literal, Mapping, Optional, Sequence, Tuple, Union
 
 from habit.utils.log_utils import get_module_logger
 
@@ -42,9 +49,8 @@ DEFAULT_TORCH_DTYPE = "float32"
 _TORCH_GPU_INSTALL_HINT_LOGGED = False
 
 TORCH_GPU_INSTALL_HINT = (
-    "Windows lightweight-release users can run 'launchers/一键启用HABIT-GPU.bat' when "
-    "GPU acceleration is required. Package users should install the PyTorch "
-    "build compatible with their NVIDIA driver. Set use_torch_radiomics: false "
+    "Install a PyTorch build compatible with your NVIDIA driver "
+    "(pip extra: habitat-analysis[torch]). Set use_torch_radiomics: false "
     "to require CPU PyRadiomics."
 )
 
@@ -533,3 +539,297 @@ def injected_torch_radiomics(enabled: bool) -> Iterator[None]:
         yield
     finally:
         restore_radiomics()
+
+
+def _habit_info_reaches_a_handler(log: logging.Logger) -> bool:
+    """
+    Return True when an INFO record from ``log`` will reach a configured handler.
+
+    ``get_module_logger`` does not attach handlers. Without ``setup_logging`` /
+    ``setup_logger``, INFO lines stay silent (the last-resort handler only
+    shows WARNING+). Callers can then fall back to stderr via CustomTqdm.
+
+    Args:
+        log: Logger that will emit the INFO record.
+
+    Returns:
+        True when a handler exists on this logger or an ancestor that
+        still propagates.
+    """
+    if not log.isEnabledFor(logging.INFO):
+        return False
+    current: Optional[logging.Logger] = log
+    while current is not None:
+        if current.handlers:
+            return True
+        if not current.propagate:
+            return False
+        current = current.parent
+    return False
+
+
+def _count_enabled_class_features(
+    feature_class_name: str,
+    feature_names: Optional[Sequence[str]],
+    feature_classes: Mapping[str, Any],
+) -> int:
+    """
+    Count how many features a PyRadiomics class will compute.
+
+    An empty list or ``None`` means "all features of this class", matching
+    ``RadiomicsFeatureExtractor.computeFeatures``.
+
+    Args:
+        feature_class_name: Class key such as ``"glcm"``.
+        feature_names: Explicit names from ``extractor.enabledFeatures``, or
+            ``None`` / empty to enable the full class.
+        feature_classes: Mapping from ``radiomics.getFeatureClasses()``.
+
+    Returns:
+        Number of non-deprecated features that will run.
+    """
+    if feature_names:
+        return len(list(feature_names))
+    feature_class = feature_classes.get(feature_class_name)
+    if feature_class is None:
+        return 0
+    names = feature_class.getFeatureNames()
+    return sum(1 for deprecated in names.values() if not deprecated)
+
+
+def _host_resource_snapshot() -> str:
+    """
+    Compact CPU / RAM / GPU line for per-class voxel-radiomics logs.
+
+    Uses nvidia-smi when present (display GPU load and VRAM). Torch
+    allocated/reserved memory is appended when CUDA is initialised so we
+    can tell HABIT tensors from desktop compositor usage.
+
+    Returns:
+        str: One-line snapshot, e.g. ``cpu=12% ram=9.2/15.8GB gpu=71%
+        vram=2140/8192MiB torch=1802/2400MiB``. Fields are omitted when
+        the corresponding source is unavailable.
+    """
+    parts: List[str] = []
+    try:
+        import psutil
+
+        proc = psutil.Process(os.getpid())
+        vm = psutil.virtual_memory()
+        parts.append(f"cpu={proc.cpu_percent(interval=0.0):.0f}%")
+        parts.append(f"ram={vm.used / (1024 ** 3):.1f}/{vm.total / (1024 ** 3):.1f}GB")
+    except Exception:
+        pass
+
+    nvsmi = shutil.which("nvidia-smi")
+    if nvsmi:
+        try:
+            raw = subprocess.check_output(
+                [
+                    nvsmi,
+                    "--query-gpu=utilization.gpu,memory.used,memory.total",
+                    "--format=csv,noheader,nounits",
+                ],
+                text=True,
+                timeout=3,
+            ).strip().split(",")
+            gpu_util = raw[0].strip()
+            vram_used = raw[1].strip()
+            vram_total = raw[2].strip()
+            parts.append(f"gpu={gpu_util}%")
+            parts.append(f"vram={vram_used}/{vram_total}MiB")
+        except Exception:
+            pass
+
+    try:
+        import torch
+
+        if torch.cuda.is_available() and torch.cuda.is_initialized():
+            allocated = torch.cuda.memory_allocated() / (1024 ** 2)
+            reserved = torch.cuda.memory_reserved() / (1024 ** 2)
+            parts.append(f"torch={allocated:.0f}/{reserved:.0f}MiB")
+    except Exception:
+        pass
+    return " ".join(parts) if parts else "resources=unavailable"
+
+
+def release_cuda_cache() -> None:
+    """
+    Return unused CUDA blocks to the driver after a feature class finishes.
+
+    PyTorch's caching allocator keeps reserved slabs (we measured ~3.3 GiB
+    still reserved after GLCM even though live tensors dropped to a few
+    MiB). On a laptop display GPU that leftover reservation is what made
+    a second worker / the next tumour look like a leak and triggered TDR
+    black screens. ``empty_cache`` does not change live tensors; it only
+    gives unused cached blocks back to Windows / the display compositor.
+    """
+    gc.collect()
+    try:
+        import torch
+
+        if torch.cuda.is_available() and torch.cuda.is_initialized():
+            torch.cuda.empty_cache()
+            if hasattr(torch.cuda, "ipc_collect"):
+                torch.cuda.ipc_collect()
+    except Exception:
+        pass
+
+
+def _emit_voxel_class_progress(message: str) -> None:
+    """
+    Emit one per-class progress line to the habit logger and, if needed, stderr.
+
+    When logging is configured, ``logger.info`` is enough (console + file).
+    When it is not, print to stderr immediately so IDE Debug / non-TTY runs
+    still see the line without calling ``setup_logging``.
+
+    Args:
+        message: English progress line, e.g. ``voxel_radiomics: glcm done in 84.2s``.
+    """
+    logger.info("%s", message)
+    if not _habit_info_reaches_a_handler(logger):
+        print(message, file=sys.stderr, flush=True)
+
+
+def execute_voxel_based_with_class_progress(
+    extractor: Any,
+    image: Any,
+    mask: Any,
+    *,
+    voxel_based: bool = True,
+) -> Any:
+    """
+    Run voxel-based ``extractor.execute`` with per-feature-class progress.
+
+    PyRadiomics already loops classes inside ``computeFeatures`` after a single
+    image load / crop. This wraps that method so each class (firstorder, glcm,
+    glrlm, glszm, gldm, ngtdm) reports start, elapsed seconds, and a CustomTqdm
+    tick -- without re-reading the image or changing which features run.
+
+    Opt-in only (``VoxelRadiomicsFeatures(class_progress=True)``). The default
+    voxel path calls ``extractor.execute`` with no per-class lines.
+
+    CustomTqdm writes to stderr with ``disable=False`` so the bar is visible in
+    IDE Debug consoles that are not a TTY and without ``setup_logging``.
+
+    Args:
+        extractor: Configured ``RadiomicsFeatureExtractor``.
+        image: SimpleITK image (or path) passed to ``execute``.
+        mask: SimpleITK mask (or path) passed to ``execute``.
+        voxel_based: Forwarded as ``voxelBased``; keep True for voxel maps.
+
+    Returns:
+        The same ``OrderedDict`` ``extractor.execute`` would have returned.
+    """
+    from radiomics import getFeatureClasses
+
+    from habit.kernels.radiomics.voxel_maps import enabled_voxel_feature_classes
+    from habit.utils.progress_utils import CustomTqdm
+
+    feature_classes = getFeatureClasses()
+    class_names = [
+        name
+        for name in enabled_voxel_feature_classes(extractor.enabledFeatures)
+        if name in feature_classes
+    ]
+    n_image_types = max(1, len(getattr(extractor, "enabledImagetypes", {}) or {}))
+    total_steps = len(class_names) * n_image_types
+    # Restore the class method by deleting the instance attr unless the
+    # extractor already overrode computeFeatures on the instance.
+    had_instance_compute = "computeFeatures" in vars(extractor)
+    original_compute = extractor.computeFeatures
+    # Assigned in the CustomTqdm ``with`` block before execute() calls the hook.
+    progress: Any = None
+
+    def compute_features_with_class_progress(
+        input_image: Any,
+        input_mask: Any,
+        image_type_name: str,
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """
+        Drop-in replacement for ``RadiomicsFeatureExtractor.computeFeatures``.
+
+        Assigned on the extractor instance, so ``self.computeFeatures(...)``
+        does not pass ``self``. The loop body matches PyRadiomics (constructor,
+        optional ``enableFeatureByName``, then ``execute``) so numbers stay
+        identical; only timing and progress are added.
+
+        Args:
+            input_image: Cropped (and optionally filtered) SimpleITK image.
+            input_mask: Cropped SimpleITK mask.
+            image_type_name: Filter name, typically ``"original"``.
+            **kwargs: Settings forwarded to the feature-class constructor.
+
+        Returns:
+            Feature-name -> value (SimpleITK map when ``voxelBased``).
+        """
+        # Live lookup so TorchRadiomics injection is honoured, same as upstream.
+        live_feature_classes = getFeatureClasses()
+        feature_vector: Dict[str, Any] = OrderedDict()
+        enabled_features = extractor.enabledFeatures
+
+        for feature_class_name, names in enabled_features.items():
+            if str(feature_class_name).startswith("shape"):
+                continue
+            if feature_class_name not in live_feature_classes:
+                continue
+
+            n_features = _count_enabled_class_features(
+                feature_class_name, names, live_feature_classes
+            )
+            progress.set_description(
+                f"voxel_radiomics {feature_class_name}",
+                refresh=True,
+            )
+            before = _host_resource_snapshot()
+            _emit_voxel_class_progress(
+                f"voxel_radiomics: extracting {feature_class_name} "
+                f"({n_features} features) ... [{before}]"
+            )
+            started = time.perf_counter()
+
+            feature_class = live_feature_classes[feature_class_name](
+                input_image, input_mask, **kwargs
+            )
+            if names is not None:
+                for feature in names:
+                    feature_class.enableFeatureByName(feature)
+            for feature_name, feature_value in feature_class.execute().items():
+                new_name = f"{image_type_name}_{feature_class_name}_{feature_name}"
+                feature_vector[new_name] = feature_value
+
+            elapsed = time.perf_counter() - started
+            # Drop the feature-class graph (texture matrices live here)
+            # before returning cached CUDA slabs to the driver.
+            del feature_class
+            release_cuda_cache()
+            after = _host_resource_snapshot()
+            progress.set_postfix_str(f"{elapsed:.1f}s", refresh=True)
+            _emit_voxel_class_progress(
+                f"voxel_radiomics: {feature_class_name} done in {elapsed:.1f}s [{after}]"
+            )
+            progress.update(1)
+
+        return feature_vector
+
+    extractor.computeFeatures = compute_features_with_class_progress
+    try:
+        # force-enable: IDE Debug / redirected stderr is often not a TTY, and
+        # tqdm would otherwise disable itself so the user sees nothing.
+        with CustomTqdm(
+            total=total_steps,
+            desc="voxel_radiomics classes",
+            file=sys.stderr,
+            disable=False,
+            leave=True,
+            mininterval=0.0,
+        ) as progress:
+            return extractor.execute(image, mask, voxelBased=voxel_based)
+    finally:
+        if had_instance_compute:
+            extractor.computeFeatures = original_compute
+        elif "computeFeatures" in vars(extractor):
+            del extractor.computeFeatures
+        release_cuda_cache()

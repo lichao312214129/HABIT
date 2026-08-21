@@ -131,6 +131,59 @@ def test_remap_swap_is_collision_safe() -> None:
     assert np.array_equal(remapped, _swap_ids(labels))
 
 
+def test_remap_unmatched_does_not_reuse_target_id() -> None:
+    """A leftover moving id must not keep a number already used as a target.
+
+    Moving habitats 1 / 2 / 3, mapping 3->1 and 2->2, leftover 1. Keeping
+    1 would merge leftover 1 with remapped 3. Leftover 1 must become 3
+    (max reserved reference id 2, then +1).
+    """
+    labels = np.zeros((6, 4, 4), dtype=np.int32)
+    labels[0:2, 0:2, 0:2] = 1
+    labels[2:4, 0:2, 0:2] = 2
+    labels[4:6, 0:2, 0:2] = 3
+    remapped = remap_label_array(labels, {3: 1, 2: 2}, reserved_ids=(1, 2))
+    assert set(np.unique(remapped[remapped > 0]).tolist()) == {1, 2, 3}
+    assert np.all(remapped[labels == 3] == 1)
+    assert np.all(remapped[labels == 2] == 2)
+    assert np.all(remapped[labels == 1] == 3)
+    assert int(np.count_nonzero(remapped == 0)) == int(np.count_nonzero(labels == 0))
+
+
+def test_align_extra_moving_habitat_gets_fresh_id() -> None:
+    """An extra moving cluster is rewritten to max(reference)+1, not kept."""
+    reference = _two_block_labels()
+    moving = np.zeros((4, 4, 4), dtype=np.int32)
+    moving[0:2, 0:2, 0:2] = 1
+    moving[2:4, 0:2, 0:2] = 2
+    moving[0:2, 2:4, 0:2] = 3
+    aligned = align_label_array(reference, moving, method="overlap")
+    # Overlap pairs moving 1->1 and 2->2; leftover 3 becomes 3
+    # (max(reference ids)=2, then +1). Ids 1 and 2 stay spatially distinct.
+    assert np.all(aligned[moving == 1] == 1)
+    assert np.all(aligned[moving == 2] == 2)
+    assert np.all(aligned[moving == 3] == 3)
+    assert set(np.unique(aligned[aligned > 0]).tolist()) == {1, 2, 3}
+
+
+def test_align_leftover_original_id_does_not_merge() -> None:
+    """Leftover moving 1 must not share a color with a habitat remapped to 1."""
+    reference = _two_block_labels()
+    moving = np.zeros((4, 4, 4), dtype=np.int32)
+    # Habitat 1 is far from both reference blocks so it is the leftover;
+    # 2 and 3 sit on reference 1 and 2.
+    moving[0:2, 2:4, 2:4] = 1
+    moving[0:2, 0:2, 0:2] = 2
+    moving[2:4, 0:2, 0:2] = 3
+    aligned = align_label_array(reference, moving, method="overlap")
+    assert np.all(aligned[moving == 2] == 1)
+    assert np.all(aligned[moving == 3] == 2)
+    leftover_id = int(aligned[moving == 1][0])
+    assert leftover_id == 3
+    assert leftover_id not in (1, 2)
+    assert np.all(aligned[moving == 1] == leftover_id)
+
+
 def test_align_identity_when_already_matched() -> None:
     """Already-aligned maps stay unchanged under both matchers."""
     reference = _two_block_labels()

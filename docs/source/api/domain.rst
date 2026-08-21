@@ -249,10 +249,15 @@ Two volume-level atoms match the combinatorial design of Prior et al.
    feat_r3 = extract_voxel_texture(image, mask, kernel_radius=3, bin_width=12)
 
 ``perturb_image`` wraps the registered ``image_perturbation`` methods
-(``gaussian_noise``, ``translation``, ``rotation``, ``rigid``,
-``bspline_deform``). ``extract_voxel_texture`` is one voxel-radiomics
-pass; paper combinations are repeated calls (R1 vs R3, B12 vs B25,
-original vs perturbed). Then compose ICC panels:
+that return a perturbed **intensity** volume (``gaussian_noise``,
+``translation``, ``rotation``, ``rigid``, ``bspline_deform``).
+Mask-only contour methods (``morphological``, ``gradient_weighted``,
+``slice_extent``) must be called on a
+:class:`~habit.contracts.subject.Subject` via
+:class:`~habit.domain.ImagePerturbationRegistry` — see
+:doc:`../examples/precise_features`. ``extract_voxel_texture`` is one
+voxel-radiomics pass; paper combinations are repeated calls (R1 vs R3,
+B12 vs B25, original vs perturbed). Then compose ICC panels:
 
 .. code-block:: python
 
@@ -331,7 +336,7 @@ Discover names at runtime with :doc:`plugins` (``list_plugins(domain)``).
      - ``concat``, ``weighted_concat``, ``ratio``, …
    * - ``ImagePerturbationRegistry``
      - ``image_perturbation``
-     - ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``, ``bspline_deform``
+     - ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``, ``bspline_deform``, ``morphological``, ``gradient_weighted``, ``slice_extent``
    * - ``HabitatFeatureExtractorRegistry``
      - ``habitat_feature_extractor``
      - ``volume``, ``msi``, ``ith_score``, ``graph``, ``non_radiomics`` (light); ``traditional``, ``whole_habitat``, ``each_habitat`` (heavy)

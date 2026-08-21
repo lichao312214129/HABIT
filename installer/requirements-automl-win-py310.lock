@@ -1,5 +1,0 @@
-# Optional AutoML profile. HABIT imports only TabularPredictor, so this profile
-# intentionally excludes the AutoGluon umbrella, multimodal, and timeseries.
---index-url https://pypi.tuna.tsinghua.edu.cn/simple
-
-autogluon.tabular[lightgbm,catboost]==1.5.0

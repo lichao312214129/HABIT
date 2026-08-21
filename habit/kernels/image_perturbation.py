@@ -84,6 +84,10 @@ __all__ = [
     "rotate_image",
     "rigid_transform_image",
     "binary_mask_dice",
+    "morphological_grow_shrink",
+    "boundary_band_mask",
+    "boundary_weighted_perturbation",
+    "slice_extent_perturbation",
 ]
 
 #: Interpolator names accepted by the geometric kernels, mapped to the SimpleITK
@@ -427,3 +431,301 @@ def binary_mask_dice(reference: np.ndarray, moved: np.ndarray) -> float:
     if n_ref + n_moved == 0:
         return 1.0
     return float(2.0 * intersection / (n_ref + n_moved))
+
+
+def _iterations_for_mm(
+    distance_mm: float, spacing_xyz: Sequence[float], voxel_scale: Sequence[float]
+) -> int:
+    """
+    Convert a physical morphological radius to a whole iteration count.
+
+    Morphology runs on voxel grids with an isotropic structuring element, so
+    a physical distance becomes an iteration count via the smallest in-plane
+    spacing (the limiting axis). At least one iteration is applied whenever
+    the requested distance is positive.
+
+    Args:
+        distance_mm: Requested grow/shrink distance in millimetres.
+        spacing_xyz: Voxel spacing in SimpleITK ``(x, y, z)`` order.
+        voxel_scale: Alias kept for call-site clarity; same as
+            ``spacing_xyz`` (unused placeholder for anisotropic handling).
+
+    Returns:
+        A non-negative integer iteration count.
+    """
+    if distance_mm <= 0.0:
+        return 0
+    spacing = np.asarray(spacing_xyz, dtype=np.float64)
+    positive = spacing[spacing > 0]
+    base = float(np.min(positive)) if positive.size else 1.0
+    return max(1, int(round(distance_mm / base)))
+
+
+def morphological_grow_shrink(
+    mask: np.ndarray,
+    grow_mm: float,
+    spacing_xyz: Sequence[float] = (1.0, 1.0, 1.0),
+    connectivity: int = 1,
+) -> np.ndarray:
+    """
+    Uniformly dilate (``grow_mm > 0``) or erode (``grow_mm < 0``) a mask.
+
+    This is MIRP ``perturbation_roi_adapt_size``: the systematic component
+    of inter-rater contour variability, where one observer consistently
+    traces slightly larger or smaller than another. Only the mask changes;
+    image intensities are untouched. Applied per foreground label so a
+    multi-label ROI grows each region instead of merging them.
+
+    Args:
+        mask: Integer / boolean label array in ``(z, y, x)`` order; ``0``
+            is background.
+        grow_mm: Physical radius in millimetres. Positive dilates, negative
+            erodes, zero returns an unchanged copy.
+        spacing_xyz: Voxel spacing in SimpleITK ``(x, y, z)`` order, used to
+            convert millimetres to an iteration count.
+        connectivity: Structuring-element connectivity in ``{1, 2, 3}``;
+            ``1`` is the 6-connected face neighbourhood (the conservative,
+            MIRP-like default).
+
+    Returns:
+        A new label array, same shape and dtype as ``mask``.
+
+    Raises:
+        ValueError: If erosion removes every foreground voxel (the ROI
+            would vanish), or ``connectivity`` is outside ``{1, 2, 3}``.
+    """
+    from scipy import ndimage as _ndi
+
+    labels = np.asarray(mask)
+    if connectivity not in (1, 2, 3):
+        raise ValueError(
+            f"morphological_grow_shrink: connectivity must be in {{1,2,3}}; "
+            f"got {connectivity}."
+        )
+    iterations = _iterations_for_mm(abs(float(grow_mm)), spacing_xyz, spacing_xyz)
+    result = np.array(labels, copy=True)
+    if iterations == 0:
+        return result
+    structure = _ndi.generate_binary_structure(labels.ndim, connectivity)
+    grow = float(grow_mm) > 0.0
+    foreground_labels = np.unique(labels)
+    foreground_labels = foreground_labels[foreground_labels != 0]
+    if foreground_labels.size == 0:
+        return result
+    if grow:
+        # Grow the UNION of foreground so regions do not overwrite each
+        # other, then restrict to the original foreground label set.
+        union = labels != 0
+        dilated = _ndi.binary_dilation(
+            union, structure=structure, iterations=iterations
+        )
+        # Fill newly claimed background voxels by nearest original label.
+        added = dilated & ~union
+        if added.any():
+            _, nearest = _ndi.distance_transform_edt(
+                ~union, return_distances=True, return_indices=True
+            )
+            result[added] = labels[tuple(nearest[:, added])]
+        return result
+    # Erode each label independently to preserve label identity.
+    for label in foreground_labels:
+        region = labels == label
+        eroded = _ndi.binary_erosion(region, structure=structure, iterations=iterations)
+        if not eroded.any():
+            raise ValueError(
+                "morphological_grow_shrink: erosion of "
+                f"{abs(float(grow_mm))} mm removes label {int(label)} entirely; "
+                "reduce the magnitude."
+            )
+        result[~eroded & region] = 0
+    return result
+
+
+def boundary_band_mask(
+    mask: np.ndarray,
+    band_mm: float,
+    spacing_xyz: Sequence[float] = (1.0, 1.0, 1.0),
+    connectivity: int = 1,
+) -> np.ndarray:
+    """
+    Return the voxels within ``band_mm`` of the foreground boundary.
+
+    The band is the union of the outer dilation shell and the inner erosion
+    shell of the foreground, i.e. the strip a radiologist's mouse actually
+    traverses. Used to weight boundary perturbations.
+
+    Args:
+        mask: Integer / boolean label array; ``0`` is background.
+        band_mm: Half-width of the band in millimetres.
+        spacing_xyz: Voxel spacing in SimpleITK ``(x, y, z)`` order.
+        connectivity: Structuring-element connectivity in ``{1, 2, 3}``.
+
+    Returns:
+        A boolean array, ``True`` inside the boundary band.
+    """
+    from scipy import ndimage as _ndi
+
+    labels = np.asarray(mask)
+    union = labels != 0
+    if not union.any():
+        return np.zeros(labels.shape, dtype=bool)
+    iterations = _iterations_for_mm(abs(float(band_mm)), spacing_xyz, spacing_xyz)
+    structure = _ndi.generate_binary_structure(labels.ndim, connectivity)
+    dilated = _ndi.binary_dilation(union, structure=structure, iterations=iterations)
+    eroded = _ndi.binary_erosion(union, structure=structure, iterations=iterations)
+    return (dilated ^ eroded)
+
+
+def boundary_weighted_perturbation(
+    mask: np.ndarray,
+    weights: np.ndarray,
+    rng: np.random.Generator,
+    max_radius_voxels: int = 2,
+    probability: float = 0.5,
+) -> np.ndarray:
+    """
+    Locally grow or shrink a mask where ``weights`` is high (gradient-weighted).
+
+    Models the fact that inter-rater disagreement concentrates where image
+    contrast is poor: boundary voxels at high-gradient (sharp) edges are
+    drawn consistently, whereas low-gradient (fuzzy) edges vary. ``weights``
+    is typically a normalised gradient-magnitude map; the local perturbation
+    probability scales with ``1 - weight`` so fuzzy edges move more.
+
+    A random subset of boundary voxels is flipped (foreground -> background
+    shrinks, background -> foreground grows) within a local radius, biased
+    toward the low-weight side.
+
+    Args:
+        mask: Integer / boolean label array; ``0`` is background.
+        weights: Per-voxel weight in ``[0, 1]``, same shape as ``mask``;
+            high means a confident (sharp) edge. Typically a normalised
+            gradient magnitude of the driving image.
+        rng: Random generator supplying the flip decisions.
+        max_radius_voxels: Neighbourhood radius bounding each local flip.
+        probability: Base flip probability at zero weight; the effective
+            probability is ``probability * (1 - weight)``.
+
+    Returns:
+        A new label array, same shape and dtype as ``mask``.
+
+    Raises:
+        ValueError: If ``weights`` shape differs from ``mask``.
+    """
+    from scipy import ndimage as _ndi
+
+    labels = np.asarray(mask)
+    weights = np.asarray(weights, dtype=np.float64)
+    if weights.shape != labels.shape:
+        raise ValueError(
+            "boundary_weighted_perturbation: weights shape "
+            f"{tuple(weights.shape)} != mask shape {tuple(labels.shape)}."
+        )
+    union = labels != 0
+    if not union.any():
+        return np.array(labels, copy=True)
+    band = _ndi.binary_dilation(union, iterations=int(max(1, max_radius_voxels))) ^ (
+        _ndi.binary_erosion(union, iterations=int(max(1, max_radius_voxels)))
+    )
+    result = np.array(labels, copy=True)
+    w = np.clip(weights, 0.0, 1.0)
+    flip_prob = float(probability) * (1.0 - w)
+    draw = rng.random(labels.shape)
+    # Grow: background voxels in the band whose draw falls under the
+    # local (low-gradient) probability become foreground.
+    grow_sel = band & ~union & (draw < flip_prob)
+    if grow_sel.any():
+        _, nearest = _ndi.distance_transform_edt(
+            ~union, return_distances=True, return_indices=True
+        )
+        result[grow_sel] = labels[tuple(nearest[:, grow_sel])]
+    # Shrink: foreground voxels in the band whose draw falls under the
+    # local probability become background.
+    shrink_sel = band & union & (draw < flip_prob)
+    result[shrink_sel] = 0
+    return result
+
+
+def slice_extent_perturbation(
+    mask: np.ndarray,
+    grow_slices: int = 0,
+    shrink_slices: int = 0,
+    rng: Optional[np.random.Generator] = None,
+    max_slices: int = 0,
+) -> np.ndarray:
+    """
+    Add or remove whole axial slices at the superior/inferior ROI ends.
+
+    Models z-axis delineation variability: observers often agree in-plane
+    but differ on the first and last slice they call tumour (slice-extent
+    or "end-slice" disagreement). Operates on the ``z`` (first) axis only.
+
+    Provide either fixed ``grow_slices`` / ``shrink_slices`` or a random
+    ``max_slices`` with ``rng`` (each end independently draws a count in
+    ``[-max_slices, +max_slices]``; positive grows, negative shrinks).
+
+    Args:
+        mask: Integer / boolean label array in ``(z, y, x)`` order.
+        grow_slices: Number of slices to append at each occupied end by
+            copying the nearest occupied slice's labels.
+        shrink_slices: Number of occupied slices to remove at each end.
+        rng: Random generator enabling random per-end counts; requires
+            ``max_slices > 0``.
+        max_slices: Bound for the random per-end slice count.
+
+    Returns:
+        A new label array, same shape and dtype as ``mask``.
+
+    Raises:
+        ValueError: If shrinking removes every occupied slice, or if both
+            fixed and random modes are mixed inconsistently.
+    """
+    labels = np.asarray(mask)
+    result = np.array(labels, copy=True)
+    union = labels != 0
+    if not union.any():
+        return result
+    occupied = np.flatnonzero(union.any(axis=(1, 2)))
+    first, last = int(occupied[0]), int(occupied[-1])
+
+    if rng is not None:
+        if max_slices <= 0:
+            raise ValueError(
+                "slice_extent_perturbation: random mode needs max_slices > 0."
+            )
+        grow_slices = 0
+        shrink_slices = 0
+        start_delta = int(rng.integers(-max_slices, max_slices + 1))
+        end_delta = int(rng.integers(-max_slices, max_slices + 1))
+    else:
+        start_delta = int(grow_slices) - int(shrink_slices)
+        end_delta = int(grow_slices) - int(shrink_slices)
+
+    # Shrink (negative delta removes occupied slices from that end).
+    if start_delta < 0:
+        remove = min(-start_delta, last - first + 1)
+        result[first : first + remove] = 0
+    if end_delta < 0:
+        remove = min(-end_delta, last - first + 1)
+        result[last - remove + 1 : last + 1] = 0
+    if not (result != 0).any():
+        raise ValueError(
+            "slice_extent_perturbation: shrinking removes every occupied slice; "
+            "reduce the slice count."
+        )
+    # Grow (positive delta copies the nearest occupied slice outward).
+    if start_delta > 0 and first > 0:
+        source = result[first]
+        for offset in range(1, start_delta + 1):
+            target_index = first - offset
+            if target_index < 0:
+                break
+            result[target_index] = source
+    if end_delta > 0 and last < labels.shape[0] - 1:
+        source = result[last]
+        for offset in range(1, end_delta + 1):
+            target_index = last + offset
+            if target_index >= labels.shape[0]:
+                break
+            result[target_index] = source
+    return result
