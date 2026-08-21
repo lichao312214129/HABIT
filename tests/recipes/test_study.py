@@ -60,6 +60,7 @@ def test_study_fit_delegates_to_two_step_recipe(
         seed=None,
         checkpoint=None,
         inspect=None,
+        **_kwargs,
     ):
         captured.update(
             {

@@ -223,6 +223,10 @@ CheckpointStore
 
 Recorded terminal failures are skipped on resume (v0.1 rule) unless
 ``retry_failed_subjects=True``. Successful subjects restore ``from_cache=True``.
+Pass the same store to :meth:`~habit.recipes.Study.fit_predict` together
+with a :class:`~habit.report.Report` so one-step product files (maps,
+models, figures) are rewritten from cached payloads on resume
+(:doc:`../examples/one_step_habitat`).
 
 On the v1 habitat CLI path, cache keys embed the spec fingerprint, and the
 store is also bound to ``run_fingerprint.json``. With

@@ -57,6 +57,7 @@ _LAZY_SUBPACKAGES = frozenset(
         "execution",
         "kernels",
         "registry",
+        "report",
         "spec",
         "viz",
     }

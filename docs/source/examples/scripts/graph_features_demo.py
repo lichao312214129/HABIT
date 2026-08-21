@@ -105,6 +105,7 @@ print(
 from habit.viz import (
     plot_graph_feature_heatmap,
     plot_habitat_graph_network_2d,
+    plot_habitat_graph_slice,
     plot_habitat_overlay,
 )
 
@@ -117,6 +118,11 @@ fig = plot_habitat_overlay(
     title="One-step habitats (K=4)",
 )
 fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
+# Lattice on the representative slice (display-only; same options as extract).
+fig = plot_habitat_graph_slice(
+    labels, options=options, show_grid=True, block_size=8, grid_linestyle="--"
+)
+fig.savefig("out/graph_habitat_lattice_2d.png", dpi=150, bbox_inches="tight")
 # Same edge options as extract_graph_features so the 2D plot matches.
 # block_size=8 is the library default (8-voxel cubes on the legend).
 fig = plot_habitat_graph_network_2d(
@@ -148,6 +154,7 @@ fig = plot_graph_feature_heatmap(
 fig.savefig("out/graph_feature_heatmap_pair.png", dpi=150, bbox_inches="tight")
 print(
     "Wrote out/graph_habitat_slice_2d.png, "
+    "out/graph_habitat_lattice_2d.png, "
     "out/graph_habitat_network_2d.png, "
     "out/graph_feature_heatmap_single.png, and "
     "out/graph_feature_heatmap_pair.png"
@@ -232,6 +239,7 @@ if __name__ == "__main__":
     copy_out_figures_to_gallery(
         (
             "graph_habitat_slice_2d.png",
+            "graph_habitat_lattice_2d.png",
             "graph_habitat_network_2d.png",
             "graph_habitat_network_2d_block5.png",
             "graph_feature_heatmap_single.png",

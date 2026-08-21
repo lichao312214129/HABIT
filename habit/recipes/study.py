@@ -36,6 +36,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     Mapping,
     Optional,
@@ -44,10 +45,10 @@ from typing import (
     Union,
 )
 
-from habit.contracts.habitat import HabitatModel
+from habit.contracts.habitat import HabitatMap, HabitatModel
 from habit.contracts.inspection import StepObserver
-from habit.contracts.ops import ExecutionBackend
-from habit.contracts.subject import Cohort
+from habit.contracts.ops import ExecutionBackend, ResultWriter
+from habit.contracts.subject import Cohort, Subject
 from habit.exceptions import HABITAPIError, NotFittedError
 from habit.recipes.habitat import (
     _apply_habitat_model,
@@ -307,6 +308,13 @@ class Study:
         checkpoint: Optional[CheckpointStore] = None,
         seed: Optional[int] = None,
         inspect: Optional[StepObserver] = None,
+        report: Optional[Any] = None,
+        writer: Optional[ResultWriter] = None,
+        retain: str = "all",
+        on_subject_complete: Optional[
+            Callable[[Subject, HabitatMap, HabitatModel], None]
+        ] = None,
+        persist_subject_models: bool = True,
     ) -> "Study":
         """
         Learn the habitat definition on a cohort; return ``self``.
@@ -318,6 +326,25 @@ class Study:
             seed: Optional override of ``spec.random_seed``.
             inspect: Optional step observer for in-memory debugging / QA.
                 Unsupported with the process backend.
+            report: Optional :class:`~habit.report.Report` declaring what to
+                persist and draw as each subject completes. This is the
+                primary streaming API. ``writer`` / ``retain`` /
+                ``on_subject_complete`` remain as shorthands that fill an
+                implicit report.
+            writer: Optional streaming writer (``one_step`` design only):
+                each subject's habitat map is persisted the moment the
+                backend yields it, so a crashed run keeps completed subjects.
+            retain: ``"all"`` (default) keeps every artefact in memory;
+                ``"maps"`` drops voxel-level clustering units (the
+                memory-dominant payload of voxel-level designs); ``"tables"``
+                additionally drops habitat maps and requires ``writer``.
+            on_subject_complete: Optional parent-process callback
+                ``(subject, habitat_map, model)`` fired once per completed
+                subject -- including checkpoint-resumed ones -- before
+                retention stripping. Prefer a figure atom on ``report``.
+            persist_subject_models: With a streaming ``writer`` and no
+                explicit ``report.persist``, also write
+                ``<subject_id>.habitatmodel`` for each subject.
 
         Returns:
             ``self``, fitted: ``model_`` holds the cohort-level definition
@@ -335,6 +362,11 @@ class Study:
             seed=seed,
             checkpoint=checkpoint,
             inspect=inspect,
+            writer=writer,
+            retain=retain,
+            on_subject_complete=on_subject_complete,
+            persist_subject_models=persist_subject_models,
+            report=report,
         )
         self.model_ = result.habitat_model
         self.fit_result_ = result
@@ -404,6 +436,13 @@ class Study:
         checkpoint: Optional[CheckpointStore] = None,
         seed: Optional[int] = None,
         inspect: Optional[StepObserver] = None,
+        report: Optional[Any] = None,
+        writer: Optional[ResultWriter] = None,
+        retain: str = "all",
+        on_subject_complete: Optional[
+            Callable[[Subject, HabitatMap, HabitatModel], None]
+        ] = None,
+        persist_subject_models: bool = True,
     ) -> StudyResult:
         """
         Fit on a cohort and return the full study result.
@@ -418,6 +457,14 @@ class Study:
             checkpoint: Optional checkpoint store forwarded to per-subject stages.
             seed: Optional override of ``spec.random_seed``.
             inspect: Optional step observer for in-memory debugging / QA.
+            report: Optional :class:`~habit.report.Report`; see :meth:`fit`.
+            writer: Optional streaming writer (``one_step`` design only);
+                see :meth:`fit`.
+            retain: In-memory retention mode; see :meth:`fit`.
+            on_subject_complete: Optional per-subject completion callback;
+                see :meth:`fit`.
+            persist_subject_models: Write per-subject models when streaming;
+                see :meth:`fit`.
 
         Returns:
             The completed study result.
@@ -428,6 +475,11 @@ class Study:
             checkpoint=checkpoint,
             seed=seed,
             inspect=inspect,
+            report=report,
+            writer=writer,
+            retain=retain,
+            on_subject_complete=on_subject_complete,
+            persist_subject_models=persist_subject_models,
         )
         assert self.fit_result_ is not None  # guaranteed by fit()
         return self.fit_result_

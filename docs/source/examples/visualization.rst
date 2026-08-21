@@ -25,6 +25,66 @@ a matplotlib ``Figure`` out — no ``savefig`` inside the library. Callers choos
 where figures go. All text is English/ASCII via
 :func:`~habit.viz.labels.sanitize_label`.
 
+Per-subject habitat overlays, volume / MSI / ITH bars, auto-K curves,
+and 2D graph slice / network figures can also be **declared** as
+:class:`~habit.report.Report` figure atoms
+(:class:`~habit.report.GraphSlice`, :class:`~habit.report.GraphNetwork2D`)
+and written as each one-step subject completes — see :doc:`one_step_habitat`
+(**Stream per subject**). Pass the same
+:class:`~habit.HabitatGraphFeatureOptions` to ``Spec("graph")`` and the
+atoms; the PNGs are a representative 2D slice (display-only), while
+graph metrics use the full 3D volume. :mod:`habit.viz` stays pure; the
+Report owns ``savefig``. ``figure_layout="by_subject"`` nests each
+subject's PNGs under ``figures/<subject_id>/``.
+
+Report figure atoms (complete)
+------------------------------
+
+Every built-in atom calls a pure :mod:`habit.viz` function and writes one
+PNG per subject. ``figure_layout="flat"`` (default) writes
+``figures/<subject>_<kind>.png``; ``"by_subject"`` writes
+``figures/<subject_id>/<kind>.png``. Custom atoms implement
+:class:`~habit.report.FigureAtom` (``stem`` + ``draw``).
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 38 40
+
+   * - Report atom
+     - ``habit.viz`` function
+     - Example
+   * - :class:`~habit.report.Overlay`
+     - :func:`~habit.viz.plot_habitat_overlay`
+     - :doc:`one_step_habitat`, this page
+   * - :class:`~habit.report.VolumeFractions`
+     - :func:`~habit.viz.plot_habitat_volume_fractions`
+     - :doc:`one_step_habitat`, :doc:`feature_extraction`
+   * - :class:`~habit.report.MSI`
+     - :func:`~habit.viz.plot_msi_matrix`
+     - :doc:`one_step_habitat`, :doc:`feature_extraction`
+   * - :class:`~habit.report.ITH`
+     - :func:`~habit.viz.plot_ith_summary`
+     - :doc:`one_step_habitat`, :doc:`feature_extraction`
+   * - :class:`~habit.report.ClusterValidation`
+     - :func:`~habit.viz.plot_cluster_validation_from_report`
+     - :doc:`one_step_habitat`
+   * - :class:`~habit.report.GraphSlice`
+     - :func:`~habit.viz.plot_habitat_graph_slice`
+     - :doc:`graph_features`, :doc:`one_step_habitat` (**Stream per subject**)
+   * - :class:`~habit.report.GraphNetwork2D`
+     - :func:`~habit.viz.plot_habitat_graph_network_2d`
+     - :doc:`graph_features`, :doc:`one_step_habitat` (**Stream per subject**)
+
+Graph atoms take :class:`~habit.HabitatGraphFeatureOptions` — pass the
+same object to ``Spec("graph", asdict(options))``. 2D PNGs are
+display-only slices; metrics use the full 3D volume. 3D graph renders
+(:func:`~habit.viz.render_habitat_graph_surface_3d`,
+:func:`~habit.viz.render_habitat_graph_network_3d`) stay on
+:mod:`habit.viz` (needs ``[view]``); they are not Report atoms.
+
+Runnable stream script:
+``docs/source/examples/scripts/one_step_report_demo.py``.
+
 This example covers:
 
 * population-level habitat-clustering PCA from a two-step ``StudyResult``,
@@ -200,6 +260,11 @@ construction is available as pure plotters (``[viz]``; 3D also needs
        render_habitat_graph_network_3d,
        render_habitat_graph_surface_3d,
    )
+
+Or declare :class:`~habit.report.GraphSlice` /
+:class:`~habit.report.GraphNetwork2D` on a one-step
+:class:`~habit.report.Report` (same
+:class:`~habit.HabitatGraphFeatureOptions` as ``Spec("graph")``).
 
 See :doc:`graph_features` and :doc:`../reference/features/graph`.
 

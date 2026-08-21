@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any, Mapping, Optional, Tuple, Union
 
 import numpy as np
+import pandas as pd
 
 from habit.contracts.habitat import HabitatMap, HabitatModel, Supervoxelization
 from habit.contracts.manifest import RunManifest
@@ -92,7 +93,16 @@ class StudyResult:
             Empty when the caller only needs the label maps. A design with
             no supervoxel step stores one-voxel units (see
             :func:`~habit.domain.pipeline.voxel_units`), so the field has one
-            uniform type regardless of design.
+            uniform type regardless of design. Streaming retention modes
+            (``retain="maps"`` / ``"tables"``) drop this memory-dominant
+            payload and keep ``units_rows`` instead.
+        units_rows: Pre-aggregated per-subject rows of the v0.1 units table,
+            produced inside the workers by streaming runs. When present,
+            :meth:`save` writes the units table from these frames instead of
+            deriving it from ``units``.
+        maps_persisted: ``True`` when a streaming writer already persisted
+            every habitat map during the fit; :meth:`save` then skips map
+            writing (and the map overwrite probe) entirely.
         inspection: Optional step observer / recorder passed as ``inspect=``
             to a recipe. Default ``None``. Writers ignore this field; it is
             for in-memory debugging only and is never part of fingerprints.
@@ -105,6 +115,8 @@ class StudyResult:
     manifest: RunManifest
     subject_models: Mapping[str, HabitatModel] = field(default_factory=dict)
     units: Tuple[Supervoxelization, ...] = ()
+    units_rows: Tuple[pd.DataFrame, ...] = ()
+    maps_persisted: bool = False
     inspection: Optional[Any] = None
 
     def _units_table_granularity(self) -> Optional[str]:
@@ -120,7 +132,7 @@ class StudyResult:
             ``"supervoxel"``, ``"habitat"`` or ``"voxel"``; ``None`` when no
             units were collected, meaning no units table should be written.
         """
-        if not self.units:
+        if not self.units and not self.units_rows:
             return None
         design = self.manifest.provenance.produced_by.rsplit(".", maxsplit=1)[-1]
         if design == "apply_habitat_model":
@@ -232,6 +244,12 @@ class StudyResult:
         the v0.1 ``ClusteringService.visualize_habitat_clustering`` layout for
         the static PNG only (interactive 3D HTML remains in the legacy stack).
 
+        When the fit ran with a streaming writer (``maps_persisted``), the
+        habitat maps are already on disk and are neither probed nor
+        rewritten here; ``save`` then persists only the cohort-level
+        artefacts (feature table, manifest, units table from the retained
+        per-subject rows).
+
         Args:
             out_dir: Destination directory, created when missing.
             table_format: On-disk format of the units table, ``"parquet"``
@@ -259,11 +277,14 @@ class StudyResult:
         root = Path(out_dir)
         map_extension = normalize_map_format(map_format)
         # Fail fast before any artefact write so a locked / read-only out_dir
-        # does not surface only after a long fit.
-        overwrite_candidates = [
-            root / f"{habitat_map.subject_id}_habitats{map_extension}"
-            for habitat_map in self.habitat_maps
-        ]
+        # does not surface only after a long fit. Maps persisted by a
+        # streaming fit are excluded: ``save`` will not rewrite them.
+        overwrite_candidates = []
+        if not self.maps_persisted:
+            overwrite_candidates.extend(
+                root / f"{habitat_map.subject_id}_habitats{map_extension}"
+                for habitat_map in self.habitat_maps
+            )
         if self.habitat_model is not None:
             overwrite_candidates.append(root / "habitat_model.habitatmodel")
         overwrite_candidates.extend(
@@ -274,7 +295,7 @@ class StudyResult:
         )
         writer = DirectoryResultWriter(out_dir, map_format=map_format)
         writer.probe_write_access(existing_paths=overwrite_candidates)
-        if write_maps:
+        if write_maps and not self.maps_persisted:
             for habitat_map in self.habitat_maps:
                 writer.write_habitat_map(habitat_map)
         if self.habitat_model is not None:
@@ -283,14 +304,24 @@ class StudyResult:
         writer.write_manifest(self.manifest)
         granularity = self._units_table_granularity() if write_units_table else None
         if granularity is not None:
-            writer.write_units_table(
-                self.units,
-                self.habitat_maps,
-                granularity=granularity,
-                table_format=table_format,
-            )
+            if self.units_rows:
+                # Streaming runs aggregated each subject's rows inside the
+                # workers; concatenate instead of re-deriving from units
+                # (which slim retention modes deliberately dropped).
+                writer.write_units_frames(
+                    self.units_rows,
+                    granularity=granularity,
+                    table_format=table_format,
+                )
+            else:
+                writer.write_units_table(
+                    self.units,
+                    self.habitat_maps,
+                    granularity=granularity,
+                    table_format=table_format,
+                )
             design = self.manifest.provenance.produced_by.rsplit(".", maxsplit=1)[-1]
-            if write_maps and design == "two_step":
+            if write_maps and not self.maps_persisted and design == "two_step":
                 for unit in self.units:
                     writer.write_supervoxel_map(unit)
         if write_cluster_plots or write_cluster_plots_3d or write_interactive_cluster_plots:

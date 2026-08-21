@@ -29,6 +29,7 @@ LIGHTWEIGHT = (
     "plugin_entry_points_demo.py",
     "two_step_habitat_quickstart.py",
     "one_step_habitat_demo.py",
+    "one_step_report_demo.py",
     "direct_pooling_habitat_demo.py",
     "fault_tolerance_demo.py",
     "persistence_demo.py",

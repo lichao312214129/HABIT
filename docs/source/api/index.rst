@@ -6,7 +6,7 @@ YAML configuration files are thin shells over the objects documented here.
 The layered core is:
 
 ``kernels`` → ``contracts`` → ``domain`` → ``spec`` / ``execution`` /
-``adapters`` → ``recipes``
+``adapters`` → ``recipes`` / ``report``
 
 Every symbol listed on this page is importable either from the top-level
 package (``from habit import two_step``) or from its canonical subpackage
@@ -22,6 +22,7 @@ without notice.
 .. rubric:: Contents
 
 * :ref:`api-recipes`
+* :ref:`api-report`
 * :ref:`api-contracts`
 * :ref:`api-spec`
 * :ref:`api-domain`
@@ -129,6 +130,33 @@ Recipe result types
    habit.recipes.ModelResult
    habit.recipes.CVResult
    habit.recipes.PredictionResult
+
+.. _api-report:
+
+Report (``habit.report``)
+-------------------------
+
+Run-scoped persistence and per-subject figures. Pass a
+:class:`~habit.report.Report` to :meth:`~habit.recipes.Study.fit_predict`.
+This is **not** part of :class:`~habit.spec.HabitatSpec` and does not
+enter scientific fingerprints. ``figure_layout`` is ``"flat"`` or
+``"by_subject"`` (:data:`~habit.report.FIGURE_LAYOUTS`). Figure-atom
+catalog: :doc:`../examples/visualization`. See
+:doc:`../examples/one_step_habitat`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.report.Report
+   habit.report.FigureAtom
+   habit.report.SubjectContext
+   habit.report.Overlay
+   habit.report.VolumeFractions
+   habit.report.MSI
+   habit.report.ITH
+   habit.report.ClusterValidation
+   habit.report.GraphSlice
+   habit.report.GraphNetwork2D
 
 .. _api-contracts:
 
@@ -417,6 +445,12 @@ resulting precise-feature artefact. See :doc:`../examples/precise_features`.
    habit.domain.RotationPerturbationParams
    habit.domain.RigidPerturbation
    habit.domain.RigidPerturbationParams
+   habit.domain.MorphologicalPerturbation
+   habit.domain.MorphologicalPerturbationParams
+   habit.domain.GradientWeightedPerturbation
+   habit.domain.GradientWeightedPerturbationParams
+   habit.domain.SliceExtentPerturbation
+   habit.domain.SliceExtentPerturbationParams
    habit.domain.perturb_image
    habit.domain.extract_voxel_texture
    habit.domain.PerturbationChain
@@ -767,6 +801,10 @@ Image perturbation and voxel reliability
    habit.kernels.translate_image
    habit.kernels.rotate_image
    habit.kernels.rigid_transform_image
+   habit.kernels.morphological_grow_shrink
+   habit.kernels.boundary_band_mask
+   habit.kernels.boundary_weighted_perturbation
+   habit.kernels.slice_extent_perturbation
    habit.kernels.ICCEstimate
    habit.kernels.icc3a_1
    habit.kernels.icc3c_1

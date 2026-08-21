@@ -13,6 +13,13 @@ chain** at train time — per-subject state is frozen into
 
 The factory :func:`~habit.recipes.one_step_habitat` remains for convenience.
 
+For a long cohort, pass a :class:`~habit.report.Report` so each subject's
+map, ``.habitatmodel``, and figures land on disk **as that subject
+completes**. ``retain="tables"`` drops voxel-level units and maps from
+the parent process. ``Report`` is not a :class:`~habit.spec.HabitatSpec`
+stage — changing a figure does not invalidate scientific checkpoints.
+Streaming is currently wired for ``one_step`` only.
+
 Script
 ------
 
@@ -33,6 +40,34 @@ Paste this after the Script block (it uses ``cohort``, ``result``, and
    :language: python
    :start-after: # BEGIN figures
    :end-before: # END figures
+
+Stream per subject (``report=``)
+--------------------------------
+
+Same science, different run object. Construct a :class:`~habit.report.Report`
+and pass it to :meth:`~habit.recipes.Study.fit_predict`. Built-in figure
+atoms call :mod:`habit.viz` (pure ``Figure`` out); the Report writes PNGs
+atomically under ``<writer.root>/figures``. Set
+``figure_layout="by_subject"`` to nest each subject's PNGs in a
+subdirectory (``figures/<subject_id>/<kind>.png``); the default
+``"flat"`` keeps ``figures/<subject_id>_<kind>.png``. Graph figures
+(:class:`~habit.report.GraphSlice`, :class:`~habit.report.GraphNetwork2D`)
+take the same :class:`~habit.HabitatGraphFeatureOptions` as
+``Spec("graph")``. Those PNGs are a representative 2D slice
+(display-only); graph metrics use the full 3D volume.
+
+.. literalinclude:: scripts/one_step_report_demo.py
+   :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+``writer=`` / ``retain=`` without a Report still work: they build the same
+object. Prefer ``report=`` when you want figures. Custom figures implement
+the :class:`~habit.report.FigureAtom` protocol (``stem`` + ``draw``).
+
+Run from the repository root::
+
+   python docs/source/examples/scripts/one_step_report_demo.py
 
 Change the Spec (other methods and parameters)
 ----------------------------------------------
@@ -148,6 +183,13 @@ densest habitat slices. Pass ``ImageVolume`` / ``HabitatMap`` (not
    Auto-K curves from this subject's ``selection_report``
    (:func:`~habit.viz.plot_cluster_validation_from_report`).
 
+2D graph figures (node lattice + network) are on :doc:`graph_features`
+(:func:`~habit.viz.plot_habitat_graph_slice`,
+:func:`~habit.viz.plot_habitat_graph_network_2d`). Stream every atom
+above plus those two graphs with :class:`~habit.report.Report` — see
+**Stream per subject** and
+``docs/source/examples/scripts/one_step_report_demo.py``.
+
 What to read next
 -----------------
 
@@ -155,5 +197,7 @@ What to read next
 * :doc:`habitat_analysis_overview` — recipe / atomic / custom map
 * :doc:`habitat_atomic_ops` — operator-level walkthrough
 * :doc:`habitat_preprocessing` — how preprocessing chains differ by design
+* :doc:`persistence` — ``StudyResult.save`` vs streaming ``Report``
+* :doc:`fault_tolerance` — ``CheckpointStore`` + continue-on-failure
 * :doc:`two_step_habitat` — the cohort-level alternative
 * :doc:`direct_pooling_habitat` — pool all voxels before clustering

@@ -89,8 +89,11 @@ rubrics below are visual labels and do not create sidebar levels.
 .. rubric:: Featured: habitat-core figures
 
 Recipes write publication figures for overlays, two-step triptychs, volume /
-MSI / ITH, auto-K curves, and train–predict compare. Start at
-:doc:`two_step_habitat` or the suite in :doc:`visualization`.
+MSI / ITH, auto-K curves, and train–predict compare. One-step studies can
+**declare** those same figures (plus 2D graph slice / network) as
+:class:`~habit.report.Report` atoms and nest them with
+``figure_layout="by_subject"``. Start at :doc:`two_step_habitat` or the
+catalog in :doc:`visualization`.
 
 .. figure:: ../_static/images/examples/two_step_triptych.png
    :alt: Anatomy, supervoxels, and habitats
@@ -158,7 +161,7 @@ the ROI, optional cyan contour.
 * :doc:`image_preprocessing_api` — image preprocessing API
 * :doc:`habitat_analysis_overview` — habitat analysis overview
 * :doc:`two_step_habitat` — two-step habitat
-* :doc:`one_step_habitat` — one-step habitat
+* :doc:`one_step_habitat` — one-step habitat (optional streaming ``Report``)
 * :doc:`direct_pooling_habitat` — direct-pooling habitat
 * :doc:`habitat_fit_modes` — habitat fit modes
 * :doc:`apply_saved_model` — apply a saved model
@@ -169,7 +172,7 @@ the ROI, optional cyan contour.
 * :doc:`habitat_feature_routes` — habitat feature routes
 * :doc:`habitat_preprocessing` — habitat preprocessing
 * :doc:`habitat_preprocessing_api` — habitat preprocessing API
-* :doc:`precise_features` — precise features
+* :doc:`precise_features` — precise features plus contour perturbations (grow/shrink, gradient-weighted, slice-extent)
 * :doc:`custom_voxel_features` — custom voxel features
 * :doc:`graph_features` — graph topology; one-step → extract → 2D/3D figures
 * :doc:`habitat_feature_compare` — each_habitat contrast figures (heatmap / pair-delta / CVA components / violin / faceted bars)

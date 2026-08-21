@@ -183,6 +183,17 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "DirectoryResultWriter",
         "FileImageRef",
     ),
+    # L4 report: persist + figure atoms, passed as report= to Study.
+    "report": (
+        "Report",
+        "Overlay",
+        "VolumeFractions",
+        "MSI",
+        "ITH",
+        "ClusterValidation",
+        "GraphSlice",
+        "GraphNetwork2D",
+    ),
     # L4 recipes: Study factories plus the objects they return.
     "recipes": (
         "Study",
@@ -262,6 +273,9 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "RotationPerturbation",
         "RigidPerturbation",
         "BSplineDeformPerturbation",
+        "MorphologicalPerturbation",
+        "GradientWeightedPerturbation",
+        "SliceExtentPerturbation",
         "PerturbationChain",
         "PreciseFeatureSet",
         "FeatureWhitelist",
@@ -320,9 +334,14 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "translate_image",
         "rotate_image",
         "rigid_transform_image",
+        "morphological_grow_shrink",
+        "boundary_band_mask",
+        "boundary_weighted_perturbation",
+        "slice_extent_perturbation",
         "ICCEstimate",
         "icc3a_1",
         "icc3c_1",
+        "icc2_1_estimate",
         "remove_small_connected_components",
     ),
     # Table-level scikit-learn interop (L3). The factories are top-level; the

@@ -55,6 +55,16 @@ from habit.recipes.study import (
     one_step_habitat,
     two_step_habitat,
 )
+from habit.report import (
+    ClusterValidation,
+    GraphNetwork2D,
+    GraphSlice,
+    ITH,
+    MSI,
+    Overlay,
+    Report,
+    VolumeFractions,
+)
 from habit.recipes.test_retest import test_retest_analysis
 from habit.recipes.yaml_runner import run_from_yaml
 
@@ -65,6 +75,14 @@ __all__ = [
     "SearchResult",
     "Study",
     "StudyResult",
+    "Report",
+    "Overlay",
+    "VolumeFractions",
+    "MSI",
+    "ITH",
+    "ClusterValidation",
+    "GraphSlice",
+    "GraphNetwork2D",
     "compare_models",
     "cross_validate",
     "dice",

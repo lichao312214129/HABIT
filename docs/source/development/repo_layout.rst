@@ -20,11 +20,9 @@ Repository root
      - Example and production YAML configurations organized by subsystem.
    * - ``demo_data/``
      - Demo data and generated artifacts, including images and ML tables.
-   * - ``launchers/``
-     - Windows lightweight-release entry points for installation, optional
-       profiles, and the configured HABIT command prompt.
    * - ``tools/bin/``
-     - Versioned third-party runtime executables used by the lightweight release.
+     - Optional local third-party executables (``dcm2niix``, ``elastix``,
+       ``transformix``) used by demo YAML paths.
    * - ``tests/``
      - Pytest tests and executable demo scripts (see :doc:`dev_workflow`).
    * - ``docs/``
@@ -46,6 +44,7 @@ L4 recipes → L5 cli.
      ROOT["habit/"]
      ROOT --> L5["L5 — cli.py + commands/"]
      ROOT --> L4["L4 — recipes/"]
+     ROOT --> REPORT["L4 — report/"]
      ROOT --> L3["L3 — domain/"]
      ROOT --> L2["L2 — contracts/"]
      ROOT --> L1["L1 — adapters/"]
@@ -63,6 +62,8 @@ L4 recipes → L5 cli.
 
      L5 --> L4
      L4 --> L3 --> L2 --> L1 --> L0
+     REPORT --> L3
+     L4 --> REPORT
 
 Top-level package responsibilities
 ----------------------------------
@@ -93,6 +94,13 @@ Top-level package responsibilities
        ``traditional_radiomics``, ``compare_models``, ``run_from_yaml``.
        ML/compare disk figures go through ``ml_reporting.py`` /
        ``comparison_reporting.py``.
+   * - ``habit/report/``
+     - **L4**: ``Report`` plus figure atoms (``Overlay``,
+       ``VolumeFractions``, ``MSI``, ``ITH``, ``ClusterValidation``,
+       ``GraphSlice``, ``GraphNetwork2D``) and ``figure_layout``
+       (``flat`` / ``by_subject``). Run-scoped persist / draw / retain;
+       not part of ``HabitatSpec``. Recipes import this package; it
+       must not import ``habit.recipes``.
    * - ``habit/viz/``
      - Publication figures (``Figure`` in, no filesystem). Classification
        curves and SHAP helpers used by ML and compare reporting.

@@ -94,6 +94,10 @@ Key contracts
 * **HabitatModel.load** — bad ZIP / wrong format / newer
   ``format_version`` raise :class:`~habit.exceptions.CompatibilityError`
   (never a silently wrong habitat map).
+* **Report + CheckpointStore** — one-step streaming writes each completed
+  subject's map / model / figures before the next subject starts. Attach
+  a :class:`~habit.execution.CheckpointStore` so a crashed run skips
+  finished subjects (:doc:`one_step_habitat`).
 
 What to read next
 -----------------
@@ -102,6 +106,8 @@ What to read next
 * :doc:`../api/execution` — continue / fail_fast / timeout / checkpoint / Serial vs ProcessPool
 * :doc:`../api/spec` — RunPolicy fields + YAML mapping
 * :doc:`parallel_execution` — RunPolicy + ProcessPoolBackend
+* :doc:`one_step_habitat` — ``Report`` + ``CheckpointStore``: completed
+  subjects stay on disk if a later subject fails
 * :doc:`../configuration/habitat` — Stage-1 parallel / checkpoint YAML (v1 path notes)
 * :doc:`persistence` / :doc:`apply_saved_model` — model I/O
 * :doc:`../reference/cli` — CLI exit codes and ``check-config``

@@ -277,6 +277,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.registry",
         "habit.spec",
         "habit.recipes",
+        "habit.report",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -291,6 +292,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.registry",
         "habit.spec",
         "habit.recipes",
+        "habit.report",
         "habit.inspection",
         "habit.cli",
         "habit.commands",
@@ -305,6 +307,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.registry",
         "habit.spec",
         "habit.recipes",
+        "habit.report",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -318,6 +321,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.registry",
         "habit.spec",
         "habit.recipes",
+        "habit.report",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -331,6 +335,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.adapters",
         "habit.execution",
         "habit.recipes",
+        "habit.report",
         "habit.inspection",
         "habit.cli",
         "habit.commands",
@@ -350,6 +355,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.registry",
         "habit.spec",
         "habit.recipes",
+        "habit.report",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -363,6 +369,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.execution",
         "habit.spec",
         "habit.recipes",
+        "habit.report",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -377,6 +384,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.execution",
         "habit.registry",
         "habit.recipes",
+        "habit.report",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -397,10 +405,22 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.compat.engines.machine_learning",
         "habit.compat.engines.preprocessing",
     ),
+    # L4 report: persist + figure atoms. Same ceiling as recipes -- it may
+    # use writers and viz, but must not reach CLI or the v0.1 engines.
+    "habit.report": (
+        "habit.recipes",
+        "habit.cli",
+        "habit.commands",
+        "habit.compat",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
+    ),
     "habit.compat": (
         "habit.cli",
         "habit.commands",
         "habit.recipes",
+        "habit.report",
     ),
     # viz is an L3 presentation package: it renders contract objects into
     # figures and shares the domain layer's dependency rule, plus a hard ban
@@ -409,6 +429,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.adapters",
         "habit.execution",
         "habit.recipes",
+        "habit.report",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -433,6 +454,7 @@ _ENGINE_FREE_PACKAGES = (
     "habit.viz",
     "habit.inspection",
     "habit.recipes",
+    "habit.report",
 )
 
 #: v0.1 engine prefixes that the lower layers must not reach into at all.

@@ -49,7 +49,7 @@ from habit.utils.write_access import (
     write_via_temp_then_replace,
 )
 
-__all__ = ["DirectoryResultWriter", "normalize_map_format"]
+__all__ = ["DirectoryResultWriter", "normalize_map_format", "subject_units_frame"]
 
 #: Habitat label dtype written to disk. v0.1 wrote label maps through
 #: ``sitk.GetImageFromArray`` on an ``int32`` label array, and the golden
@@ -198,11 +198,17 @@ def _unit_assignments(
     return unit_ids, assigned, counts[unit_ids].astype(np.int64)
 
 
-def _subject_units_frame(
+def subject_units_frame(
     units: Supervoxelization, habitat_map: HabitatMap, granularity: str
 ) -> pd.DataFrame:
     """
     Build one subject's rows of the v0.1 units table.
+
+    Public so the recipe layer can aggregate a subject's rows INSIDE a
+    worker process: at ``"habitat"`` granularity the pooled rows are a few
+    kilobytes, while the voxel-level units they derive from are the
+    memory-dominant payload of a one-step run. Aggregating at the source
+    keeps voxel feature matrices from ever crossing the process boundary.
 
     Args:
         units: The subject's clustering units.
@@ -363,7 +369,11 @@ class DirectoryResultWriter:
             The path written.
         """
         destination = self._destination(f"{name}.csv")
-        table.frame.to_csv(destination, index=False)
+        # Temp file + atomic replace: an interrupted run must not leave a
+        # truncated CSV that a later resume would mistake for a result.
+        write_via_temp_then_replace(
+            destination, lambda tmp: table.frame.to_csv(tmp, index=False)
+        )
         return str(destination)
 
     def write_supervoxel_map(self, units: Supervoxelization) -> Optional[str]:
@@ -452,7 +462,7 @@ class DirectoryResultWriter:
                     f"{habitat_map.subject_id!r}."
                 )
             frames.append(
-                _subject_units_frame(subject_units, habitat_map, granularity)
+                subject_units_frame(subject_units, habitat_map, granularity)
             )
         table = (
             pd.concat(frames, ignore_index=True)
@@ -474,6 +484,72 @@ class DirectoryResultWriter:
         """
         destination = self._destination("habitat_model.habitatmodel")
         model.save(destination)
+        return str(destination)
+
+    def write_subject_model(
+        self, model: HabitatModel, subject_id: str
+    ) -> Optional[str]:
+        """
+        Write one subject's own habitat definition (one-step design).
+
+        Deliberately NOT part of the
+        :class:`~habit.contracts.ops.ResultWriter` protocol -- the protocol
+        persists one model per study, while the one-step design fits one
+        definition per subject. Keeping this a directory-writer extra lets
+        third-party writers ignore it without structurally breaking the
+        contract (same rationale as :meth:`write_supervoxel_map`).
+
+        Args:
+            model: The subject's fitted habitat definition.
+            subject_id: Owning subject id; the file is named
+                ``<subject_id>.habitatmodel``.
+
+        Returns:
+            The path written.
+        """
+        destination = self._destination(f"{subject_id}.habitatmodel")
+        model.save(destination)
+        return str(destination)
+
+    def write_units_frames(
+        self,
+        frames: Sequence[pd.DataFrame],
+        *,
+        granularity: str,
+        table_format: str = "parquet",
+    ) -> Optional[str]:
+        """
+        Write the units table from pre-aggregated per-subject rows.
+
+        Streaming runs aggregate each subject's units-table rows inside the
+        worker (via :func:`subject_units_frame`) so voxel-level arrays never
+        cross the process boundary; this persists their concatenation in
+        exactly the v0.1 layout :meth:`write_units_table` produces.
+
+        Args:
+            frames: Per-subject units-table rows, in cohort order.
+            granularity: ``"supervoxel"``, ``"habitat"`` or ``"voxel"`` --
+                only used for the header when ``frames`` is empty.
+            table_format: ``"parquet"`` (v0.1 default) or ``"csv"``.
+
+        Returns:
+            The path written.
+
+        Raises:
+            HABITAPIError: On unknown granularity.
+        """
+        if granularity not in ("supervoxel", "habitat", "voxel"):
+            raise HABITAPIError(
+                f"Unknown units-table granularity {granularity!r}; expected "
+                "'supervoxel', 'habitat' or 'voxel'."
+            )
+        normalize_habitats_results_format(table_format)
+        table = (
+            pd.concat(list(frames), ignore_index=True)
+            if frames
+            else _empty_units_frame(granularity)
+        )
+        destination = save_habitats_results(table, self.root, table_format)
         return str(destination)
 
     def write_manifest(self, manifest: RunManifest) -> Optional[str]:
