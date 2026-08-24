@@ -2,7 +2,16 @@ Persisting study artefacts
 ============================
 
 Writing to disk is a **separate, explicit act** in v1.0.
-:meth:`~habit.recipes.StudyResult.save` writes the conventional layout:
+
+:meth:`~habit.recipes.StudyResult.save` writes the conventional layout
+**after** the whole cohort is in memory. For a one-step study that must
+not accumulate every subject's volumes, pass a
+:class:`~habit.report.Report` to :meth:`~habit.recipes.Study.fit_predict`
+instead: each completed subject is persisted (and optionally drawn)
+before the next one arrives. ``StudyResult.save`` then writes only the
+cohort tables and manifest.
+
+:meth:`~habit.recipes.StudyResult.save` writes:
 
 * ``<subject>_habitats.<ext>`` — habitat label maps (default ``.nrrd``;
   set ``map_format`` to ``nii`` / ``nii.gz`` / ``mha`` / ``mhd``)
@@ -74,8 +83,26 @@ Illustrative habitats from the same two-step ``StudyResult.save`` path
 
    Supervoxel intermediate is saved as ``<subject>_supervoxel.nrrd`` (two-step).
 
+Stream one-step artefacts (``Report``)
+--------------------------------------
+
+``Report.persist`` names the per-subject files; ``retain="tables"`` keeps
+only small tables in the :class:`~habit.recipes.StudyResult`. Figure atoms
+are optional. ``figure_layout="by_subject"`` writes
+``figures/<subject_id>/<kind>.png``; the default ``"flat"`` keeps
+``figures/<subject_id>_<kind>.png``. Built-in atoms: ``Overlay``,
+``VolumeFractions``, ``MSI``, ``ITH``, ``ClusterValidation``,
+``GraphSlice``, ``GraphNetwork2D`` — catalog in :doc:`visualization`.
+Full walkthrough: :doc:`one_step_habitat` (section **Stream per subject**).
+
+.. literalinclude:: scripts/one_step_report_demo.py
+   :language: python
+   :start-after: # BEGIN report
+   :end-before: # END report
+
 What to read next
 -----------------
 
+* :doc:`one_step_habitat` — streaming ``report=`` on the one-step design
 * :doc:`apply_saved_model` — publish and reuse ``.habitatmodel``
 * :doc:`run_from_yaml` — CLI-equivalent persistence via ``save=True``

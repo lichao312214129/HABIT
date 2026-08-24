@@ -183,6 +183,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -260,6 +264,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -389,6 +394,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -446,6 +452,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -470,6 +477,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -634,7 +642,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -752,6 +763,49 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1798,6 +1852,7 @@ Everything below is implemented on the <code class="docutils literal notranslate
 <section id="architecture-in-one-diagram">
 <h2>Architecture in one diagram<a class="headerlink" href="#architecture-in-one-diagram" title="Link to this heading"></a></h2>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>L4  recipes          Study.fit / fit_predict / predict (+ habitat factories) → StudyResult
+L4  report           Report(persist, retain, figures, writer) — run-scoped, not a Spec
 L3  domain           stages executor + protocols + SubjectPipeline / TablePipeline
 L2  contracts        Subject, Cohort, HabitatModel, FeatureTable, RunManifest
 L1  adapters         DirectoryDataSource, FileImageRef, NnUNetDataSource
@@ -1819,7 +1874,10 @@ neither → one_step).</p></li>
 <li><p><strong>``pool``</strong> is the only subject↔cohort watershed; post-pool feature
 preprocess is first-class.</p></li>
 <li><p>Publish <strong>``HabitatModel`` + ``SubjectPipeline``</strong> = definition + procedure.</p></li>
-<li><p>Writing to disk is explicit (<code class="docutils literal notranslate"><span class="pre">HabitatModel.save</span></code> / <code class="docutils literal notranslate"><span class="pre">StudyResult.save</span></code>).</p></li>
+<li><p>Writing to disk is explicit (<code class="docutils literal notranslate"><span class="pre">HabitatModel.save</span></code> /
+<code class="docutils literal notranslate"><span class="pre">StudyResult.save</span></code>). For a one-step cohort that must not hold every
+subject’s volumes, pass <code class="docutils literal notranslate"><span class="pre">report=Report(...)</span></code> so each subject is
+persisted (and optionally drawn) as it completes.</p></li>
 </ol>
 </section>
 <section id="primary-entry-study">
@@ -1860,7 +1918,44 @@ return a <a class="reference internal" href="generated/habit.recipes.Study.html#
 <a class="reference internal" href="spec.html"><span class="doc">Spec, RunPolicy, and YAML isomorphism</span></a>).</p>
 <p>One-step (no <code class="docutils literal notranslate"><span class="pre">pool</span></code>) has no cohort-level definition:
 <code class="docutils literal notranslate"><span class="pre">result.habitat_model</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>; per-subject definitions live in
-<code class="docutils literal notranslate"><span class="pre">result.subject_models</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">result.subject_models</span></code>. Stream maps / figures with
+<a class="reference internal" href="generated/habit.report.Report.html#habit.report.Report" title="habit.report.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a> — see <a class="reference internal" href="../examples/one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ClusterValidation</span><span class="p">,</span>
+    <span class="n">GraphNetwork2D</span><span class="p">,</span>
+    <span class="n">GraphSlice</span><span class="p">,</span>
+    <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+    <span class="n">ITH</span><span class="p">,</span>
+    <span class="n">MSI</span><span class="p">,</span>
+    <span class="n">Overlay</span><span class="p">,</span>
+    <span class="n">Report</span><span class="p">,</span>
+    <span class="n">Study</span><span class="p">,</span>
+    <span class="n">VolumeFractions</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectoryResultWriter</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">edge_method</span><span class="o">=</span><span class="s2">&quot;min_distance&quot;</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">spec</span><span class="p">,</span> <span class="n">design</span><span class="o">=</span><span class="s2">&quot;one_step&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
+    <span class="n">cohort</span><span class="p">,</span>
+    <span class="n">report</span><span class="o">=</span><span class="n">Report</span><span class="p">(</span>
+        <span class="n">persist</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;habitat_map&quot;</span><span class="p">,</span> <span class="s2">&quot;subject_model&quot;</span><span class="p">),</span>
+        <span class="n">retain</span><span class="o">=</span><span class="s2">&quot;tables&quot;</span><span class="p">,</span>
+        <span class="n">figures</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">Overlay</span><span class="p">(</span><span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
+            <span class="n">VolumeFractions</span><span class="p">(),</span>
+            <span class="n">MSI</span><span class="p">(),</span>
+            <span class="n">ITH</span><span class="p">(),</span>
+            <span class="n">ClusterValidation</span><span class="p">(),</span>
+            <span class="n">GraphSlice</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span>
+            <span class="n">GraphNetwork2D</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">writer</span><span class="o">=</span><span class="n">DirectoryResultWriter</span><span class="p">(</span><span class="s2">&quot;out/study&quot;</span><span class="p">),</span>
+        <span class="n">figure_layout</span><span class="o">=</span><span class="s2">&quot;by_subject&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;out/study&quot;</span><span class="p">)</span>   <span class="c1"># tables + manifest; maps already on disk</span>
+</pre></div>
+</div>
 <p>To open habitat labels on anatomy right after the recipe (napari screenshots
 included), see <strong>View the habitat maps</strong> in <a class="reference internal" href="../tutorial/quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>.</p>
 </section>
@@ -2141,19 +2236,22 @@ designs.</p>
 <tr class="row-odd"><td><p>Parallel execution and checkpoints</p></td>
 <td><p><a class="reference internal" href="execution.html"><span class="doc">Execution backends</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Pure numeric kernels</p></td>
+<tr class="row-even"><td><p>Streaming persist + per-subject figures (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</p></td>
+<td><p><a class="reference internal" href="../examples/one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Pure numeric kernels</p></td>
 <td><p><a class="reference internal" href="kernels.html"><span class="doc">Numeric kernels (habit.kernels)</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>sklearn / MONAI / nnU-Net</p></td>
+<tr class="row-even"><td><p>sklearn / MONAI / nnU-Net</p></td>
 <td><p><a class="reference internal" href="compat.html"><span class="doc">Ecosystem adapters (habit.compat)</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Habitat <code class="docutils literal notranslate"><span class="pre">Spec</span></code> chooser (names + parameters)</p></td>
+<tr class="row-odd"><td><p>Habitat <code class="docutils literal notranslate"><span class="pre">Spec</span></code> chooser (names + parameters)</p></td>
 <td><p><a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">list_plugins</span></code> / schemas</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">list_plugins</span></code> / schemas</p></td>
 <td><p><a class="reference internal" href="plugins.html"><span class="doc">Plugin introspection API</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Custom <code class="docutils literal notranslate"><span class="pre">ComponentRegistry</span></code></p></td>
+<tr class="row-odd"><td><p>Custom <code class="docutils literal notranslate"><span class="pre">ComponentRegistry</span></code></p></td>
 <td><p><a class="reference internal" href="registry.html"><span class="doc">Component registry</span></a></p></td>
 </tr>
 </tbody>

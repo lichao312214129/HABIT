@@ -93,4 +93,10 @@ and the recommended recipe: :doc:`../examples/habitat_preprocessing`.
 Which ``Spec("...")`` names exist, and what each parameter means:
 :doc:`habitat_components` (Python + YAML, generated from ``params_model``).
 
+Stream per-subject maps and figures from Python with
+:class:`~habit.report.Report` (``figure_layout="by_subject"`` nests
+PNGs under ``figures/<subject_id>/``). Built-in atoms and the matching
+:mod:`habit.viz` functions: :doc:`../examples/visualization`. Walkthrough:
+:doc:`../examples/one_step_habitat` (**Stream per subject**).
+
 Next: :doc:`extract_features`. Config details: :doc:`../configuration/habitat`.

@@ -183,6 +183,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="voxel_texture.html#also-see">Also see</a></li>
@@ -260,6 +264,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -389,6 +394,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -446,6 +452,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -470,6 +477,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -634,7 +642,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -752,6 +763,49 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1963,7 +2017,9 @@ uses <code class="docutils literal notranslate"><span class="pre">modality=</spa
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> needs the <code class="docutils literal notranslate"><span class="pre">pyradiomics</span></code> extra and is much slower
-than <code class="docutils literal notranslate"><span class="pre">raw</span></code> / <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code>.</p>
+than <code class="docutils literal notranslate"><span class="pre">raw</span></code> / <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code>. Matrix construction can use HABIT’s
+GPU path (<code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code>) instead of the PyRadiomics C extension;
+see <a class="reference internal" href="voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a>.</p>
 </section>
 <section id="b-multi-modality-voxel-composition">
 <span id="chooser-voxel-compose"></span><h3>B. Multi-modality voxel composition<a class="headerlink" href="#b-multi-modality-voxel-composition" title="Link to this heading"></a></h3>
@@ -2310,7 +2366,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </table>
 </dd>
 <dt><strong>voxel_radiomics</strong></dt><dd><p>Describe every ROI voxel by a PyRadiomics feature vector.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">kernel_radius,</span> <span class="pre">voxel_batch,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">output_float32</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">kernel_radius,</span> <span class="pre">voxel_batch,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">use_gpu_matrices,</span> <span class="pre">output_float32,</span> <span class="pre">class_progress</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;voxel_radiomics&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;voxel_radiomics&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -2383,10 +2439,20 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>str</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code> for the torch path.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">output_float32</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str | bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code> – whether the TorchRadiomics texture matrices (GLCM, …) are built on GPU by <code class="docutils literal notranslate"><span class="pre">habit.kernels.radiomics.gpumatrices</span></code> instead of the single-threaded PyRadiomics C extension. <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> follows the torch device. Bit-identical counts either way.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">output_float32</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>Downcast the feature columns to float32, the v0.1 default that keeps large voxel tables manageable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">class_progress</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When True, print and tqdm each PyRadiomics class (firstorder, glcm, …). Default False: one <code class="docutils literal notranslate"><span class="pre">execute()</span></code> with no per-class lines; <code class="docutils literal notranslate"><span class="pre">Cohort.map</span></code> still shows subject progress.</p></td>
 </tr>
 </tbody>
 </table>
@@ -3401,6 +3467,40 @@ extra extra. <code class="docutils literal notranslate"><span class="pre">tradit
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>One-step streaming figures (not stages — do not enter the fingerprint).
+Pass the same <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code> to
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;)</span></code> and the graph atoms. Catalog: <a class="reference internal" href="../examples/visualization.html"><span class="doc">Publication figures with habit.viz</span></a>.</p>
+<p>Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ClusterValidation</span><span class="p">,</span>
+    <span class="n">GraphNetwork2D</span><span class="p">,</span>
+    <span class="n">GraphSlice</span><span class="p">,</span>
+    <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+    <span class="n">ITH</span><span class="p">,</span>
+    <span class="n">MSI</span><span class="p">,</span>
+    <span class="n">Overlay</span><span class="p">,</span>
+    <span class="n">Report</span><span class="p">,</span>
+    <span class="n">VolumeFractions</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectoryResultWriter</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">edge_method</span><span class="o">=</span><span class="s2">&quot;min_distance&quot;</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">writer</span> <span class="o">=</span> <span class="n">DirectoryResultWriter</span><span class="p">(</span><span class="s2">&quot;out/study&quot;</span><span class="p">)</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span>
+    <span class="n">figures</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Overlay</span><span class="p">(</span><span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
+        <span class="n">VolumeFractions</span><span class="p">(),</span>
+        <span class="n">MSI</span><span class="p">(),</span>
+        <span class="n">ITH</span><span class="p">(),</span>
+        <span class="n">ClusterValidation</span><span class="p">(),</span>
+        <span class="n">GraphSlice</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span>
+        <span class="n">GraphNetwork2D</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">figure_layout</span><span class="o">=</span><span class="s2">&quot;by_subject&quot;</span><span class="p">,</span>
+    <span class="n">writer</span><span class="o">=</span><span class="n">writer</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 <p>YAML:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">quantify</span>
   <span class="n">component</span><span class="p">:</span>
@@ -3478,7 +3578,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </table>
 </dd>
 <dt><strong>graph</strong></dt><dd><p>Graph-topology features of one subject’s habitat map.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph,</span> <span class="pre">include_pairwise_habitat_graph,</span> <span class="pre">edge_method,</span> <span class="pre">distance_threshold,</span> <span class="pre">adjacency_connectivity,</span> <span class="pre">adjacency_min_voxels,</span> <span class="pre">edge_weight,</span> <span class="pre">min_region_voxels,</span> <span class="pre">connectivity,</span> <span class="pre">erosion_radius,</span> <span class="pre">node_method,</span> <span class="pre">subdivide_region_voxels,</span> <span class="pre">block_size,</span> <span class="pre">block_min_coverage,</span> <span class="pre">pairwise_include_intra_edges,</span> <span class="pre">include_extended_metrics,</span> <span class="pre">extended_min_nodes</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph,</span> <span class="pre">include_pairwise_habitat_graph,</span> <span class="pre">edge_method,</span> <span class="pre">distance_threshold,</span> <span class="pre">adjacency_connectivity,</span> <span class="pre">adjacency_min_voxels,</span> <span class="pre">edge_weight,</span> <span class="pre">min_region_voxels,</span> <span class="pre">connectivity,</span> <span class="pre">erosion_radius,</span> <span class="pre">node_method,</span> <span class="pre">subdivide_region_voxels,</span> <span class="pre">block_size,</span> <span class="pre">block_min_coverage,</span> <span class="pre">pairwise_include_intra_edges,</span> <span class="pre">include_extended_metrics,</span> <span class="pre">extended_min_nodes,</span> <span class="pre">small_world_nrand,</span> <span class="pre">small_world_niter,</span> <span class="pre">rich_club_q,</span> <span class="pre">graph_null_sampler,</span> <span class="pre">graph_null_device</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;graph&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -3572,13 +3672,38 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>See the component docstring.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
 <td><p>&gt;= 3</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_world_nrand</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>&gt;= 1</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_world_niter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>&gt;= 1</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rich_club_q</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>&gt;= 1</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'analytic'</span></code></p></td>
+<td><p>‘analytic’ | ‘config’ | ‘rewire’</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">graph_null_device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
 </tbody>
@@ -3720,7 +3845,8 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="segment_habitat.html"><span class="doc">Habitat segmentation</span></a> — CLI / YAML operator path</p></li>
-<li><p><a class="reference internal" href="../examples/one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a> — the example that prompted this page</p></li>
+<li><p><a class="reference internal" href="../examples/one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a> — the example that prompted this page
+(<code class="docutils literal notranslate"><span class="pre">Report</span></code> streams maps / figures; it is not a <code class="docutils literal notranslate"><span class="pre">Stage</span></code>)</p></li>
 <li><p><a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a> — partition + pool</p></li>
 <li><p><a class="reference internal" href="../examples/feature_composition.html"><span class="doc">Feature composition: trees, combiners, and statistics</span></a> — worked concat / ratio / <code class="docutils literal notranslate"><span class="pre">as_</span></code> trees</p></li>
 <li><p><a class="reference internal" href="../examples/habitat_analysis_overview.html"><span class="doc">Habitat analysis overview (recipes → atoms → custom)</span></a> — recipe / atomic / custom</p></li>

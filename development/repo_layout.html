@@ -539,6 +539,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -616,6 +620,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -745,6 +750,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -802,6 +808,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -826,6 +833,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -990,7 +998,10 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -1108,6 +1119,49 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2194,6 +2248,7 @@ L4 recipes → L5 cli.</p>
   ROOT[&quot;habit/&quot;]
   ROOT --&gt; L5[&quot;L5 — cli.py + commands/&quot;]
   ROOT --&gt; L4[&quot;L4 — recipes/&quot;]
+  ROOT --&gt; REPORT[&quot;L4 — report/&quot;]
   ROOT --&gt; L3[&quot;L3 — domain/&quot;]
   ROOT --&gt; L2[&quot;L2 — contracts/&quot;]
   ROOT --&gt; L1[&quot;L1 — adapters/&quot;]
@@ -2211,6 +2266,8 @@ L4 recipes → L5 cli.</p>
 
   L5 --&gt; L4
   L4 --&gt; L3 --&gt; L2 --&gt; L1 --&gt; L0
+  REPORT --&gt; L3
+  L4 --&gt; REPORT
     </pre></section>
 <section id="top-level-package-responsibilities">
 <h2>Top-level package responsibilities<a class="headerlink" href="#top-level-package-responsibilities" title="Link to this heading"></a></h2>
@@ -2250,59 +2307,67 @@ habitat factories <code class="docutils literal notranslate"><span class="pre">t
 ML/compare disk figures go through <code class="docutils literal notranslate"><span class="pre">ml_reporting.py</span></code> /
 <code class="docutils literal notranslate"><span class="pre">comparison_reporting.py</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/viz/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/report/</span></code></p></td>
+<td><p><strong>L4</strong>: <code class="docutils literal notranslate"><span class="pre">Report</span></code> plus figure atoms (<code class="docutils literal notranslate"><span class="pre">Overlay</span></code>,
+<code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code>, <code class="docutils literal notranslate"><span class="pre">MSI</span></code>, <code class="docutils literal notranslate"><span class="pre">ITH</span></code>, <code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code>, <code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code>) and <code class="docutils literal notranslate"><span class="pre">figure_layout</span></code>
+(<code class="docutils literal notranslate"><span class="pre">flat</span></code> / <code class="docutils literal notranslate"><span class="pre">by_subject</span></code>). Run-scoped persist / draw / retain;
+not part of <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code>. Recipes import this package; it
+must not import <code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/viz/</span></code></p></td>
 <td><p>Publication figures (<code class="docutils literal notranslate"><span class="pre">Figure</span></code> in, no filesystem). Classification
 curves and SHAP helpers used by ML and compare reporting.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code></p></td>
 <td><p><strong>L5</strong>: Click command group and command implementations. Commands
 validate YAML, translate via <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code> when needed, and
 delegate to L4 recipes. Shared helpers are in <code class="docutils literal notranslate"><span class="pre">commands/common.py</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code></p></td>
 <td><p>Spec objects (<code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code>, <code class="docutils literal notranslate"><span class="pre">MLSpec</span></code>, <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code>) and
 <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code> for v0.1 → v1 translation.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code></p></td>
 <td><p>Execution backends (serial / multiprocessing) and checkpoint stores.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/datasets/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/datasets/</span></code></p></td>
 <td><p>Synthetic cohorts and feature tables for examples and tests.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/plugins/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/plugins/</span></code></p></td>
 <td><p>Plugin discovery and <code class="docutils literal notranslate"><span class="pre">list_plugins</span></code> introspection.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/api/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/api/</span></code></p></td>
 <td><p>v0.1 configuration-object facade (<code class="docutils literal notranslate"><span class="pre">run_ml</span></code>, <code class="docutils literal notranslate"><span class="pre">run_kfold</span></code>,
 <code class="docutils literal notranslate"><span class="pre">run_preprocess</span></code>, …), kept for YAML parity.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code></p></td>
 <td><p>Pydantic configuration models for workflows, step parameters, parameter
 registration, and validation (v1.0 canonical location).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/registry/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/registry/</span></code></p></td>
 <td><p>Shared registry base (<code class="xref py py-class docutils literal notranslate"><span class="pre">ClassRegistry</span></code>) used
 by plugin factories across engines.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/preprocessing/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/preprocessing/</span></code></p></td>
 <td><p>Batch image preprocessing: <code class="docutils literal notranslate"><span class="pre">BatchProcessor</span></code>,
 <code class="docutils literal notranslate"><span class="pre">BasePreprocessor</span></code>, <code class="docutils literal notranslate"><span class="pre">PreprocessorFactory</span></code>, and step implementations
 (v0.1 engine, retained for YAML/CLI parity).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_analysis/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_analysis/</span></code></p></td>
 <td><p>Habitat segmentation, clustering features, post-segmentation feature
 extraction, and traditional radiomics (see <a class="reference internal" href="subsystems.html"><span class="doc">Subsystems</span></a>).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/machine_learning/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/machine_learning/</span></code></p></td>
 <td><p>Legacy tabular ML engine (holdout/K-fold workflows, pickle pipelines).
 CLI train/cv/compare prefer v1 recipes + <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>; this tree is
 retained for YAML parity and opaque v0.1 pipeline loads.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/dicom_sort_runner.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/dicom_sort_runner.py</span></code></p></td>
 <td><p>Standalone DICOM sorting based on dcm2niix; invoked from
 <code class="docutils literal notranslate"><span class="pre">habit.recipes.sort_dicom</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/utils/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/utils/</span></code></p></td>
 <td><p>Shared utilities used across subsystems (see below).</p></td>
 </tr>
 </tbody>

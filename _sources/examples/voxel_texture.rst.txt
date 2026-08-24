@@ -77,6 +77,6 @@ Orthogonal local entropy
 What to read next
 -----------------
 
-* :doc:`../how_to/voxel_texture` — layouts and registry path
+* :doc:`../how_to/voxel_texture` — layouts, C vs GPU matrix backends, simulated parity
 * :doc:`graph_features` — graph topology **on habitat maps** (different product)
 * :doc:`habitat_feature_routes` — using voxel textures inside habitat recipes

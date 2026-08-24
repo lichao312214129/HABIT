@@ -21,6 +21,7 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -87,6 +88,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
@@ -176,10 +179,15 @@
 <li class="toctree-l2"><a class="reference internal" href="graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#also-see">Also see</a></li>
@@ -257,6 +265,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -366,7 +375,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -382,9 +393,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -440,6 +453,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -464,6 +478,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -628,11 +643,16 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -744,6 +764,49 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -948,6 +1011,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1298,6 +1367,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -1390,6 +1463,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1774,6 +1848,184 @@ entropy and densified <code class="docutils literal notranslate"><span class="pr
 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> uses PyRadiomics / TorchRadiomics for per-voxel maps; keep
 the enabled <code class="docutils literal notranslate"><span class="pre">featureClass</span></code> list small for interactive demos.</p>
 <p>Runnable gallery: <a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture maps</span></a>.</p>
+<section id="who-builds-the-texture-matrices">
+<h2>Who builds the texture matrices<a class="headerlink" href="#who-builds-the-texture-matrices" title="Link to this heading"></a></h2>
+<p>A voxel texture class has two stages: <strong>build the matrix</strong> (GLCM, GLDM,
+GLRLM, GLSZM, NGTDM), then <strong>evaluate the feature formulas</strong>. First-order
+has no co-occurrence matrix: it gathers the kernel window and reduces it.
+HABIT exposes three runtimes:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 40.0%" />
+<col style="width: 38.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Runtime</p></th>
+<th class="head"><p>Texture matrices</p></th>
+<th class="head"><p>Feature formulas</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>PyRadiomics (CPU)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">radiomics.cMatrices</span></code> C extension</p></td>
+<td><p>NumPy</p></td>
+</tr>
+<tr class="row-odd"><td><p>C matrices + TorchRadiomics</p></td>
+<td><p>Same C extension</p></td>
+<td><p>PyTorch (GPU)</p></td>
+</tr>
+<tr class="row-even"><td><p>HABIT CUDA</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habit.kernels.radiomics.gpumatrices</span></code> (GPU)</p></td>
+<td><p>Same TorchRadiomics formulas (GPU)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Upstream <a class="reference external" href="https://github.com/lyhyl/pytorchradiomics">pytorchradiomics</a>
+is the middle row: every <code class="docutils literal notranslate"><span class="pre">_calculateMatrix</span></code> still calls
+<code class="docutils literal notranslate"><span class="pre">cMatrices.calculate_glcm</span></code> (and the GLDM / GLRLM / GLSZM / NGTDM
+siblings) and then <code class="docutils literal notranslate"><span class="pre">self.tensor(...)</span></code>. HABIT vendors that code under
+<code class="docutils literal notranslate"><span class="pre">habit.kernels.radiomics.torchradiomics</span></code> and adds GPU matrix builders
+behind <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>: on when the torch device
+is CUDA). Their README GLCM 636 s → 23.8 s on a <span class="math notranslate nohighlight">\(16^3\)</span> job is the
+middle row vs PyRadiomics (CPU), <strong>not</strong> HABIT CUDA.</p>
+<p>First-order in HABIT gathers the kernel window and computes the
+reductions on CUDA. That is not a C texture matrix, so the middle column
+does not apply.</p>
+<section id="simulated-three-way-comparison">
+<h3>Simulated three-way comparison<a class="headerlink" href="#simulated-three-way-comparison" title="Link to this heading"></a></h3>
+<p>End-to-end voxel-based <code class="docutils literal notranslate"><span class="pre">execute()</span></code>, <code class="docutils literal notranslate"><span class="pre">dtype=torch.float64</span></code>, <strong>n = 5</strong>
+repeats on a fixed volume (mean ± sample standard deviation):</p>
+<ul class="simple">
+<li><p>Gaussian <code class="docutils literal notranslate"><span class="pre">N(300,</span> <span class="pre">80)</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">48,</span> <span class="pre">48)</span></code>, seed <code class="docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p>4096 ROI voxels, <code class="docutils literal notranslate"><span class="pre">kernelRadius=3</span></code>, <code class="docutils literal notranslate"><span class="pre">binWidth=25</span></code>, <code class="docutils literal notranslate"><span class="pre">voxelBatch=512</span></code></p></li>
+<li><p>first-order: Energy, Entropy, Mean, 90Percentile, Uniformity;
+GLCM: JointEntropy, Idm, Contrast; GLDM: DependenceEntropy,
+LargeDependenceEmphasis, SmallDependenceEmphasis; GLRLM:
+ShortRunEmphasis, RunPercentage, GrayLevelNonUniformity; GLSZM:
+ZonePercentage, LargeAreaEmphasis, ZoneVariance; NGTDM: Coarseness,
+Contrast, Busyness</p></li>
+<li><p>hardware: NVIDIA GeForce RTX 3070 Laptop GPU</p></li>
+</ul>
+<p>Column names:</p>
+<ul class="simple">
+<li><p><strong>PyRadiomics (CPU)</strong> — C-extension matrices and NumPy formulas
+(first-order: CPU neighbourhood stats)</p></li>
+<li><p><strong>C matrices + TorchRadiomics</strong> — C-extension matrices, GPU formulas
+(<code class="docutils literal notranslate"><span class="pre">use_gpu_matrices=false</span></code>)</p></li>
+<li><p><strong>HABIT CUDA</strong> — GPU matrices and GPU formulas
+(<code class="docutils literal notranslate"><span class="pre">use_gpu_matrices=true</span></code>; first-order gather + formulas on CUDA)</p></li>
+</ul>
+<p><strong>Time (s), mean ± s.d.</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 28.0%" />
+<col style="width: 32.0%" />
+<col style="width: 24.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Class</p></th>
+<th class="head"><p>PyRadiomics (CPU)</p></th>
+<th class="head"><p>C matrices + TorchRadiomics</p></th>
+<th class="head"><p>HABIT CUDA</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>First-order</p></td>
+<td><p>0.760 ± 0.030</p></td>
+<td><p>n/a</p></td>
+<td><p>0.037 ± 0.023</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLCM</p></td>
+<td><p>2.556 ± 0.042</p></td>
+<td><p>0.331 ± 0.033</p></td>
+<td><p>0.197 ± 0.087</p></td>
+</tr>
+<tr class="row-even"><td><p>GLDM</p></td>
+<td><p>0.189 ± 0.007</p></td>
+<td><p>0.182 ± 0.014</p></td>
+<td><p>0.154 ± 0.040</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLRLM</p></td>
+<td><p>1.567 ± 0.074</p></td>
+<td><p>1.060 ± 0.014</p></td>
+<td><p>0.530 ± 0.070</p></td>
+</tr>
+<tr class="row-even"><td><p>GLSZM</p></td>
+<td><p>0.138 ± 0.004</p></td>
+<td><p>0.152 ± 0.008</p></td>
+<td><p>0.168 ± 0.006</p></td>
+</tr>
+<tr class="row-odd"><td><p>NGTDM</p></td>
+<td><p>0.175 ± 0.007</p></td>
+<td><p>0.150 ± 0.003</p></td>
+<td><p>0.131 ± 0.005</p></td>
+</tr>
+</tbody>
+</table>
+<p>GLCM and GLRLM are the C-extension bottlenecks, so GPU formulas help and
+GPU matrices help again. First-order has no texture matrix; HABIT CUDA
+is the kernel gather plus reductions on device. GLSZM on this 4096-voxel
+toy is already cheap on CPU (launch overhead).</p>
+<p><strong>Accuracy</strong>, max abs. error of the feature maps (worst feature in the
+class), mean ± s.d. over the same 5 repeats:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 28.0%" />
+<col style="width: 28.0%" />
+<col style="width: 28.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Class</p></th>
+<th class="head"><p>C+Torch vs PyRadiomics</p></th>
+<th class="head"><p>HABIT CUDA vs PyRadiomics</p></th>
+<th class="head"><p>HABIT CUDA vs C+Torch</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>First-order</p></td>
+<td><p>n/a</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.49\times 10^{-8} \pm 0\)</span></p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLCM</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.42\times 10^{-14} \pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.42\times 10^{-14} \pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(7.77\times 10^{-17} \pm 3.0\times 10^{-17}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>GLDM</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.78\times 10^{-15} \pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.78\times 10^{-15} \pm 0\)</span></p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLRLM</p></td>
+<td><p><span class="math notranslate nohighlight">\(3.55\times 10^{-15} \pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(3.55\times 10^{-15} \pm 0\)</span></p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>GLSZM</p></td>
+<td><p><span class="math notranslate nohighlight">\(8.88\times 10^{-16} \pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(8.88\times 10^{-16} \pm 0\)</span></p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>NGTDM</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.55\times 10^{-16} \pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(5.55\times 10^{-16} \pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.67\times 10^{-16} \pm 0\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>Texture C+Torch / HABIT CUDA vs PyRadiomics is NumPy vs torch formula
+order, not a matrix mismatch. HABIT CUDA vs C+Torch sits at machine
+epsilon because integer count matrices are bit-identical
+(<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_*_gpu_parity.py</span></code>, 81 cases). First-order is
+looser (<span class="math notranslate nohighlight">\(10^{-8}\)</span>) because percentiles use different quantile
+algorithms. Force the matrix backend with <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices:</span> <span class="pre">true</span></code> /
+<code class="docutils literal notranslate"><span class="pre">false</span></code> on the <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> Spec.</p>
+</section>
+</section>
 <section id="python-api-sklearn-short">
 <h2>Python API (sklearn-short)<a class="headerlink" href="#python-api-sklearn-short" title="Link to this heading"></a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_entropy_map</span>

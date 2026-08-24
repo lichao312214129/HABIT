@@ -18,6 +18,11 @@ and topology :doc:`graph_features` (built-in ``graph`` family; now in the
 default extract list). Galleries: :doc:`../examples/graph_features` and
 habitat-vs-habitat contrast :doc:`../examples/habitat_feature_compare`.
 
+**Publication figures** (pure :mod:`habit.viz` + one-step
+:class:`~habit.report.Report` atoms, including ``figure_layout``):
+:doc:`../examples/visualization`. Graph lattice / network:
+:doc:`graph_features`.
+
 **Voxel texture maps** (local entropy / GLCM via ``voxel_radiomics``):
 :doc:`voxel_texture`. Gallery: :doc:`../examples/voxel_texture`.
 

@@ -18,6 +18,7 @@ Architecture in one diagram
 .. code-block:: text
 
    L4  recipes          Study.fit / fit_predict / predict (+ habitat factories) → StudyResult
+   L4  report           Report(persist, retain, figures, writer) — run-scoped, not a Spec
    L3  domain           stages executor + protocols + SubjectPipeline / TablePipeline
    L2  contracts        Subject, Cohort, HabitatModel, FeatureTable, RunManifest
    L1  adapters         DirectoryDataSource, FileImageRef, NnUNetDataSource
@@ -37,7 +38,10 @@ Mental model
 4. **``pool``** is the only subject↔cohort watershed; post-pool feature
    preprocess is first-class.
 5. Publish **``HabitatModel`` + ``SubjectPipeline``** = definition + procedure.
-6. Writing to disk is explicit (``HabitatModel.save`` / ``StudyResult.save``).
+6. Writing to disk is explicit (``HabitatModel.save`` /
+   ``StudyResult.save``). For a one-step cohort that must not hold every
+   subject's volumes, pass ``report=Report(...)`` so each subject is
+   persisted (and optionally drawn) as it completes.
 
 Primary entry: ``Study``
 ------------------------
@@ -82,7 +86,45 @@ return a :class:`~habit.recipes.Study` with a declared ``design`` (see
 
 One-step (no ``pool``) has no cohort-level definition:
 ``result.habitat_model`` is ``None``; per-subject definitions live in
-``result.subject_models``.
+``result.subject_models``. Stream maps / figures with
+:class:`~habit.report.Report` — see :doc:`../examples/one_step_habitat`.
+
+.. code-block:: python
+
+   from habit import (
+       ClusterValidation,
+       GraphNetwork2D,
+       GraphSlice,
+       HabitatGraphFeatureOptions,
+       ITH,
+       MSI,
+       Overlay,
+       Report,
+       Study,
+       VolumeFractions,
+   )
+   from habit.adapters import DirectoryResultWriter
+
+   graph = HabitatGraphFeatureOptions(edge_method="min_distance", block_size=8)
+   result = Study(spec=spec, design="one_step").fit_predict(
+       cohort,
+       report=Report(
+           persist=("habitat_map", "subject_model"),
+           retain="tables",
+           figures=(
+               Overlay(modality="T1"),
+               VolumeFractions(),
+               MSI(),
+               ITH(),
+               ClusterValidation(),
+               GraphSlice(options=graph),
+               GraphNetwork2D(options=graph),
+           ),
+           writer=DirectoryResultWriter("out/study"),
+           figure_layout="by_subject",
+       ),
+   )
+   result.save("out/study")   # tables + manifest; maps already on disk
 
 To open habitat labels on anatomy right after the recipe (napari screenshots
 included), see **View the habitat maps** in :doc:`../tutorial/quickstart_python`.
@@ -367,6 +409,8 @@ Where to go next
      - :doc:`spec`
    * - Parallel execution and checkpoints
      - :doc:`execution`
+   * - Streaming persist + per-subject figures (``Report``)
+     - :doc:`../examples/one_step_habitat`
    * - Pure numeric kernels
      - :doc:`kernels`
    * - sklearn / MONAI / nnU-Net

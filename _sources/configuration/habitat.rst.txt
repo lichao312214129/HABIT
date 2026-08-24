@@ -193,6 +193,8 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         - ``kernel_radius`` (int, default: ``3`` for CT R3B12 bundled preset; ``1`` = 3×3×3, ``3`` = 7×7×7): local neighborhood radius
         - ``voxel_batch`` (int, default: ``1000``): voxel batch size; ``-1`` processes all ROI voxels at once (native PyRadiomics, no batching). Positive values limit memory (GPU or large ROI: ``512``–``1000`` recommended)
         - ``use_torch_radiomics`` (str, default: ``auto``): ``auto`` uses TorchRadiomics when torch is installed and CUDA is available, otherwise CPU PyRadiomics; ``true`` forces torch; ``false`` always CPU
+        - ``use_gpu_matrices`` (str, default: ``auto``): when TorchRadiomics is on, ``auto`` builds GLCM/GLDM/GLRLM/GLSZM/NGTDM on GPU (``habit.kernels.radiomics.gpumatrices``); ``false`` keeps the PyRadiomics ``cMatrices`` C extension (same counts). Upstream pytorchradiomics always uses C for this step. See :doc:`../how_to/voxel_texture`.
+        - ``class_progress`` (bool, default: ``false``): when ``true``, print and tqdm each PyRadiomics class (firstorder, glcm, ...). Default is quiet; ``Cohort.map`` still reports subjects.
         - ``torch_device`` (str, default: ``auto``): single GPU device when ``torch_gpus`` is unset
         - ``torch_gpus`` (list/int/str): allowed GPU indices, e.g. ``[0, 1, 2]`` or ``"0,1,2"``; overrides ``torch_device`` when set
         - ``torch_gpu_count`` (int, optional): use first N GPUs from ``torch_gpus``
@@ -257,6 +259,8 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
     - ``kernel_radius`` (int): voxel radiomics neighborhood radius (for voxel_radiomics)
     - ``voxel_batch`` (int): voxel radiomics batch size (for voxel_radiomics; default ``1000``; ``-1`` = no batching)
     - ``use_torch_radiomics`` (str): TorchRadiomics acceleration (``auto`` / ``true`` / ``false``)
+    - ``use_gpu_matrices`` (str): GPU texture-matrix backend (``auto`` / ``true`` / ``false``); see :doc:`../how_to/voxel_texture`
+    - ``class_progress`` (bool): per-class voxel radiomics tqdm (default ``false``)
     - ``torch_device`` (str): single GPU device (when ``torch_gpus`` unset)
     - ``torch_gpus`` (list/int/str): allowed GPU list
     - ``torch_gpu_count`` (int): cap on GPUs actually used

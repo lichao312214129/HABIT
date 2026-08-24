@@ -536,6 +536,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -613,6 +617,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -742,6 +747,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -799,6 +805,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -823,6 +830,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -987,7 +995,10 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -1105,6 +1116,49 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2164,24 +2218,36 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">combinations</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.array_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">graph_arrays_from_table</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.edges</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">as_intra_edge</span><span class="p">,</span>
     <span class="n">build_adjacency_graph</span><span class="p">,</span>
     <span class="n">build_centroid_distance_graph</span><span class="p">,</span>
+    <span class="n">build_centroid_inter_edges</span><span class="p">,</span>
+    <span class="n">build_min_distance_edge_table</span><span class="p">,</span>
+    <span class="n">build_min_distance_edges</span><span class="p">,</span>
     <span class="n">build_min_distance_graph</span><span class="p">,</span>
+    <span class="n">build_min_distance_inter_edges</span><span class="p">,</span>
+    <span class="n">compose_pairwise_graph</span><span class="p">,</span>
     <span class="n">iter_label_pairs</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_pairwise_features_from_arrays</span><span class="p">,</span>
+    <span class="n">_single_features_from_arrays</span><span class="p">,</span>
     <span class="n">calculate_pairwise_graph_metrics</span><span class="p">,</span>
     <span class="n">calculate_single_graph_metrics</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">EdgeMethod</span><span class="p">,</span>
     <span class="n">EdgeWeightMode</span><span class="p">,</span>
+    <span class="n">HabitatGraph</span><span class="p">,</span>
+    <span class="n">HabitatGraphEdge</span><span class="p">,</span>
     <span class="n">HabitatGraphNode</span><span class="p">,</span>
+    <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
     <span class="n">NodeMethod</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_habitat_nodes</span>
@@ -2241,8 +2307,19 @@ window.runMermaid = runMermaid;</script>
     <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
     <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
     <span class="n">pairwise_include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span></div>
+    <span class="c1"># Default False: efficiency / small-world / rich-club / node</span>
+    <span class="c1"># distributions are superlinear and dominate runtime on large maps.</span>
+    <span class="c1"># Pass True on HabitatGraphFeatureOptions to opt in.</span>
+    <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="c1"># Default small-world is Humphries analytic ER *S* (one column).</span>
+    <span class="c1"># ``config`` / ``rewire`` replace that column with a degree-preserving</span>
+    <span class="c1"># ensemble; they do not add a second sigma.</span>
+    <span class="n">small_world_nrand</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">small_world_niter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">rich_club_q</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">graph_null_sampler</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;analytic&quot;</span>
+    <span class="n">graph_null_device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span></div>
 
 
 
@@ -2429,9 +2506,220 @@ window.runMermaid = runMermaid;</script>
             <span class="k">continue</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_metric_kwargs</span><span class="p">(</span><span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shared keyword arguments for single / pairwise metric kernels.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;include_extended_metrics&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">include_extended_metrics</span><span class="p">,</span>
+        <span class="s2">&quot;extended_min_nodes&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">extended_min_nodes</span><span class="p">,</span>
+        <span class="s2">&quot;small_world_nrand&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">small_world_nrand</span><span class="p">,</span>
+        <span class="s2">&quot;small_world_niter&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">small_world_niter</span><span class="p">,</span>
+        <span class="s2">&quot;rich_club_q&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">rich_club_q</span><span class="p">,</span>
+        <span class="s2">&quot;graph_null_sampler&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">graph_null_sampler</span><span class="p">,</span>
+        <span class="s2">&quot;graph_null_device&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">graph_null_device</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_graph_metrics_job</span><span class="p">(</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">HabitatGraph</span><span class="p">,</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Module-level worker so process pools can pickle the metric call.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">calculate_single_graph_metrics</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="k">return</span> <span class="n">calculate_pairwise_graph_metrics</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_metric_jobs</span><span class="p">(</span>
+    <span class="n">jobs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">HabitatGraph</span><span class="p">]],</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate independent graph-metric jobs.</span>
+
+<span class="sd">    Each job is a different graph, so process-parallel Brandes / Louvain</span>
+<span class="sd">    is safe. One or two graphs stay in-process (spawn overhead dominates).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_metric_kwargs</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">largest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="k">for</span> <span class="n">_kind</span><span class="p">,</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Spawn is more expensive than Brandes on the tiny graphs used in tests.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">largest</span> <span class="o">&lt;</span> <span class="mi">80</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_compute_graph_metrics_job</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_compute_graph_metrics_job</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="s2">&quot;threads&quot;</span><span class="p">)(</span>
+            <span class="n">delayed</span><span class="p">(</span><span class="n">_compute_graph_metrics_job</span><span class="p">)(</span><span class="n">kind</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">jobs</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_true_habitat_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the sorted positive habitat labels present in ``labels``.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_slice_min_distance_edges</span><span class="p">(</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">],</span>
+    <span class="n">nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">as_intra</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keep table edges whose endpoints both sit in ``nodes``.&quot;&quot;&quot;</span>
+    <span class="n">allowed</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">node_id</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">node_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">habitat_label</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span>
+    <span class="n">sliced</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">source</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed</span> <span class="ow">or</span> <span class="n">edge</span><span class="o">.</span><span class="n">target</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">as_intra</span> <span class="ow">and</span> <span class="n">labels</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="p">]</span> <span class="o">==</span> <span class="n">labels</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">target</span><span class="p">]:</span>
+            <span class="n">sliced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">as_intra_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">as_intra</span><span class="p">)</span> <span class="ow">or</span> <span class="n">labels</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="p">]</span> <span class="o">!=</span> <span class="n">labels</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">target</span><span class="p">]:</span>
+            <span class="n">sliced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sliced</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_single_graph</span><span class="p">(</span>
+    <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">habitat_label</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+    <span class="n">min_distance_edges</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build one single-habitat graph with the requested edge rule.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">build_adjacency_graph</span><span class="p">(</span>
+            <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,),</span>
+            <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+            <span class="n">adjacency_connectivity</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_connectivity</span><span class="p">,</span>
+            <span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_min_voxels</span><span class="p">,</span>
+            <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">min_distance_edges</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HabitatGraph</span><span class="p">(</span>
+                <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+                <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">),),</span>
+                <span class="n">nodes</span><span class="o">=</span><span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">node_id</span><span class="p">:</span> <span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">},</span>
+                <span class="n">edges</span><span class="o">=</span><span class="n">_slice_min_distance_edges</span><span class="p">(</span>
+                    <span class="n">min_distance_edges</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">as_intra</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
+            <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,),</span>
+            <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+            <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+            <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">build_centroid_distance_graph</span><span class="p">(</span>
+        <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,),</span>
+        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+        <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+        <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reused_intra_edges</span><span class="p">(</span>
+    <span class="n">single_graphs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">HabitatGraph</span><span class="p">],</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Intra edges already measured on the single-habitat graph, retagged.&quot;&quot;&quot;</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">single_graphs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">as_intra_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_pairwise_graph</span><span class="p">(</span>
+    <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">pair_nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">label_a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">label_b</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+    <span class="n">single_graphs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">HabitatGraph</span><span class="p">],</span>
+    <span class="n">min_distance_edges</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a pairwise graph, reusing intra edges when singles already exist.</span>
+
+<span class="sd">    ``min_distance`` and ``centroid_distance`` only measure cross-habitat</span>
+<span class="sd">    pairs when both single-habitat graphs are cached. ``adjacency`` still</span>
+<span class="sd">    paints the pair once (contact counting is one voxel pass).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reuse_intra</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span>
+        <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">single_graphs</span>
+        <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_b</span><span class="p">)</span> <span class="ow">in</span> <span class="n">single_graphs</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">build_adjacency_graph</span><span class="p">(</span>
+            <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span>
+            <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+            <span class="n">adjacency_connectivity</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_connectivity</span><span class="p">,</span>
+            <span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_min_voxels</span><span class="p">,</span>
+            <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+            <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">min_distance_edges</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sliced</span> <span class="o">=</span> <span class="n">_slice_min_distance_edges</span><span class="p">(</span>
+                <span class="n">min_distance_edges</span><span class="p">,</span> <span class="n">pair_nodes</span><span class="p">,</span> <span class="n">as_intra</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">:</span>
+                <span class="n">sliced</span> <span class="o">=</span> <span class="p">[</span><span class="n">edge</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">sliced</span> <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">edge_type</span> <span class="o">!=</span> <span class="s2">&quot;intra&quot;</span><span class="p">]</span>
+            <span class="n">inter_edges</span> <span class="o">=</span> <span class="p">[</span><span class="n">edge</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">sliced</span> <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">edge_type</span> <span class="o">!=</span> <span class="s2">&quot;intra&quot;</span><span class="p">]</span>
+            <span class="n">intra_edges</span> <span class="o">=</span> <span class="p">[</span><span class="n">edge</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">sliced</span> <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">edge_type</span> <span class="o">==</span> <span class="s2">&quot;intra&quot;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">compose_pairwise_graph</span><span class="p">(</span>
+                <span class="n">pair_nodes</span><span class="p">,</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span> <span class="n">inter_edges</span><span class="p">,</span> <span class="n">intra_edges</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">reuse_intra</span><span class="p">:</span>
+            <span class="n">inter_edges</span> <span class="o">=</span> <span class="n">build_min_distance_inter_edges</span><span class="p">(</span>
+                <span class="n">node_result</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">intra_edges</span> <span class="o">=</span> <span class="n">_reused_intra_edges</span><span class="p">(</span><span class="n">single_graphs</span><span class="p">,</span> <span class="n">label_a</span><span class="p">)</span>
+            <span class="n">intra_edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_reused_intra_edges</span><span class="p">(</span><span class="n">single_graphs</span><span class="p">,</span> <span class="n">label_b</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">compose_pairwise_graph</span><span class="p">(</span>
+                <span class="n">pair_nodes</span><span class="p">,</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span> <span class="n">inter_edges</span><span class="p">,</span> <span class="n">intra_edges</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
+            <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span>
+            <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+            <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+            <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+            <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">reuse_intra</span><span class="p">:</span>
+        <span class="n">nodes_a</span> <span class="o">=</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">nodes_b</span> <span class="o">=</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_b</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">inter_edges</span> <span class="o">=</span> <span class="n">build_centroid_inter_edges</span><span class="p">(</span>
+            <span class="n">nodes_a</span><span class="p">,</span>
+            <span class="n">nodes_b</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">intra_edges</span> <span class="o">=</span> <span class="n">_reused_intra_edges</span><span class="p">(</span><span class="n">single_graphs</span><span class="p">,</span> <span class="n">label_a</span><span class="p">)</span>
+        <span class="n">intra_edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_reused_intra_edges</span><span class="p">(</span><span class="n">single_graphs</span><span class="p">,</span> <span class="n">label_b</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">compose_pairwise_graph</span><span class="p">(</span>
+            <span class="n">pair_nodes</span><span class="p">,</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span> <span class="n">inter_edges</span><span class="p">,</span> <span class="n">intra_edges</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">build_centroid_distance_graph</span><span class="p">(</span>
+        <span class="n">nodes</span><span class="o">=</span><span class="n">pair_nodes</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span>
+        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+        <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+        <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+        <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_flatten_nodes</span><span class="p">(</span>
@@ -2501,44 +2789,112 @@ window.runMermaid = runMermaid;</script>
     <span class="p">}</span>
 
     <span class="n">single_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">habitat_labels</span><span class="p">)</span>
+    <span class="n">use_array_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">include_extended_metrics</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_array_path</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">include_single_habitat_graph</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">include_pairwise_habitat_graph</span>
+    <span class="p">):</span>
+        <span class="n">all_nodes</span> <span class="o">=</span> <span class="n">_flatten_nodes</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">single_labels</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">build_min_distance_edge_table</span><span class="p">(</span>
+            <span class="n">node_result</span><span class="p">,</span>
+            <span class="n">all_nodes</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">metric_jobs_arrays</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_single_habitat_graph</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="n">single_labels</span><span class="p">:</span>
+                <span class="n">arrays</span> <span class="o">=</span> <span class="n">graph_arrays_from_table</span><span class="p">(</span>
+                    <span class="n">all_nodes</span><span class="p">,</span>
+                    <span class="n">table</span><span class="p">,</span>
+                    <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">),),</span>
+                    <span class="s2">&quot;single&quot;</span><span class="p">,</span>
+                    <span class="n">include_intra</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">nodes</span> <span class="o">=</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">metric_jobs_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">arrays</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_pairwise_habitat_graph</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span> <span class="ow">in</span> <span class="n">iter_label_pairs</span><span class="p">(</span><span class="n">habitat_labels</span><span class="p">):</span>
+                <span class="n">arrays</span> <span class="o">=</span> <span class="n">graph_arrays_from_table</span><span class="p">(</span>
+                    <span class="n">all_nodes</span><span class="p">,</span>
+                    <span class="n">table</span><span class="p">,</span>
+                    <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label_a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_b</span><span class="p">)),</span>
+                    <span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+                    <span class="n">include_intra</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
+                    <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">metric_jobs_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">arrays</span><span class="p">,</span> <span class="p">())))</span>
+        <span class="n">largest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">node_ids</span><span class="p">)</span>  <span class="c1"># type: ignore[index]</span>
+                <span class="k">for</span> <span class="n">_kind</span><span class="p">,</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">metric_jobs_arrays</span>
+            <span class="p">),</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_run_array_job</span><span class="p">(</span><span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span><span class="p">:</span>
+                <span class="n">arrays</span><span class="p">,</span> <span class="n">nodes</span> <span class="o">=</span> <span class="n">payload</span>  <span class="c1"># type: ignore[misc]</span>
+                <span class="k">return</span> <span class="n">_single_features_from_arrays</span><span class="p">(</span><span class="n">arrays</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+            <span class="n">arrays</span><span class="p">,</span> <span class="n">_unused</span> <span class="o">=</span> <span class="n">payload</span>  <span class="c1"># type: ignore[misc]</span>
+            <span class="k">return</span> <span class="n">_pairwise_features_from_arrays</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">metric_jobs_arrays</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">largest</span> <span class="o">&lt;</span> <span class="mi">80</span><span class="p">:</span>
+            <span class="n">payloads</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">_run_array_job</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">metric_jobs_arrays</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+
+                <span class="n">payloads</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="s2">&quot;threads&quot;</span><span class="p">)(</span>
+                        <span class="n">delayed</span><span class="p">(</span><span class="n">_run_array_job</span><span class="p">)(</span><span class="n">kind</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">metric_jobs_arrays</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">payloads</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">_run_array_job</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">metric_jobs_arrays</span>
+                <span class="p">]</span>
+        <span class="k">for</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">payloads</span><span class="p">:</span>
+            <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">_augment_with_normalized_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels_array</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">features</span>
+
+    <span class="n">min_distance_edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">include_single_habitat_graph</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">include_pairwise_habitat_graph</span>
+    <span class="p">):</span>
+        <span class="n">all_nodes</span> <span class="o">=</span> <span class="n">_flatten_nodes</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">single_labels</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">min_distance_edges</span> <span class="o">=</span> <span class="n">build_min_distance_edges</span><span class="p">(</span>
+            <span class="n">node_result</span><span class="p">,</span>
+            <span class="n">all_nodes</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">single_graphs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">HabitatGraph</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">metric_jobs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">HabitatGraph</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_single_habitat_graph</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="n">single_labels</span><span class="p">:</span>
-            <span class="c1"># Labels listed in ``expected_labels`` but absent from this map</span>
-            <span class="c1"># yield an empty node list, i.e. a zero-valued empty graph.</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,</span> <span class="p">[])</span>
-            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">:</span>
-                <span class="n">graph</span> <span class="o">=</span> <span class="n">build_adjacency_graph</span><span class="p">(</span>
-                    <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
-                    <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,),</span>
-                    <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
-                    <span class="n">adjacency_connectivity</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_connectivity</span><span class="p">,</span>
-                    <span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_min_voxels</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span>
-                <span class="n">graph</span> <span class="o">=</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
-                    <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
-                    <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,),</span>
-                    <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
-                    <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">graph</span> <span class="o">=</span> <span class="n">build_centroid_distance_graph</span><span class="p">(</span>
-                    <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
-                    <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,),</span>
-                    <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
-                    <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="n">calculate_single_graph_metrics</span><span class="p">(</span>
-                    <span class="n">graph</span><span class="p">,</span>
-                    <span class="n">include_extended_metrics</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">include_extended_metrics</span><span class="p">,</span>
-                    <span class="n">extended_min_nodes</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">extended_min_nodes</span><span class="p">,</span>
-                <span class="p">)</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">_build_single_graph</span><span class="p">(</span>
+                <span class="n">node_result</span><span class="p">,</span>
+                <span class="n">nodes</span><span class="p">,</span>
+                <span class="n">habitat_label</span><span class="p">,</span>
+                <span class="n">options</span><span class="p">,</span>
+                <span class="n">min_distance_edges</span><span class="o">=</span><span class="n">min_distance_edges</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="n">single_graphs</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">)]</span> <span class="o">=</span> <span class="n">graph</span>
+            <span class="n">metric_jobs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_pairwise_habitat_graph</span><span class="p">:</span>
         <span class="n">pair_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_label_pairs</span><span class="p">(</span><span class="n">habitat_labels</span><span class="p">))</span>
@@ -2549,41 +2905,19 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_b</span><span class="p">,</span> <span class="p">[]),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">:</span>
-                <span class="n">graph</span> <span class="o">=</span> <span class="n">build_adjacency_graph</span><span class="p">(</span>
-                    <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
-                    <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span>
-                    <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
-                    <span class="n">adjacency_connectivity</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_connectivity</span><span class="p">,</span>
-                    <span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_min_voxels</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                    <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span>
-                <span class="n">graph</span> <span class="o">=</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
-                    <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
-                    <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span>
-                    <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
-                    <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                    <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">graph</span> <span class="o">=</span> <span class="n">build_centroid_distance_graph</span><span class="p">(</span>
-                    <span class="n">nodes</span><span class="o">=</span><span class="n">pair_nodes</span><span class="p">,</span>
-                    <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span>
-                    <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
-                    <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                    <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="n">calculate_pairwise_graph_metrics</span><span class="p">(</span>
-                    <span class="n">graph</span><span class="p">,</span>
-                    <span class="n">include_extended_metrics</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">include_extended_metrics</span><span class="p">,</span>
-                    <span class="n">extended_min_nodes</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">extended_min_nodes</span><span class="p">,</span>
-                <span class="p">)</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">_build_pairwise_graph</span><span class="p">(</span>
+                <span class="n">node_result</span><span class="p">,</span>
+                <span class="n">pair_nodes</span><span class="p">,</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">label_a</span><span class="p">),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">label_b</span><span class="p">),</span>
+                <span class="n">options</span><span class="p">,</span>
+                <span class="n">single_graphs</span><span class="p">,</span>
+                <span class="n">min_distance_edges</span><span class="o">=</span><span class="n">min_distance_edges</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="n">metric_jobs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">_run_metric_jobs</span><span class="p">(</span><span class="n">metric_jobs</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 
     <span class="n">_augment_with_normalized_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels_array</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">features</span></div>

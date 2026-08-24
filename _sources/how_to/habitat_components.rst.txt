@@ -176,7 +176,9 @@ YAML::
          modality: T1
 
 ``voxel_radiomics`` needs the ``pyradiomics`` extra and is much slower
-than ``raw`` / ``local_entropy``.
+than ``raw`` / ``local_entropy``. Matrix construction can use HABIT's
+GPU path (``use_gpu_matrices``) instead of the PyRadiomics C extension;
+see :doc:`voxel_texture`.
 
 .. _chooser-voxel-compose:
 
@@ -531,6 +533,41 @@ Python::
        Spec("graph", {"edge_method": "min_distance", "node_method": "uniform_grid"}),
    )
 
+One-step streaming figures (not stages — do not enter the fingerprint).
+Pass the same :class:`~habit.HabitatGraphFeatureOptions` to
+``Spec("graph")`` and the graph atoms. Catalog: :doc:`../examples/visualization`.
+
+Python::
+
+   from habit import (
+       ClusterValidation,
+       GraphNetwork2D,
+       GraphSlice,
+       HabitatGraphFeatureOptions,
+       ITH,
+       MSI,
+       Overlay,
+       Report,
+       VolumeFractions,
+   )
+   from habit.adapters import DirectoryResultWriter
+
+   graph = HabitatGraphFeatureOptions(edge_method="min_distance", block_size=8)
+   writer = DirectoryResultWriter("out/study")
+   report = Report(
+       figures=(
+           Overlay(modality="T1"),
+           VolumeFractions(),
+           MSI(),
+           ITH(),
+           ClusterValidation(),
+           GraphSlice(options=graph),
+           GraphNetwork2D(options=graph),
+       ),
+       figure_layout="by_subject",
+       writer=writer,
+   )
+
 YAML::
 
    - name: quantify
@@ -549,6 +586,7 @@ What to read next
 
 * :doc:`segment_habitat` — CLI / YAML operator path
 * :doc:`../examples/one_step_habitat` — the example that prompted this page
+  (``Report`` streams maps / figures; it is not a ``Stage``)
 * :doc:`../examples/two_step_habitat` — partition + pool
 * :doc:`../examples/feature_composition` — worked concat / ratio / ``as_`` trees
 * :doc:`../examples/habitat_analysis_overview` — recipe / atomic / custom

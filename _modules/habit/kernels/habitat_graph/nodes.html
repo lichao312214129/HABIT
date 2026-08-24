@@ -536,6 +536,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -613,6 +617,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -742,6 +747,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -799,6 +805,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -823,6 +830,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -987,7 +995,10 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -1105,6 +1116,49 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2155,6 +2209,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">replace</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -2165,8 +2220,85 @@ window.runMermaid = runMermaid;</script>
     <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
     <span class="n">NodeMethod</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.union_find_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">label_painted_components</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;extract_habitat_nodes&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_nonzero_bbox_slices</span><span class="p">(</span>
+    <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">slice</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Bounding-box slices of non-background labels, plus one voxel of pad.</span>
+
+<span class="sd">    Pad is clipped to the input array so we never invent voxels outside</span>
+<span class="sd">    the original lattice. The extra zero layer keeps erosion / adjacency</span>
+<span class="sd">    at the tumour rim identical to running on the full CT (tumour-adjacent</span>
+<span class="sd">    background is still 0).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        label_array: Integer habitat map; ``0`` is background.</span>
+<span class="sd">        pad: Voxels of background to keep around the nonempty bbox.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(slices, offset)`` where ``offset`` is the inclusive origin of</span>
+<span class="sd">        the crop in the original index space, or ``None`` when empty.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hits</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">hits</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">pad</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">hits</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">pad</span><span class="p">),</span> <span class="n">label_array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">slices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">stop</span><span class="p">))</span> <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">))</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lo</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">slices</span><span class="p">,</span> <span class="n">offset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_shift_node</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">HabitatGraphNode</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatGraphNode</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate one node&#39;s centroid and bbox into the original index space.&quot;&quot;&quot;</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span>
+    <span class="n">shifted</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="n">axis</span><span class="p">])</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">)]</span>
+    <span class="n">shifted</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="n">ndim</span> <span class="o">+</span> <span class="n">axis</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="n">axis</span><span class="p">])</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">HabitatGraphNode</span><span class="p">(</span>
+        <span class="n">node_id</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
+        <span class="n">habitat_label</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">habitat_label</span><span class="p">,</span>
+        <span class="n">component_id</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">component_id</span><span class="p">,</span>
+        <span class="n">centroid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">centroid</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span>
+        <span class="n">voxel_count</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">voxel_count</span><span class="p">),</span>
+        <span class="n">bbox</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">shifted</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_crop_offset</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Keep cropped maps, report nodes / lattice origin in original indices.</span>
+
+<span class="sd">    ``component_maps`` and ``label_array`` stay on the cropped grid so</span>
+<span class="sd">    later adjacency / min-distance walks skip empty CT slices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">):</span> <span class="p">[</span><span class="n">_shift_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">habitat_id</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">grid_origin</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">grid_origin</span>
+    <span class="k">if</span> <span class="n">grid_origin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">grid_origin</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">axis</span> <span class="o">+</span> <span class="n">extra</span><span class="p">)</span> <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">extra</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grid_origin</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">replace</span><span class="p">(</span>
+        <span class="n">result</span><span class="p">,</span>
+        <span class="n">nodes_by_habitat</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+        <span class="n">grid_origin</span><span class="o">=</span><span class="n">grid_origin</span><span class="p">,</span>
+        <span class="n">crop_offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_connectivity_structure</span><span class="p">(</span><span class="n">ndim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -2318,6 +2450,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span><span class="p">,</span>
     <span class="n">grid_origin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2337,8 +2470,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: Integer habitat label map (background encoded as 0).</span>
 <span class="sd">        labels: Positive habitat ids present before erosion.</span>
-<span class="sd">        structure: Neighbourhood for optional erosion and in-cell</span>
-<span class="sd">            connected-component labeling.</span>
+<span class="sd">        structure: Neighbourhood for optional erosion (same as</span>
+<span class="sd">            ``connectivity``).</span>
+<span class="sd">        connectivity: In-cell CCL rule. ``&#39;full&#39;`` is 8-connected in</span>
+<span class="sd">            2-D / 26-connected in 3-D; ``&#39;face&#39;`` is 4 / 6. Must match</span>
+<span class="sd">            the neighbourhood encoded by ``structure``.</span>
 <span class="sd">        min_region_voxels: Drop in-cell subregions (and residual nodes)</span>
 <span class="sd">            smaller than this voxel count.</span>
 <span class="sd">        erosion_radius: Optional per-habitat erosion iterations.</span>
@@ -2382,30 +2518,41 @@ window.runMermaid = runMermaid;</script>
     <span class="n">kept_by_habitat</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">):</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
     <span class="p">}</span>
+    <span class="c1"># Sort voxels by cube id so each cell is a contiguous slice (O(N log N)</span>
+    <span class="c1"># once) instead of a full-volume mask per cube (O(N * n_cubes)).</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">inverse</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;stable&quot;</span><span class="p">)</span>
+    <span class="n">inverse_sorted</span> <span class="o">=</span> <span class="n">inverse</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="n">coords_sorted</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="n">labels_sorted</span> <span class="o">=</span> <span class="n">voxel_labels</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="n">breaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">inverse_sorted</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">!=</span> <span class="n">inverse_sorted</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span> <span class="n">breaks</span><span class="p">))</span>
+    <span class="n">stops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">breaks</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">inverse_sorted</span><span class="o">.</span><span class="n">size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)))</span>
 
-    <span class="k">for</span> <span class="n">block_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">unique_blocks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">in_block</span> <span class="o">=</span> <span class="n">inverse</span> <span class="o">==</span> <span class="n">block_id</span>
-        <span class="n">block_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">in_block</span><span class="p">]</span>
-        <span class="n">block_lab</span> <span class="o">=</span> <span class="n">voxel_labels</span><span class="p">[</span><span class="n">in_block</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">stops</span><span class="o">.</span><span class="n">tolist</span><span class="p">()):</span>
+        <span class="n">block_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">inverse_sorted</span><span class="p">[</span><span class="n">start</span><span class="p">])</span>
+        <span class="n">block_coords</span> <span class="o">=</span> <span class="n">coords_sorted</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span>
+        <span class="n">block_lab</span> <span class="o">=</span> <span class="n">labels_sorted</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span>
         <span class="n">coverage</span> <span class="o">=</span> <span class="n">block_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">block_volume</span>
         <span class="k">if</span> <span class="n">coverage</span> <span class="o">&lt;=</span> <span class="n">block_min_coverage</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="c1"># Local cube so in-cell connected components stay spatially correct.</span>
+        <span class="c1"># Local coordinates of painted voxels (no dense 8^3 cube).</span>
         <span class="n">local</span> <span class="o">=</span> <span class="n">block_coords</span> <span class="o">-</span> <span class="n">origin</span> <span class="o">-</span> <span class="n">unique_blocks</span><span class="p">[</span><span class="n">block_id</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_size</span>
-        <span class="n">cube</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cube_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="n">cube</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">local</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">block_lab</span>
+        <span class="n">local_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
         <span class="c1"># Split the cube by habitat id so mixed cells become separate nodes.</span>
         <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="p">(</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">block_lab</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
         <span class="p">):</span>
-            <span class="n">labeled</span><span class="p">,</span> <span class="n">n_cc</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">cube</span> <span class="o">==</span> <span class="n">habitat_label</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
+            <span class="n">habitat_mask</span> <span class="o">=</span> <span class="n">block_lab</span> <span class="o">==</span> <span class="n">habitat_label</span>
+            <span class="n">hab_local</span> <span class="o">=</span> <span class="n">local_i</span><span class="p">[</span><span class="n">habitat_mask</span><span class="p">]</span>
+            <span class="n">hab_global</span> <span class="o">=</span> <span class="n">block_coords</span><span class="p">[</span><span class="n">habitat_mask</span><span class="p">]</span>
+            <span class="n">cc_labels</span><span class="p">,</span> <span class="n">n_cc</span> <span class="o">=</span> <span class="n">label_painted_components</span><span class="p">(</span>
+                <span class="n">hab_local</span><span class="p">,</span> <span class="n">cube_shape</span><span class="p">,</span> <span class="n">connectivity</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">cc_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_cc</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="n">cc_local</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">labeled</span> <span class="o">==</span> <span class="n">cc_id</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">cc_local</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_region_voxels</span><span class="p">:</span>
+                <span class="n">member</span> <span class="o">=</span> <span class="n">cc_labels</span> <span class="o">==</span> <span class="n">cc_id</span>
+                <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">member</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">&lt;</span> <span class="n">min_region_voxels</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="n">global_coords</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">cc_local</span> <span class="o">+</span> <span class="n">origin</span> <span class="o">+</span> <span class="n">unique_blocks</span><span class="p">[</span><span class="n">block_id</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_size</span>
-                <span class="p">)</span>
+                <span class="n">global_coords</span> <span class="o">=</span> <span class="n">hab_global</span><span class="p">[</span><span class="n">member</span><span class="p">]</span>
                 <span class="n">component_id</span> <span class="o">=</span> <span class="n">next_component_id</span>
                 <span class="n">next_component_id</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">component_maps</span><span class="p">[</span><span class="n">habitat_label</span><span class="p">][</span><span class="nb">tuple</span><span class="p">(</span><span class="n">global_coords</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">component_id</span>
@@ -2583,6 +2730,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        HabitatNodeExtractionResult: Nodes grouped by habitat label plus</span>
 <span class="sd">        component maps used by contact-based edge builders. ``uniform_grid``</span>
 <span class="sd">        also fills ``grid_origin`` / ``grid_block_size`` for dashed overlays.</span>
+<span class="sd">        Node centroids / ``grid_origin`` are in the original index space.</span>
+<span class="sd">        ``label_array`` and ``component_maps`` are the VOI crop (bbox of</span>
+<span class="sd">        non-zero labels plus one voxel of pad); ``crop_offset`` maps them</span>
+<span class="sd">        back. Cropping does not change topology or pairwise distances.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;label_array must be 2D or 3D.&quot;</span><span class="p">)</span>
@@ -2599,28 +2750,39 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">node_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;node_method must be &#39;uniform_grid&#39; or &#39;component&#39;.&quot;</span><span class="p">)</span>
 
-    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">structure</span> <span class="o">=</span> <span class="n">_connectivity_structure</span><span class="p">(</span><span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">)</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="n">crop</span> <span class="o">=</span> <span class="n">_nonzero_bbox_slices</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">working</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="k">if</span> <span class="n">crop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">slices</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">crop</span>
+        <span class="n">working</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">working</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">_connectivity_structure</span><span class="p">(</span><span class="n">working</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">node_method</span> <span class="o">==</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_extract_uniform_grid_nodes</span><span class="p">(</span>
-            <span class="n">label_array</span><span class="o">=</span><span class="n">label_array</span><span class="p">,</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_extract_uniform_grid_nodes</span><span class="p">(</span>
+            <span class="n">label_array</span><span class="o">=</span><span class="n">working</span><span class="p">,</span>
             <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
             <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
             <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
             <span class="n">erosion_radius</span><span class="o">=</span><span class="n">erosion_radius</span><span class="p">,</span>
             <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
             <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
+            <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_extract_component_nodes</span><span class="p">(</span>
-        <span class="n">label_array</span><span class="o">=</span><span class="n">label_array</span><span class="p">,</span>
-        <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
-        <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
-        <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
-        <span class="n">erosion_radius</span><span class="o">=</span><span class="n">erosion_radius</span><span class="p">,</span>
-        <span class="n">subdivide_region_voxels</span><span class="o">=</span><span class="n">subdivide_region_voxels</span><span class="p">,</span>
-        <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
-        <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_extract_component_nodes</span><span class="p">(</span>
+            <span class="n">label_array</span><span class="o">=</span><span class="n">working</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
+            <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
+            <span class="n">erosion_radius</span><span class="o">=</span><span class="n">erosion_radius</span><span class="p">,</span>
+            <span class="n">subdivide_region_voxels</span><span class="o">=</span><span class="n">subdivide_region_voxels</span><span class="p">,</span>
+            <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+            <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_apply_crop_offset</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span></div>
 
 </pre></div>
 

@@ -536,6 +536,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -613,6 +617,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#figures">Figures</a></li>
@@ -742,6 +747,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -799,6 +805,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -823,6 +830,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -987,7 +995,10 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/features/graph.html#construction-options">Construction options</a></li>
@@ -1105,6 +1116,49 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2298,6 +2352,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.Classifier.html#habit.domain.Classifier.__init__">(Classifier method)</a>
 </li>
+        <li><a href="api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation.__init__">(ClusterValidation method)</a>
+</li>
         <li><a href="api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort.__init__">(Cohort method)</a>
 </li>
         <li><a href="api/generated/habit.domain.CohortFeaturePreprocessor.html#habit.domain.CohortFeaturePreprocessor.__init__">(CohortFeaturePreprocessor method)</a>
@@ -2342,6 +2398,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.FeatureWhitelist.html#habit.domain.FeatureWhitelist.__init__">(FeatureWhitelist method)</a>
 </li>
+        <li><a href="api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom.__init__">(FigureAtom method)</a>
+</li>
         <li><a href="api/generated/habit.adapters.FileImageRef.html#habit.adapters.FileImageRef.__init__">(FileImageRef method)</a>
 </li>
         <li><a href="api/generated/habit.compat.monai.FromMonaiDict.html#habit.compat.monai.FromMonaiDict.__init__">(FromMonaiDict method)</a>
@@ -2363,6 +2421,10 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation.__init__">(GradientWeightedPerturbation method)</a>
 </li>
         <li><a href="api/generated/habit.domain.GraphHabitatFeatures.html#habit.domain.GraphHabitatFeatures.__init__">(GraphHabitatFeatures method)</a>
+</li>
+        <li><a href="api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D.__init__">(GraphNetwork2D method)</a>
+</li>
+        <li><a href="api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice.__init__">(GraphSlice method)</a>
 </li>
         <li><a href="api/generated/habit.domain.HabitatAssigner.html#habit.domain.HabitatAssigner.__init__">(HabitatAssigner method)</a>
 </li>
@@ -2398,6 +2460,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.Impute.html#habit.domain.Impute.__init__">(Impute method)</a>
 </li>
+        <li><a href="api/generated/habit.report.ITH.html#habit.report.ITH.__init__">(ITH method)</a>
+</li>
         <li><a href="api/generated/habit.domain.KMeansHabitatModelFitter.html#habit.domain.KMeansHabitatModelFitter.__init__">(KMeansHabitatModelFitter method)</a>
 </li>
         <li><a href="api/generated/habit.domain.KMeansSupervoxelizer.html#habit.domain.KMeansSupervoxelizer.__init__">(KMeansSupervoxelizer method)</a>
@@ -2428,6 +2492,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.MrmrSelector.html#habit.domain.MrmrSelector.__init__">(MrmrSelector method)</a>
 </li>
+        <li><a href="api/generated/habit.report.MSI.html#habit.report.MSI.__init__">(MSI method)</a>
+</li>
         <li><a href="api/generated/habit.contracts.MulticlassOutcome.html#habit.contracts.MulticlassOutcome.__init__">(MulticlassOutcome method)</a>
 </li>
         <li><a href="api/generated/habit.domain.MultinomialNbClassifier.html#habit.domain.MultinomialNbClassifier.__init__">(MultinomialNbClassifier method)</a>
@@ -2437,6 +2503,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.compat.nnunet.NnUNetDataSource.html#habit.compat.nnunet.NnUNetDataSource.__init__">(NnUNetDataSource method)</a>
 </li>
         <li><a href="api/generated/habit.contracts.Outcome.html#habit.contracts.Outcome.__init__">(Outcome method)</a>
+</li>
+        <li><a href="api/generated/habit.report.Overlay.html#habit.report.Overlay.__init__">(Overlay method)</a>
 </li>
         <li><a href="api/generated/habit.domain.PerturbationChain.html#habit.domain.PerturbationChain.__init__">(PerturbationChain method)</a>
 </li>
@@ -2457,6 +2525,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.RandomForestClassifier.html#habit.domain.RandomForestClassifier.__init__">(RandomForestClassifier method)</a>
 </li>
         <li><a href="api/generated/habit.domain.RawVoxelFeatures.html#habit.domain.RawVoxelFeatures.__init__">(RawVoxelFeatures method)</a>
+</li>
+        <li><a href="api/generated/habit.report.Report.html#habit.report.Report.__init__">(Report method)</a>
 </li>
         <li><a href="api/generated/habit.contracts.ResultWriter.html#habit.contracts.ResultWriter.__init__">(ResultWriter method)</a>
 </li>
@@ -2493,6 +2563,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.viz.StyleSpec.html#habit.viz.StyleSpec.__init__">(StyleSpec method)</a>
 </li>
         <li><a href="api/generated/habit.contracts.Subject.html#habit.contracts.Subject.__init__">(Subject method)</a>
+</li>
+        <li><a href="api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext.__init__">(SubjectContext method)</a>
 </li>
         <li><a href="api/generated/habit.domain.SubjectFeaturePreprocessor.html#habit.domain.SubjectFeaturePreprocessor.__init__">(SubjectFeaturePreprocessor method)</a>
 </li>
@@ -2539,6 +2611,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.VarianceSelector.html#habit.domain.VarianceSelector.__init__">(VarianceSelector method)</a>
 </li>
         <li><a href="api/generated/habit.domain.VifSelector.html#habit.domain.VifSelector.__init__">(VifSelector method)</a>
+</li>
+        <li><a href="api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions.__init__">(VolumeFractions method)</a>
 </li>
         <li><a href="api/generated/habit.domain.VoxelFeatureExtractor.html#habit.domain.VoxelFeatureExtractor.__init__">(VoxelFeatureExtractor method)</a>
 </li>
@@ -2587,6 +2661,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.PluginLoadReport.html#habit.PluginLoadReport.__post_init__">(PluginLoadReport method)</a>
 </li>
         <li><a href="api/generated/habit.domain.PreciseFeatureSet.html#habit.domain.PreciseFeatureSet.__post_init__">(PreciseFeatureSet method)</a>
+</li>
+        <li><a href="api/generated/habit.report.Report.html#habit.report.Report.__post_init__">(Report method)</a>
 </li>
         <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.__post_init__">(RunPolicy method)</a>
 </li>
@@ -2659,10 +2735,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.contracts.ArrayImageRef.html#habit.contracts.ArrayImageRef.array">array (ArrayImageRef attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.contracts.ArrayImageRef.html#habit.contracts.ArrayImageRef">ArrayImageRef (class in habit.contracts)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html#habit.domain.EachHabitatRadiomicsFeaturesParams.as_">as_ (EachHabitatRadiomicsFeaturesParams attribute)</a>
 
       <ul>
@@ -2683,6 +2759,14 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.assigner">assigner() (HabitatModel method)</a>
 </li>
+      <li><a href="api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D.at">at (GraphNetwork2D attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice.at">(GraphSlice attribute)</a>
+</li>
+        <li><a href="api/generated/habit.report.Overlay.html#habit.report.Overlay.at">(Overlay attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/habit.domain.AucConfidenceInterval.html#habit.domain.AucConfidenceInterval.auc">auc (AucConfidenceInterval attribute)</a>
 </li>
       <li><a href="api/generated/habit.domain.DelongResult.html#habit.domain.DelongResult.auc_a">auc_a (DelongResult attribute)</a>
@@ -2797,6 +2881,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.clear_checkpoint_on_success">clear_checkpoint_on_success (RunPolicy attribute)</a>
 </li>
+      <li><a href="api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation">ClusterValidation (class in habit.report)</a>
+</li>
       <li><a href="api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort">Cohort (class in habit.contracts)</a>
 </li>
       <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.cohort_feature_preprocessors">cohort_feature_preprocessors (HabitatSpec attribute)</a>
@@ -2856,6 +2942,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.exceptions.ConfigurationError.html#habit.exceptions.ConfigurationError">ConfigurationError</a>
 </li>
       <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.connectivity">connectivity (GraphHabitatFeaturesParams attribute)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.consume_subject">consume_subject() (Report method)</a>
 </li>
       <li><a href="api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore.contains">contains() (CheckpointStore method)</a>
 </li>
@@ -2953,8 +3041,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.spec.MigrationReport.html#habit.spec.MigrationReport.diff">diff (MigrationReport attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.recipes.direct_pooling_habitat.html#habit.recipes.direct_pooling_habitat">direct_pooling_habitat() (in module habit.recipes)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Geometry.html#habit.contracts.Geometry.direction">direction (Geometry attribute)</a>
@@ -2967,6 +3053,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.StepwiseSelectorParams.html#habit.domain.StepwiseSelectorParams.direction">(StepwiseSelectorParams attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.adapters.DirectoryDataSource.html#habit.adapters.DirectoryDataSource">DirectoryDataSource (class in habit.adapters)</a>
 </li>
       <li><a href="api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter">DirectoryResultWriter (class in habit.adapters)</a>
@@ -3013,6 +3101,24 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.viz.StyleSpec.html#habit.viz.StyleSpec.dpi">dpi (StyleSpec attribute)</a>
 </li>
+      <li><a href="api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation.draw">draw() (ClusterValidation method)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom.draw">(FigureAtom method)</a>
+</li>
+        <li><a href="api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D.draw">(GraphNetwork2D method)</a>
+</li>
+        <li><a href="api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice.draw">(GraphSlice method)</a>
+</li>
+        <li><a href="api/generated/habit.report.ITH.html#habit.report.ITH.draw">(ITH method)</a>
+</li>
+        <li><a href="api/generated/habit.report.MSI.html#habit.report.MSI.draw">(MSI method)</a>
+</li>
+        <li><a href="api/generated/habit.report.Overlay.html#habit.report.Overlay.draw">(Overlay method)</a>
+</li>
+        <li><a href="api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions.draw">(VolumeFractions method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -3152,6 +3258,14 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.domain.FeatureWhitelistParams.html#habit.domain.FeatureWhitelistParams">FeatureWhitelistParams (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.viz.StyleSpec.html#habit.viz.StyleSpec.figsize">figsize() (StyleSpec method)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.figure_dir">figure_dir (Report attribute)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.figure_layout">figure_layout (Report attribute)</a>
+</li>
+      <li><a href="api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom">FigureAtom (class in habit.report)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.figures">figures (Report attribute)</a>
 </li>
       <li><a href="api/generated/habit.adapters.FileImageRef.html#habit.adapters.FileImageRef">FileImageRef (class in habit.adapters)</a>
 </li>
@@ -3375,12 +3489,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.GeometryReport.html#habit.GeometryReport">GeometryReport (class in habit)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore.get">get() (CheckpointStore method)</a>
 </li>
       <li><a href="api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore.get_failure">get_failure() (CheckpointStore method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.compat.sklearn.HabitatFeaturesEstimator.html#habit.compat.sklearn.HabitatFeaturesEstimator.get_feature_names_out">get_feature_names_out() (HabitatFeaturesEstimator method)</a>
 </li>
       <li><a href="api/generated/habit.get_param_schema.html#habit.get_param_schema">get_param_schema() (in module habit)</a>
@@ -3407,9 +3521,17 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.GradientWeightedPerturbationParams.html#habit.domain.GradientWeightedPerturbationParams">GradientWeightedPerturbationParams (class in habit.domain)</a>
 </li>
+      <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.graph_null_device">graph_null_device (GraphHabitatFeaturesParams attribute)</a>
+</li>
+      <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.graph_null_sampler">graph_null_sampler (GraphHabitatFeaturesParams attribute)</a>
+</li>
       <li><a href="api/generated/habit.domain.GraphHabitatFeatures.html#habit.domain.GraphHabitatFeatures">GraphHabitatFeatures (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams">GraphHabitatFeaturesParams (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D">GraphNetwork2D (class in habit.report)</a>
+</li>
+      <li><a href="api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice">GraphSlice (class in habit.report)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -3433,6 +3555,8 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="api/generated/habit.kernels.habitat_ith_dispersion.html#habit.kernels.habitat_ith_dispersion">habitat_ith_dispersion() (in module habit.kernels)</a>
 </li>
+      <li><a href="api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext.habitat_map">habitat_map (SubjectContext attribute)</a>
+</li>
       <li><a href="api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult.habitat_maps">habitat_maps (StudyResult attribute)</a>
 </li>
       <li><a href="api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult.habitat_model">habitat_model (StudyResult attribute)</a>
@@ -3451,10 +3575,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.HabitatFeatureComparison.html#habit.domain.HabitatFeatureComparison">HabitatFeatureComparison (class in habit.domain)</a>
 </li>
-      <li><a href="api/generated/habit.domain.HabitatFeatureExtractor.html#habit.domain.HabitatFeatureExtractor">HabitatFeatureExtractor (class in habit.domain)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/habit.domain.HabitatFeatureExtractor.html#habit.domain.HabitatFeatureExtractor">HabitatFeatureExtractor (class in habit.domain)</a>
+</li>
       <li><a href="api/generated/habit.domain.HabitatFeatureExtractorRegistry.html#habit.domain.HabitatFeatureExtractorRegistry">HabitatFeatureExtractorRegistry (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.HabitatFeaturePanel.html#habit.domain.HabitatFeaturePanel">HabitatFeaturePanel (class in habit.domain)</a>
@@ -3568,6 +3692,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.contracts.Geometry.html#habit.contracts.Geometry.is_compatible_with">is_compatible_with() (Geometry method)</a>
 </li>
       <li><a href="api/generated/habit.domain.CohortPreprocessingChain.html#habit.domain.CohortPreprocessingChain.is_fitted">is_fitted (CohortPreprocessingChain property)</a>
+</li>
+      <li><a href="api/generated/habit.report.ITH.html#habit.report.ITH">ITH (class in habit.report)</a>
 </li>
       <li><a href="api/generated/habit.kernels.ith_score.html#habit.kernels.ith_score">ith_score() (in module habit.kernels)</a>
 </li>
@@ -3763,6 +3889,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend.map">(SerialBackend method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult.maps_persisted">maps_persisted (StudyResult attribute)</a>
+</li>
       <li><a href="api/generated/habit.contracts.Subject.html#habit.contracts.Subject.mask">mask() (Subject method)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Subject.html#habit.contracts.Subject.masks">masks (Subject attribute)</a>
@@ -3811,10 +3939,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.kernels.cluster_selection.MINIMIZE.html#habit.kernels.cluster_selection.MINIMIZE">MINIMIZE (in module habit.kernels.cluster_selection)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.domain.MinMaxPreprocessor.html#habit.domain.MinMaxPreprocessor">MinMaxPreprocessor (class in habit.domain)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.domain.MinMaxPreprocessorParams.html#habit.domain.MinMaxPreprocessorParams">MinMaxPreprocessorParams (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.MinMaxScaling.html#habit.domain.MinMaxScaling">MinMaxScaling (class in habit.domain)</a>
@@ -3840,6 +3968,8 @@ window.runMermaid = runMermaid;</script>
       <ul>
         <li><a href="api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume.modality">(ImageVolume attribute)</a>
 </li>
+        <li><a href="api/generated/habit.report.Overlay.html#habit.report.Overlay.modality">(Overlay attribute)</a>
+</li>
         <li><a href="api/generated/habit.domain.TraditionalRadiomicsHabitatFeaturesParams.html#habit.domain.TraditionalRadiomicsHabitatFeaturesParams.modality">(TraditionalRadiomicsHabitatFeaturesParams attribute)</a>
 </li>
       </ul></li>
@@ -3847,6 +3977,8 @@ window.runMermaid = runMermaid;</script>
 
       <ul>
         <li><a href="api/generated/habit.domain.NearestCentroidAssigner.html#habit.domain.NearestCentroidAssigner.model">(NearestCentroidAssigner property)</a>
+</li>
+        <li><a href="api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext.model">(SubjectContext attribute)</a>
 </li>
         <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.model">(TablePipeline property)</a>
 </li>
@@ -3874,6 +4006,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.domain.MrmrSelector.html#habit.domain.MrmrSelector">MrmrSelector (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.MrmrSelectorParams.html#habit.domain.MrmrSelectorParams">MrmrSelectorParams (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.report.MSI.html#habit.report.MSI">MSI (class in habit.report)</a>
 </li>
       <li><a href="api/generated/habit.kernels.msi_features_from_matrix.html#habit.kernels.msi_features_from_matrix">msi_features_from_matrix() (in module habit.kernels)</a>
 </li>
@@ -3975,6 +4109,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.on_geometry_mismatch">on_geometry_mismatch (HabitatSpec attribute)</a>
 </li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.on_subject_complete">on_subject_complete (Report attribute)</a>
+</li>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.on_subject_failure">on_subject_failure (RunPolicy attribute)</a>
 </li>
       <li><a href="api/generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat">one_step_habitat() (in module habit.recipes)</a>
@@ -3985,6 +4121,14 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.exceptions.OptionalDependencyError.html#habit.exceptions.OptionalDependencyError">OptionalDependencyError</a>
 </li>
+      <li><a href="api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D.options">options (GraphNetwork2D attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice.options">(GraphSlice attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.contracts.Geometry.html#habit.contracts.Geometry.origin">origin (Geometry attribute)</a>
 
       <ul>
@@ -3993,8 +4137,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume.origin">(MaskVolume attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.contracts.Outcome.html#habit.contracts.Outcome">Outcome (class in habit.contracts)</a>
 </li>
       <li><a href="api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable.outcome">outcome (FeatureTable attribute)</a>
@@ -4006,6 +4148,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.contracts.outcome_to_dict.html#habit.contracts.outcome_to_dict">outcome_to_dict() (in module habit.contracts)</a>
 </li>
       <li><a href="api/generated/habit.domain.CohortPreprocessingChain.html#habit.domain.CohortPreprocessingChain.output_columns">output_columns (CohortPreprocessingChain property)</a>
+</li>
+      <li><a href="api/generated/habit.report.Overlay.html#habit.report.Overlay">Overlay (class in habit.report)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -4060,6 +4204,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="api/generated/habit.registry.ComponentRegistry.html#habit.registry.ComponentRegistry.params_model">params_model() (ComponentRegistry class method)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.persist">persist (Report attribute)</a>
 </li>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.persistent_worker_max_consecutive_failures">persistent_worker_max_consecutive_failures (RunPolicy attribute)</a>
 </li>
@@ -4321,16 +4467,24 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.repeat_measurement_matrix.html#habit.domain.repeat_measurement_matrix">repeat_measurement_matrix() (in module habit.domain)</a>
 </li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report">Report (class in habit.report)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.resolve_figure_dir">resolve_figure_dir() (Report method)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.resolve_figure_path">resolve_figure_path() (Report method)</a>
+</li>
       <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.resolved_stages">resolved_stages() (HabitatSpec method)</a>
 </li>
       <li><a href="api/generated/habit.contracts.SubjectResult.html#habit.contracts.SubjectResult.result">result() (SubjectResult method)</a>
 </li>
       <li><a href="api/generated/habit.contracts.ResultWriter.html#habit.contracts.ResultWriter">ResultWriter (class in habit.contracts)</a>
 </li>
-      <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.resume">resume (RunPolicy attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.resume">resume (RunPolicy attribute)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.retain">retain (Report attribute)</a>
+</li>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.retry_failed_subjects">retry_failed_subjects (RunPolicy attribute)</a>
 </li>
       <li><a href="api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.reuse_workers">reuse_workers() (ProcessPoolBackend method)</a>
@@ -4338,6 +4492,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.domain.RfecvSelector.html#habit.domain.RfecvSelector">RfecvSelector (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.RfecvSelectorParams.html#habit.domain.RfecvSelectorParams">RfecvSelectorParams (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.rich_club_q">rich_club_q (GraphHabitatFeaturesParams attribute)</a>
 </li>
       <li><a href="api/generated/habit.kernels.rigid_transform_image.html#habit.kernels.rigid_transform_image">rigid_transform_image() (in module habit.kernels)</a>
 </li>
@@ -4464,6 +4620,10 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.domain.SlicSupervoxelizer.html#habit.domain.SlicSupervoxelizer">SlicSupervoxelizer (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.SlicSupervoxelizerParams.html#habit.domain.SlicSupervoxelizerParams">SlicSupervoxelizerParams (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.small_world_niter">small_world_niter (GraphHabitatFeaturesParams attribute)</a>
+</li>
+      <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.small_world_nrand">small_world_nrand (GraphHabitatFeaturesParams attribute)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Provenance.html#habit.contracts.Provenance.software">software (Provenance attribute)</a>
 </li>
@@ -4671,6 +4831,24 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.recipes.CVResult.html#habit.recipes.CVResult.std_metrics">std_metrics (CVResult attribute)</a>
 </li>
+      <li><a href="api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation.stem">stem() (ClusterValidation method)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom.stem">(FigureAtom method)</a>
+</li>
+        <li><a href="api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D.stem">(GraphNetwork2D method)</a>
+</li>
+        <li><a href="api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice.stem">(GraphSlice method)</a>
+</li>
+        <li><a href="api/generated/habit.report.ITH.html#habit.report.ITH.stem">(ITH method)</a>
+</li>
+        <li><a href="api/generated/habit.report.MSI.html#habit.report.MSI.stem">(MSI method)</a>
+</li>
+        <li><a href="api/generated/habit.report.Overlay.html#habit.report.Overlay.stem">(Overlay method)</a>
+</li>
+        <li><a href="api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions.stem">(VolumeFractions method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/habit.domain.RfecvSelectorParams.html#habit.domain.RfecvSelectorParams.step">step (RfecvSelectorParams attribute)</a>
 </li>
       <li><a href="api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.steps">steps (MLSpec attribute)</a>
@@ -4679,17 +4857,23 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.StepwiseSelectorParams.html#habit.domain.StepwiseSelectorParams">StepwiseSelectorParams (class in habit.domain)</a>
 </li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.streams">streams (Report property)</a>
+</li>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.strict_checkpoint_hash">strict_checkpoint_hash (RunPolicy attribute)</a>
 </li>
       <li><a href="api/generated/habit.recipes.Study.html#habit.recipes.Study">Study (class in habit.recipes)</a>
 </li>
       <li><a href="api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult">StudyResult (class in habit.recipes)</a>
 </li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.style">style (Report attribute)</a>
+</li>
       <li><a href="api/generated/habit.viz.StyleSpec.html#habit.viz.StyleSpec">StyleSpec (class in habit.viz)</a>
 </li>
       <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.subdivide_region_voxels">subdivide_region_voxels (GraphHabitatFeaturesParams attribute)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Subject.html#habit.contracts.Subject">Subject (class in habit.contracts)</a>
+</li>
+      <li><a href="api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext.subject">subject (SubjectContext attribute)</a>
 </li>
       <li><a href="api/generated/habit.domain.HabitatFeaturePanel.html#habit.domain.HabitatFeaturePanel.subject_column">subject_column (HabitatFeaturePanel attribute)</a>
 </li>
@@ -4716,6 +4900,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.subject_spawn_timeout_sec">subject_spawn_timeout_sec (RunPolicy attribute)</a>
 </li>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.subject_timeout_sec">subject_timeout_sec (RunPolicy attribute)</a>
+</li>
+      <li><a href="api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext">SubjectContext (class in habit.report)</a>
 </li>
       <li><a href="api/generated/habit.domain.SubjectFeaturePreprocessor.html#habit.domain.SubjectFeaturePreprocessor">SubjectFeaturePreprocessor (class in habit.domain)</a>
 </li>
@@ -4925,6 +5111,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.SubjectPipeline.html#habit.domain.SubjectPipeline.units">units() (SubjectPipeline method)</a>
 </li>
+      <li><a href="api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult.units_rows">units_rows (StudyResult attribute)</a>
+</li>
       <li><a href="api/generated/habit.domain.UnivariateLogisticSelector.html#habit.domain.UnivariateLogisticSelector">UnivariateLogisticSelector (class in habit.domain)</a>
 </li>
   </ul></td>
@@ -4997,6 +5185,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.VifSelectorParams.html#habit.domain.VifSelectorParams">VifSelectorParams (class in habit.domain)</a>
 </li>
+      <li><a href="api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions">VolumeFractions (class in habit.report)</a>
+</li>
       <li><a href="api/generated/habit.kernels.vote_best_index.html#habit.kernels.vote_best_index">vote_best_index() (in module habit.kernels)</a>
 </li>
       <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.voxel_feature_extractor">voxel_feature_extractor (HabitatSpec attribute)</a>
@@ -5053,14 +5243,14 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.workers">(RunPolicy attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.spec.LegacyTranslation.html#habit.spec.LegacyTranslation.workflow">workflow (LegacyTranslation attribute)</a>
 
       <ul>
         <li><a href="api/generated/habit.spec.MigrationReport.html#habit.spec.MigrationReport.workflow">(MigrationReport attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult.write">write() (StudyResult method)</a>
 </li>
       <li><a href="api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_feature_table">write_feature_table() (DirectoryResultWriter method)</a>
@@ -5087,9 +5277,15 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.contracts.ResultWriter.html#habit.contracts.ResultWriter.write_manifest">(ResultWriter method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_subject_model">write_subject_model() (DirectoryResultWriter method)</a>
+</li>
       <li><a href="api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_supervoxel_map">write_supervoxel_map() (DirectoryResultWriter method)</a>
 </li>
+      <li><a href="api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_units_frames">write_units_frames() (DirectoryResultWriter method)</a>
+</li>
       <li><a href="api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_units_table">write_units_table() (DirectoryResultWriter method)</a>
+</li>
+      <li><a href="api/generated/habit.report.Report.html#habit.report.Report.writer">writer (Report attribute)</a>
 </li>
   </ul></td>
 </tr></table>

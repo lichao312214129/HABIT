@@ -136,7 +136,10 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
   - ``erosion_radius`` (``0`` / off; set ``>= 1`` to shrink habitats before edges), ``subdivide_region_voxels`` (``1000``; used only by ``component``)
   - ``block_size`` (``8`` voxels, not millimetres), ``block_min_coverage`` (``0.2``)
   - ``pairwise_include_intra_edges`` (``true``)
-  - ``include_extended_metrics`` (``true``), ``extended_min_nodes`` (``10``)
+  - ``include_extended_metrics`` (``false``; set ``true`` to opt in), ``extended_min_nodes`` (``10``)
+  - ``graph_null_sampler`` (``analytic``): one ``small_world_sigma`` column. ``analytic`` is Humphries *S* vs an Erdős–Rényi graph (same *n*, *m*; closed-form :math:`C_{rand}`, :math:`L_{rand}`). ``config`` is the configuration model; ``rewire`` is Maslov–Sneppen (NetworkX ``sigma``). The last two **replace** the analytic value with a degree-preserving ensemble (``small_world_nrand`` / ``small_world_niter``, default ``100``). See :doc:`../reference/features/graph`.
+  - ``rich_club_q`` (``100``): mixing floor for ``rewire``; analytic rich-club uses one configuration-model graph
+  - ``graph_null_device`` (``auto``)
 
 - **Visualization fields** (recipe hook; not part of the extractor ``Spec``):
 

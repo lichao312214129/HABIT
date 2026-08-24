@@ -87,6 +87,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#references">References</a></li>
@@ -176,10 +178,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -257,6 +264,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -366,7 +374,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -382,9 +392,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -440,6 +452,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -464,6 +477,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -628,11 +642,16 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -744,6 +763,49 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -948,6 +1010,12 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1298,6 +1366,10 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -1390,6 +1462,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1769,7 +1842,7 @@
 <h1>StudyResult<a class="headerlink" href="#studyresult" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="habit.recipes.StudyResult">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StudyResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">habitat_model:</span> <span class="pre">~habit.contracts.habitat.HabitatModel</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">pipeline:</span> <span class="pre">~typing.Any,</span> <span class="pre">features:</span> <span class="pre">~habit.contracts.table.FeatureTable,</span> <span class="pre">habitat_maps:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.HabitatMap,</span> <span class="pre">...],</span> <span class="pre">manifest:</span> <span class="pre">~habit.contracts.manifest.RunManifest,</span> <span class="pre">subject_models:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.habitat.HabitatModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">units:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.Supervoxelization,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(),</span> <span class="pre">inspection:</span> <span class="pre">~typing.Any</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/recipes/result.html#StudyResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.recipes.StudyResult" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StudyResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">habitat_model:</span> <span class="pre">~habit.contracts.habitat.HabitatModel</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">pipeline:</span> <span class="pre">~typing.Any,</span> <span class="pre">features:</span> <span class="pre">~habit.contracts.table.FeatureTable,</span> <span class="pre">habitat_maps:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.HabitatMap,</span> <span class="pre">...],</span> <span class="pre">manifest:</span> <span class="pre">~habit.contracts.manifest.RunManifest,</span> <span class="pre">subject_models:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.habitat.HabitatModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">units:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.Supervoxelization,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(),</span> <span class="pre">units_rows:</span> <span class="pre">~typing.Tuple[~pandas.core.frame.DataFrame,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(),</span> <span class="pre">maps_persisted:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">inspection:</span> <span class="pre">~typing.Any</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/recipes/result.html#StudyResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.recipes.StudyResult" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>What a fitted study hands back, entirely in memory.</p>
 <p>Nothing here has touched the filesystem. Writing is a separate, explicit
@@ -1865,10 +1938,39 @@ are derived views of it, assembled by the directory writer.
 Empty when the caller only needs the label maps. A design with
 no supervoxel step stores one-voxel units (see
 <code class="xref py py-func docutils literal notranslate"><span class="pre">voxel_units()</span></code>), so the field has one
-uniform type regardless of design.</p>
+uniform type regardless of design. Streaming retention modes
+(<code class="docutils literal notranslate"><span class="pre">retain=&quot;maps&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;tables&quot;</span></code>) drop this memory-dominant
+payload and keep <code class="docutils literal notranslate"><span class="pre">units_rows</span></code> instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[<a class="reference internal" href="habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.habitat.Supervoxelization">habit.contracts.habitat.Supervoxelization</a>, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="habit.recipes.StudyResult.units_rows">
+<span class="sig-name descname"><span class="pre">units_rows</span></span><a class="headerlink" href="#habit.recipes.StudyResult.units_rows" title="Link to this definition"></a></dt>
+<dd><p>Pre-aggregated per-subject rows of the v0.1 units table,
+produced inside the workers by streaming runs. When present,
+<a class="reference internal" href="#habit.recipes.StudyResult.save" title="habit.recipes.StudyResult.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> writes the units table from these frames instead of
+deriving it from <code class="docutils literal notranslate"><span class="pre">units</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[pandas.core.frame.DataFrame, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="habit.recipes.StudyResult.maps_persisted">
+<span class="sig-name descname"><span class="pre">maps_persisted</span></span><a class="headerlink" href="#habit.recipes.StudyResult.maps_persisted" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> when a streaming writer already persisted
+every habitat map during the fit; <a class="reference internal" href="#habit.recipes.StudyResult.save" title="habit.recipes.StudyResult.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> then skips map
+writing (and the map overwrite probe) entirely.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1927,6 +2029,11 @@ apply design writes none either.</p>
 scatter is written under <code class="docutils literal notranslate"><span class="pre">visualizations/habitat_clustering/</span></code>, mirroring
 the v0.1 <code class="docutils literal notranslate"><span class="pre">ClusteringService.visualize_habitat_clustering</span></code> layout for
 the static PNG only (interactive 3D HTML remains in the legacy stack).</p>
+<p>When the fit ran with a streaming writer (<code class="docutils literal notranslate"><span class="pre">maps_persisted</span></code>), the
+habitat maps are already on disk and are neither probed nor
+rewritten here; <code class="docutils literal notranslate"><span class="pre">save</span></code> then persists only the cohort-level
+artefacts (feature table, manifest, units table from the retained
+per-subject rows).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1954,7 +2061,7 @@ file when plotly is installed.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.recipes.StudyResult.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">habitat_model:</span> <span class="pre">~habit.contracts.habitat.HabitatModel</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">pipeline:</span> <span class="pre">~typing.Any,</span> <span class="pre">features:</span> <span class="pre">~habit.contracts.table.FeatureTable,</span> <span class="pre">habitat_maps:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.HabitatMap,</span> <span class="pre">...],</span> <span class="pre">manifest:</span> <span class="pre">~habit.contracts.manifest.RunManifest,</span> <span class="pre">subject_models:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.habitat.HabitatModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">units:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.Supervoxelization,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(),</span> <span class="pre">inspection:</span> <span class="pre">~typing.Any</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#habit.recipes.StudyResult.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">habitat_model:</span> <span class="pre">~habit.contracts.habitat.HabitatModel</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">pipeline:</span> <span class="pre">~typing.Any,</span> <span class="pre">features:</span> <span class="pre">~habit.contracts.table.FeatureTable,</span> <span class="pre">habitat_maps:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.HabitatMap,</span> <span class="pre">...],</span> <span class="pre">manifest:</span> <span class="pre">~habit.contracts.manifest.RunManifest,</span> <span class="pre">subject_models:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.habitat.HabitatModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">units:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.Supervoxelization,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(),</span> <span class="pre">units_rows:</span> <span class="pre">~typing.Tuple[~pandas.core.frame.DataFrame,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(),</span> <span class="pre">maps_persisted:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">inspection:</span> <span class="pre">~typing.Any</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#habit.recipes.StudyResult.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -96,7 +96,7 @@ Or paste the same code the gallery shows::
        extract_graph_features,
        one_step_habitat,
    )
-   from habit.viz import plot_habitat_graph_network_2d
+   from habit.viz import plot_habitat_graph_network_2d, plot_habitat_graph_slice
 
    DATA = "demo_data/preprocessed"
    MODALITIES = ("LAP",)
@@ -109,9 +109,30 @@ Or paste the same code the gallery shows::
    options = HabitatGraphFeatureOptions(include_extended_metrics=False)
    # Full 3D map for features; the 2D network below is display-only.
    feats = extract_graph_features(labels, options=options)
+   fig = plot_habitat_graph_slice(
+       labels, options=options, show_grid=True, block_size=8, grid_linestyle="--"
+   )
    fig = plot_habitat_graph_network_2d(
        labels, options=options, show_grid=True, block_size=8, grid_linestyle="--"
    )
+
+Stream the same options through a one-step :class:`~habit.report.Report`
+so each completed subject writes ``graph_slice.png`` and
+``graph_network_2d.png`` (2D display-only; metrics stay 3D)::
+
+   from dataclasses import asdict
+
+   from habit import GraphNetwork2D, GraphSlice, HabitatGraphFeatureOptions, Report
+
+   graph = HabitatGraphFeatureOptions(edge_method="min_distance", block_size=8)
+   # Spec("graph", asdict(graph)) on the quantify stage, then:
+   report = Report(
+       figures=(GraphSlice(options=graph), GraphNetwork2D(options=graph)),
+       figure_layout="by_subject",
+       writer=writer,
+   )
+
+Full walkthrough: :doc:`../examples/one_step_habitat` (**Stream per subject**).
 
 Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry
 ``HabitatFeatureExtractorRegistry.create("graph", ...)``, and 3D

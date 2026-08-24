@@ -184,6 +184,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -261,6 +265,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -390,6 +395,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -447,6 +453,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -471,6 +478,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -635,7 +643,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#construction-options">Construction options</a></li>
@@ -753,6 +764,49 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2066,7 +2120,7 @@ d_{\mathrm{CSR}} &amp;=
 &amp;= R = d_{\mathrm{NN}}/d_{\mathrm{CSR}}
 \end{aligned}\end{split}\]</div>
 <p><span class="math notranslate nohighlight">\(R&lt;1\)</span> clustering, <span class="math notranslate nohighlight">\(R=1\)</span> CSR, <span class="math notranslate nohighlight">\(R&gt;1\)</span> regularity.</p>
-<p>Average clustering is the Watts–Strogatz mean of local clustering
+<p>Average clustering is the Watts–Strogatz <a class="reference internal" href="#watts1998" id="id1"><span>[Watts1998]</span></a> mean of local clustering
 coefficients (<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(n=0\)</span>; a node with
 <span class="math notranslate nohighlight">\(\deg(v)&lt;2\)</span> contributes <span class="math notranslate nohighlight">\(0\)</span>):</p>
 <div class="math notranslate nohighlight">
@@ -2238,13 +2292,14 @@ Habitat-label assortativity is Newman’s attribute assortativity on
 </section>
 <section id="extended-metrics">
 <h2>Extended metrics<a class="headerlink" href="#extended-metrics" title="Link to this heading"></a></h2>
-<p>Enabled by <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (default <code class="docutils literal notranslate"><span class="pre">true</span></code>). Let
+<p>Enabled by <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (default <code class="docutils literal notranslate"><span class="pre">false</span></code>; pass
+<code class="docutils literal notranslate"><span class="pre">true</span></code> to opt in — these metrics dominate runtime on large maps). Let
 <span class="math notranslate nohighlight">\(G^{\star}\)</span> be the <strong>analysis subgraph</strong>: the input graph if it
 is connected and has edges; otherwise its largest connected component
 (empty / edgeless graphs stay as they are). Write
 <span class="math notranslate nohighlight">\(n^{\star}=|V(G^{\star})|\)</span>. Integration metrics below are
 <span class="math notranslate nohighlight">\(0\)</span> when <span class="math notranslate nohighlight">\(n^{\star}&lt;2\)</span> or <span class="math notranslate nohighlight">\(G^{\star}\)</span> has no edges.</p>
-<p>Global / local efficiency (Latora–Marchiori; hop distances, unweighted):</p>
+<p>Global / local efficiency (Latora–Marchiori <a class="reference internal" href="#latora2001" id="id2"><span>[Latora2001]</span></a>; hop distances, unweighted):</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \mathrm{global\_efficiency}
@@ -2257,22 +2312,84 @@ is connected and has edges; otherwise its largest connected component
 <p>where <span class="math notranslate nohighlight">\(G^{\star}[N(v)]\)</span> is the subgraph induced by the
 neighbours of <span class="math notranslate nohighlight">\(v\)</span>, and a node with fewer than two neighbours
 (or no edges among them) contributes <span class="math notranslate nohighlight">\(0\)</span>.</p>
-<p>Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> is NetworkX
-<code class="docutils literal notranslate"><span class="pre">smallworld.sigma</span></code> with <code class="docutils literal notranslate"><span class="pre">niter=5</span></code>, <code class="docutils literal notranslate"><span class="pre">nrand=3</span></code>, <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>,
-<strong>only if</strong> <span class="math notranslate nohighlight">\(n^{\star}\ge\)</span> <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (default
+<section id="small-worldness-and-random-graph-nulls">
+<h3>Small-worldness and random-graph nulls<a class="headerlink" href="#small-worldness-and-random-graph-nulls" title="Link to this heading"></a></h3>
+<p>Watts and Strogatz <a class="reference internal" href="#watts1998" id="id3"><span>[Watts1998]</span></a> called a network small-world when it
+has lattice-like clustering and random-graph path lengths. Humphries
+and Gurney <a class="reference internal" href="#humphries2006" id="id4"><span>[Humphries2006]</span></a> <a class="reference internal" href="#humphries2008" id="id5"><span>[Humphries2008]</span></a> turned that into one
+ratio <span class="math notranslate nohighlight">\(\sigma=(C/C_{\mathrm{rand}})/(L/L_{\mathrm{rand}})\)</span>,
+with <span class="math notranslate nohighlight">\(\sigma&gt;1\)</span> commonly read as small-world. HABIT uses that
+ratio. <span class="math notranslate nohighlight">\(C\)</span> is <strong>transitivity</strong> (global clustering, not the mean
+of local coefficients) and <span class="math notranslate nohighlight">\(L\)</span> is mean shortest-path length on
+<span class="math notranslate nohighlight">\(G^{\star}\)</span>, matching NetworkX <code class="docutils literal notranslate"><span class="pre">sigma</span></code>. The exported value is
+<strong>0</strong> unless <span class="math notranslate nohighlight">\(n^{\star}\ge\)</span> <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (default
 <code class="docutils literal notranslate"><span class="pre">10</span></code>), <span class="math notranslate nohighlight">\(G^{\star}\)</span> is connected, and it has at least one
-edge; else <span class="math notranslate nohighlight">\(0\)</span>. Treat it as a <strong>descriptor</strong>, not a hypothesis
-test:</p>
-<div class="math notranslate nohighlight">
-\[\mathrm{small\_world\_sigma}
-= \sigma
-= \frac{C/C_{\mathrm{rand}}}{L/L_{\mathrm{rand}}}\]</div>
-<p>Rich-club: NetworkX <code class="docutils literal notranslate"><span class="pre">rich_club_coefficient(G^*,</span> <span class="pre">normalized=True)</span></code>
-returns <span class="math notranslate nohighlight">\(\phi_{\mathrm{norm}}(k)\)</span> for each degree threshold
-<span class="math notranslate nohighlight">\(k\)</span>. HABIT stores the mean of the <strong>finite</strong> values
-(<span class="math notranslate nohighlight">\(0\)</span> on failure or no edges):</p>
+edge. This is a <strong>descriptor</strong>, not a hypothesis test.</p>
+<p>HABIT writes <strong>one</strong> column <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code>. The three
+<code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> values are mutually exclusive <strong>null models</strong>
+for <span class="math notranslate nohighlight">\(C_{\mathrm{rand}}\)</span> and <span class="math notranslate nohighlight">\(L_{\mathrm{rand}}\)</span>. They
+are not three different observed-graph metrics. Do not treat them as
+interchangeable, and do not invent a fourth sampler.</p>
+<p><strong>analytic (default) — Erdős–Rényi (ER).</strong>
+Humphries’ original null is an ER random graph <a class="reference internal" href="#erdosrenyi1959" id="id6"><span>[ErdosRenyi1959]</span></a> with
+the same node count <span class="math notranslate nohighlight">\(n\)</span> and edge count <span class="math notranslate nohighlight">\(m\)</span>. HABIT uses
+the analytic approximations in <a class="reference internal" href="#humphries2008" id="id7"><span>[Humphries2008]</span></a>:
+<span class="math notranslate nohighlight">\(C_{\mathrm{rand}}\approx\langle k\rangle/n\)</span> and
+<span class="math notranslate nohighlight">\(L_{\mathrm{rand}}\approx\ln n/\ln\langle k\rangle\)</span>
+(<span class="math notranslate nohighlight">\(\langle k\rangle=2m/n\)</span>). Humphries drew <strong>1000</strong> ER graphs
+only when testing borderline <span class="math notranslate nohighlight">\(1\le S\le 3\)</span>; the default point
+estimate does <strong>not</strong> sample graphs. This null does <strong>not</strong> preserve
+the degree sequence.</p>
+<p><strong>config — configuration model.</strong>
+Stub-matching random graphs that keep the observed degree sequence
+<a class="reference internal" href="#newman2001" id="id8"><span>[Newman2001]</span></a> <a class="reference internal" href="#milo2004" id="id9"><span>[Milo2004]</span></a>. <span class="math notranslate nohighlight">\(C_{\mathrm{rand}}\)</span> and
+<span class="math notranslate nohighlight">\(L_{\mathrm{rand}}\)</span> are means over <code class="docutils literal notranslate"><span class="pre">small_world_nrand</span></code>
+accepted simple connected graphs (default <code class="docutils literal notranslate"><span class="pre">100</span></code>). A realization is
+rejected if pairing fails or the finished graph is disconnected. If
+the fast sampler cannot fill the ensemble, HABIT falls back to
+Maslov–Sneppen mixing of the observed graph so <code class="docutils literal notranslate"><span class="pre">nrand</span></code> is not
+silently shrunk.</p>
+<p><strong>rewire — Maslov–Sneppen.</strong>
+Start from a copy of the observed graph and apply double-edge swaps
+(about <code class="docutils literal notranslate"><span class="pre">small_world_niter</span></code> swaps per edge, default <code class="docutils literal notranslate"><span class="pre">100</span></code>)
+<a class="reference internal" href="#maslov2002" id="id10"><span>[Maslov2002]</span></a>. Every node’s degree stays exactly the same; who is
+connected is mixed. This is what NetworkX <code class="docutils literal notranslate"><span class="pre">smallworld.sigma</span></code> /
+<code class="docutils literal notranslate"><span class="pre">random_reference</span></code> implements (NetworkX default ensemble is only
+<code class="docutils literal notranslate"><span class="pre">nrand=10</span></code>; HABIT uses <code class="docutils literal notranslate"><span class="pre">100</span></code>). Rubinov and Sporns
+<a class="reference internal" href="#rubinov2010" id="id11"><span>[Rubinov2010]</span></a> review the same degree-preserving idea for brain
+graphs.</p>
+<p>Choose the sampler to match the citation, not to “improve” <span class="math notranslate nohighlight">\(\sigma\)</span>:</p>
+<ul class="simple">
+<li><p>Report Humphries <em>S</em> as in the 2008 paper → <code class="docutils literal notranslate"><span class="pre">analytic</span></code>.</p></li>
+<li><p>Match NetworkX <code class="docutils literal notranslate"><span class="pre">sigma</span></code> → <code class="docutils literal notranslate"><span class="pre">rewire</span></code>.</p></li>
+<li><p>Textbook configuration-model ensemble → <code class="docutils literal notranslate"><span class="pre">config</span></code>.</p></li>
+</ul>
+<p>Never write “rewire” in a manuscript if the run used <code class="docutils literal notranslate"><span class="pre">analytic</span></code> or
+<code class="docutils literal notranslate"><span class="pre">config</span></code>.</p>
+<p>Habitat graphs are <strong>spatial</strong>. None of the three nulls constrain
+voxel coordinates or contact geometry, so a lattice-like map can
+inflate <span class="math notranslate nohighlight">\(C\)</span> relative to any of them. That is a known limit of
+classical small-world tests on imaging graphs
+<a class="reference internal" href="#rubinov2010" id="id12"><span>[Rubinov2010]</span></a>, not a reason to replace these nulls with an ad-hoc
+generator.</p>
+<p>Clustering, mean path length, and local/global efficiency use the
+same unweighted hop distances as NetworkX. An ensemble, when
+requested, is a stacked adjacency batch (Numba on CPU when
+installed; otherwise NumPy; one PyTorch CUDA Floyd–Warshall launch
+when <code class="docutils literal notranslate"><span class="pre">graph_null_device='auto'</span></code> and the work is large enough).</p>
+<p>A paper that needs a <em>p</em>-value for <span class="math notranslate nohighlight">\(\sigma&gt;1\)</span> or
+<span class="math notranslate nohighlight">\(\phi_{\mathrm{norm}}&gt;1\)</span> should call
+<code class="xref py py-func docutils literal notranslate"><span class="pre">habit.compare_graph_to_degree_preserving_null()</span></code> (typically
+<strong>100–1000</strong> graphs <a class="reference internal" href="#vandenheuvel2011" id="id13"><span>[VandenHeuvel2011]</span></a>).</p>
+<p>Rich-club <a class="reference internal" href="#colizza2006" id="id14"><span>[Colizza2006]</span></a> <a class="reference internal" href="#mcauley2007" id="id15"><span>[McAuley2007]</span></a>: HABIT stores the mean of
+the <strong>finite</strong> <span class="math notranslate nohighlight">\(\phi_{\mathrm{norm}}(k)\)</span>. Under the analytic
+default, <span class="math notranslate nohighlight">\(\phi_{\mathrm{rand}}(k)\)</span> comes from <strong>one</strong>
+configuration-model graph (NetworkX / Milo point estimate
+<a class="reference internal" href="#milo2004" id="id16"><span>[Milo2004]</span></a>). <code class="docutils literal notranslate"><span class="pre">config</span></code> / <code class="docutils literal notranslate"><span class="pre">rewire</span></code> reuse the sigma ensemble.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
+\mathrm{small\_world\_sigma}
+&amp;= \frac{C/C_{\mathrm{rand}}}{L/L_{\mathrm{rand}}} \\
 \phi(k)
 &amp;= \frac{2 E_{&gt;k}}{n_{&gt;k}(n_{&gt;k}-1)} \\
 \phi_{\mathrm{norm}}(k)
@@ -2342,6 +2459,7 @@ graph’s <span class="math notranslate nohighlight">\(N\)</span>). The <code cl
    0 &amp; N&lt;3
    \end{cases}
 \end{aligned}\end{split}\]</div>
+</section>
 </section>
 <section id="voi-normalized-companions">
 <h2>VOI-normalized companions<a class="headerlink" href="#voi-normalized-companions" title="Link to this heading"></a></h2>
@@ -2433,10 +2551,12 @@ the observed value against degree-preserving random graphs instead.</p>
 <code class="docutils literal notranslate"><span class="pre">node_local_efficiency_min/std</span></code>, and pairwise
 <code class="docutils literal notranslate"><span class="pre">habitat_assortativity</span></code>. <code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code> and degree summaries are
 fixed by a degree-preserving null and therefore need sample-size-aware
-estimation rather than this null model. <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> and
-<code class="docutils literal notranslate"><span class="pre">rich_club_coefficient</span></code> already invoke random-graph reference procedures
-internally; report their seeds/settings and do not treat them as
-volume-normalized quantities.</p>
+estimation rather than this null model. Default
+<code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> uses an analytic Erdős–Rényi null
+<a class="reference internal" href="#humphries2008" id="id17"><span>[Humphries2008]</span></a>. <code class="docutils literal notranslate"><span class="pre">rich_club_coefficient</span></code> uses one
+degree-preserving graph (or the opt-in ensemble). Report
+<code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> and do not treat these as volume-normalized
+quantities.</p>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.compare_graph_to_degree_preserving_null()</span></code> is an explicit,
 opt-in API. It preserves every node’s degree, node count, and edge count,
 but intentionally does <strong>not</strong> preserve connected components, spatial
@@ -2521,10 +2641,25 @@ below match the kernel dataclass.</p>
 <td><p>Add same-habitat proximity edges in pairwise graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>); interface metrics still use inter-class edges only</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
-<td><p>Efficiency, small-world sigma, rich-club, node-distribution summaries (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
+<td><p>Efficiency, one small-world <span class="math notranslate nohighlight">\(\sigma\)</span>, rich-club, node-distribution summaries (default <code class="docutils literal notranslate"><span class="pre">false</span></code>; set <code class="docutils literal notranslate"><span class="pre">true</span></code> to opt in)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
-<td><p>Minimum analysis-subgraph node count for small-world sigma (default <code class="docutils literal notranslate"><span class="pre">10</span></code>; smaller graphs return <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Minimum analysis-subgraph node count for either small-world sigma (default <code class="docutils literal notranslate"><span class="pre">10</span></code>; smaller graphs return <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_world_nrand</span></code></p></td>
+<td><p>Ensemble size when <code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> is <code class="docutils literal notranslate"><span class="pre">config</span></code> or <code class="docutils literal notranslate"><span class="pre">rewire</span></code> (default <code class="docutils literal notranslate"><span class="pre">100</span></code>). Ignored by analytic Humphries <em>S</em>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_world_niter</span></code></p></td>
+<td><p>Rewires per edge when <code class="docutils literal notranslate"><span class="pre">graph_null_sampler='rewire'</span></code> (default <code class="docutils literal notranslate"><span class="pre">100</span></code>). Ignored by analytic / <code class="docutils literal notranslate"><span class="pre">config</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rich_club_q</span></code></p></td>
+<td><p>Mixing floor for <code class="docutils literal notranslate"><span class="pre">graph_null_sampler='rewire'</span></code> (default <code class="docutils literal notranslate"><span class="pre">100</span></code>), not the number of null graphs.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">analytic</span></code> (default, Humphries ER <em>S</em>), <code class="docutils literal notranslate"><span class="pre">config</span></code>, or <code class="docutils literal notranslate"><span class="pre">rewire</span></code>. One <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> column; the last two replace the analytic value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">graph_null_device</span></code></p></td>
+<td><p>Batched C/L device: <code class="docutils literal notranslate"><span class="pre">auto</span></code> (default), <code class="docutils literal notranslate"><span class="pre">cpu</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda</span></code>, or <code class="docutils literal notranslate"><span class="pre">cuda:N</span></code>. <code class="docutils literal notranslate"><span class="pre">auto</span></code> uses CUDA only when Floyd–Warshall work is large enough.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2579,9 +2714,12 @@ below match the kernel dataclass.</p>
 <span class="math notranslate nohighlight">\(d_{\min}\)</span> for default <code class="docutils literal notranslate"><span class="pre">min_distance</span></code>, centroid Euclidean
 for <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>. Do not interpret it as a
 millimetre length unless the map is isotropic with 1 mm spacing.</p></li>
-<li><p>Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> is a NetworkX Monte-Carlo ratio on a possibly
-tiny habitat graph. It is not Watts–Strogatz inference for a brain
-connectome, and it is forced to <code class="docutils literal notranslate"><span class="pre">0</span></code> below <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code>.</p></li>
+<li><p>Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> is Humphries’ ratio on a possibly tiny
+habitat graph. The default <code class="docutils literal notranslate"><span class="pre">analytic</span></code> sampler is the closed-form
+ER approximation, not a NetworkX Monte-Carlo draw. <code class="docutils literal notranslate"><span class="pre">config</span></code> /
+<code class="docutils literal notranslate"><span class="pre">rewire</span></code> are degree-preserving ensembles. None of these is
+Watts–Strogatz inference for a brain connectome, and the value is
+forced to <code class="docutils literal notranslate"><span class="pre">0</span></code> below <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code>.</p></li>
 <li><p>Empty or missing habitats emit <strong>zeros</strong>, not missing values. A cohort
 mean of a <code class="docutils literal notranslate"><span class="pre">single_h3_*</span></code> column therefore mixes true structure with
 absent-label zeros unless you filter on <code class="docutils literal notranslate"><span class="pre">graph_num_habitats</span></code> / presence.</p></li>
@@ -2595,8 +2733,23 @@ a biological cell type or prove that a habitat is a clonal region.</p></li>
 <li><p>Domain: <code class="docutils literal notranslate"><span class="pre">habit/domain/habitat_features/graph.py</span></code>
 (<code class="docutils literal notranslate"><span class="pre">GraphHabitatFeatures</span></code> / <code class="docutils literal notranslate"><span class="pre">GraphHabitatFeaturesParams</span></code>)</p></li>
 <li><p>Kernels: <code class="docutils literal notranslate"><span class="pre">habit/kernels/habitat_graph/</span></code>
-(<code class="docutils literal notranslate"><span class="pre">nodes.py</span></code>, <code class="docutils literal notranslate"><span class="pre">edges.py</span></code>, <code class="docutils literal notranslate"><span class="pre">metrics.py</span></code>, <code class="docutils literal notranslate"><span class="pre">extended_metrics.py</span></code>,
-<code class="docutils literal notranslate"><span class="pre">features.py</span></code>)</p></li>
+(<code class="docutils literal notranslate"><span class="pre">nodes.py</span></code>, <code class="docutils literal notranslate"><span class="pre">edges.py</span></code>, <code class="docutils literal notranslate"><span class="pre">proximity.py</span></code>, <code class="docutils literal notranslate"><span class="pre">metrics.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">extended_metrics.py</span></code>, <code class="docutils literal notranslate"><span class="pre">features.py</span></code>, <code class="docutils literal notranslate"><span class="pre">traversal.py</span></code>).
+<code class="docutils literal notranslate"><span class="pre">min_distance</span></code> builds one global edge table. Voxel-neighbour
+sweep and dual-lattice range search run only when
+<code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (<code class="docutils literal notranslate"><span class="pre">grid_origin</span></code> and
+<code class="docutils literal notranslate"><span class="pre">grid_block_size</span></code> are set). The Chebyshev radius is <code class="docutils literal notranslate"><span class="pre">0</span></code> when
+<code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&lt;</span> <span class="pre">1</span></code>, else <code class="docutils literal notranslate"><span class="pre">floor((T-1)/B)+1</span></code> for user <code class="docutils literal notranslate"><span class="pre">block_size=B</span></code>
+and <code class="docutils literal notranslate"><span class="pre">distance_threshold=T</span></code>. <code class="docutils literal notranslate"><span class="pre">component</span></code> nodes keep the
+all-pairs closest-voxel walk. One all-sources BFS per graph
+yields Brandes betweenness, closeness, mean path length, and
+diameter (NetworkX definitions). Default extract keeps edges as
+integer arrays and runs those hop / clustering / component
+columns on CSR (Compressed Sparse Row) adjacency – no NetworkX
+object. Hop metrics use compiled CSR Brandes (serial sources so
+several graphs can run in threads). Louvain modularity uses a CSR
+Blondel sweep (the partition can differ from NetworkX <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>).
+Node default stays <code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code>.</p></li>
 <li><p>YAML block: <code class="docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code> in <code class="docutils literal notranslate"><span class="pre">habit/schemas/workflows/habitat.py</span></code></p></li>
 <li><p>Recipe + CSV name: <code class="docutils literal notranslate"><span class="pre">habit/recipes/features.py</span></code>,
 <code class="docutils literal notranslate"><span class="pre">habit/adapters/extract_io.py</span></code> (stem <code class="docutils literal notranslate"><span class="pre">habitat_graph_features</span></code>)</p></li>
@@ -2609,6 +2762,91 @@ a biological cell type or prove that a habitat is a clonal region.</p></li>
 <p>Liang J, Jiang X, Reitsam NG, et al. Spatial biomarker discovery via
 interpretable semantic learning in histopathology. <em>Cancer Cell</em> 2026
 (<a class="reference external" href="https://doi.org/10.1016/j.ccell.2026.05.014">DOI</a>).</p>
+<div role="list" class="citation-list">
+<div class="citation" id="watts1998" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Watts1998<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p>Watts DJ, Strogatz SH. Collective dynamics of
+‘small-world’ networks. <em>Nature</em> 1998;393:440–442.
+(<a class="reference external" href="https://doi.org/10.1038/30918">DOI</a>)</p>
+</div>
+<div class="citation" id="erdosrenyi1959" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">ErdosRenyi1959</a><span class="fn-bracket">]</span></span>
+<p>Erdős P, Rényi A. On random graphs I.
+<em>Publ Math Debrecen</em> 1959;6:290–297.</p>
+</div>
+<div class="citation" id="newman2001" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">Newman2001</a><span class="fn-bracket">]</span></span>
+<p>Newman MEJ, Strogatz SH, Watts DJ. Random graphs with
+arbitrary degree distributions and their applications.
+<em>Phys Rev E</em> 2001;64:026118.
+(<a class="reference external" href="https://doi.org/10.1103/PhysRevE.64.026118">DOI</a>)</p>
+</div>
+<div class="citation" id="latora2001" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Latora2001</a><span class="fn-bracket">]</span></span>
+<p>Latora V, Marchiori M. Efficient behavior of
+small-world networks. <em>Phys Rev Lett</em> 2001;87:198701.
+(<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.87.198701">DOI</a>)</p>
+</div>
+<div class="citation" id="humphries2006" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">Humphries2006</a><span class="fn-bracket">]</span></span>
+<p>Humphries MD, Gurney K, Prescott TJ. The brainstem
+reticular formation is a small-world, not scale-free, network.
+<em>Proc R Soc B</em> 2006;273:503–511.
+(<a class="reference external" href="https://doi.org/10.1098/rspb.2005.3354">DOI</a>)</p>
+</div>
+<div class="citation" id="humphries2008" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Humphries2008<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id7">2</a>,<a role="doc-backlink" href="#id17">3</a>)</span>
+<p>Humphries MD, Gurney K. Network ‘small-world-ness’:
+a quantitative method for determining canonical network equivalence.
+<em>PLoS One</em> 2008;3:e2051.
+(<a class="reference external" href="https://doi.org/10.1371/journal.pone.0002051">DOI</a>)</p>
+</div>
+<div class="citation" id="maslov2002" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">Maslov2002</a><span class="fn-bracket">]</span></span>
+<p>Maslov S, Sneppen K. Specificity and stability in
+topology of protein networks. <em>Science</em> 2002;296:910–913.
+(<a class="reference external" href="https://doi.org/10.1126/science.1065103">DOI</a>)</p>
+</div>
+<div class="citation" id="rubinov2010" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Rubinov2010<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id11">1</a>,<a role="doc-backlink" href="#id12">2</a>)</span>
+<p>Rubinov M, Sporns O. Complex network measures of
+brain connectivity: uses and interpretations. <em>NeuroImage</em>
+2010;52:1059–1069.
+(<a class="reference external" href="https://doi.org/10.1016/j.neuroimage.2009.10.003">DOI</a>)</p>
+</div>
+<div class="citation" id="colizza2006" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">Colizza2006</a><span class="fn-bracket">]</span></span>
+<p>Colizza V, Flammini A, Serrano MA, Vespignani A.
+Detecting rich-club ordering in complex networks. <em>Nat Phys</em>
+2006;2:110–115.
+(<a class="reference external" href="https://doi.org/10.1038/nphys209">DOI</a>)</p>
+</div>
+<div class="citation" id="mcauley2007" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">McAuley2007</a><span class="fn-bracket">]</span></span>
+<p>McAuley JJ, da Fontoura Costa L, Caetano TS. The
+rich-club phenomenon across complex network hierarchies.
+<em>Appl Phys Lett</em> 2007;91:084103.
+(<a class="reference external" href="https://doi.org/10.1063/1.2773951">DOI</a>)</p>
+</div>
+<div class="citation" id="milo2004" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Milo2004<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id9">1</a>,<a role="doc-backlink" href="#id16">2</a>)</span>
+<p>Milo R, Kashtan N, Itzkovitz S, Newman MEJ, Alon U.
+Uniform generation of random graphs with arbitrary degree
+sequences. arXiv:cond-mat/0312028, 2004.
+(<a class="reference external" href="https://arxiv.org/abs/cond-mat/0312028">arXiv</a>)</p>
+</div>
+<div class="citation" id="vandenheuvel2011" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">VandenHeuvel2011</a><span class="fn-bracket">]</span></span>
+<p>van den Heuvel MP, Sporns O. Rich-club
+organization of the human connectome. <em>J Neurosci</em>
+2011;31:15775–15786.
+(<a class="reference external" href="https://doi.org/10.1523/JNEUROSCI.3539-11.2011">DOI</a>)</p>
+</div>
+</div>
 </section>
 <section id="see-also">
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>

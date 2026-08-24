@@ -23,7 +23,11 @@ on a full 3D map are the main time sink. A later section keeps those
 **same habitat labels** and only overrides ``block_size=5`` so the
 two 3D lattices can be compared. Graph topology is a
 habitat-map feature family (same tier as ``volume`` / ``msi``); columns
-under :doc:`../reference/features/index`.
+under :doc:`../reference/features/index`. To stream 2D graph PNGs as each
+one-step subject completes, pass the same
+:class:`~habit.HabitatGraphFeatureOptions` to ``Spec("graph")`` and
+:class:`~habit.report.GraphSlice` / :class:`~habit.report.GraphNetwork2D`
+— see :doc:`one_step_habitat` (**Stream per subject**).
 
 The old ten-bar "Sampled feature values" figure is gone; use the two
 heatmaps (and the plot kwargs) to choose people and features. Pass
@@ -55,6 +59,8 @@ Draw the figures
 Paste this after the Script block (it uses ``cohort``, ``result``,
 ``table``, ``options``, ``SUBJECTS``, and ``MODALITIES``). Writes
 ``out/graph_habitat_slice_2d.png`` (orthogonal overlay),
+``out/graph_habitat_lattice_2d.png`` (node lattice on the
+representative slice; :func:`~habit.viz.plot_habitat_graph_slice`),
 ``out/graph_habitat_network_2d.png``,
 ``out/graph_feature_heatmap_single.png``, and
 ``out/graph_feature_heatmap_pair.png`` from the **3D** 8-voxel table.
@@ -112,6 +118,18 @@ Anatomy with habitats
 
    Habitat labels on the densest axial slice of the first subject
    (:func:`~habit.viz.plot_habitat_overlay`).
+
+2D node lattice
+---------------
+
+.. figure:: ../_static/images/examples/graph_habitat_lattice_2d.png
+   :alt: Habitat map with the uniform-grid node lattice
+   :width: 480
+
+   Representative slice plus the 8-voxel dashed lattice
+   (:func:`~habit.viz.plot_habitat_graph_slice` /
+   :class:`~habit.report.GraphSlice`). Display-only; metrics use the
+   full 3D volume.
 
 2D region network
 -----------------

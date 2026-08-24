@@ -184,6 +184,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -261,6 +265,7 @@
 <li class="toctree-l2"><a class="reference internal" href="one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#figures">Figures</a></li>
@@ -390,6 +395,7 @@
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -447,6 +453,7 @@
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -471,6 +478,7 @@
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -635,7 +643,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -753,6 +764,49 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1808,6 +1862,75 @@ together in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>
 a matplotlib <code class="docutils literal notranslate"><span class="pre">Figure</span></code> out — no <code class="docutils literal notranslate"><span class="pre">savefig</span></code> inside the library. Callers choose
 where figures go. All text is English/ASCII via
 <code class="xref py py-func docutils literal notranslate"><span class="pre">sanitize_label()</span></code>.</p>
+<p>Per-subject habitat overlays, volume / MSI / ITH bars, auto-K curves,
+and 2D graph slice / network figures can also be <strong>declared</strong> as
+<a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report" title="habit.report.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a> figure atoms
+(<a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice" title="habit.report.GraphSlice"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphSlice</span></code></a>, <a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D" title="habit.report.GraphNetwork2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a>)
+and written as each one-step subject completes — see <a class="reference internal" href="one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a>
+(<strong>Stream per subject</strong>). Pass the same
+<code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code> to <code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;)</span></code> and the
+atoms; the PNGs are a representative 2D slice (display-only), while
+graph metrics use the full 3D volume. <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code> stays pure; the
+Report owns <code class="docutils literal notranslate"><span class="pre">savefig</span></code>. <code class="docutils literal notranslate"><span class="pre">figure_layout=&quot;by_subject&quot;</span></code> nests each
+subject’s PNGs under <code class="docutils literal notranslate"><span class="pre">figures/&lt;subject_id&gt;/</span></code>.</p>
+<section id="report-figure-atoms-complete">
+<h2>Report figure atoms (complete)<a class="headerlink" href="#report-figure-atoms-complete" title="Link to this heading"></a></h2>
+<p>Every built-in atom calls a pure <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code> function and writes one
+PNG per subject. <code class="docutils literal notranslate"><span class="pre">figure_layout=&quot;flat&quot;</span></code> (default) writes
+<code class="docutils literal notranslate"><span class="pre">figures/&lt;subject&gt;_&lt;kind&gt;.png</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;by_subject&quot;</span></code> writes
+<code class="docutils literal notranslate"><span class="pre">figures/&lt;subject_id&gt;/&lt;kind&gt;.png</span></code>. Custom atoms implement
+<a class="reference internal" href="../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom" title="habit.report.FigureAtom"><code class="xref py py-class docutils literal notranslate"><span class="pre">FigureAtom</span></code></a> (<code class="docutils literal notranslate"><span class="pre">stem</span></code> + <code class="docutils literal notranslate"><span class="pre">draw</span></code>).</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 38.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Report atom</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> function</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/generated/habit.report.Overlay.html#habit.report.Overlay" title="habit.report.Overlay"><code class="xref py py-class docutils literal notranslate"><span class="pre">Overlay</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a></p></td>
+<td><p><a class="reference internal" href="one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a>, this page</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions" title="habit.report.VolumeFractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_volume_fractions.html#habit.viz.plot_habitat_volume_fractions" title="habit.viz.plot_habitat_volume_fractions"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_volume_fractions()</span></code></a></p></td>
+<td><p><a class="reference internal" href="one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a>, <a class="reference internal" href="feature_extraction.html"><span class="doc">Habitat and radiomics feature extraction</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/generated/habit.report.MSI.html#habit.report.MSI" title="habit.report.MSI"><code class="xref py py-class docutils literal notranslate"><span class="pre">MSI</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.viz.plot_msi_matrix.html#habit.viz.plot_msi_matrix" title="habit.viz.plot_msi_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_msi_matrix()</span></code></a></p></td>
+<td><p><a class="reference internal" href="one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a>, <a class="reference internal" href="feature_extraction.html"><span class="doc">Habitat and radiomics feature extraction</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/generated/habit.report.ITH.html#habit.report.ITH" title="habit.report.ITH"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITH</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.viz.plot_ith_summary.html#habit.viz.plot_ith_summary" title="habit.viz.plot_ith_summary"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_ith_summary()</span></code></a></p></td>
+<td><p><a class="reference internal" href="one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a>, <a class="reference internal" href="feature_extraction.html"><span class="doc">Habitat and radiomics feature extraction</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation" title="habit.report.ClusterValidation"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.viz.plot_cluster_validation_from_report.html#habit.viz.plot_cluster_validation_from_report" title="habit.viz.plot_cluster_validation_from_report"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_cluster_validation_from_report()</span></code></a></p></td>
+<td><p><a class="reference internal" href="one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice" title="habit.report.GraphSlice"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html#habit.viz.plot_habitat_graph_slice" title="habit.viz.plot_habitat_graph_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_slice()</span></code></a></p></td>
+<td><p><a class="reference internal" href="graph_features.html"><span class="doc">Graph features from habitat maps</span></a>, <a class="reference internal" href="one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a> (<strong>Stream per subject</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D" title="habit.report.GraphNetwork2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a></p></td>
+<td><p><a class="reference internal" href="graph_features.html"><span class="doc">Graph features from habitat maps</span></a>, <a class="reference internal" href="one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a> (<strong>Stream per subject</strong>)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Graph atoms take <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code> — pass the
+same object to <code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;,</span> <span class="pre">asdict(options))</span></code>. 2D PNGs are
+display-only slices; metrics use the full 3D volume. 3D graph renders
+(<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a>,
+<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>) stay on
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code> (needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code>); they are not Report atoms.</p>
+<p>Runnable stream script:
+<code class="docutils literal notranslate"><span class="pre">docs/source/examples/scripts/one_step_report_demo.py</span></code>.</p>
 <p>This example covers:</p>
 <ul class="simple">
 <li><p>population-level habitat-clustering PCA from a two-step <code class="docutils literal notranslate"><span class="pre">StudyResult</span></code>,</p></li>
@@ -1818,6 +1941,7 @@ where figures go. All text is English/ASCII via
 </ul>
 <p>Binary ML ROC / PR / calibration / DCA plots live on <a class="reference internal" href="tabular_ml.html"><span class="doc">Tabular machine learning: train, cross-validate, predict</span></a> and
 <a class="reference internal" href="ml_advanced.html"><span class="doc">Advanced tabular ML: ordered selection and model comparison</span></a>.</p>
+</section>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <p>Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code>. Survival rows are constructed in the script with
@@ -2242,6 +2366,10 @@ construction is available as pure plotters (<code class="docutils literal notran
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>Or declare <a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice" title="habit.report.GraphSlice"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphSlice</span></code></a> /
+<a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D" title="habit.report.GraphNetwork2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a> on a one-step
+<a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report" title="habit.report.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a> (same
+<code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code> as <code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;)</span></code>).</p>
 <p>See <a class="reference internal" href="graph_features.html"><span class="doc">Graph features from habitat maps</span></a> and <a class="reference internal" href="../reference/features/graph.html"><span class="doc">Graph topology features</span></a>.</p>
 </section>
 <section id="voxel-texture-feature-map-slices">

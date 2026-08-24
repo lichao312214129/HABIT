@@ -536,6 +536,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -613,6 +617,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -742,6 +747,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -799,6 +805,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -823,6 +830,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -987,7 +995,10 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -1105,6 +1116,49 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2168,14 +2222,32 @@ window.runMermaid = runMermaid;</script>
     <span class="n">HabitatGraphEdge</span><span class="p">,</span>
     <span class="n">HabitatGraphNode</span><span class="p">,</span>
     <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">MinDistanceEdgeTable</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.proximity</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">candidate_node_pairs</span><span class="p">,</span>
+    <span class="n">collect_coords_by_node_id</span><span class="p">,</span>
+    <span class="n">lattice_chebyshev_radius</span><span class="p">,</span>
+    <span class="n">min_distances_for_pairs</span><span class="p">,</span>
+    <span class="n">owner_volume</span><span class="p">,</span>
+    <span class="n">uses_uniform_grid</span><span class="p">,</span>
+    <span class="n">volume_sweep_min_distances</span><span class="p">,</span>
+    <span class="n">volume_sweep_worthwhile</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;as_intra_edge&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;compose_pairwise_graph&quot;</span><span class="p">,</span>
     <span class="s2">&quot;build_centroid_distance_graph&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_centroid_inter_edges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_min_distance_inter_edges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_min_distance_edge_table&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_min_distance_edges&quot;</span><span class="p">,</span>
     <span class="s2">&quot;build_min_distance_graph&quot;</span><span class="p">,</span>
     <span class="s2">&quot;build_adjacency_graph&quot;</span><span class="p">,</span>
     <span class="s2">&quot;iter_label_pairs&quot;</span><span class="p">,</span>
     <span class="s2">&quot;iter_cross_label_nodes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lattice_chebyshev_radius&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -2343,6 +2415,44 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">as_intra_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">:</span> <span class="n">HabitatGraphEdge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatGraphEdge</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy an edge and tag it ``intra`` (pairwise reuse of single-habitat edges).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">edge_type</span> <span class="o">==</span> <span class="s2">&quot;intra&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">edge</span>
+    <span class="k">return</span> <span class="n">HabitatGraphEdge</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
+        <span class="n">edge_type</span><span class="o">=</span><span class="s2">&quot;intra&quot;</span><span class="p">,</span>
+        <span class="n">distance</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span>
+        <span class="n">contact_voxels</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">contact_voxels</span><span class="p">,</span>
+        <span class="n">weight</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compose_pairwise_graph</span><span class="p">(</span>
+    <span class="n">nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">inter_edges</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">],</span>
+    <span class="n">intra_edges</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assemble a pairwise graph from inter edges plus reused intra edges.</span>
+
+<span class="sd">    Intra edges must already be tagged ``intra`` (use :func:`as_intra_edge`).</span>
+<span class="sd">    Node membership and stored distances are unchanged from a from-scratch</span>
+<span class="sd">    pairwise build; only the closest-voxel (or centroid) queries are skipped</span>
+<span class="sd">    for pairs that a single-habitat graph already measured.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;compose_pairwise_graph requires exactly two labels.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">HabitatGraph</span><span class="p">(</span>
+        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
+        <span class="n">nodes</span><span class="o">=</span><span class="n">_nodes_to_dict</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>
+        <span class="n">edges</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">inter_edges</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">intra_edges</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_node_voxel_coords</span><span class="p">(</span>
     <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
     <span class="n">node</span><span class="p">:</span> <span class="n">HabitatGraphNode</span><span class="p">,</span>
@@ -2367,7 +2477,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">component_map</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">component_id</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">component_map</span><span class="o">.</span><span class="n">ndim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">coords</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">node_result</span><span class="o">.</span><span class="n">crop_offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">values</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">crop_offset</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">values</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_min_voxel_distance</span><span class="p">(</span><span class="n">coords_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coords_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2376,7 +2489,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    This is the set-separation (minimum pairwise) distance</span>
 <span class="sd">    ``min_{a in A, b in B} ||a-b||``. It is not the Hausdorff distance,</span>
-<span class="sd">    which uses a max-of-mins.</span>
+<span class="sd">    which uses a max-of-mins. Default is a CPU kd-tree; pass</span>
+<span class="sd">    ``device=&quot;cuda&quot;`` on :func:`habit.utils.torch_graph_utils.min_voxel_distance`</span>
+<span class="sd">    only when a single large pair should use ``cdist``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        coords_a: Voxel coordinates of region A, shape ``(n_a, ndim)``.</span>
@@ -2386,16 +2501,41 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        float: Minimum Euclidean distance in voxel-index units, or ``inf``</span>
 <span class="sd">        when either set is empty.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">coords_a</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">coords_b</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
-    <span class="c1"># Query the smaller cloud against a tree of the larger one.</span>
-    <span class="k">if</span> <span class="n">coords_a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">coords_b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-        <span class="n">tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">coords_b</span><span class="p">)</span>
-        <span class="n">distances</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">coords_a</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">coords_a</span><span class="p">)</span>
-        <span class="n">distances</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">coords_b</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">distances</span><span class="p">))</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.torch_graph_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">min_voxel_distance</span>
+
+    <span class="k">return</span> <span class="n">min_voxel_distance</span><span class="p">(</span><span class="n">coords_a</span><span class="p">,</span> <span class="n">coords_b</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bbox_min_distance</span><span class="p">(</span><span class="n">bbox_a</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">bbox_b</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Euclidean lower bound on closest-voxel distance from two half-open boxes.</span>
+
+<span class="sd">    Each bbox is ``(min_0, ..., min_{d-1}, max_0, ..., max_{d-1})`` with</span>
+<span class="sd">    exclusive upper corners. Occupied voxels run through ``max - 1``, so</span>
+<span class="sd">    adjacent boxes such as ``[0, 8)`` and ``[8, 16)`` have gap 1.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bbox_a: Half-open box of region A.</span>
+<span class="sd">        bbox_b: Half-open box of region B.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Lower bound on ``min ||a-b||``. Zero when the boxes overlap.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bbox_a</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">gap_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_dim</span><span class="p">):</span>
+        <span class="n">min_a</span> <span class="o">=</span> <span class="n">bbox_a</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+        <span class="n">max_a</span> <span class="o">=</span> <span class="n">bbox_a</span><span class="p">[</span><span class="n">n_dim</span> <span class="o">+</span> <span class="n">axis</span><span class="p">]</span>
+        <span class="n">min_b</span> <span class="o">=</span> <span class="n">bbox_b</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+        <span class="n">max_b</span> <span class="o">=</span> <span class="n">bbox_b</span><span class="p">[</span><span class="n">n_dim</span> <span class="o">+</span> <span class="n">axis</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">max_a</span> <span class="o">&lt;=</span> <span class="n">min_b</span><span class="p">:</span>
+            <span class="n">gap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_b</span> <span class="o">-</span> <span class="n">max_a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">max_b</span> <span class="o">&lt;=</span> <span class="n">min_a</span><span class="p">:</span>
+            <span class="n">gap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_a</span> <span class="o">-</span> <span class="n">max_b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gap</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">gap_sq</span> <span class="o">+=</span> <span class="n">gap</span> <span class="o">*</span> <span class="n">gap</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">gap_sq</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_min_distance_edges_for_pairs</span><span class="p">(</span>
@@ -2427,6 +2567,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">same_group</span> <span class="o">=</span> <span class="n">nodes_a</span> <span class="ow">is</span> <span class="n">nodes_b</span>
+    <span class="n">trees</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">cKDTree</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">(</span><span class="n">node_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">coords</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cKDTree</span><span class="p">:</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">trees</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+            <span class="n">trees</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree</span>
+        <span class="k">return</span> <span class="n">tree</span>
+
     <span class="k">for</span> <span class="n">index_a</span><span class="p">,</span> <span class="n">node_a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes_a</span><span class="p">):</span>
         <span class="n">coords_a</span> <span class="o">=</span> <span class="n">coords_by_id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node_a</span><span class="o">.</span><span class="n">node_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">coords_a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">coords_a</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2438,7 +2587,14 @@ window.runMermaid = runMermaid;</script>
             <span class="n">coords_b</span> <span class="o">=</span> <span class="n">coords_by_id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node_b</span><span class="o">.</span><span class="n">node_id</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">coords_b</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">coords_b</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">distance</span> <span class="o">=</span> <span class="n">_min_voxel_distance</span><span class="p">(</span><span class="n">coords_a</span><span class="p">,</span> <span class="n">coords_b</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_bbox_min_distance</span><span class="p">(</span><span class="n">node_a</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">node_b</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">distance_threshold</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">tree_a</span> <span class="o">=</span> <span class="n">_tree</span><span class="p">(</span><span class="n">node_a</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span> <span class="n">coords_a</span><span class="p">)</span>
+            <span class="n">tree_b</span> <span class="o">=</span> <span class="n">_tree</span><span class="p">(</span><span class="n">node_b</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span> <span class="n">coords_b</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">coords_a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">coords_b</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">tree_b</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">coords_a</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">tree_a</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">coords_b</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="k">if</span> <span class="n">distance</span> <span class="o">&gt;</span> <span class="n">distance_threshold</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -2446,6 +2602,283 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">source</span><span class="o">=</span><span class="n">node_a</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
                     <span class="n">target</span><span class="o">=</span><span class="n">node_b</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
                     <span class="n">edge_type</span><span class="o">=</span><span class="n">edge_type</span><span class="p">,</span>
+                    <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span>
+                    <span class="n">contact_voxels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">weight</span><span class="o">=</span><span class="n">_distance_weight</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">edge_weight</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">edges</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_empty_edge_table</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">MinDistanceEdgeTable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a zero-length closest-voxel table.&quot;&quot;&quot;</span>
+    <span class="n">empty_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">empty_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">MinDistanceEdgeTable</span><span class="p">(</span>
+        <span class="n">index_a</span><span class="o">=</span><span class="n">empty_i</span><span class="p">,</span>
+        <span class="n">index_b</span><span class="o">=</span><span class="n">empty_i</span><span class="p">,</span>
+        <span class="n">distance</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="n">habitat_a</span><span class="o">=</span><span class="n">empty_h</span><span class="p">,</span>
+        <span class="n">habitat_b</span><span class="o">=</span><span class="n">empty_h</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_table_from_index_pairs</span><span class="p">(</span>
+    <span class="n">node_list</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">index_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">index_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">distances</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">allow_same_label</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">allow_cross_label</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MinDistanceEdgeTable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pack surviving index pairs into a :class:`MinDistanceEdgeTable`.&quot;&quot;&quot;</span>
+    <span class="n">habitats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">habitat_label</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">node_list</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+    <span class="p">)</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">index_a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">dst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">index_b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_empty_edge_table</span><span class="p">()</span>
+    <span class="n">habitat_a</span> <span class="o">=</span> <span class="n">habitats</span><span class="p">[</span><span class="n">src</span><span class="p">]</span>
+    <span class="n">habitat_b</span> <span class="o">=</span> <span class="n">habitats</span><span class="p">[</span><span class="n">dst</span><span class="p">]</span>
+    <span class="n">same</span> <span class="o">=</span> <span class="n">habitat_a</span> <span class="o">==</span> <span class="n">habitat_b</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_same_label</span><span class="p">:</span>
+        <span class="n">keep</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">same</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_cross_label</span><span class="p">:</span>
+        <span class="n">keep</span> <span class="o">&amp;=</span> <span class="n">same</span>
+    <span class="k">return</span> <span class="n">MinDistanceEdgeTable</span><span class="p">(</span>
+        <span class="n">index_a</span><span class="o">=</span><span class="n">src</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span>
+        <span class="n">index_b</span><span class="o">=</span><span class="n">dst</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span>
+        <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span>
+        <span class="n">habitat_a</span><span class="o">=</span><span class="n">habitat_a</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span>
+        <span class="n">habitat_b</span><span class="o">=</span><span class="n">habitat_b</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_edges_from_table</span><span class="p">(</span>
+    <span class="n">node_list</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">MinDistanceEdgeTable</span><span class="p">,</span>
+    <span class="n">edge_weight</span><span class="p">:</span> <span class="n">EdgeWeightMode</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Materialize dataclass edges (public / viz path only).&quot;&quot;&quot;</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index_a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">node_a</span> <span class="o">=</span> <span class="n">node_list</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index_a</span><span class="p">[</span><span class="n">slot</span><span class="p">])]</span>
+        <span class="n">node_b</span> <span class="o">=</span> <span class="n">node_list</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index_b</span><span class="p">[</span><span class="n">slot</span><span class="p">])]</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">distance</span><span class="p">[</span><span class="n">slot</span><span class="p">])</span>
+        <span class="n">same</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">habitat_a</span><span class="p">[</span><span class="n">slot</span><span class="p">])</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">habitat_b</span><span class="p">[</span><span class="n">slot</span><span class="p">])</span>
+        <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">HabitatGraphEdge</span><span class="p">(</span>
+                <span class="n">source</span><span class="o">=</span><span class="n">node_a</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">node_b</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
+                <span class="n">edge_type</span><span class="o">=</span><span class="s2">&quot;min_distance&quot;</span> <span class="k">if</span> <span class="n">same</span> <span class="k">else</span> <span class="s2">&quot;inter&quot;</span><span class="p">,</span>
+                <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span>
+                <span class="n">contact_voxels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">weight</span><span class="o">=</span><span class="n">_distance_weight</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">edge_weight</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">edges</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_min_distance_edge_table</span><span class="p">(</span>
+    <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">allow_same_label</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">allow_cross_label</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MinDistanceEdgeTable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exact ``min_distance`` edges as integer arrays into ``nodes``.</span>
+
+<span class="sd">    Same geometry as :func:`build_min_distance_edges`, without allocating</span>
+<span class="sd">    one Python object per edge.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        node_result: Node extraction (component maps + optional lattice).</span>
+<span class="sd">        nodes: Nodes to connect; table indices refer to this sequence.</span>
+<span class="sd">        distance_threshold: Maximum closest-voxel distance.</span>
+<span class="sd">        allow_same_label: Keep intra-habitat pairs.</span>
+<span class="sd">        allow_cross_label: Keep inter-habitat pairs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MinDistanceEdgeTable: Surviving pairs with ``index_a &lt; index_b``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``distance_threshold &lt; 0``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">distance_threshold</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;distance_threshold must be &gt;= 0.&quot;</span><span class="p">)</span>
+    <span class="n">node_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_empty_edge_table</span><span class="p">()</span>
+    <span class="n">n_voxels</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">label_array</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">uses_uniform_grid</span><span class="p">(</span><span class="n">node_result</span><span class="p">)</span> <span class="ow">and</span> <span class="n">volume_sweep_worthwhile</span><span class="p">(</span>
+        <span class="n">n_voxels</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">distance_threshold</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="n">owner</span> <span class="o">=</span> <span class="n">owner_volume</span><span class="p">(</span><span class="n">node_result</span><span class="p">,</span> <span class="n">node_list</span><span class="p">)</span>
+        <span class="n">index_a</span><span class="p">,</span> <span class="n">index_b</span><span class="p">,</span> <span class="n">distances</span> <span class="o">=</span> <span class="n">volume_sweep_min_distances</span><span class="p">(</span>
+            <span class="n">owner</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">distance_threshold</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_list</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_table_from_index_pairs</span><span class="p">(</span>
+            <span class="n">node_list</span><span class="p">,</span>
+            <span class="n">index_a</span><span class="p">,</span>
+            <span class="n">index_b</span><span class="p">,</span>
+            <span class="n">distances</span><span class="p">,</span>
+            <span class="n">allow_same_label</span><span class="o">=</span><span class="n">allow_same_label</span><span class="p">,</span>
+            <span class="n">allow_cross_label</span><span class="o">=</span><span class="n">allow_cross_label</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">uses_uniform_grid</span><span class="p">(</span><span class="n">node_result</span><span class="p">):</span>
+        <span class="n">coords_by_id</span> <span class="o">=</span> <span class="n">collect_coords_by_node_id</span><span class="p">(</span><span class="n">node_result</span><span class="p">,</span> <span class="n">node_list</span><span class="p">)</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">_min_distance_edges_for_pairs</span><span class="p">(</span>
+            <span class="n">node_list</span><span class="p">,</span>
+            <span class="n">node_list</span><span class="p">,</span>
+            <span class="n">coords_by_id</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">distance_threshold</span><span class="p">),</span>
+            <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;min_distance&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">node_id</span><span class="p">:</span> <span class="n">slot</span> <span class="k">for</span> <span class="n">slot</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_list</span><span class="p">)}</span>
+        <span class="n">src</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
+            <span class="n">slot_a</span> <span class="o">=</span> <span class="n">index</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="p">]</span>
+            <span class="n">slot_b</span> <span class="o">=</span> <span class="n">index</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">slot_a</span> <span class="o">==</span> <span class="n">slot_b</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">slot_a</span> <span class="o">&gt;</span> <span class="n">slot_b</span><span class="p">:</span>
+                <span class="n">slot_a</span><span class="p">,</span> <span class="n">slot_b</span> <span class="o">=</span> <span class="n">slot_b</span><span class="p">,</span> <span class="n">slot_a</span>
+            <span class="n">src</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slot_a</span><span class="p">)</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slot_b</span><span class="p">)</span>
+            <span class="n">dist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">distance</span><span class="p">)</span> <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_table_from_index_pairs</span><span class="p">(</span>
+            <span class="n">node_list</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="n">allow_same_label</span><span class="o">=</span><span class="n">allow_same_label</span><span class="p">,</span>
+            <span class="n">allow_cross_label</span><span class="o">=</span><span class="n">allow_cross_label</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="n">candidate_node_pairs</span><span class="p">(</span>
+        <span class="n">node_list</span><span class="p">,</span>
+        <span class="n">node_result</span><span class="p">,</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">distance_threshold</span><span class="p">),</span>
+        <span class="n">allow_same_label</span><span class="o">=</span><span class="n">allow_same_label</span><span class="p">,</span>
+        <span class="n">allow_cross_label</span><span class="o">=</span><span class="n">allow_cross_label</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pairs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_empty_edge_table</span><span class="p">()</span>
+    <span class="n">coords_by_id</span> <span class="o">=</span> <span class="n">collect_coords_by_node_id</span><span class="p">(</span><span class="n">node_result</span><span class="p">,</span> <span class="n">node_list</span><span class="p">)</span>
+    <span class="n">pair_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">pair_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">min_distances_for_pairs</span><span class="p">(</span>
+        <span class="n">node_list</span><span class="p">,</span> <span class="n">coords_by_id</span><span class="p">,</span> <span class="n">pairs</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">distance_threshold</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">distances</span> <span class="o">&lt;=</span> <span class="nb">float</span><span class="p">(</span><span class="n">distance_threshold</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_table_from_index_pairs</span><span class="p">(</span>
+        <span class="n">node_list</span><span class="p">,</span>
+        <span class="n">pair_a</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+        <span class="n">pair_b</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="n">allow_same_label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_cross_label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_min_distance_edges</span><span class="p">(</span>
+    <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">edge_weight</span><span class="p">:</span> <span class="n">EdgeWeightMode</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">allow_same_label</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">allow_cross_label</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exact ``min_distance`` edges among ``nodes``.</span>
+
+<span class="sd">    ``uniform_grid`` uses a voxel-neighbour sweep when the Chebyshev</span>
+<span class="sd">    window times painted voxels is cheap, otherwise a lattice range</span>
+<span class="sd">    search (or a centroid-ball envelope when that window is huge).</span>
+<span class="sd">    ``component`` nodes have no lattice metadata and keep the all-pairs</span>
+<span class="sd">    closest-voxel walk. Distances are true closest-voxel values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        node_result: Node extraction (component maps + optional lattice).</span>
+<span class="sd">        nodes: Nodes to connect.</span>
+<span class="sd">        distance_threshold: Maximum closest-voxel distance.</span>
+<span class="sd">        edge_weight: Optional distance-derived weight.</span>
+<span class="sd">        allow_same_label: Emit intra-habitat edges (type ``min_distance``).</span>
+<span class="sd">        allow_cross_label: Emit inter-habitat edges (type ``inter``).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[HabitatGraphEdge]: Undirected proximity edges.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``distance_threshold &lt; 0``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">build_min_distance_edge_table</span><span class="p">(</span>
+        <span class="n">node_result</span><span class="p">,</span>
+        <span class="n">nodes</span><span class="p">,</span>
+        <span class="n">distance_threshold</span><span class="p">,</span>
+        <span class="n">allow_same_label</span><span class="o">=</span><span class="n">allow_same_label</span><span class="p">,</span>
+        <span class="n">allow_cross_label</span><span class="o">=</span><span class="n">allow_cross_label</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_edges_from_table</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span> <span class="n">table</span><span class="p">,</span> <span class="n">edge_weight</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_min_distance_inter_edges</span><span class="p">(</span>
+    <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">edge_weight</span><span class="p">:</span> <span class="n">EdgeWeightMode</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Closest-voxel edges between two habitats only (no intra pairs).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">distance_threshold</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;distance_threshold must be &gt;= 0.&quot;</span><span class="p">)</span>
+    <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">nodes_a</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="n">nodes_b</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_b</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nodes_a</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">nodes_b</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">build_min_distance_edges</span><span class="p">(</span>
+        <span class="n">node_result</span><span class="p">,</span>
+        <span class="p">[</span><span class="o">*</span><span class="n">nodes_a</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes_b</span><span class="p">],</span>
+        <span class="n">distance_threshold</span><span class="p">,</span>
+        <span class="n">edge_weight</span><span class="p">,</span>
+        <span class="n">allow_same_label</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">allow_cross_label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_centroid_inter_edges</span><span class="p">(</span>
+    <span class="n">nodes_a</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">nodes_b</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+    <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">edge_weight</span><span class="p">:</span> <span class="n">EdgeWeightMode</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Centroid-proximity edges between two habitats only (no intra pairs).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">distance_threshold</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;distance_threshold must be &gt;= 0.&quot;</span><span class="p">)</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nodes_a</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">nodes_b</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">edges</span>
+    <span class="n">coords_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">centroid</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes_b</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">tree_b</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">coords_b</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node_a</span> <span class="ow">in</span> <span class="n">nodes_a</span><span class="p">:</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">tree_b</span><span class="o">.</span><span class="n">query_ball_point</span><span class="p">(</span><span class="n">node_a</span><span class="o">.</span><span class="n">centroid</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">distance_threshold</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index_b</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">node_b</span> <span class="o">=</span> <span class="n">nodes_b</span><span class="p">[</span><span class="n">index_b</span><span class="p">]</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">node_a</span><span class="o">.</span><span class="n">centroid</span> <span class="o">-</span> <span class="n">node_b</span><span class="o">.</span><span class="n">centroid</span><span class="p">))</span>
+            <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">HabitatGraphEdge</span><span class="p">(</span>
+                    <span class="n">source</span><span class="o">=</span><span class="n">node_a</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
+                    <span class="n">target</span><span class="o">=</span><span class="n">node_b</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
+                    <span class="n">edge_type</span><span class="o">=</span><span class="s2">&quot;inter&quot;</span><span class="p">,</span>
                     <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span>
                     <span class="n">contact_voxels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">weight</span><span class="o">=</span><span class="n">_distance_weight</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">edge_weight</span><span class="p">),</span>
@@ -2502,9 +2935,6 @@ window.runMermaid = runMermaid;</script>
     <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
         <span class="n">all_nodes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="p">[]))</span>
     <span class="n">graph_nodes</span> <span class="o">=</span> <span class="n">_nodes_to_dict</span><span class="p">(</span><span class="n">all_nodes</span><span class="p">)</span>
-    <span class="n">coords_by_id</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">node</span><span class="o">.</span><span class="n">node_id</span><span class="p">:</span> <span class="n">_node_voxel_coords</span><span class="p">(</span><span class="n">node_result</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">all_nodes</span>
-    <span class="p">}</span>
     <span class="n">edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphEdge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
@@ -2515,53 +2945,22 @@ window.runMermaid = runMermaid;</script>
             <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span>
         <span class="p">)</span>
 
+    <span class="n">raw_edges</span> <span class="o">=</span> <span class="n">build_min_distance_edges</span><span class="p">(</span>
+        <span class="n">node_result</span><span class="p">,</span>
+        <span class="n">all_nodes</span><span class="p">,</span>
+        <span class="n">distance_threshold</span><span class="p">,</span>
+        <span class="n">edge_weight</span><span class="p">,</span>
+        <span class="n">allow_same_label</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="n">include_intra_edges</span><span class="p">),</span>
+        <span class="n">allow_cross_label</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="n">_min_distance_edges_for_pairs</span><span class="p">(</span>
-                <span class="n">all_nodes</span><span class="p">,</span>
-                <span class="n">all_nodes</span><span class="p">,</span>
-                <span class="n">coords_by_id</span><span class="p">,</span>
-                <span class="n">distance_threshold</span><span class="p">,</span>
-                <span class="n">edge_weight</span><span class="p">,</span>
-                <span class="n">edge_type</span><span class="o">=</span><span class="s2">&quot;min_distance&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">raw_edges</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">nodes_a</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">all_nodes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">habitat_label</span> <span class="o">==</span> <span class="n">label_a</span><span class="p">]</span>
-        <span class="n">nodes_b</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">all_nodes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">habitat_label</span> <span class="o">==</span> <span class="n">label_b</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">nodes_a</span> <span class="ow">and</span> <span class="n">nodes_b</span><span class="p">:</span>
-            <span class="n">edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                <span class="n">_min_distance_edges_for_pairs</span><span class="p">(</span>
-                    <span class="n">nodes_a</span><span class="p">,</span>
-                    <span class="n">nodes_b</span><span class="p">,</span>
-                    <span class="n">coords_by_id</span><span class="p">,</span>
-                    <span class="n">distance_threshold</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="p">,</span>
-                    <span class="n">edge_type</span><span class="o">=</span><span class="s2">&quot;inter&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">include_intra_edges</span><span class="p">:</span>
-            <span class="n">edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                <span class="n">_min_distance_edges_for_pairs</span><span class="p">(</span>
-                    <span class="n">nodes_a</span><span class="p">,</span>
-                    <span class="n">nodes_a</span><span class="p">,</span>
-                    <span class="n">coords_by_id</span><span class="p">,</span>
-                    <span class="n">distance_threshold</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="p">,</span>
-                    <span class="n">edge_type</span><span class="o">=</span><span class="s2">&quot;intra&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                <span class="n">_min_distance_edges_for_pairs</span><span class="p">(</span>
-                    <span class="n">nodes_b</span><span class="p">,</span>
-                    <span class="n">nodes_b</span><span class="p">,</span>
-                    <span class="n">coords_by_id</span><span class="p">,</span>
-                    <span class="n">distance_threshold</span><span class="p">,</span>
-                    <span class="n">edge_weight</span><span class="p">,</span>
-                    <span class="n">edge_type</span><span class="o">=</span><span class="s2">&quot;intra&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">raw_edges</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">edge_type</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span>
+                <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">as_intra_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">HabitatGraph</span><span class="p">(</span>
         <span class="n">graph_kind</span><span class="o">=</span><span class="n">graph_kind</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
