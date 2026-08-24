@@ -188,6 +188,11 @@ cython_debug/
 !tests/golden/baseline/*.json
 !tests/golden/baseline/fast/*.json
 
+# IBSI-1 Phase 1 phantom: docs csv-table + official NIfTI / published refs.
+!docs/source/reference/features/ibsi_phase1_digital_phantom.csv
+!tests/data/ibsi_1_digital_phantom/
+!tests/data/ibsi_1_digital_phantom/**
+
 # Sphinx / quickstart screenshots (override blanket *.png).
 !docs/source/_static/images/*.png
 !docs/source/_static/images/**/*.png
