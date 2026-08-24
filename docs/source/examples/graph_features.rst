@@ -44,8 +44,10 @@ Script
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
 (:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
 uses the library node/edge defaults (uniform 8-voxel cubes, one node
-per in-cell subregion centroid + min-distance edges; library default
-leaves extended metrics off). One ``fit_predict`` on three subjects feeds the overlay, both 2D
+per in-cell subregion centroid + min-distance edges). The library
+turns extended metrics on; this gallery pins
+``include_extended_metrics=False`` so the heatmap stays narrower. One
+``fit_predict`` on three subjects feeds the overlay, both 2D
 display networks, and both **3D** heatmap tables (library
 ``block_size=8`` plus a ``block_size=5`` comparison extract on the
 same full-volume maps). Figures land under ``out/`` (swap that path
@@ -87,9 +89,9 @@ Output
 ------
 
 Illustrative (fixed ``n_habitats=4``, per-cell subregion centroids;
-count depends on the 3D map; extended metrics stay off by default)::
+count depends on the 3D map; this gallery pins extended metrics off)::
 
-   3 subjects x 587 graph features from full 3D habitat maps
+   3 subjects x 435 graph features from full 3D habitat maps
 
 Cohort heatmaps
 ---------------

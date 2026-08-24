@@ -12,10 +12,12 @@ and a PreciseFeatureSet:
 * precise = intersection of those flags (identify_precise_features)
 
 Habitats from the full texture set vs the precise subset come after.
-An optional follow-up warps the ROI contour (Subject-level
-bspline_deform) and scores habitat-table feature ICC + 95% CI.
-The one-call recipe identify_precise_voxel_features is optional (see
-the rst page), not this script.
+An optional follow-up shrinks the ROI edge (mask-only morphological
+perturbation), keeps only the intersection of the two masks, extracts
+every light habitat-map family on that core, and scores ICC + 95% CI
+plus a paired difference heatmap. The one-call recipe
+identify_precise_voxel_features is optional (see the rst page), not
+this script.
 
 Run from the repository root::
 
@@ -345,56 +347,83 @@ print("Wrote " + ", ".join(f"out/{name}" for name in written))
 # END figures
 
 # BEGIN roi_followup
-# Optional follow-up (not Prior Appendix S2, not MIRP ROI grow/shrink):
-# warp image+mask together, then score habitat-map Dice and habitat-table
-# feature ICC(3A,1) with a 95% CI. Paste after the Script block. Uses
-# _crop_to_roi, DATA, MODALITIES, ROI.
-from typing import Dict, List, Optional
+# Optional follow-up (not Prior Appendix S2): mask-only ROI-edge
+# shrink, then score habitats and every light habitat-map family on
+# the intersection of the two ROIs. Paste after the Script block.
+# Uses _crop_to_roi, DATA, MODALITIES, ROI.
+from dataclasses import replace
+from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
 from habit import (
+    HabitatGraphFeatureOptions,
     HabitatMap,
     ImagePerturbationRegistry,
     align_habitat_map,
-    HabitatGraphFeatureOptions,
     extract_graph_features,
+    habitat_region_stats,
     habitat_stability,
     habitat_volume_fractions,
     icc3a_1,
     ith_score,
+    msi_features_from_matrix,
     one_step_habitat,
+    spatial_interaction_matrix,
 )
-from habit.viz import plot_habitat_label_compare, plot_precision_icc, use_style
+from habit.viz import (
+    plot_graph_feature_heatmap,
+    plot_habitat_label_compare,
+    plot_precision_icc,
+    use_style,
+)
 from habit.viz.labels import sanitize_label
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 Path("out").mkdir(exist_ok=True)
 
-deform = ImagePerturbationRegistry.create(
-    "bspline_deform",
-    target_dice=0.85,
-    dice_tolerance=0.03,
-    sigma_range=(1.0, 2.0),
-    magnitude_range=(10.0, 15.0),
-    device="cpu",
+# P1 shrink: a systematic "always smaller" contour. Intersection of
+# original and shrunk masks is the core both contours still include.
+# The same intersection + restrict pattern works for grow / gradient.
+edge = ImagePerturbationRegistry.create(
+    "morphological", grow_mm=-4.0, roi=ROI, connectivity=1
 )
 
 
-def _habitat_feature_row(habitat_map: HabitatMap) -> Dict[str, float]:
-    """Volume fractions, ITH, and the full graph-feature dict from one map."""
+def _restrict_to_intersection(
+    habitat_map: HabitatMap, keep: np.ndarray
+) -> HabitatMap:
+    """Zero habitat labels outside the intersection of the two ROIs."""
+    labels = np.asarray(habitat_map.label_array).copy()
+    labels[np.asarray(keep) <= 0] = 0
+    return replace(habitat_map, label_array=labels)
+
+
+def _all_habitat_features(habitat_map: HabitatMap) -> Dict[str, float]:
+    """
+    Every light habitat-map family on one (already restricted) map.
+
+    volume, non_radiomics, ith_score, msi, and graph. IBSI radiomics
+    families are omitted: they need a params file and dominate runtime.
+    """
     labels = np.asarray(habitat_map.label_array)
-    habitat_ids = tuple(int(hid) for hid in habitat_map.habitat_ids)
+    habitat_ids: Tuple[int, ...] = tuple(int(hid) for hid in habitat_map.habitat_ids)
     fractions = habitat_volume_fractions(labels, habitat_ids)
-    row: Dict[str, float] = {
-        f"habitat_{hid}_volume_fraction": float(fractions[hid])
-        for hid in habitat_ids
-    }
+    stats = habitat_region_stats(labels)
+    row: Dict[str, float] = {"num_habitats": float(len(stats))}
+    for hid in habitat_ids:
+        count = int(np.count_nonzero(labels == hid))
+        row[f"habitat_{hid}_voxel_count"] = float(count)
+        row[f"habitat_{hid}_volume_fraction"] = float(fractions[hid])
+        n_regions, _largest = stats.get(int(hid), (0, 0))
+        row[f"{hid}_num_regions"] = float(n_regions)
+        row[f"{hid}_volume_ratio"] = float(fractions[hid])
     row["ith_score"] = float(ith_score(labels))
-    # Single + pairwise graph metrics. Extended efficiency / small-world
-    # / rich-club are omitted: they dominate runtime on a clinical crop.
+    n_classes = (max(habitat_ids) + 1) if habitat_ids else 1
+    row.update(msi_features_from_matrix(spatial_interaction_matrix(labels, n_classes)))
+    # Gallery pins extended graph metrics off (library default is on).
     graph = extract_graph_features(
         labels,
         expected_labels=habitat_ids,
@@ -405,97 +434,128 @@ def _habitat_feature_row(habitat_map: HabitatMap) -> Dict[str, float]:
     return row
 
 
-VOLUME_ITH_FIRST = (
+LIGHT_FIRST = (
     "habitat_1_volume_fraction",
     "habitat_2_volume_fraction",
     "habitat_3_volume_fraction",
     "ith_score",
+    "contrast",
+    "homogeneity",
+    "correlation",
+    "energy",
+    "1_num_regions",
+    "2_num_regions",
+    "3_num_regions",
 )
 orig_rows: List[Dict[str, float]] = []
-warp_rows: List[Dict[str, float]] = []
+edge_rows: List[Dict[str, float]] = []
+subject_ids: List[str] = []
 first_bundle: Optional[tuple] = None
 icc_source = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
 for item in icc_source:
     cropped = _crop_to_roi(item, MODALITIES[0], ROI)
-    print(f"FFD + one-step habitats: {cropped.subject_id}", flush=True)
-    warped_item = deform(cropped, rng=np.random.default_rng(7))
+    print(f"ROI-edge shrink + intersection habitats: {cropped.subject_id}", flush=True)
+    edge_item = edge(cropped, rng=np.random.default_rng(0))
+    orig_mask = np.asarray(cropped.mask(ROI).data) > 0
+    edge_mask = np.asarray(edge_item.mask(ROI).data) > 0
+    intersection = orig_mask & edge_mask
+    n_orig = int(orig_mask.sum())
+    n_edge = int(edge_mask.sum())
+    n_inter = int(intersection.sum())
+    print(
+        f"  ROI voxels original={n_orig} shrunk={n_edge} intersection={n_inter}",
+        flush=True,
+    )
     orig_fit = one_step_habitat(
         modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
     ).fit_predict(Cohort(subjects=(cropped,)))
-    warp_fit = one_step_habitat(
+    edge_fit = one_step_habitat(
         modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
-    ).fit_predict(Cohort(subjects=(warped_item,)))
-    ref_map = orig_fit.habitat_maps[0]
-    mov_map = warp_fit.habitat_maps[0]
+    ).fit_predict(Cohort(subjects=(edge_item,)))
     orig_image = cropped.image(MODALITIES[0])
-    warp_image = warped_item.image(MODALITIES[0])
+    edge_image = edge_item.image(MODALITIES[0])
+    # Restrict both maps to the agreed core before pairing / features.
+    ref_core = _restrict_to_intersection(orig_fit.habitat_maps[0], intersection)
+    mov_core = _restrict_to_intersection(edge_fit.habitat_maps[0], intersection)
     # Pair by Hungarian assignment on per-habitat mean intensity (same
     # quantity k-means uses as a cluster centre). force=True: independent
     # one_step fits share a model_id digest even though ids are permuted.
-    aligned_map = align_habitat_map(
-        ref_map,
-        mov_map,
+    aligned_core = align_habitat_map(
+        ref_core,
+        mov_core,
         method="centroid",
         image=orig_image,
-        moving_image=warp_image,
+        moving_image=edge_image,
         force=True,
     )
-    print(f"  habitat-table features (incl. graph): {cropped.subject_id}", flush=True)
-    orig_rows.append(_habitat_feature_row(ref_map))
-    warp_rows.append(_habitat_feature_row(aligned_map))
+    print(f"  light habitat-map features on intersection: {cropped.subject_id}", flush=True)
+    orig_rows.append(_all_habitat_features(ref_core))
+    edge_rows.append(_all_habitat_features(aligned_core))
+    subject_ids.append(cropped.subject_id)
     if first_bundle is None:
         first_bundle = (
             cropped,
-            warped_item,
-            ref_map,
-            aligned_map,
+            edge_item,
+            intersection,
+            ref_core,
+            aligned_core,
             habitat_stability(
-                ref_map,
-                [mov_map],
+                ref_core,
+                [mov_core],
                 method="centroid",
                 image=orig_image,
-                moving_images=(warp_image,),
+                moving_images=(edge_image,),
             ),
         )
 
-cropped, warped_item, ref_map, aligned_map, dice_frame = first_bundle
-print("Habitat Dice after bspline_deform (mean-intensity match)")
+cropped, edge_item, intersection, ref_core, aligned_core, dice_frame = first_bundle
+print("Habitat Dice on ROI intersection (mean-intensity match)")
 print(dice_frame.to_string(index=False))
 
 # Shared axial index: densest original ROI (same crop, same slice).
 orig_mask = np.asarray(cropped.mask(ROI).data)
-warped_mask = np.asarray(warped_item.mask(ROI).data)
+edge_mask = np.asarray(edge_item.mask(ROI).data)
 counts = np.sum(orig_mask > 0, axis=(1, 2))
 index = int(np.argmax(counts)) if int(np.max(counts)) > 0 else int(orig_mask.shape[0] // 2)
 grey = np.take(np.asarray(cropped.image(MODALITIES[0]).data), index, axis=0)
 mask_orig = np.take(orig_mask > 0, index, axis=0).astype(np.uint8)
-mask_warp = np.take(warped_mask > 0, index, axis=0).astype(np.uint8)
-xor_map = np.abs(mask_warp.astype(np.float64) - mask_orig.astype(np.float64))
+mask_edge = np.take(edge_mask > 0, index, axis=0).astype(np.uint8)
+mask_inter = np.take(intersection, index, axis=0).astype(np.uint8)
+xor_map = np.abs(mask_edge.astype(np.float64) - mask_orig.astype(np.float64))
 finite = grey[np.isfinite(grey)]
 lo, hi = np.percentile(finite, (1.0, 99.0))
 original_color = "#00E5FF"
-warped_color = "#D55E00"
+edge_color = "#D55E00"
 xor_color = "#F0E442"
+inter_color = "#56B4E9"
 with use_style("radiology"):
     fig_edge, axes_edge = plt.subplots(
         1, 2, figsize=(8.8, 4.4), constrained_layout=True
     )
-    for ax, show_xor, title in (
-        (axes_edge[0], False, "Original vs warped ROI"),
-        (axes_edge[1], True, "Membership change (XOR)"),
+    for ax, show_core, title in (
+        (axes_edge[0], False, "Original vs shrunk ROI"),
+        (axes_edge[1], True, "Intersection and XOR"),
     ):
         ax.imshow(
             grey, cmap="gray", interpolation="nearest", origin="upper", vmin=lo, vmax=hi
         )
-        if show_xor and np.any(xor_map > 0):
+        if show_core and np.any(mask_inter > 0):
+            ax.contourf(
+                mask_inter,
+                levels=[0.5, 1.5],
+                colors=[inter_color],
+                alpha=0.35,
+                origin="upper",
+            )
+        if show_core and np.any(xor_map > 0):
             ax.contourf(
                 xor_map, levels=[0.5, 1.5], colors=[xor_color], alpha=0.55, origin="upper"
             )
         ax.contour(mask_orig, levels=[0.5], colors=[original_color], linewidths=1.6, origin="upper")
         ax.contour(
-            mask_warp,
+            mask_edge,
             levels=[0.5],
-            colors=[warped_color],
+            colors=[edge_color],
             linewidths=1.6,
             linestyles="--",
             origin="upper",
@@ -505,13 +565,12 @@ with use_style("radiology"):
     fig_edge.legend(
         handles=[
             Line2D([0], [0], color=original_color, lw=1.6, label="Original ROI"),
-            Line2D(
-                [0], [0], color=warped_color, lw=1.6, ls="--", label="Warped ROI"
-            ),
+            Line2D([0], [0], color=edge_color, lw=1.6, ls="--", label="Shrunk ROI"),
+            Patch(facecolor=inter_color, edgecolor="none", alpha=0.35, label="Intersection"),
             Patch(facecolor=xor_color, edgecolor="none", alpha=0.55, label="XOR"),
         ],
         loc="lower center",
-        ncol=3,
+        ncol=4,
         frameon=False,
         bbox_to_anchor=(0.5, -0.04),
     )
@@ -519,9 +578,9 @@ fig_edge.savefig("out/precise_perturb_mask_edge.png", dpi=150, bbox_inches="tigh
 
 fig_cmp = plot_habitat_label_compare(
     cropped.image(MODALITIES[0]),
-    ref_map,
-    aligned_map,
-    titles=("Original ROI habitats", "Warped ROI habitats"),
+    ref_core,
+    aligned_core,
+    titles=("Original habitats in intersection", "Shrunk habitats in intersection"),
     index=index,
     align_labels=False,
     display_convention="native",
@@ -539,24 +598,29 @@ with use_style("radiology"):
     )
     ax_dice.set_ylim(0.0, 1.05)
     ax_dice.set_ylabel("Dice")
-    ax_dice.set_title(sanitize_label("Per-habitat Dice (mean-intensity match)"))
+    ax_dice.set_title(sanitize_label("Per-habitat Dice on intersection"))
 fig_dice.savefig("out/precise_habitat_dice.png", dpi=150, bbox_inches="tight")
 
-# ICC(3A,1) on every shared habitat-table column (volume, ITH, graph).
-# One row per subject, two columns (original vs mean-aligned warp).
-# n=3 => wide 95% CIs (honest).
-shared_names = set(orig_rows[0]) & set(warp_rows[0])
-feature_names = [name for name in VOLUME_ITH_FIRST if name in shared_names]
-feature_names.extend(sorted(name for name in shared_names if name not in set(VOLUME_ITH_FIRST)))
+# ICC(3A,1) on every shared light-family column. One row per subject,
+# two columns (original-core vs aligned shrunk-core). n=3 => wide CIs.
+shared_names = set(orig_rows[0]) & set(edge_rows[0])
+feature_names = [name for name in LIGHT_FIRST if name in shared_names]
+feature_names.extend(
+    sorted(name for name in shared_names if name not in set(LIGHT_FIRST))
+)
 icc_records = []
 for name in feature_names:
     matrix = np.column_stack(
         [
             [float(row[name]) for row in orig_rows],
-            [float(row[name]) for row in warp_rows],
+            [float(row[name]) for row in edge_rows],
         ]
     )
     if not np.isfinite(matrix).all():
+        continue
+    # Skip columns that do not vary across the paired conditions
+    # (ICC is then a 0/0 sentinel, not a real agreement score).
+    if float(np.std(matrix[:, 0] - matrix[:, 1])) == 0.0:
         continue
     estimate = icc3a_1(matrix)
     icc_records.append(
@@ -570,29 +634,53 @@ for name in feature_names:
     )
 icc_frame = pd.DataFrame(icc_records)
 print(
-    f"Habitat-table feature ICC(3A,1) with 95% CI "
+    f"Intersection habitat-feature ICC(3A,1) with 95% CI "
     f"(n=3 subjects, {len(icc_frame)} shared columns)"
 )
-# The full volume + ITH + graph table is too tall for a docs figure.
-# Draw a reproducible random subset; the printed count is the full set.
-n_plot = min(24, len(icc_frame))
-plot_frame = icc_frame.sample(n=n_plot, random_state=0).sort_values(
+# Full light+graph table is too tall. Keep the teaching columns, then
+# fill with a reproducible random subset. Printed count is the full set.
+priority = icc_frame[icc_frame["feature"].isin(LIGHT_FIRST)]
+remainder = icc_frame[~icc_frame["feature"].isin(LIGHT_FIRST)]
+n_extra = max(0, min(16, len(remainder)))
+extra = remainder.sample(n=n_extra, random_state=0) if n_extra else remainder.iloc[0:0]
+plot_frame = pd.concat([priority, extra], ignore_index=True).sort_values(
     "feature", kind="stable"
 )
-print(f"Plotting a random subset of {n_plot} columns (seed=0)")
+print(f"Plotting {len(plot_frame)} columns (light families + random graph subset)")
 print(plot_frame.to_string(index=False))
 fig_icc = plot_precision_icc(
     plot_frame,
     lcl_threshold=0.5,
-    title="Habitat-table features: ICC and 95% CI (random subset)",
+    title="Intersection habitat features: ICC and 95% CI",
     orientation="row",
 )
 fig_icc.savefig("out/precise_habitat_feature_icc.png", dpi=150, bbox_inches="tight")
+
+orig_table = pd.DataFrame(orig_rows)
+orig_table.insert(0, "subject_id", subject_ids)
+edge_table = pd.DataFrame(edge_rows)
+edge_table.insert(0, "subject_id", subject_ids)
+# Difference heatmap: highest-variance raw (shrunk - original) columns.
+delta = edge_table.set_index("subject_id") - orig_table.set_index("subject_id")
+variances = delta.var(axis=0, skipna=True).sort_values(ascending=False)
+delta_features = tuple(variances.head(40).index)
+fig_delta = plot_graph_feature_heatmap(
+    edge_table,
+    reference=orig_table,
+    subjects=tuple(subject_ids),
+    features=delta_features,
+    zscore=True,
+    star_significant=True,
+    title="Intersection features: shrunk minus original",
+    cbar_label="Z-scored difference (shrunk - original)",
+)
+fig_delta.savefig("out/precise_habitat_feature_delta.png", dpi=150, bbox_inches="tight")
 print(
     "Wrote out/precise_perturb_mask_edge.png, "
     "out/precise_habitat_stability_compare.png, "
     "out/precise_habitat_dice.png, "
-    "out/precise_habitat_feature_icc.png"
+    "out/precise_habitat_feature_icc.png, "
+    "out/precise_habitat_feature_delta.png"
 )
 # END roi_followup
 
@@ -615,5 +703,6 @@ if __name__ == "__main__":
             "precise_habitat_stability_compare.png",
             "precise_habitat_dice.png",
             "precise_habitat_feature_icc.png",
+            "precise_habitat_feature_delta.png",
         )
     )

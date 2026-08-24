@@ -10,7 +10,9 @@ centroid, and closest-voxel edges (``edge_method='min_distance'``,
 Tables, heatmaps, and the 5-minus-8 delta use **full 3D** habitat maps
 (``HabitatMap.label_array``). The 2D network figures are display-only:
 they draw a representative axial slice so you can see the lattice.
-Extended metrics stay off by default so the 3D extract stays tractable.
+The library default now turns extended metrics on (analytic Humphries
+S). This gallery pins ``include_extended_metrics=False`` so the 3D
+heatmap stays narrower and the extract stays cheap.
 A second 3D extract uses ``block_size=5`` only as a comparison override
 (library default stays 8). For a larger cohort table, load
 ``habitat_graph_features.csv`` from ``habit extract`` and pass
@@ -47,7 +49,8 @@ SUBJECTS = ("subj001", "subj002", "subj003")
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
 # Fixed K=4 (not "auto") so the graph has a known number of habitats.
 # One fit for overlay, 2D display networks, and both 3D heatmap tables.
-# Library default leaves extended metrics off (they dominate 3D runtime).
+# Library default is include_extended_metrics=True. Pin False so the
+# 3D heatmap stays narrower (extended columns dominate width / runtime).
 result = one_step_habitat(
     modalities=MODALITIES, n_habitats=4, random_seed=0, roi=ROI
 ).fit_predict(cohort)
