@@ -25,24 +25,36 @@ from __future__ import annotations
 from dataclasses import dataclass
 from itertools import combinations
 import re
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
+from habit.kernels.habitat_graph.array_graph import graph_arrays_from_table
 from habit.kernels.habitat_graph.edges import (
+    as_intra_edge,
     build_adjacency_graph,
     build_centroid_distance_graph,
+    build_centroid_inter_edges,
+    build_min_distance_edge_table,
+    build_min_distance_edges,
     build_min_distance_graph,
+    build_min_distance_inter_edges,
+    compose_pairwise_graph,
     iter_label_pairs,
 )
 from habit.kernels.habitat_graph.metrics import (
+    _pairwise_features_from_arrays,
+    _single_features_from_arrays,
     calculate_pairwise_graph_metrics,
     calculate_single_graph_metrics,
 )
 from habit.kernels.habitat_graph.models import (
     EdgeMethod,
     EdgeWeightMode,
+    HabitatGraph,
+    HabitatGraphEdge,
     HabitatGraphNode,
+    HabitatNodeExtractionResult,
     NodeMethod,
 )
 from habit.kernels.habitat_graph.nodes import extract_habitat_nodes
@@ -100,8 +112,23 @@ class HabitatGraphFeatureOptions:
     block_size: int = 8
     block_min_coverage: float = 0.2
     pairwise_include_intra_edges: bool = True
-    include_extended_metrics: bool = True
+    # Default False: efficiency / small-world / rich-club / node
+    # distributions are superlinear and dominate runtime on large maps.
+    # Pass True on HabitatGraphFeatureOptions to opt in.
+    include_extended_metrics: bool = False
     extended_min_nodes: int = 10
+    # Default small-world is Humphries analytic ER *S* (one column).
+    # ``config`` / ``rewire`` replace that column with a degree-preserving
+    # ensemble; they do not add a second sigma.
+    small_world_nrand: int = 100
+    small_world_niter: int = 100
+    rich_club_q: int = 100
+    graph_null_sampler: str = "analytic"
+    graph_null_device: str = "auto"
+    # Default stays NetworkX / compiled Brandes so installing the
+    # GPL igraph extra does not silently change published numbers.
+    # Pass "igraph" or "auto" to opt in (auto uses igraph when present).
+    graph_metric_backend: str = "networkx"
 
 
 # Feature key suffixes grouped by physical dimension, used to attach VOI-size
@@ -287,9 +314,221 @@ def _augment_with_normalized_features(
             continue
 
 
+def _metric_kwargs(options: HabitatGraphFeatureOptions) -> Dict[str, object]:
+    """Shared keyword arguments for single / pairwise metric kernels."""
+    return {
+        "include_extended_metrics": options.include_extended_metrics,
+        "extended_min_nodes": options.extended_min_nodes,
+        "small_world_nrand": options.small_world_nrand,
+        "small_world_niter": options.small_world_niter,
+        "rich_club_q": options.rich_club_q,
+        "graph_null_sampler": options.graph_null_sampler,
+        "graph_null_device": options.graph_null_device,
+        "graph_metric_backend": options.graph_metric_backend,
+    }
+
+
+def _compute_graph_metrics_job(
+    kind: str,
+    graph: HabitatGraph,
+    kwargs: Dict[str, object],
+) -> Dict[str, float]:
+    """Module-level worker so process pools can pickle the metric call."""
+    if kind == "single":
+        return calculate_single_graph_metrics(graph, **kwargs)  # type: ignore[arg-type]
+    return calculate_pairwise_graph_metrics(graph, **kwargs)  # type: ignore[arg-type]
+
+
+def _run_metric_jobs(
+    jobs: Sequence[Tuple[str, HabitatGraph]],
+    options: HabitatGraphFeatureOptions,
+) -> List[Dict[str, float]]:
+    """
+    Evaluate independent graph-metric jobs.
+
+    Each job is a different graph, so process-parallel Brandes / Louvain
+    is safe. One or two graphs stay in-process (spawn overhead dominates).
+    """
+    kwargs = _metric_kwargs(options)
+    largest = max((len(graph.nodes) for _kind, graph in jobs), default=0)
+    # Spawn is more expensive than Brandes on the tiny graphs used in tests.
+    if len(jobs) <= 2 or largest < 80:
+        return [_compute_graph_metrics_job(kind, graph, kwargs) for kind, graph in jobs]
+    try:
+        from joblib import Parallel, delayed
+    except Exception:
+        return [_compute_graph_metrics_job(kind, graph, kwargs) for kind, graph in jobs]
+    return list(
+        Parallel(n_jobs=-1, prefer="threads")(
+            delayed(_compute_graph_metrics_job)(kind, graph, kwargs)
+            for kind, graph in jobs
+        )
+    )
+
+
 def _true_habitat_labels(labels: Sequence[int]) -> List[int]:
     """Return the sorted positive habitat labels present in ``labels``."""
     return sorted(int(label) for label in labels if int(label) > 0)
+
+
+def _slice_min_distance_edges(
+    edges: Sequence[HabitatGraphEdge],
+    nodes: Sequence[HabitatGraphNode],
+    *,
+    as_intra: bool,
+) -> List[HabitatGraphEdge]:
+    """Keep table edges whose endpoints both sit in ``nodes``."""
+    allowed = {node.node_id for node in nodes}
+    labels = {node.node_id: int(node.habitat_label) for node in nodes}
+    sliced: List[HabitatGraphEdge] = []
+    for edge in edges:
+        if edge.source not in allowed or edge.target not in allowed:
+            continue
+        if as_intra and labels[edge.source] == labels[edge.target]:
+            sliced.append(as_intra_edge(edge))
+        elif (not as_intra) or labels[edge.source] != labels[edge.target]:
+            sliced.append(edge)
+    return sliced
+
+
+def _build_single_graph(
+    node_result: HabitatNodeExtractionResult,
+    nodes: Sequence[HabitatGraphNode],
+    habitat_label: int,
+    options: HabitatGraphFeatureOptions,
+    min_distance_edges: Optional[Sequence[HabitatGraphEdge]] = None,
+) -> HabitatGraph:
+    """Build one single-habitat graph with the requested edge rule."""
+    if options.edge_method == "adjacency":
+        return build_adjacency_graph(
+            node_result=node_result,
+            labels=(habitat_label,),
+            graph_kind="single",
+            adjacency_connectivity=options.adjacency_connectivity,
+            adjacency_min_voxels=options.adjacency_min_voxels,
+            edge_weight=options.edge_weight,
+        )
+    if options.edge_method == "min_distance":
+        if min_distance_edges is not None:
+            return HabitatGraph(
+                graph_kind="single",
+                labels=(int(habitat_label),),
+                nodes={node.node_id: node for node in nodes},
+                edges=_slice_min_distance_edges(
+                    min_distance_edges, nodes, as_intra=False
+                ),
+            )
+        return build_min_distance_graph(
+            node_result=node_result,
+            labels=(habitat_label,),
+            graph_kind="single",
+            distance_threshold=options.distance_threshold,
+            edge_weight=options.edge_weight,
+        )
+    return build_centroid_distance_graph(
+        nodes=nodes,
+        labels=(habitat_label,),
+        graph_kind="single",
+        distance_threshold=options.distance_threshold,
+        edge_weight=options.edge_weight,
+    )
+
+
+def _reused_intra_edges(
+    single_graphs: Mapping[int, HabitatGraph],
+    label: int,
+) -> List[HabitatGraphEdge]:
+    """Intra edges already measured on the single-habitat graph, retagged."""
+    graph = single_graphs.get(int(label))
+    if graph is None:
+        return []
+    return [as_intra_edge(edge) for edge in graph.edges]
+
+
+def _build_pairwise_graph(
+    node_result: HabitatNodeExtractionResult,
+    pair_nodes: Sequence[HabitatGraphNode],
+    label_a: int,
+    label_b: int,
+    options: HabitatGraphFeatureOptions,
+    single_graphs: Mapping[int, HabitatGraph],
+    min_distance_edges: Optional[Sequence[HabitatGraphEdge]] = None,
+) -> HabitatGraph:
+    """Build a pairwise graph, reusing intra edges when singles already exist.
+
+    ``min_distance`` and ``centroid_distance`` only measure cross-habitat
+    pairs when both single-habitat graphs are cached. ``adjacency`` still
+    paints the pair once (contact counting is one voxel pass).
+    """
+    reuse_intra = (
+        options.pairwise_include_intra_edges
+        and int(label_a) in single_graphs
+        and int(label_b) in single_graphs
+    )
+    if options.edge_method == "adjacency":
+        return build_adjacency_graph(
+            node_result=node_result,
+            labels=(label_a, label_b),
+            graph_kind="pairwise",
+            adjacency_connectivity=options.adjacency_connectivity,
+            adjacency_min_voxels=options.adjacency_min_voxels,
+            edge_weight=options.edge_weight,
+            include_intra_edges=options.pairwise_include_intra_edges,
+        )
+    if options.edge_method == "min_distance":
+        if min_distance_edges is not None:
+            sliced = _slice_min_distance_edges(
+                min_distance_edges, pair_nodes, as_intra=True
+            )
+            if not options.pairwise_include_intra_edges:
+                sliced = [edge for edge in sliced if edge.edge_type != "intra"]
+            inter_edges = [edge for edge in sliced if edge.edge_type != "intra"]
+            intra_edges = [edge for edge in sliced if edge.edge_type == "intra"]
+            return compose_pairwise_graph(
+                pair_nodes, (label_a, label_b), inter_edges, intra_edges
+            )
+        if reuse_intra:
+            inter_edges = build_min_distance_inter_edges(
+                node_result,
+                (label_a, label_b),
+                options.distance_threshold,
+                options.edge_weight,
+            )
+            intra_edges = _reused_intra_edges(single_graphs, label_a)
+            intra_edges.extend(_reused_intra_edges(single_graphs, label_b))
+            return compose_pairwise_graph(
+                pair_nodes, (label_a, label_b), inter_edges, intra_edges
+            )
+        return build_min_distance_graph(
+            node_result=node_result,
+            labels=(label_a, label_b),
+            graph_kind="pairwise",
+            distance_threshold=options.distance_threshold,
+            edge_weight=options.edge_weight,
+            include_intra_edges=options.pairwise_include_intra_edges,
+        )
+    if reuse_intra:
+        nodes_a = node_result.nodes_by_habitat.get(label_a, [])
+        nodes_b = node_result.nodes_by_habitat.get(label_b, [])
+        inter_edges = build_centroid_inter_edges(
+            nodes_a,
+            nodes_b,
+            options.distance_threshold,
+            options.edge_weight,
+        )
+        intra_edges = _reused_intra_edges(single_graphs, label_a)
+        intra_edges.extend(_reused_intra_edges(single_graphs, label_b))
+        return compose_pairwise_graph(
+            pair_nodes, (label_a, label_b), inter_edges, intra_edges
+        )
+    return build_centroid_distance_graph(
+        nodes=pair_nodes,
+        labels=(label_a, label_b),
+        graph_kind="pairwise",
+        distance_threshold=options.distance_threshold,
+        edge_weight=options.edge_weight,
+        include_intra_edges=options.pairwise_include_intra_edges,
+    )
 
 
 def _flatten_nodes(
@@ -357,44 +596,118 @@ def extract_graph_features(
     }
 
     single_labels = list(habitat_labels)
+    use_array_path = (
+        options.edge_method == "min_distance" and not options.include_extended_metrics
+    )
+    if use_array_path and (
+        options.include_single_habitat_graph or options.include_pairwise_habitat_graph
+    ):
+        all_nodes = _flatten_nodes(
+            [node_result.nodes_by_habitat.get(label, []) for label in single_labels]
+        )
+        table = build_min_distance_edge_table(
+            node_result,
+            all_nodes,
+            options.distance_threshold,
+        )
+        metric_jobs_arrays: List[Tuple[str, object]] = []
+        if options.include_single_habitat_graph:
+            for habitat_label in single_labels:
+                arrays = graph_arrays_from_table(
+                    all_nodes,
+                    table,
+                    (int(habitat_label),),
+                    "single",
+                    include_intra=True,
+                    edge_weight=options.edge_weight,
+                )
+                nodes = node_result.nodes_by_habitat.get(habitat_label, [])
+                metric_jobs_arrays.append(("single", (arrays, nodes)))
+        if options.include_pairwise_habitat_graph:
+            for label_a, label_b in iter_label_pairs(habitat_labels):
+                arrays = graph_arrays_from_table(
+                    all_nodes,
+                    table,
+                    (int(label_a), int(label_b)),
+                    "pairwise",
+                    include_intra=options.pairwise_include_intra_edges,
+                    edge_weight=options.edge_weight,
+                )
+                metric_jobs_arrays.append(("pairwise", (arrays, ())))
+        kwargs = _metric_kwargs(options)
+        backend = str(kwargs.get("graph_metric_backend", "networkx"))
+        largest = max(
+            (
+                len(payload[0].node_ids)  # type: ignore[index]
+                for _kind, payload in metric_jobs_arrays
+            ),
+            default=0,
+        )
+
+        def _run_array_job(kind: str, payload: object) -> Dict[str, float]:
+            if kind == "single":
+                arrays, nodes = payload  # type: ignore[misc]
+                return _single_features_from_arrays(
+                    arrays, nodes, graph_metric_backend=backend
+                )
+            arrays, _unused = payload  # type: ignore[misc]
+            return _pairwise_features_from_arrays(
+                arrays, graph_metric_backend=backend
+            )
+
+        if len(metric_jobs_arrays) <= 2 or largest < 80:
+            payloads = [
+                _run_array_job(kind, payload)
+                for kind, payload in metric_jobs_arrays
+            ]
+        else:
+            try:
+                from joblib import Parallel, delayed
+
+                payloads = list(
+                    Parallel(n_jobs=-1, prefer="threads")(
+                        delayed(_run_array_job)(kind, payload)
+                        for kind, payload in metric_jobs_arrays
+                    )
+                )
+            except Exception:
+                payloads = [
+                    _run_array_job(kind, payload)
+                    for kind, payload in metric_jobs_arrays
+                ]
+        for payload in payloads:
+            features.update(payload)
+        _augment_with_normalized_features(features, labels_array)
+        return features
+
+    min_distance_edges: List[HabitatGraphEdge] = []
+    if options.edge_method == "min_distance" and (
+        options.include_single_habitat_graph or options.include_pairwise_habitat_graph
+    ):
+        all_nodes = _flatten_nodes(
+            [node_result.nodes_by_habitat.get(label, []) for label in single_labels]
+        )
+        min_distance_edges = build_min_distance_edges(
+            node_result,
+            all_nodes,
+            options.distance_threshold,
+            options.edge_weight,
+        )
+    single_graphs: Dict[int, HabitatGraph] = {}
+    metric_jobs: List[Tuple[str, HabitatGraph]] = []
 
     if options.include_single_habitat_graph:
         for habitat_label in single_labels:
-            # Labels listed in ``expected_labels`` but absent from this map
-            # yield an empty node list, i.e. a zero-valued empty graph.
             nodes = node_result.nodes_by_habitat.get(habitat_label, [])
-            if options.edge_method == "adjacency":
-                graph = build_adjacency_graph(
-                    node_result=node_result,
-                    labels=(habitat_label,),
-                    graph_kind="single",
-                    adjacency_connectivity=options.adjacency_connectivity,
-                    adjacency_min_voxels=options.adjacency_min_voxels,
-                    edge_weight=options.edge_weight,
-                )
-            elif options.edge_method == "min_distance":
-                graph = build_min_distance_graph(
-                    node_result=node_result,
-                    labels=(habitat_label,),
-                    graph_kind="single",
-                    distance_threshold=options.distance_threshold,
-                    edge_weight=options.edge_weight,
-                )
-            else:
-                graph = build_centroid_distance_graph(
-                    nodes=nodes,
-                    labels=(habitat_label,),
-                    graph_kind="single",
-                    distance_threshold=options.distance_threshold,
-                    edge_weight=options.edge_weight,
-                )
-            features.update(
-                calculate_single_graph_metrics(
-                    graph,
-                    include_extended_metrics=options.include_extended_metrics,
-                    extended_min_nodes=options.extended_min_nodes,
-                )
+            graph = _build_single_graph(
+                node_result,
+                nodes,
+                habitat_label,
+                options,
+                min_distance_edges=min_distance_edges,
             )
+            single_graphs[int(habitat_label)] = graph
+            metric_jobs.append(("single", graph))
 
     if options.include_pairwise_habitat_graph:
         pair_labels = list(iter_label_pairs(habitat_labels))
@@ -405,41 +718,19 @@ def extract_graph_features(
                     node_result.nodes_by_habitat.get(label_b, []),
                 ]
             )
-            if options.edge_method == "adjacency":
-                graph = build_adjacency_graph(
-                    node_result=node_result,
-                    labels=(label_a, label_b),
-                    graph_kind="pairwise",
-                    adjacency_connectivity=options.adjacency_connectivity,
-                    adjacency_min_voxels=options.adjacency_min_voxels,
-                    edge_weight=options.edge_weight,
-                    include_intra_edges=options.pairwise_include_intra_edges,
-                )
-            elif options.edge_method == "min_distance":
-                graph = build_min_distance_graph(
-                    node_result=node_result,
-                    labels=(label_a, label_b),
-                    graph_kind="pairwise",
-                    distance_threshold=options.distance_threshold,
-                    edge_weight=options.edge_weight,
-                    include_intra_edges=options.pairwise_include_intra_edges,
-                )
-            else:
-                graph = build_centroid_distance_graph(
-                    nodes=pair_nodes,
-                    labels=(label_a, label_b),
-                    graph_kind="pairwise",
-                    distance_threshold=options.distance_threshold,
-                    edge_weight=options.edge_weight,
-                    include_intra_edges=options.pairwise_include_intra_edges,
-                )
-            features.update(
-                calculate_pairwise_graph_metrics(
-                    graph,
-                    include_extended_metrics=options.include_extended_metrics,
-                    extended_min_nodes=options.extended_min_nodes,
-                )
+            graph = _build_pairwise_graph(
+                node_result,
+                pair_nodes,
+                int(label_a),
+                int(label_b),
+                options,
+                single_graphs,
+                min_distance_edges=min_distance_edges,
             )
+            metric_jobs.append(("pairwise", graph))
+
+    for payload in _run_metric_jobs(metric_jobs, options):
+        features.update(payload)
 
     _augment_with_normalized_features(features, labels_array)
     return features

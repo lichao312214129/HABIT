@@ -29,14 +29,32 @@ from habit.kernels.habitat_graph.models import (
     HabitatGraphEdge,
     HabitatGraphNode,
     HabitatNodeExtractionResult,
+    MinDistanceEdgeTable,
+)
+from habit.kernels.habitat_graph.proximity import (
+    candidate_node_pairs,
+    collect_coords_by_node_id,
+    lattice_chebyshev_radius,
+    min_distances_for_pairs,
+    owner_volume,
+    uses_uniform_grid,
+    volume_sweep_min_distances,
+    volume_sweep_worthwhile,
 )
 
 __all__ = [
+    "as_intra_edge",
+    "compose_pairwise_graph",
     "build_centroid_distance_graph",
+    "build_centroid_inter_edges",
+    "build_min_distance_inter_edges",
+    "build_min_distance_edge_table",
+    "build_min_distance_edges",
     "build_min_distance_graph",
     "build_adjacency_graph",
     "iter_label_pairs",
     "iter_cross_label_nodes",
+    "lattice_chebyshev_radius",
 ]
 
 
@@ -201,6 +219,44 @@ def build_centroid_distance_graph(
     )
 
 
+def as_intra_edge(edge: HabitatGraphEdge) -> HabitatGraphEdge:
+    """Copy an edge and tag it ``intra`` (pairwise reuse of single-habitat edges)."""
+    if edge.edge_type == "intra":
+        return edge
+    return HabitatGraphEdge(
+        source=edge.source,
+        target=edge.target,
+        edge_type="intra",
+        distance=edge.distance,
+        contact_voxels=edge.contact_voxels,
+        weight=edge.weight,
+    )
+
+
+def compose_pairwise_graph(
+    nodes: Sequence[HabitatGraphNode],
+    labels: Tuple[int, int],
+    inter_edges: Sequence[HabitatGraphEdge],
+    intra_edges: Sequence[HabitatGraphEdge],
+) -> HabitatGraph:
+    """
+    Assemble a pairwise graph from inter edges plus reused intra edges.
+
+    Intra edges must already be tagged ``intra`` (use :func:`as_intra_edge`).
+    Node membership and stored distances are unchanged from a from-scratch
+    pairwise build; only the closest-voxel (or centroid) queries are skipped
+    for pairs that a single-habitat graph already measured.
+    """
+    if len(labels) != 2:
+        raise ValueError("compose_pairwise_graph requires exactly two labels.")
+    return HabitatGraph(
+        graph_kind="pairwise",
+        labels=(int(labels[0]), int(labels[1])),
+        nodes=_nodes_to_dict(nodes),
+        edges=list(inter_edges) + list(intra_edges),
+    )
+
+
 def _node_voxel_coords(
     node_result: HabitatNodeExtractionResult,
     node: HabitatGraphNode,
@@ -225,7 +281,10 @@ def _node_voxel_coords(
     coords = np.argwhere(component_map == int(node.component_id))
     if coords.size == 0:
         return np.empty((0, component_map.ndim), dtype=float)
-    return coords.astype(float, copy=False)
+    values = coords.astype(float, copy=False)
+    if node_result.crop_offset is not None:
+        values = values + np.asarray(node_result.crop_offset, dtype=float)
+    return values
 
 
 def _min_voxel_distance(coords_a: np.ndarray, coords_b: np.ndarray) -> float:
@@ -234,7 +293,9 @@ def _min_voxel_distance(coords_a: np.ndarray, coords_b: np.ndarray) -> float:
 
     This is the set-separation (minimum pairwise) distance
     ``min_{a in A, b in B} ||a-b||``. It is not the Hausdorff distance,
-    which uses a max-of-mins.
+    which uses a max-of-mins. Default is a CPU kd-tree; pass
+    ``device="cuda"`` on :func:`habit.utils.torch_graph_utils.min_voxel_distance`
+    only when a single large pair should use ``cdist``.
 
     Args:
         coords_a: Voxel coordinates of region A, shape ``(n_a, ndim)``.
@@ -244,16 +305,41 @@ def _min_voxel_distance(coords_a: np.ndarray, coords_b: np.ndarray) -> float:
         float: Minimum Euclidean distance in voxel-index units, or ``inf``
         when either set is empty.
     """
-    if coords_a.size == 0 or coords_b.size == 0:
-        return float("inf")
-    # Query the smaller cloud against a tree of the larger one.
-    if coords_a.shape[0] <= coords_b.shape[0]:
-        tree = cKDTree(coords_b)
-        distances, _ = tree.query(coords_a, k=1)
-    else:
-        tree = cKDTree(coords_a)
-        distances, _ = tree.query(coords_b, k=1)
-    return float(np.min(distances))
+    from habit.utils.torch_graph_utils import min_voxel_distance
+
+    return min_voxel_distance(coords_a, coords_b, device="cpu")
+
+
+def _bbox_min_distance(bbox_a: Tuple[int, ...], bbox_b: Tuple[int, ...]) -> float:
+    """
+    Euclidean lower bound on closest-voxel distance from two half-open boxes.
+
+    Each bbox is ``(min_0, ..., min_{d-1}, max_0, ..., max_{d-1})`` with
+    exclusive upper corners. Occupied voxels run through ``max - 1``, so
+    adjacent boxes such as ``[0, 8)`` and ``[8, 16)`` have gap 1.
+
+    Args:
+        bbox_a: Half-open box of region A.
+        bbox_b: Half-open box of region B.
+
+    Returns:
+        Lower bound on ``min ||a-b||``. Zero when the boxes overlap.
+    """
+    n_dim = len(bbox_a) // 2
+    gap_sq = 0.0
+    for axis in range(n_dim):
+        min_a = bbox_a[axis]
+        max_a = bbox_a[n_dim + axis]
+        min_b = bbox_b[axis]
+        max_b = bbox_b[n_dim + axis]
+        if max_a <= min_b:
+            gap = float(min_b - max_a + 1)
+        elif max_b <= min_a:
+            gap = float(min_a - max_b + 1)
+        else:
+            gap = 0.0
+        gap_sq += gap * gap
+    return float(gap_sq ** 0.5)
 
 
 def _min_distance_edges_for_pairs(
@@ -285,6 +371,15 @@ def _min_distance_edges_for_pairs(
     """
     edges: List[HabitatGraphEdge] = []
     same_group = nodes_a is nodes_b
+    trees: Dict[str, cKDTree] = {}
+
+    def _tree(node_id: str, coords: np.ndarray) -> cKDTree:
+        tree = trees.get(node_id)
+        if tree is None:
+            tree = cKDTree(coords)
+            trees[node_id] = tree
+        return tree
+
     for index_a, node_a in enumerate(nodes_a):
         coords_a = coords_by_id.get(node_a.node_id)
         if coords_a is None or coords_a.size == 0:
@@ -296,7 +391,14 @@ def _min_distance_edges_for_pairs(
             coords_b = coords_by_id.get(node_b.node_id)
             if coords_b is None or coords_b.size == 0:
                 continue
-            distance = _min_voxel_distance(coords_a, coords_b)
+            if _bbox_min_distance(node_a.bbox, node_b.bbox) > distance_threshold:
+                continue
+            tree_a = _tree(node_a.node_id, coords_a)
+            tree_b = _tree(node_b.node_id, coords_b)
+            if coords_a.shape[0] <= coords_b.shape[0]:
+                distance = float(np.min(tree_b.query(coords_a, k=1)[0]))
+            else:
+                distance = float(np.min(tree_a.query(coords_b, k=1)[0]))
             if distance > distance_threshold:
                 continue
             edges.append(
@@ -304,6 +406,283 @@ def _min_distance_edges_for_pairs(
                     source=node_a.node_id,
                     target=node_b.node_id,
                     edge_type=edge_type,
+                    distance=distance,
+                    contact_voxels=None,
+                    weight=_distance_weight(distance, edge_weight),
+                )
+            )
+    return edges
+
+
+def _empty_edge_table() -> MinDistanceEdgeTable:
+    """Return a zero-length closest-voxel table."""
+    empty_i = np.empty(0, dtype=np.int64)
+    empty_h = np.empty(0, dtype=np.int32)
+    return MinDistanceEdgeTable(
+        index_a=empty_i,
+        index_b=empty_i,
+        distance=np.empty(0, dtype=np.float64),
+        habitat_a=empty_h,
+        habitat_b=empty_h,
+    )
+
+
+def _table_from_index_pairs(
+    node_list: Sequence[HabitatGraphNode],
+    index_a: np.ndarray,
+    index_b: np.ndarray,
+    distances: np.ndarray,
+    *,
+    allow_same_label: bool,
+    allow_cross_label: bool,
+) -> MinDistanceEdgeTable:
+    """Pack surviving index pairs into a :class:`MinDistanceEdgeTable`."""
+    habitats = np.asarray(
+        [int(node.habitat_label) for node in node_list], dtype=np.int32
+    )
+    src = np.asarray(index_a, dtype=np.int64)
+    dst = np.asarray(index_b, dtype=np.int64)
+    dist = np.asarray(distances, dtype=np.float64)
+    if src.size == 0:
+        return _empty_edge_table()
+    habitat_a = habitats[src]
+    habitat_b = habitats[dst]
+    same = habitat_a == habitat_b
+    keep = np.ones(src.shape[0], dtype=bool)
+    if not allow_same_label:
+        keep &= ~same
+    if not allow_cross_label:
+        keep &= same
+    return MinDistanceEdgeTable(
+        index_a=src[keep],
+        index_b=dst[keep],
+        distance=dist[keep],
+        habitat_a=habitat_a[keep],
+        habitat_b=habitat_b[keep],
+    )
+
+
+def _edges_from_table(
+    node_list: Sequence[HabitatGraphNode],
+    table: MinDistanceEdgeTable,
+    edge_weight: EdgeWeightMode,
+) -> List[HabitatGraphEdge]:
+    """Materialize dataclass edges (public / viz path only)."""
+    edges: List[HabitatGraphEdge] = []
+    for slot in range(table.index_a.shape[0]):
+        node_a = node_list[int(table.index_a[slot])]
+        node_b = node_list[int(table.index_b[slot])]
+        distance = float(table.distance[slot])
+        same = int(table.habitat_a[slot]) == int(table.habitat_b[slot])
+        edges.append(
+            HabitatGraphEdge(
+                source=node_a.node_id,
+                target=node_b.node_id,
+                edge_type="min_distance" if same else "inter",
+                distance=distance,
+                contact_voxels=None,
+                weight=_distance_weight(distance, edge_weight),
+            )
+        )
+    return edges
+
+
+def build_min_distance_edge_table(
+    node_result: HabitatNodeExtractionResult,
+    nodes: Sequence[HabitatGraphNode],
+    distance_threshold: float,
+    *,
+    allow_same_label: bool = True,
+    allow_cross_label: bool = True,
+) -> MinDistanceEdgeTable:
+    """
+    Exact ``min_distance`` edges as integer arrays into ``nodes``.
+
+    Same geometry as :func:`build_min_distance_edges`, without allocating
+    one Python object per edge.
+
+    Args:
+        node_result: Node extraction (component maps + optional lattice).
+        nodes: Nodes to connect; table indices refer to this sequence.
+        distance_threshold: Maximum closest-voxel distance.
+        allow_same_label: Keep intra-habitat pairs.
+        allow_cross_label: Keep inter-habitat pairs.
+
+    Returns:
+        MinDistanceEdgeTable: Surviving pairs with ``index_a < index_b``.
+
+    Raises:
+        ValueError: If ``distance_threshold < 0``.
+    """
+    if distance_threshold < 0:
+        raise ValueError("distance_threshold must be >= 0.")
+    node_list = list(nodes)
+    if len(node_list) < 2:
+        return _empty_edge_table()
+    n_voxels = int(np.count_nonzero(node_result.label_array))
+    if uses_uniform_grid(node_result) and volume_sweep_worthwhile(
+        n_voxels, float(distance_threshold), int(node_result.label_array.ndim)
+    ):
+        owner = owner_volume(node_result, node_list)
+        index_a, index_b, distances = volume_sweep_min_distances(
+            owner, float(distance_threshold), len(node_list)
+        )
+        return _table_from_index_pairs(
+            node_list,
+            index_a,
+            index_b,
+            distances,
+            allow_same_label=allow_same_label,
+            allow_cross_label=allow_cross_label,
+        )
+    if not uses_uniform_grid(node_result):
+        coords_by_id = collect_coords_by_node_id(node_result, node_list)
+        raw = _min_distance_edges_for_pairs(
+            node_list,
+            node_list,
+            coords_by_id,
+            float(distance_threshold),
+            "none",
+            "min_distance",
+        )
+        index = {node.node_id: slot for slot, node in enumerate(node_list)}
+        src: List[int] = []
+        dst: List[int] = []
+        dist: List[float] = []
+        for edge in raw:
+            slot_a = index[edge.source]
+            slot_b = index[edge.target]
+            if slot_a == slot_b:
+                continue
+            if slot_a > slot_b:
+                slot_a, slot_b = slot_b, slot_a
+            src.append(slot_a)
+            dst.append(slot_b)
+            dist.append(float(edge.distance) if edge.distance is not None else np.inf)
+        return _table_from_index_pairs(
+            node_list,
+            np.asarray(src, dtype=np.int64),
+            np.asarray(dst, dtype=np.int64),
+            np.asarray(dist, dtype=np.float64),
+            allow_same_label=allow_same_label,
+            allow_cross_label=allow_cross_label,
+        )
+    pairs = candidate_node_pairs(
+        node_list,
+        node_result,
+        float(distance_threshold),
+        allow_same_label=allow_same_label,
+        allow_cross_label=allow_cross_label,
+    )
+    if not pairs:
+        return _empty_edge_table()
+    coords_by_id = collect_coords_by_node_id(node_result, node_list)
+    pair_a = np.asarray([pair[0] for pair in pairs], dtype=np.int64)
+    pair_b = np.asarray([pair[1] for pair in pairs], dtype=np.int64)
+    distances = min_distances_for_pairs(
+        node_list, coords_by_id, pairs, float(distance_threshold)
+    )
+    finite = np.isfinite(distances) & (distances <= float(distance_threshold))
+    return _table_from_index_pairs(
+        node_list,
+        pair_a[finite],
+        pair_b[finite],
+        np.asarray(distances[finite], dtype=np.float64),
+        allow_same_label=True,
+        allow_cross_label=True,
+    )
+
+
+def build_min_distance_edges(
+    node_result: HabitatNodeExtractionResult,
+    nodes: Sequence[HabitatGraphNode],
+    distance_threshold: float,
+    edge_weight: EdgeWeightMode = "none",
+    *,
+    allow_same_label: bool = True,
+    allow_cross_label: bool = True,
+) -> List[HabitatGraphEdge]:
+    """
+    Exact ``min_distance`` edges among ``nodes``.
+
+    ``uniform_grid`` uses a voxel-neighbour sweep when the Chebyshev
+    window times painted voxels is cheap, otherwise a lattice range
+    search (or a centroid-ball envelope when that window is huge).
+    ``component`` nodes have no lattice metadata and keep the all-pairs
+    closest-voxel walk. Distances are true closest-voxel values.
+
+    Args:
+        node_result: Node extraction (component maps + optional lattice).
+        nodes: Nodes to connect.
+        distance_threshold: Maximum closest-voxel distance.
+        edge_weight: Optional distance-derived weight.
+        allow_same_label: Emit intra-habitat edges (type ``min_distance``).
+        allow_cross_label: Emit inter-habitat edges (type ``inter``).
+
+    Returns:
+        List[HabitatGraphEdge]: Undirected proximity edges.
+
+    Raises:
+        ValueError: If ``distance_threshold < 0``.
+    """
+    table = build_min_distance_edge_table(
+        node_result,
+        nodes,
+        distance_threshold,
+        allow_same_label=allow_same_label,
+        allow_cross_label=allow_cross_label,
+    )
+    return _edges_from_table(list(nodes), table, edge_weight)
+
+
+def build_min_distance_inter_edges(
+    node_result: HabitatNodeExtractionResult,
+    labels: Tuple[int, int],
+    distance_threshold: float,
+    edge_weight: EdgeWeightMode = "none",
+) -> List[HabitatGraphEdge]:
+    """Closest-voxel edges between two habitats only (no intra pairs)."""
+    if distance_threshold < 0:
+        raise ValueError("distance_threshold must be >= 0.")
+    label_a, label_b = int(labels[0]), int(labels[1])
+    nodes_a = list(node_result.nodes_by_habitat.get(label_a, []))
+    nodes_b = list(node_result.nodes_by_habitat.get(label_b, []))
+    if not nodes_a or not nodes_b:
+        return []
+    return build_min_distance_edges(
+        node_result,
+        [*nodes_a, *nodes_b],
+        distance_threshold,
+        edge_weight,
+        allow_same_label=False,
+        allow_cross_label=True,
+    )
+
+
+def build_centroid_inter_edges(
+    nodes_a: Sequence[HabitatGraphNode],
+    nodes_b: Sequence[HabitatGraphNode],
+    distance_threshold: float,
+    edge_weight: EdgeWeightMode = "none",
+) -> List[HabitatGraphEdge]:
+    """Centroid-proximity edges between two habitats only (no intra pairs)."""
+    if distance_threshold < 0:
+        raise ValueError("distance_threshold must be >= 0.")
+    edges: List[HabitatGraphEdge] = []
+    if not nodes_a or not nodes_b:
+        return edges
+    coords_b = np.asarray([node.centroid for node in nodes_b], dtype=float)
+    tree_b = cKDTree(coords_b)
+    for node_a in nodes_a:
+        matches = tree_b.query_ball_point(node_a.centroid, r=distance_threshold)
+        for index_b in matches:
+            node_b = nodes_b[index_b]
+            distance = float(np.linalg.norm(node_a.centroid - node_b.centroid))
+            edges.append(
+                HabitatGraphEdge(
+                    source=node_a.node_id,
+                    target=node_b.node_id,
+                    edge_type="inter",
                     distance=distance,
                     contact_voxels=None,
                     weight=_distance_weight(distance, edge_weight),
@@ -358,9 +737,6 @@ def build_min_distance_graph(
     for label in labels:
         all_nodes.extend(node_result.nodes_by_habitat.get(int(label), []))
     graph_nodes = _nodes_to_dict(all_nodes)
-    coords_by_id = {
-        node.node_id: _node_voxel_coords(node_result, node) for node in all_nodes
-    }
     edges: List[HabitatGraphEdge] = []
 
     if len(all_nodes) < 2:
@@ -371,53 +747,22 @@ def build_min_distance_graph(
             edges=edges,
         )
 
+    raw_edges = build_min_distance_edges(
+        node_result,
+        all_nodes,
+        distance_threshold,
+        edge_weight,
+        allow_same_label=(len(labels) == 1) or bool(include_intra_edges),
+        allow_cross_label=len(labels) == 2,
+    )
     if len(labels) == 1:
-        edges.extend(
-            _min_distance_edges_for_pairs(
-                all_nodes,
-                all_nodes,
-                coords_by_id,
-                distance_threshold,
-                edge_weight,
-                edge_type="min_distance",
-            )
-        )
+        edges.extend(raw_edges)
     else:
-        label_a, label_b = int(labels[0]), int(labels[1])
-        nodes_a = [node for node in all_nodes if node.habitat_label == label_a]
-        nodes_b = [node for node in all_nodes if node.habitat_label == label_b]
-        if nodes_a and nodes_b:
-            edges.extend(
-                _min_distance_edges_for_pairs(
-                    nodes_a,
-                    nodes_b,
-                    coords_by_id,
-                    distance_threshold,
-                    edge_weight,
-                    edge_type="inter",
-                )
-            )
-        if include_intra_edges:
-            edges.extend(
-                _min_distance_edges_for_pairs(
-                    nodes_a,
-                    nodes_a,
-                    coords_by_id,
-                    distance_threshold,
-                    edge_weight,
-                    edge_type="intra",
-                )
-            )
-            edges.extend(
-                _min_distance_edges_for_pairs(
-                    nodes_b,
-                    nodes_b,
-                    coords_by_id,
-                    distance_threshold,
-                    edge_weight,
-                    edge_type="intra",
-                )
-            )
+        for edge in raw_edges:
+            if edge.edge_type == "min_distance":
+                edges.append(as_intra_edge(edge))
+            else:
+                edges.append(edge)
 
     return HabitatGraph(
         graph_kind=graph_kind,  # type: ignore[arg-type]

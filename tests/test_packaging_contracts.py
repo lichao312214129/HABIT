@@ -84,6 +84,7 @@ BLOCKED_OPTIONAL_MODULES: tuple[str, ...] = (
     "skimage",
     "radiomics",
     "napari",
+    "igraph",
 )
 
 

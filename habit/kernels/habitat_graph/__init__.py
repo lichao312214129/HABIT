@@ -53,6 +53,7 @@ from habit.kernels.habitat_graph.models import (
     single_feature_prefix,
 )
 from habit.kernels.habitat_graph.nodes import extract_habitat_nodes
+from habit.kernels.habitat_graph.null_ensemble import GraphNullSampler
 from habit.kernels.habitat_graph.null_models import (
     GraphNullModelOptions,
     GraphNullModelResult,
@@ -72,6 +73,7 @@ __all__ = [
     "HabitatGraphNode",
     "HabitatNodeExtractionResult",
     "HabitatGraphFeatureOptions",
+    "GraphNullSampler",
     "GraphNullModelOptions",
     "GraphNullModelResult",
     "GraphStatistic",

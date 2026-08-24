@@ -9,6 +9,12 @@ import networkx as nx
 import numpy as np
 
 from habit.kernels.habitat_graph.models import HabitatGraph
+from habit.kernels.habitat_graph.null_ensemble import (
+    GraphNullSampler,
+    adjacency_from_undirected,
+    networkx_from_adjacency,
+    sample_degree_preserving_adjacencies,
+)
 
 __all__ = [
     "GraphNullModelOptions",
@@ -22,17 +28,25 @@ GraphStatistic = Callable[[nx.Graph], float]
 
 @dataclass(frozen=True)
 class GraphNullModelOptions:
-    """Reproducible double-edge-swap null-model controls."""
+    """Reproducible degree-preserving null-model controls.
+
+    Default sampler is the configuration model. Pass ``sampler='rewire'``
+    for Maslov–Sneppen mixing (``swaps_per_edge`` follows NetworkX / Milo
+    and defaults to 100).
+    """
 
     n_random_graphs: int = 100
-    swaps_per_edge: int = 10
+    swaps_per_edge: int = 100
     random_seed: int = 0
+    sampler: GraphNullSampler = "config"
 
     def __post_init__(self) -> None:
         if self.n_random_graphs < 2:
             raise ValueError("n_random_graphs must be >= 2.")
         if self.swaps_per_edge < 1:
             raise ValueError("swaps_per_edge must be >= 1.")
+        if self.sampler not in ("config", "rewire"):
+            raise ValueError("sampler must be 'config' or 'rewire'.")
 
 
 @dataclass(frozen=True)
@@ -77,23 +91,25 @@ def compare_graph_to_degree_preserving_null(
         return GraphNullModelResult(
             observed, 0.0, 0.0, 0.0, 0.0, options.n_random_graphs, 0, False
         )
-    rng = np.random.default_rng(options.random_seed)
+    adj, nodes = adjacency_from_undirected(observed_graph)
+    null_batch = sample_degree_preserving_adjacencies(
+        adj,
+        nrand=options.n_random_graphs,
+        sampler=options.sampler,
+        niter=options.swaps_per_edge,
+        seed=options.random_seed,
+    )
     samples: List[float] = []
-    swaps = options.swaps_per_edge * n_edges
-    for _ in range(options.n_random_graphs):
-        random_graph = observed_graph.copy()
+    for null_adj in null_batch:
+        random_graph = networkx_from_adjacency(
+            null_adj, nodes, source_graph=observed_graph
+        )
         try:
-            nx.double_edge_swap(
-                random_graph,
-                nswap=swaps,
-                max_tries=max(swaps * 20, 100),
-                seed=int(rng.integers(0, np.iinfo(np.int32).max)),
-            )
             value = float(statistic(random_graph))
-            if np.isfinite(value):
-                samples.append(value)
         except (nx.NetworkXAlgorithmError, nx.NetworkXError, ValueError):
             continue
+        if np.isfinite(value):
+            samples.append(value)
     if not samples:
         return GraphNullModelResult(
             observed, 0.0, 0.0, 0.0, 0.0, options.n_random_graphs, 0, False

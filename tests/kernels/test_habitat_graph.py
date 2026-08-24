@@ -633,6 +633,7 @@ def test_default_options_disable_erosion_and_enable_subdivision() -> None:
     assert options.adjacency_connectivity == "corner"
     assert options.connectivity == "full"
     assert options.adjacency_min_voxels == 10
+    assert options.include_extended_metrics is False
 
 
 @pytest.mark.unit
@@ -680,7 +681,7 @@ def test_pairwise_graph_adds_intra_edges_but_interface_uses_inter_only() -> None
 
 
 @pytest.mark.unit
-def test_extended_graph_metrics_are_present_by_default() -> None:
+def test_extended_graph_metrics_are_present_when_enabled() -> None:
     """Extended metrics should be exported when include_extended_metrics is true."""
     label_array: np.ndarray = np.array(
         [
@@ -719,7 +720,7 @@ def test_extended_graph_metrics_are_present_by_default() -> None:
 
 @pytest.mark.unit
 def test_extended_graph_metrics_can_be_disabled() -> None:
-    """Extended metrics should be omitted when include_extended_metrics is false."""
+    """Extended metrics stay omitted under the library default (False)."""
     label_array: np.ndarray = np.array(
         [
             [1, 1, 0, 2],
@@ -734,11 +735,52 @@ def test_extended_graph_metrics_can_be_disabled() -> None:
         label_array,
         distance_threshold=3.0,
         subdivide_region_voxels=0,
-        include_extended_metrics=False,
     )
 
     assert "single_h1_global_efficiency" not in features
     assert "pair_h1_h2_small_world_sigma" not in features
+    assert "pair_h1_h2_small_world_sigma_er" not in features
+    assert "pair_h1_h2_small_world_sigma_rewire" not in features
+
+
+@pytest.mark.unit
+def test_small_world_er_and_rewire_use_different_nulls() -> None:
+    """ER analytic S and rewire sigma must both exist and not be aliases."""
+    from habit.kernels.habitat_graph.extended_metrics import (
+        _small_world_sigma_er,
+        _small_world_sigma_rewire,
+        compute_extended_graph_metrics,
+    )
+
+    lattice = nx.watts_strogatz_graph(n=24, k=4, p=0.0, seed=0)
+    assert nx.is_connected(lattice)
+    sigma_er = _small_world_sigma_er(lattice, min_nodes=10)
+    sigma_config = _small_world_sigma_rewire(
+        lattice, min_nodes=10, nrand=8, niter=8, seed=0, sampler="config"
+    )
+    sigma_rewire = _small_world_sigma_rewire(
+        lattice, min_nodes=10, nrand=8, niter=8, seed=0, sampler="rewire"
+    )
+    # A ring lattice is clustered vs ER, so Humphries S is well above 1.
+    assert sigma_er > 1.0
+    assert sigma_config >= 0.0
+    assert sigma_rewire >= 0.0
+    features = compute_extended_graph_metrics(
+        lattice, "single_h1", extended_min_nodes=10, small_world_nrand=8
+    )
+    assert features["single_h1_small_world_sigma"] == pytest.approx(sigma_er)
+    assert "single_h1_small_world_sigma_er" not in features
+    assert "single_h1_small_world_sigma_rewire" not in features
+    config_features = compute_extended_graph_metrics(
+        lattice,
+        "single_h1",
+        extended_min_nodes=10,
+        small_world_nrand=8,
+        graph_null_sampler="config",
+    )
+    assert config_features["single_h1_small_world_sigma"] == pytest.approx(
+        sigma_config
+    )
 
 
 @pytest.mark.unit
@@ -801,6 +843,7 @@ def test_degree_preserving_null_model_is_reproducible_and_opt_in() -> None:
         n_random_graphs=8,
         swaps_per_edge=2,
         random_seed=17,
+        sampler="config",
     )
 
     first = compare_graph_to_degree_preserving_null(
@@ -829,6 +872,59 @@ def test_degree_preserving_null_model_is_reproducible_and_opt_in() -> None:
     )
     assert too_small.is_valid is False
     assert too_small.n_successful == 0
+
+
+@pytest.mark.unit
+def test_degree_preserving_ensemble_matches_networkx_and_keeps_degrees() -> None:
+    """Batched C/L must match NetworkX; both samplers keep the degree sequence."""
+    from habit.kernels.habitat_graph.null_ensemble import (
+        adjacency_from_undirected,
+        batched_average_path_length,
+        batched_transitivity,
+        global_efficiency_value,
+        local_efficiency_values,
+        sample_degree_preserving_adjacencies,
+    )
+
+    graph = nx.watts_strogatz_graph(n=28, k=4, p=0.2, seed=3)
+    adj, _nodes = adjacency_from_undirected(graph)
+    degrees = adj.sum(axis=1)
+    assert batched_transitivity(adj)[0] == pytest.approx(nx.transitivity(graph))
+    assert batched_average_path_length(adj, device="cpu")[0] == pytest.approx(
+        nx.average_shortest_path_length(graph)
+    )
+    assert global_efficiency_value(adj) == pytest.approx(
+        nx.global_efficiency(graph), rel=1e-5
+    )
+    assert local_efficiency_values(adj) == pytest.approx(
+        [
+            float(nx.global_efficiency(graph.subgraph(list(graph.neighbors(node)))))
+            if graph.degree(node) >= 2
+            else 0.0
+            for node in graph.nodes()
+        ],
+        rel=1e-5,
+        abs=1e-8,
+    )
+
+    for sampler in ("config", "rewire"):
+        batch = sample_degree_preserving_adjacencies(
+            adj, nrand=6, sampler=sampler, niter=20, seed=5
+        )
+        assert batch.shape[0] >= 1
+        for null_adj in batch:
+            assert np.array_equal(null_adj.sum(axis=1), degrees)
+
+
+@pytest.mark.unit
+def test_graph_null_sampler_default_is_analytic() -> None:
+    """Feature extraction defaults to Humphries analytic small-world S."""
+    options = HabitatGraphFeatureOptions()
+    assert options.graph_null_sampler == "analytic"
+    assert options.small_world_nrand == 100
+    assert options.small_world_niter == 100
+    assert options.graph_null_device == "auto"
+    assert options.graph_metric_backend == "networkx"
 
 
 @pytest.mark.unit
@@ -1324,3 +1420,411 @@ def test_default_threshold_skips_one_empty_lattice_cell() -> None:
     features = extract_graph_features(label_array)
     assert features["single_h1_n_nodes"] == 2.0
     assert features["single_h1_n_edges"] == 0.0
+
+
+@pytest.mark.unit
+def test_crop_preserves_graph_features_when_embedded_in_empty_volume() -> None:
+    """VOI crop must not change topology features vs a tight label map."""
+    core: np.ndarray = np.zeros((8, 8), dtype=np.int32)
+    core[1:4, 1:4] = 1
+    core[5:8, 5:8] = 2
+    options = HabitatGraphFeatureOptions(
+        node_method="component",
+        edge_method="adjacency",
+        include_extended_metrics=False,
+    )
+    tight = extract_graph_features(core, options=options)
+    padded = np.zeros((64, 64), dtype=np.int32)
+    padded[20:28, 20:28] = core
+    embedded = extract_graph_features(padded, options=options)
+    assert set(tight) == set(embedded)
+    for key in tight:
+        assert tight[key] == pytest.approx(embedded[key], abs=1e-8, rel=1e-8)
+
+
+@pytest.mark.unit
+def test_crop_offset_maps_centroids_back_to_original_indices() -> None:
+    """Node centroids stay in the uncropped index space after the VOI crop."""
+    core: np.ndarray = np.zeros((8, 8), dtype=np.int32)
+    core[2:5, 2:5] = 1
+    local = extract_habitat_nodes(core, node_method="component", connectivity="face")
+    padded = np.zeros((40, 40), dtype=np.int32)
+    padded[12:20, 12:20] = core
+    embedded = extract_habitat_nodes(
+        padded, node_method="component", connectivity="face"
+    )
+    assert embedded.crop_offset is not None
+    local_c = np.sort(np.vstack([n.centroid for n in local.nodes_by_habitat[1]]), axis=0)
+    embed_c = np.sort(
+        np.vstack([n.centroid for n in embedded.nodes_by_habitat[1]]), axis=0
+    )
+    assert np.allclose(embed_c, local_c + np.array([12.0, 12.0]))
+
+
+@pytest.mark.unit
+def test_min_voxel_distance_torch_matches_kdtree() -> None:
+    """Torch cdist (CPU, and CUDA when present) matches the kd-tree minimum."""
+    pytest.importorskip("torch")
+    from habit.utils.torch_graph_utils import (
+        _min_voxel_distance_torch,
+        _min_voxel_distance_tree,
+        min_voxel_distance,
+    )
+    from habit.utils.torch_radiomics_utils import is_cuda_available
+
+    rng = np.random.default_rng(0)
+    cloud_a = rng.integers(0, 25, size=(40, 3)).astype(np.float64)
+    cloud_b = rng.integers(0, 25, size=(55, 3)).astype(np.float64)
+    tree = _min_voxel_distance_tree(cloud_a, cloud_b)
+    cpu_torch = _min_voxel_distance_torch(cloud_a, cloud_b, "cpu")
+    auto = min_voxel_distance(cloud_a, cloud_b, device="auto")
+    assert cpu_torch == pytest.approx(tree, abs=1e-4, rel=1e-4)
+    assert auto == pytest.approx(tree, abs=1e-12, rel=1e-12)
+    if is_cuda_available():
+        gpu = min_voxel_distance(cloud_a, cloud_b, device="cuda")
+        assert gpu == pytest.approx(tree, abs=1e-3, rel=1e-3)
+
+
+def _undirected_edge_key(
+    source: str, target: str, distance: float
+) -> tuple:
+    """Canonical undirected pair plus rounded distance."""
+    ends = tuple(sorted((source, target)))
+    return (ends[0], ends[1], round(float(distance), 8))
+
+
+@pytest.mark.unit
+def test_lattice_chebyshev_radius_tracks_block_and_threshold() -> None:
+    """Search radius must follow cube-gap geometry, not a hard-coded 8 vs 5."""
+    from habit.kernels.habitat_graph.proximity import (
+        cube_separation_lower_bound,
+        lattice_chebyshev_radius,
+    )
+
+    assert lattice_chebyshev_radius(8, 0.5) == 0
+    assert lattice_chebyshev_radius(8, 5.0) == 1
+    assert lattice_chebyshev_radius(8, 8.0) == 1
+    assert lattice_chebyshev_radius(8, 9.0) == 2
+    assert lattice_chebyshev_radius(4, 10.0) == 3
+    # Single-axis R=2 cubes of edge 8 are at least 9 voxels apart.
+    assert cube_separation_lower_bound((2, 0, 0), 8) == 9.0
+    assert cube_separation_lower_bound((1, 0, 0), 8) == 1.0
+
+
+@pytest.mark.unit
+def test_hop_metrics_match_networkx_on_connected_graphs() -> None:
+    """One BFS sweep must match NetworkX Brandes, ASPL, diameter, closeness."""
+    from habit.kernels.habitat_graph.traversal import hop_metrics
+
+    rng = np.random.default_rng(7)
+    graph = nx.gnm_random_graph(18, 40, seed=7)
+    while not nx.is_connected(graph):
+        graph = nx.gnm_random_graph(18, 40, seed=int(rng.integers(1, 10_000)))
+
+    hop = hop_metrics(graph, device="python")
+    hop_auto = hop_metrics(graph, device="auto")
+    nx_bc = nx.betweenness_centrality(graph, normalized=True, weight=None)
+    nx_cc = nx.closeness_centrality(graph)
+    for node_id in graph.nodes():
+        assert hop.betweenness[node_id] == pytest.approx(nx_bc[node_id], abs=1e-12)
+        assert hop.closeness[node_id] == pytest.approx(nx_cc[node_id], abs=1e-12)
+    assert hop.avg_path_length == pytest.approx(
+        nx.average_shortest_path_length(graph), abs=1e-12
+    )
+    assert hop.diameter == pytest.approx(float(nx.diameter(graph)), abs=1e-12)
+    for node_id in graph.nodes():
+        assert hop_auto.betweenness[node_id] == pytest.approx(
+            nx_bc[node_id], abs=1e-8, rel=1e-6
+        )
+
+
+@pytest.mark.unit
+def test_hop_metrics_igraph_matches_networkx() -> None:
+    """Optional igraph hop metrics must stay on the NetworkX definitions."""
+    pytest.importorskip("igraph")
+    from habit.kernels.habitat_graph.traversal import hop_metrics
+
+    rng = np.random.default_rng(11)
+    graph = nx.gnm_random_graph(22, 55, seed=11)
+    while not nx.is_connected(graph):
+        graph = nx.gnm_random_graph(22, 55, seed=int(rng.integers(1, 10_000)))
+
+    hop = hop_metrics(graph, backend="igraph")
+    nx_bc = nx.betweenness_centrality(graph, normalized=True, weight=None)
+    nx_cc = nx.closeness_centrality(graph)
+    for node_id in graph.nodes():
+        assert hop.betweenness[node_id] == pytest.approx(nx_bc[node_id], abs=1e-10)
+        assert hop.closeness[node_id] == pytest.approx(nx_cc[node_id], abs=1e-10)
+    assert hop.avg_path_length == pytest.approx(
+        nx.average_shortest_path_length(graph), abs=1e-10
+    )
+    assert hop.diameter == pytest.approx(float(nx.diameter(graph)), abs=1e-10)
+
+
+@pytest.mark.unit
+def test_component_min_distance_does_not_use_lattice_accelerators() -> None:
+    """Sweep / lattice range search must stay off when grid metadata is absent."""
+    from habit.kernels.habitat_graph.edges import (
+        _min_distance_edges_for_pairs,
+        _node_voxel_coords,
+        build_min_distance_edges,
+    )
+    from habit.kernels.habitat_graph.proximity import uses_uniform_grid
+
+    label_array = np.zeros((16, 16, 8), dtype=np.int32)
+    label_array[:8, :8, :] = 1
+    label_array[:8, 8:, :] = 2
+    nodes = extract_habitat_nodes(
+        label_array,
+        node_method="component",
+        connectivity="full",
+        min_region_voxels=1,
+        subdivide_region_voxels=0,
+    )
+    assert nodes.grid_origin is None
+    assert nodes.grid_block_size is None
+    assert uses_uniform_grid(nodes) is False
+    all_nodes = list(nodes.nodes_by_habitat[1]) + list(nodes.nodes_by_habitat[2])
+    fast = build_min_distance_edges(nodes, all_nodes, 5.0, "none")
+    coords = {node.node_id: _node_voxel_coords(nodes, node) for node in all_nodes}
+    slow = _min_distance_edges_for_pairs(
+        all_nodes, all_nodes, coords, 5.0, "none", "min_distance"
+    )
+    fast_keys = {
+        _undirected_edge_key(edge.source, edge.target, edge.distance or 0.0)
+        for edge in fast
+    }
+    slow_keys = {
+        _undirected_edge_key(edge.source, edge.target, edge.distance or 0.0)
+        for edge in slow
+    }
+    assert fast_keys == slow_keys
+
+
+@pytest.mark.unit
+def test_extract_igraph_backend_matches_networkx_except_modularity() -> None:
+    """igraph hop / clustering match; Louvain modularity may move slightly."""
+    pytest.importorskip("igraph")
+    label_array = np.zeros((24, 24, 16), dtype=np.int32)
+    label_array[:12, :12, :] = 1
+    label_array[:12, 12:, :] = 2
+    label_array[12:, :12, :] = 3
+    nx_features = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(
+            node_method="uniform_grid",
+            edge_method="min_distance",
+            block_size=8,
+            distance_threshold=5.0,
+            graph_metric_backend="networkx",
+            include_extended_metrics=False,
+        ),
+    )
+    ig_features = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(
+            node_method="uniform_grid",
+            edge_method="min_distance",
+            block_size=8,
+            distance_threshold=5.0,
+            graph_metric_backend="igraph",
+            include_extended_metrics=False,
+        ),
+    )
+    assert set(nx_features) == set(ig_features)
+    drifted = 0
+    for key, value in nx_features.items():
+        other = ig_features[key]
+        if key.endswith("_modularity"):
+            if abs(float(value) - float(other)) > 1e-8:
+                drifted += 1
+            continue
+        assert other == pytest.approx(value, abs=1e-8, rel=1e-6), key
+    # Partition algorithms are allowed to disagree; hop metrics are not.
+    assert drifted >= 0
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("block_size", "threshold"),
+    [(8, 5.0), (8, 20.0), (4, 6.0)],
+)
+def test_min_distance_range_search_matches_all_pairs(
+    block_size: int, threshold: float
+) -> None:
+    """Lattice / centroid candidates must emit the same edges as all-pairs."""
+    from habit.kernels.habitat_graph.edges import (
+        _min_distance_edges_for_pairs,
+        _node_voxel_coords,
+        build_min_distance_edges,
+    )
+
+    rng = np.random.default_rng(3)
+    label_array = np.zeros((24, 24, 16), dtype=np.int32)
+    label_array[:12, :12, :] = 1
+    label_array[:12, 12:, :] = 2
+    holes = rng.integers(0, [24, 24, 16], size=(80, 3))
+    label_array[holes[:, 0], holes[:, 1], holes[:, 2]] = 0
+    nodes = extract_habitat_nodes(
+        label_array,
+        node_method="uniform_grid",
+        block_size=block_size,
+        block_min_coverage=0.2,
+    )
+    all_nodes = list(nodes.nodes_by_habitat[1]) + list(nodes.nodes_by_habitat[2])
+    fast = build_min_distance_edges(nodes, all_nodes, threshold, "none")
+    coords = {node.node_id: _node_voxel_coords(nodes, node) for node in all_nodes}
+    # Same-object all-pairs walk (i < j) is the old complete scan.
+    slow = _min_distance_edges_for_pairs(
+        all_nodes, all_nodes, coords, threshold, "none", "min_distance"
+    )
+    ref_keys = {
+        _undirected_edge_key(edge.source, edge.target, edge.distance or 0.0)
+        for edge in slow
+    }
+    fast_keys = {
+        _undirected_edge_key(edge.source, edge.target, edge.distance or 0.0)
+        for edge in fast
+    }
+    assert fast_keys == ref_keys
+
+
+@pytest.mark.unit
+def test_pairwise_min_distance_reuses_intra_edges() -> None:
+    """Cached single-habitat min_distance edges must match a from-scratch pair."""
+    from habit.kernels.habitat_graph.edges import (
+        as_intra_edge,
+        build_min_distance_inter_edges,
+        compose_pairwise_graph,
+    )
+
+    label_array = np.zeros((32, 32, 16), dtype=np.int32)
+    label_array[:16, :16, :] = 1
+    label_array[:16, 16:, :] = 2
+    options = HabitatGraphFeatureOptions(
+        node_method="uniform_grid",
+        edge_method="min_distance",
+        block_size=8,
+        distance_threshold=5.0,
+        pairwise_include_intra_edges=True,
+    )
+    nodes = extract_habitat_nodes(
+        label_array,
+        node_method=options.node_method,
+        connectivity=options.connectivity,
+        min_region_voxels=options.min_region_voxels,
+        block_size=options.block_size,
+        block_min_coverage=options.block_min_coverage,
+    )
+    single_a = build_min_distance_graph(
+        node_result=nodes,
+        labels=(1,),
+        graph_kind="single",
+        distance_threshold=options.distance_threshold,
+    )
+    single_b = build_min_distance_graph(
+        node_result=nodes,
+        labels=(2,),
+        graph_kind="single",
+        distance_threshold=options.distance_threshold,
+    )
+    rebuilt = build_min_distance_graph(
+        node_result=nodes,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        distance_threshold=options.distance_threshold,
+        include_intra_edges=True,
+    )
+    pair_nodes = list(nodes.nodes_by_habitat[1]) + list(nodes.nodes_by_habitat[2])
+    reused = compose_pairwise_graph(
+        pair_nodes,
+        (1, 2),
+        build_min_distance_inter_edges(
+            nodes, (1, 2), options.distance_threshold, options.edge_weight
+        ),
+        [as_intra_edge(edge) for edge in (*single_a.edges, *single_b.edges)],
+    )
+    rebuilt_keys = {
+        _undirected_edge_key(edge.source, edge.target, edge.distance or 0.0)
+        for edge in rebuilt.edges
+    }
+    reused_keys = {
+        _undirected_edge_key(edge.source, edge.target, edge.distance or 0.0)
+        for edge in reused.edges
+    }
+    assert rebuilt_keys == reused_keys
+    assert {edge.edge_type for edge in reused.edges} <= {"inter", "intra"}
+
+
+@pytest.mark.unit
+def test_extract_uniform_grid_reuse_matches_rebuild() -> None:
+    """Default uniform_grid + min_distance features match a no-reuse rebuild."""
+    from habit.kernels.habitat_graph.features import _build_pairwise_graph
+    from habit.kernels.habitat_graph.metrics import (
+        calculate_pairwise_graph_metrics,
+        calculate_single_graph_metrics,
+    )
+
+    label_array = np.zeros((24, 24, 16), dtype=np.int32)
+    label_array[:12, :12, :] = 1
+    label_array[:12, 12:, :] = 2
+    label_array[12:, :12, :] = 3
+    options = HabitatGraphFeatureOptions(
+        node_method="uniform_grid",
+        edge_method="min_distance",
+        block_size=8,
+        distance_threshold=5.0,
+        include_extended_metrics=True,
+        graph_null_sampler="analytic",
+    )
+    new_features = extract_graph_features(label_array, options=options)
+
+    nodes = extract_habitat_nodes(
+        label_array,
+        node_method=options.node_method,
+        connectivity=options.connectivity,
+        min_region_voxels=options.min_region_voxels,
+        block_size=options.block_size,
+        block_min_coverage=options.block_min_coverage,
+    )
+    rebuilt: dict = {}
+    singles = {}
+    for label in (1, 2, 3):
+        graph = build_min_distance_graph(
+            node_result=nodes,
+            labels=(label,),
+            graph_kind="single",
+            distance_threshold=options.distance_threshold,
+        )
+        singles[label] = graph
+        rebuilt.update(
+            calculate_single_graph_metrics(
+                graph,
+                include_extended_metrics=True,
+                graph_null_sampler="analytic",
+            )
+        )
+    for label_a, label_b in ((1, 2), (1, 3), (2, 3)):
+        pair_nodes = list(nodes.nodes_by_habitat[label_a]) + list(
+            nodes.nodes_by_habitat[label_b]
+        )
+        # Empty cache forces a from-scratch pairwise build (old path).
+        graph = _build_pairwise_graph(
+            nodes, pair_nodes, label_a, label_b, options, {}
+        )
+        rebuilt.update(
+            calculate_pairwise_graph_metrics(
+                graph,
+                include_extended_metrics=True,
+                graph_null_sampler="analytic",
+            )
+        )
+    compared = 0
+    for key, value in rebuilt.items():
+        if key not in new_features:
+            continue
+        assert new_features[key] == pytest.approx(value, abs=1e-10, rel=1e-10), key
+        compared += 1
+    assert compared > 20
+    # Intra reuse must have been available for the new extract path.
+    assert singles[1].edges or singles[2].edges or singles[3].edges

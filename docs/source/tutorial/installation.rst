@@ -208,8 +208,10 @@ Missing optional packages raise ``OptionalDependencyError`` with the exact
      - TorchRadiomics / GPU texture
    * - ``monai``
      - MONAI ``Rand3DElastic`` image / ROI warp (``BSplineDeformPerturbation``; pulls ``torch``)
+   * - ``igraph``
+     - Optional C backend for habitat-graph hop / clustering / Louvain (``graph_metric_backend``). GPL-2.0+; **not** in ``[all]``
    * - ``all``
-     - All of the above except ``torch``, ``monai``, and PyRadiomics
+     - All of the above except ``torch``, ``monai``, ``igraph``, and PyRadiomics
    * - ``view``
      - napari for ``habit view`` (clone: ``pip install -e ".[view]"``)
 

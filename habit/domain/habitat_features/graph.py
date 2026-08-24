@@ -98,10 +98,30 @@ class GraphHabitatFeaturesParams(BaseModel):
     pairwise_include_intra_edges: bool = True
     #: Compute extended graph metrics: global/local efficiency, small-world
     #: sigma, rich-club coefficient, and node-level distribution summaries.
-    include_extended_metrics: bool = True
+    #: Default False: those metrics (especially small-world sigma and
+    #: efficiency) are superlinear in node count and dominate runtime on
+    #: large 3D maps. Pass True to opt in.
+    include_extended_metrics: bool = False
     #: Minimum node count in the analysis subgraph required to compute
     #: small-world sigma; smaller graphs return 0 for that metric.
     extended_min_nodes: int = Field(default=10, ge=3)
+    #: Ensemble size when ``graph_null_sampler`` is ``config`` or ``rewire``.
+    small_world_nrand: int = Field(default=100, ge=1)
+    #: Rewires per edge when ``graph_null_sampler='rewire'`` (NetworkX / Milo).
+    small_world_niter: int = Field(default=100, ge=1)
+    #: Mixing floor for ``graph_null_sampler='rewire'``.
+    rich_club_q: int = Field(default=100, ge=1)
+    #: Small-world null. Default ``analytic`` is Humphries ER *S* (one
+    #: column). ``config`` / ``rewire`` replace that column with a
+    #: degree-preserving ensemble.
+    graph_null_sampler: Literal["analytic", "config", "rewire"] = "analytic"
+    #: Batched C/L backend: ``auto`` uses CUDA Floyd–Warshall only when
+    #: the ensemble is large enough; otherwise NumPy.
+    graph_null_device: str = "auto"
+    #: Hop / clustering / Louvain backend. Default ``networkx`` keeps
+    #: published numbers. ``igraph`` needs ``habitat-analysis[igraph]``
+    #: (GPL). ``auto`` uses igraph when that extra is installed.
+    graph_metric_backend: Literal["auto", "networkx", "igraph"] = "networkx"
 
 
 @HabitatFeatureExtractorRegistry.register("graph")
@@ -156,8 +176,14 @@ class GraphHabitatFeatures:
         block_size: int = 8,
         block_min_coverage: float = 0.2,
         pairwise_include_intra_edges: bool = True,
-        include_extended_metrics: bool = True,
+        include_extended_metrics: bool = False,
         extended_min_nodes: int = 10,
+        small_world_nrand: int = 100,
+        small_world_niter: int = 100,
+        rich_club_q: int = 100,
+        graph_null_sampler: Literal["analytic", "config", "rewire"] = "analytic",
+        graph_null_device: str = "auto",
+        graph_metric_backend: Literal["auto", "networkx", "igraph"] = "networkx",
     ) -> None:
         self._options = HabitatGraphFeatureOptions(
             include_single_habitat_graph=include_single_habitat_graph,
@@ -177,6 +203,12 @@ class GraphHabitatFeatures:
             pairwise_include_intra_edges=pairwise_include_intra_edges,
             include_extended_metrics=include_extended_metrics,
             extended_min_nodes=extended_min_nodes,
+            small_world_nrand=small_world_nrand,
+            small_world_niter=small_world_niter,
+            rich_club_q=rich_club_q,
+            graph_null_sampler=graph_null_sampler,
+            graph_null_device=graph_null_device,
+            graph_metric_backend=graph_metric_backend,
         )
 
     @property

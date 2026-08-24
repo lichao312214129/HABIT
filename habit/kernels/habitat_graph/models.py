@@ -37,6 +37,8 @@ __all__ = [
     "HabitatGraphNode",
     "HabitatGraphEdge",
     "HabitatGraph",
+    "GraphArrays",
+    "MinDistanceEdgeTable",
     "HabitatNodeExtractionResult",
 ]
 
@@ -104,6 +106,44 @@ class HabitatGraph:
 
 
 @dataclass(frozen=True)
+class GraphArrays:
+    """Integer-indexed graph used by the CSR metric path.
+
+    Node ``k`` has habitat ``habitats[k]``, voxel count ``voxels[k]``,
+    and centroid ``centroids[k]``. Undirected edges are ``(src[e], dst[e])``
+    with ``src[e] < dst[e]``.
+    """
+
+    graph_kind: GraphKind
+    labels: Tuple[int, ...]
+    node_ids: Tuple[str, ...]
+    habitats: np.ndarray
+    voxels: np.ndarray
+    centroids: np.ndarray
+    src: np.ndarray
+    dst: np.ndarray
+    distance: np.ndarray
+    weight: np.ndarray
+    is_inter: np.ndarray
+    contact: np.ndarray
+
+
+@dataclass(frozen=True)
+class MinDistanceEdgeTable:
+    """Global closest-voxel edges as arrays into one node sequence.
+
+    ``index_a[e]`` / ``index_b[e]`` are positions in the node list that
+    was passed to the builder (``index_a < index_b``).
+    """
+
+    index_a: np.ndarray
+    index_b: np.ndarray
+    distance: np.ndarray
+    habitat_a: np.ndarray
+    habitat_b: np.ndarray
+
+
+@dataclass(frozen=True)
 class HabitatNodeExtractionResult:
     """Node extraction result plus component maps and optional lattice."""
 
@@ -111,6 +151,12 @@ class HabitatNodeExtractionResult:
     nodes_by_habitat: Dict[int, List[HabitatGraphNode]]
     component_maps: Dict[int, np.ndarray]
     #: Inclusive voxel-index origin of the global lattice (``uniform_grid``).
+    #: Reported in the original (uncropped) index space.
     grid_origin: Optional[Tuple[int, ...]] = None
     #: Cube edge length in voxels of that lattice (``uniform_grid``).
     grid_block_size: Optional[int] = None
+    #: Inclusive origin of the VOI crop applied before node extraction.
+    #: ``component_maps`` and ``label_array`` live on the cropped grid;
+    #: add this offset to recover original voxel indices. ``None`` means
+    #: the input was already empty or was not cropped.
+    crop_offset: Optional[Tuple[int, ...]] = None

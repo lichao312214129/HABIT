@@ -777,11 +777,12 @@ class GraphFeatureBlock(BaseModel):
         ),
     )
     include_extended_metrics: bool = Field(
-        True,
+        False,
         description=(
             "Compute extended graph metrics: global/local efficiency, "
             "small-world sigma, rich-club coefficient, and node-level "
-            "distribution summaries."
+            "distribution summaries. Default false: those metrics dominate "
+            "runtime on large 3D maps. Set true to opt in."
         ),
     )
     extended_min_nodes: int = Field(
@@ -789,7 +790,57 @@ class GraphFeatureBlock(BaseModel):
         ge=3,
         description=(
             "Minimum node count in the analysis subgraph required to compute "
-            "small-world sigma; smaller graphs return 0 for that metric."
+            "either small-world sigma; smaller graphs return 0 for that metric."
+        ),
+    )
+    small_world_nrand: int = Field(
+        100,
+        ge=1,
+        description=(
+            "Number of degree-preserving null graphs when "
+            "graph_null_sampler is config or rewire (default 100). "
+            "Ignored by the default analytic Humphries S."
+        ),
+    )
+    small_world_niter: int = Field(
+        100,
+        ge=1,
+        description=(
+            "Rewires per edge when graph_null_sampler is rewire "
+            "(NetworkX / Milo default 100). Ignored by config and by ER."
+        ),
+    )
+    rich_club_q: int = Field(
+        100,
+        ge=1,
+        description=(
+            "Mixing floor for graph_null_sampler=rewire. Rich-club "
+            "phi_rand is the mean over the same nrand ensemble, not "
+            "the number of null graphs."
+        ),
+    )
+    graph_null_sampler: Literal["analytic", "config", "rewire"] = Field(
+        "analytic",
+        description=(
+            "Small-world null. analytic (default) is Humphries ER S. "
+            "config / rewire replace that one column with a "
+            "degree-preserving ensemble."
+        ),
+    )
+    graph_null_device: str = Field(
+        "auto",
+        description=(
+            "Batched C/L device for the null ensemble: auto, cpu, cuda, "
+            "or cuda:N. auto uses CUDA only when the Floyd-Warshall "
+            "work is large enough."
+        ),
+    )
+    graph_metric_backend: Literal["auto", "networkx", "igraph"] = Field(
+        "networkx",
+        description=(
+            "Hop / clustering / Louvain backend. Default networkx keeps "
+            "published numbers. igraph needs habitat-analysis[igraph] "
+            "(GPL-2.0+). auto uses igraph when that extra is installed."
         ),
     )
     # --- Figure rendering (consumed by the L4 recipe, not the extractor) ---

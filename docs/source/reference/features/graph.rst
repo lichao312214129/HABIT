@@ -324,7 +324,7 @@ comparable to PathPrism's 2-D bounding-box form). Density
 
 :math:`R<1` clustering, :math:`R=1` CSR, :math:`R>1` regularity.
 
-Average clustering is the Watts–Strogatz mean of local clustering
+Average clustering is the Watts–Strogatz [Watts1998]_ mean of local clustering
 coefficients (:math:`0` if :math:`n=0`; a node with
 :math:`\deg(v)<2` contributes :math:`0`):
 
@@ -535,14 +535,15 @@ Habitat-label assortativity is Newman's attribute assortativity on
 Extended metrics
 ----------------
 
-Enabled by ``include_extended_metrics`` (default ``true``). Let
+Enabled by ``include_extended_metrics`` (default ``false``; pass
+``true`` to opt in — these metrics dominate runtime on large maps). Let
 :math:`G^{\star}` be the **analysis subgraph**: the input graph if it
 is connected and has edges; otherwise its largest connected component
 (empty / edgeless graphs stay as they are). Write
 :math:`n^{\star}=|V(G^{\star})|`. Integration metrics below are
 :math:`0` when :math:`n^{\star}<2` or :math:`G^{\star}` has no edges.
 
-Global / local efficiency (Latora–Marchiori; hop distances, unweighted):
+Global / local efficiency (Latora–Marchiori [Latora2001]_; hop distances, unweighted):
 
 .. math::
 
@@ -559,27 +560,96 @@ where :math:`G^{\star}[N(v)]` is the subgraph induced by the
 neighbours of :math:`v`, and a node with fewer than two neighbours
 (or no edges among them) contributes :math:`0`.
 
-Small-world :math:`\sigma` is NetworkX
-``smallworld.sigma`` with ``niter=5``, ``nrand=3``, ``seed=0``,
-**only if** :math:`n^{\star}\ge` ``extended_min_nodes`` (default
+Small-worldness and random-graph nulls
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Watts and Strogatz [Watts1998]_ called a network small-world when it
+has lattice-like clustering and random-graph path lengths. Humphries
+and Gurney [Humphries2006]_ [Humphries2008]_ turned that into one
+ratio :math:`\sigma=(C/C_{\mathrm{rand}})/(L/L_{\mathrm{rand}})`,
+with :math:`\sigma>1` commonly read as small-world. HABIT uses that
+ratio. :math:`C` is **transitivity** (global clustering, not the mean
+of local coefficients) and :math:`L` is mean shortest-path length on
+:math:`G^{\star}`, matching NetworkX ``sigma``. The exported value is
+**0** unless :math:`n^{\star}\ge` ``extended_min_nodes`` (default
 ``10``), :math:`G^{\star}` is connected, and it has at least one
-edge; else :math:`0`. Treat it as a **descriptor**, not a hypothesis
-test:
+edge. This is a **descriptor**, not a hypothesis test.
 
-.. math::
+HABIT writes **one** column ``small_world_sigma``. The three
+``graph_null_sampler`` values are mutually exclusive **null models**
+for :math:`C_{\mathrm{rand}}` and :math:`L_{\mathrm{rand}}`. They
+are not three different observed-graph metrics. Do not treat them as
+interchangeable, and do not invent a fourth sampler.
 
-   \mathrm{small\_world\_sigma}
-   = \sigma
-   = \frac{C/C_{\mathrm{rand}}}{L/L_{\mathrm{rand}}}
+**analytic (default) — Erdős–Rényi (ER).**
+Humphries' original null is an ER random graph [ErdosRenyi1959]_ with
+the same node count :math:`n` and edge count :math:`m`. HABIT uses
+the analytic approximations in [Humphries2008]_:
+:math:`C_{\mathrm{rand}}\approx\langle k\rangle/n` and
+:math:`L_{\mathrm{rand}}\approx\ln n/\ln\langle k\rangle`
+(:math:`\langle k\rangle=2m/n`). Humphries drew **1000** ER graphs
+only when testing borderline :math:`1\le S\le 3`; the default point
+estimate does **not** sample graphs. This null does **not** preserve
+the degree sequence.
 
-Rich-club: NetworkX ``rich_club_coefficient(G^*, normalized=True)``
-returns :math:`\phi_{\mathrm{norm}}(k)` for each degree threshold
-:math:`k`. HABIT stores the mean of the **finite** values
-(:math:`0` on failure or no edges):
+**config — configuration model.**
+Stub-matching random graphs that keep the observed degree sequence
+[Newman2001]_ [Milo2004]_. :math:`C_{\mathrm{rand}}` and
+:math:`L_{\mathrm{rand}}` are means over ``small_world_nrand``
+accepted simple connected graphs (default ``100``). A realization is
+rejected if pairing fails or the finished graph is disconnected. If
+the fast sampler cannot fill the ensemble, HABIT falls back to
+Maslov–Sneppen mixing of the observed graph so ``nrand`` is not
+silently shrunk.
+
+**rewire — Maslov–Sneppen.**
+Start from a copy of the observed graph and apply double-edge swaps
+(about ``small_world_niter`` swaps per edge, default ``100``)
+[Maslov2002]_. Every node's degree stays exactly the same; who is
+connected is mixed. This is what NetworkX ``smallworld.sigma`` /
+``random_reference`` implements (NetworkX default ensemble is only
+``nrand=10``; HABIT uses ``100``). Rubinov and Sporns
+[Rubinov2010]_ review the same degree-preserving idea for brain
+graphs.
+
+Choose the sampler to match the citation, not to "improve" :math:`\sigma`:
+
+* Report Humphries *S* as in the 2008 paper → ``analytic``.
+* Match NetworkX ``sigma`` → ``rewire``.
+* Textbook configuration-model ensemble → ``config``.
+
+Never write "rewire" in a manuscript if the run used ``analytic`` or
+``config``.
+
+Habitat graphs are **spatial**. None of the three nulls constrain
+voxel coordinates or contact geometry, so a lattice-like map can
+inflate :math:`C` relative to any of them. That is a known limit of
+classical small-world tests on imaging graphs
+[Rubinov2010]_, not a reason to replace these nulls with an ad-hoc
+generator.
+
+Clustering, mean path length, and local/global efficiency use the
+same unweighted hop distances as NetworkX. An ensemble, when
+requested, is a stacked adjacency batch (Numba on CPU when
+installed; otherwise NumPy; one PyTorch CUDA Floyd–Warshall launch
+when ``graph_null_device='auto'`` and the work is large enough).
+
+A paper that needs a *p*-value for :math:`\sigma>1` or
+:math:`\phi_{\mathrm{norm}}>1` should call
+:func:`habit.compare_graph_to_degree_preserving_null` (typically
+**100–1000** graphs [VandenHeuvel2011]_).
+
+Rich-club [Colizza2006]_ [McAuley2007]_: HABIT stores the mean of
+the **finite** :math:`\phi_{\mathrm{norm}}(k)`. Under the analytic
+default, :math:`\phi_{\mathrm{rand}}(k)` comes from **one**
+configuration-model graph (NetworkX / Milo point estimate
+[Milo2004]_). ``config`` / ``rewire`` reuse the sigma ensemble.
 
 .. math::
 
    \begin{aligned}
+   \mathrm{small\_world\_sigma}
+   &= \frac{C/C_{\mathrm{rand}}}{L/L_{\mathrm{rand}}} \\
    \phi(k)
    &= \frac{2 E_{>k}}{n_{>k}(n_{>k}-1)} \\
    \phi_{\mathrm{norm}}(k)
@@ -739,10 +809,12 @@ This is appropriate for ``avg_clustering``, ``avg_path_length``,
 ``node_local_efficiency_min/std``, and pairwise
 ``habitat_assortativity``. ``degree_entropy`` and degree summaries are
 fixed by a degree-preserving null and therefore need sample-size-aware
-estimation rather than this null model. ``small_world_sigma`` and
-``rich_club_coefficient`` already invoke random-graph reference procedures
-internally; report their seeds/settings and do not treat them as
-volume-normalized quantities.
+estimation rather than this null model. Default
+``small_world_sigma`` uses an analytic Erdős–Rényi null
+[Humphries2008]_. ``rich_club_coefficient`` uses one
+degree-preserving graph (or the opt-in ensemble). Report
+``graph_null_sampler`` and do not treat these as volume-normalized
+quantities.
 
 :func:`habit.compare_graph_to_degree_preserving_null` is an explicit,
 opt-in API. It preserves every node's degree, node count, and edge count,
@@ -814,9 +886,21 @@ below match the kernel dataclass.
    * - ``pairwise_include_intra_edges``
      - Add same-habitat proximity edges in pairwise graphs (default ``true``); interface metrics still use inter-class edges only
    * - ``include_extended_metrics``
-     - Efficiency, small-world sigma, rich-club, node-distribution summaries (default ``true``)
+     - Efficiency, one small-world :math:`\sigma`, rich-club, node-distribution summaries (default ``false``; set ``true`` to opt in)
    * - ``extended_min_nodes``
-     - Minimum analysis-subgraph node count for small-world sigma (default ``10``; smaller graphs return ``0``)
+     - Minimum analysis-subgraph node count for either small-world sigma (default ``10``; smaller graphs return ``0``)
+   * - ``small_world_nrand``
+     - Ensemble size when ``graph_null_sampler`` is ``config`` or ``rewire`` (default ``100``). Ignored by analytic Humphries *S*.
+   * - ``small_world_niter``
+     - Rewires per edge when ``graph_null_sampler='rewire'`` (default ``100``). Ignored by analytic / ``config``.
+   * - ``rich_club_q``
+     - Mixing floor for ``graph_null_sampler='rewire'`` (default ``100``), not the number of null graphs.
+   * - ``graph_null_sampler``
+     - ``analytic`` (default, Humphries ER *S*), ``config``, or ``rewire``. One ``small_world_sigma`` column; the last two replace the analytic value.
+   * - ``graph_null_device``
+     - Batched C/L device: ``auto`` (default), ``cpu``, ``cuda``, or ``cuda:N``. ``auto`` uses CUDA only when Floyd–Warshall work is large enough.
+   * - ``graph_metric_backend``
+     - Hop / clustering / Louvain backend: ``networkx`` (default), ``igraph``, or ``auto``. ``igraph`` needs the optional ``[igraph]`` extra (GPL-2.0+; not in ``[all]``). ``auto`` uses igraph when that extra is installed.
 
 YAML-only visualization fields (recipe hook; **not** part of the extractor
 ``Spec`` fingerprint):
@@ -854,9 +938,12 @@ What this family does not claim
   :math:`d_{\min}` for default ``min_distance``, centroid Euclidean
   for ``centroid_distance`` / ``adjacency``. Do not interpret it as a
   millimetre length unless the map is isotropic with 1 mm spacing.
-* Small-world :math:`\sigma` is a NetworkX Monte-Carlo ratio on a possibly
-  tiny habitat graph. It is not Watts–Strogatz inference for a brain
-  connectome, and it is forced to ``0`` below ``extended_min_nodes``.
+* Small-world :math:`\sigma` is Humphries' ratio on a possibly tiny
+  habitat graph. The default ``analytic`` sampler is the closed-form
+  ER approximation, not a NetworkX Monte-Carlo draw. ``config`` /
+  ``rewire`` are degree-preserving ensembles. None of these is
+  Watts–Strogatz inference for a brain connectome, and the value is
+  forced to ``0`` below ``extended_min_nodes``.
 * Empty or missing habitats emit **zeros**, not missing values. A cohort
   mean of a ``single_h3_*`` column therefore mixes true structure with
   absent-label zeros unless you filter on ``graph_num_habitats`` / presence.
@@ -869,8 +956,23 @@ Implementation
 * Domain: ``habit/domain/habitat_features/graph.py``
   (``GraphHabitatFeatures`` / ``GraphHabitatFeaturesParams``)
 * Kernels: ``habit/kernels/habitat_graph/``
-  (``nodes.py``, ``edges.py``, ``metrics.py``, ``extended_metrics.py``,
-  ``features.py``)
+  (``nodes.py``, ``edges.py``, ``proximity.py``, ``metrics.py``,
+  ``extended_metrics.py``, ``features.py``, ``traversal.py``).
+  ``min_distance`` builds one global edge table. Voxel-neighbour
+  sweep and dual-lattice range search run only when
+  ``node_method='uniform_grid'`` (``grid_origin`` and
+  ``grid_block_size`` are set). The Chebyshev radius is ``0`` when
+  ``T < 1``, else ``floor((T-1)/B)+1`` for user ``block_size=B``
+  and ``distance_threshold=T``. ``component`` nodes keep the
+  all-pairs closest-voxel walk. One all-sources BFS per graph
+  yields Brandes betweenness, closeness, mean path length, and
+  diameter (NetworkX definitions). Default extract keeps edges as
+  integer arrays and runs those hop / clustering / component
+  columns on CSR (Compressed Sparse Row) adjacency -- no NetworkX
+  object. Brandes sources run in parallel. Louvain modularity uses
+  optional igraph when installed, otherwise a CSR Blondel sweep
+  (the partition can differ from NetworkX ``seed=0``).
+  Node default stays ``uniform_grid``.
 * YAML block: ``GraphFeatureBlock`` in ``habit/schemas/workflows/habitat.py``
 * Recipe + CSV name: ``habit/recipes/features.py``,
   ``habit/adapters/extract_io.py`` (stem ``habitat_graph_features``)
@@ -883,6 +985,50 @@ References
 Liang J, Jiang X, Reitsam NG, et al. Spatial biomarker discovery via
 interpretable semantic learning in histopathology. *Cancer Cell* 2026
 (`DOI <https://doi.org/10.1016/j.ccell.2026.05.014>`__).
+
+.. [Watts1998] Watts DJ, Strogatz SH. Collective dynamics of
+   'small-world' networks. *Nature* 1998;393:440–442.
+   (`DOI <https://doi.org/10.1038/30918>`__)
+.. [ErdosRenyi1959] Erdős P, Rényi A. On random graphs I.
+   *Publ Math Debrecen* 1959;6:290–297.
+.. [Newman2001] Newman MEJ, Strogatz SH, Watts DJ. Random graphs with
+   arbitrary degree distributions and their applications.
+   *Phys Rev E* 2001;64:026118.
+   (`DOI <https://doi.org/10.1103/PhysRevE.64.026118>`__)
+.. [Latora2001] Latora V, Marchiori M. Efficient behavior of
+   small-world networks. *Phys Rev Lett* 2001;87:198701.
+   (`DOI <https://doi.org/10.1103/PhysRevLett.87.198701>`__)
+.. [Humphries2006] Humphries MD, Gurney K, Prescott TJ. The brainstem
+   reticular formation is a small-world, not scale-free, network.
+   *Proc R Soc B* 2006;273:503–511.
+   (`DOI <https://doi.org/10.1098/rspb.2005.3354>`__)
+.. [Humphries2008] Humphries MD, Gurney K. Network 'small-world-ness':
+   a quantitative method for determining canonical network equivalence.
+   *PLoS One* 2008;3:e2051.
+   (`DOI <https://doi.org/10.1371/journal.pone.0002051>`__)
+.. [Maslov2002] Maslov S, Sneppen K. Specificity and stability in
+   topology of protein networks. *Science* 2002;296:910–913.
+   (`DOI <https://doi.org/10.1126/science.1065103>`__)
+.. [Rubinov2010] Rubinov M, Sporns O. Complex network measures of
+   brain connectivity: uses and interpretations. *NeuroImage*
+   2010;52:1059–1069.
+   (`DOI <https://doi.org/10.1016/j.neuroimage.2009.10.003>`__)
+.. [Colizza2006] Colizza V, Flammini A, Serrano MA, Vespignani A.
+   Detecting rich-club ordering in complex networks. *Nat Phys*
+   2006;2:110–115.
+   (`DOI <https://doi.org/10.1038/nphys209>`__)
+.. [McAuley2007] McAuley JJ, da Fontoura Costa L, Caetano TS. The
+   rich-club phenomenon across complex network hierarchies.
+   *Appl Phys Lett* 2007;91:084103.
+   (`DOI <https://doi.org/10.1063/1.2773951>`__)
+.. [Milo2004] Milo R, Kashtan N, Itzkovitz S, Newman MEJ, Alon U.
+   Uniform generation of random graphs with arbitrary degree
+   sequences. arXiv:cond-mat/0312028, 2004.
+   (`arXiv <https://arxiv.org/abs/cond-mat/0312028>`__)
+.. [VandenHeuvel2011] van den Heuvel MP, Sporns O. Rich-club
+   organization of the human connectome. *J Neurosci*
+   2011;31:15775–15786.
+   (`DOI <https://doi.org/10.1523/JNEUROSCI.3539-11.2011>`__)
 
 See also
 --------

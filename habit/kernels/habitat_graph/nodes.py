@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -28,6 +29,82 @@ from habit.kernels.habitat_graph.models import (
 )
 
 __all__ = ["extract_habitat_nodes"]
+
+
+def _nonzero_bbox_slices(
+    label_array: np.ndarray,
+    pad: int = 1,
+) -> Optional[Tuple[Tuple[slice, ...], Tuple[int, ...]]]:
+    """
+    Bounding-box slices of non-background labels, plus one voxel of pad.
+
+    Pad is clipped to the input array so we never invent voxels outside
+    the original lattice. The extra zero layer keeps erosion / adjacency
+    at the tumour rim identical to running on the full CT (tumour-adjacent
+    background is still 0).
+
+    Args:
+        label_array: Integer habitat map; ``0`` is background.
+        pad: Voxels of background to keep around the nonempty bbox.
+
+    Returns:
+        ``(slices, offset)`` where ``offset`` is the inclusive origin of
+        the crop in the original index space, or ``None`` when empty.
+    """
+    hits = np.argwhere(np.asarray(label_array) != 0)
+    if hits.size == 0:
+        return None
+    lo = np.maximum(hits.min(axis=0) - int(pad), 0)
+    hi = np.minimum(hits.max(axis=0) + 1 + int(pad), label_array.shape)
+    slices = tuple(slice(int(start), int(stop)) for start, stop in zip(lo, hi))
+    offset = tuple(int(v) for v in lo)
+    return slices, offset
+
+
+def _shift_node(node: HabitatGraphNode, offset: np.ndarray) -> HabitatGraphNode:
+    """Translate one node's centroid and bbox into the original index space."""
+    ndim = int(offset.size)
+    bbox = list(node.bbox)
+    shifted = [int(bbox[axis] + offset[axis]) for axis in range(ndim)]
+    shifted.extend(
+        int(bbox[ndim + axis] + offset[axis]) for axis in range(ndim)
+    )
+    return HabitatGraphNode(
+        node_id=node.node_id,
+        habitat_label=node.habitat_label,
+        component_id=node.component_id,
+        centroid=np.asarray(node.centroid, dtype=float) + offset,
+        voxel_count=int(node.voxel_count),
+        bbox=tuple(shifted),
+    )
+
+
+def _apply_crop_offset(
+    result: HabitatNodeExtractionResult,
+    offset: Tuple[int, ...],
+) -> HabitatNodeExtractionResult:
+    """
+    Keep cropped maps, report nodes / lattice origin in original indices.
+
+    ``component_maps`` and ``label_array`` stay on the cropped grid so
+    later adjacency / min-distance walks skip empty CT slices.
+    """
+    shift = np.asarray(offset, dtype=float)
+    nodes = {
+        int(habitat_id): [_shift_node(node, shift) for node in group]
+        for habitat_id, group in result.nodes_by_habitat.items()
+    }
+    grid_origin = result.grid_origin
+    if grid_origin is not None:
+        grid_origin = tuple(
+            int(axis + extra) for axis, extra in zip(grid_origin, offset)
+        )
+    return replace(
+        result,
+        nodes_by_habitat=nodes,
+        grid_origin=grid_origin,
+        crop_offset=offset,
+    )
 
 
 def _connectivity_structure(ndim: int, connectivity: str) -> np.ndarray:
@@ -243,11 +320,20 @@ def _extract_uniform_grid_nodes(
     kept_by_habitat: Dict[int, List[HabitatGraphNode]] = {
         int(label): [] for label in labels
     }
+    # Sort voxels by cube id so each cell is a contiguous slice (O(N log N)
+    # once) instead of a full-volume mask per cube (O(N * n_cubes)).
+    order = np.argsort(inverse, kind="stable")
+    inverse_sorted = inverse[order]
+    coords_sorted = coords[order]
+    labels_sorted = voxel_labels[order]
+    breaks = np.flatnonzero(inverse_sorted[1:] != inverse_sorted[:-1]) + 1
+    starts = np.concatenate((np.asarray([0], dtype=np.int64), breaks))
+    stops = np.concatenate((breaks, np.asarray([inverse_sorted.size], dtype=np.int64)))
 
-    for block_id in range(unique_blocks.shape[0]):
-        in_block = inverse == block_id
-        block_coords = coords[in_block]
-        block_lab = voxel_labels[in_block]
+    for start, stop in zip(starts.tolist(), stops.tolist()):
+        block_id = int(inverse_sorted[start])
+        block_coords = coords_sorted[start:stop]
+        block_lab = labels_sorted[start:stop]
         coverage = block_coords.shape[0] / block_volume
         if coverage <= block_min_coverage:
             continue
@@ -442,6 +528,10 @@ def extract_habitat_nodes(
         HabitatNodeExtractionResult: Nodes grouped by habitat label plus
         component maps used by contact-based edge builders. ``uniform_grid``
         also fills ``grid_origin`` / ``grid_block_size`` for dashed overlays.
+        Node centroids / ``grid_origin`` are in the original index space.
+        ``label_array`` and ``component_maps`` are the VOI crop (bbox of
+        non-zero labels plus one voxel of pad); ``crop_offset`` maps them
+        back. Cropping does not change topology or pairwise distances.
     """
     if label_array.ndim not in (2, 3):
         raise ValueError("label_array must be 2D or 3D.")
@@ -458,11 +548,19 @@ def extract_habitat_nodes(
     if node_method not in ("uniform_grid", "component"):
         raise ValueError("node_method must be 'uniform_grid' or 'component'.")
 
-    labels = [int(v) for v in np.unique(label_array) if int(v) > 0]
-    structure = _connectivity_structure(label_array.ndim, connectivity)
+    source = np.asarray(label_array)
+    crop = _nonzero_bbox_slices(source, pad=1)
+    offset: Tuple[int, ...] = tuple(0 for _ in source.shape)
+    working = source
+    if crop is not None:
+        slices, offset = crop
+        working = source[slices]
+
+    labels = [int(v) for v in np.unique(working) if int(v) > 0]
+    structure = _connectivity_structure(working.ndim, connectivity)
     if node_method == "uniform_grid":
-        return _extract_uniform_grid_nodes(
-            label_array=label_array,
+        result = _extract_uniform_grid_nodes(
+            label_array=working,
             labels=labels,
             structure=structure,
             min_region_voxels=min_region_voxels,
@@ -470,13 +568,15 @@ def extract_habitat_nodes(
             block_size=block_size,
             block_min_coverage=block_min_coverage,
         )
-    return _extract_component_nodes(
-        label_array=label_array,
-        labels=labels,
-        structure=structure,
-        min_region_voxels=min_region_voxels,
-        erosion_radius=erosion_radius,
-        subdivide_region_voxels=subdivide_region_voxels,
-        block_size=block_size,
-        block_min_coverage=block_min_coverage,
-    )
+    else:
+        result = _extract_component_nodes(
+            label_array=working,
+            labels=labels,
+            structure=structure,
+            min_region_voxels=min_region_voxels,
+            erosion_radius=erosion_radius,
+            subdivide_region_voxels=subdivide_region_voxels,
+            block_size=block_size,
+            block_min_coverage=block_min_coverage,
+        )
+    return _apply_crop_offset(result, offset)
