@@ -73,15 +73,11 @@ _MAX_LATTICE_WINDOW: int = 9 ** 3
 _BRUTE_PRODUCT: int = 256
 
 try:
-    from numba import njit, prange, types
-    from numba.typed import Dict as NumbaDict
+    from numba import njit
 
     _HAS_NUMBA = True
 except Exception:  # pragma: no cover - optional accelerator
     njit = None
-    prange = None
-    types = None
-    NumbaDict = None
     _HAS_NUMBA = False
 
 
@@ -264,7 +260,6 @@ def volume_sweep_min_distances(
         painted,
         int(radius),
         float(threshold),
-        int(n_nodes),
     )
     return _reduce_pair_minima(lo, hi, dist, int(n_nodes))
 
@@ -748,54 +743,45 @@ def _sweep_pair_hits(
     painted: np.ndarray,
     radius: int,
     threshold: float,
-    n_nodes: int,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Emit one ``(lo, hi, dist)`` per unique undirected pair (min already taken)."""
+    """Emit ``(lo, hi, dist)`` hits; duplicates are allowed and reduced later."""
     owner_i = np.asarray(owner, dtype=np.int32)
     if _HAS_NUMBA and _sweep_hits_2d_numba is not None:
         if owner_i.ndim == 2:
-            table = _sweep_hits_2d_numba(
+            return _sweep_hits_2d_numba(
                 owner_i,
                 np.ascontiguousarray(painted[:, 0], dtype=np.int32),
                 np.ascontiguousarray(painted[:, 1], dtype=np.int32),
                 int(radius),
                 float(threshold),
-                int(n_nodes),
             )
-        else:
-            table = _sweep_hits_3d_numba(
-                owner_i,
-                np.ascontiguousarray(painted[:, 0], dtype=np.int32),
-                np.ascontiguousarray(painted[:, 1], dtype=np.int32),
-                np.ascontiguousarray(painted[:, 2], dtype=np.int32),
-                int(radius),
-                float(threshold),
-                int(n_nodes),
-            )
-        if len(table) == 0:
-            empty = np.empty(0, dtype=np.int64)
-            return empty, empty, np.empty(0, dtype=np.float64)
-        keys = np.fromiter(table.keys(), dtype=np.int64, count=len(table))
-        vals = np.fromiter(table.values(), dtype=np.float64, count=len(table))
-        return keys // int(n_nodes), keys % int(n_nodes), vals
-    return _sweep_hits_python(owner_i, painted, radius, threshold, int(n_nodes))
+        return _sweep_hits_3d_numba(
+            owner_i,
+            np.ascontiguousarray(painted[:, 0], dtype=np.int32),
+            np.ascontiguousarray(painted[:, 1], dtype=np.int32),
+            np.ascontiguousarray(painted[:, 2], dtype=np.int32),
+            int(radius),
+            float(threshold),
+        )
+    return _sweep_hits_python(owner_i, painted, radius, threshold)
 
 
-def _record_pair_min(
-    table: dict,
+def _append_hit(
+    lo_list: List[int],
+    hi_list: List[int],
+    dist_list: List[float],
     node_a: int,
     node_b: int,
-    n_nodes: int,
     dist: float,
 ) -> None:
-    """Keep the closest distance for one undirected pair in a Python dict."""
+    """Append one undirected pair hit with ``lo < hi``."""
     if node_a < node_b:
-        key = int(node_a) * n_nodes + int(node_b)
+        lo_list.append(node_a)
+        hi_list.append(node_b)
     else:
-        key = int(node_b) * n_nodes + int(node_a)
-    prev = table.get(key)
-    if prev is None or dist < prev:
-        table[key] = dist
+        lo_list.append(node_b)
+        hi_list.append(node_a)
+    dist_list.append(dist)
 
 
 def _sweep_hits_python(
@@ -803,11 +789,12 @@ def _sweep_hits_python(
     painted: np.ndarray,
     radius: int,
     threshold: float,
-    n_nodes: int,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Python pair-hit sweep; reduces min per pair in a dict (no n x n)."""
+    """Python pair-hit sweep over the lexicographic half-window."""
     cap_sq = float(threshold) * float(threshold)
-    table: dict = {}
+    lo_list: List[int] = []
+    hi_list: List[int] = []
+    dist_list: List[float] = []
     if owner.ndim == 2:
         height, width = owner.shape
         for y, x in painted:
@@ -827,10 +814,12 @@ def _sweep_hits_python(
                     dist_sq = dy * dy + float(xx - x) ** 2
                     if dist_sq > cap_sq:
                         continue
-                    _record_pair_min(table, node_a, node_b, n_nodes, dist_sq ** 0.5)
-        keys = np.fromiter(table.keys(), dtype=np.int64, count=len(table))
-        vals = np.fromiter(table.values(), dtype=np.float64, count=len(table))
-        return keys // n_nodes, keys % n_nodes, vals
+                    _append_hit(lo_list, hi_list, dist_list, node_a, node_b, dist_sq ** 0.5)
+        return (
+            np.asarray(lo_list, dtype=np.int64),
+            np.asarray(hi_list, dtype=np.int64),
+            np.asarray(dist_list, dtype=np.float64),
+        )
     depth, height, width = owner.shape
     for z, y, x in painted:
         node_a = int(owner[z, y, x])
@@ -855,28 +844,29 @@ def _sweep_hits_python(
                     dist_sq = dz * dz + dy * dy + float(xx - x) ** 2
                     if dist_sq > cap_sq:
                         continue
-                    _record_pair_min(table, node_a, node_b, n_nodes, dist_sq ** 0.5)
-    keys = np.fromiter(table.keys(), dtype=np.int64, count=len(table))
-    vals = np.fromiter(table.values(), dtype=np.float64, count=len(table))
-    return keys // n_nodes, keys % n_nodes, vals
+                    _append_hit(lo_list, hi_list, dist_list, node_a, node_b, dist_sq ** 0.5)
+    return (
+        np.asarray(lo_list, dtype=np.int64),
+        np.asarray(hi_list, dtype=np.int64),
+        np.asarray(dist_list, dtype=np.float64),
+    )
 
 
 if _HAS_NUMBA:
 
     @njit(cache=True)
-    def _sweep_hits_2d_numba(
+    def _count_hits_2d(
         owner: np.ndarray,
         py: np.ndarray,
         px: np.ndarray,
         radius: int,
         threshold: float,
-        n_nodes: int,
-    ):
-        """Compiled 2-D sweep; typed dict holds the per-pair minimum."""
-        table = NumbaDict.empty(key_type=types.int64, value_type=types.float64)
+    ) -> int:
+        """Count in-range different-node hits in 2-D (lexicographic half)."""
         cap_sq = threshold * threshold
         height = owner.shape[0]
         width = owner.shape[1]
+        n_hits = 0
         for slot in range(py.shape[0]):
             y = py[slot]
             x = px[slot]
@@ -896,7 +886,51 @@ if _HAS_NUMBA:
             for yy in range(y0, y1):
                 dy = float(yy - y)
                 for xx in range(x0, x1):
-                    # Visit each unordered voxel pair once (lexicographic half).
+                    if yy < y or (yy == y and xx <= x):
+                        continue
+                    node_b = owner[yy, xx]
+                    if node_b < 0 or node_b == node_a:
+                        continue
+                    dist_sq = dy * dy + float(xx - x) * float(xx - x)
+                    if dist_sq <= cap_sq:
+                        n_hits += 1
+        return n_hits
+
+    @njit(cache=True)
+    def _fill_hits_2d(
+        owner: np.ndarray,
+        py: np.ndarray,
+        px: np.ndarray,
+        radius: int,
+        threshold: float,
+        lo: np.ndarray,
+        hi: np.ndarray,
+        dist: np.ndarray,
+    ) -> None:
+        """Write 2-D pair hits into preallocated arrays."""
+        cap_sq = threshold * threshold
+        height = owner.shape[0]
+        width = owner.shape[1]
+        cursor = 0
+        for slot in range(py.shape[0]):
+            y = py[slot]
+            x = px[slot]
+            node_a = owner[y, x]
+            y0 = y - radius
+            if y0 < 0:
+                y0 = 0
+            y1 = y + radius + 1
+            if y1 > height:
+                y1 = height
+            x0 = x - radius
+            if x0 < 0:
+                x0 = 0
+            x1 = x + radius + 1
+            if x1 > width:
+                x1 = width
+            for yy in range(y0, y1):
+                dy = float(yy - y)
+                for xx in range(x0, x1):
                     if yy < y or (yy == y and xx <= x):
                         continue
                     node_b = owner[yy, xx]
@@ -906,33 +940,29 @@ if _HAS_NUMBA:
                     if dist_sq > cap_sq:
                         continue
                     if node_a < node_b:
-                        key = np.int64(node_a) * n_nodes + np.int64(node_b)
+                        lo[cursor] = node_a
+                        hi[cursor] = node_b
                     else:
-                        key = np.int64(node_b) * n_nodes + np.int64(node_a)
-                    dist = dist_sq ** 0.5
-                    if key in table:
-                        if dist < table[key]:
-                            table[key] = dist
-                    else:
-                        table[key] = dist
-        return table
+                        lo[cursor] = node_b
+                        hi[cursor] = node_a
+                    dist[cursor] = dist_sq ** 0.5
+                    cursor += 1
 
     @njit(cache=True)
-    def _sweep_hits_3d_numba(
+    def _count_hits_3d(
         owner: np.ndarray,
         pz: np.ndarray,
         py: np.ndarray,
         px: np.ndarray,
         radius: int,
         threshold: float,
-        n_nodes: int,
-    ):
-        """Compiled 3-D sweep; typed dict holds the per-pair minimum."""
-        table = NumbaDict.empty(key_type=types.int64, value_type=types.float64)
+    ) -> int:
+        """Count in-range different-node hits in 3-D (lexicographic half)."""
         cap_sq = threshold * threshold
         depth = owner.shape[0]
         height = owner.shape[1]
         width = owner.shape[2]
+        n_hits = 0
         for slot in range(pz.shape[0]):
             z = pz[slot]
             y = py[slot]
@@ -961,7 +991,64 @@ if _HAS_NUMBA:
                 for yy in range(y0, y1):
                     dy = float(yy - y)
                     for xx in range(x0, x1):
-                        # Visit each unordered voxel pair once (lexicographic half).
+                        if zz < z or (zz == z and yy < y) or (
+                            zz == z and yy == y and xx <= x
+                        ):
+                            continue
+                        node_b = owner[zz, yy, xx]
+                        if node_b < 0 or node_b == node_a:
+                            continue
+                        dist_sq = dz * dz + dy * dy + float(xx - x) * float(xx - x)
+                        if dist_sq <= cap_sq:
+                            n_hits += 1
+        return n_hits
+
+    @njit(cache=True)
+    def _fill_hits_3d(
+        owner: np.ndarray,
+        pz: np.ndarray,
+        py: np.ndarray,
+        px: np.ndarray,
+        radius: int,
+        threshold: float,
+        lo: np.ndarray,
+        hi: np.ndarray,
+        dist: np.ndarray,
+    ) -> None:
+        """Write 3-D pair hits into preallocated arrays."""
+        cap_sq = threshold * threshold
+        depth = owner.shape[0]
+        height = owner.shape[1]
+        width = owner.shape[2]
+        cursor = 0
+        for slot in range(pz.shape[0]):
+            z = pz[slot]
+            y = py[slot]
+            x = px[slot]
+            node_a = owner[z, y, x]
+            z0 = z - radius
+            if z0 < 0:
+                z0 = 0
+            z1 = z + radius + 1
+            if z1 > depth:
+                z1 = depth
+            y0 = y - radius
+            if y0 < 0:
+                y0 = 0
+            y1 = y + radius + 1
+            if y1 > height:
+                y1 = height
+            x0 = x - radius
+            if x0 < 0:
+                x0 = 0
+            x1 = x + radius + 1
+            if x1 > width:
+                x1 = width
+            for zz in range(z0, z1):
+                dz = float(zz - z)
+                for yy in range(y0, y1):
+                    dy = float(yy - y)
+                    for xx in range(x0, x1):
                         if zz < z or (zz == z and yy < y) or (
                             zz == z and yy == y and xx <= x
                         ):
@@ -973,16 +1060,46 @@ if _HAS_NUMBA:
                         if dist_sq > cap_sq:
                             continue
                         if node_a < node_b:
-                            key = np.int64(node_a) * n_nodes + np.int64(node_b)
+                            lo[cursor] = node_a
+                            hi[cursor] = node_b
                         else:
-                            key = np.int64(node_b) * n_nodes + np.int64(node_a)
-                        dist = dist_sq ** 0.5
-                        if key in table:
-                            if dist < table[key]:
-                                table[key] = dist
-                        else:
-                            table[key] = dist
-        return table
+                            lo[cursor] = node_b
+                            hi[cursor] = node_a
+                        dist[cursor] = dist_sq ** 0.5
+                        cursor += 1
+
+    def _sweep_hits_2d_numba(
+        owner: np.ndarray,
+        py: np.ndarray,
+        px: np.ndarray,
+        radius: int,
+        threshold: float,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Compiled 2-D pair-hit sweep (count, then fill)."""
+        n_hits = int(_count_hits_2d(owner, py, px, radius, threshold))
+        lo = np.empty(n_hits, dtype=np.int64)
+        hi = np.empty(n_hits, dtype=np.int64)
+        dist = np.empty(n_hits, dtype=np.float64)
+        if n_hits:
+            _fill_hits_2d(owner, py, px, radius, threshold, lo, hi, dist)
+        return lo, hi, dist
+
+    def _sweep_hits_3d_numba(
+        owner: np.ndarray,
+        pz: np.ndarray,
+        py: np.ndarray,
+        px: np.ndarray,
+        radius: int,
+        threshold: float,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Compiled 3-D pair-hit sweep (count, then fill)."""
+        n_hits = int(_count_hits_3d(owner, pz, py, px, radius, threshold))
+        lo = np.empty(n_hits, dtype=np.int64)
+        hi = np.empty(n_hits, dtype=np.int64)
+        dist = np.empty(n_hits, dtype=np.float64)
+        if n_hits:
+            _fill_hits_3d(owner, pz, py, px, radius, threshold, lo, hi, dist)
+        return lo, hi, dist
 
 else:  # pragma: no cover - no numba
     _sweep_hits_2d_numba = None
