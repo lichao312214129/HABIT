@@ -73,12 +73,15 @@ _MAX_LATTICE_WINDOW: int = 9 ** 3
 _BRUTE_PRODUCT: int = 256
 
 try:
-    from numba import njit, prange
+    from numba import njit, prange, types
+    from numba.typed import Dict as NumbaDict
 
     _HAS_NUMBA = True
 except Exception:  # pragma: no cover - optional accelerator
     njit = None
     prange = None
+    types = None
+    NumbaDict = None
     _HAS_NUMBA = False
 
 
@@ -233,13 +236,15 @@ def volume_sweep_min_distances(
     Exact ``d_min`` for every node pair whose voxels lie within ``T``.
 
     Scans a Chebyshev window of radius ``ceil(T)`` around every painted
-    voxel and keeps the Euclidean minimum. Translation-invariant, so the
-    cropped lattice is enough.
+    voxel and keeps the Euclidean minimum. Hits are ``(lo, hi, dist)``
+    with ``lo < hi``; the per-pair minimum is reduced without allocating
+    an ``n x n`` matrix. Translation-invariant, so the cropped lattice
+    is enough.
 
     Args:
         owner: Node-index volume from :func:`owner_volume`.
         threshold: Closest-voxel threshold.
-        n_nodes: Node count (matrix side).
+        n_nodes: Node count (used only to pack pair keys).
 
     Returns:
         ``(index_a, index_b, distance)`` with ``index_a < index_b`` and
@@ -249,21 +254,19 @@ def volume_sweep_min_distances(
         empty = np.empty(0, dtype=np.int64)
         return empty, empty, np.empty(0, dtype=np.float64)
     radius = int(np.ceil(float(threshold)))
-    mins = _sweep_min_matrix(
-        np.asarray(owner, dtype=np.int32),
+    owner_i = np.asarray(owner, dtype=np.int32)
+    painted = np.argwhere(owner_i >= 0)
+    if painted.size == 0:
+        empty = np.empty(0, dtype=np.int64)
+        return empty, empty, np.empty(0, dtype=np.float64)
+    lo, hi, dist = _sweep_pair_hits(
+        owner_i,
+        painted,
         int(radius),
         float(threshold),
         int(n_nodes),
     )
-    rows, cols = np.nonzero(np.isfinite(mins) & (mins <= float(threshold)))
-    keep = rows < cols
-    rows = rows[keep]
-    cols = cols[keep]
-    return (
-        rows.astype(np.int64, copy=False),
-        cols.astype(np.int64, copy=False),
-        mins[rows, cols].astype(np.float64, copy=False),
-    )
+    return _reduce_pair_minima(lo, hi, dist, int(n_nodes))
 
 
 def collect_coords_by_node_id(
@@ -707,20 +710,51 @@ else:  # pragma: no cover - no numba
     _brute_pairs_numba = None
 
 
-def _sweep_min_matrix(
+def _reduce_pair_minima(
+    lo: np.ndarray,
+    hi: np.ndarray,
+    dist: np.ndarray,
+    n_nodes: int,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Keep the closest hit for each undirected ``(lo, hi)`` pair.
+
+    Args:
+        lo: Node indices, ``lo < hi``.
+        hi: Node indices aligned with ``lo``.
+        dist: Euclidean distances aligned with ``lo``.
+        n_nodes: Node count used to pack pair keys.
+
+    Returns:
+        ``(index_a, index_b, distance)`` with one row per unique pair.
+    """
+    if lo.size == 0:
+        empty = np.empty(0, dtype=np.int64)
+        return empty, empty, np.empty(0, dtype=np.float64)
+    # Pack undirected pairs into a single integer so unique + scatter-min
+    # stays O(n_hits) and never allocates n x n.
+    keys = lo.astype(np.int64, copy=False) * int(n_nodes) + hi.astype(
+        np.int64, copy=False
+    )
+    unique_keys, inverse = np.unique(keys, return_inverse=True)
+    mins = np.full(unique_keys.shape[0], np.inf, dtype=np.float64)
+    np.minimum.at(mins, inverse, np.asarray(dist, dtype=np.float64))
+    out_lo = unique_keys // int(n_nodes)
+    out_hi = unique_keys % int(n_nodes)
+    return out_lo, out_hi, mins
+
+
+def _sweep_pair_hits(
     owner: np.ndarray,
+    painted: np.ndarray,
     radius: int,
     threshold: float,
     n_nodes: int,
-) -> np.ndarray:
-    """Fill an ``n x n`` matrix of closest-voxel distances (``inf`` if none)."""
-    painted = np.argwhere(np.asarray(owner) >= 0)
-    if painted.size == 0:
-        return np.full((n_nodes, n_nodes), np.inf, dtype=np.float64)
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Emit one ``(lo, hi, dist)`` per unique undirected pair (min already taken)."""
     owner_i = np.asarray(owner, dtype=np.int32)
-    if _HAS_NUMBA and _sweep_painted_2d_numba is not None:
-        if owner.ndim == 2:
-            return _sweep_painted_2d_numba(
+    if _HAS_NUMBA and _sweep_hits_2d_numba is not None:
+        if owner_i.ndim == 2:
+            table = _sweep_hits_2d_numba(
                 owner_i,
                 np.ascontiguousarray(painted[:, 0], dtype=np.int32),
                 np.ascontiguousarray(painted[:, 1], dtype=np.int32),
@@ -728,28 +762,52 @@ def _sweep_min_matrix(
                 float(threshold),
                 int(n_nodes),
             )
-        return _sweep_painted_3d_numba(
-            owner_i,
-            np.ascontiguousarray(painted[:, 0], dtype=np.int32),
-            np.ascontiguousarray(painted[:, 1], dtype=np.int32),
-            np.ascontiguousarray(painted[:, 2], dtype=np.int32),
-            int(radius),
-            float(threshold),
-            int(n_nodes),
-        )
-    return _sweep_painted_python(owner, painted, radius, threshold, n_nodes)
+        else:
+            table = _sweep_hits_3d_numba(
+                owner_i,
+                np.ascontiguousarray(painted[:, 0], dtype=np.int32),
+                np.ascontiguousarray(painted[:, 1], dtype=np.int32),
+                np.ascontiguousarray(painted[:, 2], dtype=np.int32),
+                int(radius),
+                float(threshold),
+                int(n_nodes),
+            )
+        if len(table) == 0:
+            empty = np.empty(0, dtype=np.int64)
+            return empty, empty, np.empty(0, dtype=np.float64)
+        keys = np.fromiter(table.keys(), dtype=np.int64, count=len(table))
+        vals = np.fromiter(table.values(), dtype=np.float64, count=len(table))
+        return keys // int(n_nodes), keys % int(n_nodes), vals
+    return _sweep_hits_python(owner_i, painted, radius, threshold, int(n_nodes))
 
 
-def _sweep_painted_python(
+def _record_pair_min(
+    table: dict,
+    node_a: int,
+    node_b: int,
+    n_nodes: int,
+    dist: float,
+) -> None:
+    """Keep the closest distance for one undirected pair in a Python dict."""
+    if node_a < node_b:
+        key = int(node_a) * n_nodes + int(node_b)
+    else:
+        key = int(node_b) * n_nodes + int(node_a)
+    prev = table.get(key)
+    if prev is None or dist < prev:
+        table[key] = dist
+
+
+def _sweep_hits_python(
     owner: np.ndarray,
     painted: np.ndarray,
     radius: int,
     threshold: float,
     n_nodes: int,
-) -> np.ndarray:
-    """Sweep only painted voxels (empty space is skipped)."""
-    mins = np.full((n_nodes, n_nodes), np.inf, dtype=np.float64)
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Python pair-hit sweep; reduces min per pair in a dict (no n x n)."""
     cap_sq = float(threshold) * float(threshold)
+    table: dict = {}
     if owner.ndim == 2:
         height, width = owner.shape
         for y, x in painted:
@@ -761,17 +819,18 @@ def _sweep_painted_python(
             for yy in range(y0, y1):
                 dy = float(yy - y)
                 for xx in range(x0, x1):
+                    if yy < y or (yy == y and xx <= x):
+                        continue
                     node_b = int(owner[yy, xx])
                     if node_b < 0 or node_b == node_a:
                         continue
                     dist_sq = dy * dy + float(xx - x) ** 2
                     if dist_sq > cap_sq:
                         continue
-                    lo, hi = (node_a, node_b) if node_a < node_b else (node_b, node_a)
-                    dist = dist_sq ** 0.5
-                    if dist < mins[lo, hi]:
-                        mins[lo, hi] = dist
-        return mins
+                    _record_pair_min(table, node_a, node_b, n_nodes, dist_sq ** 0.5)
+        keys = np.fromiter(table.keys(), dtype=np.int64, count=len(table))
+        vals = np.fromiter(table.values(), dtype=np.float64, count=len(table))
+        return keys // n_nodes, keys % n_nodes, vals
     depth, height, width = owner.shape
     for z, y, x in painted:
         node_a = int(owner[z, y, x])
@@ -786,37 +845,39 @@ def _sweep_painted_python(
             for yy in range(y0, y1):
                 dy = float(yy - y)
                 for xx in range(x0, x1):
+                    if zz < z or (zz == z and yy < y) or (
+                        zz == z and yy == y and xx <= x
+                    ):
+                        continue
                     node_b = int(owner[zz, yy, xx])
                     if node_b < 0 or node_b == node_a:
                         continue
                     dist_sq = dz * dz + dy * dy + float(xx - x) ** 2
                     if dist_sq > cap_sq:
                         continue
-                    lo, hi = (node_a, node_b) if node_a < node_b else (node_b, node_a)
-                    dist = dist_sq ** 0.5
-                    if dist < mins[lo, hi]:
-                        mins[lo, hi] = dist
-    return mins
+                    _record_pair_min(table, node_a, node_b, n_nodes, dist_sq ** 0.5)
+    keys = np.fromiter(table.keys(), dtype=np.int64, count=len(table))
+    vals = np.fromiter(table.values(), dtype=np.float64, count=len(table))
+    return keys // n_nodes, keys % n_nodes, vals
 
 
 if _HAS_NUMBA:
 
     @njit(cache=True)
-    def _sweep_painted_2d_numba(
+    def _sweep_hits_2d_numba(
         owner: np.ndarray,
         py: np.ndarray,
         px: np.ndarray,
         radius: int,
         threshold: float,
         n_nodes: int,
-    ) -> np.ndarray:
-        """Compiled 2-D sweep over painted voxels only."""
-        mins = np.full((n_nodes, n_nodes), np.inf, dtype=np.float64)
+    ):
+        """Compiled 2-D sweep; typed dict holds the per-pair minimum."""
+        table = NumbaDict.empty(key_type=types.int64, value_type=types.float64)
         cap_sq = threshold * threshold
         height = owner.shape[0]
         width = owner.shape[1]
-        n_painted = py.shape[0]
-        for slot in range(n_painted):
+        for slot in range(py.shape[0]):
             y = py[slot]
             x = px[slot]
             node_a = owner[y, x]
@@ -835,6 +896,9 @@ if _HAS_NUMBA:
             for yy in range(y0, y1):
                 dy = float(yy - y)
                 for xx in range(x0, x1):
+                    # Visit each unordered voxel pair once (lexicographic half).
+                    if yy < y or (yy == y and xx <= x):
+                        continue
                     node_b = owner[yy, xx]
                     if node_b < 0 or node_b == node_a:
                         continue
@@ -842,18 +906,19 @@ if _HAS_NUMBA:
                     if dist_sq > cap_sq:
                         continue
                     if node_a < node_b:
-                        lo = node_a
-                        hi = node_b
+                        key = np.int64(node_a) * n_nodes + np.int64(node_b)
                     else:
-                        lo = node_b
-                        hi = node_a
+                        key = np.int64(node_b) * n_nodes + np.int64(node_a)
                     dist = dist_sq ** 0.5
-                    if dist < mins[lo, hi]:
-                        mins[lo, hi] = dist
-        return mins
+                    if key in table:
+                        if dist < table[key]:
+                            table[key] = dist
+                    else:
+                        table[key] = dist
+        return table
 
     @njit(cache=True)
-    def _sweep_painted_3d_numba(
+    def _sweep_hits_3d_numba(
         owner: np.ndarray,
         pz: np.ndarray,
         py: np.ndarray,
@@ -861,15 +926,14 @@ if _HAS_NUMBA:
         radius: int,
         threshold: float,
         n_nodes: int,
-    ) -> np.ndarray:
-        """Compiled 3-D sweep over painted voxels only."""
-        mins = np.full((n_nodes, n_nodes), np.inf, dtype=np.float64)
+    ):
+        """Compiled 3-D sweep; typed dict holds the per-pair minimum."""
+        table = NumbaDict.empty(key_type=types.int64, value_type=types.float64)
         cap_sq = threshold * threshold
         depth = owner.shape[0]
         height = owner.shape[1]
         width = owner.shape[2]
-        n_painted = pz.shape[0]
-        for slot in range(n_painted):
+        for slot in range(pz.shape[0]):
             z = pz[slot]
             y = py[slot]
             x = px[slot]
@@ -897,6 +961,11 @@ if _HAS_NUMBA:
                 for yy in range(y0, y1):
                     dy = float(yy - y)
                     for xx in range(x0, x1):
+                        # Visit each unordered voxel pair once (lexicographic half).
+                        if zz < z or (zz == z and yy < y) or (
+                            zz == z and yy == y and xx <= x
+                        ):
+                            continue
                         node_b = owner[zz, yy, xx]
                         if node_b < 0 or node_b == node_a:
                             continue
@@ -904,16 +973,17 @@ if _HAS_NUMBA:
                         if dist_sq > cap_sq:
                             continue
                         if node_a < node_b:
-                            lo = node_a
-                            hi = node_b
+                            key = np.int64(node_a) * n_nodes + np.int64(node_b)
                         else:
-                            lo = node_b
-                            hi = node_a
+                            key = np.int64(node_b) * n_nodes + np.int64(node_a)
                         dist = dist_sq ** 0.5
-                        if dist < mins[lo, hi]:
-                            mins[lo, hi] = dist
-        return mins
+                        if key in table:
+                            if dist < table[key]:
+                                table[key] = dist
+                        else:
+                            table[key] = dist
+        return table
 
 else:  # pragma: no cover - no numba
-    _sweep_painted_2d_numba = None
-    _sweep_painted_3d_numba = None
+    _sweep_hits_2d_numba = None
+    _sweep_hits_3d_numba = None

@@ -27,6 +27,7 @@ from habit.kernels.habitat_graph.models import (
     HabitatNodeExtractionResult,
     NodeMethod,
 )
+from habit.utils.union_find_utils import label_painted_components
 
 __all__ = ["extract_habitat_nodes"]
 
@@ -256,6 +257,7 @@ def _extract_uniform_grid_nodes(
     erosion_radius: int,
     block_size: int,
     block_min_coverage: float,
+    connectivity: str = "full",
     grid_origin: Optional[np.ndarray] = None,
 ) -> HabitatNodeExtractionResult:
     """
@@ -275,8 +277,11 @@ def _extract_uniform_grid_nodes(
     Args:
         label_array: Integer habitat label map (background encoded as 0).
         labels: Positive habitat ids present before erosion.
-        structure: Neighbourhood for optional erosion and in-cell
-            connected-component labeling.
+        structure: Neighbourhood for optional erosion (same as
+            ``connectivity``).
+        connectivity: In-cell CCL rule. ``'full'`` is 8-connected in
+            2-D / 26-connected in 3-D; ``'face'`` is 4 / 6. Must match
+            the neighbourhood encoded by ``structure``.
         min_region_voxels: Drop in-cell subregions (and residual nodes)
             smaller than this voxel count.
         erosion_radius: Optional per-habitat erosion iterations.
@@ -337,22 +342,24 @@ def _extract_uniform_grid_nodes(
         coverage = block_coords.shape[0] / block_volume
         if coverage <= block_min_coverage:
             continue
-        # Local cube so in-cell connected components stay spatially correct.
+        # Local coordinates of painted voxels (no dense 8^3 cube).
         local = block_coords - origin - unique_blocks[block_id] * block_size
-        cube = np.zeros(cube_shape, dtype=np.int32)
-        cube[tuple(local.T)] = block_lab
+        local_i = np.ascontiguousarray(local, dtype=np.int32)
         # Split the cube by habitat id so mixed cells become separate nodes.
         for habitat_label in (
             int(v) for v in np.unique(block_lab) if int(v) != 0
         ):
-            labeled, n_cc = ndi.label(cube == habitat_label, structure=structure)
+            habitat_mask = block_lab == habitat_label
+            hab_local = local_i[habitat_mask]
+            hab_global = block_coords[habitat_mask]
+            cc_labels, n_cc = label_painted_components(
+                hab_local, cube_shape, connectivity
+            )
             for cc_id in range(1, int(n_cc) + 1):
-                cc_local = np.argwhere(labeled == cc_id)
-                if cc_local.shape[0] < min_region_voxels:
+                member = cc_labels == cc_id
+                if int(member.sum()) < min_region_voxels:
                     continue
-                global_coords = (
-                    cc_local + origin + unique_blocks[block_id] * block_size
-                )
+                global_coords = hab_global[member]
                 component_id = next_component_id
                 next_component_id += 1
                 component_maps[habitat_label][tuple(global_coords.T)] = component_id
@@ -567,6 +574,7 @@ def extract_habitat_nodes(
             erosion_radius=erosion_radius,
             block_size=block_size,
             block_min_coverage=block_min_coverage,
+            connectivity=connectivity,
         )
     else:
         result = _extract_component_nodes(
