@@ -128,15 +128,21 @@ def test_ith_features_match_kernel_and_cover_all_model_habitats() -> None:
     labels = np.asarray(habitat_map.label_array)
     table = IthHabitatFeatures()(subject, habitat_map)
     row = table.frame.iloc[0]
+    assert list(table.feature_columns) == ["ith_score"]
+    assert row["ith_score"] == pytest.approx(ith_score(labels))
+    assert "ith_num_habitats" not in table.feature_columns
+    # An absent habitat (id 3 declared by a richer model) still only
+    # emits the score unless auxiliary columns are requested.
+    object.__setattr__(habitat_map, "habitat_ids", (1, 2, 3))
+    table = IthHabitatFeatures()(subject, habitat_map)
+    assert list(table.feature_columns) == ["ith_score"]
+    full = IthHabitatFeatures(include_auxiliary=True)(subject, habitat_map)
+    row = full.frame.iloc[0]
     assert row["ith_score"] == pytest.approx(ith_score(labels))
     assert row["ith_num_habitats"] == 2.0
     assert row["ith_total_area"] == float(np.count_nonzero(labels))
     assert row["habitat_1_regions"] == 1.0
     assert row["habitat_2_regions"] == 1.0
-    # An absent habitat (id 3 declared by a richer model) yields zeros.
-    object.__setattr__(habitat_map, "habitat_ids", (1, 2, 3))
-    table = IthHabitatFeatures()(subject, habitat_map)
-    row = table.frame.iloc[0]
     assert row["habitat_3_regions"] == 0.0
     assert row["habitat_3_largest_area"] == 0.0
     assert row["habitat_3_area_ratio"] == 0.0
@@ -340,7 +346,7 @@ def test_ith_and_non_radiomics_tables_join_without_collisions() -> None:
     """The two families sharing v0.1 summary names join cleanly in v1."""
     subject = make_subject("P1")
     habitat_map = make_habitat_map("P1")
-    joined = IthHabitatFeatures()(subject, habitat_map).join(
+    joined = IthHabitatFeatures(include_auxiliary=True)(subject, habitat_map).join(
         NonRadiomicsHabitatFeatures()(subject, habitat_map)
     )
     row = joined.frame.iloc[0]

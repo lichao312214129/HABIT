@@ -25,6 +25,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from scipy import ndimage
+
 from habit.kernels.habitat_metrics import (
     habitat_ith_dispersion,
     habitat_region_stats,
@@ -33,6 +35,22 @@ from habit.kernels.habitat_metrics import (
     msi_features_from_matrix,
     spatial_interaction_matrix,
 )
+
+
+def _region_stats_full_volume(label_array: np.ndarray) -> dict:
+    """Pre-optimization reference: label the entire lattice, no crop."""
+    labels = np.asarray(label_array)
+    stats: dict = {}
+    for habitat_id in (int(v) for v in np.unique(labels) if v != 0):
+        components, num_regions = ndimage.label(labels == habitat_id)
+        if num_regions == 0:
+            stats[habitat_id] = (0, 0)
+            continue
+        sizes = ndimage.sum_labels(
+            np.ones_like(components), components, index=np.arange(1, num_regions + 1)
+        )
+        stats[habitat_id] = (int(num_regions), int(sizes.max()))
+    return stats
 
 
 def _reference_msi_matrix(habitat_array: np.ndarray, unique_class: int) -> np.ndarray:
@@ -212,3 +230,25 @@ def test_ith_score_degenerate_maps() -> None:
     labels[0:2, 0:2, 0:2] = 1
     assert ith_score(labels) == pytest.approx(0.0)
     assert habitat_ith_dispersion(labels)[1] == pytest.approx(0.0)
+
+
+@pytest.mark.unit
+def test_region_stats_and_ith_match_full_volume_on_padded_ct() -> None:
+    """Cropping a sparse full-CT lattice must not change counts or ITH."""
+    core = np.zeros((8, 8, 8), dtype=np.int64)
+    core[0, 0, 0] = 1
+    core[0, 0, 2] = 1
+    core[1:3, 1:3, 1:3] = 2
+    core[6, 6, 0] = 2
+    padded = np.zeros((64, 128, 128), dtype=np.int64)
+    padded[20:28, 40:48, 50:58] = core
+    assert habitat_region_stats(padded) == _region_stats_full_volume(padded)
+    assert habitat_region_stats(padded) == habitat_region_stats(core)
+    assert ith_score(padded) == pytest.approx(ith_score(core))
+    assert ith_score(padded) == pytest.approx(
+        ith_score(padded, region_stats=habitat_region_stats(padded))
+    )
+    expected_ith = 1.0 - (
+        (1 / 2) + (8 / 2)
+    ) / 11.0  # two size-1 islands of h1; h2 has 8+1 voxels, 2 regions, largest 8
+    assert ith_score(padded) == pytest.approx(expected_ith)

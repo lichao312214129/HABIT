@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Dict
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from habit.contracts.habitat import HabitatMap
 from habit.contracts.subject import Subject
@@ -33,31 +33,50 @@ __all__ = ["IthHabitatFeatures", "IthHabitatFeaturesParams"]
 
 
 class IthHabitatFeaturesParams(BaseModel):
-    """Constructor parameters for :class:`IthHabitatFeatures` (none)."""
+    """Constructor parameters for :class:`IthHabitatFeatures`."""
 
     model_config = ConfigDict(extra="forbid")
+
+    include_auxiliary: bool = Field(
+        default=False,
+        description=(
+            "If True, also emit per-habitat region counts and the "
+            "``ith_num_habitats`` / ``ith_total_area`` summaries. "
+            "Default False: only ``ith_score``."
+        ),
+    )
+
+
 @HabitatFeatureExtractorRegistry.register("ith_score")
 class IthHabitatFeatures:
     """
-    ITH score and per-habitat fragmentation statistics for one subject.
+    ITH score for one subject's habitat map.
 
-    The ITH score quantifies how fragmented the habitat partition is:
-    ``1 - (1 / S_total) * sum_i(S_i,max / n_i)`` over connected components
-    of each habitat. The score is numerically identical to the v0.1
-    ``ITHFeatureExtractor``; one deliberate improvement is that per-habitat
-    columns are emitted for every id the model can assign (zeros when the
-    habitat is absent), so cohort tables no longer have ragged columns.
+    The score quantifies how fragmented the habitat partition is:
+    ``1 - (1 / S_total) * sum_i(S_i,max / n_i)`` over connected
+    components of each habitat. It is numerically identical to the v0.1
+    ``ITHFeatureExtractor``.
 
-    The auxiliary summary columns are prefixed (``ith_num_habitats`` /
-    ``ith_total_area``) rather than the bare v0.1 names: the
-    ``non_radiomics`` family legitimately reports its own ``num_habitats``
-    and feature tables must join across families without duplicate columns.
+    By default the table has a single column, ``ith_score``. Pass
+    ``include_auxiliary=True`` (or ``Spec("ith_score",
+    {"include_auxiliary": True})``) to also write the prefixed summaries
+    ``ith_num_habitats`` / ``ith_total_area`` and the per-habitat
+    ``habitat_{id}_regions`` / ``_largest_area`` / ``_area_ratio``
+    columns. Those extras are emitted for every id the model can assign
+    (zeros when the habitat is absent) so cohort tables stay rectangular.
+    The prefixes avoid colliding with ``non_radiomics`` ``num_habitats``.
     """
+
+    def __init__(self, include_auxiliary: bool = False) -> None:
+        self._include_auxiliary = bool(include_auxiliary)
 
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
-        return Spec(name="ith_score", params={})
+        return Spec(
+            name="ith_score",
+            params={"include_auxiliary": self._include_auxiliary},
+        )
 
     def __call__(self, subject: Subject, habitat_map: HabitatMap) -> FeatureTable:
         """
@@ -68,12 +87,21 @@ class IthHabitatFeatures:
             habitat_map: Habitat labels for that subject.
 
         Returns:
-            One-row table with the ITH score and per-habitat statistics.
+            One-row table. Default is ``ith_score`` only.
         """
         labels = np.asarray(habitat_map.label_array)
+        if not self._include_auxiliary:
+            features: Dict[str, float] = {"ith_score": ith_score(labels)}
+            return single_subject_table(
+                subject_id=subject.subject_id,
+                features=features,
+                habitat_map=habitat_map,
+                spec=self.spec,
+            )
+
         stats = habitat_region_stats(labels)
-        features: Dict[str, float] = {
-            "ith_score": ith_score(labels),
+        features = {
+            "ith_score": ith_score(labels, region_stats=stats),
             "ith_num_habitats": float(len(stats)),
             "ith_total_area": float(np.count_nonzero(labels)),
         }

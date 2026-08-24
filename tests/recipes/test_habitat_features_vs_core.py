@@ -119,7 +119,11 @@ def _feature_cases() -> List[FamilyCase]:
     modalities = ["delay2", "delay3", "delay5"]
     return [
         FamilyCase("msi", {}, (("msi_features.csv", _identity),)),
-        FamilyCase("ith_score", {}, (("ith_scores.csv", _ith_column),)),
+        FamilyCase(
+            "ith_score",
+            {"include_auxiliary": True},
+            (("ith_scores.csv", _ith_column),),
+        ),
         FamilyCase("non_radiomics", {}, (("habitat_basic_features.csv", _identity),)),
         FamilyCase("volume", {}, (("habitat_basic_features.csv", _volume_column),)),
         FamilyCase(

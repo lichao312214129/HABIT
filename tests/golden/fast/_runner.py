@@ -147,7 +147,7 @@ def _write_habitat_features(
     subjects = {subject.subject_id: subject for subject in cohort}
     extractors = (
         ("msi_features.csv", MsiHabitatFeatures()),
-        ("ith_scores.csv", IthHabitatFeatures()),
+        ("ith_scores.csv", IthHabitatFeatures(include_auxiliary=True)),
         ("habitat_basic_features.csv", HabitatVolumeFeatures()),
         (
             "raw_image_radiomics.csv",

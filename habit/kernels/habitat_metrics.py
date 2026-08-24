@@ -27,7 +27,7 @@ numerically comparable with previously published results.
 
 from __future__ import annotations
 
-from typing import Dict, Iterable, Tuple
+from typing import Dict, Iterable, Optional, Tuple
 
 import numpy as np
 from scipy import ndimage
@@ -213,12 +213,36 @@ def habitat_volume_fractions(
     return fractions
 
 
+def _crop_nonzero(label_array: np.ndarray) -> np.ndarray:
+    """Crop to the bounding box of non-background voxels.
+
+    Connected-component counts and sizes are translation-invariant, so
+    dropping the empty field does not change :func:`habitat_region_stats`
+    or :func:`ith_score`. One-step maps stored on the full CT lattice
+    are otherwise dominated by background voxels.
+
+    Args:
+        label_array: Integer habitat labels, ``0`` denoting background.
+
+    Returns:
+        np.ndarray: Contiguous crop, or the original array when empty.
+    """
+    labels = np.asarray(label_array)
+    nonzero = np.nonzero(labels)
+    if nonzero[0].size == 0:
+        return labels
+    bbox = tuple(slice(int(axis.min()), int(axis.max()) + 1) for axis in nonzero)
+    return np.ascontiguousarray(labels[bbox])
+
+
 def habitat_region_stats(label_array: np.ndarray) -> Dict[int, Tuple[int, int]]:
     """
     Measure connected-component fragmentation per habitat.
 
     Connected components use face connectivity, matching the SimpleITK
     ``ConnectedComponent`` default used by the v0.1 ITH implementation.
+    The volume is cropped to the tumour bounding box first; that does
+    not change region counts or sizes.
 
     Args:
         label_array: Integer habitat labels, ``0`` denoting background.
@@ -227,17 +251,19 @@ def habitat_region_stats(label_array: np.ndarray) -> Dict[int, Tuple[int, int]]:
         Mapping of habitat id to ``(num_regions, largest_region_size)`` in
         voxels. Habitats absent from the array do not appear.
     """
-    labels = np.asarray(label_array)
+    labels = _crop_nonzero(label_array)
     stats: Dict[int, Tuple[int, int]] = {}
     for habitat_id in (int(v) for v in np.unique(labels) if v != 0):
         components, num_regions = ndimage.label(labels == habitat_id)
         if num_regions == 0:
             stats[habitat_id] = (0, 0)
             continue
-        sizes = ndimage.sum_labels(
-            np.ones_like(components), components, index=np.arange(1, num_regions + 1)
+        # index 0 is the component-map background; skip it
+        sizes = np.bincount(components.ravel())[1:]
+        stats[habitat_id] = (
+            int(num_regions),
+            int(sizes.max()) if sizes.size else 0,
         )
-        stats[habitat_id] = (int(num_regions), int(sizes.max()))
     return stats
 
 
@@ -261,7 +287,7 @@ def habitat_ith_dispersion(label_array: np.ndarray) -> Dict[int, float]:
         Mapping of habitat id to dispersion in ``[0, 1)``. Habitats
         absent from the array do not appear. An empty map returns ``{}``.
     """
-    labels = np.asarray(label_array)
+    labels = _crop_nonzero(label_array)
     stats = habitat_region_stats(labels)
     dispersion: Dict[int, float] = {}
     for habitat_id, (num_regions, largest) in stats.items():
@@ -273,7 +299,10 @@ def habitat_ith_dispersion(label_array: np.ndarray) -> Dict[int, float]:
     return dispersion
 
 
-def ith_score(label_array: np.ndarray) -> float:
+def ith_score(
+    label_array: np.ndarray,
+    region_stats: Optional[Dict[int, Tuple[int, int]]] = None,
+) -> float:
     """
     Compute the ITH score (topological fragmentation) of a habitat map.
 
@@ -287,6 +316,9 @@ def ith_score(label_array: np.ndarray) -> float:
 
     Args:
         label_array: Integer habitat labels, ``0`` denoting background.
+        region_stats: Optional precomputed :func:`habitat_region_stats`
+            result. Pass this when the caller already labelled components
+            so the volume is not walked twice.
 
     Returns:
         Score in ``[0, 1)``; ``0.0`` for an empty or single-region map.
@@ -295,8 +327,9 @@ def ith_score(label_array: np.ndarray) -> float:
     total = int(np.count_nonzero(labels))
     if total == 0:
         return 0.0
+    stats = habitat_region_stats(labels) if region_stats is None else region_stats
     summation = 0.0
-    for num_regions, largest in habitat_region_stats(labels).values():
+    for num_regions, largest in stats.values():
         if num_regions > 0:
             summation += largest / num_regions
     return float(1.0 - summation / total)
