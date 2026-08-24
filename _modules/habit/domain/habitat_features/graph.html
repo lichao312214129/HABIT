@@ -531,6 +531,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
@@ -2293,10 +2294,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">pairwise_include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="c1">#: Compute extended graph metrics: global/local efficiency, small-world</span>
     <span class="c1">#: sigma, rich-club coefficient, and node-level distribution summaries.</span>
-    <span class="c1">#: Default False: those metrics (especially small-world sigma and</span>
-    <span class="c1">#: efficiency) are superlinear in node count and dominate runtime on</span>
-    <span class="c1">#: large 3D maps. Pass True to opt in.</span>
-    <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">#: Default True (analytic Humphries ER sigma; cheap on typical maps).</span>
+    <span class="c1">#: Pass False to omit the extra columns.</span>
+    <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="c1">#: Minimum node count in the analysis subgraph required to compute</span>
     <span class="c1">#: small-world sigma; smaller graphs return 0 for that metric.</span>
     <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -2337,7 +2337,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    metrics are reported per habitat (``single_h*`` columns) and per habitat</span>
 <span class="sd">    pair (``pair_h*_h*`` columns), covering degree/edge counts, density,</span>
 <span class="sd">    components, modularity, clustering, path length, betweenness, assortativity,</span>
-<span class="sd">    nearest-neighbor ratio, and -- optionally -- efficiency, small-world sigma,</span>
+<span class="sd">    nearest-neighbor ratio, and -- by default -- efficiency, small-world sigma,</span>
 <span class="sd">    rich-club, and node-distribution summaries. Size-dependent features carry</span>
 <span class="sd">    VOI-normalized companions (``*_norm`` / ``*_per_habitat_volume``).</span>
 
@@ -2372,7 +2372,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
         <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">pairwise_include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">small_world_nrand</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">small_world_niter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>

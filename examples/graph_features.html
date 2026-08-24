@@ -21,6 +21,7 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -178,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
@@ -1856,8 +1858,11 @@ uses the library defaults on <code class="xref py py-class docutils literal notr
 <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (8-voxel cubes, not millimetres; one
 node per in-cell subregion centroid) and
 <code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> (closest voxels within 5).
-<code class="docutils literal notranslate"><span class="pre">include_extended_metrics=False</span></code> is required here: extended metrics
-on a full 3D map are the main time sink. A later section keeps those
+<code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> (analytic Humphries
+<span class="math notranslate nohighlight">\(S\)</span>; cheap on typical maps). The gallery script pins
+<code class="docutils literal notranslate"><span class="pre">False</span></code> so the heatmap stays narrower. Small-world
+<span class="math notranslate nohighlight">\(\sigma\)</span> and the ER / configuration-model / Maslov–Sneppen
+nulls are documented under <a class="reference internal" href="../reference/features/graph.html"><span class="doc">Graph topology features</span></a>. A later section keeps those
 <strong>same habitat labels</strong> and only overrides <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> so the
 two 3D lattices can be compared. Graph topology is a
 habitat-map feature family (same tier as <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code>); columns
@@ -1876,8 +1881,8 @@ when your table has all five rows (for example a
 <p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your preprocessed tree
 (<a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a> Option C). The recipe <strong>fixes K=4</strong> and
 uses the library node/edge defaults (uniform 8-voxel cubes, one node
-per in-cell subregion centroid + min-distance edges; extended metrics
-off). One <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> on three subjects feeds the overlay, both 2D
+per in-cell subregion centroid + min-distance edges; library default
+leaves extended metrics off). One <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> on three subjects feeds the overlay, both 2D
 display networks, and both <strong>3D</strong> heatmap tables (library
 <code class="docutils literal notranslate"><span class="pre">block_size=8</span></code> plus a <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> comparison extract on the
 same full-volume maps). Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (swap that path
@@ -1904,7 +1909,7 @@ too if you like).</p>
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="c1"># Fixed K=4 (not &quot;auto&quot;) so the graph has a known number of habitats.</span>
 <span class="c1"># One fit for overlay, 2D display networks, and both 3D heatmap tables.</span>
-<span class="c1"># Extended metrics OFF: they dominate runtime on a full 3D map.</span>
+<span class="c1"># Library default leaves extended metrics off (they dominate 3D runtime).</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
     <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
@@ -2042,7 +2047,7 @@ the default is a column-wise z-score across the selected subjects.</p>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
 <p>Illustrative (fixed <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code>, per-cell subregion centroids;
-count depends on the 3D map and <code class="docutils literal notranslate"><span class="pre">include_extended_metrics=False</span></code>):</p>
+count depends on the 3D map; extended metrics stay off by default):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">3</span> <span class="n">subjects</span> <span class="n">x</span> <span class="mi">587</span> <span class="n">graph</span> <span class="n">features</span> <span class="kn">from</span><span class="w"> </span><span class="nn">full</span> <span class="mi">3</span><span class="n">D</span> <span class="n">habitat</span> <span class="n">maps</span>
 </pre></div>
 </div>

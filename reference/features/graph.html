@@ -179,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
@@ -2292,8 +2293,9 @@ Habitat-label assortativity is Newman’s attribute assortativity on
 </section>
 <section id="extended-metrics">
 <h2>Extended metrics<a class="headerlink" href="#extended-metrics" title="Link to this heading"></a></h2>
-<p>Enabled by <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (default <code class="docutils literal notranslate"><span class="pre">false</span></code>; pass
-<code class="docutils literal notranslate"><span class="pre">true</span></code> to opt in — these metrics dominate runtime on large maps). Let
+<p>Enabled by <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (default <code class="docutils literal notranslate"><span class="pre">true</span></code>; pass
+<code class="docutils literal notranslate"><span class="pre">false</span></code> to omit). Small-world uses the Humphries analytic ER
+<span class="math notranslate nohighlight">\(S\)</span> unless <code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> is <code class="docutils literal notranslate"><span class="pre">config</span></code> or <code class="docutils literal notranslate"><span class="pre">rewire</span></code>. Let
 <span class="math notranslate nohighlight">\(G^{\star}\)</span> be the <strong>analysis subgraph</strong>: the input graph if it
 is connected and has edges; otherwise its largest connected component
 (empty / edgeless graphs stay as they are). Write
@@ -2641,7 +2643,7 @@ below match the kernel dataclass.</p>
 <td><p>Add same-habitat proximity edges in pairwise graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>); interface metrics still use inter-class edges only</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
-<td><p>Efficiency, one small-world <span class="math notranslate nohighlight">\(\sigma\)</span>, rich-club, node-distribution summaries (default <code class="docutils literal notranslate"><span class="pre">false</span></code>; set <code class="docutils literal notranslate"><span class="pre">true</span></code> to opt in)</p></td>
+<td><p>Efficiency, one small-world <span class="math notranslate nohighlight">\(\sigma\)</span>, rich-club, node-distribution summaries (default <code class="docutils literal notranslate"><span class="pre">true</span></code>; set <code class="docutils literal notranslate"><span class="pre">false</span></code> to omit)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
 <td><p>Minimum analysis-subgraph node count for either small-world sigma (default <code class="docutils literal notranslate"><span class="pre">10</span></code>; smaller graphs return <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
@@ -2735,7 +2737,10 @@ a biological cell type or prove that a habitat is a clonal region.</p></li>
 <li><p>Kernels: <code class="docutils literal notranslate"><span class="pre">habit/kernels/habitat_graph/</span></code>
 (<code class="docutils literal notranslate"><span class="pre">nodes.py</span></code>, <code class="docutils literal notranslate"><span class="pre">edges.py</span></code>, <code class="docutils literal notranslate"><span class="pre">proximity.py</span></code>, <code class="docutils literal notranslate"><span class="pre">metrics.py</span></code>,
 <code class="docutils literal notranslate"><span class="pre">extended_metrics.py</span></code>, <code class="docutils literal notranslate"><span class="pre">features.py</span></code>, <code class="docutils literal notranslate"><span class="pre">traversal.py</span></code>).
-<code class="docutils literal notranslate"><span class="pre">min_distance</span></code> builds one global edge table. Voxel-neighbour
+The kernel crops the label map to the tumour VOI (plus one voxel
+of pad) before nodes, edges, metrics, and size-normalized
+companions run, so a full-CT habitat image is not scanned as
+background. <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> builds one global edge table. Voxel-neighbour
 sweep and dual-lattice range search run only when
 <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (<code class="docutils literal notranslate"><span class="pre">grid_origin</span></code> and
 <code class="docutils literal notranslate"><span class="pre">grid_block_size</span></code> are set). The Chebyshev radius is <code class="docutils literal notranslate"><span class="pre">0</span></code> when
@@ -2746,10 +2751,13 @@ yields Brandes betweenness, closeness, mean path length, and
 diameter (NetworkX definitions). Default extract keeps edges as
 integer arrays and runs those hop / clustering / component
 columns on CSR (Compressed Sparse Row) adjacency – no NetworkX
-object. Hop metrics use compiled CSR Brandes (serial sources so
-several graphs can run in threads). Louvain modularity uses a CSR
-Blondel sweep (the partition can differ from NetworkX <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>).
-Node default stays <code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code>.</p></li>
+object. Extended columns (default on) reuse those same arrays;
+small-world is the Humphries analytic ER <span class="math notranslate nohighlight">\(S\)</span> unless the
+user asks for <code class="docutils literal notranslate"><span class="pre">config</span></code> / <code class="docutils literal notranslate"><span class="pre">rewire</span></code>. Hop metrics use compiled
+CSR Brandes (serial sources so several graphs can run in threads).
+Louvain modularity uses a CSR Blondel sweep (the partition can
+differ from NetworkX <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>). Node default stays
+<code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code>.</p></li>
 <li><p>YAML block: <code class="docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code> in <code class="docutils literal notranslate"><span class="pre">habit/schemas/workflows/habitat.py</span></code></p></li>
 <li><p>Recipe + CSV name: <code class="docutils literal notranslate"><span class="pre">habit/recipes/features.py</span></code>,
 <code class="docutils literal notranslate"><span class="pre">habit/adapters/extract_io.py</span></code> (stem <code class="docutils literal notranslate"><span class="pre">habitat_graph_features</span></code>)</p></li>

@@ -178,6 +178,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
@@ -2183,7 +2184,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </table>
 </dd>
 <dt><strong>voxel_radiomics</strong></dt><dd><p>Describe every ROI voxel by a PyRadiomics feature vector.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">kernel_radius,</span> <span class="pre">voxel_batch,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">use_gpu_matrices,</span> <span class="pre">output_float32,</span> <span class="pre">class_progress</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">kernel_radius,</span> <span class="pre">voxel_batch,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">use_gpu_matrices,</span> <span class="pre">output_float32,</span> <span class="pre">class_progress,</span> <span class="pre">crop_to_roi</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;voxel_radiomics&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;voxel_radiomics&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -2270,6 +2271,11 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>When True, print and tqdm each PyRadiomics class (firstorder, glcm, …). Default False: one <code class="docutils literal notranslate"><span class="pre">execute()</span></code> with no per-class lines; <code class="docutils literal notranslate"><span class="pre">Cohort.map</span></code> still shows subject progress.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">crop_to_roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When True (default), crop image and mask to the ROI bounding box plus <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> padding before calling <code class="docutils literal notranslate"><span class="pre">execute</span></code>. PyRadiomics re-applies the identical crop internally, so feature values are bit-identical; the pre-crop just keeps the full-volume diagnostics (<code class="docutils literal notranslate"><span class="pre">sitk.Hash</span></code>, whole-image statistics) and mask checks off the big volume, saving several seconds per modality on whole-body scans.</p></td>
 </tr>
 </tbody>
 </table>
@@ -3216,7 +3222,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>See the component docstring.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>

@@ -21,6 +21,7 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -178,6 +179,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#also-see">Also see</a></li>
 </ul>
@@ -1938,7 +1940,12 @@ lattice). Reproduce it:</p>
     <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 <span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
-<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">()</span>
+<span class="c1"># Extended metrics (efficiency / Humphries sigma / rich-club) are on</span>
+<span class="c1"># by default. Pass include_extended_metrics=False to omit. Default</span>
+<span class="c1"># small-world null is analytic ER; pass graph_null_sampler=&#39;config&#39;</span>
+<span class="c1"># or &#39;rewire&#39; to replace it (not add a second column). See the</span>
+<span class="c1"># reference page.</span>
 <span class="c1"># Full 3D map for features; the 2D network below is display-only.</span>
 <span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_slice</span><span class="p">(</span>
@@ -1970,6 +1977,25 @@ so each completed subject writes <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractorRegistry.create(&quot;graph&quot;,</span> <span class="pre">...)</span></code>, and 3D
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a> /
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a> (needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code>).</p>
+</section>
+<section id="small-world-sigma-and-random-graph-nulls">
+<h2>Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls<a class="headerlink" href="#small-world-sigma-and-random-graph-nulls" title="Link to this heading"></a></h2>
+<p>Formulas, the three nulls, and the papers to cite:
+<a class="reference internal" href="../reference/features/graph.html"><span class="doc">Graph topology features</span></a> (<strong>Small-worldness and random-graph
+nulls</strong>). Short map:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler='analytic'</span></code> (default) — Humphries <em>S</em> versus
+an Erdős–Rényi graph with the same <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(m\)</span>
+(closed-form <span class="math notranslate nohighlight">\(C_{\mathrm{rand}}\)</span>, <span class="math notranslate nohighlight">\(L_{\mathrm{rand}}\)</span>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'config'</span></code> — configuration model (keep the degree sequence;
+stub matching).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'rewire'</span></code> — Maslov–Sneppen double-edge swaps (NetworkX
+<code class="docutils literal notranslate"><span class="pre">sigma</span></code> / <code class="docutils literal notranslate"><span class="pre">random_reference</span></code>).</p></li>
+</ul>
+<p>These are alternative <strong>random-graph references</strong>, not three extra
+features. One <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> column; changing the sampler
+replaces the number. Habitat maps are spatial: none of the three
+nulls preserve voxel geometry.</p>
 </section>
 <section id="degree-preserving-null-model-api">
 <h2>Degree-preserving null-model API<a class="headerlink" href="#degree-preserving-null-model-api" title="Link to this heading"></a></h2>
@@ -2004,7 +2030,8 @@ the Z score:</p>
     <span class="n">nx</span><span class="o">.</span><span class="n">average_clustering</span><span class="p">,</span>
     <span class="n">options</span><span class="o">=</span><span class="n">GraphNullModelOptions</span><span class="p">(</span>
         <span class="n">n_random_graphs</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-        <span class="n">swaps_per_edge</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">sampler</span><span class="o">=</span><span class="s2">&quot;rewire&quot;</span><span class="p">,</span>
+        <span class="n">swaps_per_edge</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
         <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">)</span>

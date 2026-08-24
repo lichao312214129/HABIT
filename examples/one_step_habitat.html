@@ -178,6 +178,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
@@ -2025,7 +2026,7 @@ take the same <code class="xref py py-class docutils literal notranslate"><span 
 <span class="p">)</span>
 <span class="c1"># Same options object for Spec(&quot;graph&quot;) and the 2D Report atoms.</span>
 <span class="c1"># 2D PNGs are a representative slice (display-only); metrics use the 3D volume.</span>
-<span class="c1"># include_extended_metrics=False keeps this smoke demo fast.</span>
+<span class="c1"># Library default leaves extended metrics off (keeps this smoke demo fast).</span>
 <span class="n">graph</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span>
     <span class="n">edge_method</span><span class="o">=</span><span class="s2">&quot;min_distance&quot;</span><span class="p">,</span>
     <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>

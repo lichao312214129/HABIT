@@ -535,8 +535,9 @@ Habitat-label assortativity is Newman's attribute assortativity on
 Extended metrics
 ----------------
 
-Enabled by ``include_extended_metrics`` (default ``false``; pass
-``true`` to opt in — these metrics dominate runtime on large maps). Let
+Enabled by ``include_extended_metrics`` (default ``true``; pass
+``false`` to omit). Small-world uses the Humphries analytic ER
+:math:`S` unless ``graph_null_sampler`` is ``config`` or ``rewire``. Let
 :math:`G^{\star}` be the **analysis subgraph**: the input graph if it
 is connected and has edges; otherwise its largest connected component
 (empty / edgeless graphs stay as they are). Write
@@ -886,7 +887,7 @@ below match the kernel dataclass.
    * - ``pairwise_include_intra_edges``
      - Add same-habitat proximity edges in pairwise graphs (default ``true``); interface metrics still use inter-class edges only
    * - ``include_extended_metrics``
-     - Efficiency, one small-world :math:`\sigma`, rich-club, node-distribution summaries (default ``false``; set ``true`` to opt in)
+     - Efficiency, one small-world :math:`\sigma`, rich-club, node-distribution summaries (default ``true``; set ``false`` to omit)
    * - ``extended_min_nodes``
      - Minimum analysis-subgraph node count for either small-world sigma (default ``10``; smaller graphs return ``0``)
    * - ``small_world_nrand``
@@ -956,7 +957,10 @@ Implementation
 * Kernels: ``habit/kernels/habitat_graph/``
   (``nodes.py``, ``edges.py``, ``proximity.py``, ``metrics.py``,
   ``extended_metrics.py``, ``features.py``, ``traversal.py``).
-  ``min_distance`` builds one global edge table. Voxel-neighbour
+  The kernel crops the label map to the tumour VOI (plus one voxel
+  of pad) before nodes, edges, metrics, and size-normalized
+  companions run, so a full-CT habitat image is not scanned as
+  background. ``min_distance`` builds one global edge table. Voxel-neighbour
   sweep and dual-lattice range search run only when
   ``node_method='uniform_grid'`` (``grid_origin`` and
   ``grid_block_size`` are set). The Chebyshev radius is ``0`` when
@@ -967,10 +971,13 @@ Implementation
   diameter (NetworkX definitions). Default extract keeps edges as
   integer arrays and runs those hop / clustering / component
   columns on CSR (Compressed Sparse Row) adjacency -- no NetworkX
-  object. Hop metrics use compiled CSR Brandes (serial sources so
-  several graphs can run in threads). Louvain modularity uses a CSR
-  Blondel sweep (the partition can differ from NetworkX ``seed=0``).
-  Node default stays ``uniform_grid``.
+  object. Extended columns (default on) reuse those same arrays;
+  small-world is the Humphries analytic ER :math:`S` unless the
+  user asks for ``config`` / ``rewire``. Hop metrics use compiled
+  CSR Brandes (serial sources so several graphs can run in threads).
+  Louvain modularity uses a CSR Blondel sweep (the partition can
+  differ from NetworkX ``seed=0``). Node default stays
+  ``uniform_grid``.
 * YAML block: ``GraphFeatureBlock`` in ``habit/schemas/workflows/habitat.py``
 * Recipe + CSV name: ``habit/recipes/features.py``,
   ``habit/adapters/extract_io.py`` (stem ``habitat_graph_features``)
