@@ -669,7 +669,11 @@
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -1842,8 +1846,13 @@
   <section id="features-from-habitat-maps">
 <h1>Features from habitat maps<a class="headerlink" href="#features-from-habitat-maps" title="Link to this heading"></a></h1>
 <p>HABIT-native definitions, formulas, and output CSV columns for features
-extracted <strong>on habitat maps</strong> (after habitats exist). PyRadiomics ROI/voxel
-feature catalogues: <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a> .</p>
+extracted <strong>on habitat maps</strong> (after habitats exist). Intensity / texture /
+shape radiomics follow IBSI definitions as implemented by PyRadiomics
+(3-D averaged texture) and, under default settings, match
+<code class="docutils literal notranslate"><span class="pre">FeatureExtractor.execute()</span></code> — see <strong>PyRadiomics alignment</strong> on
+<a class="reference internal" href="traditional.html"><span class="doc">Traditional Radiomics</span></a>. Official digital-phantom numbers:
+<a class="reference internal" href="traditional.html"><span class="doc">Traditional Radiomics</span></a>. PyRadiomics catalogue:
+<a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a>.</p>
 <p>Each page: <strong>Output</strong> → <strong>Definition</strong> → <strong>Formula</strong> (if any) → <strong>Output columns</strong> → <strong>Implementation</strong> → <strong>References</strong> (if any).</p>
 <p>Light built-in families (<code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">msi</span></code>, <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>, <code class="docutils literal notranslate"><span class="pre">graph</span></code>) are
 peers in <code class="docutils literal notranslate"><span class="pre">feature_types</span></code>. Dedicated how-to for topology:

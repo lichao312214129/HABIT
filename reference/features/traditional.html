@@ -88,6 +88,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#references">References</a></li>
@@ -177,10 +179,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -258,6 +266,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -367,7 +376,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -383,9 +394,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -441,6 +454,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -465,6 +479,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -629,11 +644,16 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -649,7 +669,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -745,6 +769,49 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -949,6 +1016,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1299,6 +1372,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -1391,6 +1468,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1811,7 +1889,855 @@ signal and texture on the raw (multi-delay) images.</p>
 </section>
 <section id="feature-definitions">
 <h2>Feature definitions<a class="headerlink" href="#feature-definitions" title="Link to this heading"></a></h2>
-<p>See <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a>.</p>
+<p>HABIT extracts first-order, GLCM, GLRLM, GLSZM, GLDM (IBSI NGLDM), NGTDM,
+and 3-D shape features using the PyRadiomics 3.1 formulas, which follow
+the Image Biomarker Standardisation Initiative (IBSI;
+<a class="reference external" href="https://doi.org/10.1148/radiol.2020191145">Zwanenburg et al., Radiology 2020</a>).
+Texture aggregation is IBSI <strong>3-D averaged</strong> (mean over the 13 unique
+3-D angles), not 3-D merged. The same definitions are used by
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>, <code class="docutils literal notranslate"><span class="pre">traditional</span></code> / <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> /
+<code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> feature types, <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code>,
+<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code>, and the native C path.</p>
+<section id="pyradiomics-alignment">
+<h3>PyRadiomics alignment<a class="headerlink" href="#pyradiomics-alignment" title="Link to this heading"></a></h3>
+<p>Under <strong>default settings</strong>, every HABIT PyRadiomics-family value is the
+same quantity as official PyRadiomics 3.1 <code class="docutils literal notranslate"><span class="pre">FeatureExtractor.execute()</span></code>
+on the same image, mask, label, and <code class="docutils literal notranslate"><span class="pre">binWidth</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> / <code class="docutils literal notranslate"><span class="pre">traditional</span></code> — whole-ROI <code class="docutils literal notranslate"><span class="pre">execute()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> — per-habitat or label-map
+<code class="docutils literal notranslate"><span class="pre">execute()</span></code> (<code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> — per-supervoxel <code class="docutils literal notranslate"><span class="pre">execute()</span></code> science
+(<code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code>, the default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> — voxel-based <code class="docutils literal notranslate"><span class="pre">execute()</span></code>; the CPU path is
+that extractor. Torch / CUDA uses the same formulas; <code class="docutils literal notranslate"><span class="pre">float32</span></code>
+can differ at rounding. Set <code class="docutils literal notranslate"><span class="pre">torch_dtype:</span> <span class="pre">float64</span></code> for the
+closest CPU match.</p></li>
+</ul>
+<p>Native C + CPU formulas vs <code class="docutils literal notranslate"><span class="pre">execute()</span></code> agree to about <code class="docutils literal notranslate"><span class="pre">1e-10</span></code>
+relative (Energy / TotalEnergy at floating-point ULP). Gates:
+<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_supervoxel_native_parity.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_*_gpu_parity.py</span></code>.</p>
+<p>These are <strong>not</strong> PyRadiomics and must not be compared to <code class="docutils literal notranslate"><span class="pre">execute()</span></code>:
+<code class="docutils literal notranslate"><span class="pre">graph</span></code>, <code class="docutils literal notranslate"><span class="pre">msi</span></code>, <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>, <code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code>, and
+supervoxel <code class="docutils literal notranslate"><span class="pre">mean</span></code> / <code class="docutils literal notranslate"><span class="pre">std</span></code> / <code class="docutils literal notranslate"><span class="pre">percentile</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> with <code class="docutils literal notranslate"><span class="pre">union_bin=true</span></code> is a different
+discretization (one shared gray scale on the union mask).
+<code class="docutils literal notranslate"><span class="pre">JointAverage</span></code> / <code class="docutils literal notranslate"><span class="pre">Autocorrelation</span></code> / <code class="docutils literal notranslate"><span class="pre">HighGrayLevel*</span></code> will not
+match per-ROI <code class="docutils literal notranslate"><span class="pre">execute()</span></code>; that is intended, not a formula bug.</p>
+<p>Two conventions must be read with the IBSI manual, not against it:</p>
+<ul class="simple">
+<li><p><strong>Kurtosis</strong> is Pearson kurtosis. IBSI reports <em>excess</em> kurtosis
+(Fisher, normal distribution = 0). HABIT / PyRadiomics = IBSI + 3.</p></li>
+<li><p>HABIT does <strong>not</strong> extract IBSI families it does not implement:
+GLDZM, local-intensity peak, intensity-volume histogram, Moran’s I,
+or Geary’s C. Deprecated PyRadiomics shape names (Compactness 1/2,
+Spherical disproportion) are not computed.</p></li>
+</ul>
+</section>
+<section id="ibsi-1-phase-1-digital-phantom">
+<h3>IBSI-1 Phase 1 digital phantom<a class="headerlink" href="#ibsi-1-phase-1-digital-phantom" title="Link to this heading"></a></h3>
+<p>The table uses the official IBSI digital phantom (5×4×4 voxels, 2 mm
+isotropic, 74-voxel ROI; intensities include 1, 3, 4, 6, 9)
+from <a class="reference external" href="https://github.com/theibsi/data_sets/tree/master/ibsi_1_digital_phantom">theibsi/data_sets</a>
+(CC-BY-4.0) and the published <strong>dig. phantom / 3-D averaged</strong> (or <strong>3-D</strong>
+for GLSZM / NGTDM / NGLDM) reference values in the IBSI reference manual
+(<a class="reference external" href="https://ibsi.readthedocs.io/en/latest/03_Image_features.html">Image features</a>).
+Settings match Phase 1: no interpolation, <code class="docutils literal notranslate"><span class="pre">binWidth=1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">symmetricalGLCM=True</span></code>, <code class="docutils literal notranslate"><span class="pre">distances=[1]</span></code>, NGLDM coarseness
+<span class="math notranslate nohighlight">\(\alpha=0\)</span>, <code class="docutils literal notranslate"><span class="pre">voxelArrayShift=0</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">HABIT</span></code> is the native C + CPU-formula value when that family is in the
+fast path; shape is the PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute</span></code> value used by
+<code class="docutils literal notranslate"><span class="pre">traditional_radiomics</span></code>. A regression test loads the same NIfTI pair:
+<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code>.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">IBSI-1 Phase 1 digital phantom (3-D averaged texture)</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 10.9%" />
+<col style="width: 25.5%" />
+<col style="width: 9.1%" />
+<col style="width: 10.9%" />
+<col style="width: 10.9%" />
+<col style="width: 10.9%" />
+<col style="width: 21.8%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Family</p></th>
+<th class="head"><p>Feature</p></th>
+<th class="head"><p>IBSI ID</p></th>
+<th class="head"><p>IBSI</p></th>
+<th class="head"><p>HABIT</p></th>
+<th class="head"><p>PyRadiomics</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>shape</p></td>
+<td><p>MeshVolume</p></td>
+<td><p>RNU0</p></td>
+<td><p>556</p></td>
+<td><p>556.333</p></td>
+<td><p>556.333</p></td>
+<td><p>shape via PyRadiomics (traditional path)</p></td>
+</tr>
+<tr class="row-odd"><td><p>shape</p></td>
+<td><p>VoxelVolume</p></td>
+<td><p>YEKZ</p></td>
+<td><p>592</p></td>
+<td><p>592</p></td>
+<td><p>592</p></td>
+<td><p>shape via PyRadiomics (traditional path)</p></td>
+</tr>
+<tr class="row-even"><td><p>shape</p></td>
+<td><p>SurfaceArea</p></td>
+<td><p>C0JK</p></td>
+<td><p>388</p></td>
+<td><p>388.071</p></td>
+<td><p>388.071</p></td>
+<td><p>shape via PyRadiomics (traditional path)</p></td>
+</tr>
+<tr class="row-odd"><td><p>shape</p></td>
+<td><p>SurfaceVolumeRatio</p></td>
+<td><p>2PR5</p></td>
+<td><p>0.698</p></td>
+<td><p>0.697551</p></td>
+<td><p>0.697551</p></td>
+<td><p>shape via PyRadiomics (traditional path)</p></td>
+</tr>
+<tr class="row-even"><td><p>shape</p></td>
+<td><p>Sphericity</p></td>
+<td><p>QCFX</p></td>
+<td><p>0.843</p></td>
+<td><p>0.84294</p></td>
+<td><p>0.84294</p></td>
+<td><p>shape via PyRadiomics (traditional path)</p></td>
+</tr>
+<tr class="row-odd"><td><p>shape</p></td>
+<td><p>Maximum3DDiameter</p></td>
+<td><p>L0JK</p></td>
+<td><p>13.1</p></td>
+<td><p>13.1149</p></td>
+<td><p>13.1149</p></td>
+<td><p>shape via PyRadiomics (traditional path)</p></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Mean</p></td>
+<td><p>Q4LE</p></td>
+<td><p>2.15</p></td>
+<td><p>2.14865</p></td>
+<td><p>2.14865</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Variance</p></td>
+<td><p>ECT3</p></td>
+<td><p>3.05</p></td>
+<td><p>3.04547</p></td>
+<td><p>3.04547</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Skewness</p></td>
+<td><p>KE2A</p></td>
+<td><p>1.08</p></td>
+<td><p>1.08382</p></td>
+<td><p>1.08382</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Kurtosis</p></td>
+<td><p>IPH6</p></td>
+<td><p>-0.355</p></td>
+<td><p>2.64538</p></td>
+<td><p>2.64538</p></td>
+<td><p>Pearson kurtosis; IBSI is excess (HABIT = IBSI + 3)</p></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Median</p></td>
+<td><p>Y12H</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Minimum</p></td>
+<td><p>1GSF</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>10Percentile</p></td>
+<td><p>QG58</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>90Percentile</p></td>
+<td><p>8DWT</p></td>
+<td><p>4</p></td>
+<td><p>4</p></td>
+<td><p>4</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Maximum</p></td>
+<td><p>84IY</p></td>
+<td><p>6</p></td>
+<td><p>6</p></td>
+<td><p>6</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>InterquartileRange</p></td>
+<td><p>SALO</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Range</p></td>
+<td><p>2OJQ</p></td>
+<td><p>5</p></td>
+<td><p>5</p></td>
+<td><p>5</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>MeanAbsoluteDeviation</p></td>
+<td><p>4FUA</p></td>
+<td><p>1.55</p></td>
+<td><p>1.55223</p></td>
+<td><p>1.55223</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>RobustMeanAbsoluteDeviation</p></td>
+<td><p>1128</p></td>
+<td><p>1.11</p></td>
+<td><p>1.11383</p></td>
+<td><p>1.11383</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Energy</p></td>
+<td><p>N8CA</p></td>
+<td><p>567</p></td>
+<td><p>567</p></td>
+<td><p>567</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>RootMeanSquared</p></td>
+<td><p>5ZWQ</p></td>
+<td><p>2.77</p></td>
+<td><p>2.76806</p></td>
+<td><p>2.76806</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Entropy</p></td>
+<td><p>TLU2</p></td>
+<td><p>1.27</p></td>
+<td><p>1.26561</p></td>
+<td><p>1.26561</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Uniformity</p></td>
+<td><p>BJ5W</p></td>
+<td><p>0.512</p></td>
+<td><p>0.512418</p></td>
+<td><p>0.512418</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>MaximumProbability</p></td>
+<td><p>GYBY</p></td>
+<td><p>0.503</p></td>
+<td><p>0.502811</p></td>
+<td><p>0.502811</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>JointAverage</p></td>
+<td><p>60VM</p></td>
+<td><p>2.14</p></td>
+<td><p>2.143</p></td>
+<td><p>2.143</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>SumSquares</p></td>
+<td><p>UR99</p></td>
+<td><p>3.1</p></td>
+<td><p>3.09932</p></td>
+<td><p>3.09932</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>JointEntropy</p></td>
+<td><p>TU9B</p></td>
+<td><p>2.4</p></td>
+<td><p>2.39971</p></td>
+<td><p>2.39971</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>DifferenceAverage</p></td>
+<td><p>TF7R</p></td>
+<td><p>1.43</p></td>
+<td><p>1.43098</p></td>
+<td><p>1.43098</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>DifferenceVariance</p></td>
+<td><p>D3YU</p></td>
+<td><p>3.06</p></td>
+<td><p>3.05628</p></td>
+<td><p>3.05628</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>DifferenceEntropy</p></td>
+<td><p>NTRS</p></td>
+<td><p>1.56</p></td>
+<td><p>1.56273</p></td>
+<td><p>1.56273</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>SumAverage</p></td>
+<td><p>ZGXS</p></td>
+<td><p>4.29</p></td>
+<td><p>4.28599</p></td>
+<td><p>4.28599</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>SumEntropy</p></td>
+<td><p>P6QZ</p></td>
+<td><p>1.92</p></td>
+<td><p>1.92261</p></td>
+<td><p>1.92261</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>JointEnergy</p></td>
+<td><p>8ZQL</p></td>
+<td><p>0.303</p></td>
+<td><p>0.302975</p></td>
+<td><p>0.302975</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Contrast</p></td>
+<td><p>ACUI</p></td>
+<td><p>5.32</p></td>
+<td><p>5.32448</p></td>
+<td><p>5.32448</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>Id</p></td>
+<td><p>IB1Z</p></td>
+<td><p>0.677</p></td>
+<td><p>0.676615</p></td>
+<td><p>0.676615</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Idn</p></td>
+<td><p>NDRX</p></td>
+<td><p>0.851</p></td>
+<td><p>0.850679</p></td>
+<td><p>0.850679</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>Idm</p></td>
+<td><p>WF0Z</p></td>
+<td><p>0.618</p></td>
+<td><p>0.617739</p></td>
+<td><p>0.617739</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Idmn</p></td>
+<td><p>1QCO</p></td>
+<td><p>0.898</p></td>
+<td><p>0.898443</p></td>
+<td><p>0.898443</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>InverseVariance</p></td>
+<td><p>E8JP</p></td>
+<td><p>0.0604</p></td>
+<td><p>0.0604163</p></td>
+<td><p>0.0604163</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Correlation</p></td>
+<td><p>NI2N</p></td>
+<td><p>0.157</p></td>
+<td><p>0.15735</p></td>
+<td><p>0.15735</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>Autocorrelation</p></td>
+<td><p>QWB0</p></td>
+<td><p>5.06</p></td>
+<td><p>5.05544</p></td>
+<td><p>5.05544</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>ClusterTendency</p></td>
+<td><p>DG8W</p></td>
+<td><p>7.07</p></td>
+<td><p>7.0728</p></td>
+<td><p>7.0728</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>ClusterShade</p></td>
+<td><p>7NFM</p></td>
+<td><p>16.6</p></td>
+<td><p>16.6441</p></td>
+<td><p>16.6441</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>ClusterProminence</p></td>
+<td><p>AE86</p></td>
+<td><p>145</p></td>
+<td><p>144.703</p></td>
+<td><p>144.703</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>Imc1</p></td>
+<td><p>R8DG</p></td>
+<td><p>-0.157</p></td>
+<td><p>-0.156848</p></td>
+<td><p>-0.156848</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Imc2</p></td>
+<td><p>JN9H</p></td>
+<td><p>0.52</p></td>
+<td><p>0.519588</p></td>
+<td><p>0.519588</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>ShortRunEmphasis</p></td>
+<td><p>22OV</p></td>
+<td><p>0.705</p></td>
+<td><p>0.711302</p></td>
+<td><p>0.705235</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>LongRunEmphasis</p></td>
+<td><p>W4KF</p></td>
+<td><p>3.06</p></td>
+<td><p>2.9955</p></td>
+<td><p>3.06112</p></td>
+<td><p>native C on 5x4x4 phantom; PyRadiomics matches IBSI</p></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>LowGrayLevelRunEmphasis</p></td>
+<td><p>V3SW</p></td>
+<td><p>0.603</p></td>
+<td><p>0.608112</p></td>
+<td><p>0.60298</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>HighGrayLevelRunEmphasis</p></td>
+<td><p>G3QZ</p></td>
+<td><p>9.7</p></td>
+<td><p>9.61812</p></td>
+<td><p>9.69762</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>ShortRunLowGrayLevelEmphasis</p></td>
+<td><p>HTZT</p></td>
+<td><p>0.352</p></td>
+<td><p>0.360982</p></td>
+<td><p>0.35158</p></td>
+<td><p>native C on 5x4x4 phantom; PyRadiomics matches IBSI</p></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>ShortRunHighGrayLevelEmphasis</p></td>
+<td><p>GD3A</p></td>
+<td><p>8.54</p></td>
+<td><p>8.50429</p></td>
+<td><p>8.53966</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>LongRunLowGrayLevelEmphasis</p></td>
+<td><p>IVPO</p></td>
+<td><p>2.39</p></td>
+<td><p>2.34371</p></td>
+<td><p>2.39097</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>LongRunHighGrayLevelEmphasis</p></td>
+<td><p>3KUM</p></td>
+<td><p>17.6</p></td>
+<td><p>17.1254</p></td>
+<td><p>17.5662</p></td>
+<td><p>native C on 5x4x4 phantom; PyRadiomics matches IBSI</p></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>GrayLevelNonUniformity</p></td>
+<td><p>R5YN</p></td>
+<td><p>21.8</p></td>
+<td><p>22.5929</p></td>
+<td><p>21.7762</p></td>
+<td><p>native C on 5x4x4 phantom; PyRadiomics matches IBSI</p></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>GrayLevelNonUniformityNormalized</p></td>
+<td><p>OVBL</p></td>
+<td><p>0.43</p></td>
+<td><p>0.434671</p></td>
+<td><p>0.430175</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>RunLengthNonUniformity</p></td>
+<td><p>W92Y</p></td>
+<td><p>26.9</p></td>
+<td><p>27.8143</p></td>
+<td><p>26.8534</p></td>
+<td><p>native C on 5x4x4 phantom; PyRadiomics matches IBSI</p></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>RunLengthNonUniformityNormalized</p></td>
+<td><p>IC23</p></td>
+<td><p>0.513</p></td>
+<td><p>0.518495</p></td>
+<td><p>0.512771</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>RunPercentage</p></td>
+<td><p>9ZK5</p></td>
+<td><p>0.68</p></td>
+<td><p>0.68451</p></td>
+<td><p>0.679834</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>GrayLevelVariance</p></td>
+<td><p>8CE5</p></td>
+<td><p>3.46</p></td>
+<td><p>3.45493</p></td>
+<td><p>3.46498</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>RunVariance</p></td>
+<td><p>SXLW</p></td>
+<td><p>0.574</p></td>
+<td><p>0.565584</p></td>
+<td><p>0.573542</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>RunEntropy</p></td>
+<td><p>HJ9O</p></td>
+<td><p>2.43</p></td>
+<td><p>2.42104</p></td>
+<td><p>2.43207</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>LargeAreaEmphasis</p></td>
+<td><p>48P8</p></td>
+<td><p>550</p></td>
+<td><p>550</p></td>
+<td><p>550</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>LowGrayLevelZoneEmphasis</p></td>
+<td><p>XMSY</p></td>
+<td><p>0.253</p></td>
+<td><p>0.252778</p></td>
+<td><p>0.252778</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>HighGrayLevelZoneEmphasis</p></td>
+<td><p>5GN9</p></td>
+<td><p>15.6</p></td>
+<td><p>15.6</p></td>
+<td><p>15.6</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>SmallAreaLowGrayLevelEmphasis</p></td>
+<td><p>5RAI</p></td>
+<td><p>0.0256</p></td>
+<td><p>0.0256044</p></td>
+<td><p>0.0256044</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>SmallAreaHighGrayLevelEmphasis</p></td>
+<td><p>HW1V</p></td>
+<td><p>2.76</p></td>
+<td><p>2.76335</p></td>
+<td><p>2.76335</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>LargeAreaLowGrayLevelEmphasis</p></td>
+<td><p>YH51</p></td>
+<td><p>503</p></td>
+<td><p>502.794</p></td>
+<td><p>502.794</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>LargeAreaHighGrayLevelEmphasis</p></td>
+<td><p>J17V</p></td>
+<td><p>1490</p></td>
+<td><p>1494.6</p></td>
+<td><p>1494.6</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>GrayLevelNonUniformity</p></td>
+<td><p>JNSA</p></td>
+<td><p>1.4</p></td>
+<td><p>1.4</p></td>
+<td><p>1.4</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>GrayLevelNonUniformityNormalized</p></td>
+<td><p>Y1RO</p></td>
+<td><p>0.28</p></td>
+<td><p>0.28</p></td>
+<td><p>0.28</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>SizeZoneNonUniformity</p></td>
+<td><p>4JP3</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>SizeZoneNonUniformityNormalized</p></td>
+<td><p>VB3A</p></td>
+<td><p>0.2</p></td>
+<td><p>0.2</p></td>
+<td><p>0.2</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>ZonePercentage</p></td>
+<td><p>P30P</p></td>
+<td><p>0.0676</p></td>
+<td><p>0.0675676</p></td>
+<td><p>0.0675676</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>GrayLevelVariance</p></td>
+<td><p>BYLV</p></td>
+<td><p>2.64</p></td>
+<td><p>2.64</p></td>
+<td><p>2.64</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>ZoneVariance</p></td>
+<td><p>3NSA</p></td>
+<td><p>331</p></td>
+<td><p>330.96</p></td>
+<td><p>330.96</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>ZoneEntropy</p></td>
+<td><p>GU8N</p></td>
+<td><p>2.32</p></td>
+<td><p>2.32193</p></td>
+<td><p>2.32193</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>ngtdm</p></td>
+<td><p>Coarseness</p></td>
+<td><p>QCDE</p></td>
+<td><p>0.0296</p></td>
+<td><p>0.0296042</p></td>
+<td><p>0.0296042</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>ngtdm</p></td>
+<td><p>Contrast</p></td>
+<td><p>65HE</p></td>
+<td><p>0.584</p></td>
+<td><p>0.583711</p></td>
+<td><p>0.583711</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>ngtdm</p></td>
+<td><p>Busyness</p></td>
+<td><p>NQ30</p></td>
+<td><p>6.54</p></td>
+<td><p>6.54357</p></td>
+<td><p>6.54357</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>ngtdm</p></td>
+<td><p>Complexity</p></td>
+<td><p>HDEZ</p></td>
+<td><p>13.5</p></td>
+<td><p>13.5398</p></td>
+<td><p>13.5398</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>ngtdm</p></td>
+<td><p>Strength</p></td>
+<td><p>1X9X</p></td>
+<td><p>0.763</p></td>
+<td><p>0.763495</p></td>
+<td><p>0.763495</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>SmallDependenceEmphasis</p></td>
+<td><p>SODN</p></td>
+<td><p>0.045</p></td>
+<td><p>0.0449964</p></td>
+<td><p>0.0449964</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>LargeDependenceEmphasis</p></td>
+<td><p>IMOQ</p></td>
+<td><p>109</p></td>
+<td><p>109</p></td>
+<td><p>109</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>LowGrayLevelEmphasis</p></td>
+<td><p>TL9H</p></td>
+<td><p>0.693</p></td>
+<td><p>0.693318</p></td>
+<td><p>0.693318</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>HighGrayLevelEmphasis</p></td>
+<td><p>OAE7</p></td>
+<td><p>7.66</p></td>
+<td><p>7.66216</p></td>
+<td><p>7.66216</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>SmallDependenceLowGrayLevelEmphasis</p></td>
+<td><p>EQ3F</p></td>
+<td><p>0.00963</p></td>
+<td><p>0.00963061</p></td>
+<td><p>0.00963061</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>SmallDependenceHighGrayLevelEmphasis</p></td>
+<td><p>JA6D</p></td>
+<td><p>0.736</p></td>
+<td><p>0.736172</p></td>
+<td><p>0.736172</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>LargeDependenceLowGrayLevelEmphasis</p></td>
+<td><p>NBZI</p></td>
+<td><p>102</p></td>
+<td><p>102.451</p></td>
+<td><p>102.451</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>LargeDependenceHighGrayLevelEmphasis</p></td>
+<td><p>9QMG</p></td>
+<td><p>235</p></td>
+<td><p>234.986</p></td>
+<td><p>234.986</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>GrayLevelNonUniformity</p></td>
+<td><p>FP8K</p></td>
+<td><p>37.9</p></td>
+<td><p>37.9189</p></td>
+<td><p>37.9189</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>DependenceNonUniformity</p></td>
+<td><p>Z87G</p></td>
+<td><p>4.86</p></td>
+<td><p>4.86486</p></td>
+<td><p>4.86486</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>DependenceNonUniformityNormalized</p></td>
+<td><p>OKJI</p></td>
+<td><p>0.0657</p></td>
+<td><p>0.0657414</p></td>
+<td><p>0.0657414</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>DependenceEntropy</p></td>
+<td><p>FCBV</p></td>
+<td><p>4.4</p></td>
+<td><p>4.40374</p></td>
+<td><p>4.40374</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>SmallAreaEmphasis</p></td>
+<td><p>P001</p></td>
+<td><p>0.255</p></td>
+<td><p>0.255182</p></td>
+<td><p>0.255182</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>See <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a>
+for per-feature formulas.</p>
+</section>
 </section>
 </section>
 

@@ -531,6 +531,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
@@ -1020,7 +1021,11 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -2247,6 +2252,8 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: changes; older files must either load or fail with a clear message.</span>
 <span class="n">_FORMAT_NAME</span> <span class="o">=</span> <span class="s2">&quot;habit.habitatmodel&quot;</span>
 <span class="n">_FORMAT_VERSION</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">_VOXEL_FIELD_FORMAT_NAME</span> <span class="o">=</span> <span class="s2">&quot;habit.voxelfeaturefield&quot;</span>
+<span class="n">_VOXEL_FIELD_FORMAT_VERSION</span> <span class="o">=</span> <span class="mi">1</span>
 
 
 <div class="viewcode-block" id="VoxelFeatureField">
@@ -2397,6 +2404,135 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">produced_by</span><span class="o">=</span><span class="n">produced_by</span><span class="p">,</span>
                 <span class="n">spec_fingerprint</span><span class="o">=</span><span class="n">spec_fingerprint</span><span class="p">,</span>
             <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VoxelFeatureField.save">
+<a class="viewcode-back" href="../../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Persist the field as a versioned zip (manifest + arrays).</span>
+
+<span class="sd">        Not a pickle: the archive stays readable across HABIT versions.</span>
+<span class="sd">        ``voxel_batch`` and device knobs do not belong here; they do not</span>
+<span class="sd">        change the numbers.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: Destination file path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The written path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.write_access</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_via_temp_then_replace</span>
+
+        <span class="n">destination</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">destination</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">_VOXEL_FIELD_FORMAT_NAME</span><span class="p">,</span>
+            <span class="s2">&quot;format_version&quot;</span><span class="p">:</span> <span class="n">_VOXEL_FIELD_FORMAT_VERSION</span><span class="p">,</span>
+            <span class="s2">&quot;habit_version&quot;</span><span class="p">:</span> <span class="n">_habit_version</span><span class="p">,</span>
+            <span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="s2">&quot;feature_names&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">),</span>
+            <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                <span class="s2">&quot;spacing&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">spacing</span><span class="p">),</span>
+                <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">origin</span><span class="p">),</span>
+                <span class="s2">&quot;direction&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">direction</span><span class="p">),</span>
+                <span class="s2">&quot;frame_of_reference&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">frame_of_reference</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;provenance&quot;</span><span class="p">:</span> <span class="n">_provenance_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">provenance</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">values_buf</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">index_buf</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">values_buf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">index_buf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_index</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_write_archive</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
+                <span class="n">zf</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span>
+                    <span class="s2">&quot;manifest.json&quot;</span><span class="p">,</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">zf</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;arrays/values.npy&quot;</span><span class="p">,</span> <span class="n">values_buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+                <span class="n">zf</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;arrays/voxel_index.npy&quot;</span><span class="p">,</span> <span class="n">index_buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+
+        <span class="n">write_via_temp_then_replace</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">_write_archive</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">destination</span></div>
+
+
+<div class="viewcode-block" id="VoxelFeatureField.load">
+<a class="viewcode-back" href="../../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.load">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;VoxelFeatureField&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a field previously written by :meth:`save`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: Source file path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The reconstructed field.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If ``path`` does not exist.</span>
+<span class="sd">            CompatibilityError: If the archive is not a voxel-field file</span>
+<span class="sd">                or is newer than this HABIT can read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+
+        <span class="n">source</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;VoxelFeatureField file not found: </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">archive</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> is not a </span><span class="si">{</span><span class="n">_VOXEL_FIELD_FORMAT_NAME</span><span class="si">}</span><span class="s2"> archive.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">with</span> <span class="n">archive</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">archive</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;manifest.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> lacks manifest.json; not a &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_VOXEL_FIELD_FORMAT_NAME</span><span class="si">}</span><span class="s2"> file.&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+            <span class="k">if</span> <span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;format&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">_VOXEL_FIELD_FORMAT_NAME</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> has format </span><span class="si">{</span><span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">)</span><span class="si">!r}</span><span class="s2">; expected &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_VOXEL_FIELD_FORMAT_NAME</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">file_version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;format_version&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">file_version</span> <span class="o">&gt;</span> <span class="n">_VOXEL_FIELD_FORMAT_VERSION</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> was written with format version </span><span class="si">{</span><span class="n">file_version</span><span class="si">}</span><span class="s2">, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;but this HABIT (v</span><span class="si">{</span><span class="n">_habit_version</span><span class="si">}</span><span class="s2">) reads up to version &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_VOXEL_FIELD_FORMAT_VERSION</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+                <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">archive</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;arrays/values.npy&quot;</span><span class="p">)),</span>
+                <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">voxel_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+                <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">archive</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;arrays/voxel_index.npy&quot;</span><span class="p">)),</span>
+                <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">geo</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">subject_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;subject_id&quot;</span><span class="p">]),</span>
+            <span class="n">feature_names</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;feature_names&quot;</span><span class="p">]),</span>
+            <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">voxel_index</span><span class="o">=</span><span class="n">voxel_index</span><span class="p">,</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">Geometry</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">geo</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]),</span>
+                <span class="n">spacing</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">geo</span><span class="p">[</span><span class="s2">&quot;spacing&quot;</span><span class="p">]),</span>
+                <span class="n">origin</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">geo</span><span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">]),</span>
+                <span class="n">direction</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">geo</span><span class="p">[</span><span class="s2">&quot;direction&quot;</span><span class="p">]),</span>
+                <span class="n">frame_of_reference</span><span class="o">=</span><span class="n">geo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frame_of_reference&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">provenance</span><span class="o">=</span><span class="n">_provenance_from_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;provenance&quot;</span><span class="p">]),</span>
         <span class="p">)</span></div>
 </div>
 

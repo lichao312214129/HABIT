@@ -440,6 +440,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#see-also">See also</a></li>
@@ -528,10 +531,16 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -609,6 +618,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -711,16 +721,16 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/precise_features.html">Precise features: atoms, then paper combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#the-two-atoms">The two atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#paper-combinations">Paper combinations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -736,10 +746,21 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
@@ -785,12 +806,15 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-cva-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / CVA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -807,6 +831,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -965,16 +990,22 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -990,7 +1021,11 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -1047,6 +1082,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../api/index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
 </ul>
@@ -1082,6 +1121,49 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1286,12 +1368,21 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.align_habitat_map.html">align_habitat_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.habitat_stability.html">habitat_stability</a></li>
 </ul>
 </li>
@@ -1609,6 +1700,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1632,6 +1724,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -1716,12 +1812,15 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -2118,7 +2217,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">Field</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatMap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.subject</span><span class="w"> </span><span class="kn">import</span> <span class="n">Subject</span>
@@ -2134,34 +2233,56 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="IthHabitatFeaturesParams">
 <a class="viewcode-back" href="../../../../api/generated/habit.domain.IthHabitatFeaturesParams.html#habit.domain.IthHabitatFeaturesParams">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">IthHabitatFeaturesParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`IthHabitatFeatures` (none).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`IthHabitatFeatures`.&quot;&quot;&quot;</span>
 
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span></div>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+
+    <span class="n">include_auxiliary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;If True, also emit per-habitat region counts and the &quot;</span>
+            <span class="s2">&quot;``ith_num_habitats`` / ``ith_total_area`` summaries. &quot;</span>
+            <span class="s2">&quot;Default False: only ``ith_score``.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
 
 <div class="viewcode-block" id="IthHabitatFeatures">
 <a class="viewcode-back" href="../../../../api/generated/habit.domain.IthHabitatFeatures.html#habit.domain.IthHabitatFeatures">[docs]</a>
 <span class="nd">@HabitatFeatureExtractorRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">IthHabitatFeatures</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ITH score and per-habitat fragmentation statistics for one subject.</span>
+<span class="sd">    ITH score for one subject&#39;s habitat map.</span>
 
-<span class="sd">    The ITH score quantifies how fragmented the habitat partition is:</span>
-<span class="sd">    ``1 - (1 / S_total) * sum_i(S_i,max / n_i)`` over connected components</span>
-<span class="sd">    of each habitat. The score is numerically identical to the v0.1</span>
-<span class="sd">    ``ITHFeatureExtractor``; one deliberate improvement is that per-habitat</span>
-<span class="sd">    columns are emitted for every id the model can assign (zeros when the</span>
-<span class="sd">    habitat is absent), so cohort tables no longer have ragged columns.</span>
+<span class="sd">    The score quantifies how fragmented the habitat partition is:</span>
+<span class="sd">    ``1 - (1 / S_total) * sum_i(S_i,max / n_i)`` over connected</span>
+<span class="sd">    components of each habitat. It is numerically identical to the v0.1</span>
+<span class="sd">    ``ITHFeatureExtractor``.</span>
 
-<span class="sd">    The auxiliary summary columns are prefixed (``ith_num_habitats`` /</span>
-<span class="sd">    ``ith_total_area``) rather than the bare v0.1 names: the</span>
-<span class="sd">    ``non_radiomics`` family legitimately reports its own ``num_habitats``</span>
-<span class="sd">    and feature tables must join across families without duplicate columns.</span>
+<span class="sd">    By default the table has a single column, ``ith_score``. Pass</span>
+<span class="sd">    ``include_auxiliary=True`` (or ``Spec(&quot;ith_score&quot;,</span>
+<span class="sd">    {&quot;include_auxiliary&quot;: True})``) to also write the prefixed summaries</span>
+<span class="sd">    ``ith_num_habitats`` / ``ith_total_area`` and the per-habitat</span>
+<span class="sd">    ``habitat_{id}_regions`` / ``_largest_area`` / ``_area_ratio``</span>
+<span class="sd">    columns. Those extras are emitted for every id the model can assign</span>
+<span class="sd">    (zeros when the habitat is absent) so cohort tables stay rectangular.</span>
+<span class="sd">    The prefixes avoid colliding with ``non_radiomics`` ``num_habitats``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IthHabitatFeatures.__init__">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.IthHabitatFeatures.html#habit.domain.IthHabitatFeatures.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_auxiliary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_include_auxiliary</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">include_auxiliary</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ith_score&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{})</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ith_score&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;include_auxiliary&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_auxiliary</span><span class="p">},</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="IthHabitatFeatures.__call__">
 <a class="viewcode-back" href="../../../../api/generated/habit.domain.IthHabitatFeatures.html#habit.domain.IthHabitatFeatures.__call__">[docs]</a>
@@ -2174,12 +2295,21 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            habitat_map: Habitat labels for that subject.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            One-row table with the ITH score and per-habitat statistics.</span>
+<span class="sd">            One-row table. Default is ``ith_score`` only.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_auxiliary</span><span class="p">:</span>
+            <span class="n">features</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ith_score&quot;</span><span class="p">:</span> <span class="n">ith_score</span><span class="p">(</span><span class="n">labels</span><span class="p">)}</span>
+            <span class="k">return</span> <span class="n">single_subject_table</span><span class="p">(</span>
+                <span class="n">subject_id</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+                <span class="n">habitat_map</span><span class="o">=</span><span class="n">habitat_map</span><span class="p">,</span>
+                <span class="n">spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+            <span class="p">)</span>
+
         <span class="n">stats</span> <span class="o">=</span> <span class="n">habitat_region_stats</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
-        <span class="n">features</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;ith_score&quot;</span><span class="p">:</span> <span class="n">ith_score</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ith_score&quot;</span><span class="p">:</span> <span class="n">ith_score</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">region_stats</span><span class="o">=</span><span class="n">stats</span><span class="p">),</span>
             <span class="s2">&quot;ith_num_habitats&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">)),</span>
             <span class="s2">&quot;ith_total_area&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">labels</span><span class="p">)),</span>
         <span class="p">}</span>

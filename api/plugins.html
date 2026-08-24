@@ -668,7 +668,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -2184,7 +2188,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </table>
 </dd>
 <dt><strong>voxel_radiomics</strong></dt><dd><p>Describe every ROI voxel by a PyRadiomics feature vector.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">kernel_radius,</span> <span class="pre">voxel_batch,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">use_gpu_matrices,</span> <span class="pre">output_float32,</span> <span class="pre">class_progress,</span> <span class="pre">crop_to_roi</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">kernel_radius,</span> <span class="pre">voxel_batch,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">use_gpu_matrices,</span> <span class="pre">output_float32,</span> <span class="pre">class_progress,</span> <span class="pre">crop_to_roi,</span> <span class="pre">cache_dir</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;voxel_radiomics&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;voxel_radiomics&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -2276,6 +2280,11 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>When True (default), crop image and mask to the ROI bounding box plus <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> padding before calling <code class="docutils literal notranslate"><span class="pre">execute</span></code>. PyRadiomics re-applies the identical crop internally, so feature values are bit-identical; the pre-crop just keeps the full-volume diagnostics (<code class="docutils literal notranslate"><span class="pre">sitk.Hash</span></code>, whole-image statistics) and mask checks off the big volume, saving several seconds per modality on whole-body scans.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cache_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>Optional directory for extracted fields. A hit skips PyRadiomics. The cache key ignores <code class="docutils literal notranslate"><span class="pre">voxel_batch</span></code> and device knobs so a later run with a larger batch can reuse the file.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2533,7 +2542,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </table>
 </dd>
 <dt><strong>supervoxel_radiomics</strong></dt><dd><p>Describe each supervoxel by PyRadiomics features of the original images.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">supervoxel_batch,</span> <span class="pre">supervoxel_union_bbox_crop,</span> <span class="pre">supervoxel_pad_distance,</span> <span class="pre">use_supervoxel_cext,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">output_float32</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">supervoxel_batch,</span> <span class="pre">supervoxel_union_bbox_crop,</span> <span class="pre">supervoxel_pad_distance,</span> <span class="pre">use_supervoxel_cext,</span> <span class="pre">union_bin,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">output_float32</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;supervoxel_radiomics&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;supervoxel_radiomics&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -2596,22 +2605,27 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>str | bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code> – whether to use the habit native C extension for texture matrices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">union_bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When False (default) each supervoxel is discretized with its own <code class="docutils literal notranslate"><span class="pre">binWidth</span></code> edges, matching PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute()</span></code>. When True, all labels share one union-mask bin.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
 <td><p>str | bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code> – whether to use the TorchRadiomics GPU path when torch and CUDA are present.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_device</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_device</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
 <td><p>str</p></td>
 <td><p>Torch device string, or <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> to select one.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'float32'</span></code></p></td>
 <td><p>str</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code> for the torch path.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">output_float32</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">output_float32</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>Downcast the resulting feature columns to float32, the v0.1 default that keeps large supervoxel tables manageable.</p></td>
@@ -2797,6 +2811,38 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>Pool statistics across every feature column instead of computing them per column.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt><strong>precise_correlation_filter</strong></dt><dd><p>Prior 2024 Spearman screen: signed r, p-value, keep the later column.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">corr_threshold,</span> <span class="pre">p_threshold</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;precise_correlation_filter&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;precise_correlation_filter&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">corr_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.7</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Signed Spearman cut-off; drop when r is greater.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">p_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.05</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Spearman p-value cut-off; drop only when p is smaller.</p></td>
 </tr>
 </tbody>
 </table>
@@ -3259,10 +3305,32 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </tbody>
 </table>
 </dd>
-<dt><strong>ith_score</strong></dt><dd><p>ITH score and per-habitat fragmentation statistics for one subject.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<dt><strong>ith_score</strong></dt><dd><p>ITH score for one subject’s habitat map.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">include_auxiliary</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;ith_score&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;ith_score&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">include_auxiliary</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>If True, also emit per-habitat region counts and the <code class="docutils literal notranslate"><span class="pre">ith_num_habitats</span></code> / <code class="docutils literal notranslate"><span class="pre">ith_total_area</span></code> summaries. Default False: only <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
 </dd>
 <dt><strong>msi</strong></dt><dd><p>Multiregional spatial interaction features of one subject’s habitat map.
 Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
@@ -4441,6 +4509,38 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 <td><p>bool</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt><strong>precise_correlation_filter</strong></dt><dd><p>Prior 2024 Spearman screen on a modelling table.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">corr_threshold,</span> <span class="pre">p_threshold</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;precise_correlation_filter&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;precise_correlation_filter&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">corr_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.7</span></code></p></td>
+<td><p>float</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">p_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.05</span></code></p></td>
+<td><p>float</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
 </tbody>

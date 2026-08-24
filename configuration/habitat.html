@@ -178,6 +178,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
@@ -667,7 +668,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -2171,7 +2176,7 @@ See <a class="reference internal" href="../examples/precise_features.html"><span
 <div><blockquote>
 <div><ul class="simple">
 <li><p><strong>Description</strong>: Per supervoxel label, extract <strong>whole-ROI</strong> radiomics texture (not voxel kernel neighborhoods). Must sit inside <code class="docutils literal notranslate"><span class="pre">concat(...)</span></code> (or another outer combiner); single-modality example: <code class="docutils literal notranslate"><span class="pre">concat(supervoxel_radiomics(T2,</span> <span class="pre">params_file))</span></code>.</p></li>
-<li><p><strong>Discretization</strong>: One PyRadiomics <code class="docutils literal notranslate"><span class="pre">_applyBinning</span></code> on the union mask of all supervoxels (<code class="docutils literal notranslate"><span class="pre">sv_map</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>), then per-label <code class="docutils literal notranslate"><span class="pre">cMatrices</span></code></p></li>
+<li><p><strong>Discretization</strong>: Per-label <code class="docutils literal notranslate"><span class="pre">binWidth</span></code> by default (<code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code>), matching PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute()</span></code>. Set <code class="docutils literal notranslate"><span class="pre">union_bin=true</span></code> for one shared bin on the union mask (<code class="docutils literal notranslate"><span class="pre">sv_map</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>), then per-label extract</p></li>
 <li><p><strong>Matrix backend</strong>: <code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext</span></code> default <code class="docutils literal notranslate"><span class="pre">auto</span></code>: use C extension batch matrix build when <code class="docutils literal notranslate"><span class="pre">supervoxel_cext</span></code> is compiled (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code>); otherwise fallback Torch/PyRadiomics stacked matrix path. <code class="docutils literal notranslate"><span class="pre">false</span></code> <strong>forces</strong> Torch/PyRadiomics stacked matrices (<code class="docutils literal notranslate"><span class="pre">matrix_backend=torch_cmatrices</span></code>) even if C extension exists</p></li>
 <li><p><strong>Feature backend</strong>: When <code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code> resolves to torch, TorchRadiomics (GPU/CPU torch); else CPU PyRadiomics (same semantics)</p></li>
 <li><p><strong>Parameters</strong> (in <code class="docutils literal notranslate"><span class="pre">feature_construction.supervoxel_level.params</span></code>; may inherit torch keys from <code class="docutils literal notranslate"><span class="pre">voxel_level.params</span></code>):</p>
@@ -2179,6 +2184,7 @@ See <a class="reference internal" href="../examples/precise_features.html"><span
 <li><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code> (str, optional): PyRadiomics parameter YAML; omit for bundled full-set preset</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">supervoxel_batch</span></code> (int): batch group size, default <code class="docutils literal notranslate"><span class="pre">64</span></code> (not kernel radius)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">supervoxel_union_bbox_crop</span></code> (bool): crop to union bbox, default <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">union_bin</span></code> (bool): per-label bins (default <code class="docutils literal notranslate"><span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">execute()</span></code> science) or one union-mask bin (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext</span></code> (str | bool): <code class="docutils literal notranslate"><span class="pre">auto</span></code> / <code class="docutils literal notranslate"><span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code>, default <code class="docutils literal notranslate"><span class="pre">auto</span></code>; must be in <code class="docutils literal notranslate"><span class="pre">supervoxel_level.params</span></code> (not in <code class="docutils literal notranslate"><span class="pre">params_file</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code> (str): <code class="docutils literal notranslate"><span class="pre">auto</span></code> / <code class="docutils literal notranslate"><span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">torch_gpus</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_gpu_count</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_device</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code>: same as voxel level</p></li>
@@ -2193,7 +2199,7 @@ See <a class="reference internal" href="../examples/precise_features.html"><span
 <li><p><strong>Method comparison</strong>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">mean_voxel_features()</span></code>: depends on <code class="docutils literal notranslate"><span class="pre">voxel_level</span></code> features; fast; suitable for most cases</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">concat(supervoxel_radiomics(...),</span> <span class="pre">...)</span></code>: standalone ROI radiomics; union-mask bin once + per-label extract; feature values <strong>differ</strong> from legacy per-label <code class="docutils literal notranslate"><span class="pre">execute</span></code> (per-label bin)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">concat(supervoxel_radiomics(...),</span> <span class="pre">...)</span></code>: standalone ROI radiomics; default per-label bin matches <code class="docutils literal notranslate"><span class="pre">execute()</span></code>; set <code class="docutils literal notranslate"><span class="pre">union_bin=true</span></code> for a shared gray scale across supervoxels</p></li>
 </ul>
 </li>
 <li><p><strong>Full examples</strong>:</p>

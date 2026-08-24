@@ -25,6 +25,11 @@ Connected components use SimpleITK ``ConnectedComponent`` (default 6-connectivit
 Output columns
 --------------
 
+Default (``Spec("ith_score")`` / ``IthHabitatFeatures()``) writes only
+``ith_score``. Pass ``include_auxiliary=True`` to add the summaries below
+(CSV export then remaps ``ith_num_habitats`` → ``num_habitats`` and
+``ith_total_area`` → ``total_area``).
+
 .. list-table::
    :header-rows: 1
    :widths: 28 72
@@ -33,16 +38,16 @@ Output columns
      - Description
    * - ``ith_score``
      - ITH score (higher = more fragmented; not clamped to [0, 1])
-   * - ``num_habitats``
-     - Number of distinct habitat labels (> 0) in the map
+   * - ``ith_num_habitats``
+     - Auxiliary. Number of distinct habitat labels (> 0) in the map
    * - ``habitat_{i}_regions``
-     - :math:`n_i` (component count for label *i*; *i* = actual label value)
+     - Auxiliary. :math:`n_i` (component count for label *i*; *i* = actual label value)
    * - ``habitat_{i}_largest_area``
-     - :math:`S_{i,\max}`
+     - Auxiliary. :math:`S_{i,\max}`
    * - ``habitat_{i}_area_ratio``
-     - :math:`S_{i,\max} / n_i`
-   * - ``total_area``
-     - :math:`S_{\mathrm{total}}`
+     - Auxiliary. :math:`S_{i,\max} / n_i`
+   * - ``ith_total_area``
+     - Auxiliary. :math:`S_{\mathrm{total}}`
 
 Notes
 -----

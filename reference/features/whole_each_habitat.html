@@ -669,7 +669,11 @@
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Whole / Each Habitat Radiomics</a><ul>
@@ -1855,7 +1859,10 @@ image is passed as both <code class="docutils literal notranslate"><span class="
 <strong>intensities are habitat label IDs</strong> (not original MR/PET values). Parameters:
 <code class="docutils literal notranslate"><span class="pre">params_file_of_habitat</span></code> (optional; bundled <code class="docutils literal notranslate"><span class="pre">habitat</span></code> preset →
 <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter_habitat.yaml</span></code> when omitted).</p>
-<p>Feature definitions follow <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a>.</p>
+<p>Feature definitions follow <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a>
+and the IBSI Phase 1 digital-phantom table on <a class="reference internal" href="traditional.html"><span class="doc">Traditional Radiomics</span></a>.
+Default settings match PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute()</span></code> (see <strong>PyRadiomics alignment</strong>
+on that page).</p>
 </section>
 <section id="output-columns">
 <h3>Output columns<a class="headerlink" href="#output-columns" title="Link to this heading"></a></h3>
@@ -1903,7 +1910,10 @@ outside label <em>k</em> are excluded). Uses <code class="docutils literal notra
 preset), <strong>not</strong> <code class="docutils literal notranslate"><span class="pre">params_file_of_habitat</span></code>. Files are written for every
 <em>k</em> in 1 … <em>K</em> even when a subject’s map lacks that label (empty ROI → NaN /
 error handling per subject).</p>
-<p>Feature definitions follow <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a>.</p>
+<p>Feature definitions follow <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a>
+and the IBSI Phase 1 digital-phantom table on <a class="reference internal" href="traditional.html"><span class="doc">Traditional Radiomics</span></a>.
+Default settings match PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute()</span></code> (see <strong>PyRadiomics alignment</strong>
+on that page).</p>
 </section>
 <section id="id4">
 <h3>Output columns<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
@@ -1948,7 +1958,10 @@ error handling per subject).</p>
 <section id="id5">
 <h3>Implementation<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py</span></code>
-(<code class="docutils literal notranslate"><span class="pre">EachHabitatPlugin</span></code>) → <code class="docutils literal notranslate"><span class="pre">habitat_radiomics.py</span></code></p>
+(<code class="docutils literal notranslate"><span class="pre">EachHabitatPlugin</span></code>) → <code class="docutils literal notranslate"><span class="pre">habitat_radiomics.py</span></code>. v1
+<a class="reference internal" href="../../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html#habit.domain.EachHabitatRadiomicsFeatures" title="habit.domain.habitat_features.each_habitat.EachHabitatRadiomicsFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">EachHabitatRadiomicsFeatures</span></code></a>
+uses one union-bbox crop and the native C multi-label path per modality;
+<code class="docutils literal notranslate"><span class="pre">binWidth</span></code> stays per habitat (<code class="docutils literal notranslate"><span class="pre">union_bin=False</span></code>).</p>
 </section>
 </section>
 <section id="compare-habitats-cohort-or-one-subject">

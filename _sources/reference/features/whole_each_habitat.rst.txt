@@ -18,7 +18,10 @@ image is passed as both ``image`` and ``mask`` to PyRadiomics, so voxel
 ``params_file_of_habitat`` (optional; bundled ``habitat`` preset →
 ``habit/resources/radiomics/parameter_habitat.yaml`` when omitted).
 
-Feature definitions follow `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_.
+Feature definitions follow `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_
+and the IBSI Phase 1 digital-phantom table on :doc:`traditional`.
+Default settings match PyRadiomics ``execute()`` (see **PyRadiomics alignment**
+on that page).
 
 Output columns
 ~~~~~~~~~~~~~~
@@ -60,7 +63,10 @@ preset), **not** ``params_file_of_habitat``. Files are written for every
 *k* in 1 … *K* even when a subject's map lacks that label (empty ROI → NaN /
 error handling per subject).
 
-Feature definitions follow `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_.
+Feature definitions follow `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_
+and the IBSI Phase 1 digital-phantom table on :doc:`traditional`.
+Default settings match PyRadiomics ``execute()`` (see **PyRadiomics alignment**
+on that page).
 
 Output columns
 ~~~~~~~~~~~~~~
@@ -93,7 +99,10 @@ Implementation
 ~~~~~~~~~~~~~~
 
 ``habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py``
-(``EachHabitatPlugin``) → ``habitat_radiomics.py``
+(``EachHabitatPlugin``) → ``habitat_radiomics.py``. v1
+:class:`~habit.domain.habitat_features.each_habitat.EachHabitatRadiomicsFeatures`
+uses one union-bbox crop and the native C multi-label path per modality;
+``binWidth`` stays per habitat (``union_bin=False``).
 
 Compare habitats (cohort or one subject)
 ----------------------------------------
