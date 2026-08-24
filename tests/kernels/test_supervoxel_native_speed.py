@@ -140,7 +140,6 @@ def test_native_extract_under_half_second_warm() -> None:
         labels,
         enabled_features=enabled,
         settings=settings,
-        union_bin=True,
         timings=timings,
     )
     timings_warm: Dict[str, float] = {}
@@ -151,7 +150,6 @@ def test_native_extract_under_half_second_warm() -> None:
         labels,
         enabled_features=enabled,
         settings=settings,
-        union_bin=True,
         timings=timings_warm,
     )
     wall = time.perf_counter() - t0

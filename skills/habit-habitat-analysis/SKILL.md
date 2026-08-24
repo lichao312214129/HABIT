@@ -94,7 +94,7 @@ pool (default `cap_processes_to_gpu_pool: true` caps workers to `len(torch_gpus)
 share GPUs via modulo mapping). See `references/voxel_feature_methods.md`.
 
 For `supervoxel_radiomics` (two_step Step 2 input): omit `params_file` for bundled
-full-set preset; union-mask binning + per-label ROI extraction. **`method` must use an outer
+full-set preset; per-label binning (``union_bin=false``, matches ``execute()``). **`method` must use an outer
 combiner** (typically `concat(...)`), even for one modality, e.g.
 `concat(supervoxel_radiomics(T2))` with `params: {}`. Set `supervoxel_batch`,
 `use_supervoxel_cext` (default auto), and

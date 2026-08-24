@@ -219,7 +219,7 @@ binning, but each unit is a supervoxel ROI. Values differ from legacy per-label
 matrices when compiled; otherwise the prior Torch/PyRadiomics stacked-matrix path.
 
 **Feature backend:** `use_torch_radiomics: auto` + CUDA → TorchRadiomics GPU; otherwise CPU
-PyRadiomics with the same union-mask bin path.
+PyRadiomics with the same per-label bin path (`union_bin=false` by default).
 
 Compare with `mean_voxel_features()` when you already have `voxel_level` features and
 only need aggregation (faster, consistent with voxel pipeline).

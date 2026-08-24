@@ -39,4 +39,79 @@ Output columns
 Feature definitions
 -------------------
 
-See `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_.
+HABIT extracts first-order, GLCM, GLRLM, GLSZM, GLDM (IBSI NGLDM), NGTDM,
+and 3-D shape features using the PyRadiomics 3.1 formulas, which follow
+the Image Biomarker Standardisation Initiative (IBSI;
+`Zwanenburg et al., Radiology 2020 <https://doi.org/10.1148/radiol.2020191145>`_).
+Texture aggregation is IBSI **3-D averaged** (mean over the 13 unique
+3-D angles), not 3-D merged. The same definitions are used by
+``habit radiomics``, ``traditional`` / ``each_habitat`` /
+``whole_habitat`` feature types, ``supervoxel_radiomics``,
+``voxel_radiomics``, and the native C path.
+
+PyRadiomics alignment
+~~~~~~~~~~~~~~~~~~~~~
+
+Under **default settings**, every HABIT PyRadiomics-family value is the
+same quantity as official PyRadiomics 3.1 ``FeatureExtractor.execute()``
+on the same image, mask, label, and ``binWidth``:
+
+- ``habit radiomics`` / ``traditional`` — whole-ROI ``execute()``
+- ``each_habitat`` / ``whole_habitat`` — per-habitat or label-map
+  ``execute()`` (``union_bin=false``)
+- ``supervoxel_radiomics`` — per-supervoxel ``execute()`` science
+  (``union_bin=false``, the default)
+- ``voxel_radiomics`` — voxel-based ``execute()``; the CPU path is
+  that extractor. Torch / CUDA uses the same formulas; ``float32``
+  can differ at rounding. Set ``torch_dtype: float64`` for the
+  closest CPU match.
+
+Native C + CPU formulas vs ``execute()`` agree to about ``1e-10``
+relative (Energy / TotalEnergy at floating-point ULP). Gates:
+``tests/kernels/test_supervoxel_native_parity.py``,
+``tests/kernels/test_ibsi_digital_phantom.py``,
+``tests/kernels/test_*_gpu_parity.py``.
+
+These are **not** PyRadiomics and must not be compared to ``execute()``:
+``graph``, ``msi``, ``ith_score``, ``volume``, ``local_entropy``, and
+supervoxel ``mean`` / ``std`` / ``percentile``.
+
+``supervoxel_radiomics`` with ``union_bin=true`` is a different
+discretization (one shared gray scale on the union mask).
+``JointAverage`` / ``Autocorrelation`` / ``HighGrayLevel*`` will not
+match per-ROI ``execute()``; that is intended, not a formula bug.
+
+Two conventions must be read with the IBSI manual, not against it:
+
+- **Kurtosis** is Pearson kurtosis. IBSI reports *excess* kurtosis
+  (Fisher, normal distribution = 0). HABIT / PyRadiomics = IBSI + 3.
+- HABIT does **not** extract IBSI families it does not implement:
+  GLDZM, local-intensity peak, intensity-volume histogram, Moran's I,
+  or Geary's C. Deprecated PyRadiomics shape names (Compactness 1/2,
+  Spherical disproportion) are not computed.
+
+IBSI-1 Phase 1 digital phantom
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The table uses the official IBSI digital phantom (5×4×4 voxels, 2 mm
+isotropic, 74-voxel ROI; intensities include 1, 3, 4, 6, 9)
+from `theibsi/data_sets <https://github.com/theibsi/data_sets/tree/master/ibsi_1_digital_phantom>`_
+(CC-BY-4.0) and the published **dig. phantom / 3-D averaged** (or **3-D**
+for GLSZM / NGTDM / NGLDM) reference values in the IBSI reference manual
+(`Image features <https://ibsi.readthedocs.io/en/latest/03_Image_features.html>`_).
+Settings match Phase 1: no interpolation, ``binWidth=1``,
+``symmetricalGLCM=True``, ``distances=[1]``, NGLDM coarseness
+:math:`\alpha=0`, ``voxelArrayShift=0``.
+
+``HABIT`` is the native C + CPU-formula value when that family is in the
+fast path; shape is the PyRadiomics ``execute`` value used by
+``traditional_radiomics``. A regression test loads the same NIfTI pair:
+``tests/kernels/test_ibsi_digital_phantom.py``.
+
+.. csv-table:: IBSI-1 Phase 1 digital phantom (3-D averaged texture)
+   :file: ibsi_phase1_digital_phantom.csv
+   :header-rows: 1
+   :widths: 12 28 10 12 12 12 24
+
+See `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_
+for per-feature formulas.

@@ -18,8 +18,9 @@ Native C + vectorized-CPU supervoxel / habitat texture extract.
 Hot path for the 0.5 s budget:
 
 1. One numpy crop of the union-mask bounding box (+ ``padDistance``).
-2. One discretize: union ``getBinEdges`` (supervoxel) or per-label digitize
-   stitched into one volume (``each_habitat`` / ``union_bin=False``).
+2. One discretize: per-label digitize stitched into one volume
+   (default ``union_bin=False``, ``execute()`` science) or one union
+   ``getBinEdges`` when ``union_bin=True``.
 3. One C-extension pass per texture class for **all** labels.
 4. Stacked numpy formulas (no TorchRadiomics / SimpleITK calculator).
 
@@ -113,6 +114,52 @@ def _numpy_union_crop(
         slices.append(slice(lo, hi))
     crop = tuple(slices)
     return np.ascontiguousarray(image[crop]), np.ascontiguousarray(sv_map[crop]), crop
+
+
+def _sitk_union_bbox_crop(
+    image: sitk.Image,
+    supervoxel_map: sitk.Image,
+    pad_distance: int,
+) -> Tuple[sitk.Image, sitk.Image]:
+    """
+    Crop SimpleITK images to the union-label bounding box before numpy copy.
+
+    Args:
+        image: Intensity volume.
+        supervoxel_map: Multi-label map aligned with ``image``.
+        pad_distance: Voxels of padding, clipped to the image bounds.
+
+    Returns:
+        Tuple[sitk.Image, sitk.Image]: Cropped intensity and label images.
+    """
+    pad = max(0, int(pad_distance))
+    dim = int(image.GetDimension())
+    size_xyz = [int(v) for v in image.GetSize()]
+    # LabelShapeStatistics walks the volume in C++ and returns the
+    # union bounding box. Avoid GetArrayView/nonzero on a 512^3 lattice.
+    binary = sitk.BinaryThreshold(supervoxel_map, 1, 2147483647, 1, 0)
+    stats = sitk.LabelShapeStatisticsImageFilter()
+    stats.Execute(binary)
+    if stats.GetNumberOfLabels() < 1:
+        raise ValueError("Supervoxel map has no non-zero labels.")
+    # SimpleITK: (min_x, min_y[, min_z], size_x, size_y[, size_z]).
+    bbox = [int(v) for v in stats.GetBoundingBox(1)]
+    if dim == 2:
+        x0, y0, sx, sy = bbox
+        index = [max(0, x0 - pad), max(0, y0 - pad)]
+        hi = [min(size_xyz[0], x0 + sx + pad), min(size_xyz[1], y0 + sy + pad)]
+    else:
+        x0, y0, z0, sx, sy, sz = bbox
+        index = [max(0, x0 - pad), max(0, y0 - pad), max(0, z0 - pad)]
+        hi = [
+            min(size_xyz[0], x0 + sx + pad),
+            min(size_xyz[1], y0 + sy + pad),
+            min(size_xyz[2], z0 + sz + pad),
+        ]
+    roi_size = [hi[i] - index[i] for i in range(dim)]
+    cropped_image = sitk.RegionOfInterest(image, roi_size, index)
+    cropped_map = sitk.RegionOfInterest(supervoxel_map, roi_size, index)
+    return cropped_image, cropped_map
 
 
 def _bin_edges(values: np.ndarray, settings: Mapping[str, object]) -> np.ndarray:
@@ -229,7 +276,7 @@ def extract_native_supervoxel_features(
     enabled_features: Mapping[str, object],
     settings: Optional[Dict[str, object]] = None,
     image_name: str = "",
-    union_bin: bool = True,
+    union_bin: bool = False,
     progress_callback: Optional[Callable[[int], None]] = None,
     timings: Optional[Dict[str, float]] = None,
 ) -> pd.DataFrame:
@@ -243,8 +290,9 @@ def extract_native_supervoxel_features(
         enabled_features: PyRadiomics ``enabledFeatures`` mapping.
         settings: PyRadiomics / habit settings.
         image_name: Optional column suffix.
-        union_bin: True = one shared bin (supervoxel science). False =
-            per-label ``binWidth`` (each_habitat / execute() science).
+        union_bin: False (default) = per-label ``binWidth``, matching
+            PyRadiomics ``execute()`` and ``each_habitat``. True = one
+            shared bin on the union mask (optional shared gray scale).
         progress_callback: Optional callback invoked once with ``K``.
         timings: Optional dict filled with millisecond breakdowns
             (``crop_ms``, ``bin_ms``, ``c_<class>_ms``, ``formula_ms``,
@@ -277,6 +325,9 @@ def extract_native_supervoxel_features(
             image, supervoxel_map, **settings
         )
 
+    pad = _resolve_supervoxel_pad_distance(settings) if _should_crop_union_bbox(settings) else 0
+    if _should_crop_union_bbox(settings):
+        image, supervoxel_map = _sitk_union_bbox_crop(image, supervoxel_map, pad)
     image_np = np.ascontiguousarray(sitk.GetArrayFromImage(image).astype(np.float64))
     sv_np = np.ascontiguousarray(sitk.GetArrayFromImage(supervoxel_map).astype(np.int32))
     if image_np.shape != sv_np.shape:
@@ -286,9 +337,6 @@ def extract_native_supervoxel_features(
     spacing = tuple(float(v) for v in image.GetSpacing())
     voxel_volume = float(spacing[0] * spacing[1] * spacing[2])
     voxel_shift = float(settings.get("voxelArrayShift", 0))
-    pad = _resolve_supervoxel_pad_distance(settings) if _should_crop_union_bbox(settings) else 0
-    if _should_crop_union_bbox(settings):
-        image_np, sv_np, _crop = _numpy_union_crop(image_np, sv_np, pad)
     clock["crop_ms"] = (_now() - t0) * 1000.0
 
     t0 = _now()

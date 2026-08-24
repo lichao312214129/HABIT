@@ -213,7 +213,8 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             **kwargs: Optional keys — ``subject``, ``image``, ``use_torch_radiomics``,
                 ``torch_device``, ``torch_gpus``, ``torch_gpu_count``, ``gpu_slot_index``,
                 ``torch_dtype``, ``supervoxel_batch``, ``supervoxel_union_bbox_crop``,
-                ``use_supervoxel_cext``, ``supervoxel_pad_distance``, ``output_float32``.
+                ``use_supervoxel_cext``, ``union_bin``, ``supervoxel_pad_distance``,
+                ``output_float32``.
 
         Returns:
             pd.DataFrame: DataFrame with radiomics features for each supervoxel
@@ -371,10 +372,11 @@ class SupervoxelRadiomicsExtractor(BaseClusteringExtractor):
             )
 
         logger.info(
-            "supervoxel_radiomics union-mask binning enabled: subject=%s image=%s "
-            "supervoxel_batch=%d union_bbox_crop=%s matrix_backend=%s",
+            "supervoxel_radiomics binning: subject=%s image=%s "
+            "union_bin=%s supervoxel_batch=%d union_bbox_crop=%s matrix_backend=%s",
             subject_id,
             img_name,
+            radiomics_settings.get("union_bin", False),
             supervoxel_batch,
             radiomics_settings.get("supervoxel_union_bbox_crop", True),
             matrix_backend,

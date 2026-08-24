@@ -23,6 +23,7 @@ SUPERVOXEL_SETTING_KEYS: Tuple[str, ...] = (
     "supervoxel_union_bbox_crop",
     "supervoxel_pad_distance",
     "use_supervoxel_cext",
+    "union_bin",
 )
 
 

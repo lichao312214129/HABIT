@@ -68,6 +68,7 @@ class SupervoxelRadiomicsFeaturesParams(BaseModel):
     supervoxel_union_bbox_crop: bool = True
     supervoxel_pad_distance: Optional[int] = None
     use_supervoxel_cext: Union[str, bool] = "auto"
+    union_bin: bool = False
     use_torch_radiomics: Union[str, bool] = "auto"
     torch_device: str = "auto"
     torch_dtype: str = "float32"
@@ -108,6 +109,9 @@ class SupervoxelRadiomicsFeatures:
             keeps the PyRadiomics ``padDistance`` setting.
         use_supervoxel_cext: ``"auto"``, ``True`` or ``False`` -- whether to
             use the habit native C extension for texture matrices.
+        union_bin: When False (default) each supervoxel is discretized
+            with its own ``binWidth`` edges, matching PyRadiomics
+            ``execute()``. When True, all labels share one union-mask bin.
         use_torch_radiomics: ``"auto"``, ``True`` or ``False`` -- whether to
             use the TorchRadiomics GPU path when torch and CUDA are present.
         torch_device: Torch device string, or ``"auto"`` to select one.
@@ -127,6 +131,7 @@ class SupervoxelRadiomicsFeatures:
         supervoxel_union_bbox_crop: bool = True,
         supervoxel_pad_distance: Optional[int] = None,
         use_supervoxel_cext: Union[str, bool] = "auto",
+        union_bin: bool = False,
         use_torch_radiomics: Union[str, bool] = "auto",
         torch_device: str = "auto",
         torch_dtype: str = "float32",
@@ -162,6 +167,7 @@ class SupervoxelRadiomicsFeatures:
         self.supervoxel_union_bbox_crop = bool(supervoxel_union_bbox_crop)
         self.supervoxel_pad_distance = supervoxel_pad_distance
         self.use_supervoxel_cext = use_supervoxel_cext
+        self.union_bin = bool(union_bin)
         self.use_torch_radiomics = use_torch_radiomics
         self.torch_device = str(torch_device)
         self.torch_dtype = str(torch_dtype)
@@ -196,6 +202,7 @@ class SupervoxelRadiomicsFeatures:
             "supervoxel_union_bbox_crop": self.supervoxel_union_bbox_crop,
             "supervoxel_pad_distance": self.supervoxel_pad_distance,
             "use_supervoxel_cext": self.use_supervoxel_cext,
+            "union_bin": self.union_bin,
             "use_torch_radiomics": self.use_torch_radiomics,
             "torch_device": self.torch_device,
             "torch_dtype": self.torch_dtype,
@@ -225,6 +232,7 @@ class SupervoxelRadiomicsFeatures:
         overrides: Dict[str, object] = {
             "supervoxel_union_bbox_crop": self.supervoxel_union_bbox_crop,
             "use_supervoxel_cext": self.use_supervoxel_cext,
+            "union_bin": self.union_bin,
         }
         if self.supervoxel_pad_distance is not None:
             overrides["supervoxel_pad_distance"] = int(self.supervoxel_pad_distance)

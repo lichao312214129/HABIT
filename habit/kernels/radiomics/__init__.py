@@ -16,7 +16,7 @@
 
 Describing thousands of supervoxels with full PyRadiomics feature vectors is
 the numerical heart of habitat analysis, and the most expensive part of a run.
-This subpackage holds that machinery -- the union-mask binning, the batched
+This subpackage holds that machinery -- per-label or union-mask binning, the batched
 texture-matrix path (native C extension, with a PyRadiomics fallback), and the
 optional TorchRadiomics GPU backend -- as arrays-in, table-out functions.
 

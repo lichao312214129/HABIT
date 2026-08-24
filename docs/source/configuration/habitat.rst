@@ -302,7 +302,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 **concat(supervoxel_radiomics(<modality>, params_file), ...)**:
 
       - **Description**: Per supervoxel label, extract **whole-ROI** radiomics texture (not voxel kernel neighborhoods). Must sit inside ``concat(...)`` (or another outer combiner); single-modality example: ``concat(supervoxel_radiomics(T2, params_file))``.
-      - **Discretization**: One PyRadiomics ``_applyBinning`` on the union mask of all supervoxels (``sv_map > 0``), then per-label ``cMatrices``
+      - **Discretization**: Per-label ``binWidth`` by default (``union_bin=false``), matching PyRadiomics ``execute()``. Set ``union_bin=true`` for one shared bin on the union mask (``sv_map > 0``), then per-label extract
       - **Matrix backend**: ``use_supervoxel_cext`` default ``auto``: use C extension batch matrix build when ``supervoxel_cext`` is compiled (``pip install -e .``); otherwise fallback Torch/PyRadiomics stacked matrix path. ``false`` **forces** Torch/PyRadiomics stacked matrices (``matrix_backend=torch_cmatrices``) even if C extension exists
       - **Feature backend**: When ``use_torch_radiomics`` resolves to torch, TorchRadiomics (GPU/CPU torch); else CPU PyRadiomics (same semantics)
       - **Parameters** (in ``feature_construction.supervoxel_level.params``; may inherit torch keys from ``voxel_level.params``):
@@ -310,6 +310,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         - ``params_file`` (str, optional): PyRadiomics parameter YAML; omit for bundled full-set preset
         - ``supervoxel_batch`` (int): batch group size, default ``64`` (not kernel radius)
         - ``supervoxel_union_bbox_crop`` (bool): crop to union bbox, default ``true``
+        - ``union_bin`` (bool): per-label bins (default ``false``, ``execute()`` science) or one union-mask bin (``true``)
         - ``use_supervoxel_cext`` (str | bool): ``auto`` / ``true`` / ``false``, default ``auto``; must be in ``supervoxel_level.params`` (not in ``params_file``)
         - ``use_torch_radiomics`` (str): ``auto`` / ``true`` / ``false``
         - ``torch_gpus`` / ``torch_gpu_count`` / ``torch_device`` / ``torch_dtype``: same as voxel level
@@ -321,7 +322,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
   - **Method comparison**:
 
     - ``mean_voxel_features()``: depends on ``voxel_level`` features; fast; suitable for most cases
-    - ``concat(supervoxel_radiomics(...), ...)``: standalone ROI radiomics; union-mask bin once + per-label extract; feature values **differ** from legacy per-label ``execute`` (per-label bin)
+    - ``concat(supervoxel_radiomics(...), ...)``: standalone ROI radiomics; default per-label bin matches ``execute()``; set ``union_bin=true`` for a shared gray scale across supervoxels
 
   - **Full examples**:
 

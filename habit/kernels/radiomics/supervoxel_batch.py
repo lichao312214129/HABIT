@@ -17,7 +17,8 @@ Batched supervoxel ROI radiomics mirroring PyRadiomics voxelBased orchestration.
 
 Flow (aligned with ``RadiomicsFeaturesBase._calculateVoxels``):
 
-1. Discretize once on the union supervoxel mask via PyRadiomics ``_applyBinning``.
+1. Discretize per label by default (``union_bin=False``, ``execute()``
+   science), or once on the union mask when ``union_bin=True``.
 2. Crop image/mask/supervoxel map to the union-mask bounding box (+ ``padDistance``).
 3. For each feature class, iterate supervoxel labels in batches (``supervoxel_batch``).
 3. Per label in a batch: ``cMatrices`` via ``_calculateMatrix`` (PyRadiomics native ROI path).
@@ -1429,15 +1430,16 @@ def extract_batched_supervoxel_features(
     dtype_name: str = "float64",
     batch_size: int = DEFAULT_SUPERVOXEL_BATCH,
     progress_callback: Optional[Callable[[int], None]] = None,
-    union_bin: bool = True,
+    union_bin: bool = False,
 ) -> pd.DataFrame:
     """
     Extract supervoxel ROI radiomics on GPU/CPU via TorchRadiomics.
 
-    Discretization uses PyRadiomics ``_applyBinning`` once on the union supervoxel
-    mask; per-label matrices use ``cMatrices`` inside ``_initCalculation``, or the
-    habit C-extension batch path when ``use_supervoxel_cext`` resolves to true (default
-    ``auto`` when ``_sv_cmatrices`` is compiled).
+    Discretization is per-label by default (``union_bin=False``) so
+    ``binWidth`` gray levels match ``execute()``. Set ``union_bin=True``
+    to discretize once on the union mask. Per-label matrices use
+    ``cMatrices`` or the habit C-extension batch path when
+    ``use_supervoxel_cext`` resolves to true (default ``auto``).
 
     Args:
         image: Input SimpleITK image.
@@ -1450,9 +1452,9 @@ def extract_batched_supervoxel_features(
         dtype_name: ``float32`` or ``float64``.
         batch_size: Number of supervoxels per batch group.
         progress_callback: Optional callback invoked once per processed label.
-        union_bin: When True (default, supervoxel science) discretize once on
-            the union mask. When False, discretize each label independently
-            so ``binWidth`` gray levels match per-ROI ``execute()``.
+        union_bin: When False (default) discretize each label independently
+            so ``binWidth`` gray levels match per-ROI ``execute()``. When
+            True, discretize once on the union mask (shared gray scale).
 
     Returns:
         pd.DataFrame: One row per supervoxel with PyRadiomics-style column names.
@@ -1613,10 +1615,10 @@ def extract_supervoxel_features_pyradiomics(
     settings: Optional[Dict[str, object]] = None,
     batch_size: int = DEFAULT_SUPERVOXEL_BATCH,
     progress_callback: Optional[Callable[[int], None]] = None,
-    union_bin: bool = True,
+    union_bin: bool = False,
 ) -> pd.DataFrame:
     """
-    Extract supervoxel ROI radiomics via native CPU PyRadiomics with union-mask bin.
+    Extract supervoxel ROI radiomics via native CPU PyRadiomics.
 
     Args:
         image: Input SimpleITK image.
@@ -1627,8 +1629,9 @@ def extract_supervoxel_features_pyradiomics(
         settings: PyRadiomics settings dict.
         batch_size: Labels per batch group.
         progress_callback: Optional callback invoked once per processed label.
-        union_bin: When True (default) discretize once on the union mask.
-            When False, use per-label ``_applyBinning`` (habitat execute() science).
+        union_bin: When False (default) use per-label ``_applyBinning``
+            (``execute()`` science). When True, discretize once on the
+            union mask (shared gray scale).
 
     Returns:
         pd.DataFrame: One row per supervoxel.

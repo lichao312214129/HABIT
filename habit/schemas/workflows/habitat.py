@@ -423,10 +423,11 @@ class SupervoxelLevelConfig(BaseModel):
             "Parameters for the supervoxel-level feature aggregator. "
             "For supervoxel_radiomics, habit keys include params_file, supervoxel_batch "
             "(default 64), supervoxel_union_bbox_crop (default true), supervoxel_pad_distance, "
-            "use_supervoxel_cext (default auto: native C extension when built; false forces "
-            "Torch/PyRadiomics stacked-matrix path), use_torch_radiomics, torch_gpus, "
-            "torch_gpu_count, torch_device, and torch_dtype (torch keys may inherit from "
-            "voxel_level.params)."
+            "union_bin (default false: per-label binWidth matching execute(); true = one "
+            "shared union-mask bin), use_supervoxel_cext (default auto: native C extension "
+            "when built; false forces Torch/PyRadiomics stacked-matrix path), "
+            "use_torch_radiomics, torch_gpus, torch_gpu_count, torch_device, and "
+            "torch_dtype (torch keys may inherit from voxel_level.params)."
         ),
     )
 

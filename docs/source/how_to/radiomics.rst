@@ -2,7 +2,10 @@ Traditional radiomics
 =====================
 
 Goal: whole-ROI PyRadiomics **without** habitat maps. For habitat features use
-:doc:`extract_features`.
+:doc:`extract_features`. Feature definitions follow IBSI (3-D averaged
+texture) and match PyRadiomics ``execute()`` under default settings; the
+official digital-phantom comparison and alignment notes are on
+:doc:`../reference/features/traditional`.
 
 Run the demo
 ------------

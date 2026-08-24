@@ -19,7 +19,8 @@
 # NOTE (habit supervoxel_radiomics): supervoxel_batch, supervoxel_union_bbox_crop,
 # use_supervoxel_cext, use_torch_radiomics, torchGpus, etc. belong in
 # feature_construction.supervoxel_level.params (or inherit from voxel_level.params), NOT in this file.
-# Habit discretizes once on the union supervoxel mask, then extracts ROI texture per label via PyRadiomics cMatrices.
+# Habit default: per-label binWidth (union_bin=false, matching execute()). Set
+# feature_construction.supervoxel_level.params.union_bin=true for one shared bin.
 # Some points in determining better values are added as comments where appropriate
 # When adapting and using these settings for an analysis, be sure to add the PyRadiomics version used to allow you to
 # easily recreate your extraction at a later timepoint:

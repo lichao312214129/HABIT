@@ -70,7 +70,7 @@ Override `kernel_radius` only when needed (e.g. MRI → `1`):
 For **`supervoxel_radiomics`**, `params_file` is also optional (bundled full-set preset). Set in `feature_construction.supervoxel_level.params`:
 `supervoxel_batch` (default 64), `use_supervoxel_cext` (default auto),
 and the same torch keys as above (inherit from `voxel_level.params` when omitted). Extraction
-discretizes once on the union supervoxel mask (`sv_map > 0`), then runs per-label ROI matrices.
+uses per-label `binWidth` by default (`union_bin=false`, matching `execute()`); set `union_bin=true` for one shared union-mask bin.
 With `use_supervoxel_cext: auto`, habit uses the native C-extension batched matrix path when
 `_sv_cmatrices` is built; otherwise it falls back to the prior Torch/PyRadiomics stacked-matrix
 path. Torch feature evaluation still follows `use_torch_radiomics`. `kernel_radius` is **not** used
