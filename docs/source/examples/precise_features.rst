@@ -3,7 +3,7 @@ Precise features: atoms, then paper combinations
 
 **Level:** atomic · **Data:** ``demo_data/preprocessed`` · **Extras:** ``[viz]`` ·
 **Time:** ~5–15 min (atoms) + a few more minutes for the optional ROI-edge
-follow-up (three cropped subjects, morphological shrink + intersection)
+follow-up (three cropped subjects, MONAI B-spline warp + intersection)
 
 Voxel-wise radiomics is noisy: extracting a feature map twice from the same
 anatomy — a simulated re-acquisition, or a slightly different kernel radius
@@ -164,15 +164,16 @@ Optional ROI-edge follow-up
 ---------------------------
 
 The paper's default chain (noise, translation, rotation) does **not**
-change ROI *shape*. Mask-only
-:class:`~habit.domain.ImagePerturbationRegistry` ``morphological``
-does: a uniform shrink (``grow_mm=-4``) simulates a systematic
-"always smaller" contour. The **intersection** of the original and
-shrunk masks is the core both contours still include. Habitats are
-computed on each ROI, then **restricted to that intersection** before
-pairing or features. This is inter-rater contouring of the mask, not
-a deformable re-acquisition (``bspline_deform`` warps image and mask
-together). It is **not** Prior Appendix S2.
+wrinkle the ROI. :class:`~habit.domain.ImagePerturbationRegistry`
+``bspline_deform`` does: a MONAI ``Rand3DElasticd`` B-spline / elastic
+free-form field warps **image and mask together** so the contour stays
+paired with anatomy. ``target_dice`` scales that field so ROI overlap
+is about 0.85. The **intersection** of the original and warped masks
+is the core both contours still cover. Habitats are computed on each
+subject, then **restricted to that intersection** before pairing or
+features. This is a deformable re-acquisition, not mask-only inter-rater
+contouring (``morphological`` grow/shrink stays in the contour section
+below). It is **not** Prior Appendix S2. Extra ``monai`` is required.
 
 The same block then extracts **every light habitat-map family** on
 those restricted maps — volume, ``non_radiomics``, ITH, MSI, and
@@ -199,21 +200,21 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    :end-before: # END roi_followup
 
 .. figure:: ../_static/images/examples/precise_perturb_mask_edge.png
-   :alt: Original and shrunk ROI contours with intersection and XOR
+   :alt: Original and B-spline warped ROI contours with intersection and XOR
    :width: 720
 
    Same crop and axial index. Cyan solid = original ROI; vermillion
-   dashed = shrunk ROI; sky-blue fill = intersection; yellow =
+   dashed = warped ROI; sky-blue fill = intersection; yellow =
    membership change (XOR, right panel).
-   ``ImagePerturbationRegistry.create("morphological", grow_mm=-4)``
+   ``ImagePerturbationRegistry.create("bspline_deform", target_dice=0.85)``
    on a :class:`~habit.contracts.subject.Subject`.
 
 .. figure:: ../_static/images/examples/precise_habitat_stability_compare.png
    :alt: One-step habitats restricted to the ROI intersection
    :width: 720
 
-   One-step habitats (``n_habitats=3``) on the original vs shrunk
-   subject, both restricted to the intersection. The shrunk map is
+   One-step habitats (``n_habitats=3``) on the original vs warped
+   subject, both restricted to the intersection. The warped map is
    remapped onto the original ids by mean-intensity Hungarian pairing
    (:func:`~habit.align_habitat_map`, ``method="centroid"``,
    ``force=True``) before
@@ -237,7 +238,7 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    Light habitat-map families on the intersection: ICC(3A,1) point
    and 95% CI whisker for volume / ITH / MSI / region-count columns
    plus a random graph subset (``random_state=0``), three cropped
-   ``demo_data`` subjects, original-core vs mean-aligned shrunk-core
+   ``demo_data`` subjects, original-core vs mean-aligned warped-core
    (:func:`~habit.icc3a_1`, :func:`~habit.viz.plot_precision_icc`,
    ``orientation="row"``). Colour is ``LCL >= 0.5`` only — **not** a
    PreciseFeatureSet. Wide intervals at ``n=3`` are honest. The
@@ -245,11 +246,11 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    subsampled.
 
 .. figure:: ../_static/images/examples/precise_habitat_feature_delta.png
-   :alt: Subject by feature heatmap of shrunk-core minus original-core
+   :alt: Subject by feature heatmap of warped-core minus original-core
    :width: 720
 
    Subject x feature heatmap of the intersection tables
-   (``shrunk - original``), column z-score, top-40 variance columns,
+   (``warped - original``), column z-score, top-40 variance columns,
    FDR ``*`` on feature names
    (:func:`~habit.viz.plot_graph_feature_heatmap`, ``reference=``,
    ``star_significant=True``). Same three subjects as the ICC panel.

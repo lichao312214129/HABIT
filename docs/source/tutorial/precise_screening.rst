@@ -176,22 +176,24 @@ and clustering::
 Optional ROI-edge follow-up
 ---------------------------
 
-The paper chain does not wrinkle the ROI. Mask-only
-``morphological`` shrink (``grow_mm=-4``) moves the contour inward.
-The **intersection** of the original and shrunk masks is the core
-both contours still include. Habitats are computed on each ROI, then
-restricted to that intersection before pairing, Dice, and features.
-This is inter-rater contouring of the mask, not a deformable
-re-acquisition (``bspline_deform``). That is **not** Prior Appendix
-S2. Copy-ready code lives on :doc:`../examples/precise_features`
+The paper chain does not wrinkle the ROI. ``bspline_deform``
+(MONAI ``Rand3DElasticd`` B-spline / elastic FFD) warps **image and
+mask together** so the contour stays paired with anatomy.
+``target_dice`` scales that field so ROI overlap is about 0.85.
+The **intersection** of the original and warped masks is the core
+both contours still cover. Habitats are computed on each subject,
+then restricted to that intersection before pairing, Dice, and
+features. This is a deformable re-acquisition, not mask-only
+grow/shrink. That is **not** Prior Appendix S2. Extra ``monai`` is
+required. Copy-ready code lives on :doc:`../examples/precise_features`
 (the ``# BEGIN roi_followup`` block). Same crop and slice for the
 map figures; the ICC / difference panels use three cropped subjects.
 
 .. figure:: ../_static/images/examples/precise_perturb_mask_edge.png
-   :alt: Original and shrunk ROI contours with intersection and XOR
+   :alt: Original and B-spline warped ROI contours with intersection and XOR
    :width: 720
 
-   Cyan solid = original ROI; vermillion dashed = shrunk ROI;
+   Cyan solid = original ROI; vermillion dashed = warped ROI;
    sky-blue fill = intersection; yellow = membership change (XOR,
    right panel). Same axial index as the habitat compare below.
 
@@ -199,8 +201,8 @@ map figures; the ICC / difference panels use three cropped subjects.
    :alt: One-step habitats restricted to the ROI intersection
    :width: 720
 
-   One-step habitats on the original vs shrunk subject, both
-   restricted to the intersection. Shrunk ids are remapped by
+   One-step habitats on the original vs warped subject, both
+   restricted to the intersection. Warped ids are remapped by
    mean-intensity Hungarian pairing
    (:func:`~habit.align_habitat_map`, ``method="centroid"``,
    ``force=True``) so the same colour is the same intensity-defined
@@ -224,17 +226,17 @@ map figures; the ICC / difference panels use three cropped subjects.
    intersection. The gallery figure keeps the teaching columns plus
    a random graph subset (``random_state=0``); the script still
    scores every shared column. Three demo subjects, original-core vs
-   mean-aligned shrunk-core (:func:`~habit.icc3a_1`,
+   mean-aligned warped-core (:func:`~habit.icc3a_1`,
    :func:`~habit.viz.plot_precision_icc`). Colour is
    ``LCL >= 0.5`` only — this is **not** the voxel-texture
    PreciseFeatureSet. Wide intervals at ``n=3`` are expected.
 
 .. figure:: ../_static/images/examples/precise_habitat_feature_delta.png
-   :alt: Subject by feature heatmap of shrunk-core minus original-core
+   :alt: Subject by feature heatmap of warped-core minus original-core
    :width: 720
 
    Paired difference heatmap on the same intersection tables
-   (``shrunk - original``; :func:`~habit.viz.plot_graph_feature_heatmap`).
+   (``warped - original``; :func:`~habit.viz.plot_graph_feature_heatmap`).
 
 Optional contour follow-up
 --------------------------
@@ -309,9 +311,9 @@ What is not claimed
   Appendix S2. HABIT implements it, plus gradient-weighted and
   slice-extent operators, as an optional contour follow-up
   (:doc:`../examples/precise_features`). The ROI-edge follow-up uses
-  morphological shrink and scores habitats only on the intersection
-  of the two masks. ``bspline_deform`` warps the contour with the
-  image; it is not grow/shrink and is not part of the default Precise
+  ``bspline_deform`` (MONAI B-spline / elastic FFD) and scores habitats
+  only on the intersection of the two masks. Uniform grow/shrink is
+  the separate contour section; neither is in the default Precise
   chain.
 * **Not leakage-proof.** Screening on the same cohort that will be
   clustered, then testing a classifier on that cohort, is still a

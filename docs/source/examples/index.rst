@@ -172,7 +172,7 @@ the ROI, optional cyan contour.
 * :doc:`habitat_feature_routes` — habitat feature routes
 * :doc:`habitat_preprocessing` — habitat preprocessing
 * :doc:`habitat_preprocessing_api` — habitat preprocessing API
-* :doc:`precise_features` — precise features plus ROI-edge intersection habitats (shrink, all light families, ICC / difference) and contour operators
+* :doc:`precise_features` — precise features plus ROI-edge intersection habitats (MONAI B-spline, all light families, ICC / difference) and contour operators
 * :doc:`custom_voxel_features` — custom voxel features
 * :doc:`graph_features` — graph topology; one-step → extract → 2D/3D figures
 * :doc:`habitat_feature_compare` — each_habitat contrast figures (heatmap / pair-delta / CVA components / violin / faceted bars)

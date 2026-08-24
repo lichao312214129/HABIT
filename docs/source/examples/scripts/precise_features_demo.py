@@ -12,12 +12,12 @@ and a PreciseFeatureSet:
 * precise = intersection of those flags (identify_precise_features)
 
 Habitats from the full texture set vs the precise subset come after.
-An optional follow-up shrinks the ROI edge (mask-only morphological
-perturbation), keeps only the intersection of the two masks, extracts
-every light habitat-map family on that core, and scores ICC + 95% CI
-plus a paired difference heatmap. The one-call recipe
-identify_precise_voxel_features is optional (see the rst page), not
-this script.
+An optional follow-up warps image and mask together with MONAI
+B-spline / elastic FFD (bspline_deform), keeps only the intersection
+of the two ROIs, extracts every light habitat-map family on that
+core, and scores ICC + 95% CI plus a paired difference heatmap. The
+one-call recipe identify_precise_voxel_features is optional (see the
+rst page), not this script.
 
 Run from the repository root::
 
@@ -347,9 +347,10 @@ print("Wrote " + ", ".join(f"out/{name}" for name in written))
 # END figures
 
 # BEGIN roi_followup
-# Optional follow-up (not Prior Appendix S2): mask-only ROI-edge
-# shrink, then score habitats and every light habitat-map family on
-# the intersection of the two ROIs. Paste after the Script block.
+# Optional follow-up (not Prior Appendix S2): MONAI B-spline /
+# elastic FFD (bspline_deform) warps image and mask together, then
+# score habitats and every light habitat-map family on the
+# intersection of the two ROIs. Paste after the Script block.
 # Uses _crop_to_roi, DATA, MODALITIES, ROI.
 from dataclasses import replace
 from typing import Dict, List, Optional, Tuple
@@ -384,11 +385,17 @@ from matplotlib.patches import Patch
 
 Path("out").mkdir(exist_ok=True)
 
-# P1 shrink: a systematic "always smaller" contour. Intersection of
-# original and shrunk masks is the core both contours still include.
-# The same intersection + restrict pattern works for grow / gradient.
+# MONAI Rand3DElastic B-spline / elastic warp. Image and mask share
+# one displacement field so the contour stays paired with anatomy.
+# target_dice scales that field so ROI overlap is about 0.85.
+# Intersection of the two masks is the core both contours still cover.
 edge = ImagePerturbationRegistry.create(
-    "morphological", grow_mm=-4.0, roi=ROI, connectivity=1
+    "bspline_deform",
+    target_dice=0.85,
+    dice_tolerance=0.03,
+    sigma_range=(1.0, 2.0),
+    magnitude_range=(10.0, 15.0),
+    device="cpu",
 )
 
 
@@ -454,8 +461,8 @@ first_bundle: Optional[tuple] = None
 icc_source = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
 for item in icc_source:
     cropped = _crop_to_roi(item, MODALITIES[0], ROI)
-    print(f"ROI-edge shrink + intersection habitats: {cropped.subject_id}", flush=True)
-    edge_item = edge(cropped, rng=np.random.default_rng(0))
+    print(f"B-spline warp + intersection habitats: {cropped.subject_id}", flush=True)
+    edge_item = edge(cropped, rng=np.random.default_rng(7))
     orig_mask = np.asarray(cropped.mask(ROI).data) > 0
     edge_mask = np.asarray(edge_item.mask(ROI).data) > 0
     intersection = orig_mask & edge_mask
@@ -463,7 +470,7 @@ for item in icc_source:
     n_edge = int(edge_mask.sum())
     n_inter = int(intersection.sum())
     print(
-        f"  ROI voxels original={n_orig} shrunk={n_edge} intersection={n_inter}",
+        f"  ROI voxels original={n_orig} warped={n_edge} intersection={n_inter}",
         flush=True,
     )
     orig_fit = one_step_habitat(
@@ -533,7 +540,7 @@ with use_style("radiology"):
         1, 2, figsize=(8.8, 4.4), constrained_layout=True
     )
     for ax, show_core, title in (
-        (axes_edge[0], False, "Original vs shrunk ROI"),
+        (axes_edge[0], False, "Original vs B-spline warped ROI"),
         (axes_edge[1], True, "Intersection and XOR"),
     ):
         ax.imshow(
@@ -565,7 +572,7 @@ with use_style("radiology"):
     fig_edge.legend(
         handles=[
             Line2D([0], [0], color=original_color, lw=1.6, label="Original ROI"),
-            Line2D([0], [0], color=edge_color, lw=1.6, ls="--", label="Shrunk ROI"),
+            Line2D([0], [0], color=edge_color, lw=1.6, ls="--", label="Warped ROI"),
             Patch(facecolor=inter_color, edgecolor="none", alpha=0.35, label="Intersection"),
             Patch(facecolor=xor_color, edgecolor="none", alpha=0.55, label="XOR"),
         ],
@@ -580,7 +587,7 @@ fig_cmp = plot_habitat_label_compare(
     cropped.image(MODALITIES[0]),
     ref_core,
     aligned_core,
-    titles=("Original habitats in intersection", "Shrunk habitats in intersection"),
+    titles=("Original habitats in intersection", "Warped habitats in intersection"),
     index=index,
     align_labels=False,
     display_convention="native",
@@ -602,7 +609,7 @@ with use_style("radiology"):
 fig_dice.savefig("out/precise_habitat_dice.png", dpi=150, bbox_inches="tight")
 
 # ICC(3A,1) on every shared light-family column. One row per subject,
-# two columns (original-core vs aligned shrunk-core). n=3 => wide CIs.
+# two columns (original-core vs aligned warped-core). n=3 => wide CIs.
 shared_names = set(orig_rows[0]) & set(edge_rows[0])
 feature_names = [name for name in LIGHT_FIRST if name in shared_names]
 feature_names.extend(
@@ -660,7 +667,7 @@ orig_table = pd.DataFrame(orig_rows)
 orig_table.insert(0, "subject_id", subject_ids)
 edge_table = pd.DataFrame(edge_rows)
 edge_table.insert(0, "subject_id", subject_ids)
-# Difference heatmap: highest-variance raw (shrunk - original) columns.
+# Difference heatmap: highest-variance raw (warped - original) columns.
 delta = edge_table.set_index("subject_id") - orig_table.set_index("subject_id")
 variances = delta.var(axis=0, skipna=True).sort_values(ascending=False)
 delta_features = tuple(variances.head(40).index)
@@ -671,8 +678,8 @@ fig_delta = plot_graph_feature_heatmap(
     features=delta_features,
     zscore=True,
     star_significant=True,
-    title="Intersection features: shrunk minus original",
-    cbar_label="Z-scored difference (shrunk - original)",
+    title="Intersection features: warped minus original",
+    cbar_label="Z-scored difference (warped - original)",
 )
 fig_delta.savefig("out/precise_habitat_feature_delta.png", dpi=150, bbox_inches="tight")
 print(
