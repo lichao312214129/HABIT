@@ -126,23 +126,17 @@ def test_ith_features_match_kernel_and_cover_all_model_habitats() -> None:
     subject = make_subject("P1")
     habitat_map = make_habitat_map("P1")
     labels = np.asarray(habitat_map.label_array)
-    table = IthHabitatFeatures()(subject, habitat_map)
+    table = IthHabitatFeatures(include_auxiliary=True)(subject, habitat_map)
     row = table.frame.iloc[0]
-    assert list(table.feature_columns) == ["ith_score"]
-    assert row["ith_score"] == pytest.approx(ith_score(labels))
-    assert "ith_num_habitats" not in table.feature_columns
-    # An absent habitat (id 3 declared by a richer model) still only
-    # emits the score unless auxiliary columns are requested.
-    object.__setattr__(habitat_map, "habitat_ids", (1, 2, 3))
-    table = IthHabitatFeatures()(subject, habitat_map)
-    assert list(table.feature_columns) == ["ith_score"]
-    full = IthHabitatFeatures(include_auxiliary=True)(subject, habitat_map)
-    row = full.frame.iloc[0]
     assert row["ith_score"] == pytest.approx(ith_score(labels))
     assert row["ith_num_habitats"] == 2.0
     assert row["ith_total_area"] == float(np.count_nonzero(labels))
     assert row["habitat_1_regions"] == 1.0
     assert row["habitat_2_regions"] == 1.0
+    # An absent habitat (id 3 declared by a richer model) yields zeros.
+    object.__setattr__(habitat_map, "habitat_ids", (1, 2, 3))
+    table = IthHabitatFeatures(include_auxiliary=True)(subject, habitat_map)
+    row = table.frame.iloc[0]
     assert row["habitat_3_regions"] == 0.0
     assert row["habitat_3_largest_area"] == 0.0
     assert row["habitat_3_area_ratio"] == 0.0
@@ -314,6 +308,53 @@ def test_each_habitat_radiomics_per_habitat_columns() -> None:
     assert row["has_habitat_2"] == 1.0
     assert row["habitat_1_original_firstorder_Mean_of_T1"] == pytest.approx(5.0)
     assert row["habitat_2_original_firstorder_Mean_of_T1"] == pytest.approx(10.0)
+
+
+@pytest.mark.unit
+def test_each_habitat_matches_execute_per_habitat_bin() -> None:
+    """each_habitat keeps per-habitat binWidth (execute science), not union bin."""
+    from habit.domain.habitat_features._radiomics import (
+        build_pyradiomics_extractor,
+        execute_radiomics,
+        harmonize_mask_geometry,
+        sitk_image_from_contract,
+    )
+
+    subject = _aligned_subject()
+    habitat_map = make_habitat_map("P1")
+    params = {
+        "imageType": {"Original": {}},
+        "featureClass": {
+            "firstorder": ["Mean", "Energy"],
+            "glcm": ["Autocorrelation", "Id"],
+        },
+        "setting": {"binWidth": 25, "voxelArrayShift": 0},
+    }
+    table = EachHabitatRadiomicsFeatures(params=params)(subject, habitat_map)
+    row = table.frame.iloc[0]
+    assert row["has_habitat_1"] == 1.0
+    assert row["has_habitat_2"] == 1.0
+
+    extractor = build_pyradiomics_extractor(None, params, owner="test")
+    volume = subject.image("T1")
+    image_sitk = sitk_image_from_contract(volume.load(), volume.geometry)
+    mask_sitk = sitk_image_from_contract(
+        np.asarray(habitat_map.label_array), habitat_map.geometry
+    )
+    harmonize_mask_geometry(image_sitk, mask_sitk)
+    for habitat_id in (1, 2):
+        executed = execute_radiomics(extractor, image_sitk, mask_sitk, habitat_id)
+        for feature in (
+            "original_firstorder_Mean",
+            "original_firstorder_Energy",
+            "original_glcm_Id",
+            "original_glcm_Autocorrelation",
+        ):
+            col = f"habitat_{habitat_id}_{feature}_of_T1"
+            assert col in table.feature_columns
+            assert float(row[col]) == pytest.approx(
+                float(executed[feature]), rel=1e-8, abs=1e-8
+            )
 
 
 @pytest.mark.unit

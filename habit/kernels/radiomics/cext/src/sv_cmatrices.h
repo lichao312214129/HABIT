@@ -79,7 +79,39 @@ int
 sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
                         int *labels, int n_labels, int max_label, int *label_to_idx,
                         int Ng, double binWidth,
+                        double voxelArrayShift, double voxelVolume,
                         double **stats_out, int *n_stats_out);
+
+/*
+ * Vectorized-but-serial-equivalent GLCM formulas on stacked counts
+ * ``P[K, Ng, Ng, Na]``. Column order matches ``GLCM_FORMULA_COLUMNS``
+ * in ``habit.kernels.radiomics.cpu_formulas`` (MCC is omitted).
+ *
+ * ``ng_full`` is length ``n_labels`` (Idn / Idmn scale); ``gray`` is
+ * length ``Ng`` (1-indexed gray-level values).
+ */
+int
+sv_glcm_formulas(const double *P, int n_labels, int Ng, int n_angles,
+                 int symmetrical, const double *gray, const double *ng_full,
+                 double **out_features, int *n_features_out);
+
+/*
+ * MCC = sqrt(second-largest eigenvalue of Q) averaged over angles.
+ * Q[i,j] = sum_k S[i,k] S[j,k] / (px[i] py[k]) on the (optional)
+ * symmetrical normalised GLCM. Uses power iteration + deflation so
+ * the 0.5 s budget never waits on a Python ``eigvalsh`` of [K,Na,Ng,Ng].
+ */
+int
+sv_glcm_mcc(const double *P, int n_labels, int Ng, int n_angles,
+            int symmetrical, double **out_mcc);
+
+/*
+ * GLRLM formulas on stacked counts ``P[K, Ng, Nr, Na]``. Column order
+ * matches ``GLRLM_FORMULA_COLUMNS`` in ``cpu_formulas``.
+ */
+int
+sv_glrlm_formulas(const double *P, int n_labels, int Ng, int Nr, int n_angles,
+                  const double *gray, double **out_features, int *n_features_out);
 
 #ifdef __cplusplus
 }

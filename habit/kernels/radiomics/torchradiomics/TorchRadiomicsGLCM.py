@@ -316,14 +316,22 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
 
     # Diagonal marginals were summed from the raw counts in _calculateMatrix
     # (reproducible; see _diagonalCounts) and only need the normalisation
-    # that the matrix itself already got.
+    # that the matrix itself already got. The C-ext / torch_batch bridge
+    # injects an already-normalised P_glcm without those count buffers;
+    # fall back to summing the injected matrix so GLCM features still run.
     sumP = self._sumP_glcm
-    pxAddy = (
-      self._pxAddy_counts / sumP[:, None, :] if self._pxAddy_counts is not None else None
-    )
-    pxSuby = (
-      self._pxSuby_counts / sumP[:, None, :] if self._pxSuby_counts is not None else None
-    )
+    if self._pxAddy_counts is not None and sumP is not None:
+      pxAddy = self._pxAddy_counts / sumP[:, None, :]
+    elif needed['pxAddy']:
+      pxAddy = self._diagonalCounts(self.P_glcm, 'sum', Ng)
+    else:
+      pxAddy = None
+    if self._pxSuby_counts is not None and sumP is not None:
+      pxSuby = self._pxSuby_counts / sumP[:, None, :]
+    elif needed['pxSuby']:
+      pxSuby = self._diagonalCounts(self.P_glcm, 'diff', Ng)
+    else:
+      pxSuby = None
     self._pxAddy_counts = None
     self._pxSuby_counts = None
 

@@ -28,6 +28,7 @@
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <Python.h>
 #include <numpy/arrayobject.h>
+#include <string.h>
 #include "sv_cmatrices.h"
 
 /* ── array validation helper ─────────────────────────────────────────── */
@@ -403,12 +404,14 @@ py_calculate_firstorder(PyObject *self, PyObject *args)
     PyArrayObject *py_image, *py_sv_map, *py_labels;
     int Ng;
     double binWidth;
+    double voxelArrayShift = 0.0;
+    double voxelVolume = 1.0;
 
-    if (!PyArg_ParseTuple(args, "O!O!O!id",
+    if (!PyArg_ParseTuple(args, "O!O!O!id|dd",
                           &PyArray_Type, &py_image,
                           &PyArray_Type, &py_sv_map,
                           &PyArray_Type, &py_labels,
-                          &Ng, &binWidth))
+                          &Ng, &binWidth, &voxelArrayShift, &voxelVolume))
         return NULL;
 
     double *image = (double *)PyArray_DATA(py_image);
@@ -430,7 +433,7 @@ py_calculate_firstorder(PyObject *self, PyObject *args)
 
     int rc = sv_calculate_firstorder(image, sv_map, size, ndim,
                                      labels, n_labels, max_label, label_to_idx,
-                                     Ng, binWidth,
+                                     Ng, binWidth, voxelArrayShift, voxelVolume,
                                      &stats, &n_stats);
     free(size);
     free(label_to_idx);
@@ -444,6 +447,152 @@ py_calculate_firstorder(PyObject *self, PyObject *args)
     free(stats);
 
     return (PyObject *)py_stats;
+}
+
+static PyObject *
+py_glcm_formulas(PyObject *self, PyObject *args)
+{
+    PyArrayObject *py_p, *py_gray, *py_ng;
+    int symmetrical;
+
+    if (!PyArg_ParseTuple(args, "O!O!O!i",
+                          &PyArray_Type, &py_p,
+                          &PyArray_Type, &py_gray,
+                          &PyArray_Type, &py_ng,
+                          &symmetrical))
+        return NULL;
+
+    if (PyArray_NDIM(py_p) != 4) {
+        PyErr_SetString(PyExc_ValueError, "P_glcm must be [K, Ng, Ng, Na]");
+        return NULL;
+    }
+    int n_labels = (int)PyArray_DIM(py_p, 0);
+    int Ng = (int)PyArray_DIM(py_p, 1);
+    int n_angles = (int)PyArray_DIM(py_p, 3);
+    if ((int)PyArray_DIM(py_p, 2) != Ng) {
+        PyErr_SetString(PyExc_ValueError, "P_glcm gray axes must match");
+        return NULL;
+    }
+
+    PyArrayObject *p64 = (PyArrayObject *)PyArray_FROM_OTF(
+        (PyObject *)py_p, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST);
+    PyArrayObject *g64 = (PyArrayObject *)PyArray_FROM_OTF(
+        (PyObject *)py_gray, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST);
+    PyArrayObject *n64 = (PyArrayObject *)PyArray_FROM_OTF(
+        (PyObject *)py_ng, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST);
+    if (!p64 || !g64 || !n64) {
+        Py_XDECREF(p64); Py_XDECREF(g64); Py_XDECREF(n64);
+        return NULL;
+    }
+
+    double *features = NULL;
+    int n_feat = 0;
+    int rc = sv_glcm_formulas(
+        (const double *)PyArray_DATA(p64),
+        n_labels, Ng, n_angles, symmetrical,
+        (const double *)PyArray_DATA(g64),
+        (const double *)PyArray_DATA(n64),
+        &features, &n_feat);
+    Py_DECREF(p64); Py_DECREF(g64); Py_DECREF(n64);
+    if (rc < 0)
+        return NULL;
+
+    npy_intp dims[2] = {n_labels, n_feat};
+    PyArrayObject *py_out = (PyArrayObject *)PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+    if (!py_out) {
+        free(features);
+        return NULL;
+    }
+    memcpy(PyArray_DATA(py_out), features, (size_t)n_labels * n_feat * sizeof(double));
+    free(features);
+    return (PyObject *)py_out;
+}
+
+static PyObject *
+py_glcm_mcc(PyObject *self, PyObject *args)
+{
+    PyArrayObject *py_p;
+    int symmetrical;
+
+    if (!PyArg_ParseTuple(args, "O!i", &PyArray_Type, &py_p, &symmetrical))
+        return NULL;
+    if (PyArray_NDIM(py_p) != 4) {
+        PyErr_SetString(PyExc_ValueError, "P_glcm must be [K, Ng, Ng, Na]");
+        return NULL;
+    }
+    int n_labels = (int)PyArray_DIM(py_p, 0);
+    int Ng = (int)PyArray_DIM(py_p, 1);
+    int n_angles = (int)PyArray_DIM(py_p, 3);
+    if ((int)PyArray_DIM(py_p, 2) != Ng) {
+        PyErr_SetString(PyExc_ValueError, "P_glcm gray axes must match");
+        return NULL;
+    }
+    PyArrayObject *p64 = (PyArrayObject *)PyArray_FROM_OTF(
+        (PyObject *)py_p, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST);
+    if (!p64)
+        return NULL;
+    double *mcc = NULL;
+    int rc = sv_glcm_mcc(
+        (const double *)PyArray_DATA(p64),
+        n_labels, Ng, n_angles, symmetrical, &mcc);
+    Py_DECREF(p64);
+    if (rc < 0)
+        return NULL;
+    npy_intp dims[1] = {n_labels};
+    PyArrayObject *py_out = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    if (!py_out) {
+        free(mcc);
+        return NULL;
+    }
+    memcpy(PyArray_DATA(py_out), mcc, (size_t)n_labels * sizeof(double));
+    free(mcc);
+    return (PyObject *)py_out;
+}
+
+static PyObject *
+py_glrlm_formulas(PyObject *self, PyObject *args)
+{
+    PyArrayObject *py_p, *py_gray;
+
+    if (!PyArg_ParseTuple(args, "O!O!", &PyArray_Type, &py_p, &PyArray_Type, &py_gray))
+        return NULL;
+    if (PyArray_NDIM(py_p) != 4) {
+        PyErr_SetString(PyExc_ValueError, "P_glrlm must be [K, Ng, Nr, Na]");
+        return NULL;
+    }
+    int n_labels = (int)PyArray_DIM(py_p, 0);
+    int Ng = (int)PyArray_DIM(py_p, 1);
+    int Nr = (int)PyArray_DIM(py_p, 2);
+    int n_angles = (int)PyArray_DIM(py_p, 3);
+    PyArrayObject *p64 = (PyArrayObject *)PyArray_FROM_OTF(
+        (PyObject *)py_p, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST);
+    PyArrayObject *g64 = (PyArrayObject *)PyArray_FROM_OTF(
+        (PyObject *)py_gray, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST);
+    if (!p64 || !g64) {
+        Py_XDECREF(p64);
+        Py_XDECREF(g64);
+        return NULL;
+    }
+    double *features = NULL;
+    int n_feat = 0;
+    int rc = sv_glrlm_formulas(
+        (const double *)PyArray_DATA(p64),
+        n_labels, Ng, Nr, n_angles,
+        (const double *)PyArray_DATA(g64),
+        &features, &n_feat);
+    Py_DECREF(p64);
+    Py_DECREF(g64);
+    if (rc < 0)
+        return NULL;
+    npy_intp dims[2] = {n_labels, n_feat};
+    PyArrayObject *py_out = (PyArrayObject *)PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+    if (!py_out) {
+        free(features);
+        return NULL;
+    }
+    memcpy(PyArray_DATA(py_out), features, (size_t)n_labels * n_feat * sizeof(double));
+    free(features);
+    return (PyObject *)py_out;
 }
 
 /* ── module definition ───────────────────────────────────────────────── */
@@ -495,11 +644,38 @@ static PyMethodDef SvCmatricesMethods[] = {
      "Returns:\n"
      "  P_gldm with shape (n_labels, Ng, max_dependence)"},
 
+    {"glcm_formulas", py_glcm_formulas, METH_VARARGS,
+     "Evaluate stacked GLCM formulas (all default features except MCC).\n\n"
+     "Args:\n"
+     "  P: float64 [K, Ng, Ng, Na] raw counts\n"
+     "  gray: float64 [Ng] gray-level values\n"
+     "  ng_full: float64 [K] per-label Ng for Idn/Idmn\n"
+     "  symmetrical: int 0/1\n\n"
+     "Returns:\n"
+     "  float64 [K, 23] in GLCM_FORMULA_COLUMNS order"},
+
+    {"glcm_mcc", py_glcm_mcc, METH_VARARGS,
+     "Evaluate stacked GLCM MCC (second-largest eigenvalue of Q).\n\n"
+     "Args:\n"
+     "  P: float64 [K, Ng, Ng, Na] raw counts\n"
+     "  symmetrical: int 0/1\n\n"
+     "Returns:\n"
+     "  float64 [K]"},
+
+    {"glrlm_formulas", py_glrlm_formulas, METH_VARARGS,
+     "Evaluate stacked GLRLM formulas for the default 16 features.\n\n"
+     "Args:\n"
+     "  P: float64 [K, Ng, Nr, Na] raw counts\n"
+     "  gray: float64 [Ng] gray-level values\n\n"
+     "Returns:\n"
+     "  float64 [K, 16] in GLRLM_FORMULA_COLUMNS order"},
+
     {"calculate_firstorder", py_calculate_firstorder, METH_VARARGS,
      "Calculate first-order statistics for multiple supervoxel labels.\n\n"
      "Args:\n"
      "  image: float64 ndarray\n  sv_map: int32 ndarray\n  labels: int32 1D ndarray\n"
-     "  Ng: int, binWidth: float\n\n"
+     "  Ng: int, binWidth: float, voxelArrayShift: float = 0,\n"
+     "  voxelVolume: float = 1 (prod of pixel spacing)\n\n"
      "Returns:\n"
      "  stats with shape (n_labels, 17) — Energy, TotalEnergy, Entropy, Minimum,\n"
      "  10Percentile, 90Percentile, Maximum, Mean, Median, InterquartileRange,\n"

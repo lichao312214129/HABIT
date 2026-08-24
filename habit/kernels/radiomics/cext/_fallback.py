@@ -310,6 +310,8 @@ def calculate_firstorder(
     labels: np.ndarray,
     Ng: int,
     binWidth: float,
+    voxelArrayShift: float = 0.0,
+    voxelVolume: float = 1.0,
 ) -> np.ndarray:
     """
     Calculate first-order statistics for multiple labels via PyRadiomics.
@@ -355,6 +357,7 @@ def calculate_firstorder(
             sitk_image,
             sitk_mask,
             binWidth=float(binWidth),
+            voxelArrayShift=float(voxelArrayShift),
         )
         calculator._initCalculation(None)
         row = []

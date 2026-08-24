@@ -1130,6 +1130,293 @@ def _calculate_supervoxels(
     return pd.DataFrame(rows)
 
 
+def _binary_label_mask(supervoxel_map: sitk.Image, label: int) -> sitk.Image:
+    """
+    Build a uint8 binary SimpleITK mask for one label.
+
+    Args:
+        supervoxel_map: Multi-label map aligned with the intensity image.
+        label: Positive label id.
+
+    Returns:
+        sitk.Image: Binary mask (1 inside ``label``, 0 elsewhere).
+    """
+    label_array: np.ndarray = sitk.GetArrayFromImage(supervoxel_map)
+    mask_array: np.ndarray = (label_array == int(label)).astype(np.uint8)
+    mask: sitk.Image = sitk.GetImageFromArray(mask_array)
+    mask.CopyInformation(supervoxel_map)
+    return mask
+
+
+def _ensure_cext_batch_matrix(array: np.ndarray) -> np.ndarray:
+    """
+    Add a leading batch axis so a single-ROI C-ext slice matches cMatrices.
+
+    Args:
+        array: Raw C-ext matrix for one label.
+
+    Returns:
+        np.ndarray: Array with a leading size-1 batch dimension when needed.
+    """
+    arr = np.asarray(array)
+    if arr.ndim in (2, 3):
+        return arr[np.newaxis, ...]
+    return arr
+
+
+def _evaluate_calculator_with_cext_matrix(
+    calculator: object,
+    feature_class: str,
+    feature_names: Sequence[str],
+    p_raw: np.ndarray,
+    angles: Optional[np.ndarray],
+) -> Dict[str, np.ndarray]:
+    """
+    Run PyRadiomics / Torch formulas after injecting a native C-ext matrix.
+
+    Texture classes patch ``radiomics.cMatrices.calculate_*`` for one
+    ``_initCalculation`` so the official post-process (empty-gray prune,
+    symmetrical GLCM, run-length cleanup) stays bit-identical to
+    ``execute()``. First-order is never injected: its voxel-shift /
+    TotalEnergy definitions live on the calculator, not in the C matrix.
+
+    Args:
+        calculator: Feature-class instance already binned on this label.
+        feature_class: PyRadiomics class name.
+        feature_names: Enabled feature names without class prefix.
+        p_raw: C-ext matrix for this label (no leading batch dim, or with one).
+        angles: Angle array for GLCM / GLRLM; ignored otherwise.
+
+    Returns:
+        Dict[str, np.ndarray]: Feature name to value array.
+    """
+    if feature_class == "firstorder" or not feature_names:
+        calculator._initCalculation(None)
+        return _extract_feature_values(calculator, feature_names)
+
+    import radiomics
+
+    fn_name = {
+        "glcm": "calculate_glcm",
+        "glrlm": "calculate_glrlm",
+        "glszm": "calculate_glszm",
+        "ngtdm": "calculate_ngtdm",
+        "gldm": "calculate_gldm",
+    }.get(feature_class)
+    if fn_name is None or not hasattr(radiomics.cMatrices, fn_name):
+        calculator._initCalculation(None)
+        return _extract_feature_values(calculator, feature_names)
+
+    p_batch = _ensure_cext_batch_matrix(p_raw)
+    orig = getattr(radiomics.cMatrices, fn_name)
+
+    def _fake_cmatrices(*_args: object, **_kwargs: object) -> object:
+        if feature_class in ("glcm", "glrlm"):
+            return p_batch, np.asarray(angles)
+        return p_batch
+
+    setattr(radiomics.cMatrices, fn_name, _fake_cmatrices)
+    try:
+        calculator._initCalculation(None)
+    finally:
+        setattr(radiomics.cMatrices, fn_name, orig)
+    return _extract_feature_values(calculator, feature_names)
+
+
+def _calculate_supervoxels_per_label_bin(
+    image: sitk.Image,
+    supervoxel_map: sitk.Image,
+    labels: np.ndarray,
+    *,
+    resolved_features: Mapping[str, Sequence[str]],
+    settings: Dict[str, object],
+    image_name: str,
+    batch_size: int,
+    progress_callback: Optional[Callable[[int], None]],
+    backend: str,
+    torch_settings: Optional[Dict[str, object]],
+) -> pd.DataFrame:
+    """
+    Extract features with per-label ``_applyBinning`` (execute() science).
+
+    Union-mask discretization is intentionally not used: ``binWidth`` offsets
+    from each habitat's own minimum, and a shared union bin would change
+    GLCM / GLRLM gray levels. The union bbox crop (already applied by the
+    caller) is geometry-only.
+
+    When the native C extension is available the discretized gray-level
+    volumes are stitched and every texture class is computed in one
+    multi-label C pass; formulas still run per label on that label's
+    calculator (correct ``Ng`` / ``grayLevels``).
+
+    Args:
+        image: Intensity image, already cropped / normalized if required.
+        supervoxel_map: Multi-label map aligned with ``image``.
+        labels: 1D label ids to extract.
+        resolved_features: Enabled feature names per class.
+        settings: PyRadiomics settings dict.
+        image_name: Optional column suffix.
+        batch_size: Unused for the C pass; kept for API symmetry.
+        progress_callback: Optional callback invoked once per processed label.
+        backend: ``"pyradiomics"`` or ``"torch"``.
+        torch_settings: Extra kwargs for Torch calculators.
+
+    Returns:
+        pd.DataFrame: One row per label with ``supervoxel_id``.
+    """
+    del batch_size
+    label_ids = [int(v) for v in np.asarray(labels, dtype=np.int64).reshape(-1)]
+    feature_classes = sorted(resolved_features.keys())
+    label_array: np.ndarray = sitk.GetArrayFromImage(supervoxel_map)
+
+    per_label_calculators: Dict[int, Dict[str, object]] = {}
+    for label in label_ids:
+        mask_sitk = _binary_label_mask(supervoxel_map, label)
+        if backend == "torch":
+            per_label_calculators[label] = _create_torch_calculators(
+                image,
+                mask_sitk,
+                feature_classes,
+                dict(torch_settings or settings),
+            )
+        else:
+            per_label_calculators[label] = _create_pyradiomics_calculators(
+                image,
+                mask_sitk,
+                feature_classes,
+                settings,
+            )
+
+    use_cext = resolve_use_supervoxel_cext(settings) and is_cext_available()
+    cext_matrices: Dict[str, object] = {}
+    if use_cext:
+        from habit.kernels.radiomics.cext import (
+            calculate_gldm,
+            calculate_glcm,
+            calculate_glrlm,
+            calculate_glszm,
+            calculate_ngtdm,
+        )
+
+        stitched = np.zeros(label_array.shape, dtype=np.int32)
+        max_ng = 1
+        for label in label_ids:
+            calcs = per_label_calculators[label]
+            src: Optional[np.ndarray] = None
+            ng = 1
+            for cls in ("glcm", "glrlm", "glszm", "ngtdm", "gldm"):
+                if cls not in calcs:
+                    continue
+                src = np.asarray(calcs[cls].imageArray)
+                ng = int(calcs[cls].coefficients.get("Ng", int(src.max()) if src.size else 1))
+                break
+            if src is None and "firstorder" in calcs:
+                fo = calcs["firstorder"]
+                src = np.asarray(getattr(fo, "discretizedImageArray", fo.imageArray))
+                ng = int(fo.coefficients.get("Ng", 1))
+            if src is not None:
+                roi = label_array == label
+                stitched[roi] = np.asarray(src[roi], dtype=np.int32)
+                max_ng = max(max_ng, ng)
+
+        labels_i = np.asarray(label_ids, dtype=np.int32)
+        sv_map_i = np.ascontiguousarray(label_array.astype(np.int32))
+        image_i = np.ascontiguousarray(stitched)
+        force2d = int(bool(settings.get("force2D", False)))
+        force2d_dim = int(settings.get("force2Ddimension", 0))
+        distances = np.asarray(settings.get("distances", [1]), dtype=np.int32)
+        nr = int(np.max(image_i.shape))
+        alpha = int(settings.get("gldm_a", 0))
+
+        logger.info(
+            "per-label-bin habitat/supervoxel C-ext pass: backend=%s labels=%d "
+            "Ng=%d classes=%s",
+            cext_backend(),
+            len(label_ids),
+            max_ng,
+            feature_classes,
+        )
+        if "glcm" in resolved_features:
+            cext_matrices["glcm"] = calculate_glcm(
+                image_i, sv_map_i, labels_i, distances, max_ng, force2d, force2d_dim
+            )
+        if "glrlm" in resolved_features:
+            cext_matrices["glrlm"] = calculate_glrlm(
+                image_i, sv_map_i, labels_i, max_ng, nr, force2d, force2d_dim
+            )
+        if "glszm" in resolved_features:
+            cext_matrices["glszm"] = calculate_glszm(
+                image_i, sv_map_i, labels_i, max_ng, force2d, force2d_dim
+            )
+        if "ngtdm" in resolved_features:
+            cext_matrices["ngtdm"] = calculate_ngtdm(
+                image_i, sv_map_i, labels_i, distances, max_ng, force2d, force2d_dim
+            )
+        if "gldm" in resolved_features:
+            cext_matrices["gldm"] = calculate_gldm(
+                image_i, sv_map_i, labels_i, distances, max_ng, alpha, force2d, force2d_dim
+            )
+    else:
+        logger.info(
+            "per-label-bin path without native C-ext (use_supervoxel_cext=%s "
+            "available=%s); using per-label PyRadiomics _initCalculation",
+            settings.get("use_supervoxel_cext", "auto"),
+            is_cext_available(),
+        )
+
+    rows: List[Dict[str, object]] = []
+    for idx, label in enumerate(label_ids):
+        row: Dict[str, object] = {"supervoxel_id": label}
+        calculators = per_label_calculators[label]
+        try:
+            if use_cext:
+                for feature_class in feature_classes:
+                    feature_names = resolved_features.get(feature_class, [])
+                    if not feature_names or feature_class not in calculators:
+                        continue
+                    calculator = calculators[feature_class]
+                    p_raw: Optional[np.ndarray] = None
+                    angles: Optional[np.ndarray] = None
+                    packed = cext_matrices.get(feature_class)
+                    if packed is not None:
+                        if feature_class in ("glcm", "glrlm"):
+                            p_all, angles = packed  # type: ignore[misc]
+                            p_raw = np.asarray(p_all)[idx]
+                        else:
+                            p_raw = np.asarray(packed)[idx]
+                    feature_values = _evaluate_calculator_with_cext_matrix(
+                        calculator,
+                        feature_class,
+                        feature_names,
+                        p_raw if p_raw is not None else np.zeros((1,), dtype=np.float64),
+                        angles,
+                    )
+                    for feature_name, values in feature_values.items():
+                        col = _feature_column_name(feature_class, feature_name, image_name)
+                        row[col] = _scalar_feature_value(values)
+            else:
+                row.update(
+                    _extract_supervoxel_label_features(
+                        calculators,
+                        resolved_features,
+                        label_array=label_array,
+                        label=label,
+                        image_name=image_name,
+                    )
+                )
+        except Exception as exc:
+            logger.warning(
+                "Failed per-label-bin extraction for label %s: %s",
+                label,
+                exc,
+            )
+        rows.append(row)
+        if progress_callback is not None:
+            progress_callback(1)
+
+    return pd.DataFrame(rows)
+
+
 def extract_batched_supervoxel_features(
     image: sitk.Image,
     supervoxel_map: sitk.Image,
@@ -1142,6 +1429,7 @@ def extract_batched_supervoxel_features(
     dtype_name: str = "float64",
     batch_size: int = DEFAULT_SUPERVOXEL_BATCH,
     progress_callback: Optional[Callable[[int], None]] = None,
+    union_bin: bool = True,
 ) -> pd.DataFrame:
     """
     Extract supervoxel ROI radiomics on GPU/CPU via TorchRadiomics.
@@ -1162,6 +1450,9 @@ def extract_batched_supervoxel_features(
         dtype_name: ``float32`` or ``float64``.
         batch_size: Number of supervoxels per batch group.
         progress_callback: Optional callback invoked once per processed label.
+        union_bin: When True (default, supervoxel science) discretize once on
+            the union mask. When False, discretize each label independently
+            so ``binWidth`` gray levels match per-ROI ``execute()``.
 
     Returns:
         pd.DataFrame: One row per supervoxel with PyRadiomics-style column names.
@@ -1172,6 +1463,23 @@ def extract_batched_supervoxel_features(
         raise ValueError(f"batch_size must be >= 1; got {batch_size}")
 
     settings = dict(settings or {})
+    if "union_bin" in settings:
+        union_bin = bool(settings["union_bin"])
+    if resolve_use_supervoxel_cext(settings):
+        from habit.kernels.radiomics.native_batch import (
+            extract_native_supervoxel_features,
+        )
+
+        return extract_native_supervoxel_features(
+            image,
+            supervoxel_map,
+            labels,
+            enabled_features=enabled_features,
+            settings=settings,
+            image_name=image_name,
+            union_bin=union_bin,
+            progress_callback=progress_callback,
+        )
     resolved = _resolve_enabled_features(enabled_features)
     if not resolved:
         raise ValueError("No enabled supervoxel radiomics feature classes.")
@@ -1184,6 +1492,30 @@ def extract_batched_supervoxel_features(
     image, union_mask, supervoxel_map, pad_distance, union_bbox_crop = (
         _prepare_supervoxel_volumes(image, supervoxel_map, settings)
     )
+    if not union_bin:
+        torch_settings = dict(settings)
+        torch_settings["device"] = device
+        torch_settings["dtype"] = dtype
+        logger.info(
+            "batched supervoxel_radiomics per-label bin (union_bin=False): "
+            "device=%s labels=%d union_bbox_crop=%s padDistance=%d",
+            device,
+            len(labels),
+            union_bbox_crop,
+            pad_distance,
+        )
+        return _calculate_supervoxels_per_label_bin(
+            image,
+            supervoxel_map,
+            labels,
+            resolved_features=resolved,
+            settings=settings,
+            image_name=image_name,
+            batch_size=batch_size,
+            progress_callback=progress_callback,
+            backend="torch",
+            torch_settings=torch_settings,
+        )
     torch_settings = dict(settings)
     torch_settings["device"] = device
     torch_settings["dtype"] = dtype
@@ -1281,6 +1613,7 @@ def extract_supervoxel_features_pyradiomics(
     settings: Optional[Dict[str, object]] = None,
     batch_size: int = DEFAULT_SUPERVOXEL_BATCH,
     progress_callback: Optional[Callable[[int], None]] = None,
+    union_bin: bool = True,
 ) -> pd.DataFrame:
     """
     Extract supervoxel ROI radiomics via native CPU PyRadiomics with union-mask bin.
@@ -1294,11 +1627,30 @@ def extract_supervoxel_features_pyradiomics(
         settings: PyRadiomics settings dict.
         batch_size: Labels per batch group.
         progress_callback: Optional callback invoked once per processed label.
+        union_bin: When True (default) discretize once on the union mask.
+            When False, use per-label ``_applyBinning`` (habitat execute() science).
 
     Returns:
         pd.DataFrame: One row per supervoxel.
     """
     settings = dict(settings or {})
+    if "union_bin" in settings:
+        union_bin = bool(settings["union_bin"])
+    if resolve_use_supervoxel_cext(settings):
+        from habit.kernels.radiomics.native_batch import (
+            extract_native_supervoxel_features,
+        )
+
+        return extract_native_supervoxel_features(
+            image,
+            supervoxel_map,
+            labels,
+            enabled_features=enabled_features,
+            settings=settings,
+            image_name=image_name,
+            union_bin=union_bin,
+            progress_callback=progress_callback,
+        )
     resolved = _resolve_enabled_features(enabled_features)
     if not resolved:
         raise ValueError("No enabled supervoxel radiomics feature classes.")
@@ -1310,6 +1662,27 @@ def extract_supervoxel_features_pyradiomics(
     image, union_mask, supervoxel_map, pad_distance, union_bbox_crop = (
         _prepare_supervoxel_volumes(image, supervoxel_map, settings)
     )
+    if not union_bin:
+        logger.info(
+            "supervoxel_radiomics CPU per-label bin (union_bin=False): "
+            "union_bbox_crop=%s padDistance=%d cropped_size=%s labels=%d",
+            union_bbox_crop,
+            pad_distance,
+            image.GetSize(),
+            len(labels),
+        )
+        return _calculate_supervoxels_per_label_bin(
+            image,
+            supervoxel_map,
+            labels,
+            resolved_features=resolved,
+            settings=settings,
+            image_name=image_name,
+            batch_size=batch_size,
+            progress_callback=progress_callback,
+            backend="pyradiomics",
+            torch_settings=None,
+        )
     calculators = _create_pyradiomics_calculators(
         image,
         union_mask,

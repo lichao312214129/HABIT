@@ -93,7 +93,10 @@ Implementation
 ~~~~~~~~~~~~~~
 
 ``habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py``
-(``EachHabitatPlugin``) → ``habitat_radiomics.py``
+(``EachHabitatPlugin``) → ``habitat_radiomics.py``. v1
+:class:`~habit.domain.habitat_features.each_habitat.EachHabitatRadiomicsFeatures`
+uses one union-bbox crop and the native C multi-label path per modality;
+``binWidth`` stays per habitat (``union_bin=False``).
 
 Compare habitats (cohort or one subject)
 ----------------------------------------

@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
@@ -210,8 +211,96 @@ class _Sdist(_sdist):
         super().run()
 
 
+def _probe_openmp_flags() -> tuple[List[str], List[str]]:
+    """
+    Return compile/link OpenMP flags when the toolchain can use them.
+
+    gcc/clang use ``-fopenmp``; MSVC uses ``/openmp``. If headers or libraries
+    are missing the probe fails and the extension still builds without OpenMP
+    (serial loops, identical integer counts).
+    """
+    if os.environ.get("HABIT_DISABLE_OPENMP"):
+        return [], []
+
+    if sys.platform == "win32":
+        compile_args = ["/openmp"]
+        link_args = ["/openmp"]
+    else:
+        compile_args = ["-fopenmp"]
+        link_args = ["-fopenmp"]
+
+    probe_source = (
+        "#ifdef _OPENMP\n"
+        "#include <omp.h>\n"
+        "#endif\n"
+        "int main(void) {\n"
+        "#ifdef _OPENMP\n"
+        "    return omp_get_max_threads() > 0 ? 0 : 1;\n"
+        "#else\n"
+        "    return 0;\n"
+        "#endif\n"
+        "}\n"
+    )
+    try:
+        from setuptools._distutils.ccompiler import new_compiler
+        from setuptools._distutils.errors import CompileError, LinkError
+        from setuptools._distutils.sysconfig import customize_compiler
+    except ImportError:
+        try:
+            from distutils.ccompiler import new_compiler
+            from distutils.errors import CompileError, LinkError
+            from distutils.sysconfig import customize_compiler
+        except ImportError:
+            sys.stderr.write(
+                "setup.py: OpenMP probe skipped (no C compiler helpers); "
+                "building _sv_cmatrices without OpenMP\n"
+            )
+            return [], []
+
+    import tempfile
+
+    compiler = new_compiler()
+    customize_compiler(compiler)
+    tmpdir = tempfile.mkdtemp(prefix="habit_openmp_")
+    src_path = os.path.join(tmpdir, "omp_probe.c")
+    try:
+        with open(src_path, "w", encoding="utf-8") as handle:
+            handle.write(probe_source)
+        objects = compiler.compile(
+            [src_path],
+            output_dir=tmpdir,
+            extra_postargs=list(compile_args),
+        )
+        exe_path = os.path.join(tmpdir, "omp_probe")
+        compiler.link_executable(
+            objects,
+            "omp_probe",
+            output_dir=tmpdir,
+            extra_postargs=list(link_args),
+        )
+        if not os.path.exists(exe_path) and not os.path.exists(exe_path + ".exe"):
+            raise LinkError("OpenMP probe executable was not produced")
+    except (CompileError, LinkError, OSError) as exc:
+        sys.stderr.write(
+            f"setup.py: OpenMP unavailable ({exc}); "
+            "building _sv_cmatrices without OpenMP\n"
+        )
+        return [], []
+    finally:
+        import shutil
+
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+    sys.stderr.write(
+        f"setup.py: compiling {_SV_CMATRICES_MODULE} with OpenMP "
+        f"{compile_args}\n"
+    )
+    return list(compile_args), list(link_args)
+
+
 def _extension_modules() -> Sequence[Extension]:
     """Return the optional supervoxel radiomics C extension list."""
+    omp_compile, omp_link = _probe_openmp_flags()
     return [
         Extension(
             _SV_CMATRICES_MODULE,
@@ -220,6 +309,8 @@ def _extension_modules() -> Sequence[Extension]:
                 f"{_CEXT_SRC}/sv_cmatrices.c",
             ],
             include_dirs=[_CEXT_SRC, np.get_include()],
+            extra_compile_args=omp_compile,
+            extra_link_args=omp_link,
         )
     ]
 

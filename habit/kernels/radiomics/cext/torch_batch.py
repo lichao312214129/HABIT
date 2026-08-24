@@ -550,7 +550,18 @@ def _extract_firstorder_cext_batch(
     image_f = np.ascontiguousarray(calculator.imageArray.astype(np.float64))
     ng = int(calculator.coefficients["Ng"])
     bin_width = float(calculator.settings.get("binWidth", 25))
-    stats = calculate_firstorder(image_f, sv_map_i, labels_arr, ng, bin_width)
+    voxel_shift = float(calculator.settings.get("voxelArrayShift", 0))
+    spacing = tuple(float(v) for v in calculator.inputImage.GetSpacing())
+    voxel_volume = float(spacing[0] * spacing[1] * spacing[2])
+    stats = calculate_firstorder(
+        image_f,
+        sv_map_i,
+        labels_arr,
+        ng,
+        bin_width,
+        voxel_shift,
+        voxel_volume,
+    )
 
     name_to_idx = {name: idx for idx, name in enumerate(FIRSTORDER_CEXT_COLUMNS)}
     for row_idx, row in enumerate(batch_row_maps):

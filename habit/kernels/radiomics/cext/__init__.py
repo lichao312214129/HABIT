@@ -21,12 +21,40 @@ Public helpers mirror ``supervoxel_cext._sv_cmatrices`` when compiled; otherwise
 
 from __future__ import annotations
 
+import logging
+import warnings
 from typing import Mapping, Tuple
 
 import numpy as np
 
+logger = logging.getLogger(__name__)
+
 _BACKEND = "fallback"
 _NATIVE = None
+_FALLBACK_WARNED = False
+
+_FALLBACK_MESSAGE = (
+    "HABIT native radiomics C extension (_sv_cmatrices) is not loaded; "
+    "using the slow per-label PyRadiomics cMatrices fallback. "
+    "Rebuild the extension with: pip install -e ."
+)
+
+
+def _warn_fallback_once() -> None:
+    """
+    Emit a one-shot visible warning when the compiled extension is missing.
+
+    Both ``warnings.warn`` and ``logger.warning`` fire so the message is
+    visible even when the caller filters one channel. Subsequent matrix
+    calls reuse the same flag and stay silent.
+    """
+    global _FALLBACK_WARNED
+    if _BACKEND != "fallback" or _FALLBACK_WARNED:
+        return
+    _FALLBACK_WARNED = True
+    warnings.warn(_FALLBACK_MESSAGE, RuntimeWarning, stacklevel=2)
+    logger.warning(_FALLBACK_MESSAGE)
+
 
 try:
     from . import _sv_cmatrices as _native_module
@@ -35,6 +63,8 @@ try:
     _BACKEND = "native"
 except ImportError:
     from . import _fallback as _native_module
+
+    _warn_fallback_once()
 
 
 def is_cext_available() -> bool:
@@ -89,6 +119,7 @@ def _validate_shared_inputs(
     labels: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Validate that image and sv_map share shape and labels is 1D."""
+    _warn_fallback_once()
     image_arr = np.asarray(image)
     sv_arr = np.asarray(sv_map)
     labels_arr = np.asarray(labels, dtype=np.int32).reshape(-1)
@@ -220,14 +251,85 @@ def calculate_gldm(
     )
 
 
+def glcm_formulas(
+    p_counts: np.ndarray,
+    gray_levels: np.ndarray,
+    ng_full: np.ndarray,
+    symmetrical: int = 1,
+) -> np.ndarray:
+    """
+    Evaluate stacked GLCM formulas in OpenMP C (every default feature except MCC).
+
+    Args:
+        p_counts: Raw GLCM counts ``[K, Ng, Ng, Na]``.
+        gray_levels: 1-indexed gray-level values of length ``Ng``.
+        ng_full: Per-label ``Ng`` used by Idn / Idmn.
+        symmetrical: 1 to add the transpose before normalising.
+
+    Returns:
+        np.ndarray: ``[K, 23]`` in ``GLCM_FORMULA_COLUMNS`` order.
+    """
+    p_arr = np.ascontiguousarray(np.asarray(p_counts, dtype=np.float64))
+    gray = np.ascontiguousarray(np.asarray(gray_levels, dtype=np.float64).reshape(-1))
+    ng = np.ascontiguousarray(np.asarray(ng_full, dtype=np.float64).reshape(-1))
+    return _native_module.glcm_formulas(p_arr, gray, ng, int(symmetrical))
+
+
+def glcm_mcc(p_counts: np.ndarray, symmetrical: int = 1) -> np.ndarray:
+    """
+    Evaluate stacked GLCM MCC on the CPU C path.
+
+    Args:
+        p_counts: Raw GLCM counts ``[K, Ng, Ng, Na]``.
+        symmetrical: 1 to add the transpose before normalising.
+
+    Returns:
+        np.ndarray: Shape ``[K]``.
+    """
+    p_arr = np.ascontiguousarray(np.asarray(p_counts, dtype=np.float64))
+    return _native_module.glcm_mcc(p_arr, int(symmetrical))
+
+
+def glrlm_formulas(p_counts: np.ndarray, gray_levels: np.ndarray) -> np.ndarray:
+    """
+    Evaluate stacked GLRLM formulas in OpenMP C.
+
+    Args:
+        p_counts: Raw GLRLM counts ``[K, Ng, Nr, Na]``.
+        gray_levels: 1-indexed gray-level values of length ``Ng``.
+
+    Returns:
+        np.ndarray: ``[K, 16]`` in ``GLRLM_FORMULA_COLUMNS`` order.
+    """
+    p_arr = np.ascontiguousarray(np.asarray(p_counts, dtype=np.float64))
+    gray = np.ascontiguousarray(np.asarray(gray_levels, dtype=np.float64).reshape(-1))
+    return _native_module.glrlm_formulas(p_arr, gray)
+
+
 def calculate_firstorder(
     image: np.ndarray,
     sv_map: np.ndarray,
     labels: np.ndarray,
     Ng: int,
     binWidth: float,
+    voxelArrayShift: float = 0.0,
+    voxelVolume: float = 1.0,
 ) -> np.ndarray:
-    """Batch first-order statistics for multiple supervoxel labels."""
+    """
+    Batch first-order statistics for multiple supervoxel labels.
+
+    Args:
+        image: Raw intensity volume (float64), not the discretized bins.
+        sv_map: Multi-label supervoxel map aligned with ``image``.
+        labels: 1D label ids.
+        Ng: Histogram bin count used for Entropy / Uniformity.
+        binWidth: PyRadiomics ``binWidth`` (Entropy / Uniformity only).
+        voxelArrayShift: Added to intensities before Energy / TotalEnergy / RMS.
+        voxelVolume: ``prod(spacing)``; TotalEnergy = Energy * voxelVolume.
+
+    Returns:
+        np.ndarray: ``(n_labels, 17)`` in ``FIRSTORDER_CEXT_COLUMNS`` order.
+    """
     image_arr, sv_arr, labels_arr = _validate_shared_inputs(image, sv_map, labels)
     return _native_module.calculate_firstorder(
         image_arr,
@@ -235,6 +337,8 @@ def calculate_firstorder(
         labels_arr,
         int(Ng),
         float(binWidth),
+        float(voxelArrayShift),
+        float(voxelVolume),
     )
 
 
@@ -246,6 +350,9 @@ __all__ = [
     "calculate_glszm",
     "calculate_ngtdm",
     "cext_backend",
+    "glcm_formulas",
+    "glcm_mcc",
+    "glrlm_formulas",
     "is_cext_available",
     "resolve_use_supervoxel_cext",
     "supervoxel_cext_matrix_backend_label",

@@ -29,7 +29,6 @@ from habit.domain.habitat_features._base import single_subject_table
 from habit.domain.habitat_features._radiomics import (
     DEFAULT_USE_TORCH_RADIOMICS,
     build_pyradiomics_extractor,
-    execute_radiomics,
     harmonize_mask_geometry,
     resolve_modalities,
     sitk_image_from_contract,
@@ -38,6 +37,138 @@ from habit.domain.habitat_features.registry import HabitatFeatureExtractorRegist
 from habit.spec.specs import Spec
 
 __all__ = ["EachHabitatRadiomicsFeatures", "EachHabitatRadiomicsFeaturesParams"]
+
+
+def _extract_each_habitat_modality(
+    extractor: Any,
+    image_sitk: Any,
+    mask_sitk: Any,
+    measured: Sequence[int],
+    *,
+    use_torch_radiomics: Union[str, bool],
+    torch_device: str,
+    torch_dtype: str,
+    subject_id: str,
+) -> Dict[int, Dict[str, float]]:
+    """
+    Extract per-habitat radiomics for one modality via the batched C path.
+
+    Applies the same ``loadImage`` preprocess as ``execute()`` (normalize on
+    the full image, optional resample), then one multi-label pass with
+    ``union_bin=False`` so ``binWidth`` gray levels stay per habitat.
+    Shape features are computed separately (they do not use intensity bins).
+
+    Args:
+        extractor: Initialised PyRadiomics ``RadiomicsFeatureExtractor``.
+        image_sitk: Intensity SimpleITK image.
+        mask_sitk: Multi-label habitat SimpleITK image (already harmonised).
+        measured: Habitat ids present in this subject, model order.
+        use_torch_radiomics: Torch switch; default False keeps CPU PyRadiomics.
+        torch_device: Torch device string or ``"auto"``.
+        torch_dtype: ``"float32"`` or ``"float64"``.
+        subject_id: Subject id for backend-resolution logging.
+
+    Returns:
+        Dict[int, Dict[str, float]]: Habitat id -> execute()-style feature dict
+        (keys such as ``original_firstorder_Mean``).
+    """
+    from radiomics import imageoperations
+
+    from habit.kernels.radiomics.supervoxel_batch import (
+        extract_batched_supervoxel_features,
+        extract_supervoxel_features_pyradiomics,
+    )
+    from habit.utils.torch_radiomics_utils import (
+        injected_torch_radiomics,
+        resolve_torch_dtype,
+        resolve_voxel_radiomics_backend,
+    )
+
+    settings: Dict[str, Any] = dict(extractor.settings)
+    # execute() normalizes the full volume before any crop (whole-image
+    # mean/std). Doing it once here is identical for every habitat.
+    if settings.get("normalize", False):
+        image_sitk = imageoperations.normalizeImage(image_sitk, **settings)
+    if (
+        settings.get("interpolator") is not None
+        and settings.get("resampledPixelSpacing") is not None
+    ):
+        image_sitk, mask_sitk = imageoperations.resampleImage(
+            image_sitk, mask_sitk, **settings
+        )
+
+    labels_arr = np.asarray(list(measured), dtype=np.int64)
+    settings["use_supervoxel_cext"] = "auto"
+    settings["union_bin"] = False
+
+    backend, device = resolve_voxel_radiomics_backend(
+        use_torch_radiomics=use_torch_radiomics,
+        torch_device=torch_device,
+        subject=subject_id or None,
+    )
+    if backend == "torch" and device is not None:
+        settings["device"] = device
+        settings["dtype"] = resolve_torch_dtype(torch_dtype)
+
+    with injected_torch_radiomics(enabled=(backend == "torch")):
+        if backend == "torch" and device is not None:
+            frame = extract_batched_supervoxel_features(
+                image_sitk,
+                mask_sitk,
+                labels_arr,
+                enabled_features=extractor.enabledFeatures,
+                image_name="",
+                settings=settings,
+                device=str(device),
+                dtype_name=torch_dtype,
+                union_bin=False,
+            )
+        else:
+            frame = extract_supervoxel_features_pyradiomics(
+                image_sitk,
+                mask_sitk,
+                labels_arr,
+                enabled_features=extractor.enabledFeatures,
+                image_name="",
+                settings=settings,
+                union_bin=False,
+            )
+
+    rows: Dict[int, Dict[str, float]] = {}
+    for _, row in frame.iterrows():
+        habitat_id = int(row["supervoxel_id"])
+        features: Dict[str, float] = {}
+        for column, value in row.items():
+            if column == "supervoxel_id":
+                continue
+            features[str(column)] = float(value)
+        rows[habitat_id] = features
+
+    shape_enabled = any(
+        str(name).startswith("shape") for name in extractor.enabledFeatures
+    )
+    if shape_enabled:
+        for habitat_id in measured:
+            shape_settings = dict(settings)
+            shape_settings["label"] = int(habitat_id)
+            try:
+                bounding_box, corrected_mask = imageoperations.checkMask(
+                    image_sitk, mask_sitk, **shape_settings
+                )
+                mask_for_shape = (
+                    corrected_mask if corrected_mask is not None else mask_sitk
+                )
+                shape_feats = extractor.computeShape(
+                    image_sitk, mask_for_shape, bounding_box, **shape_settings
+                )
+                dest = rows.setdefault(int(habitat_id), {})
+                for key, value in shape_feats.items():
+                    dest[str(key)] = float(value)
+            except Exception:
+                dest = rows.setdefault(int(habitat_id), {})
+                dest.setdefault("original_shape_VoxelVolume", float("nan"))
+
+    return rows
 
 
 class EachHabitatRadiomicsFeaturesParams(BaseModel):
@@ -86,6 +217,11 @@ class EachHabitatRadiomicsFeatures:
     configuration -- every subject of the same model yields the same layout
     regardless of which habitats it contains. A subject whose map has no
     habitat label at all yields only the ``has_habitat_*`` columns.
+
+    Extraction is one multi-label pass per modality (union-bbox crop, then
+    per-habitat ``_applyBinning`` + native C matrices). ``binWidth`` gray
+    levels stay per-habitat, matching ``execute(label=id)``. Torch is off
+    unless the caller sets ``use_torch_radiomics``.
     """
 
     def __init__(
@@ -163,8 +299,9 @@ class EachHabitatRadiomicsFeatures:
         # (consistent with the MSI family's use of habitat_ids).
         measured = [h for h in habitat_map.habitat_ids if h in present]
 
-        # Pass 1: extract every present habitat x modality, remembering the
-        # flattened ``{feature}_of_{modality}`` names per habitat.
+        # Pass 1: one multi-label extraction per modality (union-bbox crop,
+        # per-habitat discretize, native C matrices). Column names stay the
+        # execute() contract: ``{feature}_of_{modality}``.
         per_habitat: Dict[int, Dict[str, float]] = {}
         base_names: List[str] = []
         for modality in modalities:
@@ -176,18 +313,20 @@ class EachHabitatRadiomicsFeatures:
             mask_sitk = sitk_image_from_contract(labels, habitat_map.geometry)
             # v0.1 semantics: the mask adopts the raw image's metadata.
             harmonize_mask_geometry(image_sitk, mask_sitk)
-            for habitat_id in measured:
+            if not measured:
+                continue
+            for habitat_id, habitat_raw in _extract_each_habitat_modality(
+                extractor,
+                image_sitk,
+                mask_sitk,
+                measured,
+                use_torch_radiomics=self._use_torch_radiomics,
+                torch_device=self._torch_device,
+                torch_dtype=self._torch_dtype,
+                subject_id=subject.subject_id,
+            ).items():
                 habitat_features = per_habitat.setdefault(habitat_id, {})
-                for key, value in execute_radiomics(
-                    extractor,
-                    image_sitk,
-                    mask_sitk,
-                    label=habitat_id,
-                    use_torch_radiomics=self._use_torch_radiomics,
-                    torch_device=self._torch_device,
-                    torch_dtype=self._torch_dtype,
-                    subject_id=subject.subject_id,
-                ).items():
+                for key, value in habitat_raw.items():
                     base_name = f"{key}_of_{suffix}"
                     if base_name not in base_names:
                         base_names.append(base_name)

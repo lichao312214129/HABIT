@@ -30,6 +30,40 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
+/*
+ * Optional thread cap for the volume loops. HABIT_SV_OMP_THREADS wins when
+ * set to a positive integer; otherwise the OpenMP runtime honours
+ * OMP_NUM_THREADS (or its own default). No-op when compiled without OpenMP.
+ */
+static void
+sv_omp_apply_thread_limit(void)
+{
+#ifdef _OPENMP
+    const char *habit = getenv("HABIT_SV_OMP_THREADS");
+    if (habit != NULL && habit[0] != '\0') {
+        int n = atoi(habit);
+        if (n > 0)
+            omp_set_num_threads(n);
+    }
+#endif
+}
+
+/*
+ * Add ``src`` into ``dst`` (length ``n``). Used to reduce thread-local
+ * integer histograms without atomics on the hot voxel increment.
+ */
+static void
+sv_add_ll_into(long long *dst, const long long *src, size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+        dst[i] += src[i];
+}
+
+
 /* ── helpers ─────────────────────────────────────────────────────────── */
 
 #define SV_MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -111,29 +145,27 @@ sv_build_chessboard_neighbors(int ndim, int force2D, int force2Ddimension,
 }
 
 /*
- * Return 1 when (z, y, x) is a valid GLRLM run start voxel for angle (dz, dy, dx),
- * matching PyRadiomics moving-dimension start rules on [0, size-1] bounds.
+ * Return 1 when (z, y, x) is the first voxel of a GLRLM run for ``lbl``
+ * along angle (dz, dy, dx).
+ *
+ * A run starts when the previous voxel is outside the volume **or** belongs
+ * to a different label. Starting only on the volume faces is wrong after a
+ * union-bbox crop: padDistance fills the faces with background, every
+ * supervoxel sits in the interior, and the GLRLM (and ShortRunEmphasis)
+ * become all-zero / all-NaN.
  */
 static int
-sv_glrlm_is_start_voxel(int z, int y, int x,
-                        int sz, int sy, int sx,
-                        int ndim, int dz, int dy, int dx)
+sv_glrlm_is_run_start(int z, int y, int x,
+                      int sz, int sy, int sx,
+                      int dz, int dy, int dx,
+                      const int *sv_map, int lbl)
 {
-    int valid = 0;
-
-    if (ndim >= 3 && dz != 0) {
-        if ((dz > 0 && z == 0) || (dz < 0 && z == sz - 1))
-            valid = 1;
-    }
-    if (ndim >= 2 && dy != 0) {
-        if ((dy > 0 && y == 0) || (dy < 0 && y == sy - 1))
-            valid = 1;
-    }
-    if (dx != 0) {
-        if ((dx > 0 && x == 0) || (dx < 0 && x == sx - 1))
-            valid = 1;
-    }
-    return valid;
+    int pz = z - dz;
+    int py = y - dy;
+    int px = x - dx;
+    if (pz < 0 || pz >= sz || py < 0 || py >= sy || px < 0 || px >= sx)
+        return 1;
+    return sv_map[pz * sy * sx + py * sx + px] != lbl;
 }
 
 static void
@@ -226,6 +258,52 @@ sv_generate_angles_bidirectional(int *size, int ndim, int force2D, int force2Ddi
 
 /* ── GLCM ────────────────────────────────────────────────────────────── */
 
+/*
+ * Accumulate GLCM counts for one z-slice into ``P``.
+ * Thread-safe when each thread writes a private ``P`` buffer.
+ */
+static void
+sv_glcm_accumulate_z(long long *P, int *image, int *sv_map,
+                     int z, int sz, int sy, int sx,
+                     int max_label, int *label_to_idx,
+                     int *distances, int n_distances,
+                     int *angles, int n_angles, int Ng)
+{
+    for (int y = 0; y < sy; y++) {
+        for (int x = 0; x < sx; x++) {
+            int idx = z * sy * sx + y * sx + x;
+            int lbl = sv_map[idx];
+            if (lbl <= 0 || lbl > max_label) continue;
+            int li = label_to_idx[lbl];
+            if (li < 0) continue;
+
+            int gi = image[idx];
+            if (gi <= 0 || gi > Ng) continue;
+
+            for (int di = 0; di < n_distances; di++) {
+                int dist = distances[di];
+                for (int ai = 0; ai < n_angles; ai++) {
+                    int dz = angles[ai * 3] * dist;
+                    int dy = angles[ai * 3 + 1] * dist;
+                    int dx = angles[ai * 3 + 2] * dist;
+
+                    int nz = z + dz, ny = y + dy, nx = x + dx;
+                    if (nz < 0 || nz >= sz || ny < 0 || ny >= sy || nx < 0 || nx >= sx)
+                        continue;
+
+                    int nidx = nz * sy * sx + ny * sx + nx;
+                    if (sv_map[nidx] != lbl) continue;
+
+                    int gj = image[nidx];
+                    if (gj <= 0 || gj > Ng) continue;
+
+                    P[((li * Ng + (gi - 1)) * Ng + (gj - 1)) * n_angles + ai]++;
+                }
+            }
+        }
+    }
+}
+
 int
 sv_calculate_glcm(int *image, int *sv_map, int *size, int ndim,
                   int *labels, int n_labels, int max_label, int *label_to_idx,
@@ -239,49 +317,59 @@ sv_calculate_glcm(int *image, int *sv_map, int *size, int ndim,
                            &angles, &n_angles) < 0)
         return -1;
 
-    long long *P = (long long *)calloc(
-        (size_t)n_labels * Ng * Ng * n_angles, sizeof(long long));
+    size_t p_len = (size_t)n_labels * (size_t)Ng * (size_t)Ng * (size_t)n_angles;
+    long long *P = (long long *)calloc(p_len, sizeof(long long));
     if (!P) { free(angles); PyErr_NoMemory(); return -1; }
 
     int sz = (ndim >= 3) ? size[0] : 1;
     int sy = (ndim >= 2) ? size[ndim - 2] : 1;
     int sx = size[ndim - 1];
 
-    for (int z = 0; z < sz; z++) {
-        for (int y = 0; y < sy; y++) {
-            for (int x = 0; x < sx; x++) {
-                int idx = z * sy * sx + y * sx + x;
-                int lbl = sv_map[idx];
-                if (lbl <= 0 || lbl > max_label) continue;
-                int li = label_to_idx[lbl];
-                if (li < 0) continue;
+    sv_omp_apply_thread_limit();
 
-                int gi = image[idx];
-                if (gi <= 0 || gi > Ng) continue;
-
-                for (int di = 0; di < n_distances; di++) {
-                    int dist = distances[di];
-                    for (int ai = 0; ai < n_angles; ai++) {
-                        int dz = angles[ai * 3] * dist;
-                        int dy = angles[ai * 3 + 1] * dist;
-                        int dx = angles[ai * 3 + 2] * dist;
-
-                        int nz = z + dz, ny = y + dy, nx = x + dx;
-                        if (nz < 0 || nz >= sz || ny < 0 || ny >= sy || nx < 0 || nx >= sx)
-                            continue;
-
-                        int nidx = nz * sy * sx + ny * sx + nx;
-                        if (sv_map[nidx] != lbl) continue;
-
-                        int gj = image[nidx];
-                        if (gj <= 0 || gj > Ng) continue;
-
-                        P[((li * Ng + (gi - 1)) * Ng + (gj - 1)) * n_angles + ai]++;
-                    }
+#ifdef _OPENMP
+    /* Thread-local P then reduce: avoids a data race on P[li, gi, gj, ai]++
+     * and keeps integer totals identical to the serial walk. */
+    {
+        int omp_failed = 0;
+        #pragma omp parallel
+        {
+            long long *local = (long long *)calloc(p_len, sizeof(long long));
+            if (local == NULL) {
+                #pragma omp atomic write
+                omp_failed = 1;
+            } else {
+                #pragma omp for schedule(static)
+                for (int z = 0; z < sz; z++) {
+                    sv_glcm_accumulate_z(
+                        local, image, sv_map, z, sz, sy, sx,
+                        max_label, label_to_idx, distances, n_distances,
+                        angles, n_angles, Ng);
                 }
+                #pragma omp critical
+                sv_add_ll_into(P, local, p_len);
+                free(local);
+            }
+        }
+        if (omp_failed) {
+            /* A thread could not allocate; recompute serially so counts stay complete. */
+            memset(P, 0, p_len * sizeof(long long));
+            for (int z = 0; z < sz; z++) {
+                sv_glcm_accumulate_z(
+                    P, image, sv_map, z, sz, sy, sx,
+                    max_label, label_to_idx, distances, n_distances,
+                    angles, n_angles, Ng);
             }
         }
     }
+#else
+    for (int z = 0; z < sz; z++) {
+        sv_glcm_accumulate_z(
+            P, image, sv_map, z, sz, sy, sx,
+            max_label, label_to_idx, distances, n_distances,
+            angles, n_angles, Ng);
+    }
+#endif
 
     *P_glcm_out = P;
     *angles_out = angles;
@@ -319,6 +407,12 @@ sv_calculate_glrlm(int *image, int *sv_map, int *size, int ndim,
     int sy = (ndim >= 2) ? size[ndim - 2] : 1;
     int sx = size[ndim - 1];
 
+    /* Parallelize over angles: each ``ai`` writes a distinct last index of P
+     * and of multi_element, so there is no shared increment. */
+    sv_omp_apply_thread_limit();
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static)
+#endif
     for (int ai = 0; ai < n_angles; ai++) {
         int dz = angles[ai * 3];
         int dy = angles[ai * 3 + 1];
@@ -327,15 +421,15 @@ sv_calculate_glrlm(int *image, int *sv_map, int *size, int ndim,
         for (int z = 0; z < sz; z++) {
             for (int y = 0; y < sy; y++) {
                 for (int x = 0; x < sx; x++) {
-                    if (!sv_glrlm_is_start_voxel(z, y, x, sz, sy, sx, ndim, dz, dy, dx))
-                        continue;
-
                     int idx = z * sy * sx + y * sx + x;
                     int lbl = sv_map[idx];
                     if (lbl <= 0 || lbl > max_label)
                         continue;
                     int li = label_to_idx[lbl];
                     if (li < 0)
+                        continue;
+                    if (!sv_glrlm_is_run_start(z, y, x, sz, sy, sx, dz, dy, dx,
+                                               sv_map, lbl))
                         continue;
 
                     int cz = z, cy = y, cx = x;
@@ -529,24 +623,76 @@ sv_calculate_glszm(int *image, int *sv_map, int *size, int ndim,
         return -1;
     }
 
-    int max_zone = 1;
+    /* Per-label flood fill: each ``li`` writes a distinct P slice. Parallelize
+     * over labels with a private mutable mask so two threads never grow the
+     * same zone. */
+    int *label_max_zones = (int *)calloc((size_t)n_labels, sizeof(int));
+    if (!label_max_zones) {
+        free(mask);
+        free(strides);
+        free(angles);
+        PyErr_NoMemory();
+        return -1;
+    }
+
+    int failed = 0;
+    sv_omp_apply_thread_limit();
+#ifdef _OPENMP
+    #pragma omp parallel
+    {
+        char *local_mask = (char *)malloc(ni * sizeof(char));
+        if (local_mask == NULL) {
+            #pragma omp atomic write
+            failed = 1;
+        } else {
+            #pragma omp for schedule(static)
+            for (int li = 0; li < n_labels; li++) {
+                int lbl = labels[li];
+                for (size_t i = 0; i < ni; i++)
+                    local_mask[i] = (sv_map[i] == lbl) ? 1 : 0;
+                int label_max_zone = sv_glszm_single_label(
+                    image, local_mask, size, strides, ndim, ni, angles, n_angles, Ng,
+                    NULL, 0);
+                if (label_max_zone < 0) {
+                    #pragma omp atomic write
+                    failed = 1;
+                } else {
+                    label_max_zones[li] = label_max_zone;
+                }
+            }
+            free(local_mask);
+        }
+    }
+#else
     for (int li = 0; li < n_labels; li++) {
         int lbl = labels[li];
         for (size_t i = 0; i < ni; i++)
             mask[i] = (sv_map[i] == lbl) ? 1 : 0;
-
         int label_max_zone = sv_glszm_single_label(
             image, mask, size, strides, ndim, ni, angles, n_angles, Ng,
             NULL, 0);
         if (label_max_zone < 0) {
-            free(mask);
-            free(strides);
-            free(angles);
-            return -1;
+            failed = 1;
+            break;
         }
-        if (label_max_zone > max_zone)
-            max_zone = label_max_zone;
+        label_max_zones[li] = label_max_zone;
     }
+#endif
+    if (failed) {
+        free(label_max_zones);
+        free(mask);
+        free(strides);
+        free(angles);
+        PyErr_NoMemory();
+        return -1;
+    }
+
+    int max_zone = 1;
+    for (int li = 0; li < n_labels; li++) {
+        if (label_max_zones[li] > max_zone)
+            max_zone = label_max_zones[li];
+    }
+    free(label_max_zones);
 
     long long *final_P = (long long *)calloc(
         (size_t)n_labels * (size_t)Ng * (size_t)max_zone, sizeof(long long));
@@ -558,6 +704,32 @@ sv_calculate_glszm(int *image, int *sv_map, int *size, int ndim,
         return -1;
     }
 
+    failed = 0;
+#ifdef _OPENMP
+    #pragma omp parallel
+    {
+        char *local_mask = (char *)malloc(ni * sizeof(char));
+        if (local_mask == NULL) {
+            #pragma omp atomic write
+            failed = 1;
+        } else {
+            #pragma omp for schedule(static)
+            for (int li = 0; li < n_labels; li++) {
+                int lbl = labels[li];
+                for (size_t i = 0; i < ni; i++)
+                    local_mask[i] = (sv_map[i] == lbl) ? 1 : 0;
+                int label_max_zone = sv_glszm_single_label(
+                    image, local_mask, size, strides, ndim, ni, angles, n_angles, Ng,
+                    final_P + (size_t)li * (size_t)Ng * (size_t)max_zone, max_zone);
+                if (label_max_zone < 0) {
+                    #pragma omp atomic write
+                    failed = 1;
+                }
+            }
+            free(local_mask);
+        }
+    }
+#else
     for (int li = 0; li < n_labels; li++) {
         int lbl = labels[li];
         for (size_t i = 0; i < ni; i++)
@@ -575,6 +747,15 @@ sv_calculate_glszm(int *image, int *sv_map, int *size, int ndim,
         }
         (void)label_max_zone;
     }
+#endif
+    if (failed) {
+        free(final_P);
+        free(mask);
+        free(strides);
+        free(angles);
+        PyErr_NoMemory();
+        return -1;
+    }
 
     free(mask);
     free(strides);
@@ -586,6 +767,57 @@ sv_calculate_glszm(int *image, int *sv_map, int *size, int ndim,
 }
 
 /* ── NGTDM ───────────────────────────────────────────────────────────── */
+
+static void
+sv_ngtdm_accumulate_z(double *P, int *image, int *sv_map,
+                      int z, int sz, int sy, int sx,
+                      int max_label, int *label_to_idx,
+                      int *distances, int n_distances,
+                      int *angles, int n_angles, int Ng)
+{
+    for (int y = 0; y < sy; y++) {
+        for (int x = 0; x < sx; x++) {
+            int idx = z * sy * sx + y * sx + x;
+            int lbl = sv_map[idx];
+            if (lbl <= 0 || lbl > max_label) continue;
+            int li = label_to_idx[lbl];
+            if (li < 0) continue;
+
+            int gi = image[idx];
+            if (gi <= 0 || gi > Ng) continue;
+
+            double neighbor_sum = 0.0;
+            int neighbor_count = 0;
+
+            for (int di = 0; di < n_distances; di++) {
+                int dist = distances[di];
+                for (int ai = 0; ai < n_angles; ai++) {
+                    int dz = angles[ai * 3] * dist;
+                    int dy = angles[ai * 3 + 1] * dist;
+                    int dx = angles[ai * 3 + 2] * dist;
+
+                    int nz = z + dz, ny = y + dy, nx = x + dx;
+                    if (nz < 0 || nz >= sz || ny < 0 || ny >= sy || nx < 0 || nx >= sx)
+                        continue;
+                    int nidx = nz * sy * sx + ny * sx + nx;
+                    if (sv_map[nidx] != lbl) continue;
+
+                    neighbor_sum += (double)image[nidx];
+                    neighbor_count++;
+                }
+            }
+
+            double abs_diff = 0.0;
+            if (neighbor_count > 0) {
+                abs_diff = fabs((double)gi - neighbor_sum / neighbor_count);
+            }
+
+            int base = (li * Ng + (gi - 1)) * 3;
+            P[base] += 1.0;
+            P[base + 1] += abs_diff;
+        }
+    }
+}
 
 int
 sv_calculate_ngtdm(int *image, int *sv_map, int *size, int ndim,
@@ -613,50 +845,63 @@ sv_calculate_ngtdm(int *image, int *sv_map, int *size, int ndim,
     int sy = (ndim >= 2) ? size[ndim - 2] : 1;
     int sx = size[ndim - 1];
 
-    for (int z = 0; z < sz; z++) {
-        for (int y = 0; y < sy; y++) {
-            for (int x = 0; x < sx; x++) {
-                int idx = z * sy * sx + y * sx + x;
-                int lbl = sv_map[idx];
-                if (lbl <= 0 || lbl > max_label) continue;
-                int li = label_to_idx[lbl];
-                if (li < 0) continue;
+    sv_omp_apply_thread_limit();
 
-                int gi = image[idx];
-                if (gi <= 0 || gi > Ng) continue;
-
-                double neighbor_sum = 0.0;
-                int neighbor_count = 0;
-
-                for (int di = 0; di < n_distances; di++) {
-                    int dist = distances[di];
-                    for (int ai = 0; ai < n_angles; ai++) {
-                        int dz = angles[ai * 3] * dist;
-                        int dy = angles[ai * 3 + 1] * dist;
-                        int dx = angles[ai * 3 + 2] * dist;
-
-                        int nz = z + dz, ny = y + dy, nx = x + dx;
-                        if (nz < 0 || nz >= sz || ny < 0 || ny >= sy || nx < 0 || nx >= sx)
-                            continue;
-                        int nidx = nz * sy * sx + ny * sx + nx;
-                        if (sv_map[nidx] != lbl) continue;
-
-                        neighbor_sum += (double)image[nidx];
-                        neighbor_count++;
+#ifdef _OPENMP
+    {
+        size_t p_len = (size_t)n_labels * (size_t)Ng * 3;
+        int omp_failed = 0;
+        #pragma omp parallel
+        {
+            double *local = (double *)calloc(p_len, sizeof(double));
+            if (local == NULL) {
+                #pragma omp atomic write
+                omp_failed = 1;
+            } else {
+                #pragma omp for schedule(static)
+                for (int z = 0; z < sz; z++) {
+                    sv_ngtdm_accumulate_z(
+                        local, image, sv_map, z, sz, sy, sx,
+                        max_label, label_to_idx, distances, n_distances,
+                        angles, n_angles, Ng);
+                }
+                #pragma omp critical
+                {
+                    /* Only reduce count / sum_abs_diff; gray-level column is
+                     * already written in ``P`` and must not be added. */
+                    for (int li = 0; li < n_labels; li++) {
+                        for (int gl = 0; gl < Ng; gl++) {
+                            size_t base = ((size_t)li * (size_t)Ng + (size_t)gl) * 3;
+                            P[base] += local[base];
+                            P[base + 1] += local[base + 1];
+                        }
                     }
                 }
-
-                double abs_diff = 0.0;
-                if (neighbor_count > 0) {
-                    abs_diff = fabs((double)gi - neighbor_sum / neighbor_count);
-                }
-
-                int base = (li * Ng + (gi - 1)) * 3;
-                P[base] += 1.0;
-                P[base + 1] += abs_diff;
+                free(local);
+            }
+        }
+        if (omp_failed) {
+            memset(P, 0, p_len * sizeof(double));
+            for (int li = 0; li < n_labels; li++) {
+                for (int gl = 0; gl < Ng; gl++)
+                    P[(li * Ng + gl) * 3 + 2] = (double)(gl + 1);
+            }
+            for (int z = 0; z < sz; z++) {
+                sv_ngtdm_accumulate_z(
+                    P, image, sv_map, z, sz, sy, sx,
+                    max_label, label_to_idx, distances, n_distances,
+                    angles, n_angles, Ng);
             }
         }
     }
+#else
+    for (int z = 0; z < sz; z++) {
+        sv_ngtdm_accumulate_z(
+            P, image, sv_map, z, sz, sy, sx,
+            max_label, label_to_idx, distances, n_distances,
+            angles, n_angles, Ng);
+    }
+#endif
 
     free(angles);
     *P_ngtdm_out = P;
@@ -664,6 +909,50 @@ sv_calculate_ngtdm(int *image, int *sv_map, int *size, int ndim,
 }
 
 /* ── GLDM ────────────────────────────────────────────────────────────── */
+
+static void
+sv_gldm_accumulate_z(long long *P, int *image, int *sv_map,
+                     int z, int sz, int sy, int sx,
+                     int max_label, int *label_to_idx,
+                     int *distances, int n_distances,
+                     int *angles, int n_angles, int Ng, int alpha, int max_dep)
+{
+    for (int y = 0; y < sy; y++) {
+        for (int x = 0; x < sx; x++) {
+            int idx = z * sy * sx + y * sx + x;
+            int lbl = sv_map[idx];
+            if (lbl <= 0 || lbl > max_label) continue;
+            int li = label_to_idx[lbl];
+            if (li < 0) continue;
+
+            int gi = image[idx];
+            if (gi <= 0 || gi > Ng) continue;
+
+            int dep = 0;
+            for (int di = 0; di < n_distances; di++) {
+                int dist = distances[di];
+                for (int ai = 0; ai < n_angles; ai++) {
+                    int dz = angles[ai * 3] * dist;
+                    int dy = angles[ai * 3 + 1] * dist;
+                    int dx = angles[ai * 3 + 2] * dist;
+
+                    int nz = z + dz, ny = y + dy, nx = x + dx;
+                    if (nz < 0 || nz >= sz || ny < 0 || ny >= sy || nx < 0 || nx >= sx)
+                        continue;
+                    int nidx = nz * sy * sx + ny * sx + nx;
+                    if (sv_map[nidx] != lbl) continue;
+
+                    int abs_diff = abs(image[nidx] - gi);
+                    if (abs_diff <= alpha) dep++;
+                }
+            }
+
+            if (dep >= 0 && dep < max_dep) {
+                P[((li * Ng + (gi - 1)) * max_dep + dep)]++;
+            }
+        }
+    }
+}
 
 int
 sv_calculate_gldm(int *image, int *sv_map, int *size, int ndim,
@@ -685,47 +974,52 @@ sv_calculate_gldm(int *image, int *sv_map, int *size, int ndim,
     int sy = (ndim >= 2) ? size[ndim - 2] : 1;
     int sx = size[ndim - 1];
 
-    long long *P = (long long *)calloc(
-        (size_t)n_labels * Ng * max_dep, sizeof(long long));
+    size_t p_len = (size_t)n_labels * (size_t)Ng * (size_t)max_dep;
+    long long *P = (long long *)calloc(p_len, sizeof(long long));
     if (!P) { free(angles); PyErr_NoMemory(); return -1; }
 
-    for (int z = 0; z < sz; z++) {
-        for (int y = 0; y < sy; y++) {
-            for (int x = 0; x < sx; x++) {
-                int idx = z * sy * sx + y * sx + x;
-                int lbl = sv_map[idx];
-                if (lbl <= 0 || lbl > max_label) continue;
-                int li = label_to_idx[lbl];
-                if (li < 0) continue;
+    sv_omp_apply_thread_limit();
 
-                int gi = image[idx];
-                if (gi <= 0 || gi > Ng) continue;
-
-                int dep = 0;
-                for (int di = 0; di < n_distances; di++) {
-                    int dist = distances[di];
-                    for (int ai = 0; ai < n_angles; ai++) {
-                        int dz = angles[ai * 3] * dist;
-                        int dy = angles[ai * 3 + 1] * dist;
-                        int dx = angles[ai * 3 + 2] * dist;
-
-                        int nz = z + dz, ny = y + dy, nx = x + dx;
-                        if (nz < 0 || nz >= sz || ny < 0 || ny >= sy || nx < 0 || nx >= sx)
-                            continue;
-                        int nidx = nz * sy * sx + ny * sx + nx;
-                        if (sv_map[nidx] != lbl) continue;
-
-                        int abs_diff = abs(image[nidx] - gi);
-                        if (abs_diff <= alpha) dep++;
-                    }
+#ifdef _OPENMP
+    {
+        int omp_failed = 0;
+        #pragma omp parallel
+        {
+            long long *local = (long long *)calloc(p_len, sizeof(long long));
+            if (local == NULL) {
+                #pragma omp atomic write
+                omp_failed = 1;
+            } else {
+                #pragma omp for schedule(static)
+                for (int z = 0; z < sz; z++) {
+                    sv_gldm_accumulate_z(
+                        local, image, sv_map, z, sz, sy, sx,
+                        max_label, label_to_idx, distances, n_distances,
+                        angles, n_angles, Ng, alpha, max_dep);
                 }
-
-                if (dep >= 0 && dep < max_dep) {
-                    P[((li * Ng + (gi - 1)) * max_dep + dep)]++;
-                }
+                #pragma omp critical
+                sv_add_ll_into(P, local, p_len);
+                free(local);
+            }
+        }
+        if (omp_failed) {
+            memset(P, 0, p_len * sizeof(long long));
+            for (int z = 0; z < sz; z++) {
+                sv_gldm_accumulate_z(
+                    P, image, sv_map, z, sz, sy, sx,
+                    max_label, label_to_idx, distances, n_distances,
+                    angles, n_angles, Ng, alpha, max_dep);
             }
         }
     }
+#else
+    for (int z = 0; z < sz; z++) {
+        sv_gldm_accumulate_z(
+            P, image, sv_map, z, sz, sy, sx,
+            max_label, label_to_idx, distances, n_distances,
+            angles, n_angles, Ng, alpha, max_dep);
+    }
+#endif
 
     free(angles);
     *P_gldm_out = P;
@@ -739,6 +1033,7 @@ int
 sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
                         int *labels, int n_labels, int max_label, int *label_to_idx,
                         int Ng, double binWidth,
+                        double voxelArrayShift, double voxelVolume,
                         double **stats_out, int *n_stats_out)
 {
     int sz = (ndim >= 3) ? size[0] : 1;
@@ -797,6 +1092,12 @@ sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
         sorted[li][sorted_len[li]++] = val;
     }
 
+    /* Voxel collection stays serial (per-label realloc). Stats over labels
+     * are independent: each ``li`` writes a distinct ``stats`` slice. */
+    sv_omp_apply_thread_limit();
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static)
+#endif
     for (int li = 0; li < n_labels; li++) {
         int n = counts[li];
         double *base = stats + li * N_FIRSTORDER_STATS;
@@ -828,15 +1129,35 @@ sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
         for (int i = 0; i < n; i++) mad += fabs(sorted[li][i] - mean);
         mad /= n;
 
-        int r_lo = (int)floor(n * 0.1);
-        int r_hi = (int)ceil(n * 0.9);
-        int r_n = r_hi - r_lo;
-        if (r_n > 0) {
-            for (int i = r_lo; i < r_hi; i++) rmad += fabs(sorted[li][i] - mean);
-            rmad /= r_n;
+        /* PyRadiomics RobustMAD: voxels in [p10, p90], MAD about the
+         * subset mean (not the full-ROI mean). */
+        {
+            int r_n = 0;
+            double r_sum = 0.0;
+            for (int i = 0; i < n; i++) {
+                if (sorted[li][i] >= p10 && sorted[li][i] <= p90) {
+                    r_sum += sorted[li][i];
+                    r_n++;
+                }
+            }
+            if (r_n > 0) {
+                double r_mean = r_sum / (double)r_n;
+                for (int i = 0; i < n; i++) {
+                    if (sorted[li][i] >= p10 && sorted[li][i] <= p90)
+                        rmad += fabs(sorted[li][i] - r_mean);
+                }
+                rmad /= (double)r_n;
+            }
         }
 
-        double rms = sqrt(sq_sums[li] / n);
+        /* PyRadiomics: Energy = sum((X + voxelArrayShift)^2);
+         * TotalEnergy = Energy * prod(spacing). Expanding the square
+         * reuses the raw-moment accumulators collected above. */
+        double energy = sq_sums[li]
+            + (2.0 * voxelArrayShift * sums[li])
+            + ((double)n * voxelArrayShift * voxelArrayShift);
+        double total_energy = energy * voxelVolume;
+        double rms = (n > 0) ? sqrt(energy / (double)n) : 0.0;
 
         double skewness = 0, kurtosis = 0;
         if (stddev > 0) {
@@ -847,11 +1168,9 @@ sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
                 m4 += d * d * d * d;
             }
             skewness = m3 / n;
-            kurtosis = (m4 / n) - 3.0;
+            /* PyRadiomics kurtosis is NOT excess (no -3). */
+            kurtosis = m4 / n;
         }
-
-        double energy = sq_sums[li];
-        double total_energy = energy * n;
 
         double entropy = 0, uniformity = 0;
         if (range > 0 && binWidth > 0) {
@@ -900,5 +1219,549 @@ sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
 
     *stats_out = stats;
     *n_stats_out = N_FIRSTORDER_STATS;
+    return 0;
+}
+
+/* ── GLCM formulas (all default features except MCC) ─────────────────── */
+
+#define N_GLCM_FORMULA_FEATURES 23
+#define SV_GLCM_EPS 2.220446049250313e-16
+
+int
+sv_glcm_formulas(const double *P, int n_labels, int Ng, int n_angles,
+                 int symmetrical, const double *gray, const double *ng_full,
+                 double **out_features, int *n_features_out)
+{
+    if (n_labels <= 0 || Ng <= 0 || n_angles <= 0) {
+        PyErr_SetString(PyExc_ValueError, "GLCM formula batch has an empty axis");
+        return -1;
+    }
+    double *out = (double *)malloc((size_t)n_labels * N_GLCM_FORMULA_FEATURES * sizeof(double));
+    if (!out) {
+        PyErr_NoMemory();
+        return -1;
+    }
+
+    sv_omp_apply_thread_limit();
+#ifdef _OPENMP
+    #pragma omp parallel
+#endif
+    {
+        double *S = (double *)malloc((size_t)Ng * (size_t)Ng * sizeof(double));
+        double *px = (double *)malloc((size_t)Ng * sizeof(double));
+        double *py = (double *)malloc((size_t)Ng * sizeof(double));
+        double *px_sub = (double *)malloc((size_t)Ng * sizeof(double));
+        double *px_add = (double *)malloc((size_t)(2 * Ng - 1) * sizeof(double));
+        if (!S || !px || !py || !px_sub || !px_add) {
+#ifdef _OPENMP
+            #pragma omp critical
+#endif
+            {
+                PyErr_NoMemory();
+            }
+            free(S); free(px); free(py); free(px_sub); free(px_add);
+        } else {
+#ifdef _OPENMP
+            #pragma omp for schedule(static)
+#endif
+            for (int v = 0; v < n_labels; v++) {
+                double acc[N_GLCM_FORMULA_FEATURES];
+                int cnt[N_GLCM_FORMULA_FEATURES];
+                for (int f = 0; f < N_GLCM_FORMULA_FEATURES; f++) {
+                    acc[f] = 0.0;
+                    cnt[f] = 0;
+                }
+                double ng_scale = (ng_full != NULL) ? ng_full[v] : (double)Ng;
+                if (ng_scale <= 0.0)
+                    ng_scale = (double)Ng;
+
+                for (int a = 0; a < n_angles; a++) {
+                    double sum = 0.0;
+                    for (int i = 0; i < Ng; i++) {
+                        for (int j = 0; j < Ng; j++) {
+                            double val = P[(((size_t)v * Ng + i) * Ng + j) * n_angles + a];
+                            if (symmetrical)
+                                val += P[(((size_t)v * Ng + j) * Ng + i) * n_angles + a];
+                            S[i * Ng + j] = val;
+                            sum += val;
+                        }
+                    }
+                    if (!(sum > 0.0))
+                        continue;
+                    for (int i = 0; i < Ng * Ng; i++)
+                        S[i] /= sum;
+
+                    for (int i = 0; i < Ng; i++) {
+                        px[i] = 0.0;
+                        py[i] = 0.0;
+                        px_sub[i] = 0.0;
+                    }
+                    for (int k = 0; k < 2 * Ng - 1; k++)
+                        px_add[k] = 0.0;
+
+                    double ux = 0.0, uy = 0.0;
+                    double joint_energy = 0.0, hxy = 0.0, maxprob = 0.0;
+                    double ac = 0.0, contrast = 0.0;
+                    for (int i = 0; i < Ng; i++) {
+                        double gi = gray[i];
+                        for (int j = 0; j < Ng; j++) {
+                            double p = S[i * Ng + j];
+                            double gj = gray[j];
+                            px[i] += p;
+                            py[j] += p;
+                            ux += p * gi;
+                            uy += p * gj;
+                            joint_energy += p * p;
+                            hxy -= p * (log(p + SV_GLCM_EPS) / log(2.0));
+                            if (p > maxprob)
+                                maxprob = p;
+                            ac += p * gi * gj;
+                            double d = fabs(gi - gj);
+                            contrast += p * d * d;
+                            int kd = (int)(fabs(gi - gj) + 0.5);
+                            if (kd >= 0 && kd < Ng)
+                                px_sub[kd] += p;
+                            int ks = (int)(gi + gj + 0.5) - 2;
+                            if (ks >= 0 && ks < 2 * Ng - 1)
+                                px_add[ks] += p;
+                        }
+                    }
+
+                    double cp = 0.0, cs = 0.0, ct = 0.0, sumsq = 0.0;
+                    double corm = 0.0, varx = 0.0, vary = 0.0;
+                    double hx = 0.0, hy = 0.0, hxy1 = 0.0, hxy2 = 0.0;
+                    for (int i = 0; i < Ng; i++) {
+                        double gi = gray[i];
+                        hx -= px[i] * (log(px[i] + SV_GLCM_EPS) / log(2.0));
+                        hy -= py[i] * (log(py[i] + SV_GLCM_EPS) / log(2.0));
+                        for (int j = 0; j < Ng; j++) {
+                            double p = S[i * Ng + j];
+                            double gj = gray[j];
+                            double t = gi + gj - ux - uy;
+                            double t2 = t * t;
+                            cp += p * t2 * t2;
+                            cs += p * t2 * t;
+                            ct += p * t2;
+                            double dx = gi - ux;
+                            double dy = gj - uy;
+                            sumsq += p * dx * dx;
+                            corm += p * dx * dy;
+                            varx += p * dx * dx;
+                            vary += p * dy * dy;
+                            double pxpy = px[i] * py[j];
+                            hxy1 -= p * (log(pxpy + SV_GLCM_EPS) / log(2.0));
+                            hxy2 -= pxpy * (log(pxpy + SV_GLCM_EPS) / log(2.0));
+                        }
+                    }
+                    double sigx = sqrt(varx);
+                    double sigy = sqrt(vary);
+                    double corr = (sigx * sigy == 0.0) ? 1.0 : (corm / (sigx * sigy + SV_GLCM_EPS));
+
+                    double da = 0.0, dent = 0.0, idm = 0.0, idmn = 0.0, id = 0.0, idn = 0.0, inv = 0.0;
+                    for (int k = 0; k < Ng; k++) {
+                        double pk = px_sub[k];
+                        double kd = (double)k;
+                        da += kd * pk;
+                        dent -= pk * (log(pk + SV_GLCM_EPS) / log(2.0));
+                        idm += pk / (1.0 + kd * kd);
+                        idmn += pk / (1.0 + (kd * kd) / (ng_scale * ng_scale));
+                        id += pk / (1.0 + kd);
+                        idn += pk / (1.0 + kd / ng_scale);
+                        if (k > 0)
+                            inv += pk / (kd * kd);
+                    }
+                    double dvar = 0.0;
+                    for (int k = 0; k < Ng; k++)
+                        dvar += px_sub[k] * (((double)k - da) * ((double)k - da));
+
+                    double savg = 0.0, sent = 0.0;
+                    for (int k = 0; k < 2 * Ng - 1; k++) {
+                        double pk = px_add[k];
+                        double kv = (double)(k + 2);
+                        savg += kv * pk;
+                        sent -= pk * (log(pk + SV_GLCM_EPS) / log(2.0));
+                    }
+
+                    double imc1;
+                    double div = (hx > hy) ? hx : hy;
+                    if (div != 0.0)
+                        imc1 = (hxy - hxy1) / div;
+                    else
+                        imc1 = 0.0;
+                    double imc2 = 0.0;
+                    if (hxy2 != hxy) {
+                        double inner = 1.0 - exp(-2.0 * (hxy2 - hxy));
+                        if (inner > 0.0)
+                            imc2 = sqrt(inner);
+                    }
+
+                    double vals[N_GLCM_FORMULA_FEATURES] = {
+                        ac, ux, cp, cs, ct, contrast, corr,
+                        da, dent, dvar, joint_energy, hxy, imc1, imc2,
+                        idm, idmn, id, idn, inv, maxprob, savg, sent, sumsq
+                    };
+                    for (int f = 0; f < N_GLCM_FORMULA_FEATURES; f++) {
+                        if (vals[f] == vals[f]) {
+                            acc[f] += vals[f];
+                            cnt[f] += 1;
+                        }
+                    }
+                }
+
+                double *row = out + (size_t)v * N_GLCM_FORMULA_FEATURES;
+                for (int f = 0; f < N_GLCM_FORMULA_FEATURES; f++)
+                    row[f] = (cnt[f] > 0) ? (acc[f] / (double)cnt[f]) : NAN;
+            }
+            free(S); free(px); free(py); free(px_sub); free(px_add);
+        }
+    }
+
+    if (PyErr_Occurred()) {
+        free(out);
+        return -1;
+    }
+    *out_features = out;
+    *n_features_out = N_GLCM_FORMULA_FEATURES;
+    return 0;
+}
+
+/* ── GLCM MCC (explicit Q + cyclic Jacobi, OpenMP over label×angle) ── */
+
+#define SV_MCC_JACOBI_SWEEPS 24
+#define SV_MCC_JACOBI_TOL 1e-12
+
+/*
+ * Second-largest eigenvalue of symmetric row-major A[n,n].
+ * Overwrites A with a nearly-diagonal matrix (classic cyclic Jacobi).
+ * Matches ``numpy.linalg.eigvalsh(Q)[..., -2]`` for the GLCM Q matrix.
+ */
+static double
+sv_second_eig_jacobi(double *A, int n)
+{
+    if (n < 2)
+        return 0.0;
+    for (int sweep = 0; sweep < SV_MCC_JACOBI_SWEEPS; sweep++) {
+        double off = 0.0;
+        for (int p = 0; p < n - 1; p++) {
+            for (int q = p + 1; q < n; q++)
+                off += fabs(A[(size_t)p * n + q]);
+        }
+        if (off <= SV_MCC_JACOBI_TOL)
+            break;
+        for (int p = 0; p < n - 1; p++) {
+            for (int q = p + 1; q < n; q++) {
+                double apq = A[(size_t)p * n + q];
+                if (fabs(apq) <= SV_MCC_JACOBI_TOL)
+                    continue;
+                double app = A[(size_t)p * n + p];
+                double aqq = A[(size_t)q * n + q];
+                double theta = 0.5 * (aqq - app) / apq;
+                double t;
+                if (theta == 0.0)
+                    t = 1.0;
+                else {
+                    double sgn = (theta >= 0.0) ? 1.0 : -1.0;
+                    t = sgn / (fabs(theta) + sqrt(1.0 + theta * theta));
+                }
+                double c = 1.0 / sqrt(1.0 + t * t);
+                double s = t * c;
+                A[(size_t)p * n + p] = app - t * apq;
+                A[(size_t)q * n + q] = aqq + t * apq;
+                A[(size_t)p * n + q] = 0.0;
+                A[(size_t)q * n + p] = 0.0;
+                for (int k = 0; k < n; k++) {
+                    if (k == p || k == q)
+                        continue;
+                    double aik = A[(size_t)p * n + k];
+                    double aqk = A[(size_t)q * n + k];
+                    double bik = c * aik - s * aqk;
+                    double bqk = s * aik + c * aqk;
+                    A[(size_t)p * n + k] = bik;
+                    A[(size_t)k * n + p] = bik;
+                    A[(size_t)q * n + k] = bqk;
+                    A[(size_t)k * n + q] = bqk;
+                }
+            }
+        }
+    }
+    double top = -1.0e300;
+    double second = -1.0e300;
+    for (int i = 0; i < n; i++) {
+        double ev = A[(size_t)i * n + i];
+        if (ev > top) {
+            second = top;
+            top = ev;
+        } else if (ev > second) {
+            second = ev;
+        }
+    }
+    return second;
+}
+
+int
+sv_glcm_mcc(const double *P, int n_labels, int Ng, int n_angles,
+            int symmetrical, double **out_mcc)
+{
+    if (n_labels <= 0 || Ng <= 0 || n_angles <= 0) {
+        PyErr_SetString(PyExc_ValueError, "GLCM MCC batch has an empty axis");
+        return -1;
+    }
+    double *out = (double *)malloc((size_t)n_labels * sizeof(double));
+    double *ang = (double *)malloc((size_t)n_labels * (size_t)n_angles * sizeof(double));
+    if (!out || !ang) {
+        free(out);
+        free(ang);
+        PyErr_NoMemory();
+        return -1;
+    }
+    for (int i = 0; i < n_labels * n_angles; i++)
+        ang[i] = NAN;
+
+    sv_omp_apply_thread_limit();
+#ifdef _OPENMP
+    #pragma omp parallel
+#endif
+    {
+        double *S = (double *)malloc((size_t)Ng * (size_t)Ng * sizeof(double));
+        double *Q = (double *)malloc((size_t)Ng * (size_t)Ng * sizeof(double));
+        double *px = (double *)malloc((size_t)Ng * sizeof(double));
+        double *inv_px = (double *)malloc((size_t)Ng * sizeof(double));
+        double *inv_py = (double *)malloc((size_t)Ng * sizeof(double));
+        if (!S || !Q || !px || !inv_px || !inv_py) {
+#ifdef _OPENMP
+            #pragma omp critical
+#endif
+            {
+                PyErr_NoMemory();
+            }
+            free(S); free(Q); free(px); free(inv_px); free(inv_py);
+        } else {
+#ifdef _OPENMP
+            #pragma omp for collapse(2) schedule(static)
+#endif
+            for (int v = 0; v < n_labels; v++) {
+                for (int a = 0; a < n_angles; a++) {
+                    double sum = 0.0;
+                    for (int i = 0; i < Ng; i++) {
+                        for (int j = 0; j < Ng; j++) {
+                            double val = P[(((size_t)v * Ng + i) * Ng + j) * n_angles + a];
+                            if (symmetrical)
+                                val += P[(((size_t)v * Ng + j) * Ng + i) * n_angles + a];
+                            S[i * Ng + j] = val;
+                            sum += val;
+                        }
+                    }
+                    if (!(sum > 0.0) || Ng < 2)
+                        continue;
+                    double inv_sum = 1.0 / sum;
+                    for (int i = 0; i < Ng * Ng; i++)
+                        S[i] *= inv_sum;
+                    for (int i = 0; i < Ng; i++)
+                        px[i] = 0.0;
+                    for (int i = 0; i < Ng; i++) {
+                        for (int j = 0; j < Ng; j++)
+                            px[i] += S[i * Ng + j];
+                    }
+                    /* Symmetric S => py == px. Keep both for the textbook Q. */
+                    for (int i = 0; i < Ng; i++) {
+                        inv_px[i] = (px[i] > 0.0) ? (1.0 / px[i]) : 0.0;
+                        inv_py[i] = inv_px[i];
+                    }
+                    /* Q[i,j] = sum_k S[i,k] S[j,k] / (px[i] py[k]) */
+                    for (int i = 0; i < Ng; i++) {
+                        double ipx = inv_px[i];
+                        for (int j = 0; j <= i; j++) {
+                            double acc = 0.0;
+                            for (int k = 0; k < Ng; k++)
+                                acc += S[i * Ng + k] * S[j * Ng + k] * inv_py[k];
+                            acc *= ipx;
+                            Q[i * Ng + j] = acc;
+                            Q[j * Ng + i] = acc;
+                        }
+                    }
+                    double lam2 = sv_second_eig_jacobi(Q, Ng);
+                    double mcc = (lam2 > 0.0) ? sqrt(lam2) : 0.0;
+                    ang[(size_t)v * n_angles + a] = mcc;
+                }
+            }
+            free(S); free(Q); free(px); free(inv_px); free(inv_py);
+        }
+    }
+
+    if (PyErr_Occurred()) {
+        free(out);
+        free(ang);
+        return -1;
+    }
+    for (int v = 0; v < n_labels; v++) {
+        double acc = 0.0;
+        int cnt = 0;
+        for (int a = 0; a < n_angles; a++) {
+            double val = ang[(size_t)v * n_angles + a];
+            if (val == val) {
+                acc += val;
+                cnt += 1;
+            }
+        }
+        out[v] = (cnt > 0) ? (acc / (double)cnt) : NAN;
+    }
+    free(ang);
+    *out_mcc = out;
+    return 0;
+}
+
+/* ── GLRLM formulas ──────────────────────────────────────────────────── */
+
+#define N_GLRLM_FORMULA_FEATURES 16
+
+int
+sv_glrlm_formulas(const double *P, int n_labels, int Ng, int Nr, int n_angles,
+                  const double *gray, double **out_features, int *n_features_out)
+{
+    if (n_labels <= 0 || Ng <= 0 || Nr <= 0 || n_angles <= 0) {
+        PyErr_SetString(PyExc_ValueError, "GLRLM formula batch has an empty axis");
+        return -1;
+    }
+    double *out = (double *)malloc((size_t)n_labels * N_GLRLM_FORMULA_FEATURES * sizeof(double));
+    if (!out) {
+        PyErr_NoMemory();
+        return -1;
+    }
+
+    sv_omp_apply_thread_limit();
+#ifdef _OPENMP
+    #pragma omp parallel
+#endif
+    {
+        double *pr = (double *)malloc((size_t)Nr * sizeof(double));
+        double *pg = (double *)malloc((size_t)Ng * sizeof(double));
+        if (!pr || !pg) {
+#ifdef _OPENMP
+            #pragma omp critical
+#endif
+            {
+                PyErr_NoMemory();
+            }
+            free(pr); free(pg);
+        } else {
+#ifdef _OPENMP
+            #pragma omp for schedule(static)
+#endif
+            for (int v = 0; v < n_labels; v++) {
+                double acc[N_GLRLM_FORMULA_FEATURES];
+                int cnt[N_GLRLM_FORMULA_FEATURES];
+                for (int f = 0; f < N_GLRLM_FORMULA_FEATURES; f++) {
+                    acc[f] = 0.0;
+                    cnt[f] = 0;
+                }
+                for (int a = 0; a < n_angles; a++) {
+                    for (int j = 0; j < Nr; j++)
+                        pr[j] = 0.0;
+                    for (int i = 0; i < Ng; i++)
+                        pg[i] = 0.0;
+                    double nr = 0.0;
+                    double n_p = 0.0;
+                    double run_ent = 0.0;
+                    double srlge = 0.0, srhge = 0.0, lrlge = 0.0, lrhge = 0.0;
+                    for (int i = 0; i < Ng; i++) {
+                        double gi = gray[i];
+                        double i2 = gi * gi;
+                        if (i2 <= 0.0)
+                            i2 = SV_GLCM_EPS;
+                        for (int j = 0; j < Nr; j++) {
+                            double p = P[(((size_t)v * Ng + i) * Nr + j) * n_angles + a];
+                            pr[j] += p;
+                            pg[i] += p;
+                            nr += p;
+                            double rlen = (double)(j + 1);
+                            n_p += p * rlen;
+                            double j2 = rlen * rlen;
+                            srlge += p / (i2 * j2);
+                            srhge += p * i2 / j2;
+                            lrlge += p * j2 / i2;
+                            lrhge += p * i2 * j2;
+                        }
+                    }
+                    if (!(nr > 0.0))
+                        continue;
+                    double sre = 0.0, lre = 0.0, rlnu = 0.0;
+                    for (int j = 0; j < Nr; j++) {
+                        double rlen = (double)(j + 1);
+                        double j2 = rlen * rlen;
+                        sre += pr[j] / j2;
+                        lre += pr[j] * j2;
+                        rlnu += pr[j] * pr[j];
+                    }
+                    double glnu = 0.0, lgre = 0.0, hgre = 0.0;
+                    double u_i = 0.0;
+                    for (int i = 0; i < Ng; i++) {
+                        glnu += pg[i] * pg[i];
+                        double gi = gray[i];
+                        double i2 = gi * gi;
+                        if (i2 <= 0.0)
+                            i2 = SV_GLCM_EPS;
+                        lgre += pg[i] / i2;
+                        hgre += pg[i] * i2;
+                        u_i += (pg[i] / nr) * gi;
+                    }
+                    double glv = 0.0;
+                    for (int i = 0; i < Ng; i++) {
+                        double d = gray[i] - u_i;
+                        glv += (pg[i] / nr) * d * d;
+                    }
+                    double u_j = 0.0;
+                    for (int j = 0; j < Nr; j++)
+                        u_j += (pr[j] / nr) * (double)(j + 1);
+                    double rv = 0.0;
+                    for (int j = 0; j < Nr; j++) {
+                        double d = (double)(j + 1) - u_j;
+                        rv += (pr[j] / nr) * d * d;
+                    }
+                    for (int i = 0; i < Ng; i++) {
+                        for (int j = 0; j < Nr; j++) {
+                            double p = P[(((size_t)v * Ng + i) * Nr + j) * n_angles + a] / nr;
+                            if (p > 0.0)
+                                run_ent -= p * (log(p) / log(2.0));
+                        }
+                    }
+                    double vals[N_GLRLM_FORMULA_FEATURES] = {
+                        sre / nr,
+                        lre / nr,
+                        glnu / nr,
+                        glnu / (nr * nr),
+                        rlnu / nr,
+                        rlnu / (nr * nr),
+                        (n_p > 0.0) ? (nr / n_p) : NAN,
+                        glv,
+                        rv,
+                        run_ent,
+                        lgre / nr,
+                        hgre / nr,
+                        srlge / nr,
+                        srhge / nr,
+                        lrlge / nr,
+                        lrhge / nr,
+                    };
+                    for (int f = 0; f < N_GLRLM_FORMULA_FEATURES; f++) {
+                        if (vals[f] == vals[f]) {
+                            acc[f] += vals[f];
+                            cnt[f] += 1;
+                        }
+                    }
+                }
+                double *row = out + (size_t)v * N_GLRLM_FORMULA_FEATURES;
+                for (int f = 0; f < N_GLRLM_FORMULA_FEATURES; f++)
+                    row[f] = (cnt[f] > 0) ? (acc[f] / (double)cnt[f]) : NAN;
+            }
+            free(pr); free(pg);
+        }
+    }
+
+    if (PyErr_Occurred()) {
+        free(out);
+        return -1;
+    }
+    *out_features = out;
+    *n_features_out = N_GLRLM_FORMULA_FEATURES;
     return 0;
 }
