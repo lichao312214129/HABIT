@@ -52,6 +52,11 @@ except Exception:  # pragma: no cover - optional accelerator
     njit = None
     _HAS_NUMBA = False
 
+# Sequential Blondel can keep moving a node back and forth on a lattice
+# and otherwise run ``n_nodes`` passes. A small cap keeps the one-level
+# modularity cheap; the partition may already differ from NetworkX seed=0.
+_LOUVAIN_MAX_PASSES: int = 32
+
 
 def degrees_csr(indptr: np.ndarray) -> np.ndarray:
     """Return integer degrees from a CSR row pointer.
@@ -345,7 +350,14 @@ def louvain_modularity_csr(
         weight_u = weight_u[undirected]
     elif weight_u.size != src_u.size:
         weight_u = np.ones(src_u.size, dtype=np.float64)
-    communities = _louvain_partition_python(indptr, indices, n_nodes)
+    if _HAS_NUMBA and _louvain_partition_numba is not None:
+        communities = _louvain_partition_numba(
+            np.asarray(indptr, dtype=np.int64),
+            np.asarray(indices, dtype=np.int64),
+            n_nodes,
+        )
+    else:
+        communities = _louvain_partition_python(indptr, indices, n_nodes)
     return _modularity_of_partition(src_u, dst_u, weight_u, communities, n_nodes)
 
 
@@ -363,7 +375,8 @@ def _louvain_partition_python(
     strength = degrees.copy()
     moved = True
     n_pass = 0
-    while moved and n_pass < n_nodes:
+    pass_limit = n_nodes if n_nodes < _LOUVAIN_MAX_PASSES else _LOUVAIN_MAX_PASSES
+    while moved and n_pass < pass_limit:
         moved = False
         n_pass += 1
         for node in range(n_nodes):
@@ -495,6 +508,74 @@ if _HAS_NUMBA:
             stamp += 1
         return total / float(n_nodes)
 
+    @njit(cache=True)
+    def _louvain_partition_numba(
+        indptr: np.ndarray,
+        indices: np.ndarray,
+        n_nodes: int,
+    ) -> np.ndarray:
+        """Compiled Blondel local moves; same gain rule as the Python path.
+
+        Neighbour communities are accumulated in a dense ``k_in`` array
+        (community ids stay in ``0 .. n_nodes-1``) so the inner loop
+        never builds a hash map. Sources stay serial.
+        """
+        community = np.empty(n_nodes, dtype=np.int32)
+        degrees = np.empty(n_nodes, dtype=np.float64)
+        two_m = 0.0
+        for node in range(n_nodes):
+            community[node] = node
+            deg = float(indptr[node + 1] - indptr[node])
+            degrees[node] = deg
+            two_m += deg
+        if two_m <= 0.0:
+            return community
+        strength = degrees.copy()
+        k_in = np.zeros(n_nodes, dtype=np.float64)
+        touched = np.empty(n_nodes, dtype=np.int32)
+        moved = True
+        n_pass = 0
+        pass_limit = n_nodes
+        if pass_limit > 32:
+            pass_limit = 32
+        while moved and n_pass < pass_limit:
+            moved = False
+            n_pass += 1
+            for node in range(n_nodes):
+                current = community[node]
+                start = indptr[node]
+                stop = indptr[node + 1]
+                k_i = float(stop - start)
+                n_touch = 0
+                for slot in range(start, stop):
+                    comm = community[indices[slot]]
+                    if k_in[comm] == 0.0:
+                        touched[n_touch] = comm
+                        n_touch += 1
+                    k_in[comm] += 1.0
+                best = current
+                best_gain = 0.0
+                for touch in range(n_touch):
+                    comm = touched[touch]
+                    k_i_in = k_in[comm]
+                    k_in[comm] = 0.0
+                    tot = strength[comm]
+                    if comm == current:
+                        tot -= k_i
+                    gain = k_i_in - (tot * k_i) / two_m
+                    if comm == current:
+                        continue
+                    if gain > best_gain + 1e-15:
+                        best_gain = gain
+                        best = comm
+                if best != current and best_gain > 0.0:
+                    community[node] = best
+                    strength[current] -= k_i
+                    strength[best] += k_i
+                    moved = True
+        return community
+
 else:  # pragma: no cover - no numba
     _components_numba = None
     _clustering_numba = None
+    _louvain_partition_numba = None

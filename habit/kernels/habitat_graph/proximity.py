@@ -260,6 +260,7 @@ def volume_sweep_min_distances(
         painted,
         int(radius),
         float(threshold),
+        int(n_nodes),
     )
     return _reduce_pair_minima(lo, hi, dist, int(n_nodes))
 
@@ -743,8 +744,9 @@ def _sweep_pair_hits(
     painted: np.ndarray,
     radius: int,
     threshold: float,
+    n_nodes: int,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Emit ``(lo, hi, dist)`` hits; duplicates are allowed and reduced later."""
+    """Emit unique ``(lo, hi, dist)`` pair minima (no n x n matrix)."""
     owner_i = np.asarray(owner, dtype=np.int32)
     if _HAS_NUMBA and _sweep_hits_2d_numba is not None:
         if owner_i.ndim == 2:
@@ -754,6 +756,7 @@ def _sweep_pair_hits(
                 np.ascontiguousarray(painted[:, 1], dtype=np.int32),
                 int(radius),
                 float(threshold),
+                int(n_nodes),
             )
         return _sweep_hits_3d_numba(
             owner_i,
@@ -762,26 +765,26 @@ def _sweep_pair_hits(
             np.ascontiguousarray(painted[:, 2], dtype=np.int32),
             int(radius),
             float(threshold),
+            int(n_nodes),
         )
-    return _sweep_hits_python(owner_i, painted, radius, threshold)
+    return _sweep_hits_python(owner_i, painted, radius, threshold, int(n_nodes))
 
 
-def _append_hit(
-    lo_list: List[int],
-    hi_list: List[int],
-    dist_list: List[float],
+def _record_pair_min(
+    table: dict,
     node_a: int,
     node_b: int,
+    n_nodes: int,
     dist: float,
 ) -> None:
-    """Append one undirected pair hit with ``lo < hi``."""
+    """Keep the closest distance for one undirected pair in a Python dict."""
     if node_a < node_b:
-        lo_list.append(node_a)
-        hi_list.append(node_b)
+        key = int(node_a) * n_nodes + int(node_b)
     else:
-        lo_list.append(node_b)
-        hi_list.append(node_a)
-    dist_list.append(dist)
+        key = int(node_b) * n_nodes + int(node_a)
+    prev = table.get(key)
+    if prev is None or dist < prev:
+        table[key] = dist
 
 
 def _sweep_hits_python(
@@ -789,12 +792,11 @@ def _sweep_hits_python(
     painted: np.ndarray,
     radius: int,
     threshold: float,
+    n_nodes: int,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Python pair-hit sweep over the lexicographic half-window."""
+    """Python pair-hit sweep; reduces min per pair in a dict (no n x n)."""
     cap_sq = float(threshold) * float(threshold)
-    lo_list: List[int] = []
-    hi_list: List[int] = []
-    dist_list: List[float] = []
+    table: dict = {}
     if owner.ndim == 2:
         height, width = owner.shape
         for y, x in painted:
@@ -814,12 +816,13 @@ def _sweep_hits_python(
                     dist_sq = dy * dy + float(xx - x) ** 2
                     if dist_sq > cap_sq:
                         continue
-                    _append_hit(lo_list, hi_list, dist_list, node_a, node_b, dist_sq ** 0.5)
-        return (
-            np.asarray(lo_list, dtype=np.int64),
-            np.asarray(hi_list, dtype=np.int64),
-            np.asarray(dist_list, dtype=np.float64),
-        )
+                    _record_pair_min(table, node_a, node_b, n_nodes, dist_sq ** 0.5)
+        if not table:
+            empty = np.empty(0, dtype=np.int64)
+            return empty, empty, np.empty(0, dtype=np.float64)
+        keys = np.fromiter(table.keys(), dtype=np.int64, count=len(table))
+        vals = np.fromiter(table.values(), dtype=np.float64, count=len(table))
+        return keys // n_nodes, keys % n_nodes, vals
     depth, height, width = owner.shape
     for z, y, x in painted:
         node_a = int(owner[z, y, x])
@@ -844,74 +847,99 @@ def _sweep_hits_python(
                     dist_sq = dz * dz + dy * dy + float(xx - x) ** 2
                     if dist_sq > cap_sq:
                         continue
-                    _append_hit(lo_list, hi_list, dist_list, node_a, node_b, dist_sq ** 0.5)
-    return (
-        np.asarray(lo_list, dtype=np.int64),
-        np.asarray(hi_list, dtype=np.int64),
-        np.asarray(dist_list, dtype=np.float64),
-    )
+                    _record_pair_min(table, node_a, node_b, n_nodes, dist_sq ** 0.5)
+    if not table:
+        empty = np.empty(0, dtype=np.int64)
+        return empty, empty, np.empty(0, dtype=np.float64)
+    keys = np.fromiter(table.keys(), dtype=np.int64, count=len(table))
+    vals = np.fromiter(table.values(), dtype=np.float64, count=len(table))
+    return keys // n_nodes, keys % n_nodes, vals
+
+
+def _next_pow2(n: int) -> int:
+    """Smallest power of two that is ``>= n`` (at least 1)."""
+    value = max(int(n), 1)
+    return 1 << (value - 1).bit_length()
 
 
 if _HAS_NUMBA:
 
     @njit(cache=True)
-    def _count_hits_2d(
-        owner: np.ndarray,
-        py: np.ndarray,
-        px: np.ndarray,
-        radius: int,
-        threshold: float,
+    def _hash_put_min(
+        keys: np.ndarray,
+        mins: np.ndarray,
+        n_filled: int,
+        n_nodes: int,
+        lo: int,
+        hi: int,
+        dist: float,
     ) -> int:
-        """Count in-range different-node hits in 2-D (lexicographic half)."""
-        cap_sq = threshold * threshold
-        height = owner.shape[0]
-        width = owner.shape[1]
-        n_hits = 0
-        for slot in range(py.shape[0]):
-            y = py[slot]
-            x = px[slot]
-            node_a = owner[y, x]
-            y0 = y - radius
-            if y0 < 0:
-                y0 = 0
-            y1 = y + radius + 1
-            if y1 > height:
-                y1 = height
-            x0 = x - radius
-            if x0 < 0:
-                x0 = 0
-            x1 = x + radius + 1
-            if x1 > width:
-                x1 = width
-            for yy in range(y0, y1):
-                dy = float(yy - y)
-                for xx in range(x0, x1):
-                    if yy < y or (yy == y and xx <= x):
-                        continue
-                    node_b = owner[yy, xx]
-                    if node_b < 0 or node_b == node_a:
-                        continue
-                    dist_sq = dy * dy + float(xx - x) * float(xx - x)
-                    if dist_sq <= cap_sq:
-                        n_hits += 1
-        return n_hits
+        """Insert or tighten one undirected pair. ``-1`` means the table is full."""
+        n_slots = keys.shape[0]
+        mask = n_slots - 1
+        key = lo * n_nodes + hi
+        # Golden-ratio mix; n_slots is a power of two so ``& mask`` is modulo.
+        hashed = (key * -7046029254386353131) & mask
+        for _probe in range(n_slots):
+            stored = keys[hashed]
+            if stored == key:
+                if dist < mins[hashed]:
+                    mins[hashed] = dist
+                return n_filled
+            if stored < 0:
+                if n_filled * 2 >= n_slots:
+                    return -1
+                keys[hashed] = key
+                mins[hashed] = dist
+                return n_filled + 1
+            hashed = (hashed + 1) & mask
+        return -1
 
     @njit(cache=True)
-    def _fill_hits_2d(
+    def _compact_pair_hash(
+        keys: np.ndarray,
+        mins: np.ndarray,
+        n_nodes: int,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Unpack occupied hash slots into ``(lo, hi, dist)`` arrays."""
+        n_keep = 0
+        for slot in range(keys.shape[0]):
+            if keys[slot] >= 0:
+                n_keep += 1
+        lo = np.empty(n_keep, dtype=np.int64)
+        hi = np.empty(n_keep, dtype=np.int64)
+        dist = np.empty(n_keep, dtype=np.float64)
+        cursor = 0
+        for slot in range(keys.shape[0]):
+            key = keys[slot]
+            if key < 0:
+                continue
+            lo[cursor] = key // n_nodes
+            hi[cursor] = key % n_nodes
+            dist[cursor] = mins[slot]
+            cursor += 1
+        return lo, hi, dist
+
+    @njit(cache=True)
+    def _sweep_hash_2d(
         owner: np.ndarray,
         py: np.ndarray,
         px: np.ndarray,
         radius: int,
         threshold: float,
-        lo: np.ndarray,
-        hi: np.ndarray,
-        dist: np.ndarray,
-    ) -> None:
-        """Write 2-D pair hits into preallocated arrays."""
+        n_nodes: int,
+        keys: np.ndarray,
+        mins: np.ndarray,
+    ) -> int:
+        """2-D half-window sweep into an open-addressing min-hash. ``-1`` if full."""
         cap_sq = threshold * threshold
         height = owner.shape[0]
         width = owner.shape[1]
-        cursor = 0
+        stamp = np.zeros(n_nodes, dtype=np.int32)
+        best_dist = np.empty(n_nodes, dtype=np.float64)
+        touched = np.empty(n_nodes, dtype=np.int32)
+        token = 1
+        n_filled = 0
         for slot in range(py.shape[0]):
             y = py[slot]
             x = px[slot]
@@ -928,6 +956,11 @@ if _HAS_NUMBA:
             x1 = x + radius + 1
             if x1 > width:
                 x1 = width
+            if token == 2147483647:
+                for reset in range(n_nodes):
+                    stamp[reset] = 0
+                token = 1
+            n_touch = 0
             for yy in range(y0, y1):
                 dy = float(yy - y)
                 for xx in range(x0, x1):
@@ -939,30 +972,52 @@ if _HAS_NUMBA:
                     dist_sq = dy * dy + float(xx - x) * float(xx - x)
                     if dist_sq > cap_sq:
                         continue
-                    if node_a < node_b:
-                        lo[cursor] = node_a
-                        hi[cursor] = node_b
-                    else:
-                        lo[cursor] = node_b
-                        hi[cursor] = node_a
-                    dist[cursor] = dist_sq ** 0.5
-                    cursor += 1
+                    dist = dist_sq ** 0.5
+                    if stamp[node_b] != token:
+                        stamp[node_b] = token
+                        touched[n_touch] = node_b
+                        n_touch += 1
+                        best_dist[node_b] = dist
+                    elif dist < best_dist[node_b]:
+                        best_dist[node_b] = dist
+            for touch in range(n_touch):
+                node_b = touched[touch]
+                if node_a < node_b:
+                    lo = node_a
+                    hi = node_b
+                else:
+                    lo = node_b
+                    hi = node_a
+                n_filled = _hash_put_min(
+                    keys, mins, n_filled, n_nodes, lo, hi, best_dist[node_b]
+                )
+                if n_filled < 0:
+                    return -1
+            token += 1
+        return n_filled
 
     @njit(cache=True)
-    def _count_hits_3d(
+    def _sweep_hash_3d(
         owner: np.ndarray,
         pz: np.ndarray,
         py: np.ndarray,
         px: np.ndarray,
         radius: int,
         threshold: float,
+        n_nodes: int,
+        keys: np.ndarray,
+        mins: np.ndarray,
     ) -> int:
-        """Count in-range different-node hits in 3-D (lexicographic half)."""
+        """3-D half-window sweep into an open-addressing min-hash. ``-1`` if full."""
         cap_sq = threshold * threshold
         depth = owner.shape[0]
         height = owner.shape[1]
         width = owner.shape[2]
-        n_hits = 0
+        stamp = np.zeros(n_nodes, dtype=np.int32)
+        best_dist = np.empty(n_nodes, dtype=np.float64)
+        touched = np.empty(n_nodes, dtype=np.int32)
+        token = 1
+        n_filled = 0
         for slot in range(pz.shape[0]):
             z = pz[slot]
             y = py[slot]
@@ -986,64 +1041,11 @@ if _HAS_NUMBA:
             x1 = x + radius + 1
             if x1 > width:
                 x1 = width
-            for zz in range(z0, z1):
-                dz = float(zz - z)
-                for yy in range(y0, y1):
-                    dy = float(yy - y)
-                    for xx in range(x0, x1):
-                        if zz < z or (zz == z and yy < y) or (
-                            zz == z and yy == y and xx <= x
-                        ):
-                            continue
-                        node_b = owner[zz, yy, xx]
-                        if node_b < 0 or node_b == node_a:
-                            continue
-                        dist_sq = dz * dz + dy * dy + float(xx - x) * float(xx - x)
-                        if dist_sq <= cap_sq:
-                            n_hits += 1
-        return n_hits
-
-    @njit(cache=True)
-    def _fill_hits_3d(
-        owner: np.ndarray,
-        pz: np.ndarray,
-        py: np.ndarray,
-        px: np.ndarray,
-        radius: int,
-        threshold: float,
-        lo: np.ndarray,
-        hi: np.ndarray,
-        dist: np.ndarray,
-    ) -> None:
-        """Write 3-D pair hits into preallocated arrays."""
-        cap_sq = threshold * threshold
-        depth = owner.shape[0]
-        height = owner.shape[1]
-        width = owner.shape[2]
-        cursor = 0
-        for slot in range(pz.shape[0]):
-            z = pz[slot]
-            y = py[slot]
-            x = px[slot]
-            node_a = owner[z, y, x]
-            z0 = z - radius
-            if z0 < 0:
-                z0 = 0
-            z1 = z + radius + 1
-            if z1 > depth:
-                z1 = depth
-            y0 = y - radius
-            if y0 < 0:
-                y0 = 0
-            y1 = y + radius + 1
-            if y1 > height:
-                y1 = height
-            x0 = x - radius
-            if x0 < 0:
-                x0 = 0
-            x1 = x + radius + 1
-            if x1 > width:
-                x1 = width
+            if token == 2147483647:
+                for reset in range(n_nodes):
+                    stamp[reset] = 0
+                token = 1
+            n_touch = 0
             for zz in range(z0, z1):
                 dz = float(zz - z)
                 for yy in range(y0, y1):
@@ -1059,14 +1061,50 @@ if _HAS_NUMBA:
                         dist_sq = dz * dz + dy * dy + float(xx - x) * float(xx - x)
                         if dist_sq > cap_sq:
                             continue
-                        if node_a < node_b:
-                            lo[cursor] = node_a
-                            hi[cursor] = node_b
-                        else:
-                            lo[cursor] = node_b
-                            hi[cursor] = node_a
-                        dist[cursor] = dist_sq ** 0.5
-                        cursor += 1
+                        dist = dist_sq ** 0.5
+                        if stamp[node_b] != token:
+                            stamp[node_b] = token
+                            touched[n_touch] = node_b
+                            n_touch += 1
+                            best_dist[node_b] = dist
+                        elif dist < best_dist[node_b]:
+                            best_dist[node_b] = dist
+            for touch in range(n_touch):
+                node_b = touched[touch]
+                if node_a < node_b:
+                    lo = node_a
+                    hi = node_b
+                else:
+                    lo = node_b
+                    hi = node_a
+                n_filled = _hash_put_min(
+                    keys, mins, n_filled, n_nodes, lo, hi, best_dist[node_b]
+                )
+                if n_filled < 0:
+                    return -1
+            token += 1
+        return n_filled
+
+    def _run_hash_sweep(
+        kernel,
+        n_nodes: int,
+        *args,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Grow a power-of-two table until the compiled sweep fits."""
+        n_slots = _next_pow2(max(1024, int(n_nodes) * 64))
+        max_slots = _next_pow2(max(n_slots, int(n_nodes) * int(n_nodes)))
+        while n_slots <= max_slots:
+            keys = np.full(n_slots, -1, dtype=np.int64)
+            mins = np.empty(n_slots, dtype=np.float64)
+            filled = int(kernel(*args, int(n_nodes), keys, mins))
+            if filled >= 0:
+                if filled == 0:
+                    empty = np.empty(0, dtype=np.int64)
+                    return empty, empty, np.empty(0, dtype=np.float64)
+                return _compact_pair_hash(keys, mins, int(n_nodes))
+            n_slots *= 2
+        empty = np.empty(0, dtype=np.int64)
+        return empty, empty, np.empty(0, dtype=np.float64)
 
     def _sweep_hits_2d_numba(
         owner: np.ndarray,
@@ -1074,15 +1112,12 @@ if _HAS_NUMBA:
         px: np.ndarray,
         radius: int,
         threshold: float,
+        n_nodes: int,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Compiled 2-D pair-hit sweep (count, then fill)."""
-        n_hits = int(_count_hits_2d(owner, py, px, radius, threshold))
-        lo = np.empty(n_hits, dtype=np.int64)
-        hi = np.empty(n_hits, dtype=np.int64)
-        dist = np.empty(n_hits, dtype=np.float64)
-        if n_hits:
-            _fill_hits_2d(owner, py, px, radius, threshold, lo, hi, dist)
-        return lo, hi, dist
+        """Compiled 2-D pair-min sweep (open-addressing hash, no n x n)."""
+        return _run_hash_sweep(
+            _sweep_hash_2d, n_nodes, owner, py, px, int(radius), float(threshold)
+        )
 
     def _sweep_hits_3d_numba(
         owner: np.ndarray,
@@ -1091,15 +1126,12 @@ if _HAS_NUMBA:
         px: np.ndarray,
         radius: int,
         threshold: float,
+        n_nodes: int,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Compiled 3-D pair-hit sweep (count, then fill)."""
-        n_hits = int(_count_hits_3d(owner, pz, py, px, radius, threshold))
-        lo = np.empty(n_hits, dtype=np.int64)
-        hi = np.empty(n_hits, dtype=np.int64)
-        dist = np.empty(n_hits, dtype=np.float64)
-        if n_hits:
-            _fill_hits_3d(owner, pz, py, px, radius, threshold, lo, hi, dist)
-        return lo, hi, dist
+        """Compiled 3-D pair-min sweep (open-addressing hash, no n x n)."""
+        return _run_hash_sweep(
+            _sweep_hash_3d, n_nodes, owner, pz, py, px, int(radius), float(threshold)
+        )
 
 else:  # pragma: no cover - no numba
     _sweep_hits_2d_numba = None

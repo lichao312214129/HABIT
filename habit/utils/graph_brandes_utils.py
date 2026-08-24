@@ -372,15 +372,20 @@ if _HAS_NUMBA:
         pair_parts = np.zeros(n_nodes, dtype=np.float64)
         diam_parts = np.zeros(n_nodes, dtype=np.int32)
         n_pred_max = indices.shape[0]
+        # Allocate BFS / predecessor scratch once. Sources stay serial so
+        # joblib can run many graphs in threads without oversubscribe.
+        dist = np.empty(n_nodes, dtype=np.int32)
+        n_paths = np.empty(n_nodes, dtype=np.float64)
+        dependency = np.empty(n_nodes, dtype=np.float64)
+        order = np.empty(n_nodes, dtype=np.int32)
+        pred = np.empty(n_pred_max, dtype=np.int32)
+        pred_parent = np.empty(n_pred_max, dtype=np.int32)
+        pred_child = np.empty(n_pred_max, dtype=np.int32)
+        pred_count = np.empty(n_nodes, dtype=np.int32)
+        queue = np.empty(n_nodes, dtype=np.int32)
+        pred_ptr = np.empty(n_nodes + 1, dtype=np.int32)
+        fill = np.empty(n_nodes + 1, dtype=np.int32)
         for source in range(n_nodes):
-            dist = np.empty(n_nodes, dtype=np.int32)
-            n_paths = np.empty(n_nodes, dtype=np.float64)
-            dependency = np.empty(n_nodes, dtype=np.float64)
-            order = np.empty(n_nodes, dtype=np.int32)
-            pred = np.empty(n_pred_max, dtype=np.int32)
-            pred_parent = np.empty(n_pred_max, dtype=np.int32)
-            pred_child = np.empty(n_pred_max, dtype=np.int32)
-            pred_count = np.zeros(n_nodes, dtype=np.int32)
             for node in range(n_nodes):
                 dist[node] = -1
                 n_paths[node] = 0.0
@@ -388,7 +393,6 @@ if _HAS_NUMBA:
                 pred_count[node] = 0
             dist[source] = 0
             n_paths[source] = 1.0
-            queue = np.empty(n_nodes, dtype=np.int32)
             queue[0] = source
             head = 0
             tail = 1
@@ -415,10 +419,11 @@ if _HAS_NUMBA:
                         pred_child[n_pred] = neighbour
                         n_pred += 1
                         pred_count[neighbour] += 1
-            pred_ptr = np.zeros(n_nodes + 1, dtype=np.int32)
+            pred_ptr[0] = 0
             for node in range(n_nodes):
                 pred_ptr[node + 1] = pred_ptr[node] + pred_count[node]
-            fill = pred_ptr.copy()
+            for node in range(n_nodes + 1):
+                fill[node] = pred_ptr[node]
             for slot in range(n_pred):
                 child = pred_child[slot]
                 pred[fill[child]] = pred_parent[slot]

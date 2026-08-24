@@ -318,6 +318,37 @@ def _csr_from_arrays(arrays: GraphArrays):
     return csr_from_edge_arrays(len(arrays.node_ids), arrays.src, arrays.dst)
 
 
+def _directed_weights_from_undirected(
+    indptr: np.ndarray,
+    indices: np.ndarray,
+    src: np.ndarray,
+    dst: np.ndarray,
+    weight: np.ndarray,
+    n_nodes: int,
+) -> np.ndarray:
+    """Scatter undirected weights onto both CSR directions (no Python dict)."""
+    n_directed = int(indptr[-1])
+    if weight.size != src.size or src.size == 0 or n_directed == 0:
+        return np.ones(n_directed, dtype=np.float64)
+    pack = src.astype(np.int64, copy=False) * int(n_nodes) + dst.astype(
+        np.int64, copy=False
+    )
+    order = np.argsort(pack, kind="stable")
+    pack_sorted = pack[order]
+    weight_sorted = np.asarray(weight, dtype=np.float64)[order]
+    src_d = np.repeat(np.arange(n_nodes, dtype=np.int64), np.diff(indptr))
+    dst_d = np.asarray(indices, dtype=np.int64)
+    lo = np.minimum(src_d, dst_d)
+    hi = np.maximum(src_d, dst_d)
+    query = lo * int(n_nodes) + hi
+    slots = np.searchsorted(pack_sorted, query)
+    valid = slots < pack_sorted.size
+    valid[valid] = pack_sorted[slots[valid]] == query[valid]
+    out = np.ones(n_directed, dtype=np.float64)
+    out[valid] = weight_sorted[slots[valid]]
+    return out
+
+
 def _single_features_from_arrays(
     arrays: GraphArrays,
     nodes: Sequence[HabitatGraphNode],
@@ -348,19 +379,9 @@ def _single_features_from_arrays(
     )
     # CSR stores both directions; modularity helper unique-s the upper triangle.
     if arrays.weight.size == n_edges:
-        directed_w = np.ones(int(indptr[-1]), dtype=np.float64)
-        src = np.repeat(np.arange(n_nodes, dtype=np.int64), np.diff(indptr))
-        dst = indices
-        # Scatter undirected weights onto both directed slots.
-        weight_map = {
-            (int(a), int(b)): float(w)
-            for a, b, w in zip(arrays.src.tolist(), arrays.dst.tolist(), arrays.weight.tolist())
-        }
-        directed_w = np.ones(src.size, dtype=np.float64)
-        for slot, (node_a, node_b) in enumerate(zip(src.tolist(), dst.tolist())):
-            key = (node_a, node_b) if node_a < node_b else (node_b, node_a)
-            directed_w[slot] = weight_map.get(key, 1.0)
-        weights = directed_w
+        weights = _directed_weights_from_undirected(
+            indptr, indices, arrays.src, arrays.dst, arrays.weight, n_nodes
+        )
     features: Dict[str, float] = {
         f"{prefix}_n_nodes": float(n_nodes),
         f"{prefix}_n_edges": float(n_edges),
@@ -604,17 +625,9 @@ def _pairwise_features_from_arrays(
     hop_ok = hop_full.n_nodes > 1 and int(arrays.src.size) > 0
     weights = np.ones(int(indptr[-1]), dtype=np.float64)
     if arrays.weight.size == int(arrays.src.size):
-        weight_map = {
-            (int(a), int(b)): float(w)
-            for a, b, w in zip(
-                arrays.src.tolist(), arrays.dst.tolist(), arrays.weight.tolist()
-            )
-        }
-        src = np.repeat(np.arange(n_nodes, dtype=np.int64), np.diff(indptr))
-        dst = indices
-        for slot, (node_a, node_b) in enumerate(zip(src.tolist(), dst.tolist())):
-            key = (node_a, node_b) if node_a < node_b else (node_b, node_a)
-            weights[slot] = weight_map.get(key, 1.0)
+        weights = _directed_weights_from_undirected(
+            indptr, indices, arrays.src, arrays.dst, arrays.weight, n_nodes
+        )
     features: Dict[str, float] = {
         f"{prefix}_n_nodes_1": float(n_nodes_a),
         f"{prefix}_n_nodes_2": float(n_nodes_b),
