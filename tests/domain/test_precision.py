@@ -580,6 +580,30 @@ class TestBSplineDeformPerturbation:
         )
         assert dice == pytest.approx(0.90, abs=0.04)
 
+    def test_rejects_non_positive_control_spacing(self) -> None:
+        with pytest.raises(HABITAPIError, match="control_spacing"):
+            BSplineDeformPerturbation(control_spacing=1.0)
+
+    def test_control_spacing_ffd_warps_image_and_mask(self) -> None:
+        """Coarse cubic FFD changes the ROI without requiring MONAI."""
+        subject = self._sphere_subject(32)
+        step = BSplineDeformPerturbation(
+            control_spacing=8.0,
+            magnitude_range=(5.0, 5.0),
+            mask_mode="bilinear",
+            device="cpu",
+        )
+        perturbed = step(subject, rng=np.random.default_rng(0))
+        before_mask = np.asarray(subject.mask("tumor").data)
+        after_mask = np.asarray(perturbed.mask("tumor").data)
+        before_image = np.asarray(subject.image("T1").data)
+        after_image = np.asarray(perturbed.image("T1").data)
+        assert after_mask.shape == before_mask.shape
+        assert after_image.shape == before_image.shape
+        assert set(np.unique(after_mask).tolist()) <= {0, 1}
+        assert not np.array_equal(after_mask, before_mask)
+        assert not np.allclose(after_image, before_image)
+
 
 class TestPerturbationChain:
     def test_empty_chain_raises(self) -> None:

@@ -1093,6 +1093,93 @@ def prior2024_retest_perturbation(    *,
     )
 
 
+def _scipy_spline_order(mode: Union[str, int]) -> int:
+    """Map a MONAI-style interpolator name to a scipy spline order."""
+    if isinstance(mode, int):
+        return int(mode)
+    mapping = {
+        "nearest": 0,
+        "bilinear": 1,
+        "linear": 1,
+        "bspline": 3,
+        "bicubic": 3,
+    }
+    return int(mapping.get(str(mode), 1))
+
+
+def _fit_displacement_shape(
+    field: np.ndarray, shape: Tuple[int, int, int]
+) -> np.ndarray:
+    """Crop or pad a ``(3, ...)`` displacement so spatial axes match ``shape``."""
+    out = np.zeros((3,) + shape, dtype=np.float64)
+    sl = tuple(slice(0, min(int(field.shape[i + 1]), int(shape[i]))) for i in range(3))
+    out[(slice(None),) + sl] = field[(slice(None),) + sl]
+    return out
+
+
+def _ffd_displacement(
+    shape: Tuple[int, int, int],
+    *,
+    control_spacing: float,
+    magnitude: float,
+    seed: int,
+) -> np.ndarray:
+    """
+    Build a Rueckert-style cubic B-spline FFD displacement.
+
+    Random offsets live on a coarse control lattice (about one knot every
+    ``control_spacing`` voxels). Cubic zoom to the full grid is what makes
+    the contour a slow bulge instead of 1-voxel teeth.
+
+    Args:
+        shape: Full ``(z, y, x)`` grid.
+        control_spacing: Voxels between neighbouring control points.
+        magnitude: Peak displacement at a control point, in voxels.
+        seed: Frozen RNG seed so image and mask share one field.
+
+    Returns:
+        ``(3, z, y, x)`` float64 displacement in voxel units.
+    """
+    from scipy.ndimage import zoom
+
+    spacing = float(control_spacing)
+    coarse = tuple(max(4, int(np.ceil(float(s) / spacing)) + 1) for s in shape)
+    rng = np.random.default_rng(int(seed))
+    coarse_field = rng.uniform(-1.0, 1.0, size=(3,) + coarse).astype(np.float64)
+    factors = tuple(float(shape[i]) / float(coarse[i]) for i in range(3))
+    field = np.stack(
+        [zoom(coarse_field[c], factors, order=3, mode="nearest") for c in range(3)],
+        axis=0,
+    )
+    return _fit_displacement_shape(field, shape) * float(magnitude)
+
+
+def _warp_with_displacement(
+    volume: np.ndarray,
+    field: np.ndarray,
+    *,
+    order: int,
+    padding_mode: str,
+) -> np.ndarray:
+    """Resample ``volume`` by ``field`` with scipy ``map_coordinates``."""
+    from scipy.ndimage import map_coordinates
+
+    mode_map = {
+        "reflection": "reflect",
+        "border": "nearest",
+        "zeros": "constant",
+    }
+    coords = np.indices(volume.shape, dtype=np.float64) + field
+    return map_coordinates(
+        np.asarray(volume, dtype=np.float64),
+        coords,
+        order=int(order),
+        mode=mode_map[padding_mode],
+        cval=0.0,
+        prefilter=True,
+    )
+
+
 class BSplineDeformPerturbationParams(BaseModel):
     """Constructor parameters for :class:`BSplineDeformPerturbation`."""
 
@@ -1105,6 +1192,7 @@ class BSplineDeformPerturbationParams(BaseModel):
     device: str = "cpu"
     target_dice: Optional[float] = None
     dice_tolerance: float = 0.02
+    control_spacing: Optional[float] = None
 
 
 @ImagePerturbationRegistry.register("bspline_deform")
@@ -1132,28 +1220,37 @@ class BSplineDeformPerturbation:
       volumes).
     * The output stays on the original grid (same shape and geometry).
 
-    This is MONAI's documented 3-D elastic deformation, not Rueckert
-    cubic-B-spline FFD with an explicit control-point mesh, and not MIRP
-    ``perturbation_roi_adapt_size`` (morphological grow/shrink).
+    Default path is MONAI's documented 3-D elastic deformation (full-
+    resolution random offsets + Gaussian), not Rueckert cubic-B-spline
+    FFD. Pass ``control_spacing`` to switch to an explicit coarse
+    control lattice with cubic interpolation — that is the smooth
+    teaching warp (slow bulge, not 1-voxel teeth). Neither path is
+    MIRP ``perturbation_roi_adapt_size`` (morphological grow/shrink).
 
     Args:
         sigma_range: Gaussian smoothing ``(low, high)`` of the offset
-            grid, in voxels. Wider sigma gives a smoother warp.
+            grid, in voxels. Wider sigma gives a smoother warp. Ignored
+            when ``control_spacing`` is set.
         magnitude_range: Displacement magnitude ``(low, high)`` in
             voxels. Larger values wrinkle the ROI more.
         image_mode: Intensity interpolator (``"bilinear"`` / ``"nearest"``
             or spline order 0–5).
-        mask_mode: ROI interpolator (``"nearest"`` recommended).
+        mask_mode: ROI interpolator (``"nearest"`` recommended for the
+            MONAI path; ``"bilinear"`` then ``rint`` is a smoother
+            iso-contour on the FFD path).
         padding_mode: Out-of-grid padding (``reflection``, ``border``,
             or ``zeros``).
         device: Torch device (``"cpu"`` / ``"cuda"``). Default ``"cpu"``
             is the portable path; pass ``"cuda"`` when a GPU is available
-            and the volume fits in memory.
-        target_dice: When set, scale one frozen MONAI offset field so the
+            and the volume fits in memory. Unused on the FFD path.
+        target_dice: When set, scale one frozen offset field so the
             Dice between the original and warped ROI is within
             ``dice_tolerance`` of this value. ``None`` keeps the random
             magnitude from ``magnitude_range``.
         dice_tolerance: Allowed absolute error on ``target_dice``.
+        control_spacing: When set, voxels between neighbouring FFD
+            control points (must be ``> 1``). ``None`` keeps the MONAI
+            ``Rand3DElasticd`` path.
     """
 
     def __init__(
@@ -1166,6 +1263,7 @@ class BSplineDeformPerturbation:
         device: str = "cpu",
         target_dice: Optional[float] = None,
         dice_tolerance: float = 0.02,
+        control_spacing: Optional[float] = None,
     ) -> None:
         self.sigma_range = _pair_range("sigma_range", sigma_range)
         self.magnitude_range = _pair_range("magnitude_range", magnitude_range)
@@ -1201,6 +1299,16 @@ class BSplineDeformPerturbation:
                 f"got {dice_tolerance!r}."
             )
         self.dice_tolerance = tolerance
+        if control_spacing is None:
+            self.control_spacing: Optional[float] = None
+        else:
+            spacing = float(control_spacing)
+            if not np.isfinite(spacing) or spacing <= 1.0:
+                raise HABITAPIError(
+                    "bspline_deform: control_spacing must be > 1 voxel "
+                    f"when set; got {control_spacing!r}."
+                )
+            self.control_spacing = spacing
 
     @property
     def spec(self) -> Spec:
@@ -1216,6 +1324,7 @@ class BSplineDeformPerturbation:
                 "device": self.device,
                 "target_dice": self.target_dice,
                 "dice_tolerance": self.dice_tolerance,
+                "control_spacing": self.control_spacing,
             },
         )
 
@@ -1241,6 +1350,13 @@ class BSplineDeformPerturbation:
         Returns:
             The warped subject copy (same keys, same geometry).
         """
+        if self.control_spacing is not None:
+            return self._warp_ffd(
+                subject,
+                seed=seed,
+                magnitude_range=magnitude_range,
+                mask_keys_only=mask_keys_only,
+            )
         from habit.utils.optional_deps import require
 
         require(
@@ -1319,6 +1435,97 @@ class BSplineDeformPerturbation:
             warped_mask = _as_numpy_volume(warped[f"mask:{roi}"])
             # Nearest-neighbour (order 0) is already discrete; rint absorbs
             # residual float dust from the MONAI / scipy backend.
+            masks[roi] = np.rint(warped_mask).astype(mask_array.dtype)
+        return _replace_images(subject, images, masks)
+
+    def _warp_ffd(
+        self,
+        subject: Subject,
+        *,
+        seed: int,
+        magnitude_range: Tuple[float, float],
+        mask_keys_only: bool,
+    ) -> Subject:
+        """
+        Apply one coarse-lattice cubic B-spline FFD (no MONAI).
+
+        Args:
+            subject: Subject providing images and/or masks on one grid.
+            seed: Frozen seed for the control-point offsets.
+            magnitude_range: Displacement magnitude ``(low, high)``.
+                When both ends match (target-Dice search), that value is
+                used; otherwise one draw is taken from the range.
+            mask_keys_only: When ``True``, warp masks only.
+
+        Returns:
+            The warped subject copy (same keys, same geometry).
+        """
+        assert self.control_spacing is not None
+        image_keys = [] if mask_keys_only else list(subject.images)
+        mask_keys = list(subject.masks)
+        if not image_keys and not mask_keys:
+            raise HABITAPIError(
+                "bspline_deform: subject has no images or masks to warp."
+            )
+        reference_shape: Optional[Tuple[int, int, int]] = None
+
+        def _shape_of(array: np.ndarray, key: str) -> Tuple[int, int, int]:
+            nonlocal reference_shape
+            volume = np.asarray(array)
+            if volume.ndim != 3:
+                raise HABITAPIError(
+                    f"bspline_deform: {key!r} must be 3-D (z, y, x); "
+                    f"got shape {tuple(volume.shape)}."
+                )
+            shape = tuple(int(s) for s in volume.shape)
+            if reference_shape is None:
+                reference_shape = shape
+            elif shape != reference_shape:
+                raise HABITAPIError(
+                    "bspline_deform: all images and masks must share one "
+                    f"grid; {key!r} is {shape}, expected {reference_shape}."
+                )
+            return shape
+
+        for modality in image_keys:
+            _shape_of(subject.image(modality).data, f"image:{modality}")
+        for roi in mask_keys:
+            _shape_of(subject.mask(roi).data, f"mask:{roi}")
+        assert reference_shape is not None
+        if float(magnitude_range[0]) == float(magnitude_range[1]):
+            magnitude = float(magnitude_range[0])
+        else:
+            magnitude = float(
+                np.random.default_rng(int(seed)).uniform(
+                    float(magnitude_range[0]), float(magnitude_range[1])
+                )
+            )
+        field = _ffd_displacement(
+            reference_shape,
+            control_spacing=self.control_spacing,
+            magnitude=magnitude,
+            seed=seed,
+        )
+        images: Dict[str, np.ndarray] = {}
+        for modality in list(subject.images):
+            if mask_keys_only:
+                images[modality] = np.asarray(subject.image(modality).data)
+            else:
+                images[modality] = _warp_with_displacement(
+                    np.asarray(subject.image(modality).data),
+                    field,
+                    order=_scipy_spline_order(self.image_mode),
+                    padding_mode=self.padding_mode,
+                )
+        masks: Dict[str, np.ndarray] = {}
+        for roi in mask_keys:
+            mask_array = np.asarray(subject.mask(roi).data)
+            warped_mask = _warp_with_displacement(
+                mask_array,
+                field,
+                order=_scipy_spline_order(self.mask_mode),
+                padding_mode=self.padding_mode,
+            )
             masks[roi] = np.rint(warped_mask).astype(mask_array.dtype)
         return _replace_images(subject, images, masks)
 

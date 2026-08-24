@@ -385,16 +385,20 @@ from matplotlib.patches import Patch
 
 Path("out").mkdir(exist_ok=True)
 
-# MONAI Rand3DElastic B-spline / elastic warp. Image and mask share
-# one displacement field so the contour stays paired with anatomy.
-# target_dice scales that field so ROI overlap is about 0.85.
+# Coarse-lattice cubic B-spline FFD (control_spacing=16 vx). Image
+# and mask share one displacement field so the contour stays paired
+# with anatomy. Knots every 16 voxels make a slow bulge; the default
+# MONAI Rand3DElastic path (full-res noise + Gaussian) looks like
+# 1-voxel teeth. bilinear mask + rint is a 0.5 iso-contour.
+# target_dice scales that field so ROI overlap is about 0.95.
 # Intersection of the two masks is the core both contours still cover.
 edge = ImagePerturbationRegistry.create(
     "bspline_deform",
-    target_dice=0.85,
-    dice_tolerance=0.03,
-    sigma_range=(1.0, 2.0),
-    magnitude_range=(10.0, 15.0),
+    target_dice=0.95,
+    dice_tolerance=0.02,
+    control_spacing=16.0,
+    magnitude_range=(4.0, 10.0),
+    mask_mode="bilinear",
     device="cpu",
 )
 

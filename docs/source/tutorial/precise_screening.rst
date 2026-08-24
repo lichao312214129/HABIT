@@ -179,7 +179,8 @@ Optional ROI-edge follow-up
 The paper chain does not wrinkle the ROI. ``bspline_deform``
 (MONAI ``Rand3DElasticd`` B-spline / elastic FFD) warps **image and
 mask together** so the contour stays paired with anatomy.
-``target_dice`` scales that field so ROI overlap is about 0.85.
+``control_spacing=16`` builds a coarse cubic B-spline lattice (a slow
+bulge); ``target_dice`` scales that field so ROI overlap is about 0.95.
 The **intersection** of the original and warped masks is the core
 both contours still cover. Habitats are computed on each subject,
 then restricted to that intersection before pairing, Dice, and

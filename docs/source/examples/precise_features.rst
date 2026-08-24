@@ -167,8 +167,12 @@ The paper's default chain (noise, translation, rotation) does **not**
 wrinkle the ROI. :class:`~habit.domain.ImagePerturbationRegistry`
 ``bspline_deform`` does: a MONAI ``Rand3DElasticd`` B-spline / elastic
 free-form field warps **image and mask together** so the contour stays
-paired with anatomy. ``target_dice`` scales that field so ROI overlap
-is about 0.85. The **intersection** of the original and warped masks
+paired with anatomy. ``control_spacing=16`` builds a coarse cubic
+B-spline lattice (a slow bulge). The default MONAI ``Rand3DElasticd``
+path is full-resolution noise and looks like 1-voxel teeth; bilinear
+mask resampling then ``rint`` is a 0.5 iso-contour. ``target_dice``
+scales that field so ROI overlap is about 0.95. The **intersection**
+of the original and warped masks
 is the core both contours still cover. Habitats are computed on each
 subject, then **restricted to that intersection** before pairing or
 features. This is a deformable re-acquisition, not mask-only inter-rater
@@ -206,7 +210,7 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    Same crop and axial index. Cyan solid = original ROI; vermillion
    dashed = warped ROI; sky-blue fill = intersection; yellow =
    membership change (XOR, right panel).
-   ``ImagePerturbationRegistry.create("bspline_deform", target_dice=0.85)``
+   ``ImagePerturbationRegistry.create("bspline_deform", target_dice=0.95, control_spacing=16)``
    on a :class:`~habit.contracts.subject.Subject`.
 
 .. figure:: ../_static/images/examples/precise_habitat_stability_compare.png
