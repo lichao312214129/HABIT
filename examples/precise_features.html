@@ -179,11 +179,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#also-see">Also see</a></li>
@@ -261,6 +266,7 @@
 <li class="toctree-l2"><a class="reference internal" href="one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#figures">Figures</a></li>
@@ -390,6 +396,7 @@
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -447,6 +454,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -471,6 +479,7 @@
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -635,7 +644,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -657,7 +669,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -753,6 +769,49 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1789,7 +1848,7 @@
 <h1>Precise features: atoms, then paper combinations<a class="headerlink" href="#precise-features-atoms-then-paper-combinations" title="Link to this heading"></a></h1>
 <p><strong>Level:</strong> atomic · <strong>Data:</strong> <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> · <strong>Extras:</strong> <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> ·
 <strong>Time:</strong> ~5–15 min (atoms) + a few more minutes for the optional ROI-edge
-follow-up (three cropped subjects, MONAI <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code>)</p>
+follow-up (three cropped subjects, morphological shrink + intersection)</p>
 <p>Voxel-wise radiomics is noisy: extracting a feature map twice from the same
 anatomy — a simulated re-acquisition, or a slightly different kernel radius
 or bin width — does not yield the same numbers twice. Clustering features
@@ -1842,7 +1901,7 @@ median when you have more than one subject.</p>
 one). That is a teaching crop, not the paper’s 2436-lesion CT cohort.
 The optional recipe at the end loops the same atoms over a cohort. The
 optional ROI-edge follow-up uses <strong>three</strong> cropped subjects only for
-habitat-table ICC.</p>
+intersection habitat-feature ICC.</p>
 </section>
 <section id="runnable-demo">
 <h2>Runnable demo<a class="headerlink" href="#runnable-demo" title="Link to this heading"></a></h2>
@@ -2257,80 +2316,109 @@ features vs precise features only
 <section id="optional-roi-edge-follow-up">
 <h2>Optional ROI-edge follow-up<a class="headerlink" href="#optional-roi-edge-follow-up" title="Link to this heading"></a></h2>
 <p>The paper’s default chain (noise, translation, rotation) does <strong>not</strong>
-change ROI <em>shape</em>. Subject-level
-<a class="reference internal" href="../api/generated/habit.domain.ImagePerturbationRegistry.html#habit.domain.ImagePerturbationRegistry" title="habit.domain.ImagePerturbationRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePerturbationRegistry</span></code></a>
-<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>) does: one displacement
-field warps every image and mask together so the contour stays paired
-with the anatomy. This simulates a <strong>deformable re-acquisition</strong> (image
-and contour move together), not inter-rater contouring; for rater
-variability use the mask-only operators below. This is <strong>not</strong> Prior
-Appendix S2 and <strong>not</strong> the <code class="docutils literal notranslate"><span class="pre">morphological</span></code> grow/shrink operator
-(that follow-up is below).</p>
-<p>The same block then extracts <strong>habitat-table</strong> features — volume
-fraction, ITH, and the graph family
-(<code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code>, single + pairwise; extended
-efficiency / small-world omitted for runtime) — from the original map and
-from the mean-intensity-aligned warped map, and reports ICC(3A,1)
-<strong>with a 95% CI</strong> via <code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>. Habitats are paired by
-Hungarian assignment on per-habitat <strong>mean</strong> intensity (the same
-quantity k-means uses as a cluster centre), then ordinary Dice
-<span class="math notranslate nohighlight">\(2|A\cap B|/(|A|+|B|)\)</span> is scored on that pair. That is a
-different question from the voxel-texture PreciseFeatureSet above:
-here the targets are subjects, not voxels, and the colour in the ICC
-panel is only <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code>, not the paper’s intersection flag.
-Three demo subjects make the intervals wide; that is expected.</p>
+change ROI <em>shape</em>. Mask-only
+<a class="reference internal" href="../api/generated/habit.domain.ImagePerturbationRegistry.html#habit.domain.ImagePerturbationRegistry" title="habit.domain.ImagePerturbationRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePerturbationRegistry</span></code></a> <code class="docutils literal notranslate"><span class="pre">morphological</span></code>
+does: a uniform shrink (<code class="docutils literal notranslate"><span class="pre">grow_mm=-4</span></code>) simulates a systematic
+“always smaller” contour. The <strong>intersection</strong> of the original and
+shrunk masks is the core both contours still include. Habitats are
+computed on each ROI, then <strong>restricted to that intersection</strong> before
+pairing or features. This is inter-rater contouring of the mask, not
+a deformable re-acquisition (<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> warps image and mask
+together). It is <strong>not</strong> Prior Appendix S2.</p>
+<p>The same block then extracts <strong>every light habitat-map family</strong> on
+those restricted maps — volume, <code class="docutils literal notranslate"><span class="pre">non_radiomics</span></code>, ITH, MSI, and
+graph (<code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code>; extended efficiency /
+small-world omitted for runtime) — and reports ICC(3A,1) <strong>with a
+95% CI</strong> via <code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code> plus a paired difference heatmap
+(<a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">reference=</span></code>).
+Habitats are paired by Hungarian assignment on per-habitat <strong>mean</strong>
+intensity (the same quantity k-means uses as a cluster centre), then
+ordinary Dice <span class="math notranslate nohighlight">\(2|A\cap B|/(|A|+|B|)\)</span> is scored on the
+intersection. That is a different question from the voxel-texture
+PreciseFeatureSet above: here the targets are subjects, not voxels,
+and the colour in the ICC panel is only <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code>, not the
+paper’s intersection flag. Three demo subjects make the intervals
+wide; that is expected. IBSI radiomics families are omitted (they
+need a params file and dominate runtime).</p>
 <p>Paste after the Script block (it reuses <code class="docutils literal notranslate"><span class="pre">_crop_to_roi</span></code>, <code class="docutils literal notranslate"><span class="pre">DATA</span></code>,
-<code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code>, and <code class="docutils literal notranslate"><span class="pre">ROI</span></code>). Writes four more <code class="docutils literal notranslate"><span class="pre">out/precise_*.png</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optional follow-up (not Prior Appendix S2, not MIRP ROI grow/shrink):</span>
-<span class="c1"># warp image+mask together, then score habitat-map Dice and habitat-table</span>
-<span class="c1"># feature ICC(3A,1) with a 95% CI. Paste after the Script block. Uses</span>
-<span class="c1"># _crop_to_roi, DATA, MODALITIES, ROI.</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code>, and <code class="docutils literal notranslate"><span class="pre">ROI</span></code>). Writes five more <code class="docutils literal notranslate"><span class="pre">out/precise_*.png</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optional follow-up (not Prior Appendix S2): mask-only ROI-edge</span>
+<span class="c1"># shrink, then score habitats and every light habitat-map family on</span>
+<span class="c1"># the intersection of the two ROIs. Paste after the Script block.</span>
+<span class="c1"># Uses _crop_to_roi, DATA, MODALITIES, ROI.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">replace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
     <span class="n">HabitatMap</span><span class="p">,</span>
     <span class="n">ImagePerturbationRegistry</span><span class="p">,</span>
     <span class="n">align_habitat_map</span><span class="p">,</span>
-    <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
     <span class="n">extract_graph_features</span><span class="p">,</span>
+    <span class="n">habitat_region_stats</span><span class="p">,</span>
     <span class="n">habitat_stability</span><span class="p">,</span>
     <span class="n">habitat_volume_fractions</span><span class="p">,</span>
     <span class="n">icc3a_1</span><span class="p">,</span>
     <span class="n">ith_score</span><span class="p">,</span>
+    <span class="n">msi_features_from_matrix</span><span class="p">,</span>
     <span class="n">one_step_habitat</span><span class="p">,</span>
+    <span class="n">spatial_interaction_matrix</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_label_compare</span><span class="p">,</span> <span class="n">plot_precision_icc</span><span class="p">,</span> <span class="n">use_style</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_graph_feature_heatmap</span><span class="p">,</span>
+    <span class="n">plot_habitat_label_compare</span><span class="p">,</span>
+    <span class="n">plot_precision_icc</span><span class="p">,</span>
+    <span class="n">use_style</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Patch</span>
 
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">deform</span> <span class="o">=</span> <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="s2">&quot;bspline_deform&quot;</span><span class="p">,</span>
-    <span class="n">target_dice</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span>
-    <span class="n">dice_tolerance</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
-    <span class="n">sigma_range</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
-    <span class="n">magnitude_range</span><span class="o">=</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">),</span>
-    <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+<span class="c1"># P1 shrink: a systematic &quot;always smaller&quot; contour. Intersection of</span>
+<span class="c1"># original and shrunk masks is the core both contours still include.</span>
+<span class="c1"># The same intersection + restrict pattern works for grow / gradient.</span>
+<span class="n">edge</span> <span class="o">=</span> <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="s2">&quot;morphological&quot;</span><span class="p">,</span> <span class="n">grow_mm</span><span class="o">=-</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">,</span> <span class="n">connectivity</span><span class="o">=</span><span class="mi">1</span>
 <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_habitat_feature_row</span><span class="p">(</span><span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Volume fractions, ITH, and the full graph-feature dict from one map.&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_restrict_to_intersection</span><span class="p">(</span>
+    <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatMap</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Zero habitat labels outside the intersection of the two ROIs.&quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">labels</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">habitat_map</span><span class="p">,</span> <span class="n">label_array</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_all_habitat_features</span><span class="p">(</span><span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Every light habitat-map family on one (already restricted) map.</span>
+
+<span class="sd">    volume, non_radiomics, ith_score, msi, and graph. IBSI radiomics</span>
+<span class="sd">    families are omitted: they need a params file and dominate runtime.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
-    <span class="n">habitat_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">)</span>
+    <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">)</span>
     <span class="n">fractions</span> <span class="o">=</span> <span class="n">habitat_volume_fractions</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">habitat_ids</span><span class="p">)</span>
-    <span class="n">row</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="sa">f</span><span class="s2">&quot;habitat_</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">_volume_fraction&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">fractions</span><span class="p">[</span><span class="n">hid</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_ids</span>
-    <span class="p">}</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">habitat_region_stats</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">row</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;num_habitats&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">))}</span>
+    <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="n">hid</span><span class="p">))</span>
+        <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;habitat_</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">_voxel_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;habitat_</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">_volume_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fractions</span><span class="p">[</span><span class="n">hid</span><span class="p">])</span>
+        <span class="n">n_regions</span><span class="p">,</span> <span class="n">_largest</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">_num_regions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_regions</span><span class="p">)</span>
+        <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">_volume_ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fractions</span><span class="p">[</span><span class="n">hid</span><span class="p">])</span>
     <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ith_score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ith_score</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
-    <span class="c1"># Single + pairwise graph metrics. Extended efficiency / small-world</span>
-    <span class="c1"># / rich-club are omitted: they dominate runtime on a clinical crop.</span>
+    <span class="n">n_classes</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">habitat_ids</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">habitat_ids</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">row</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msi_features_from_matrix</span><span class="p">(</span><span class="n">spatial_interaction_matrix</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)))</span>
+    <span class="c1"># Gallery pins extended graph metrics off (library default is on).</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span>
         <span class="n">labels</span><span class="p">,</span>
         <span class="n">expected_labels</span><span class="o">=</span><span class="n">habitat_ids</span><span class="p">,</span>
@@ -2341,97 +2429,128 @@ Three demo subjects make the intervals wide; that is expected.</p>
     <span class="k">return</span> <span class="n">row</span>
 
 
-<span class="n">VOLUME_ITH_FIRST</span> <span class="o">=</span> <span class="p">(</span>
+<span class="n">LIGHT_FIRST</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">&quot;habitat_1_volume_fraction&quot;</span><span class="p">,</span>
     <span class="s2">&quot;habitat_2_volume_fraction&quot;</span><span class="p">,</span>
     <span class="s2">&quot;habitat_3_volume_fraction&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ith_score&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;contrast&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;homogeneity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;correlation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1_num_regions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;2_num_regions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;3_num_regions&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">orig_rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">warp_rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">edge_rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">subject_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">first_bundle</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">icc_source</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">icc_source</span><span class="p">:</span>
     <span class="n">cropped</span> <span class="o">=</span> <span class="n">_crop_to_roi</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ROI</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FFD + one-step habitats: </span><span class="si">{</span><span class="n">cropped</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">warped_item</span> <span class="o">=</span> <span class="n">deform</span><span class="p">(</span><span class="n">cropped</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ROI-edge shrink + intersection habitats: </span><span class="si">{</span><span class="n">cropped</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">edge_item</span> <span class="o">=</span> <span class="n">edge</span><span class="p">(</span><span class="n">cropped</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">orig_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cropped</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">edge_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">edge_item</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">intersection</span> <span class="o">=</span> <span class="n">orig_mask</span> <span class="o">&amp;</span> <span class="n">edge_mask</span>
+    <span class="n">n_orig</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">orig_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="n">n_edge</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">edge_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="n">n_inter</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">intersection</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;  ROI voxels original=</span><span class="si">{</span><span class="n">n_orig</span><span class="si">}</span><span class="s2"> shrunk=</span><span class="si">{</span><span class="n">n_edge</span><span class="si">}</span><span class="s2"> intersection=</span><span class="si">{</span><span class="n">n_inter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">orig_fit</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
         <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
     <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">cropped</span><span class="p">,)))</span>
-    <span class="n">warp_fit</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
+    <span class="n">edge_fit</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
         <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">warped_item</span><span class="p">,)))</span>
-    <span class="n">ref_map</span> <span class="o">=</span> <span class="n">orig_fit</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">mov_map</span> <span class="o">=</span> <span class="n">warp_fit</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">edge_item</span><span class="p">,)))</span>
     <span class="n">orig_image</span> <span class="o">=</span> <span class="n">cropped</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">warp_image</span> <span class="o">=</span> <span class="n">warped_item</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">edge_image</span> <span class="o">=</span> <span class="n">edge_item</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># Restrict both maps to the agreed core before pairing / features.</span>
+    <span class="n">ref_core</span> <span class="o">=</span> <span class="n">_restrict_to_intersection</span><span class="p">(</span><span class="n">orig_fit</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">intersection</span><span class="p">)</span>
+    <span class="n">mov_core</span> <span class="o">=</span> <span class="n">_restrict_to_intersection</span><span class="p">(</span><span class="n">edge_fit</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">intersection</span><span class="p">)</span>
     <span class="c1"># Pair by Hungarian assignment on per-habitat mean intensity (same</span>
     <span class="c1"># quantity k-means uses as a cluster centre). force=True: independent</span>
     <span class="c1"># one_step fits share a model_id digest even though ids are permuted.</span>
-    <span class="n">aligned_map</span> <span class="o">=</span> <span class="n">align_habitat_map</span><span class="p">(</span>
-        <span class="n">ref_map</span><span class="p">,</span>
-        <span class="n">mov_map</span><span class="p">,</span>
+    <span class="n">aligned_core</span> <span class="o">=</span> <span class="n">align_habitat_map</span><span class="p">(</span>
+        <span class="n">ref_core</span><span class="p">,</span>
+        <span class="n">mov_core</span><span class="p">,</span>
         <span class="n">method</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
         <span class="n">image</span><span class="o">=</span><span class="n">orig_image</span><span class="p">,</span>
-        <span class="n">moving_image</span><span class="o">=</span><span class="n">warp_image</span><span class="p">,</span>
+        <span class="n">moving_image</span><span class="o">=</span><span class="n">edge_image</span><span class="p">,</span>
         <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat-table features (incl. graph): </span><span class="si">{</span><span class="n">cropped</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">orig_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_habitat_feature_row</span><span class="p">(</span><span class="n">ref_map</span><span class="p">))</span>
-    <span class="n">warp_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_habitat_feature_row</span><span class="p">(</span><span class="n">aligned_map</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  light habitat-map features on intersection: </span><span class="si">{</span><span class="n">cropped</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">orig_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_all_habitat_features</span><span class="p">(</span><span class="n">ref_core</span><span class="p">))</span>
+    <span class="n">edge_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_all_habitat_features</span><span class="p">(</span><span class="n">aligned_core</span><span class="p">))</span>
+    <span class="n">subject_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cropped</span><span class="o">.</span><span class="n">subject_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">first_bundle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">first_bundle</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">cropped</span><span class="p">,</span>
-            <span class="n">warped_item</span><span class="p">,</span>
-            <span class="n">ref_map</span><span class="p">,</span>
-            <span class="n">aligned_map</span><span class="p">,</span>
+            <span class="n">edge_item</span><span class="p">,</span>
+            <span class="n">intersection</span><span class="p">,</span>
+            <span class="n">ref_core</span><span class="p">,</span>
+            <span class="n">aligned_core</span><span class="p">,</span>
             <span class="n">habitat_stability</span><span class="p">(</span>
-                <span class="n">ref_map</span><span class="p">,</span>
-                <span class="p">[</span><span class="n">mov_map</span><span class="p">],</span>
+                <span class="n">ref_core</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">mov_core</span><span class="p">],</span>
                 <span class="n">method</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">orig_image</span><span class="p">,</span>
-                <span class="n">moving_images</span><span class="o">=</span><span class="p">(</span><span class="n">warp_image</span><span class="p">,),</span>
+                <span class="n">moving_images</span><span class="o">=</span><span class="p">(</span><span class="n">edge_image</span><span class="p">,),</span>
             <span class="p">),</span>
         <span class="p">)</span>
 
-<span class="n">cropped</span><span class="p">,</span> <span class="n">warped_item</span><span class="p">,</span> <span class="n">ref_map</span><span class="p">,</span> <span class="n">aligned_map</span><span class="p">,</span> <span class="n">dice_frame</span> <span class="o">=</span> <span class="n">first_bundle</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat Dice after bspline_deform (mean-intensity match)&quot;</span><span class="p">)</span>
+<span class="n">cropped</span><span class="p">,</span> <span class="n">edge_item</span><span class="p">,</span> <span class="n">intersection</span><span class="p">,</span> <span class="n">ref_core</span><span class="p">,</span> <span class="n">aligned_core</span><span class="p">,</span> <span class="n">dice_frame</span> <span class="o">=</span> <span class="n">first_bundle</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat Dice on ROI intersection (mean-intensity match)&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">dice_frame</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
 <span class="c1"># Shared axial index: densest original ROI (same crop, same slice).</span>
 <span class="n">orig_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cropped</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-<span class="n">warped_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">warped_item</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">edge_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">edge_item</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">orig_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">orig_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">grey</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cropped</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">mask_orig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">orig_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-<span class="n">mask_warp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">warped_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-<span class="n">xor_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mask_warp</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">mask_orig</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+<span class="n">mask_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">edge_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+<span class="n">mask_inter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">intersection</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+<span class="n">xor_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mask_edge</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">mask_orig</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
 <span class="n">finite</span> <span class="o">=</span> <span class="n">grey</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">grey</span><span class="p">)]</span>
 <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">))</span>
 <span class="n">original_color</span> <span class="o">=</span> <span class="s2">&quot;#00E5FF&quot;</span>
-<span class="n">warped_color</span> <span class="o">=</span> <span class="s2">&quot;#D55E00&quot;</span>
+<span class="n">edge_color</span> <span class="o">=</span> <span class="s2">&quot;#D55E00&quot;</span>
 <span class="n">xor_color</span> <span class="o">=</span> <span class="s2">&quot;#F0E442&quot;</span>
+<span class="n">inter_color</span> <span class="o">=</span> <span class="s2">&quot;#56B4E9&quot;</span>
 <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
     <span class="n">fig_edge</span><span class="p">,</span> <span class="n">axes_edge</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
         <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">8.8</span><span class="p">,</span> <span class="mf">4.4</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">show_xor</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="p">(</span><span class="n">axes_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Original vs warped ROI&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">axes_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Membership change (XOR)&quot;</span><span class="p">),</span>
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">show_core</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">axes_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Original vs shrunk ROI&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">axes_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Intersection and XOR&quot;</span><span class="p">),</span>
     <span class="p">):</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
             <span class="n">grey</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">lo</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">hi</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">show_xor</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">xor_map</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">show_core</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask_inter</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
+                <span class="n">mask_inter</span><span class="p">,</span>
+                <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>
+                <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">inter_color</span><span class="p">],</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+                <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_core</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">xor_map</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
                 <span class="n">xor_map</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">xor_color</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span>
             <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">mask_orig</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">original_color</span><span class="p">],</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
-            <span class="n">mask_warp</span><span class="p">,</span>
+            <span class="n">mask_edge</span><span class="p">,</span>
             <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">],</span>
-            <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">warped_color</span><span class="p">],</span>
+            <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">edge_color</span><span class="p">],</span>
             <span class="n">linewidths</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
             <span class="n">linestyles</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
             <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
@@ -2441,13 +2560,12 @@ Three demo subjects make the intervals wide; that is expected.</p>
     <span class="n">fig_edge</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
         <span class="n">handles</span><span class="o">=</span><span class="p">[</span>
             <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">original_color</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Original ROI&quot;</span><span class="p">),</span>
-            <span class="n">Line2D</span><span class="p">(</span>
-                <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">warped_color</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Warped ROI&quot;</span>
-            <span class="p">),</span>
+            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">edge_color</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Shrunk ROI&quot;</span><span class="p">),</span>
+            <span class="n">Patch</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">inter_color</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Intersection&quot;</span><span class="p">),</span>
             <span class="n">Patch</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">xor_color</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;XOR&quot;</span><span class="p">),</span>
         <span class="p">],</span>
         <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span>
-        <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
         <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.04</span><span class="p">),</span>
     <span class="p">)</span>
@@ -2455,9 +2573,9 @@ Three demo subjects make the intervals wide; that is expected.</p>
 
 <span class="n">fig_cmp</span> <span class="o">=</span> <span class="n">plot_habitat_label_compare</span><span class="p">(</span>
     <span class="n">cropped</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-    <span class="n">ref_map</span><span class="p">,</span>
-    <span class="n">aligned_map</span><span class="p">,</span>
-    <span class="n">titles</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Original ROI habitats&quot;</span><span class="p">,</span> <span class="s2">&quot;Warped ROI habitats&quot;</span><span class="p">),</span>
+    <span class="n">ref_core</span><span class="p">,</span>
+    <span class="n">aligned_core</span><span class="p">,</span>
+    <span class="n">titles</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Original habitats in intersection&quot;</span><span class="p">,</span> <span class="s2">&quot;Shrunk habitats in intersection&quot;</span><span class="p">),</span>
     <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
     <span class="n">align_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">display_convention</span><span class="o">=</span><span class="s2">&quot;native&quot;</span><span class="p">,</span>
@@ -2475,24 +2593,29 @@ Three demo subjects make the intervals wide; that is expected.</p>
     <span class="p">)</span>
     <span class="n">ax_dice</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
     <span class="n">ax_dice</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Dice&quot;</span><span class="p">)</span>
-    <span class="n">ax_dice</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Per-habitat Dice (mean-intensity match)&quot;</span><span class="p">))</span>
+    <span class="n">ax_dice</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Per-habitat Dice on intersection&quot;</span><span class="p">))</span>
 <span class="n">fig_dice</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_habitat_dice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 
-<span class="c1"># ICC(3A,1) on every shared habitat-table column (volume, ITH, graph).</span>
-<span class="c1"># One row per subject, two columns (original vs mean-aligned warp).</span>
-<span class="c1"># n=3 =&gt; wide 95% CIs (honest).</span>
-<span class="n">shared_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">orig_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">warp_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">VOLUME_ITH_FIRST</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">shared_names</span><span class="p">]</span>
-<span class="n">feature_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">shared_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">VOLUME_ITH_FIRST</span><span class="p">)))</span>
+<span class="c1"># ICC(3A,1) on every shared light-family column. One row per subject,</span>
+<span class="c1"># two columns (original-core vs aligned shrunk-core). n=3 =&gt; wide CIs.</span>
+<span class="n">shared_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">orig_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">edge_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">LIGHT_FIRST</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">shared_names</span><span class="p">]</span>
+<span class="n">feature_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+    <span class="nb">sorted</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">shared_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">LIGHT_FIRST</span><span class="p">))</span>
+<span class="p">)</span>
 <span class="n">icc_records</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">feature_names</span><span class="p">:</span>
     <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">orig_rows</span><span class="p">],</span>
-            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">warp_rows</span><span class="p">],</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">edge_rows</span><span class="p">],</span>
         <span class="p">]</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">continue</span>
+    <span class="c1"># Skip columns that do not vary across the paired conditions</span>
+    <span class="c1"># (ICC is then a 0/0 sentinel, not a real agreement score).</span>
+    <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">matrix</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">matrix</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]))</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">continue</span>
     <span class="n">estimate</span> <span class="o">=</span> <span class="n">icc3a_1</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
     <span class="n">icc_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -2506,49 +2629,74 @@ Three demo subjects make the intervals wide; that is expected.</p>
     <span class="p">)</span>
 <span class="n">icc_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">icc_records</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;Habitat-table feature ICC(3A,1) with 95% CI &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Intersection habitat-feature ICC(3A,1) with 95% CI &quot;</span>
     <span class="sa">f</span><span class="s2">&quot;(n=3 subjects, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">icc_frame</span><span class="p">)</span><span class="si">}</span><span class="s2"> shared columns)&quot;</span>
 <span class="p">)</span>
-<span class="c1"># The full volume + ITH + graph table is too tall for a docs figure.</span>
-<span class="c1"># Draw a reproducible random subset; the printed count is the full set.</span>
-<span class="n">n_plot</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">icc_frame</span><span class="p">))</span>
-<span class="n">plot_frame</span> <span class="o">=</span> <span class="n">icc_frame</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_plot</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+<span class="c1"># Full light+graph table is too tall. Keep the teaching columns, then</span>
+<span class="c1"># fill with a reproducible random subset. Printed count is the full set.</span>
+<span class="n">priority</span> <span class="o">=</span> <span class="n">icc_frame</span><span class="p">[</span><span class="n">icc_frame</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">LIGHT_FIRST</span><span class="p">)]</span>
+<span class="n">remainder</span> <span class="o">=</span> <span class="n">icc_frame</span><span class="p">[</span><span class="o">~</span><span class="n">icc_frame</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">LIGHT_FIRST</span><span class="p">)]</span>
+<span class="n">n_extra</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">remainder</span><span class="p">)))</span>
+<span class="n">extra</span> <span class="o">=</span> <span class="n">remainder</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_extra</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">n_extra</span> <span class="k">else</span> <span class="n">remainder</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">plot_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">priority</span><span class="p">,</span> <span class="n">extra</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
     <span class="s2">&quot;feature&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;stable&quot;</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plotting a random subset of </span><span class="si">{</span><span class="n">n_plot</span><span class="si">}</span><span class="s2"> columns (seed=0)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plotting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">plot_frame</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns (light families + random graph subset)&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">plot_frame</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 <span class="n">fig_icc</span> <span class="o">=</span> <span class="n">plot_precision_icc</span><span class="p">(</span>
     <span class="n">plot_frame</span><span class="p">,</span>
     <span class="n">lcl_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitat-table features: ICC and 95% CI (random subset)&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Intersection habitat features: ICC and 95% CI&quot;</span><span class="p">,</span>
     <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig_icc</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_habitat_feature_icc.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+
+<span class="n">orig_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">orig_rows</span><span class="p">)</span>
+<span class="n">orig_table</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;subject_id&quot;</span><span class="p">,</span> <span class="n">subject_ids</span><span class="p">)</span>
+<span class="n">edge_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">edge_rows</span><span class="p">)</span>
+<span class="n">edge_table</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;subject_id&quot;</span><span class="p">,</span> <span class="n">subject_ids</span><span class="p">)</span>
+<span class="c1"># Difference heatmap: highest-variance raw (shrunk - original) columns.</span>
+<span class="n">delta</span> <span class="o">=</span> <span class="n">edge_table</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;subject_id&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">orig_table</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;subject_id&quot;</span><span class="p">)</span>
+<span class="n">variances</span> <span class="o">=</span> <span class="n">delta</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">delta_features</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">variances</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">fig_delta</span> <span class="o">=</span> <span class="n">plot_graph_feature_heatmap</span><span class="p">(</span>
+    <span class="n">edge_table</span><span class="p">,</span>
+    <span class="n">reference</span><span class="o">=</span><span class="n">orig_table</span><span class="p">,</span>
+    <span class="n">subjects</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">),</span>
+    <span class="n">features</span><span class="o">=</span><span class="n">delta_features</span><span class="p">,</span>
+    <span class="n">zscore</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">star_significant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Intersection features: shrunk minus original&quot;</span><span class="p">,</span>
+    <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;Z-scored difference (shrunk - original)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig_delta</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_habitat_feature_delta.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span>
     <span class="s2">&quot;Wrote out/precise_perturb_mask_edge.png, &quot;</span>
     <span class="s2">&quot;out/precise_habitat_stability_compare.png, &quot;</span>
     <span class="s2">&quot;out/precise_habitat_dice.png, &quot;</span>
-    <span class="s2">&quot;out/precise_habitat_feature_icc.png&quot;</span>
+    <span class="s2">&quot;out/precise_habitat_feature_icc.png, &quot;</span>
+    <span class="s2">&quot;out/precise_habitat_feature_delta.png&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id8">
-<a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="Original and warped ROI contours on the same anatomy slice" src="../_images/precise_perturb_mask_edge.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="Original and shrunk ROI contours with intersection and XOR" src="../_images/precise_perturb_mask_edge.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Same crop and axial index. Cyan solid = original ROI; vermillion
-dashed = warped ROI; yellow = membership change (XOR, right panel
-only). <code class="docutils literal notranslate"><span class="pre">ImagePerturbationRegistry.create(&quot;bspline_deform&quot;,</span> <span class="pre">...)</span></code>
+dashed = shrunk ROI; sky-blue fill = intersection; yellow =
+membership change (XOR, right panel).
+<code class="docutils literal notranslate"><span class="pre">ImagePerturbationRegistry.create(&quot;morphological&quot;,</span> <span class="pre">grow_mm=-4)</span></code>
 on a <a class="reference internal" href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.subject.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a>.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id9">
-<a class="reference internal image-reference" href="../_images/precise_habitat_stability_compare.png"><img alt="One-step habitats on the original ROI versus the warped ROI" src="../_images/precise_habitat_stability_compare.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_habitat_stability_compare.png"><img alt="One-step habitats restricted to the ROI intersection" src="../_images/precise_habitat_stability_compare.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">One-step habitats (<code class="docutils literal notranslate"><span class="pre">n_habitats=3</span></code>) on the original vs warped
-subject. The warped map is remapped onto the original ids by
-mean-intensity Hungarian pairing
+<p><span class="caption-text">One-step habitats (<code class="docutils literal notranslate"><span class="pre">n_habitats=3</span></code>) on the original vs shrunk
+subject, both restricted to the intersection. The shrunk map is
+remapped onto the original ids by mean-intensity Hungarian pairing
 (<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code>, <code class="docutils literal notranslate"><span class="pre">method=&quot;centroid&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">force=True</span></code>) before
 <a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>
@@ -2557,27 +2705,39 @@ slice matches the contour figure).</span><a class="headerlink" href="#id9" title
 </figcaption>
 </figure>
 <figure class="align-default" id="id10">
-<a class="reference internal image-reference" href="../_images/precise_habitat_dice.png"><img alt="Per-habitat Dice after mean-intensity matching" src="../_images/precise_habitat_dice.png" width="480" />
+<a class="reference internal image-reference" href="../_images/precise_habitat_dice.png"><img alt="Per-habitat Dice on the ROI intersection" src="../_images/precise_habitat_dice.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">Per-habitat Dice from <code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code>
-(<code class="docutils literal notranslate"><span class="pre">method=&quot;centroid&quot;</span></code> on the <strong>unaligned</strong> pair): ordinary
-<span class="math notranslate nohighlight">\(2|A\cap B|/(|A|+|B|)\)</span> after the same mean-intensity
-pairing as the compare figure.</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+(<code class="docutils literal notranslate"><span class="pre">method=&quot;centroid&quot;</span></code> on the <strong>unaligned</strong> intersection pair):
+ordinary <span class="math notranslate nohighlight">\(2|A\cap B|/(|A|+|B|)\)</span> after the same
+mean-intensity pairing as the compare figure.</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id11">
-<a class="reference internal image-reference" href="../_images/precise_habitat_feature_icc.png"><img alt="Habitat-table feature ICC point estimates with 95 percent confidence intervals" src="../_images/precise_habitat_feature_icc.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_habitat_feature_icc.png"><img alt="Intersection habitat-feature ICC point estimates with 95 percent confidence intervals" src="../_images/precise_habitat_feature_icc.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Habitat-table repeatability: ICC(3A,1) point and 95% CI whisker
-for a random subset of 24 shared columns (volume, ITH, graph;
-<code class="docutils literal notranslate"><span class="pre">random_state=0</span></code>), three cropped <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subjects, original
-vs mean-aligned FFD map (<code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>,
-<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">orientation=&quot;row&quot;</span></code>).
-Colour is <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code> only — <strong>not</strong> a PreciseFeatureSet. Wide
-intervals at <code class="docutils literal notranslate"><span class="pre">n=3</span></code> are honest, not a plotting error. The script
-still scores every shared column; only the figure is subsampled.</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
+<p><span class="caption-text">Light habitat-map families on the intersection: ICC(3A,1) point
+and 95% CI whisker for volume / ITH / MSI / region-count columns
+plus a random graph subset (<code class="docutils literal notranslate"><span class="pre">random_state=0</span></code>), three cropped
+<code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subjects, original-core vs mean-aligned shrunk-core
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>, <a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>,
+<code class="docutils literal notranslate"><span class="pre">orientation=&quot;row&quot;</span></code>). Colour is <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code> only — <strong>not</strong> a
+PreciseFeatureSet. Wide intervals at <code class="docutils literal notranslate"><span class="pre">n=3</span></code> are honest. The
+script still scores every shared column; only the figure is
+subsampled.</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id12">
+<a class="reference internal image-reference" href="../_images/precise_habitat_feature_delta.png"><img alt="Subject by feature heatmap of shrunk-core minus original-core" src="../_images/precise_habitat_feature_delta.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Subject x feature heatmap of the intersection tables
+(<code class="docutils literal notranslate"><span class="pre">shrunk</span> <span class="pre">-</span> <span class="pre">original</span></code>), column z-score, top-40 variance columns,
+FDR <code class="docutils literal notranslate"><span class="pre">*</span></code> on feature names
+(<a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">reference=</span></code>,
+<code class="docutils literal notranslate"><span class="pre">star_significant=True</span></code>). Same three subjects as the ICC panel.</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -2683,13 +2843,13 @@ orientation and <code class="docutils literal notranslate"><span class="pre">z</
 <span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id12">
+<figure class="align-default" id="id13">
 <a class="reference internal image-reference" href="../_images/contour_morphological_grow.png"><img alt="Original ROI contour beside a uniformly grown contour" src="../_images/contour_morphological_grow.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Uniform grow of +4 mm. Cyan solid = original; vermillion solid =
 grown; yellow = membership change (XOR). Radiological axial slice;
-<code class="docutils literal notranslate"><span class="pre">z</span></code> is the file / ITK index (ITK-SNAP 1-based = <code class="docutils literal notranslate"><span class="pre">z+1</span></code>).</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
+<code class="docutils literal notranslate"><span class="pre">z</span></code> is the file / ITK index (ITK-SNAP 1-based = <code class="docutils literal notranslate"><span class="pre">z+1</span></code>).</span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>P1 shrink</strong> — uniform erosion:</p>
@@ -2704,11 +2864,11 @@ grown; yellow = membership change (XOR). Radiological axial slice;
 <span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id13">
+<figure class="align-default" id="id14">
 <a class="reference internal image-reference" href="../_images/contour_morphological_shrink.png"><img alt="Original ROI contour beside a uniformly shrunk contour" src="../_images/contour_morphological_shrink.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Uniform shrink of -4 mm. Same colours and slice as the grow figure.</span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
+<p><span class="caption-text">Uniform shrink of -4 mm. Same colours and slice as the grow figure.</span><a class="headerlink" href="#id14" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Boundary band</strong> — L0 helper used to reason about the mouse-travel
@@ -2719,12 +2879,12 @@ strip (<a class="reference internal" href="../api/generated/habit.kernels.bounda
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;boundary_band_mask 4 mm: band voxels=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">band</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id14">
+<figure class="align-default" id="id15">
 <a class="reference internal image-reference" href="../_images/contour_boundary_band.png"><img alt="Anatomy slice with the 4 mm boundary band filled" src="../_images/contour_boundary_band.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">Voxels within 4 mm of the foreground boundary (outer dilation shell
-XOR inner erosion shell).</span><a class="headerlink" href="#id14" title="Link to this image"></a></p>
+XOR inner erosion shell).</span><a class="headerlink" href="#id15" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>P3 gradient-weighted</strong> — flip probability
@@ -2745,7 +2905,7 @@ XOR inner erosion shell).</span><a class="headerlink" href="#id14" title="Link t
 <span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id15">
+<figure class="align-default" id="id16">
 <a class="reference internal image-reference" href="../_images/contour_gradient_weighted.png"><img alt="Gradient weight map beside original and perturbed ROI contours" src="../_images/contour_gradient_weighted.png" width="720" />
 </a>
 <figcaption>
@@ -2755,7 +2915,7 @@ perturbed (vermillion solid) contours, plus sharp / fuzzy insets.
 Flip probability is <code class="docutils literal notranslate"><span class="pre">0.35</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">w)</span></code> inside a 2-voxel band. The
 orange contour hugs the cyan contour on sharp edges and leaves it
 on fuzzy edges. A filled XOR ring is not shown: the flip band has
-a fixed radius, so XOR width is not the scientific effect.</span><a class="headerlink" href="#id15" title="Link to this image"></a></p>
+a fixed radius, so XOR width is not the scientific effect.</span><a class="headerlink" href="#id16" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>P4 slice-extent</strong> — add or drop whole axial slices at the z ends:</p>
@@ -2773,14 +2933,14 @@ a fixed radius, so XOR width is not the scientific effect.</span><a class="heade
 <span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id16">
+<figure class="align-default" id="id17">
 <a class="reference internal image-reference" href="../_images/contour_slice_extent.png"><img alt="First mid and last occupied slices before and after z-extent grow" src="../_images/contour_slice_extent.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">First / mid / last occupied axial slices (full-volume / ITK-SNAP
 <code class="docutils literal notranslate"><span class="pre">z</span></code>). Top row = original; bottom row = after <code class="docutils literal notranslate"><span class="pre">grow_slices=2</span></code>
 (nearest occupied slice copied outward). Mid-slice contour is
-unchanged; the z range is not.</span><a class="headerlink" href="#id16" title="Link to this image"></a></p>
+unchanged; the z range is not.</span><a class="headerlink" href="#id17" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>Draw the figures (paste after the operator blocks):</p>

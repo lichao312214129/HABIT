@@ -3,7 +3,7 @@ Precise features: atoms, then paper combinations
 
 **Level:** atomic · **Data:** ``demo_data/preprocessed`` · **Extras:** ``[viz]`` ·
 **Time:** ~5–15 min (atoms) + a few more minutes for the optional ROI-edge
-follow-up (three cropped subjects, MONAI ``bspline_deform``)
+follow-up (three cropped subjects, morphological shrink + intersection)
 
 Voxel-wise radiomics is noisy: extracting a feature map twice from the same
 anatomy — a simulated re-acquisition, or a slightly different kernel radius
@@ -60,7 +60,7 @@ The voxel-texture screen below is **one cropped subject** (median of
 one). That is a teaching crop, not the paper's 2436-lesion CT cohort.
 The optional recipe at the end loops the same atoms over a cohort. The
 optional ROI-edge follow-up uses **three** cropped subjects only for
-habitat-table ICC.
+intersection habitat-feature ICC.
 
 Runnable demo
 -------------
@@ -164,32 +164,34 @@ Optional ROI-edge follow-up
 ---------------------------
 
 The paper's default chain (noise, translation, rotation) does **not**
-change ROI *shape*. Subject-level
-:class:`~habit.domain.ImagePerturbationRegistry`
-``bspline_deform`` (MONAI ``Rand3DElastic``) does: one displacement
-field warps every image and mask together so the contour stays paired
-with the anatomy. This simulates a **deformable re-acquisition** (image
-and contour move together), not inter-rater contouring; for rater
-variability use the mask-only operators below. This is **not** Prior
-Appendix S2 and **not** the ``morphological`` grow/shrink operator
-(that follow-up is below).
+change ROI *shape*. Mask-only
+:class:`~habit.domain.ImagePerturbationRegistry` ``morphological``
+does: a uniform shrink (``grow_mm=-4``) simulates a systematic
+"always smaller" contour. The **intersection** of the original and
+shrunk masks is the core both contours still include. Habitats are
+computed on each ROI, then **restricted to that intersection** before
+pairing or features. This is inter-rater contouring of the mask, not
+a deformable re-acquisition (``bspline_deform`` warps image and mask
+together). It is **not** Prior Appendix S2.
 
-The same block then extracts **habitat-table** features — volume
-fraction, ITH, and the graph family
-(:func:`~habit.extract_graph_features`, single + pairwise; extended
-efficiency / small-world omitted for runtime) — from the original map and
-from the mean-intensity-aligned warped map, and reports ICC(3A,1)
-**with a 95% CI** via :func:`~habit.icc3a_1`. Habitats are paired by
-Hungarian assignment on per-habitat **mean** intensity (the same
-quantity k-means uses as a cluster centre), then ordinary Dice
-:math:`2|A\cap B|/(|A|+|B|)` is scored on that pair. That is a
-different question from the voxel-texture PreciseFeatureSet above:
-here the targets are subjects, not voxels, and the colour in the ICC
-panel is only ``LCL >= 0.5``, not the paper's intersection flag.
-Three demo subjects make the intervals wide; that is expected.
+The same block then extracts **every light habitat-map family** on
+those restricted maps — volume, ``non_radiomics``, ITH, MSI, and
+graph (:func:`~habit.extract_graph_features`; extended efficiency /
+small-world omitted for runtime) — and reports ICC(3A,1) **with a
+95% CI** via :func:`~habit.icc3a_1` plus a paired difference heatmap
+(:func:`~habit.viz.plot_graph_feature_heatmap`, ``reference=``).
+Habitats are paired by Hungarian assignment on per-habitat **mean**
+intensity (the same quantity k-means uses as a cluster centre), then
+ordinary Dice :math:`2|A\cap B|/(|A|+|B|)` is scored on the
+intersection. That is a different question from the voxel-texture
+PreciseFeatureSet above: here the targets are subjects, not voxels,
+and the colour in the ICC panel is only ``LCL >= 0.5``, not the
+paper's intersection flag. Three demo subjects make the intervals
+wide; that is expected. IBSI radiomics families are omitted (they
+need a params file and dominate runtime).
 
 Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
-``MODALITIES``, and ``ROI``). Writes four more ``out/precise_*.png``.
+``MODALITIES``, and ``ROI``). Writes five more ``out/precise_*.png``.
 
 .. literalinclude:: scripts/precise_features_demo.py
    :language: python
@@ -197,21 +199,22 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    :end-before: # END roi_followup
 
 .. figure:: ../_static/images/examples/precise_perturb_mask_edge.png
-   :alt: Original and warped ROI contours on the same anatomy slice
+   :alt: Original and shrunk ROI contours with intersection and XOR
    :width: 720
 
    Same crop and axial index. Cyan solid = original ROI; vermillion
-   dashed = warped ROI; yellow = membership change (XOR, right panel
-   only). ``ImagePerturbationRegistry.create("bspline_deform", ...)``
+   dashed = shrunk ROI; sky-blue fill = intersection; yellow =
+   membership change (XOR, right panel).
+   ``ImagePerturbationRegistry.create("morphological", grow_mm=-4)``
    on a :class:`~habit.contracts.subject.Subject`.
 
 .. figure:: ../_static/images/examples/precise_habitat_stability_compare.png
-   :alt: One-step habitats on the original ROI versus the warped ROI
+   :alt: One-step habitats restricted to the ROI intersection
    :width: 720
 
-   One-step habitats (``n_habitats=3``) on the original vs warped
-   subject. The warped map is remapped onto the original ids by
-   mean-intensity Hungarian pairing
+   One-step habitats (``n_habitats=3``) on the original vs shrunk
+   subject, both restricted to the intersection. The shrunk map is
+   remapped onto the original ids by mean-intensity Hungarian pairing
    (:func:`~habit.align_habitat_map`, ``method="centroid"``,
    ``force=True``) before
    :func:`~habit.viz.plot_habitat_label_compare`
@@ -219,26 +222,37 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    slice matches the contour figure).
 
 .. figure:: ../_static/images/examples/precise_habitat_dice.png
-   :alt: Per-habitat Dice after mean-intensity matching
+   :alt: Per-habitat Dice on the ROI intersection
    :width: 480
 
    Per-habitat Dice from :func:`~habit.habitat_stability`
-   (``method="centroid"`` on the **unaligned** pair): ordinary
-   :math:`2|A\cap B|/(|A|+|B|)` after the same mean-intensity
-   pairing as the compare figure.
+   (``method="centroid"`` on the **unaligned** intersection pair):
+   ordinary :math:`2|A\cap B|/(|A|+|B|)` after the same
+   mean-intensity pairing as the compare figure.
 
 .. figure:: ../_static/images/examples/precise_habitat_feature_icc.png
-   :alt: Habitat-table feature ICC point estimates with 95 percent confidence intervals
+   :alt: Intersection habitat-feature ICC point estimates with 95 percent confidence intervals
    :width: 720
 
-   Habitat-table repeatability: ICC(3A,1) point and 95% CI whisker
-   for a random subset of 24 shared columns (volume, ITH, graph;
-   ``random_state=0``), three cropped ``demo_data`` subjects, original
-   vs mean-aligned FFD map (:func:`~habit.icc3a_1`,
-   :func:`~habit.viz.plot_precision_icc`, ``orientation="row"``).
-   Colour is ``LCL >= 0.5`` only — **not** a PreciseFeatureSet. Wide
-   intervals at ``n=3`` are honest, not a plotting error. The script
-   still scores every shared column; only the figure is subsampled.
+   Light habitat-map families on the intersection: ICC(3A,1) point
+   and 95% CI whisker for volume / ITH / MSI / region-count columns
+   plus a random graph subset (``random_state=0``), three cropped
+   ``demo_data`` subjects, original-core vs mean-aligned shrunk-core
+   (:func:`~habit.icc3a_1`, :func:`~habit.viz.plot_precision_icc`,
+   ``orientation="row"``). Colour is ``LCL >= 0.5`` only — **not** a
+   PreciseFeatureSet. Wide intervals at ``n=3`` are honest. The
+   script still scores every shared column; only the figure is
+   subsampled.
+
+.. figure:: ../_static/images/examples/precise_habitat_feature_delta.png
+   :alt: Subject by feature heatmap of shrunk-core minus original-core
+   :width: 720
+
+   Subject x feature heatmap of the intersection tables
+   (``shrunk - original``), column z-score, top-40 variance columns,
+   FDR ``*`` on feature names
+   (:func:`~habit.viz.plot_graph_feature_heatmap`, ``reference=``,
+   ``star_significant=True``). Same three subjects as the ICC panel.
 
 Optional one-call recipe
 ------------------------

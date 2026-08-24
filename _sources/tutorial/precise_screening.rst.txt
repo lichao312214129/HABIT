@@ -176,55 +176,65 @@ and clustering::
 Optional ROI-edge follow-up
 ---------------------------
 
-The paper chain does not wrinkle the ROI. Subject-level
-``bspline_deform`` (MONAI ``Rand3DElastic``) warps image and mask
-together. This simulates a **deformable re-acquisition** (image and
-contour move together), not inter-rater contouring; for rater
-variability use the mask-only operators of the contour follow-up
-below. That is **not** Prior Appendix S2 and **not** MIRP
-``perturbation_roi_adapt_size``. Copy-ready code lives on
-:doc:`../examples/precise_features` (the ``# BEGIN roi_followup``
-block). Same crop and slice for the three map figures; the ICC panel
-uses three cropped subjects.
+The paper chain does not wrinkle the ROI. Mask-only
+``morphological`` shrink (``grow_mm=-4``) moves the contour inward.
+The **intersection** of the original and shrunk masks is the core
+both contours still include. Habitats are computed on each ROI, then
+restricted to that intersection before pairing, Dice, and features.
+This is inter-rater contouring of the mask, not a deformable
+re-acquisition (``bspline_deform``). That is **not** Prior Appendix
+S2. Copy-ready code lives on :doc:`../examples/precise_features`
+(the ``# BEGIN roi_followup`` block). Same crop and slice for the
+map figures; the ICC / difference panels use three cropped subjects.
 
 .. figure:: ../_static/images/examples/precise_perturb_mask_edge.png
-   :alt: Original and warped ROI contours on the same anatomy slice
+   :alt: Original and shrunk ROI contours with intersection and XOR
    :width: 720
 
-   Cyan solid = original ROI; vermillion dashed = warped ROI; yellow =
-   membership change (XOR, right panel). Same axial index as the
-   habitat compare below.
+   Cyan solid = original ROI; vermillion dashed = shrunk ROI;
+   sky-blue fill = intersection; yellow = membership change (XOR,
+   right panel). Same axial index as the habitat compare below.
 
 .. figure:: ../_static/images/examples/precise_habitat_stability_compare.png
-   :alt: One-step habitats on the original ROI versus the warped ROI
+   :alt: One-step habitats restricted to the ROI intersection
    :width: 720
 
-   One-step habitats on the original vs warped subject. Warped ids are
-   remapped by mean-intensity Hungarian pairing
+   One-step habitats on the original vs shrunk subject, both
+   restricted to the intersection. Shrunk ids are remapped by
+   mean-intensity Hungarian pairing
    (:func:`~habit.align_habitat_map`, ``method="centroid"``,
    ``force=True``) so the same colour is the same intensity-defined
    habitat on both panels.
 
 .. figure:: ../_static/images/examples/precise_habitat_dice.png
-   :alt: Per-habitat Dice after Hungarian matching
+   :alt: Per-habitat Dice on the ROI intersection
    :width: 480
 
    Per-habitat Dice from :func:`~habit.habitat_stability`
    (``method="centroid"``): ordinary
-   :math:`2|A\cap B|/(|A|+|B|)` after the same mean-intensity pairing.
+   :math:`2|A\cap B|/(|A|+|B|)` after the same mean-intensity pairing
+   on the intersection.
 
 .. figure:: ../_static/images/examples/precise_habitat_feature_icc.png
-   :alt: Habitat-table feature ICC point estimates with 95 percent confidence intervals
+   :alt: Intersection habitat-feature ICC point estimates with 95 percent confidence intervals
    :width: 720
 
-   Habitat-table features (volume fraction, ITH, and the default
-   graph family) scored with ICC(3A,1) **and the 95% CI**, not a
-   point-only ICC. The gallery figure is a random subset of 24
-   columns (``random_state=0``); the script still scores every
-   shared column. Three demo subjects, original vs mean-aligned FFD
-   map (:func:`~habit.icc3a_1`, :func:`~habit.viz.plot_precision_icc`).
-   Colour is ``LCL >= 0.5`` only — this is **not** the voxel-texture
+   Every light habitat-map family (volume, ``non_radiomics``, ITH,
+   MSI, graph) scored with ICC(3A,1) **and the 95% CI** on the
+   intersection. The gallery figure keeps the teaching columns plus
+   a random graph subset (``random_state=0``); the script still
+   scores every shared column. Three demo subjects, original-core vs
+   mean-aligned shrunk-core (:func:`~habit.icc3a_1`,
+   :func:`~habit.viz.plot_precision_icc`). Colour is
+   ``LCL >= 0.5`` only — this is **not** the voxel-texture
    PreciseFeatureSet. Wide intervals at ``n=3`` are expected.
+
+.. figure:: ../_static/images/examples/precise_habitat_feature_delta.png
+   :alt: Subject by feature heatmap of shrunk-core minus original-core
+   :width: 720
+
+   Paired difference heatmap on the same intersection tables
+   (``shrunk - original``; :func:`~habit.viz.plot_graph_feature_heatmap`).
 
 Optional contour follow-up
 --------------------------
@@ -298,9 +308,11 @@ What is not claimed
   (morphological dilation/erosion of the mask) is **not** in Prior 2024
   Appendix S2. HABIT implements it, plus gradient-weighted and
   slice-extent operators, as an optional contour follow-up
-  (:doc:`../examples/precise_features`). ``bspline_deform`` warps the
-  contour with the image; it is not grow/shrink and is not part of the
-  default Precise chain.
+  (:doc:`../examples/precise_features`). The ROI-edge follow-up uses
+  morphological shrink and scores habitats only on the intersection
+  of the two masks. ``bspline_deform`` warps the contour with the
+  image; it is not grow/shrink and is not part of the default Precise
+  chain.
 * **Not leakage-proof.** Screening on the same cohort that will be
   clustered, then testing a classifier on that cohort, is still a
   discovery analysis. An external test set is a different protocol.
