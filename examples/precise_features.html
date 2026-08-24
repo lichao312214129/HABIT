@@ -2319,8 +2319,12 @@ features vs precise features only
 wrinkle the ROI. <a class="reference internal" href="../api/generated/habit.domain.ImagePerturbationRegistry.html#habit.domain.ImagePerturbationRegistry" title="habit.domain.ImagePerturbationRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePerturbationRegistry</span></code></a>
 <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> does: a MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElasticd</span></code> B-spline / elastic
 free-form field warps <strong>image and mask together</strong> so the contour stays
-paired with anatomy. <code class="docutils literal notranslate"><span class="pre">target_dice</span></code> scales that field so ROI overlap
-is about 0.85. The <strong>intersection</strong> of the original and warped masks
+paired with anatomy. <code class="docutils literal notranslate"><span class="pre">control_spacing=16</span></code> builds a coarse cubic
+B-spline lattice (a slow bulge). The default MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElasticd</span></code>
+path is full-resolution noise and looks like 1-voxel teeth; bilinear
+mask resampling then <code class="docutils literal notranslate"><span class="pre">rint</span></code> is a 0.5 iso-contour. <code class="docutils literal notranslate"><span class="pre">target_dice</span></code>
+scales that field so ROI overlap is about 0.95. The <strong>intersection</strong>
+of the original and warped masks
 is the core both contours still cover. Habitats are computed on each
 subject, then <strong>restricted to that intersection</strong> before pairing or
 features. This is a deformable re-acquisition, not mask-only inter-rater
@@ -2381,16 +2385,20 @@ need a params file and dominate runtime).</p>
 
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="c1"># MONAI Rand3DElastic B-spline / elastic warp. Image and mask share</span>
-<span class="c1"># one displacement field so the contour stays paired with anatomy.</span>
-<span class="c1"># target_dice scales that field so ROI overlap is about 0.85.</span>
+<span class="c1"># Coarse-lattice cubic B-spline FFD (control_spacing=16 vx). Image</span>
+<span class="c1"># and mask share one displacement field so the contour stays paired</span>
+<span class="c1"># with anatomy. Knots every 16 voxels make a slow bulge; the default</span>
+<span class="c1"># MONAI Rand3DElastic path (full-res noise + Gaussian) looks like</span>
+<span class="c1"># 1-voxel teeth. bilinear mask + rint is a 0.5 iso-contour.</span>
+<span class="c1"># target_dice scales that field so ROI overlap is about 0.95.</span>
 <span class="c1"># Intersection of the two masks is the core both contours still cover.</span>
 <span class="n">edge</span> <span class="o">=</span> <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
     <span class="s2">&quot;bspline_deform&quot;</span><span class="p">,</span>
-    <span class="n">target_dice</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span>
-    <span class="n">dice_tolerance</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
-    <span class="n">sigma_range</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
-    <span class="n">magnitude_range</span><span class="o">=</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">),</span>
+    <span class="n">target_dice</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">dice_tolerance</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+    <span class="n">control_spacing</span><span class="o">=</span><span class="mf">16.0</span><span class="p">,</span>
+    <span class="n">magnitude_range</span><span class="o">=</span><span class="p">(</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span>
+    <span class="n">mask_mode</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">,</span>
     <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -2694,7 +2702,7 @@ need a params file and dominate runtime).</p>
 <p><span class="caption-text">Same crop and axial index. Cyan solid = original ROI; vermillion
 dashed = warped ROI; sky-blue fill = intersection; yellow =
 membership change (XOR, right panel).
-<code class="docutils literal notranslate"><span class="pre">ImagePerturbationRegistry.create(&quot;bspline_deform&quot;,</span> <span class="pre">target_dice=0.85)</span></code>
+<code class="docutils literal notranslate"><span class="pre">ImagePerturbationRegistry.create(&quot;bspline_deform&quot;,</span> <span class="pre">target_dice=0.95,</span> <span class="pre">control_spacing=16)</span></code>
 on a <a class="reference internal" href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.subject.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a>.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>

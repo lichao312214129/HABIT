@@ -3637,7 +3637,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <h4>image_perturbation<a class="headerlink" href="#image-perturbation" title="Link to this heading"></a></h4>
 <dl>
 <dt><strong>bspline_deform</strong></dt><dd><p>MONAI elastic / B-spline free-form warp of every image and ROI.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device,</span> <span class="pre">target_dice,</span> <span class="pre">dice_tolerance</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device,</span> <span class="pre">target_dice,</span> <span class="pre">dice_tolerance,</span> <span class="pre">control_spacing</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;bspline_deform&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;bspline_deform&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -3658,7 +3658,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_range</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(1.5,</span> <span class="pre">3.0)</span></code></p></td>
 <td><p>tuple[float, float]</p></td>
-<td><p>Gaussian smoothing <code class="docutils literal notranslate"><span class="pre">(low,</span> <span class="pre">high)</span></code> of the offset grid, in voxels. Wider sigma gives a smoother warp.</p></td>
+<td><p>Gaussian smoothing <code class="docutils literal notranslate"><span class="pre">(low,</span> <span class="pre">high)</span></code> of the offset grid, in voxels. Wider sigma gives a smoother warp. Ignored when <code class="docutils literal notranslate"><span class="pre">control_spacing</span></code> is set.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">magnitude_range</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(8.0,</span> <span class="pre">12.0)</span></code></p></td>
@@ -3673,7 +3673,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mask_mode</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'nearest'</span></code></p></td>
 <td><p>str | int</p></td>
-<td><p>ROI interpolator (<code class="docutils literal notranslate"><span class="pre">&quot;nearest&quot;</span></code> recommended).</p></td>
+<td><p>ROI interpolator (<code class="docutils literal notranslate"><span class="pre">&quot;nearest&quot;</span></code> recommended for the MONAI path; <code class="docutils literal notranslate"><span class="pre">&quot;bilinear&quot;</span></code> then <code class="docutils literal notranslate"><span class="pre">rint</span></code> is a smoother iso-contour on the FFD path).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">padding_mode</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'reflection'</span></code></p></td>
@@ -3683,17 +3683,22 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">device</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'cpu'</span></code></p></td>
 <td><p>str</p></td>
-<td><p>Torch device (<code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code>). Default <code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> is the portable path; pass <code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code> when a GPU is available and the volume fits in memory.</p></td>
+<td><p>Torch device (<code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code>). Default <code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> is the portable path; pass <code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code> when a GPU is available and the volume fits in memory. Unused on the FFD path.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target_dice</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
 <td><p>float | None</p></td>
-<td><p>When set, scale one frozen MONAI offset field so the Dice between the original and warped ROI is within <code class="docutils literal notranslate"><span class="pre">dice_tolerance</span></code> of this value. <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the random magnitude from <code class="docutils literal notranslate"><span class="pre">magnitude_range</span></code>.</p></td>
+<td><p>When set, scale one frozen offset field so the Dice between the original and warped ROI is within <code class="docutils literal notranslate"><span class="pre">dice_tolerance</span></code> of this value. <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the random magnitude from <code class="docutils literal notranslate"><span class="pre">magnitude_range</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dice_tolerance</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.02</span></code></p></td>
 <td><p>float</p></td>
 <td><p>Allowed absolute error on <code class="docutils literal notranslate"><span class="pre">target_dice</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">control_spacing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>float | None</p></td>
+<td><p>When set, voxels between neighbouring FFD control points (must be <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">1</span></code>). <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElasticd</span></code> path.</p></td>
 </tr>
 </tbody>
 </table>

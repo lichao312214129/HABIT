@@ -2018,7 +2018,8 @@ features vs precise features only
 <p>The paper chain does not wrinkle the ROI. <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code>
 (MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElasticd</span></code> B-spline / elastic FFD) warps <strong>image and
 mask together</strong> so the contour stays paired with anatomy.
-<code class="docutils literal notranslate"><span class="pre">target_dice</span></code> scales that field so ROI overlap is about 0.85.
+<code class="docutils literal notranslate"><span class="pre">control_spacing=16</span></code> builds a coarse cubic B-spline lattice (a slow
+bulge); <code class="docutils literal notranslate"><span class="pre">target_dice</span></code> scales that field so ROI overlap is about 0.95.
 The <strong>intersection</strong> of the original and warped masks is the core
 both contours still cover. Habitats are computed on each subject,
 then restricted to that intersection before pairing, Dice, and
