@@ -28,8 +28,9 @@ habitat-vs-habitat contrast :doc:`../examples/habitat_feature_compare`.
 
 **Precise voxel features** (morphology-aware screen before clustering):
 :doc:`../tutorial/precise_screening` (Gaussian noise, 0.5-voxel
-translation, 0.5° rotation; optional ROI-edge shrink, then habitats
-and light families on the intersection of the two masks). Gallery:
+translation, 0.5° rotation; optional MONAI B-spline ROI warp, then
+habitats and light families on the intersection of the two masks).
+Gallery:
 :doc:`../examples/precise_features`.
 
 .. toctree::

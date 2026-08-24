@@ -2015,21 +2015,23 @@ features vs precise features only
 </section>
 <section id="optional-roi-edge-follow-up">
 <h2>Optional ROI-edge follow-up<a class="headerlink" href="#optional-roi-edge-follow-up" title="Link to this heading"></a></h2>
-<p>The paper chain does not wrinkle the ROI. Mask-only
-<code class="docutils literal notranslate"><span class="pre">morphological</span></code> shrink (<code class="docutils literal notranslate"><span class="pre">grow_mm=-4</span></code>) moves the contour inward.
-The <strong>intersection</strong> of the original and shrunk masks is the core
-both contours still include. Habitats are computed on each ROI, then
-restricted to that intersection before pairing, Dice, and features.
-This is inter-rater contouring of the mask, not a deformable
-re-acquisition (<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code>). That is <strong>not</strong> Prior Appendix
-S2. Copy-ready code lives on <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>
+<p>The paper chain does not wrinkle the ROI. <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code>
+(MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElasticd</span></code> B-spline / elastic FFD) warps <strong>image and
+mask together</strong> so the contour stays paired with anatomy.
+<code class="docutils literal notranslate"><span class="pre">target_dice</span></code> scales that field so ROI overlap is about 0.85.
+The <strong>intersection</strong> of the original and warped masks is the core
+both contours still cover. Habitats are computed on each subject,
+then restricted to that intersection before pairing, Dice, and
+features. This is a deformable re-acquisition, not mask-only
+grow/shrink. That is <strong>not</strong> Prior Appendix S2. Extra <code class="docutils literal notranslate"><span class="pre">monai</span></code> is
+required. Copy-ready code lives on <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>
 (the <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">BEGIN</span> <span class="pre">roi_followup</span></code> block). Same crop and slice for the
 map figures; the ICC / difference panels use three cropped subjects.</p>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="Original and shrunk ROI contours with intersection and XOR" src="../_images/precise_perturb_mask_edge.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="Original and B-spline warped ROI contours with intersection and XOR" src="../_images/precise_perturb_mask_edge.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Cyan solid = original ROI; vermillion dashed = shrunk ROI;
+<p><span class="caption-text">Cyan solid = original ROI; vermillion dashed = warped ROI;
 sky-blue fill = intersection; yellow = membership change (XOR,
 right panel). Same axial index as the habitat compare below.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
@@ -2038,8 +2040,8 @@ right panel). Same axial index as the habitat compare below.</span><a class="hea
 <a class="reference internal image-reference" href="../_images/precise_habitat_stability_compare.png"><img alt="One-step habitats restricted to the ROI intersection" src="../_images/precise_habitat_stability_compare.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">One-step habitats on the original vs shrunk subject, both
-restricted to the intersection. Shrunk ids are remapped by
+<p><span class="caption-text">One-step habitats on the original vs warped subject, both
+restricted to the intersection. Warped ids are remapped by
 mean-intensity Hungarian pairing
 (<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code>, <code class="docutils literal notranslate"><span class="pre">method=&quot;centroid&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">force=True</span></code>) so the same colour is the same intensity-defined
@@ -2065,18 +2067,18 @@ MSI, graph) scored with ICC(3A,1) <strong>and the 95% CI</strong> on the
 intersection. The gallery figure keeps the teaching columns plus
 a random graph subset (<code class="docutils literal notranslate"><span class="pre">random_state=0</span></code>); the script still
 scores every shared column. Three demo subjects, original-core vs
-mean-aligned shrunk-core (<code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>,
+mean-aligned warped-core (<code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>,
 <a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>). Colour is
 <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code> only — this is <strong>not</strong> the voxel-texture
 PreciseFeatureSet. Wide intervals at <code class="docutils literal notranslate"><span class="pre">n=3</span></code> are expected.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id9">
-<a class="reference internal image-reference" href="../_images/precise_habitat_feature_delta.png"><img alt="Subject by feature heatmap of shrunk-core minus original-core" src="../_images/precise_habitat_feature_delta.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_habitat_feature_delta.png"><img alt="Subject by feature heatmap of warped-core minus original-core" src="../_images/precise_habitat_feature_delta.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Paired difference heatmap on the same intersection tables
-(<code class="docutils literal notranslate"><span class="pre">shrunk</span> <span class="pre">-</span> <span class="pre">original</span></code>; <a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+(<code class="docutils literal notranslate"><span class="pre">warped</span> <span class="pre">-</span> <span class="pre">original</span></code>; <a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -2155,9 +2157,9 @@ cell type, a driver mutation, or a clinical outcome.</p></li>
 Appendix S2. HABIT implements it, plus gradient-weighted and
 slice-extent operators, as an optional contour follow-up
 (<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>). The ROI-edge follow-up uses
-morphological shrink and scores habitats only on the intersection
-of the two masks. <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> warps the contour with the
-image; it is not grow/shrink and is not part of the default Precise
+<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI B-spline / elastic FFD) and scores habitats
+only on the intersection of the two masks. Uniform grow/shrink is
+the separate contour section; neither is in the default Precise
 chain.</p></li>
 <li><p><strong>Not leakage-proof.</strong> Screening on the same cohort that will be
 clustered, then testing a classifier on that cohort, is still a
