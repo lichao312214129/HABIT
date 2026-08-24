@@ -112,7 +112,10 @@ Settings match Phase 1: no interpolation, ``binWidth=1``,
 
 ``HABIT`` is the native C + CPU-formula value when that family is in the
 fast path; shape is the PyRadiomics ``execute`` value used by
-``traditional_radiomics``. A regression test loads the same NIfTI pair:
+``traditional_radiomics``. HABIT and PyRadiomics columns match. Remaining
+gaps versus the published IBSI figures are the Kurtosis convention
+(above) or the few significant digits in the IBSI manual (for example
+``556`` vs ``556.333``). A regression test loads the same NIfTI pair:
 ``tests/kernels/test_ibsi_digital_phantom.py``.
 
 .. csv-table:: IBSI-1 Phase 1 digital phantom (3-D averaged texture)
