@@ -118,10 +118,6 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: Batched C/L backend: ``auto`` uses CUDA Floyd–Warshall only when
     #: the ensemble is large enough; otherwise NumPy.
     graph_null_device: str = "auto"
-    #: Hop / clustering / Louvain backend. Default ``networkx`` keeps
-    #: published numbers. ``igraph`` needs ``habitat-analysis[igraph]``
-    #: (GPL). ``auto`` uses igraph when that extra is installed.
-    graph_metric_backend: Literal["auto", "networkx", "igraph"] = "networkx"
 
 
 @HabitatFeatureExtractorRegistry.register("graph")
@@ -183,7 +179,6 @@ class GraphHabitatFeatures:
         rich_club_q: int = 100,
         graph_null_sampler: Literal["analytic", "config", "rewire"] = "analytic",
         graph_null_device: str = "auto",
-        graph_metric_backend: Literal["auto", "networkx", "igraph"] = "networkx",
     ) -> None:
         self._options = HabitatGraphFeatureOptions(
             include_single_habitat_graph=include_single_habitat_graph,
@@ -208,7 +203,6 @@ class GraphHabitatFeatures:
             rich_club_q=rich_club_q,
             graph_null_sampler=graph_null_sampler,
             graph_null_device=graph_null_device,
-            graph_metric_backend=graph_metric_backend,
         )
 
     @property

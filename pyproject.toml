@@ -227,13 +227,6 @@ monai = [
     "habitat-analysis[torch]",
     "monai>=1.3.2,<1.6",
 ]
-# Optional C graph-metric backend (betweenness, clustering, Louvain).
-# python-igraph is GPL-2.0+; HABIT stays Apache-2.0, so this extra is
-# never pulled by [all] / [full]. Use graph_metric_backend='igraph'
-# (or 'auto') after installing it.
-igraph = [
-    "igraph>=0.11,<1",
-]
 
 # Poetry remains able to identify the supported interpreter, but all runtime
 # package requirements live exclusively in ``project.dependencies`` above.

@@ -144,7 +144,6 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     assert params.small_world_nrand == kernel.small_world_nrand == 100
     assert params.small_world_niter == kernel.small_world_niter == 100
     assert params.graph_null_sampler == kernel.graph_null_sampler == "analytic"
-    assert params.graph_metric_backend == kernel.graph_metric_backend == "networkx"
     accepted = GraphHabitatFeaturesParams(edge_method="min_distance")
     assert accepted.edge_method == "min_distance"
 

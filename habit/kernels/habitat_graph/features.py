@@ -125,10 +125,6 @@ class HabitatGraphFeatureOptions:
     rich_club_q: int = 100
     graph_null_sampler: str = "analytic"
     graph_null_device: str = "auto"
-    # Default stays NetworkX / compiled Brandes so installing the
-    # GPL igraph extra does not silently change published numbers.
-    # Pass "igraph" or "auto" to opt in (auto uses igraph when present).
-    graph_metric_backend: str = "networkx"
 
 
 # Feature key suffixes grouped by physical dimension, used to attach VOI-size
@@ -324,7 +320,6 @@ def _metric_kwargs(options: HabitatGraphFeatureOptions) -> Dict[str, object]:
         "rich_club_q": options.rich_club_q,
         "graph_null_sampler": options.graph_null_sampler,
         "graph_null_device": options.graph_null_device,
-        "graph_metric_backend": options.graph_metric_backend,
     }
 
 
@@ -634,8 +629,6 @@ def extract_graph_features(
                     edge_weight=options.edge_weight,
                 )
                 metric_jobs_arrays.append(("pairwise", (arrays, ())))
-        kwargs = _metric_kwargs(options)
-        backend = str(kwargs.get("graph_metric_backend", "networkx"))
         largest = max(
             (
                 len(payload[0].node_ids)  # type: ignore[index]
@@ -647,13 +640,9 @@ def extract_graph_features(
         def _run_array_job(kind: str, payload: object) -> Dict[str, float]:
             if kind == "single":
                 arrays, nodes = payload  # type: ignore[misc]
-                return _single_features_from_arrays(
-                    arrays, nodes, graph_metric_backend=backend
-                )
+                return _single_features_from_arrays(arrays, nodes)
             arrays, _unused = payload  # type: ignore[misc]
-            return _pairwise_features_from_arrays(
-                arrays, graph_metric_backend=backend
-            )
+            return _pairwise_features_from_arrays(arrays)
 
         if len(metric_jobs_arrays) <= 2 or largest < 80:
             payloads = [

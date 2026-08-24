@@ -224,7 +224,6 @@ def hop_from_graph_arrays(
     arrays: GraphArrays,
     *,
     largest_component: bool,
-    backend: str = "networkx",
 ) -> Tuple[HopMetricResult, int]:
     """
     Brandes / path metrics on ``arrays``.
@@ -234,8 +233,6 @@ def hop_from_graph_arrays(
         largest_component: If True, hop metrics use only the largest
             component (single-habitat PathPrism convention). Pairwise
             betweenness uses the full graph (False).
-        backend: ``igraph`` uses the optional extra; otherwise compiled
-            CSR Brandes.
 
     Returns:
         ``(hop, n_components)``. ``hop.n_nodes`` is 0 when undefined.
@@ -261,30 +258,11 @@ def hop_from_graph_arrays(
             return HopMetricResult(int(keep.sum()), {}, {}, 0.0, 0.0), int(n_comp)
         work_indptr, work_indices, old_ids = induce_csr(indptr, indices, keep)
         work_n = int(old_ids.size)
-    requested = str(backend).strip().lower()
-    use_igraph = requested == "igraph"
-    if requested in {"auto", ""}:
-        from habit.utils.igraph_graph_utils import igraph_is_available
-
-        use_igraph = igraph_is_available()
-    if use_igraph:
-        from habit.utils.igraph_graph_utils import hop_metrics_igraph
-
-        src = np.repeat(
-            np.arange(work_n, dtype=np.int64), np.diff(work_indptr)
-        )
-        dst = np.asarray(work_indices, dtype=np.int64)
-        undirected = src < dst
-        bc, cc, avg_path, diameter = hop_metrics_igraph(
-            work_n,
-            list(zip(src[undirected].tolist(), dst[undirected].tolist())),
-        )
-    else:
-        hop_arr = hop_metrics_csr(work_indptr, work_indices, work_n, device="auto")
-        bc = hop_arr.betweenness
-        cc = hop_arr.closeness
-        avg_path = hop_arr.avg_path_length
-        diameter = hop_arr.diameter
+    hop_arr = hop_metrics_csr(work_indptr, work_indices, work_n, device="auto")
+    bc = hop_arr.betweenness
+    cc = hop_arr.closeness
+    avg_path = hop_arr.avg_path_length
+    diameter = hop_arr.diameter
     betweenness = {}
     closeness = {}
     for slot in range(work_n):

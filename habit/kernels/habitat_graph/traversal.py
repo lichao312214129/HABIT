@@ -81,7 +81,6 @@ def hop_metrics(
     nx_graph: nx.Graph,
     *,
     device: str = "auto",
-    backend: str = "networkx",
 ) -> HopMetricResult:
     """
     Brandes betweenness, closeness, mean path length, and diameter.
@@ -105,9 +104,6 @@ def hop_metrics(
             diameter are only meaningful when this graph is connected;
             callers pass the largest component for those features.
         device: ``auto``, ``cpu``, ``numba``, ``python``, or ``cuda``.
-        backend: ``networkx`` (default) uses compiled Brandes in this
-            process. ``igraph`` requires ``habitat-analysis[igraph]``.
-            ``auto`` uses igraph when that extra is installed.
 
     Returns:
         HopMetricResult: Per-node centralities and two scalars.
@@ -129,28 +125,6 @@ def hop_metrics(
         (index[source], index[target])
         for source, target in nx_graph.edges()
     ]
-    resolved = str(backend).strip().lower()
-    use_igraph = False
-    if resolved == "igraph":
-        use_igraph = True
-    elif resolved in {"auto", ""}:
-        from habit.utils.igraph_graph_utils import igraph_is_available
-
-        use_igraph = igraph_is_available()
-    if use_igraph:
-        from habit.utils.igraph_graph_utils import hop_metrics_igraph
-
-        bc, cc, avg_path, diameter = hop_metrics_igraph(n_nodes, edges)
-        for slot, node_id in enumerate(nodes):
-            betweenness[node_id] = float(bc[slot])
-            closeness[node_id] = float(cc[slot])
-        return HopMetricResult(
-            n_nodes=n_nodes,
-            betweenness=betweenness,
-            closeness=closeness,
-            avg_path_length=float(avg_path),
-            diameter=float(diameter) if n_nodes > 1 else 0.0,
-        )
     indptr, indices = csr_from_undirected_edges(n_nodes, edges)
     arrays = hop_metrics_csr(indptr, indices, n_nodes, device=device)
     for slot, node_id in enumerate(nodes):

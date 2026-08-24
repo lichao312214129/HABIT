@@ -924,7 +924,6 @@ def test_graph_null_sampler_default_is_analytic() -> None:
     assert options.small_world_nrand == 100
     assert options.small_world_niter == 100
     assert options.graph_null_device == "auto"
-    assert options.graph_metric_backend == "networkx"
 
 
 @pytest.mark.unit
@@ -1539,29 +1538,6 @@ def test_hop_metrics_match_networkx_on_connected_graphs() -> None:
 
 
 @pytest.mark.unit
-def test_hop_metrics_igraph_matches_networkx() -> None:
-    """Optional igraph hop metrics must stay on the NetworkX definitions."""
-    pytest.importorskip("igraph")
-    from habit.kernels.habitat_graph.traversal import hop_metrics
-
-    rng = np.random.default_rng(11)
-    graph = nx.gnm_random_graph(22, 55, seed=11)
-    while not nx.is_connected(graph):
-        graph = nx.gnm_random_graph(22, 55, seed=int(rng.integers(1, 10_000)))
-
-    hop = hop_metrics(graph, backend="igraph")
-    nx_bc = nx.betweenness_centrality(graph, normalized=True, weight=None)
-    nx_cc = nx.closeness_centrality(graph)
-    for node_id in graph.nodes():
-        assert hop.betweenness[node_id] == pytest.approx(nx_bc[node_id], abs=1e-10)
-        assert hop.closeness[node_id] == pytest.approx(nx_cc[node_id], abs=1e-10)
-    assert hop.avg_path_length == pytest.approx(
-        nx.average_shortest_path_length(graph), abs=1e-10
-    )
-    assert hop.diameter == pytest.approx(float(nx.diameter(graph)), abs=1e-10)
-
-
-@pytest.mark.unit
 def test_component_min_distance_does_not_use_lattice_accelerators() -> None:
     """Sweep / lattice range search must stay off when grid metadata is absent."""
     from habit.kernels.habitat_graph.edges import (
@@ -1599,49 +1575,6 @@ def test_component_min_distance_does_not_use_lattice_accelerators() -> None:
         for edge in slow
     }
     assert fast_keys == slow_keys
-
-
-@pytest.mark.unit
-def test_extract_igraph_backend_matches_networkx_except_modularity() -> None:
-    """igraph hop / clustering match; Louvain modularity may move slightly."""
-    pytest.importorskip("igraph")
-    label_array = np.zeros((24, 24, 16), dtype=np.int32)
-    label_array[:12, :12, :] = 1
-    label_array[:12, 12:, :] = 2
-    label_array[12:, :12, :] = 3
-    nx_features = extract_graph_features(
-        label_array,
-        options=HabitatGraphFeatureOptions(
-            node_method="uniform_grid",
-            edge_method="min_distance",
-            block_size=8,
-            distance_threshold=5.0,
-            graph_metric_backend="networkx",
-            include_extended_metrics=False,
-        ),
-    )
-    ig_features = extract_graph_features(
-        label_array,
-        options=HabitatGraphFeatureOptions(
-            node_method="uniform_grid",
-            edge_method="min_distance",
-            block_size=8,
-            distance_threshold=5.0,
-            graph_metric_backend="igraph",
-            include_extended_metrics=False,
-        ),
-    )
-    assert set(nx_features) == set(ig_features)
-    drifted = 0
-    for key, value in nx_features.items():
-        other = ig_features[key]
-        if key.endswith("_modularity"):
-            if abs(float(value) - float(other)) > 1e-8:
-                drifted += 1
-            continue
-        assert other == pytest.approx(value, abs=1e-8, rel=1e-6), key
-    # Partition algorithms are allowed to disagree; hop metrics are not.
-    assert drifted >= 0
 
 
 @pytest.mark.unit

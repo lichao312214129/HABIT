@@ -899,8 +899,6 @@ below match the kernel dataclass.
      - ``analytic`` (default, Humphries ER *S*), ``config``, or ``rewire``. One ``small_world_sigma`` column; the last two replace the analytic value.
    * - ``graph_null_device``
      - Batched C/L device: ``auto`` (default), ``cpu``, ``cuda``, or ``cuda:N``. ``auto`` uses CUDA only when Floyd–Warshall work is large enough.
-   * - ``graph_metric_backend``
-     - Hop / clustering / Louvain backend: ``networkx`` (default), ``igraph``, or ``auto``. ``igraph`` needs the optional ``[igraph]`` extra (GPL-2.0+; not in ``[all]``). ``auto`` uses igraph when that extra is installed.
 
 YAML-only visualization fields (recipe hook; **not** part of the extractor
 ``Spec`` fingerprint):
@@ -969,9 +967,9 @@ Implementation
   diameter (NetworkX definitions). Default extract keeps edges as
   integer arrays and runs those hop / clustering / component
   columns on CSR (Compressed Sparse Row) adjacency -- no NetworkX
-  object. Brandes sources run in parallel. Louvain modularity uses
-  optional igraph when installed, otherwise a CSR Blondel sweep
-  (the partition can differ from NetworkX ``seed=0``).
+  object. Hop metrics use compiled CSR Brandes (serial sources so
+  several graphs can run in threads). Louvain modularity uses a CSR
+  Blondel sweep (the partition can differ from NetworkX ``seed=0``).
   Node default stays ``uniform_grid``.
 * YAML block: ``GraphFeatureBlock`` in ``habit/schemas/workflows/habitat.py``
 * Recipe + CSV name: ``habit/recipes/features.py``,

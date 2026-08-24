@@ -313,14 +313,12 @@ def louvain_modularity_csr(
     indices: np.ndarray,
     weights: np.ndarray,
     n_nodes: int,
-    *,
-    backend: str = "networkx",
 ) -> float:
     """
     Louvain modularity on an undirected CSR graph.
 
-    ``backend='igraph'`` uses the optional extra. ``networkx`` / other
-    values use a CSR Blondel sweep (not NetworkX ``seed=0``).
+    Uses a CSR Blondel sweep (not NetworkX ``seed=0``). The partition
+    can therefore differ slightly from NetworkX.
 
     Args:
         indptr: CSR row pointer.
@@ -328,7 +326,6 @@ def louvain_modularity_csr(
         weights: Per-directed-slot weights aligned with ``indices``.
             For an unweighted graph pass ones.
         n_nodes: Vertex count.
-        backend: ``igraph`` or ``networkx``.
 
     Returns:
         float: Modularity of the found partition, or 0 when undefined.
@@ -348,20 +345,6 @@ def louvain_modularity_csr(
         weight_u = weight_u[undirected]
     elif weight_u.size != src_u.size:
         weight_u = np.ones(src_u.size, dtype=np.float64)
-    requested = str(backend).strip().lower()
-    from habit.utils.igraph_graph_utils import igraph_is_available
-
-    # Prefer the C multilevel implementation whenever the extra is
-    # present: hop / clustering stay on the NetworkX definitions, only
-    # the Louvain partition (and thus modularity) may move.
-    use_igraph = requested == "igraph" or (
-        requested != "csr" and igraph_is_available()
-    )
-    if use_igraph:
-        from habit.utils.igraph_graph_utils import modularity_igraph
-
-        pairs = list(zip(src_u.tolist(), dst_u.tolist()))
-        return modularity_igraph(n_nodes, pairs, weights=weight_u.tolist())
     communities = _louvain_partition_python(indptr, indices, n_nodes)
     return _modularity_of_partition(src_u, dst_u, weight_u, communities, n_nodes)
 

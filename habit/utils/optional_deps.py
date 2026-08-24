@@ -86,9 +86,6 @@ OPTIONAL_EXTRA_MODULES: Mapping[str, tuple[str, ...]] = {
     "torch": ("torch",),
     "monai": ("monai",),
     "radiomics": ("radiomics",),
-    # GPL-2.0+ C backend for habitat-graph metrics. Opt-in only; never
-    # listed in the [all] meta-extra so Apache-2.0 installs stay clean.
-    "igraph": ("igraph",),
 }
 
 #: CPython minor versions for which HABIT publishes ``win_amd64`` wheels.

@@ -140,7 +140,6 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
   - ``graph_null_sampler`` (``analytic``): one ``small_world_sigma`` column. ``analytic`` is Humphries *S* vs an Erdős–Rényi graph (same *n*, *m*; closed-form :math:`C_{rand}`, :math:`L_{rand}`). ``config`` is the configuration model; ``rewire`` is Maslov–Sneppen (NetworkX ``sigma``). The last two **replace** the analytic value with a degree-preserving ensemble (``small_world_nrand`` / ``small_world_niter``, default ``100``). See :doc:`../reference/features/graph`.
   - ``rich_club_q`` (``100``): mixing floor for ``rewire``; analytic rich-club uses one configuration-model graph
   - ``graph_null_device`` (``auto``)
-  - ``graph_metric_backend`` (``networkx``; optional ``igraph`` / ``auto`` after ``pip install habitat-analysis[igraph]``)
 
 - **Visualization fields** (recipe hook; not part of the extractor ``Spec``):
 

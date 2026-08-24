@@ -17,7 +17,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Dict, Iterable, List, Sequence
 import warnings
 
 import networkx as nx
@@ -45,11 +45,6 @@ from habit.utils.graph_csr_utils import (
     degree_assortativity_csr,
     degrees_csr,
     louvain_modularity_csr,
-)
-from habit.utils.igraph_graph_utils import (
-    average_clustering_igraph,
-    igraph_is_available,
-    modularity_igraph,
 )
 from habit.kernels.habitat_graph.models import (
     GraphArrays,
@@ -230,41 +225,14 @@ def _spatial_dispersion(nodes: Iterable[HabitatGraphNode]) -> float:
     return float(np.mean(np.std(positions, axis=0)))
 
 
-def _nx_int_edges(
-    nx_graph: nx.Graph,
-) -> Tuple[int, List[Tuple[int, int]], List[float]]:
-    """Integer endpoints and weights in NetworkX insertion order."""
-    nodes = list(nx_graph.nodes())
-    index = {node_id: slot for slot, node_id in enumerate(nodes)}
-    edges: List[Tuple[int, int]] = []
-    weights: List[float] = []
-    for source, target, data in nx_graph.edges(data=True):
-        edges.append((index[source], index[target]))
-        weights.append(float(data.get("weight", 1.0)))
-    return len(nodes), edges, weights
-
-
-def _resolve_metric_backend(backend: str) -> str:
-    """Return ``igraph`` or ``networkx`` for one metric call."""
-    requested = str(backend).strip().lower()
-    if requested == "igraph":
-        return "igraph"
-    if requested in {"auto", ""}:
-        return "igraph" if igraph_is_available() else "networkx"
-    return "networkx"
-
-
-def _average_clustering(nx_graph: nx.Graph, backend: str = "auto") -> float:
-    """Mean local clustering; igraph when the optional extra is selected."""
+def _average_clustering(nx_graph: nx.Graph) -> float:
+    """Mean local clustering (NetworkX definition)."""
     if nx_graph.number_of_nodes() == 0:
         return 0.0
-    if _resolve_metric_backend(backend) == "igraph":
-        n_nodes, edges, _weights = _nx_int_edges(nx_graph)
-        return average_clustering_igraph(n_nodes, edges)
     return float(nx.average_clustering(nx_graph))
 
 
-def _modularity(nx_graph: nx.Graph, backend: str = "auto") -> float:
+def _modularity(nx_graph: nx.Graph) -> float:
     """
     Calculate Louvain-community modularity of a graph.
 
@@ -280,11 +248,6 @@ def _modularity(nx_graph: nx.Graph, backend: str = "auto") -> float:
     """
     if nx_graph.number_of_edges() == 0:
         return 0.0
-    if _resolve_metric_backend(backend) == "igraph":
-        n_nodes, edges, weights = _nx_int_edges(nx_graph)
-        return _finite_or_zero(
-            modularity_igraph(n_nodes, edges, weights=weights)
-        )
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", RuntimeWarning)
@@ -358,8 +321,6 @@ def _csr_from_arrays(arrays: GraphArrays):
 def _single_features_from_arrays(
     arrays: GraphArrays,
     nodes: Sequence[HabitatGraphNode],
-    *,
-    graph_metric_backend: str = "networkx",
 ) -> Dict[str, float]:
     """Default (non-extended) single-habitat columns from CSR arrays."""
     if len(arrays.labels) != 1:
@@ -370,7 +331,6 @@ def _single_features_from_arrays(
     hop, n_components = hop_from_graph_arrays(
         arrays,
         largest_component=True,
-        backend=graph_metric_backend,
     )
     hop_ok = hop.n_nodes > 1
     max_edges = n_nodes * (n_nodes - 1) / 2
@@ -431,7 +391,7 @@ def _single_features_from_arrays(
         ),
         f"{prefix}_nearest_neighbor_ratio": _nearest_neighbor_ratio(nodes),
         f"{prefix}_modularity": louvain_modularity_csr(
-            indptr, indices, weights, n_nodes, backend=graph_metric_backend
+            indptr, indices, weights, n_nodes
         ),
     }
     if n_nodes == 0:
@@ -478,7 +438,6 @@ def calculate_single_graph_metrics(
     rich_club_q: int = 100,
     graph_null_sampler: str = "analytic",
     graph_null_device: str = "auto",
-    graph_metric_backend: str = "networkx",
 ) -> Dict[str, float]:
     """
     Calculate graph features for one habitat label.
@@ -497,8 +456,6 @@ def calculate_single_graph_metrics(
         graph_null_sampler: ``analytic`` (default Humphries ER), ``config``,
             or ``rewire``.
         graph_null_device: Batched-metric device for the null ensemble.
-        graph_metric_backend: ``networkx`` (default), ``igraph``, or
-            ``auto`` (igraph when the optional extra is installed).
 
     Returns:
         Dict[str, float]: Feature names mapped to numeric values.
@@ -510,13 +467,12 @@ def calculate_single_graph_metrics(
     features = _single_features_from_arrays(
         arrays,
         list(graph.nodes.values()),
-        graph_metric_backend=graph_metric_backend,
     )
     prefix = single_feature_prefix(graph.labels[0])
 
     if include_extended_metrics:
         hop, _n_comp = hop_from_graph_arrays(
-            arrays, largest_component=True, backend=graph_metric_backend
+            arrays, largest_component=True
         )
         nx_graph = _to_networkx(graph)
         _n_components, largest = component_summary(nx_graph)
@@ -592,8 +548,6 @@ def _local_contact_from_arrays(arrays: GraphArrays) -> List[float]:
 
 def _pairwise_features_from_arrays(
     arrays: GraphArrays,
-    *,
-    graph_metric_backend: str = "networkx",
 ) -> Dict[str, float]:
     """Default (non-extended) pairwise columns from CSR arrays."""
     if len(arrays.labels) != 2:
@@ -645,7 +599,7 @@ def _pairwise_features_from_arrays(
     avg_degree_a = _safe_mean(total_a)
     avg_degree_b = _safe_mean(total_b)
     hop_full, n_components = hop_from_graph_arrays(
-        arrays, largest_component=False, backend=graph_metric_backend
+        arrays, largest_component=False
     )
     hop_ok = hop_full.n_nodes > 1 and int(arrays.src.size) > 0
     weights = np.ones(int(indptr[-1]), dtype=np.float64)
@@ -703,7 +657,7 @@ def _pairwise_features_from_arrays(
             float(total_nodes),
         ),
         f"{prefix}_modularity": louvain_modularity_csr(
-            indptr, indices, weights, n_nodes, backend=graph_metric_backend
+            indptr, indices, weights, n_nodes
         ),
     }
     if hop_ok:
@@ -733,7 +687,6 @@ def calculate_pairwise_graph_metrics(
     rich_club_q: int = 100,
     graph_null_sampler: str = "analytic",
     graph_null_device: str = "auto",
-    graph_metric_backend: str = "networkx",
 ) -> Dict[str, float]:
     """
     Calculate graph features for one pair of habitat labels.
@@ -758,8 +711,6 @@ def calculate_pairwise_graph_metrics(
         graph_null_sampler: ``analytic`` (default Humphries ER), ``config``,
             or ``rewire``.
         graph_null_device: Batched-metric device for the null ensemble.
-        graph_metric_backend: ``networkx`` (default), ``igraph``, or
-            ``auto`` (igraph when the optional extra is installed).
 
     Returns:
         Dict[str, float]: Feature names mapped to numeric values.
@@ -768,15 +719,13 @@ def calculate_pairwise_graph_metrics(
         raise ValueError("pairwise graph metrics require exactly two labels.")
 
     arrays = habitat_graph_to_arrays(graph)
-    features = _pairwise_features_from_arrays(
-        arrays, graph_metric_backend=graph_metric_backend
-    )
+    features = _pairwise_features_from_arrays(arrays)
     label_a, label_b = graph.labels
     prefix = pair_feature_prefix(label_a, label_b)
 
     if include_extended_metrics:
         hop_full, n_components = hop_from_graph_arrays(
-            arrays, largest_component=False, backend=graph_metric_backend
+            arrays, largest_component=False
         )
         nx_graph = _to_networkx(graph)
         nodes_a = _nodes_for_label(graph, label_a)

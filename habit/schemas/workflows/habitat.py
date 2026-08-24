@@ -835,14 +835,6 @@ class GraphFeatureBlock(BaseModel):
             "work is large enough."
         ),
     )
-    graph_metric_backend: Literal["auto", "networkx", "igraph"] = Field(
-        "networkx",
-        description=(
-            "Hop / clustering / Louvain backend. Default networkx keeps "
-            "published numbers. igraph needs habitat-analysis[igraph] "
-            "(GPL-2.0+). auto uses igraph when that extra is installed."
-        ),
-    )
     # --- Figure rendering (consumed by the L4 recipe, not the extractor) ---
     visualize: bool = Field(
         False,
