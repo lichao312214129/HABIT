@@ -52,23 +52,30 @@ Texture aggregation is IBSI **3-D averaged** (mean over the 13 unique
 PyRadiomics alignment
 ~~~~~~~~~~~~~~~~~~~~~
 
-Under **default settings**, every HABIT PyRadiomics-family value is the
-same quantity as official PyRadiomics 3.1 ``FeatureExtractor.execute()``
-on the same image, mask, label, and ``binWidth``:
+**ROI-level radiomics, voxel-level radiomics, and 3-D shape all match
+PyRadiomics 3.1** ``FeatureExtractor.execute()`` on the same image, mask,
+label, and settings (``binWidth``, ``voxelArrayShift``, distances, …).
 
-- ``habit radiomics`` / ``traditional`` — whole-ROI ``execute()``
-- ``each_habitat`` / ``whole_habitat`` — per-habitat or label-map
-  ``execute()`` (``union_bin=false``)
-- ``supervoxel_radiomics`` — per-supervoxel ``execute()`` science
-  (``union_bin=false``, the default)
-- ``voxel_radiomics`` — voxel-based ``execute()``; the CPU path is
-  that extractor. Torch / CUDA uses the same formulas; ``float32``
-  can differ at rounding. Set ``torch_dtype: float64`` for the
-  closest CPU match.
+**ROI-level** (``habit radiomics`` / ``traditional``, ``each_habitat``,
+``whole_habitat``, ``supervoxel_radiomics`` with default
+``union_bin=false``): first-order, GLCM, GLRLM, GLSZM, GLDM, NGTDM.
+``traditional`` / ``whole_habitat`` call ``execute()`` directly.
+``each_habitat`` and default ``supervoxel_radiomics`` use the native C
+path with per-label bins; vs ``execute()`` they agree to about
+``1e-10`` relative (Energy / TotalEnergy at floating-point ULP).
 
-Native C + CPU formulas vs ``execute()`` agree to about ``1e-10``
-relative (Energy / TotalEnergy at floating-point ULP). Gates:
-``tests/kernels/test_supervoxel_native_parity.py``,
+**Shape** (ROI only): ``original_shape_*`` from PyRadiomics
+``execute()`` / ``computeShape``. Shape is a whole-ROI mesh quantity;
+there is no per-voxel shape map.
+
+**Voxel-level** (``voxel_radiomics``): first-order and texture via
+``execute(..., voxelBased=True)``. The CPU path **is** that extractor
+(pre-crop does not change values). Torch / CUDA uses the same formulas;
+texture vs CPU sits at about :math:`10^{-15}`, first-order percentiles
+at about :math:`10^{-8}` (quantile algorithm). Set
+``torch_dtype: float64`` for the closest CPU match.
+
+Gates: ``tests/kernels/test_supervoxel_native_parity.py``,
 ``tests/kernels/test_ibsi_digital_phantom.py``,
 ``tests/kernels/test_*_gpu_parity.py``.
 

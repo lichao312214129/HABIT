@@ -4,9 +4,9 @@ Features from habitat maps
 HABIT-native definitions, formulas, and output CSV columns for features
 extracted **on habitat maps** (after habitats exist). Intensity / texture /
 shape radiomics follow IBSI definitions as implemented by PyRadiomics
-(3-D averaged texture) and, under default settings, match
-``FeatureExtractor.execute()`` — see **PyRadiomics alignment** on
-:doc:`traditional`. Official digital-phantom numbers:
+(3-D averaged texture). ROI-level radiomics, voxel-level radiomics, and
+3-D shape match ``FeatureExtractor.execute()`` — see **PyRadiomics
+alignment** on :doc:`traditional`. Official digital-phantom numbers:
 :doc:`traditional`. PyRadiomics catalogue:
 `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_.
 

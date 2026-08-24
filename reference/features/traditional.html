@@ -1900,23 +1900,26 @@ Texture aggregation is IBSI <strong>3-D averaged</strong> (mean over the 13 uniq
 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code>, and the native C path.</p>
 <section id="pyradiomics-alignment">
 <h3>PyRadiomics alignment<a class="headerlink" href="#pyradiomics-alignment" title="Link to this heading"></a></h3>
-<p>Under <strong>default settings</strong>, every HABIT PyRadiomics-family value is the
-same quantity as official PyRadiomics 3.1 <code class="docutils literal notranslate"><span class="pre">FeatureExtractor.execute()</span></code>
-on the same image, mask, label, and <code class="docutils literal notranslate"><span class="pre">binWidth</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> / <code class="docutils literal notranslate"><span class="pre">traditional</span></code> — whole-ROI <code class="docutils literal notranslate"><span class="pre">execute()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> — per-habitat or label-map
-<code class="docutils literal notranslate"><span class="pre">execute()</span></code> (<code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> — per-supervoxel <code class="docutils literal notranslate"><span class="pre">execute()</span></code> science
-(<code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code>, the default)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> — voxel-based <code class="docutils literal notranslate"><span class="pre">execute()</span></code>; the CPU path is
-that extractor. Torch / CUDA uses the same formulas; <code class="docutils literal notranslate"><span class="pre">float32</span></code>
-can differ at rounding. Set <code class="docutils literal notranslate"><span class="pre">torch_dtype:</span> <span class="pre">float64</span></code> for the
-closest CPU match.</p></li>
-</ul>
-<p>Native C + CPU formulas vs <code class="docutils literal notranslate"><span class="pre">execute()</span></code> agree to about <code class="docutils literal notranslate"><span class="pre">1e-10</span></code>
-relative (Energy / TotalEnergy at floating-point ULP). Gates:
-<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_supervoxel_native_parity.py</span></code>,
+<p><strong>ROI-level radiomics, voxel-level radiomics, and 3-D shape all match
+PyRadiomics 3.1</strong> <code class="docutils literal notranslate"><span class="pre">FeatureExtractor.execute()</span></code> on the same image, mask,
+label, and settings (<code class="docutils literal notranslate"><span class="pre">binWidth</span></code>, <code class="docutils literal notranslate"><span class="pre">voxelArrayShift</span></code>, distances, …).</p>
+<p><strong>ROI-level</strong> (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> / <code class="docutils literal notranslate"><span class="pre">traditional</span></code>, <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code>,
+<code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code>, <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> with default
+<code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code>): first-order, GLCM, GLRLM, GLSZM, GLDM, NGTDM.
+<code class="docutils literal notranslate"><span class="pre">traditional</span></code> / <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> call <code class="docutils literal notranslate"><span class="pre">execute()</span></code> directly.
+<code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> and default <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> use the native C
+path with per-label bins; vs <code class="docutils literal notranslate"><span class="pre">execute()</span></code> they agree to about
+<code class="docutils literal notranslate"><span class="pre">1e-10</span></code> relative (Energy / TotalEnergy at floating-point ULP).</p>
+<p><strong>Shape</strong> (ROI only): <code class="docutils literal notranslate"><span class="pre">original_shape_*</span></code> from PyRadiomics
+<code class="docutils literal notranslate"><span class="pre">execute()</span></code> / <code class="docutils literal notranslate"><span class="pre">computeShape</span></code>. Shape is a whole-ROI mesh quantity;
+there is no per-voxel shape map.</p>
+<p><strong>Voxel-level</strong> (<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code>): first-order and texture via
+<code class="docutils literal notranslate"><span class="pre">execute(...,</span> <span class="pre">voxelBased=True)</span></code>. The CPU path <strong>is</strong> that extractor
+(pre-crop does not change values). Torch / CUDA uses the same formulas;
+texture vs CPU sits at about <span class="math notranslate nohighlight">\(10^{-15}\)</span>, first-order percentiles
+at about <span class="math notranslate nohighlight">\(10^{-8}\)</span> (quantile algorithm). Set
+<code class="docutils literal notranslate"><span class="pre">torch_dtype:</span> <span class="pre">float64</span></code> for the closest CPU match.</p>
+<p>Gates: <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_supervoxel_native_parity.py</span></code>,
 <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code>,
 <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_*_gpu_parity.py</span></code>.</p>
 <p>These are <strong>not</strong> PyRadiomics and must not be compared to <code class="docutils literal notranslate"><span class="pre">execute()</span></code>:
