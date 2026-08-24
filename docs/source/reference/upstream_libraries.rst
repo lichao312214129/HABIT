@@ -62,7 +62,7 @@ Habitat features and traditional radiomics (``habit extract`` / ``habit radiomic
      - Library
      - Documentation
    * - Radiomics features
-     - PyRadiomics (default HABIT radiomics match ``execute()``; Phase 1 phantom table and alignment notes on :doc:`features/traditional`)
+     - PyRadiomics (ROI-level, voxel-level, and shape match ``execute()``; Phase 1 phantom table and alignment notes on :doc:`features/traditional`)
      - `PyRadiomics <https://pyradiomics.readthedocs.io/>`_ · `IBSI manual <https://ibsi.readthedocs.io/en/latest/03_Image_features.html>`_
    * - Image I/O / some geometry
      - SimpleITK
