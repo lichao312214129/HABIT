@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+import time
+
 import numpy as np
 import pytest
 
@@ -633,7 +635,7 @@ def test_default_options_disable_erosion_and_enable_subdivision() -> None:
     assert options.adjacency_connectivity == "corner"
     assert options.connectivity == "full"
     assert options.adjacency_min_voxels == 10
-    assert options.include_extended_metrics is False
+    assert options.include_extended_metrics is True
 
 
 @pytest.mark.unit
@@ -719,8 +721,32 @@ def test_extended_graph_metrics_are_present_when_enabled() -> None:
 
 
 @pytest.mark.unit
+def test_default_extract_includes_extended_metrics() -> None:
+    """Library default extract emits extended columns (analytic Humphries S)."""
+    label_array: np.ndarray = np.array(
+        [
+            [1, 1, 1, 2, 2],
+            [1, 1, 2, 2, 2],
+            [1, 0, 0, 2, 2],
+            [0, 0, 1, 1, 2],
+            [1, 1, 1, 1, 0],
+        ],
+        dtype=np.int32,
+    )
+    features = _extract(
+        label_array,
+        distance_threshold=4.0,
+        subdivide_region_voxels=0,
+        extended_min_nodes=3,
+    )
+    assert "single_h1_global_efficiency" in features
+    assert "single_h1_small_world_sigma" in features
+    assert "pair_h1_h2_rich_club_coefficient" in features
+
+
+@pytest.mark.unit
 def test_extended_graph_metrics_can_be_disabled() -> None:
-    """Extended metrics stay omitted under the library default (False)."""
+    """Extended metrics stay omitted when include_extended_metrics is False."""
     label_array: np.ndarray = np.array(
         [
             [1, 1, 0, 2],
@@ -735,6 +761,7 @@ def test_extended_graph_metrics_can_be_disabled() -> None:
         label_array,
         distance_threshold=3.0,
         subdivide_region_voxels=0,
+        include_extended_metrics=False,
     )
 
     assert "single_h1_global_efficiency" not in features
@@ -1436,6 +1463,27 @@ def test_crop_preserves_graph_features_when_embedded_in_empty_volume() -> None:
     padded = np.zeros((64, 64), dtype=np.int32)
     padded[20:28, 20:28] = core
     embedded = extract_graph_features(padded, options=options)
+    assert set(tight) == set(embedded)
+    for key in tight:
+        assert tight[key] == pytest.approx(embedded[key], abs=1e-8, rel=1e-8)
+
+
+@pytest.mark.unit
+def test_extract_on_full_ct_grid_matches_voi_and_stays_fast() -> None:
+    """A full-CT lattice must crop to the tumour VOI; numbers stay the same."""
+    core: np.ndarray = np.zeros((10, 10, 8), dtype=np.int32)
+    core[1:5, 1:5, 1:5] = 1
+    core[5:9, 5:9, 3:7] = 2
+    core[2:6, 6:9, 1:4] = 3
+    core[6:9, 1:4, 4:7] = 4
+    options = HabitatGraphFeatureOptions()
+    tight = extract_graph_features(core, options=options)
+    full = np.zeros((48, 160, 160), dtype=np.int32)
+    full[20:30, 70:80, 70:78] = core
+    started = time.perf_counter()
+    embedded = extract_graph_features(full, options=options)
+    elapsed = time.perf_counter() - started
+    assert elapsed < 4.0
     assert set(tight) == set(embedded)
     for key in tight:
         assert tight[key] == pytest.approx(embedded[key], abs=1e-8, rel=1e-8)

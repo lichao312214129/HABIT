@@ -39,6 +39,7 @@ from habit.utils.torch_radiomics_utils import (
     resolve_voxel_radiomics_backend,
 )
 from habit.kernels.radiomics.voxel_maps import (
+    crop_to_roi_bounding_box,
     enabled_voxel_feature_classes,
     group_voxel_feature_keys_by_class,
     voxel_feature_frame,
@@ -256,6 +257,19 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
                 image_name,
                 enabled_feature_classes,
             )
+
+            # Pre-crop to the ROI bounding box (+ kernelRadius pad) by default:
+            # execute() re-applies the identical crop internally, so feature
+            # values are bit-identical, while the full-volume diagnostics
+            # (sitk.Hash, whole-image statistics) and mask checks run on the
+            # small volume instead. Opt out with crop_to_roi=False.
+            if bool(kwargs.get('crop_to_roi', True)):
+                image, mask = crop_to_roi_bounding_box(
+                    image,
+                    mask,
+                    label=mask_label,
+                    pad_distance=kernel_radius,
+                )
 
             # Extract voxel-based features; inject TorchRadiomics only when resolved.
             radiomics_log_level = resolve_radiomics_logging_level(

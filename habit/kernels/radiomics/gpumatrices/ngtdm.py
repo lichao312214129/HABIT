@@ -40,7 +40,13 @@ from typing import Optional, Union
 import numpy as np
 import torch
 
-from ._geom import CentreGrid, coords_in_image, flat_index, prepare_centre_grid
+from ._geom import (
+    CentreGrid,
+    coords_in_image,
+    flat_index,
+    prepare_centre_grid,
+    window_cells,
+)
 
 
 def calculate_ngtdm(
@@ -116,31 +122,40 @@ def _accumulate_ngtdm(
     s_flat = torch.zeros(grid.n_matrices * ng, dtype=torch.float64, device=device)
 
     chunk = max(1, int(max_chunk_elems) // max(1, na * n_vox))
+    # Voxel mode reads centres and neighbours out of the same (No, Nvox)
+    # tables instead of building (Na, Kc, Nvox, Nd) coordinates; see
+    # _geom.WindowCells. Segment mode has no offset window, so a neighbour
+    # is not an enumerated offset and the coordinate path stays.
+    cells = window_cells(grid) if grid.voxel_based else None
 
     for start in range(0, n_off, chunk):
-        o_c = grid.offsets_t[start : start + chunk]
-        centres = grid.base_coords[None, :, :] + o_c[:, None, :]
-        centre_in = coords_in_image(centres, grid.size_t)
-        centre_flat = flat_index(centres, grid.strides_t, grid.n_elements)
-        centre_valid = centre_in & grid.mask_flat[centre_flat]
-        if not bool(centre_valid.any()):
-            continue
+        if cells is not None:
+            o_slice = slice(start, start + chunk)
+            centre_valid = cells.cell_valid[o_slice]  # (Kc, Nvox)
+            gi = cells.cell_gray[o_slice]
+            safe = cells.neigh_off[:, o_slice].clamp(min=0)  # (Na, Kc)
+            neigh_valid = (
+                (cells.neigh_off[:, o_slice] >= 0)[:, :, None] & cells.cell_valid[safe]
+            )
+            gj = cells.cell_gray[safe]  # (Na, Kc, Nvox)
+        else:
+            o_c = grid.offsets_t[start : start + chunk]
+            centres = grid.base_coords[None, :, :] + o_c[:, None, :]
+            centre_in = coords_in_image(centres, grid.size_t)
+            centre_flat = flat_index(centres, grid.strides_t, grid.n_elements)
+            centre_valid = centre_in & grid.mask_flat[centre_flat]
+            neighbours = centres[None, :, :, :] + grid.angles_t[:, None, None, :]
+            neigh_in = coords_in_image(neighbours, grid.size_t)
+            neigh_flat = flat_index(neighbours, grid.strides_t, grid.n_elements)
+            neigh_valid = neigh_in & grid.mask_flat[neigh_flat]
+            gi = grid.img_flat[centre_flat]  # (Kc, Nvox)
+            gj = grid.img_flat[neigh_flat]  # (Na, Kc, Nvox)
 
-        neighbours = centres[None, :, :, :] + grid.angles_t[:, None, None, :]
-        neigh_in = coords_in_image(neighbours, grid.size_t)
-        if grid.voxel_based:
-            in_window = (
-                (neighbours - grid.base_coords[None, None, :, :]).abs() <= grid.kernel_radius
-            ).all(dim=-1)
-            neigh_in = neigh_in & in_window
-        neigh_flat = flat_index(neighbours, grid.strides_t, grid.n_elements)
-        neigh_valid = neigh_in & grid.mask_flat[neigh_flat]
-
-        gi = grid.img_flat[centre_flat]  # (Kc, Nvox)
-        gj = grid.img_flat[neigh_flat].to(torch.float64)  # (Na, Kc, Nvox)
-        valid_f = neigh_valid.to(torch.float64)
-        count = valid_f.sum(dim=0)  # (Kc, Nvox)
-        neigh_sum = (gj * valid_f).sum(dim=0)
+        # C keeps count and sum as doubles, but both are small exact
+        # integers (count <= Na, sum <= Na * Ng), so integer accumulation
+        # gives the same doubles with a quarter of the memory traffic.
+        count = neigh_valid.sum(dim=0).to(torch.float64)  # (Kc, Nvox)
+        neigh_sum = (gj * neigh_valid).sum(dim=0).to(torch.float64)
         # C: if (count == 0) diff = 0; else abs(image[i] - sum / count)
         # with count/sum stored as double.
         diff = torch.where(
@@ -149,7 +164,7 @@ def _accumulate_ngtdm(
             (gi.to(torch.float64) - neigh_sum / count).abs(),
         )
 
-        gi0 = (gi - 1).clamp_(0, ng - 1)
+        gi0 = (gi.to(torch.int64) - 1).clamp_(0, ng - 1)
         flat_idx = grid.matrix_ids[None, :] * ng + gi0
         selected = flat_idx[centre_valid]
         n_flat.index_add_(

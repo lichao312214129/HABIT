@@ -140,7 +140,7 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     assert params.include_extended_metrics is (
         kernel.include_extended_metrics
     )
-    assert kernel.include_extended_metrics is False
+    assert kernel.include_extended_metrics is True
     assert params.small_world_nrand == kernel.small_world_nrand == 100
     assert params.small_world_niter == kernel.small_world_niter == 100
     assert params.graph_null_sampler == kernel.graph_null_sampler == "analytic"

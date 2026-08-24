@@ -23,14 +23,29 @@ neighbours and angle order as the C extension.
 
 from __future__ import annotations
 
+import hashlib
 import itertools
 from dataclasses import dataclass
-from typing import List, Optional, Sequence, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import torch
 
 from .angles import build_angles
+
+# Reuse uploaded image / mask / kernel-offset tensors across GLCM, GLRLM,
+# GLSZM, GLDM and NGTDM in one voxel execute(). The scientific matrices
+# stay identical; only the host-to-device copies are skipped. Evict when
+# the table is full so a long cohort cannot pin many GPU buffers.
+_CENTRE_GRID_CACHE: Dict[Tuple[object, ...], "CentreGrid"] = {}
+# Enough for one voxel execute: ~15 batches x 2 angle sets (uni / bi).
+_CENTRE_GRID_CACHE_MAX = 64
+
+
+def _array_md5(array: np.ndarray) -> str:
+    """Stable fingerprint of array bytes for the centre-grid cache."""
+    contig = np.ascontiguousarray(array)
+    return hashlib.md5(contig.tobytes()).hexdigest()
 
 
 def element_strides(size: Sequence[int]) -> List[int]:
@@ -118,6 +133,35 @@ def prepare_centre_grid(
     Returns:
         CentreGrid: Device tensors ready for vectorised pair enumeration.
     """
+    distances_t = tuple(int(value) for value in np.asarray(distances).ravel().tolist())
+    # Do not key on id(voxelCoordinates): PyRadiomics passes a view of
+    # labelledVoxelCoordinates per batch, and CPython can recycle that
+    # view's id after the previous batch is freed. A recycled id would
+    # return a grid with the wrong Nvox (e.g. 1000 vs the last 660).
+    # Image / mask ids are safe: the feature class holds those arrays.
+    if voxelCoordinates is None:
+        coords_key: Tuple[object, ...] = ("segment",)
+    else:
+        coords_arr = np.ascontiguousarray(voxelCoordinates)
+        coords_key = (
+            tuple(int(size) for size in coords_arr.shape),
+            _array_md5(coords_arr),
+        )
+    cache_key = (
+        id(image),
+        id(mask),
+        coords_key,
+        distances_t,
+        bool(force2D),
+        int(force2Ddimension),
+        int(kernelRadius),
+        str(torch.device(device)),
+        bool(bidirectional),
+    )
+    cached = _CENTRE_GRID_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+
     size = [int(s) for s in image.shape]
     nd = len(size)
     f2d_dim = int(force2Ddimension) if force2D else -1
@@ -168,7 +212,7 @@ def prepare_centre_grid(
         kernel_radius = int(kernelRadius)
         voxel_based = True
 
-    return CentreGrid(
+    grid = CentreGrid(
         device=device_t,
         size=size,
         nd=nd,
@@ -186,6 +230,93 @@ def prepare_centre_grid(
         n_vox=int(base_coords.shape[0]),
         kernel_radius=kernel_radius,
         voxel_based=voxel_based,
+    )
+    if len(_CENTRE_GRID_CACHE) >= _CENTRE_GRID_CACHE_MAX:
+        _CENTRE_GRID_CACHE.clear()
+    _CENTRE_GRID_CACHE[cache_key] = grid
+    return grid
+
+
+@dataclass
+class WindowCells:
+    """
+    Per-(offset, listed voxel) tables for one voxel-based matrix call.
+
+    Every voxel a texture builder touches is ``base + offset`` for some
+    enumerated kernel offset, and -- this is the point -- so is every
+    *neighbour*: a neighbour is inside the C bounding box exactly when
+    ``offset + angle`` still satisfies ``|.| <= radius``, i.e. when it is
+    itself an enumerated offset. So the whole ``(Na, No, Nvox, Nd)``
+    neighbour-coordinate tensor (hundreds of MB of int64 at radius 3) is
+    redundant: gray level and validity of a neighbour are just row
+    ``neigh_off[angle, offset]`` of the same ``(No, Nvox)`` tables the
+    centres use.
+
+    Attributes:
+        cell_flat: ``(No, Nvox)`` clamped flat index of ``base + offset``.
+        cell_valid: ``(No, Nvox)`` in-image and masked.
+        cell_gray: ``(No, Nvox)`` gray level; don't-care where invalid.
+        neigh_off: ``(Na, No)`` offset index of ``offset + angle``, ``-1``
+            when that lands outside the kernel window.
+    """
+
+    cell_flat: torch.Tensor
+    cell_valid: torch.Tensor
+    cell_gray: torch.Tensor
+    neigh_off: torch.Tensor
+
+
+def window_cells(grid: CentreGrid) -> WindowCells:
+    """
+    Build the shared centre / neighbour lookup tables for a voxel-based grid.
+
+    Args:
+        grid: Voxel-based :class:`CentreGrid` (``grid.voxel_based`` true).
+
+    Returns:
+        WindowCells: Tables described on that class.
+
+    Raises:
+        ValueError: If ``grid`` is segment-based, where a neighbour is not
+            constrained to the offset window and the mapping does not hold.
+    """
+    if not grid.voxel_based:
+        raise ValueError("window_cells requires a voxel-based CentreGrid")
+
+    centres = grid.base_coords[None, :, :] + grid.offsets_t[:, None, :]
+    cell_in = coords_in_image(centres, grid.size_t)
+    cell_flat = flat_index(centres, grid.strides_t, grid.n_elements)
+    cell_valid = cell_in & grid.mask_flat[cell_flat]
+    # int32 halves the traffic of the (Na, No, Nvox) neighbour gather; gray
+    # levels are bounded by Ng.
+    cell_gray = grid.img_flat[cell_flat].to(torch.int32)
+
+    radius = int(grid.kernel_radius)
+    extent = 2 * radius + 1
+    n_local = extent ** grid.nd
+    pack_strides = torch.as_tensor(
+        element_strides([extent] * grid.nd), dtype=torch.long, device=grid.device
+    )
+    lookup = torch.full((n_local,), -1, dtype=torch.long, device=grid.device)
+    packed_own = ((grid.offsets_t + radius) * pack_strides).sum(dim=-1)
+    lookup[packed_own] = torch.arange(
+        grid.offsets_t.shape[0], dtype=torch.long, device=grid.device
+    )
+
+    local_n = grid.offsets_t[None, :, :] + grid.angles_t[:, None, :]  # (Na, No, Nd)
+    in_window = (local_n.abs() <= radius).all(dim=-1)
+    packed_n = ((local_n + radius) * pack_strides).sum(dim=-1)
+    packed_ok = in_window & (packed_n >= 0) & (packed_n < n_local)
+    neigh_off = torch.where(
+        packed_ok,
+        lookup[packed_n.clamp(0, n_local - 1)],
+        torch.full_like(packed_n, -1),
+    )
+    return WindowCells(
+        cell_flat=cell_flat,
+        cell_valid=cell_valid,
+        cell_gray=cell_gray,
+        neigh_off=neigh_off,
     )
 
 

@@ -19,11 +19,12 @@
 # PyTorchRadiomics project and adapted for HABIT:
 #
 #     https://github.com/lyhyl/pytorchradiomics
-#     Copyright (c) lyhyl and PyTorchRadiomics contributors
+#     Copyright (c) 2024 lyhyl
 #     Licensed under the MIT License
 #
-# The upstream notice is retained here and in the NOTICE file at the project
-# root, as required by that license.
+# The original MIT copyright and permission notice are reproduced in
+# LICENSE in this directory and in NOTICE at the project root.
+# HABIT modifications remain under Apache-2.0.
 # ---------------------------------------------------------------------------
 """
 GPU-accelerated PyRadiomics feature classes vendored from PyTorchRadiomics.

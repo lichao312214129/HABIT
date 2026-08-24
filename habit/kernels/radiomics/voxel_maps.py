@@ -36,12 +36,64 @@ import pandas as pd
 import SimpleITK as sitk
 
 __all__ = [
+    "crop_to_roi_bounding_box",
     "enabled_voxel_feature_classes",
     "group_voxel_feature_keys_by_class",
     "mask_array_for_feature_map",
     "feature_values_in_mask",
     "voxel_feature_frame",
 ]
+
+
+def crop_to_roi_bounding_box(
+    image: sitk.Image,
+    mask: sitk.Image,
+    *,
+    label: int = 1,
+    pad_distance: int,
+) -> Tuple[sitk.Image, sitk.Image]:
+    """
+    Crop image and mask to the ROI bounding box plus ``pad_distance``.
+
+    ``RadiomicsFeatureExtractor.execute`` always applies exactly this crop
+    internally (``cropToTumorMask(..., padDistance=kernelRadius)``) before the
+    feature classes see the volumes, so cropping up front leaves every
+    computed number untouched: the internal re-crop of an already-cropped
+    volume is a no-op. What disappears is the full-volume work in front of
+    it -- ``loadImage`` diagnostics (``sitk.Hash`` of image and mask,
+    full-array statistics, connected components) and the full-volume
+    ``checkMask`` -- several seconds per extraction on a whole-body CT.
+
+    Row-order contract: C-order traversal of the cropped mask visits ROI
+    voxels in the same relative order as the full mask (local coordinates
+    equal global coordinates minus a constant offset), so downstream tables
+    stay aligned with ``np.argwhere(full_mask)``.
+
+    Args:
+        image: Full-size intensity image.
+        mask: Full-size mask on the same grid.
+        label: Mask label defining the bounding box.
+        pad_distance: Padding in voxels; pass ``kernelRadius`` so voxel
+            kernel windows stay complete.
+
+    Returns:
+        ``(cropped_image, cropped_mask)`` sharing the input geometry.
+
+    Raises:
+        ValueError: If the mask has no valid ROI for ``label``.
+    """
+    from radiomics import imageoperations
+
+    bounding_box, corrected_mask = imageoperations.checkMask(image, mask, label=label)
+    if corrected_mask is not None:
+        mask = corrected_mask
+    if bounding_box is None:
+        raise ValueError(
+            f"Voxel radiomics mask has no valid ROI for label {label}; cannot crop."
+        )
+    return imageoperations.cropToTumorMask(
+        image, mask, bounding_box, padDistance=pad_distance
+    )
 
 
 def enabled_voxel_feature_classes(enabled_features: Mapping[str, Any]) -> List[str]:

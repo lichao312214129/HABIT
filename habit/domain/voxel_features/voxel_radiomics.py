@@ -69,6 +69,7 @@ class VoxelRadiomicsFeaturesParams(BaseModel):
     use_gpu_matrices: Union[str, bool] = "auto"
     output_float32: bool = True
     class_progress: bool = False
+    crop_to_roi: bool = True
 
 
 @VoxelFeatureExtractorRegistry.register("voxel_radiomics")
@@ -110,6 +111,13 @@ class VoxelRadiomicsFeatures:
         class_progress: When True, print and tqdm each PyRadiomics class
             (firstorder, glcm, ...). Default False: one ``execute()`` with
             no per-class lines; ``Cohort.map`` still shows subject progress.
+        crop_to_roi: When True (default), crop image and mask to the ROI
+            bounding box plus ``kernel_radius`` padding before calling
+            ``execute``. PyRadiomics re-applies the identical crop
+            internally, so feature values are bit-identical; the pre-crop
+            just keeps the full-volume diagnostics (``sitk.Hash``,
+            whole-image statistics) and mask checks off the big volume,
+            saving several seconds per modality on whole-body scans.
     """
 
     def __init__(
@@ -126,6 +134,7 @@ class VoxelRadiomicsFeatures:
         use_gpu_matrices: Union[str, bool] = "auto",
         output_float32: bool = True,
         class_progress: bool = False,
+        crop_to_roi: bool = True,
         modality: Optional[str] = None,
         as_: Optional[str] = None,
     ) -> None:
@@ -157,6 +166,7 @@ class VoxelRadiomicsFeatures:
         self.use_gpu_matrices = use_gpu_matrices
         self.output_float32 = bool(output_float32)
         self.class_progress = bool(class_progress)
+        self.crop_to_roi = bool(crop_to_roi)
 
     @property
     def spec(self) -> Spec:
@@ -183,6 +193,10 @@ class VoxelRadiomicsFeatures:
         # Default False is omitted so quiet extraction keeps the old fingerprint.
         if self.class_progress:
             spec_params["class_progress"] = True
+        # Default True is omitted so pre-crop extraction keeps the old
+        # fingerprint (the crop does not change any feature value).
+        if not self.crop_to_roi:
+            spec_params["crop_to_roi"] = False
         return Spec(name="voxel_radiomics", params=spec_params)
 
     def _resolved_params_file(self) -> Optional[str]:
@@ -222,7 +236,10 @@ class VoxelRadiomicsFeatures:
             build_pyradiomics_extractor,
             sitk_image_from_contract,
         )
-        from habit.kernels.radiomics.voxel_maps import voxel_feature_frame
+        from habit.kernels.radiomics.voxel_maps import (
+            crop_to_roi_bounding_box,
+            voxel_feature_frame,
+        )
         from habit.utils.radiomics_params_utils import (
             configure_voxel_glcm_on_extractor,
         )
@@ -267,6 +284,17 @@ class VoxelRadiomicsFeatures:
 
         configured_label = extractor.settings.get("label", 1)
         mask_label = 1 if configured_label is None else int(configured_label)
+
+        if self.crop_to_roi:
+            # Same crop execute() applies internally (bbox + kernelRadius
+            # pad), so feature values are unchanged; only the full-volume
+            # diagnostics and mask checks move off the big image.
+            image_sitk, mask_sitk = crop_to_roi_bounding_box(
+                image_sitk,
+                mask_sitk,
+                label=mask_label,
+                pad_distance=self.kernel_radius,
+            )
 
         with injected_torch_radiomics(enabled=(backend == "torch")):
             # Quiet by default: one execute() with no per-class tqdm / stderr.

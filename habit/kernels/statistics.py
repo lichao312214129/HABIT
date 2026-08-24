@@ -22,8 +22,8 @@
 #     Copyright (c) 2020 Netflix, Inc.
 #     Licensed under BSD-2-Clause-Patent
 #
-# The upstream notice is retained here and in the NOTICE file at the project
-# root, as required by that license.
+# The original BSD-2-Clause-Patent copyright, conditions and disclaimer
+# are reproduced in NOTICE at the project root.
 # ---------------------------------------------------------------------------
 """L0 pure-math kernels for model-evaluation statistics.
 

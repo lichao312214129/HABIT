@@ -133,6 +133,163 @@ def _to_networkx(graph: HabitatGraph) -> nx.Graph:
     return nx_graph
 
 
+def _networkx_from_arrays(arrays: GraphArrays) -> nx.Graph:
+    """
+    Build the same NetworkX graph ``_to_networkx`` would from ``arrays``.
+
+    Used so the min-distance array path can attach extended metrics
+    without rebuilding a :class:`HabitatGraph`. Node / edge attributes
+    match the HabitatGraph conversion (extended metrics only read the
+    unweighted hop topology plus degrees).
+
+    Args:
+        arrays: Integer-indexed undirected graph.
+
+    Returns:
+        nx.Graph: Undirected graph with habitat / weight attributes.
+    """
+    nx_graph = nx.Graph()
+    for slot, node_id in enumerate(arrays.node_ids):
+        centroid = arrays.centroids[slot] if arrays.centroids.size else ()
+        nx_graph.add_node(
+            node_id,
+            habitat_label=int(arrays.habitats[slot]),
+            voxel_count=float(arrays.voxels[slot]),
+            centroid=tuple(float(value) for value in np.asarray(centroid).tolist()),
+        )
+    n_edges = int(arrays.src.size)
+    for slot in range(n_edges):
+        contact = (
+            float(arrays.contact[slot]) if arrays.contact.size == n_edges else float("nan")
+        )
+        weight = (
+            float(arrays.weight[slot]) if arrays.weight.size == n_edges else 1.0
+        )
+        nx_graph.add_edge(
+            arrays.node_ids[int(arrays.src[slot])],
+            arrays.node_ids[int(arrays.dst[slot])],
+            weight=weight,
+            distance=float(arrays.distance[slot]),
+            contact_voxels=None if not np.isfinite(contact) else int(contact),
+            edge_type="inter" if bool(arrays.is_inter[slot]) else "intra",
+        )
+    return nx_graph
+
+
+def _extended_single_from_arrays(
+    arrays: GraphArrays,
+    prefix: str,
+    *,
+    extended_min_nodes: int = 10,
+    small_world_nrand: int = 100,
+    small_world_niter: int = 100,
+    rich_club_q: int = 100,
+    graph_null_sampler: str = "analytic",
+    graph_null_device: str = "auto",
+) -> Dict[str, float]:
+    """
+    Extended single-habitat columns from CSR arrays.
+
+    Same definitions as :func:`calculate_single_graph_metrics` when
+    ``include_extended_metrics`` is true (LCC analysis subgraph,
+    Humphries analytic :math:`S` by default).
+
+    Args:
+        arrays: Single-habitat graph arrays.
+        prefix: Feature prefix, e.g. ``single_h1``.
+        extended_min_nodes: Minimum LCC size for small-world sigma.
+        small_world_nrand: Ensemble size for ``config`` / ``rewire``.
+        small_world_niter: Rewires per edge for ``rewire``.
+        rich_club_q: Mixing floor for ``rewire``.
+        graph_null_sampler: ``analytic``, ``config``, or ``rewire``.
+        graph_null_device: Device for the null ensemble.
+
+    Returns:
+        Dict[str, float]: Extended column names mapped to values.
+    """
+    hop, _n_comp = hop_from_graph_arrays(arrays, largest_component=True)
+    nx_graph = _networkx_from_arrays(arrays)
+    _n_components, largest = component_summary(nx_graph)
+    n_nodes = nx_graph.number_of_nodes()
+    extended_graph = largest if n_nodes else nx_graph
+    reused_bc = hop.betweenness if hop.n_nodes > 1 else None
+    return compute_extended_graph_metrics(
+        extended_graph,
+        prefix,
+        extended_min_nodes=extended_min_nodes,
+        small_world_nrand=small_world_nrand,
+        small_world_niter=small_world_niter,
+        rich_club_q=rich_club_q,
+        graph_null_sampler=graph_null_sampler,
+        graph_null_device=graph_null_device,
+        betweenness=reused_bc,
+        avg_path_length=None if hop.n_nodes <= 1 else hop.avg_path_length,
+    )
+
+
+def _extended_pairwise_from_arrays(
+    arrays: GraphArrays,
+    prefix: str,
+    *,
+    extended_min_nodes: int = 10,
+    small_world_nrand: int = 100,
+    small_world_niter: int = 100,
+    rich_club_q: int = 100,
+    graph_null_sampler: str = "analytic",
+    graph_null_device: str = "auto",
+) -> Dict[str, float]:
+    """
+    Extended pairwise columns from CSR arrays.
+
+    Same definitions as :func:`calculate_pairwise_graph_metrics` when
+    ``include_extended_metrics`` is true.
+
+    Args:
+        arrays: Pairwise graph arrays.
+        prefix: Feature prefix, e.g. ``pair_h1_h2``.
+        extended_min_nodes: Minimum analysis-subgraph size for sigma.
+        small_world_nrand: Ensemble size for ``config`` / ``rewire``.
+        small_world_niter: Rewires per edge for ``rewire``.
+        rich_club_q: Mixing floor for ``rewire``.
+        graph_null_sampler: ``analytic``, ``config``, or ``rewire``.
+        graph_null_device: Device for the null ensemble.
+
+    Returns:
+        Dict[str, float]: Extended column names mapped to values.
+    """
+    hop_full, n_components = hop_from_graph_arrays(
+        arrays, largest_component=False
+    )
+    nx_graph = _networkx_from_arrays(arrays)
+    label_a, label_b = arrays.labels
+    nodes_a = [
+        arrays.node_ids[slot]
+        for slot in np.flatnonzero(arrays.habitats == int(label_a)).tolist()
+    ]
+    nodes_b = [
+        arrays.node_ids[slot]
+        for slot in np.flatnonzero(arrays.habitats == int(label_b)).tolist()
+    ]
+    return compute_extended_pairwise_metrics(
+        nx_graph,
+        nodes_a,
+        nodes_b,
+        prefix,
+        extended_min_nodes=extended_min_nodes,
+        small_world_nrand=small_world_nrand,
+        small_world_niter=small_world_niter,
+        rich_club_q=rich_club_q,
+        graph_null_sampler=graph_null_sampler,
+        graph_null_device=graph_null_device,
+        betweenness=None if hop_full.n_nodes <= 1 else hop_full.betweenness,
+        avg_path_length=(
+            hop_full.avg_path_length
+            if hop_full.n_nodes > 1 and n_components == 1
+            else None
+        ),
+    )
+
+
 def _edge_distances(graph: HabitatGraph) -> List[float]:
     """
     Return the distance stored on each edge.
@@ -452,7 +609,7 @@ def _single_features_from_arrays(
 def calculate_single_graph_metrics(
     graph: HabitatGraph,
     *,
-    include_extended_metrics: bool = False,
+    include_extended_metrics: bool = True,
     extended_min_nodes: int = 10,
     small_world_nrand: int = 100,
     small_world_niter: int = 100,
@@ -466,8 +623,8 @@ def calculate_single_graph_metrics(
     Args:
         graph: Single-habitat graph.
         include_extended_metrics: Also compute efficiency / small-world /
-            rich-club / node-distribution summaries. Default False because
-            those metrics dominate runtime on large graphs.
+            rich-club / node-distribution summaries. Default True; pass
+            False to skip the extra columns.
         extended_min_nodes: Minimum node count for either small-world sigma.
         small_world_nrand: Degree-preserving ensemble size for
             ``small_world_sigma_rewire``.
@@ -492,17 +649,9 @@ def calculate_single_graph_metrics(
     prefix = single_feature_prefix(graph.labels[0])
 
     if include_extended_metrics:
-        hop, _n_comp = hop_from_graph_arrays(
-            arrays, largest_component=True
-        )
-        nx_graph = _to_networkx(graph)
-        _n_components, largest = component_summary(nx_graph)
-        n_nodes = nx_graph.number_of_nodes()
-        extended_graph = largest if n_nodes else nx_graph
-        reused_bc = hop.betweenness if hop.n_nodes > 1 else None
         features.update(
-            compute_extended_graph_metrics(
-                extended_graph,
+            _extended_single_from_arrays(
+                arrays,
                 prefix,
                 extended_min_nodes=extended_min_nodes,
                 small_world_nrand=small_world_nrand,
@@ -510,8 +659,6 @@ def calculate_single_graph_metrics(
                 rich_club_q=rich_club_q,
                 graph_null_sampler=graph_null_sampler,
                 graph_null_device=graph_null_device,
-                betweenness=reused_bc,
-                avg_path_length=None if hop.n_nodes <= 1 else hop.avg_path_length,
             )
         )
 
@@ -693,7 +840,7 @@ def _pairwise_features_from_arrays(
 def calculate_pairwise_graph_metrics(
     graph: HabitatGraph,
     *,
-    include_extended_metrics: bool = False,
+    include_extended_metrics: bool = True,
     extended_min_nodes: int = 10,
     small_world_nrand: int = 100,
     small_world_niter: int = 100,
@@ -713,8 +860,8 @@ def calculate_pairwise_graph_metrics(
     Args:
         graph: Pairwise inter-habitat graph.
         include_extended_metrics: Also compute efficiency / small-world /
-            rich-club / node-distribution summaries. Default False because
-            those metrics dominate runtime on large graphs.
+            rich-club / node-distribution summaries. Default True; pass
+            False to skip the extra columns.
         extended_min_nodes: Minimum node count for either small-world sigma.
         small_world_nrand: Degree-preserving ensemble size for
             ``small_world_sigma_rewire``.
@@ -737,17 +884,9 @@ def calculate_pairwise_graph_metrics(
     prefix = pair_feature_prefix(label_a, label_b)
 
     if include_extended_metrics:
-        hop_full, n_components = hop_from_graph_arrays(
-            arrays, largest_component=False
-        )
-        nx_graph = _to_networkx(graph)
-        nodes_a = _nodes_for_label(graph, label_a)
-        nodes_b = _nodes_for_label(graph, label_b)
         features.update(
-            compute_extended_pairwise_metrics(
-                nx_graph,
-                nodes_a,
-                nodes_b,
+            _extended_pairwise_from_arrays(
+                arrays,
                 prefix,
                 extended_min_nodes=extended_min_nodes,
                 small_world_nrand=small_world_nrand,
@@ -755,12 +894,6 @@ def calculate_pairwise_graph_metrics(
                 rich_club_q=rich_club_q,
                 graph_null_sampler=graph_null_sampler,
                 graph_null_device=graph_null_device,
-                betweenness=None if hop_full.n_nodes <= 1 else hop_full.betweenness,
-                avg_path_length=(
-                    hop_full.avg_path_length
-                    if hop_full.n_nodes > 1 and n_components == 1
-                    else None
-                ),
             )
         )
 

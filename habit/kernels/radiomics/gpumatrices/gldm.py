@@ -39,7 +39,13 @@ from typing import Optional, Union
 import numpy as np
 import torch
 
-from ._geom import CentreGrid, coords_in_image, flat_index, prepare_centre_grid
+from ._geom import (
+    CentreGrid,
+    coords_in_image,
+    flat_index,
+    prepare_centre_grid,
+    window_cells,
+)
 
 
 def calculate_gldm(
@@ -121,36 +127,42 @@ def _accumulate_gldm(
 
     # One chunk covers ``Na * Kc * Nvox`` neighbour slots.
     chunk = max(1, int(max_chunk_elems) // max(1, na * n_vox))
+    # Voxel mode reads centres and neighbours out of the same (No, Nvox)
+    # tables instead of building (Na, Kc, Nvox, Nd) coordinates; see
+    # _geom.WindowCells. Segment mode has no offset window, so a neighbour
+    # is not an enumerated offset and the coordinate path stays.
+    cells = window_cells(grid) if grid.voxel_based else None
 
     for start in range(0, n_off, chunk):
-        o_c = grid.offsets_t[start : start + chunk]  # (Kc, Nd)
-        centres = grid.base_coords[None, :, :] + o_c[:, None, :]  # (Kc, Nvox, Nd)
-        centre_in = coords_in_image(centres, grid.size_t)
-        centre_flat = flat_index(centres, grid.strides_t, grid.n_elements)
-        centre_valid = centre_in & grid.mask_flat[centre_flat]
-        if not bool(centre_valid.any()):
-            continue
+        if cells is not None:
+            o_slice = slice(start, start + chunk)
+            centre_valid = cells.cell_valid[o_slice]  # (Kc, Nvox)
+            gi = cells.cell_gray[o_slice]
+            neigh_o = cells.neigh_off[:, o_slice]  # (Na, Kc)
+            neigh_valid = (neigh_o >= 0)[:, :, None] & cells.cell_valid[
+                neigh_o.clamp(min=0)
+            ]
+            gj = cells.cell_gray[neigh_o.clamp(min=0)]  # (Na, Kc, Nvox)
+        else:
+            o_c = grid.offsets_t[start : start + chunk]  # (Kc, Nd)
+            centres = grid.base_coords[None, :, :] + o_c[:, None, :]  # (Kc, Nvox, Nd)
+            centre_in = coords_in_image(centres, grid.size_t)
+            centre_flat = flat_index(centres, grid.strides_t, grid.n_elements)
+            centre_valid = centre_in & grid.mask_flat[centre_flat]
+            # Neighbours of every centre along every bidirectional angle.
+            # Shape: (Na, Kc, Nvox, Nd).
+            neighbours = centres[None, :, :, :] + grid.angles_t[:, None, None, :]
+            neigh_in = coords_in_image(neighbours, grid.size_t)
+            neigh_flat = flat_index(neighbours, grid.strides_t, grid.n_elements)
+            neigh_valid = neigh_in & grid.mask_flat[neigh_flat]
+            gi = grid.img_flat[centre_flat]  # (Kc, Nvox)
+            gj = grid.img_flat[neigh_flat]  # (Na, Kc, Nvox)
 
-        # Neighbours of every centre along every bidirectional angle.
-        # Shape: (Na, Kc, Nvox, Nd).
-        neighbours = centres[None, :, :, :] + grid.angles_t[:, None, None, :]
-        neigh_in = coords_in_image(neighbours, grid.size_t)
-        if grid.voxel_based:
-            # Image-clipped kernel box of set_bb: |neigh - base| <= radius.
-            in_window = (
-                (neighbours - grid.base_coords[None, None, :, :]).abs() <= grid.kernel_radius
-            ).all(dim=-1)
-            neigh_in = neigh_in & in_window
-        neigh_flat = flat_index(neighbours, grid.strides_t, grid.n_elements)
-        neigh_valid = neigh_in & grid.mask_flat[neigh_flat]
-
-        gi = grid.img_flat[centre_flat]  # (Kc, Nvox)
-        gj = grid.img_flat[neigh_flat]  # (Na, Kc, Nvox)
         dependent = neigh_valid & ((gi[None, :, :] - gj).abs() <= alpha)
         # Isolated centres (no valid neighbour) keep dep == 0, matching C.
         dep = dependent.to(torch.int32).sum(dim=0)  # (Kc, Nvox)
 
-        gi0 = (gi - 1).clamp_(0, ng - 1)
+        gi0 = (gi.to(torch.int64) - 1).clamp_(0, ng - 1)
         flat_idx = (grid.matrix_ids[None, :] * ng + gi0) * n_dep + dep
         selected = flat_idx[centre_valid]
         p_flat.index_add_(

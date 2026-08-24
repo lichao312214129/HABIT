@@ -35,6 +35,7 @@ mode uses the same propagation on the sparse list of masked voxels.
 
 from __future__ import annotations
 
+import math
 from typing import Optional, Tuple, Union
 
 import numpy as np
@@ -121,64 +122,84 @@ def _offset_lookup(offsets: torch.Tensor, radius: int, nd: int) -> Tuple[torch.T
     return lookup, pack_strides
 
 
-def _propagate_labels(
-    label: torch.Tensor,
+def _zone_links(
     valid: torch.Tensor,
     gl: torch.Tensor,
     neigh_idx: torch.Tensor,
     neigh_ok: torch.Tensor,
 ) -> torch.Tensor:
     """
+    Boolean "these two voxels belong to the same zone" mask, once per call.
+
+    A link exists when the neighbour is enumerated, in the box/image, both
+    endpoints are masked, and both carry the same gray level. None of that
+    depends on the current labels, so the mask is a loop invariant of the
+    propagation: recomputing it every sweep gathered the int64 gray levels
+    and re-evaluated five boolean terms over the whole ``(Na, No, Nvox)``
+    neighbour tensor for nothing.
+
+    The two label terms of the original predicate (``label > 0`` and
+    ``label_n > 0``) are dropped because they are equivalent to ``valid``
+    and ``valid_n``: labels start as ``valid ? id : 0``, and both the min
+    sweep and the pointer jump keep a masked voxel positive and an unmasked
+    one at zero. The propagation therefore visits exactly the same links.
+
+    Args:
+        valid: Masked-voxel flag, ``(No, Nvox)`` or ``(N,)``.
+        gl: Gray levels, same shape as ``valid``.
+        neigh_idx: Neighbour gather index, ``(Na, No)`` or ``(Na, N)``;
+            ``-1`` marks an invalid neighbour.
+        neigh_ok: In-image / in-window flag, broadcastable to the
+            neighbour tensor shape.
+
+    Returns:
+        torch.Tensor: Boolean mask, ``(Na, No, Nvox)`` or ``(Na, N)``.
+    """
+    safe = neigh_idx.clamp(min=0)
+    if valid.ndim == 2:
+        # Voxel path: valid is (No, Nvox); neigh_idx is (Na, No).
+        return (
+            neigh_ok
+            & (neigh_idx[:, :, None] >= 0)
+            & valid[None, :, :]
+            & valid[safe]
+            & (gl[None, :, :] == gl[safe])
+        )
+    # Segment path: valid is (N,); neigh_idx is (Na, N).
+    return (
+        neigh_ok
+        & (neigh_idx >= 0)
+        & valid[None, :]
+        & valid[safe]
+        & (gl[None, :] == gl[safe])
+    )
+
+
+def _propagate_labels(
+    label: torch.Tensor,
+    neigh_idx: torch.Tensor,
+    links: torch.Tensor,
+) -> torch.Tensor:
+    """
     One label-propagation sweep: each voxel takes ``min(self, neighbours)``
-    among same-gray, valid, in-box neighbours.
+    over its zone links.
 
     Args:
         label: Current labels, ``(No, Nvox)`` or ``(N,)``.
-        valid: Boolean mask of participating voxels, same leading shape
-            as ``label`` without the neighbour axis.
-        gl: Gray levels, same shape as ``label``.
-        neigh_idx: Neighbour gather index, ``(Na, No)`` or ``(Na, N)``;
-            ``-1`` marks an invalid neighbour.
-        neigh_ok: Boolean extra constraint (in-image / in-window), same
-            shape as ``neigh_idx`` broadcast against ``label``.
+        neigh_idx: Neighbour gather index, ``(Na, No)`` or ``(Na, N)``.
+        links: Same-zone mask from :func:`_zone_links`.
 
     Returns:
         torch.Tensor: Updated labels, same shape as ``label``.
     """
-    safe = neigh_idx.clamp(min=0)
-    if label.ndim == 2:
-        # Voxel path: label is (No, Nvox); neigh_idx is (Na, No).
-        label_n = label[safe]  # (Na, No, Nvox)
-        gl_n = gl[safe]
-        valid_n = valid[safe]
-        ok = (
-            neigh_ok
-            & (neigh_idx[:, :, None] >= 0)
-            & valid[None, :, :]
-            & valid_n
-            & (gl[None, :, :] == gl_n)
-            & (label[None, :, :] > 0)
-            & (label_n > 0)
-        )
-        huge = torch.iinfo(label.dtype).max
-        cand = torch.where(ok, label_n, torch.full_like(label_n, huge))
-        return torch.minimum(label, cand.min(dim=0).values)
-    # Segment path: label is (N,); neigh_idx is (Na, N).
-    label_n = label[safe]
-    gl_n = gl[safe]
-    valid_n = valid[safe]
-    ok = (
-        neigh_ok
-        & (neigh_idx >= 0)
-        & valid[None, :]
-        & valid_n
-        & (gl[None, :] == gl_n)
-        & (label[None, :] > 0)
-        & (label_n > 0)
+    label_n = label[neigh_idx.clamp(min=0)]
+    # A 0-dim fill value broadcasts, so ``where`` does not need a second
+    # full-size tensor just to hold the sentinel.
+    huge = torch.tensor(
+        torch.iinfo(label.dtype).max, dtype=label.dtype, device=label.device
     )
-    huge = torch.iinfo(label.dtype).max
-    cand = torch.where(ok, label_n, torch.full_like(label_n, huge))
-    return torch.minimum(label, cand.min(dim=0).values)
+    cand = torch.where(links, label_n, huge)
+    return torch.minimum(label, cand.amin(dim=0))
 
 
 def _histogram_zones(
@@ -189,6 +210,7 @@ def _histogram_zones(
     n_matrices: int,
     ng: int,
     dtype: torch.dtype,
+    label_bound: int,
 ) -> torch.Tensor:
     """
     Turn per-voxel component labels into a ``(Nvox, Ng, maxRegion)`` GLSZM.
@@ -201,6 +223,9 @@ def _histogram_zones(
         n_matrices: Number of output matrices.
         ng: Gray-level axis length.
         dtype: Output floating dtype.
+        label_bound: Exclusive-plus-one upper bound on ``labels``
+            (``n_off`` on the voxel path, ``n`` on the segment path).
+            Used as a static key span so we do not sync ``lab.min/max``.
 
     Returns:
         torch.Tensor: GLSZM cropped to the largest observed zone size.
@@ -212,9 +237,9 @@ def _histogram_zones(
     mid = matrix_ids[valid]
     lab = labels[valid]
     grey = (gl[valid] - 1).clamp(0, ng - 1).to(torch.int64)
-    lab_min = int(lab.min())
-    lab_span = int(lab.max()) - lab_min + 1
-    zone_key = mid * lab_span + (lab - lab_min)
+    # Labels are 1..label_bound. A static span stays unique per matrix.
+    lab_span = int(label_bound) + 1
+    zone_key = mid * lab_span + lab
 
     if device.type == "cuda":
         # torch.unique / scatter_reduce on CUDA are correct for this many
@@ -289,17 +314,23 @@ def _accumulate_glszm_voxel(grid: CentreGrid, ng: int, dtype: torch.dtype) -> to
     in_img = coords_in_image(neigh_coords, grid.size_t)  # (Na, No, Nvox)
     neigh_ok = packed_ok[:, :, None] & in_img
 
-    # Diameter of a (2r+1)^Nd 26-connected set is small; stop early.
-    for _ in range(n_off):
-        new_label = _propagate_labels(label, valid, gl, neigh_o, neigh_ok)
-        # Pointer jumping: each labelled voxel adopts the label stored at
-        # its own label's position (labels index offsets within the same
-        # column), doubling the distance the component minimum travels per
-        # sweep. The connected partition -- and thus the zone sizes -- is
-        # identical to pure propagation; only convergence is faster.
-        # gather indices must be int64; the (No, Nvox) cast is cheap.
+    # Blind sweeps first (no device sync). Pointer jumping is idempotent,
+    # but 8 rounds is not always enough on a full 7^3 window, so we then
+    # poll torch.equal until the partition stops changing -- same stop
+    # condition as before, fewer syncs on the typical short path.
+    radius = max(int(grid.kernel_radius), 1)
+    n_blind = min(n_off, max(8, int(math.ceil(math.log2(max(2 * radius, 2)))) + 4))
+    links = _zone_links(valid, gl, neigh_o, neigh_ok)
+
+    def _step(current: torch.Tensor) -> torch.Tensor:
+        new_label = _propagate_labels(current, neigh_o, links)
         jumped = torch.gather(new_label, 0, (new_label.to(torch.int64) - 1).clamp(min=0))
-        new_label = torch.where(new_label > 0, jumped, new_label)
+        return torch.where(new_label > 0, jumped, new_label)
+
+    for _ in range(n_blind):
+        label = _step(label)
+    for _ in range(n_off - n_blind):
+        new_label = _step(label)
         if bool(torch.equal(new_label, label)):
             break
         label = new_label
@@ -313,6 +344,7 @@ def _accumulate_glszm_voxel(grid: CentreGrid, ng: int, dtype: torch.dtype) -> to
         grid.n_matrices,
         ng,
         dtype,
+        n_off,
     )
 
 
@@ -341,14 +373,21 @@ def _accumulate_glszm_segment(grid: CentreGrid, ng: int, dtype: torch.dtype) -> 
     neigh_i = torch.where(in_img, lookup[neigh_flat], torch.full_like(neigh_flat, -1))
     neigh_ok = in_img & (neigh_i >= 0)
 
-    for _ in range(n):
-        new_label = _propagate_labels(label, valid, gl, neigh_i, neigh_ok)
-        # Pointer jumping (see the voxel path); same partition, fewer sweeps.
+    n_blind = min(n, max(8, int(math.ceil(math.log2(max(n, 2)))) + 4))
+    links = _zone_links(valid, gl, neigh_i, neigh_ok)
+
+    def _step_seg(current: torch.Tensor) -> torch.Tensor:
+        new_label = _propagate_labels(current, neigh_i, links)
         jumped = new_label[(new_label.to(torch.int64) - 1).clamp(min=0)]
-        new_label = torch.where(new_label > 0, jumped, new_label)
+        return torch.where(new_label > 0, jumped, new_label)
+
+    for _ in range(n_blind):
+        label = _step_seg(label)
+    for _ in range(n - n_blind):
+        new_label = _step_seg(label)
         if bool(torch.equal(new_label, label)):
             break
         label = new_label
 
     matrix_ids = torch.zeros(n, dtype=torch.long, device=device)
-    return _histogram_zones(matrix_ids, label, gl, valid, 1, ng, dtype)
+    return _histogram_zones(matrix_ids, label, gl, valid, 1, ng, dtype, n)

@@ -71,16 +71,15 @@ def test_raw_features_missing_modality_raises_key_error() -> None:
 
 
 @pytest.mark.unit
-def test_raw_features_geometry_mismatch_resamples_by_default() -> None:
-    """Default policy resamples the ROI onto the modality grid instead of failing."""
+def test_raw_features_geometry_mismatch_raises_on_shape() -> None:
+    """Shape mismatch always raises: auto-resampling across extents is silent data loss."""
     subject = make_subject("P1")
     mismatched = Geometry.from_array((4, 4, 4))
     subject.images["T1"] = ArrayImageRef(
         array=np.zeros((4, 4, 4)), geometry=mismatched
     )
-    # Mask stays on the original 6^3 grid; roi_voxels resamples it onto T1.
-    field = RawVoxelFeatures(modalities=["T1"])(subject)
-    assert field.geometry.is_compatible_with(mismatched)
+    with pytest.raises(GeometryError, match="different physical extents"):
+        RawVoxelFeatures(modalities=["T1"])(subject)
 
 
 @pytest.mark.unit

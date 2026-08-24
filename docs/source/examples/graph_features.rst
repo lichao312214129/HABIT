@@ -18,8 +18,11 @@ uses the library defaults on :class:`~habit.HabitatGraphFeatureOptions`:
 ``node_method='uniform_grid'`` (8-voxel cubes, not millimetres; one
 node per in-cell subregion centroid) and
 ``edge_method='min_distance'`` (closest voxels within 5).
-``include_extended_metrics=False`` is required here: extended metrics
-on a full 3D map are the main time sink. A later section keeps those
+``include_extended_metrics`` defaults to ``True`` (analytic Humphries
+:math:`S`; cheap on typical maps). The gallery script pins
+``False`` so the heatmap stays narrower. Small-world
+:math:`\sigma` and the ER / configuration-model / Maslov–Sneppen
+nulls are documented under :doc:`../reference/features/graph`. A later section keeps those
 **same habitat labels** and only overrides ``block_size=5`` so the
 two 3D lattices can be compared. Graph topology is a
 habitat-map feature family (same tier as ``volume`` / ``msi``); columns
@@ -41,8 +44,8 @@ Script
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
 (:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
 uses the library node/edge defaults (uniform 8-voxel cubes, one node
-per in-cell subregion centroid + min-distance edges; extended metrics
-off). One ``fit_predict`` on three subjects feeds the overlay, both 2D
+per in-cell subregion centroid + min-distance edges; library default
+leaves extended metrics off). One ``fit_predict`` on three subjects feeds the overlay, both 2D
 display networks, and both **3D** heatmap tables (library
 ``block_size=8`` plus a ``block_size=5`` comparison extract on the
 same full-volume maps). Figures land under ``out/`` (swap that path
@@ -84,7 +87,7 @@ Output
 ------
 
 Illustrative (fixed ``n_habitats=4``, per-cell subregion centroids;
-count depends on the 3D map and ``include_extended_metrics=False``)::
+count depends on the 3D map; extended metrics stay off by default)::
 
    3 subjects x 587 graph features from full 3D habitat maps
 

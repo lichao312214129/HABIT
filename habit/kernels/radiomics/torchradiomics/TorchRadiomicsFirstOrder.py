@@ -12,6 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# ---------------------------------------------------------------------------
+# Third-party attribution
+#
+# This file is derived from PyTorchRadiomics and adapted for HABIT:
+#
+#     https://github.com/lyhyl/pytorchradiomics
+#     Copyright (c) 2024 lyhyl
+#     Licensed under the MIT License
+#
+# The original MIT copyright and permission notice are reproduced in
+# LICENSE in this directory and in NOTICE at the project root.
+# HABIT modifications remain under Apache-2.0.
+# ---------------------------------------------------------------------------
 import numpy
 import torch
 from radiomics import base, cMatrices, deprecated

@@ -155,6 +155,62 @@ def test_manifest_includes_bilingual_readmes() -> None:
     assert "include README_en.md" in manifest
 
 
+def test_notice_reproduces_vendored_upstream_licenses() -> None:
+    """
+    NOTICE must carry current paths and the full upstream permission texts.
+
+    MIT and BSD-2-Clause-Patent both require the copyright plus the permission
+    / conditions / disclaimer to travel with redistributions. A one-line
+    "Licensed under MIT" note is not enough once the wheel drops the git tree.
+    """
+    notice = (PROJECT_ROOT / "NOTICE").read_text(encoding="utf-8")
+
+    assert "https://github.com/Netflix/vmaf" in notice
+    assert "Copyright (c) 2020 Netflix, Inc." in notice
+    assert "habit/kernels/statistics.py" in notice
+    assert (
+        "habit/compat/engines/machine_learning/statistics/delong_test.py"
+        in notice
+    )
+    assert "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS" in notice
+    assert "habit/core/" not in notice
+
+    assert "https://github.com/lyhyl/pytorchradiomics" in notice
+    assert "Copyright (c) 2024 lyhyl" in notice
+    assert "habit/kernels/radiomics/torchradiomics/" in notice
+    assert "Permission is hereby granted, free of charge" in notice
+    assert "The above copyright notice and this permission notice shall be" in notice
+
+
+def test_vendored_torchradiomics_retains_mit_copyright() -> None:
+    """
+    Every vendored torchradiomics module must name the upstream copyright.
+
+    The subdirectory LICENSE must also be declared for sdist/wheel so pip
+    users receive the MIT text, not only git-clone users.
+    """
+    vendor_dir = PROJECT_ROOT / "habit" / "kernels" / "radiomics" / "torchradiomics"
+    license_path = vendor_dir / "LICENSE"
+    assert license_path.is_file()
+    license_text = license_path.read_text(encoding="utf-8")
+    assert license_text.startswith("MIT License")
+    assert "Copyright (c) 2024 lyhyl" in license_text
+
+    manifest = (PROJECT_ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+    assert "habit/kernels/radiomics/torchradiomics/LICENSE" in manifest
+
+    setup_text = (PROJECT_ROOT / "setup.py").read_text(encoding="utf-8")
+    assert '"habit.kernels.radiomics.torchradiomics": ["LICENSE"]' in setup_text
+
+    py_files = sorted(vendor_dir.glob("*.py"))
+    assert py_files, "torchradiomics package has no Python modules"
+    for path in py_files:
+        text = path.read_text(encoding="utf-8")
+        assert "Copyright (c) 2024 lyhyl" in text, path.name
+        assert "https://github.com/lyhyl/pytorchradiomics" in text, path.name
+        assert "Licensed under the MIT License" in text, path.name
+
+
 def _declared_required_dependencies() -> Set[str]:
     """
     Parse the distribution names in ``[project.dependencies]``.

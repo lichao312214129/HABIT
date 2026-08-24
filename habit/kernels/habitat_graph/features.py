@@ -43,6 +43,8 @@ from habit.kernels.habitat_graph.edges import (
     iter_label_pairs,
 )
 from habit.kernels.habitat_graph.metrics import (
+    _extended_pairwise_from_arrays,
+    _extended_single_from_arrays,
     _pairwise_features_from_arrays,
     _single_features_from_arrays,
     calculate_pairwise_graph_metrics,
@@ -56,8 +58,13 @@ from habit.kernels.habitat_graph.models import (
     HabitatGraphNode,
     HabitatNodeExtractionResult,
     NodeMethod,
+    pair_feature_prefix,
+    single_feature_prefix,
 )
-from habit.kernels.habitat_graph.nodes import extract_habitat_nodes
+from habit.kernels.habitat_graph.nodes import (
+    _nonzero_bbox_slices,
+    extract_habitat_nodes,
+)
 
 __all__ = [
     "HabitatGraphFeatureOptions",
@@ -112,10 +119,10 @@ class HabitatGraphFeatureOptions:
     block_size: int = 8
     block_min_coverage: float = 0.2
     pairwise_include_intra_edges: bool = True
-    # Default False: efficiency / small-world / rich-club / node
-    # distributions are superlinear and dominate runtime on large maps.
-    # Pass True on HabitatGraphFeatureOptions to opt in.
-    include_extended_metrics: bool = False
+    # Default True: efficiency / small-world / rich-club / node
+    # distributions. On typical habitat maps this is cheap (analytic
+    # Humphries S, not a rewire ensemble). Pass False to omit.
+    include_extended_metrics: bool = True
     extended_min_nodes: int = 10
     # Default small-world is Humphries analytic ER *S* (one column).
     # ``config`` / ``rewire`` replace that column with a degree-preserving
@@ -151,6 +158,46 @@ _COUNT_NORM_SUFFIXES = (
     "_n_nodes_2",
     "_n_edges",
 )
+
+
+def _crop_to_tumor_voi(label_array: np.ndarray) -> np.ndarray:
+    """
+    Restrict a habitat map to the tumour VOI plus one voxel of pad.
+
+    One-step / two-step habitat maps are often stored on the full CT
+    lattice. Graph construction and VOI-normalized companions only
+    depend on non-background voxels; scanning the empty field is
+    wasted work and must not change any reported number (bbox
+    diagonals are translation-invariant).
+
+    Args:
+        label_array: Integer habitat map; ``0`` is background.
+
+    Returns:
+        np.ndarray: Contiguous crop of the occupied bounding box, or
+        the original array when the map is empty.
+    """
+    boxed = _nonzero_bbox_slices(np.asarray(label_array), pad=1)
+    if boxed is None:
+        return np.asarray(label_array)
+    slices, _offset = boxed
+    return np.ascontiguousarray(label_array[slices])
+
+
+def _habitat_voxel_counts(label_array: np.ndarray) -> Dict[int, float]:
+    """Count non-background voxels per habitat on a (usually cropped) map."""
+    flat = np.asarray(label_array).ravel()
+    if flat.size == 0:
+        return {}
+    max_label = int(flat.max()) if flat.size else 0
+    if max_label <= 0:
+        return {}
+    counts = np.bincount(np.clip(flat, 0, max_label), minlength=max_label + 1)
+    return {
+        int(label): float(counts[label])
+        for label in range(1, max_label + 1)
+        if int(counts[label]) > 0
+    }
 
 
 def _tumor_bbox_diagonal(label_array: np.ndarray) -> float:
@@ -214,20 +261,31 @@ def _augment_with_normalized_features(
     Args:
         features: Feature dictionary mutated in place with ``*_norm`` entries.
         label_array: Integer habitat label map; background (0) is excluded.
+            A full-CT lattice is cropped to the tumour VOI first.
     """
-    voi_voxels = float(np.count_nonzero(label_array))
-    ndim = int(label_array.ndim)
+    voi = _crop_to_tumor_voi(label_array)
+    voi_voxels = float(np.count_nonzero(voi))
+    ndim = int(voi.ndim)
     if voi_voxels <= 0 or ndim <= 0:
         return
 
-    length_scale = _tumor_bbox_diagonal(label_array)
+    length_scale = _tumor_bbox_diagonal(voi)
     contact_scale = voi_voxels ** ((ndim - 1.0) / ndim)
     volume_scale = voi_voxels
-    habitat_volumes: Dict[int, float] = {
-        int(label): float(np.count_nonzero(label_array == label))
-        for label in np.unique(label_array)
-        if int(label) > 0
+    habitat_volumes = _habitat_voxel_counts(voi)
+    # One bbox walk per habitat / pair, never per feature column.
+    single_bbox: Dict[int, float] = {
+        hid: _label_bbox_diagonal(voi, (hid,)) for hid in habitat_volumes
     }
+    pair_bbox: Dict[Tuple[int, int], float] = {}
+
+    def _pair_bbox(label_a: int, label_b: int) -> float:
+        key = (min(int(label_a), int(label_b)), max(int(label_a), int(label_b)))
+        cached = pair_bbox.get(key)
+        if cached is None:
+            cached = _label_bbox_diagonal(voi, key)
+            pair_bbox[key] = cached
+        return cached
 
     def _scaled(value: float, scale: float) -> float:
         return float(value / scale) if scale > 0 else 0.0
@@ -247,7 +305,6 @@ def _augment_with_normalized_features(
             label = int(single_match.group("label"))
             suffix = single_match.group("suffix")
             habitat_volume = habitat_volumes.get(label, 0.0)
-            habitat_bbox_diagonal = _label_bbox_diagonal(label_array, (label,))
             if suffix in {"n_nodes", "n_edges", "connected_components"}:
                 features[f"single_h{label}_{suffix}_per_habitat_volume"] = _scaled(
                     value, habitat_volume
@@ -269,7 +326,7 @@ def _augment_with_normalized_features(
             }:
                 features[
                     f"single_h{label}_{suffix}_per_habitat_bbox_diagonal"
-                ] = _scaled(value, habitat_bbox_diagonal)
+                ] = _scaled(value, single_bbox.get(label, 0.0))
             continue
 
         pair_match = re.match(
@@ -285,9 +342,6 @@ def _augment_with_normalized_features(
             )
             pair_area_scale = (
                 pair_volume ** ((ndim - 1.0) / ndim) if pair_volume > 0 else 0.0
-            )
-            pair_bbox_diagonal = _label_bbox_diagonal(
-                label_array, (label_a, label_b)
             )
             if suffix == "n_nodes_1":
                 features[
@@ -306,7 +360,7 @@ def _augment_with_normalized_features(
                 features[
                     f"pair_h{label_a}_h{label_b}_"
                     f"{suffix}_per_pair_bbox_diagonal"
-                ] = _scaled(value, pair_bbox_diagonal)
+                ] = _scaled(value, _pair_bbox(label_a, label_b))
             continue
 
 
@@ -553,7 +607,9 @@ def extract_graph_features(
 
     Args:
         label_array: Already segmented habitat map. Label 0 is treated as
-            background and excluded from graph construction.
+            background and excluded from graph construction. A full-CT
+            lattice is cropped to the tumour VOI before nodes, edges,
+            metrics, and size-normalized companions are computed.
         options: Graph construction and metric options.
         expected_labels: Optional canonical habitat ids to report. When given,
             every listed label produces its ``single_h*`` columns and every
@@ -566,7 +622,9 @@ def extract_graph_features(
     Returns:
         Dict[str, float]: Flat feature dictionary ready for table assembly.
     """
-    labels_array = np.asarray(label_array).astype(np.int32, copy=False)
+    labels_array = _crop_to_tumor_voi(
+        np.asarray(label_array).astype(np.int32, copy=False)
+    )
     node_result = extract_habitat_nodes(
         label_array=labels_array,
         connectivity=options.connectivity,
@@ -591,9 +649,10 @@ def extract_graph_features(
     }
 
     single_labels = list(habitat_labels)
-    use_array_path = (
-        options.edge_method == "min_distance" and not options.include_extended_metrics
-    )
+    # min_distance stays on the CSR array path even when extended
+    # metrics are on (library default). Extended columns are attached
+    # from the same arrays; the scientific definitions do not change.
+    use_array_path = options.edge_method == "min_distance"
     if use_array_path and (
         options.include_single_habitat_graph or options.include_pairwise_habitat_graph
     ):
@@ -640,9 +699,37 @@ def extract_graph_features(
         def _run_array_job(kind: str, payload: object) -> Dict[str, float]:
             if kind == "single":
                 arrays, nodes = payload  # type: ignore[misc]
-                return _single_features_from_arrays(arrays, nodes)
+                features_job = _single_features_from_arrays(arrays, nodes)
+                if options.include_extended_metrics:
+                    features_job.update(
+                        _extended_single_from_arrays(
+                            arrays,
+                            single_feature_prefix(arrays.labels[0]),
+                            extended_min_nodes=options.extended_min_nodes,
+                            small_world_nrand=options.small_world_nrand,
+                            small_world_niter=options.small_world_niter,
+                            rich_club_q=options.rich_club_q,
+                            graph_null_sampler=options.graph_null_sampler,
+                            graph_null_device=options.graph_null_device,
+                        )
+                    )
+                return features_job
             arrays, _unused = payload  # type: ignore[misc]
-            return _pairwise_features_from_arrays(arrays)
+            features_job = _pairwise_features_from_arrays(arrays)
+            if options.include_extended_metrics:
+                features_job.update(
+                    _extended_pairwise_from_arrays(
+                        arrays,
+                        pair_feature_prefix(arrays.labels[0], arrays.labels[1]),
+                        extended_min_nodes=options.extended_min_nodes,
+                        small_world_nrand=options.small_world_nrand,
+                        small_world_niter=options.small_world_niter,
+                        rich_club_q=options.rich_club_q,
+                        graph_null_sampler=options.graph_null_sampler,
+                        graph_null_device=options.graph_null_device,
+                    )
+                )
+            return features_job
 
         if len(metric_jobs_arrays) <= 2 or largest < 80:
             payloads = [
@@ -742,7 +829,9 @@ def extract_graph_features_for_labels(
     Returns:
         Dict[str, float]: Flat feature dictionary for the selected labels.
     """
-    labels_array = np.asarray(label_array).astype(np.int32, copy=False)
+    labels_array = _crop_to_tumor_voi(
+        np.asarray(label_array).astype(np.int32, copy=False)
+    )
     selected_labels = np.asarray([int(label) for label in labels], dtype=np.int32)
     keep_mask = np.isin(labels_array, selected_labels)
     restricted = np.where(keep_mask, labels_array, 0).astype(np.int32, copy=False)

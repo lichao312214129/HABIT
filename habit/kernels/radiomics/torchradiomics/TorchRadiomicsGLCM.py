@@ -12,6 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# ---------------------------------------------------------------------------
+# Third-party attribution
+#
+# This file is derived from PyTorchRadiomics and adapted for HABIT:
+#
+#     https://github.com/lyhyl/pytorchradiomics
+#     Copyright (c) 2024 lyhyl
+#     Licensed under the MIT License
+#
+# The original MIT copyright and permission notice are reproduced in
+# LICENSE in this directory and in NOTICE at the project root.
+# HABIT modifications remain under Apache-2.0.
+# ---------------------------------------------------------------------------
 import numpy
 import torch
 from radiomics import base, cMatrices
@@ -22,6 +35,37 @@ from habit.kernels.radiomics.gpumatrices import (
 )
 
 from .TorchRadiomicsBase import TorchRadiomicsBase
+
+# Which GLCM features consume which derived coefficient. Coefficients are
+# reductions over the full (Nvox, Ng, Ng, Na) matrix, so computing one that
+# no enabled feature reads costs a full pass over hundreds of megabytes per
+# voxel batch for nothing. A feature name absent from every set below is
+# treated as "needs everything", so an upstream PyRadiomics addition can
+# never silently read a coefficient this class skipped.
+_PX_PY_USERS = frozenset({
+  'Imc1', 'Imc2', 'MCC',
+  # via ux / uy, which are reductions of px / py
+  'JointAverage', 'SumSquares', 'ClusterProminence', 'ClusterShade',
+  'ClusterTendency', 'Correlation',
+})
+_UX_UY_USERS = frozenset({
+  'JointAverage', 'SumSquares', 'ClusterProminence', 'ClusterShade',
+  'ClusterTendency', 'Correlation',
+})
+_PXADDY_USERS = frozenset({'SumAverage', 'SumEntropy'})
+_PXSUBY_USERS = frozenset({
+  'DifferenceAverage', 'DifferenceEntropy', 'DifferenceVariance',
+  'Idm', 'Idmn', 'Id', 'Idn', 'InverseVariance',
+})
+_HXY_USERS = frozenset({'JointEntropy', 'Imc1', 'Imc2'})
+# Features that read only P_glcm / i / j and therefore need no coefficient.
+_NO_COEFFICIENT_USERS = frozenset({
+  'Autocorrelation', 'Contrast', 'JointEnergy', 'MaximumProbability',
+})
+_KNOWN_FEATURES = (
+  _PX_PY_USERS | _UX_UY_USERS | _PXADDY_USERS | _PXSUBY_USERS
+  | _HXY_USERS | _NO_COEFFICIENT_USERS
+)
 
 
 class TorchRadiomicsGLCM(TorchRadiomicsBase):
@@ -38,7 +82,34 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
     self.weightingNorm = kwargs.get('weightingNorm', None)  # manhattan, euclidean, infinity
 
     self.P_glcm = None
+    # Filled by _calculateMatrix from the un-normalised matrix; see
+    # _diagonalCounts for why the sums must happen before normalisation.
+    self._sumP_glcm = None
+    self._pxAddy_counts = None
+    self._pxSuby_counts = None
     self.imageArray = self._applyBinning(self.imageArray)
+
+  def _neededCoefficients(self):
+    """
+    Decide which derived coefficients the enabled features actually read.
+
+    Returns:
+        dict: Flags keyed ``px_py``, ``ux_uy``, ``pxAddy``, ``pxSuby``,
+        ``HXY``. Any enabled feature this class does not know about turns
+        every flag on.
+    """
+    enabled = {
+      str(name) for name, on in getattr(self, 'enabledFeatures', {}).items() if on
+    }
+    if not enabled or not enabled.issubset(_KNOWN_FEATURES):
+      return {key: True for key in ('px_py', 'ux_uy', 'pxAddy', 'pxSuby', 'HXY')}
+    return {
+      'px_py': bool(enabled & _PX_PY_USERS),
+      'ux_uy': bool(enabled & _UX_UY_USERS),
+      'pxAddy': bool(enabled & _PXADDY_USERS),
+      'pxSuby': bool(enabled & _PXSUBY_USERS),
+      'HXY': bool(enabled & _HXY_USERS),
+    }
 
   def _initCalculation(self, voxelCoordinates=None):
     self.P_glcm = self._calculateMatrix(voxelCoordinates)
@@ -94,10 +165,13 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
 
     # Delete rows and columns that specify gray levels not present in the ROI
     # NgVector = range(1, Ng + 1)  # All possible gray values
-    gray_idx = self.gray_level_index(self.coefficients['grayLevels'], P_glcm)
-
-    P_glcm = P_glcm[:, gray_idx, :, :]
-    P_glcm = P_glcm[:, :, gray_idx, :]
+    gray_levels = numpy.asarray(self.coefficients['grayLevels'])
+    if not numpy.array_equal(gray_levels, numpy.arange(1, Ng + 1)):
+      gray_idx = self.gray_level_index(gray_levels, P_glcm)
+      P_glcm = P_glcm[:, gray_idx, :, :]
+      P_glcm = P_glcm[:, :, gray_idx, :]
+    # else: the selection is the identity, so both advanced-index calls
+    # would only copy the whole (Nvox, Ng, Ng, Na) matrix twice.
 
     # Optionally make GLCMs symmetrical for each angle
     if self.symmetricalGLCM:
@@ -145,10 +219,64 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
 
     # Mark empty angles with NaN, allowing them to be ignored in feature calculation
     sumP_glcm[sumP_glcm == 0] = torch.nan
+
+    # Diagonal marginals are taken here, while the matrix still holds raw
+    # co-occurrence counts, and normalised afterwards (see _diagonalCounts).
+    needed = self._neededCoefficients()
+    self._sumP_glcm = sumP_glcm
+    self._pxAddy_counts = (
+      self._diagonalCounts(P_glcm, 'sum', Ng) if needed['pxAddy'] else None
+    )
+    self._pxSuby_counts = (
+      self._diagonalCounts(P_glcm, 'diff', Ng) if needed['pxSuby'] else None
+    )
+
     # Normalize each glcm
     P_glcm /= sumP_glcm[:, None, None, :]
 
     return P_glcm
+
+  def _diagonalCounts(self, P_counts, kind, Ng):
+    r"""
+    Sum co-occurrence counts along constant ``i+j`` or ``|i-j|`` diagonals.
+
+    Called on the **un-normalised** matrix on purpose. ``index_add_`` uses
+    CUDA atomics, whose summation order varies between runs; on normalised
+    float probabilities that made GLCM Id / Idm / InverseVariance differ by
+    about 1e-7 between two runs of the same input. Raw counts are small
+    exact integers (bounded by the kernel-window volume), and their partial
+    sums stay exactly representable, so integer addition in any order gives
+    the same result -- the marginal becomes reproducible. Dividing by
+    ``sumP_glcm`` afterwards yields the same probability marginal the
+    normalise-then-sum order produced, up to that last ulp. With
+    ``weightingNorm`` set the entries are weighted, not integer counts, so
+    only the extra division is saved; reproducibility then depends on the
+    atomics as before.
+
+    Args:
+        P_counts: ``(Nvox, Ngp, Ngp, Na)`` un-normalised counts.
+        kind: ``"sum"`` for :math:`p_{x+y}`, ``"diff"`` for :math:`p_{x-y}`.
+        Ng: Number of gray levels; sets the output diagonal-axis length.
+
+    Returns:
+        torch.Tensor: ``(Nvox, 2*Ng-1, Na)`` for ``"sum"``, ``(Nvox, Ng,
+        Na)`` for ``"diff"``.
+    """
+    NgVector = self.tensor(self.coefficients['grayLevels'])
+    i, j = torch.meshgrid(NgVector, NgVector, indexing='ij')
+    # i, j hold gray-level VALUES in [1, Ng], so i+j-2 indexes kValuesSum
+    # and |i-j| indexes kValuesDiff; both are exact small integers.
+    if kind == 'sum':
+      index = (i + j - 2).reshape(-1).to(torch.long)
+      n_bins = Ng * 2 - 1
+    else:
+      index = torch.abs(i - j).reshape(-1).to(torch.long)
+      n_bins = Ng
+    nvp = P_counts.shape[0]
+    na = P_counts.shape[3]
+    out = torch.zeros(nvp, n_bins, na, dtype=self.dtype, device=self.device)
+    out.index_add_(1, index, P_counts.reshape(nvp, -1, na))
+    return out
 
   # check if ivector and jvector can be replaced
   def _calculateCoefficients(self):
@@ -160,6 +288,8 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
     Ng = self.coefficients['Ng']
     eps = torch.finfo(self.dtype).eps
 
+    needed = self._neededCoefficients()
+
     NgVector = self.tensor(self.coefficients['grayLevels'])
     # shape = (Ng, Ng)
     i, j = torch.meshgrid(NgVector, NgVector, indexing='ij')
@@ -169,38 +299,38 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
     # shape = (Ng-1)
     kValuesDiff = torch.arange(0, Ng, dtype=self.dtype, device=self.device)
 
-    # marginal row probabilities #shape = (Nv, Ng, 1, angles)
-    px = self.P_glcm.sum(2, keepdims=True)
-    # marginal column probabilities #shape = (Nv, 1, Ng, angles)
-    py = self.P_glcm.sum(1, keepdims=True)
+    px = py = ux = uy = None
+    if needed['px_py']:
+      # marginal row probabilities #shape = (Nv, Ng, 1, angles)
+      px = self.P_glcm.sum(2, keepdims=True)
+      # marginal column probabilities #shape = (Nv, 1, Ng, angles)
+      py = self.P_glcm.sum(1, keepdims=True)
 
-    # ux = sum_i i * px_i (identical to summing i*P over both gray axes,
-    # but reuses the (Nv, Ngp, 1, Na) marginal instead of a second full
-    # pass over the (Nv, Ngp, Ngp, Na) matrix). Same for uy and py.
-    # shape = (Nv, 1, 1, angles)
-    ux = (px[:, :, 0, :] * NgVector[None, :, None]).sum(1)[:, None, None, :]
-    uy = (py[:, 0, :, :] * NgVector[None, :, None]).sum(1)[:, None, None, :]
+    if needed['ux_uy']:
+      # ux = sum_i i * px_i (identical to summing i*P over both gray axes,
+      # but reuses the (Nv, Ngp, 1, Na) marginal instead of a second full
+      # pass over the (Nv, Ngp, Ngp, Na) matrix). Same for uy and py.
+      # shape = (Nv, 1, 1, angles)
+      ux = (px[:, :, 0, :] * NgVector[None, :, None]).sum(1)[:, None, None, :]
+      uy = (py[:, 0, :, :] * NgVector[None, :, None]).sum(1)[:, None, None, :]
 
-    # Vectorised k-sum / k-diff marginals: one scatter over the flattened
-    # (i, j) cells replaces the per-k boolean-mask loops (2*Ng-1 + Ng-1
-    # iterations, each scanning the full (Nv, Ngp, Ngp, Na) matrix).
-    # Identical sums, different reduction order -> last-ulp float differences.
-    nvp = self.P_glcm.shape[0]
-    na = self.P_glcm.shape[3]
-    P_flat = self.P_glcm.reshape(nvp, -1, na)  # (Nv, Ngp*Ngp, Na)
-    # i, j hold gray-level VALUES in [1, Ng], so i+j-2 indexes kValuesSum
-    # and |i-j| indexes kValuesDiff; both are exact small integers.
-    sum_idx = (i + j - 2).reshape(-1).to(torch.long)
-    diff_idx = torch.abs(i - j).reshape(-1).to(torch.long)
-    # shape = (Nv, 2*Ng-1, angles)
-    pxAddy = torch.zeros(nvp, Ng * 2 - 1, na, dtype=self.dtype, device=self.device)
-    pxAddy.index_add_(1, sum_idx, P_flat)
-    # shape = (Nv, Ng, angles)
-    pxSuby = torch.zeros(nvp, Ng, na, dtype=self.dtype, device=self.device)
-    pxSuby.index_add_(1, diff_idx, P_flat)
+    # Diagonal marginals were summed from the raw counts in _calculateMatrix
+    # (reproducible; see _diagonalCounts) and only need the normalisation
+    # that the matrix itself already got.
+    sumP = self._sumP_glcm
+    pxAddy = (
+      self._pxAddy_counts / sumP[:, None, :] if self._pxAddy_counts is not None else None
+    )
+    pxSuby = (
+      self._pxSuby_counts / sumP[:, None, :] if self._pxSuby_counts is not None else None
+    )
+    self._pxAddy_counts = None
+    self._pxSuby_counts = None
 
     # shape = (Nv, angles)
-    HXY = (-1) * torch.sum((self.P_glcm * torch.log2(self.P_glcm + eps)), (1, 2))
+    HXY = None
+    if needed['HXY']:
+      HXY = (-1) * torch.sum((self.P_glcm * torch.log2(self.P_glcm + eps)), (1, 2))
 
     self.coefficients['eps'] = eps
     self.coefficients['i'] = i

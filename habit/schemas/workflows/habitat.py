@@ -777,12 +777,12 @@ class GraphFeatureBlock(BaseModel):
         ),
     )
     include_extended_metrics: bool = Field(
-        False,
+        True,
         description=(
             "Compute extended graph metrics: global/local efficiency, "
             "small-world sigma, rich-club coefficient, and node-level "
-            "distribution summaries. Default false: those metrics dominate "
-            "runtime on large 3D maps. Set true to opt in."
+            "distribution summaries. Default true (analytic Humphries "
+            "ER sigma). Set false to omit the extra columns."
         ),
     )
     extended_min_nodes: int = Field(

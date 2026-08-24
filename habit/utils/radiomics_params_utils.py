@@ -258,10 +258,12 @@ def apply_voxel_glcm_defaults(
                 name for name in glcm_config if name in _UNSAFE_VOXEL_GLCM_FEATURES
             ]
             if unsafe and logger is not None:
-                logger.warning(
-                    "voxel_radiomics: params_file lists GLCM feature(s) %s that are "
-                    "unstable on small kernel neighborhoods (MCC/Imc1/Imc2). "
-                    "Expect CUDA/MKL eigvals errors or NaN unless kernel_radius is large.",
+                # Explicit opt-in: the caller listed Imc1/Imc2/MCC. Do not
+                # warn on every subject -- that floods the progress bar and
+                # looks like a GPU contention error. Debug is enough.
+                logger.debug(
+                    "voxel_radiomics: params list GLCM feature(s) %s that are "
+                    "unstable on small kernel neighborhoods (MCC/Imc1/Imc2).",
                     unsafe,
                 )
         return enabled_features

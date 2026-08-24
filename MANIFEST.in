@@ -3,6 +3,8 @@
 include LICENSE
 include NOTICE
 include CITATION.cff
+# Vendored MIT text must travel with the package, not only in the git tree.
+include habit/kernels/radiomics/torchradiomics/LICENSE
 include README.md
 include README_en.md
 include pyproject.toml

@@ -98,10 +98,9 @@ class GraphHabitatFeaturesParams(BaseModel):
     pairwise_include_intra_edges: bool = True
     #: Compute extended graph metrics: global/local efficiency, small-world
     #: sigma, rich-club coefficient, and node-level distribution summaries.
-    #: Default False: those metrics (especially small-world sigma and
-    #: efficiency) are superlinear in node count and dominate runtime on
-    #: large 3D maps. Pass True to opt in.
-    include_extended_metrics: bool = False
+    #: Default True (analytic Humphries ER sigma; cheap on typical maps).
+    #: Pass False to omit the extra columns.
+    include_extended_metrics: bool = True
     #: Minimum node count in the analysis subgraph required to compute
     #: small-world sigma; smaller graphs return 0 for that metric.
     extended_min_nodes: int = Field(default=10, ge=3)
@@ -139,7 +138,7 @@ class GraphHabitatFeatures:
     metrics are reported per habitat (``single_h*`` columns) and per habitat
     pair (``pair_h*_h*`` columns), covering degree/edge counts, density,
     components, modularity, clustering, path length, betweenness, assortativity,
-    nearest-neighbor ratio, and -- optionally -- efficiency, small-world sigma,
+    nearest-neighbor ratio, and -- by default -- efficiency, small-world sigma,
     rich-club, and node-distribution summaries. Size-dependent features carry
     VOI-normalized companions (``*_norm`` / ``*_per_habitat_volume``).
 
@@ -172,7 +171,7 @@ class GraphHabitatFeatures:
         block_size: int = 8,
         block_min_coverage: float = 0.2,
         pairwise_include_intra_edges: bool = True,
-        include_extended_metrics: bool = False,
+        include_extended_metrics: bool = True,
         extended_min_nodes: int = 10,
         small_world_nrand: int = 100,
         small_world_niter: int = 100,

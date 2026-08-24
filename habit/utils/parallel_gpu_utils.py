@@ -185,7 +185,9 @@ def cap_processes_to_gpu_pool(
     capped = min(requested, gpu_pool_size)
     if capped < requested and log is not None:
         pool_repr = gpu_pool if gpu_pool is not None else f"size={gpu_pool_size}"
-        log.warning(
+        # Informational: this is the intended cap, not a failure. Warning
+        # level made long Torch runs look like GPU contention errors.
+        log.debug(
             "Capping parallel workers %s -> %s to match Torch GPU pool (%s). "
             "Each active worker binds to one GPU slot via gpu_slot_index.",
             requested,

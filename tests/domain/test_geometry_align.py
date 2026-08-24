@@ -86,8 +86,9 @@ def test_align_mask_adopts_geometry_when_shape_matches() -> None:
 
 
 @pytest.mark.unit
-def test_align_mask_physical_resamples_when_shape_differs() -> None:
-    """Different array shapes trigger SimpleITK nearest-neighbour regrid."""
+def test_align_mask_raises_when_shape_differs() -> None:
+    """Different array shapes always raise: auto-resampling across physical
+    extents would silently drop or invent mask voxels."""
     subject = make_subject("P1", shape=(6, 6, 6))
     image = subject.image("T1")
     # Build a smaller mask geometry so shapes disagree.
@@ -97,17 +98,14 @@ def test_align_mask_physical_resamples_when_shape_differs() -> None:
     from habit.contracts.image import MaskVolume
 
     mask = MaskVolume.from_geometry(mask_array, small, roi_name="tumor")
-    aligned = align_mask_to_reference(
-        mask,
-        image,
-        subject_id="P1",
-        roi_name="tumor",
-        reference_label="T1",
-    )
-    assert aligned.geometry.is_compatible_with(image.geometry)
-    assert (aligned.metadata or {})[GEOMETRY_ALIGN_METADATA_KEY]["action"] == (
-        "resample_mask"
-    )
+    with pytest.raises(GeometryError, match="different physical extents"):
+        align_mask_to_reference(
+            mask,
+            image,
+            subject_id="P1",
+            roi_name="tumor",
+            reference_label="T1",
+        )
 
 
 @pytest.mark.unit

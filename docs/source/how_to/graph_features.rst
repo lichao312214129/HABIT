@@ -106,7 +106,12 @@ Or paste the same code the gallery shows::
        modalities=MODALITIES, n_habitats=4, random_seed=0, roi=ROI
    ).fit_predict(cohort)
    labels = result.habitat_maps[0].label_array
-   options = HabitatGraphFeatureOptions(include_extended_metrics=False)
+   options = HabitatGraphFeatureOptions()
+   # Extended metrics (efficiency / Humphries sigma / rich-club) are on
+   # by default. Pass include_extended_metrics=False to omit. Default
+   # small-world null is analytic ER; pass graph_null_sampler='config'
+   # or 'rewire' to replace it (not add a second column). See the
+   # reference page.
    # Full 3D map for features; the 2D network below is display-only.
    feats = extract_graph_features(labels, options=options)
    fig = plot_habitat_graph_slice(
@@ -138,6 +143,26 @@ Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry
 ``HabitatFeatureExtractorRegistry.create("graph", ...)``, and 3D
 :func:`~habit.viz.render_habitat_graph_network_3d` /
 :func:`~habit.viz.render_habitat_graph_surface_3d` (needs ``[view]``).
+
+Small-world :math:`\sigma` and random-graph nulls
+-------------------------------------------------
+
+Formulas, the three nulls, and the papers to cite:
+:doc:`../reference/features/graph` (**Small-worldness and random-graph
+nulls**). Short map:
+
+* ``graph_null_sampler='analytic'`` (default) — Humphries *S* versus
+  an Erdős–Rényi graph with the same :math:`n` and :math:`m`
+  (closed-form :math:`C_{\mathrm{rand}}`, :math:`L_{\mathrm{rand}}`).
+* ``'config'`` — configuration model (keep the degree sequence;
+  stub matching).
+* ``'rewire'`` — Maslov–Sneppen double-edge swaps (NetworkX
+  ``sigma`` / ``random_reference``).
+
+These are alternative **random-graph references**, not three extra
+features. One ``small_world_sigma`` column; changing the sampler
+replaces the number. Habitat maps are spatial: none of the three
+nulls preserve voxel geometry.
 
 Degree-preserving null-model API
 ---------------------------------
@@ -174,7 +199,8 @@ the Z score::
        nx.average_clustering,
        options=GraphNullModelOptions(
            n_random_graphs=200,
-           swaps_per_edge=10,
+           sampler="rewire",
+           swaps_per_edge=100,
            random_seed=42,
        ),
    )

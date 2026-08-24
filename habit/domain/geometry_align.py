@@ -61,6 +61,9 @@ __all__ = [
 _logger = get_module_logger(__name__)
 
 #: Default habitat policy: nearest-neighbour resample mask onto the image grid.
+#: Applies to metadata-only drift (spacing/origin/direction); a shape mismatch
+#: always raises GeometryError because regridding across physical extents
+#: would silently drop or invent mask voxels.
 ON_GEOMETRY_MISMATCH_DEFAULT: str = "resample_mask"
 
 #: Allowed ``on_geometry_mismatch`` values (HabitatSpec / YAML / helpers).
@@ -447,7 +450,9 @@ def align_mask_to_reference(
         under the default policy.
 
     Raises:
-        GeometryError: When geometries differ and policy is ``strict``.
+        GeometryError: When the shapes differ (any policy -- auto-resampling
+            across shapes would silently drop or invent mask voxels), or when
+            metadata-only geometries differ and policy is ``strict``.
         HABITAPIError: When the policy string is unknown.
     """
     policy = coerce_on_geometry_mismatch(on_geometry_mismatch)
@@ -464,6 +469,16 @@ def align_mask_to_reference(
     sid = subject_id or mask.subject_id or "?"
     roi = roi_name or getattr(mask, "roi_name", None) or mask.modality or "?"
     ref = reference_label or "reference"
+
+    if "shape" in geometry_mismatch_fields(target, mask.geometry):
+        raise GeometryError(
+            f"subject {sid!r} ROI {roi!r} and modality {ref!r} cover "
+            f"different physical extents ({detail}). Auto-resampling across "
+            "shapes would silently drop or invent mask voxels, so it is "
+            "never applied automatically. Regrid the mask explicitly "
+            "(resample_mask_to_reference) or fix preprocessing so image "
+            "and mask shapes match."
+        )
 
     if policy == "strict":
         raise GeometryError(

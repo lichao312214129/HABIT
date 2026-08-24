@@ -43,14 +43,12 @@ regardless of atomic ordering on the GPU.
 
 from __future__ import annotations
 
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import torch
 
-from .angles import build_angles
-from ._geom import element_strides as _element_strides
-from ._geom import kernel_offsets as _kernel_offsets
+from ._geom import coords_in_image, flat_index, prepare_centre_grid, window_cells
 
 
 def calculate_glcm(
@@ -92,68 +90,44 @@ def calculate_glcm(
         ``dtype``; ``angles`` has shape ``(Na, Nd)`` and ``dtype`` (matching
         what ``TorchRadiomicsBase.tensor`` would produce from the C output).
     """
-    size = [int(s) for s in image.shape]
-    nd = len(size)
-    f2d_dim = int(force2Ddimension) if force2D else -1
+    grid = prepare_centre_grid(
+        image=image,
+        mask=mask,
+        distances=np.asarray(distances),
+        force2D=force2D,
+        force2Ddimension=force2Ddimension,
+        kernelRadius=kernelRadius,
+        voxelCoordinates=voxelCoordinates,
+        device=device,
+        bidirectional=False,
+    )
+    device = grid.device
+    na = int(grid.angles_t.shape[0])
+    n_matrices = grid.n_matrices
+    n_vox = grid.n_vox
 
-    angles_np = build_angles(size, distances, force2Ddimension=f2d_dim, bidirectional=False)
-    na = angles_np.shape[0]
+    # Accumulate counts in int16: a (Nvox, Ng, Ng, Na) GLCM entry is hit at
+    # most once per kernel offset, far below 2^15 for any realistic radius,
+    # so integer atomics are exact and the largest allocation is halved
+    # against int32. Cast to ``dtype`` once at the end; the values are small
+    # integers, exactly representable in float32/64.
+    p_flat = torch.zeros(n_matrices * Ng * Ng * na, dtype=torch.int16, device=device)
+    angles_out = grid.angles_t.to(dtype=dtype)
+    if n_vox == 0:
+        return p_flat.reshape(n_matrices, Ng, Ng, na).to(dtype=dtype), angles_out
 
-    device = torch.device(device)
-    size_t = torch.as_tensor(size, dtype=torch.long, device=device)
-    strides_t = torch.as_tensor(_element_strides(size), dtype=torch.long, device=device)
-    angles_t = torch.as_tensor(angles_np, dtype=torch.long, device=device)
-
-    # C PyArray_FORCECAST truncates toward zero when casting the (possibly
-    # float) binned image to int; torch.long conversion does the same.
-    img_flat = torch.as_tensor(np.ascontiguousarray(image)).to(device=device, dtype=torch.long).reshape(-1)
-    mask_flat = torch.as_tensor(np.ascontiguousarray(mask), dtype=torch.bool, device=device).reshape(-1)
-
-    if voxelCoordinates is None:
+    cells = window_cells(grid) if grid.voxel_based else None
+    if cells is not None:
+        # A (angle, offset) pair contributes only if the neighbour stays
+        # inside the kernel window, which is exactly where the neighbour is
+        # itself an enumerated offset.
+        pair_a, pair_o = torch.nonzero(cells.neigh_off >= 0, as_tuple=True)
+    else:
         # Segment-based mode: a single matrix; every masked voxel is a centre
         # and the only neighbour constraint is the image bounds.
-        base_coords = torch.nonzero(mask_flat.reshape(tuple(size)), as_tuple=False)
-        matrix_ids = torch.zeros(base_coords.shape[0], dtype=torch.long, device=device)
-        offsets_np = np.zeros((1, nd), dtype=np.int64)
-        # No kernel window: every angle pairs with the single zero offset.
         pair_a = torch.arange(na, dtype=torch.long, device=device)
         pair_o = torch.zeros(na, dtype=torch.long, device=device)
-        n_matrices = 1
-    else:
-        coords = torch.as_tensor(np.ascontiguousarray(voxelCoordinates)).to(
-            device=device, dtype=torch.long
-        )
-        if coords.ndim != 2 or coords.shape[0] != nd:
-            raise ValueError(
-                f"voxelCoordinates must have shape (Nd, Nvox) = ({nd}, N); "
-                f"got {tuple(coords.shape)}"
-            )
-        base_coords = coords.t().contiguous()  # (Nvox, Nd)
-        matrix_ids = torch.arange(base_coords.shape[0], dtype=torch.long, device=device)
-        if kernelRadius <= 0:
-            raise ValueError(f"kernelRadius must be > 0 in voxel-based mode; got {kernelRadius}")
-        offsets_np = _kernel_offsets(nd, int(kernelRadius), f2d_dim)
-        offsets_t = torch.as_tensor(offsets_np, dtype=torch.long, device=device)
-        # A (angle, offset) pair can contribute only if the neighbour stays
-        # inside the kernel window: |offset + angle| <= radius per dimension.
-        neighbour_in_window = (
-            (offsets_t[None, :, :] + angles_t[:, None, :]).abs() <= int(kernelRadius)
-        ).all(dim=2)  # (Na, No)
-        pair_a, pair_o = torch.nonzero(neighbour_in_window, as_tuple=True)
-        n_matrices = base_coords.shape[0]
 
-    offsets_t = torch.as_tensor(offsets_np, dtype=torch.long, device=device)
-
-    # Accumulate counts in int16: per-entry counts are bounded by the number
-    # of angles (<= 26 < 2^15), integer atomics are exact and use a quarter
-    # of the memory traffic of float64. Cast to ``dtype`` once at the end;
-    # the values are small integers, exactly representable in float32/64.
-    # Accumulate counts in int16: a (Nvox, Ng, Ng, Na) GLCM entry can be
-    # hit at most Na times (once per angle), and Na <= 26 < 2^15, so int16
-    # is exact and halves the largest allocation vs int32. Cast to ``dtype``
-    # once at the end.
-    p_flat = torch.zeros(n_matrices * Ng * Ng * na, dtype=torch.int16, device=device)
-    n_vox = base_coords.shape[0]
     n_pairs = int(pair_a.shape[0])
     chunk = max(1, int(max_chunk_elems) // max(1, n_vox))
 
@@ -161,48 +135,43 @@ def calculate_glcm(
         a_c = pair_a[start : start + chunk]  # (Kc,) angle index per pair
         o_c = pair_o[start : start + chunk]  # (Kc,) kernel-offset index per pair
 
-        # Centres and neighbours for every (pair, voxel) combination.
-        centres = base_coords[None, :, :] + offsets_t[o_c][:, None, :]  # (Kc, Nvox, Nd)
-        neighbours = centres + angles_t[a_c][:, None, :]  # (Kc, Nvox, Nd)
-
-        # Both voxels must lie inside the image (the per-voxel kernel window
-        # is the image-clipped [-r, r]^Nd box, so bounds checks here implement
-        # the same clipping as the C bb handling).
-        valid = (
-            (centres >= 0).all(dim=2)
-            & (centres < size_t).all(dim=2)
-            & (neighbours >= 0).all(dim=2)
-            & (neighbours < size_t).all(dim=2)
-        )
-        if not bool(valid.any()):
-            continue
-
-        centre_flat = (centres * strides_t).sum(dim=2)  # (Kc, Nvox)
-        neighbour_flat = (neighbours * strides_t).sum(dim=2)
-        # Out-of-bounds coordinates produce out-of-range (or silently
-        # negative-wrapping) flat indices; clamp them — the gathered values
-        # at those positions are don't-care because ``valid`` drops them.
-        n_elements = mask_flat.shape[0]
-        centre_flat.clamp_(0, n_elements - 1)
-        neighbour_flat.clamp_(0, n_elements - 1)
-
-        # Both voxels must be part of the ROI (mask[i] and mask[j] in C).
-        valid = valid & mask_flat[centre_flat] & mask_flat[neighbour_flat]
-        if not bool(valid.any()):
-            continue
-
-        # Gray levels are guaranteed in [1, Ng] on masked voxels; the clamp
-        # only sanitises don't-care values at invalid (unmasked) positions.
-        gi = (img_flat[centre_flat] - 1).clamp_(0, Ng - 1)
-        gj = (img_flat[neighbour_flat] - 1).clamp_(0, Ng - 1)
+        if cells is not None:
+            o2 = cells.neigh_off[a_c, o_c]  # (Kc,), all >= 0 by construction
+            valid = cells.cell_valid[o_c] & cells.cell_valid[o2]  # (Kc, Nvox)
+            gi = (cells.cell_gray[o_c].to(torch.int64) - 1).clamp_(0, Ng - 1)
+            gj = (cells.cell_gray[o2].to(torch.int64) - 1).clamp_(0, Ng - 1)
+        else:
+            # Centres and neighbours for every (pair, voxel) combination.
+            centres = grid.base_coords[None, :, :] + grid.offsets_t[o_c][:, None, :]
+            neighbours = centres + grid.angles_t[a_c][:, None, :]  # (Kc, Nvox, Nd)
+            # Both voxels must lie inside the image (the per-voxel kernel
+            # window is the image-clipped [-r, r]^Nd box, so bounds checks
+            # here implement the same clipping as the C bb handling).
+            valid = coords_in_image(centres, grid.size_t) & coords_in_image(
+                neighbours, grid.size_t
+            )
+            # Out-of-bounds coordinates produce out-of-range flat indices;
+            # ``flat_index`` clamps them -- the gathered values at those
+            # positions are don't-care because ``valid`` drops them.
+            centre_flat = flat_index(centres, grid.strides_t, grid.n_elements)
+            neighbour_flat = flat_index(neighbours, grid.strides_t, grid.n_elements)
+            # Both voxels must be part of the ROI (mask[i] and mask[j] in C).
+            valid = (
+                valid
+                & grid.mask_flat[centre_flat]
+                & grid.mask_flat[neighbour_flat]
+            )
+            # Gray levels are in [1, Ng] on masked voxels; the clamp only
+            # sanitises don't-care values at invalid positions.
+            gi = (grid.img_flat[centre_flat] - 1).clamp_(0, Ng - 1)
+            gj = (grid.img_flat[neighbour_flat] - 1).clamp_(0, Ng - 1)
 
         # C-order flat index of element [v, i, j, a] in (Nmat, Ng, Ng, Na).
-        flat_idx = ((matrix_ids[None, :] * Ng + gi) * Ng + gj) * na + a_c[:, None]
+        flat_idx = ((grid.matrix_ids[None, :] * Ng + gi) * Ng + gj) * na + a_c[:, None]
         selected = flat_idx[valid]
         p_flat.index_add_(
             0, selected, torch.ones(selected.numel(), dtype=torch.int16, device=device)
         )
 
     p_glcm = p_flat.reshape(n_matrices, Ng, Ng, na).to(dtype=dtype)
-    angles_out = angles_t.to(dtype=dtype)
     return p_glcm, angles_out

@@ -46,7 +46,7 @@ cohort = make_synthetic_cohort(
 )
 # Same options object for Spec("graph") and the 2D Report atoms.
 # 2D PNGs are a representative slice (display-only); metrics use the 3D volume.
-# include_extended_metrics=False keeps this smoke demo fast.
+# Library default leaves extended metrics off (keeps this smoke demo fast).
 graph = HabitatGraphFeatureOptions(
     edge_method="min_distance",
     block_size=8,
