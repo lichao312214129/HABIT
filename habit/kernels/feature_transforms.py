@@ -70,6 +70,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 __all__ = [
     "IMPUTE_STRATEGIES",
@@ -88,6 +89,7 @@ __all__ = [
     "fit_winsorize",
     "fit_zscore",
     "select_correlation_columns",
+    "select_precise_correlation_columns",
     "select_variance_columns",
 ]
 
@@ -746,3 +748,58 @@ def select_correlation_columns(
     if not kept:
         kept = [block.columns[0]]
     return [str(column) for column in kept]
+
+
+def select_precise_correlation_columns(
+    block: pd.DataFrame,
+    corr_threshold: float = 0.7,
+    p_threshold: float = 0.05,
+) -> List[str]:
+    """
+    Drop columns the way Prior 2024 ``filtering()`` does.
+
+    Their published habitat code (radiomicsgroup/precise-habitats
+    ``habitat_computation.py``) computes Spearman on the baseline matrix
+    only, then drops a column when it has *signed* r above ``corr_threshold``
+    and p below ``p_threshold`` with any *later* column. The later column is
+    kept. Negative correlations are not dropped. Paper text said r >= 0.7
+    and P < .001; the runnable code used r > 0.7 and P < 0.05. Defaults
+    follow the code.
+
+    Args:
+        block: Rows = voxels (or pooled units), columns = features.
+        corr_threshold: Drop when Spearman r is strictly greater than this.
+        p_threshold: Drop only when the Spearman p-value is below this.
+
+    Returns:
+        Surviving column names, original order. If the rule would empty
+        the block, the last input column is kept so clustering still has
+        a feature.
+    """
+    columns: List[str] = [str(column) for column in block.columns]
+    n_features: int = len(columns)
+    if n_features <= 1:
+        return columns
+
+    values: np.ndarray = np.asarray(block, dtype=float)
+    corr_raw, p_raw = stats.spearmanr(values, axis=0)
+    corr_matrix: np.ndarray = np.atleast_2d(np.asarray(corr_raw, dtype=float))
+    p_matrix: np.ndarray = np.atleast_2d(np.asarray(p_raw, dtype=float))
+    if corr_matrix.shape != (n_features, n_features):
+        raise ValueError(
+            "select_precise_correlation_columns: Spearman matrix shape "
+            f"{corr_matrix.shape} does not match n_features={n_features}."
+        )
+
+    # Same masks as Prior: upper triangle (k=1) AND significant p.
+    upper: np.ndarray = np.triu(np.ones_like(corr_matrix), k=1).astype(bool)
+    combined: np.ndarray = upper & (p_matrix < float(p_threshold))
+    to_drop: List[str] = [
+        columns[j]
+        for j in range(n_features)
+        if bool(np.any(combined[j] & (corr_matrix[:, j] > float(corr_threshold))))
+    ]
+    kept: List[str] = [name for name in columns if name not in to_drop]
+    if not kept:
+        kept = [columns[-1]]
+    return kept

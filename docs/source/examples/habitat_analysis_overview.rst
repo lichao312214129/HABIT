@@ -109,6 +109,21 @@ Shipping the model without the matching procedure (or changing upstream
 stages silently) is how labels look plausible but are wrong. See
 :doc:`apply_saved_model` and :doc:`habitat_custom_pipeline`.
 
+Matching ids after independent clustering
+-----------------------------------------
+
+One-step (and any per-subject ``fit_predict``) emits **permuted**
+integers. Two matchers, one order:
+
+* Observers of the **same** tumour: overlap
+  (:func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`).
+* **Different** patients: unscaled texture means, one cohort z-score,
+  Hungarian
+  (:func:`~habit.kernels.habitat_label_match.match_labels_by_features`).
+  Atlas-match physician 2 only; other observers inherit that map.
+
+Runnable numbers and figure: :doc:`habitat_label_match`.
+
 Reading order
 -------------
 

@@ -97,6 +97,7 @@ _V1_BUILTINS = {
         "log",
         "variance_filter",
         "correlation_filter",
+        "precise_correlation_filter",
     },
     "feature_selector": {
         "variance",

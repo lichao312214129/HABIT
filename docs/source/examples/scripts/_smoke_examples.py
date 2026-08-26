@@ -24,6 +24,7 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 LIGHTWEIGHT = (
     "data_from_arrays_demo.py",
     "habitat_atomic_ops_demo.py",
+    "habitat_label_match_demo.py",
     "habitat_custom_pipeline_demo.py",
     "provenance_methods_demo.py",
     "plugin_entry_points_demo.py",

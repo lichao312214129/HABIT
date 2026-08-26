@@ -144,30 +144,7 @@ sv_build_chessboard_neighbors(int ndim, int force2D, int force2Ddimension,
     return n;
 }
 
-/*
- * Return 1 when (z, y, x) is the first voxel of a GLRLM run for ``lbl``
- * along angle (dz, dy, dx).
- *
- * A run starts when the previous voxel is outside the volume **or** belongs
- * to a different label. Starting only on the volume faces is wrong after a
- * union-bbox crop: padDistance fills the faces with background, every
- * supervoxel sits in the interior, and the GLRLM (and ShortRunEmphasis)
- * become all-zero / all-NaN.
- */
-static int
-sv_glrlm_is_run_start(int z, int y, int x,
-                      int sz, int sy, int sx,
-                      int dz, int dy, int dx,
-                      const int *sv_map, int lbl)
-{
-    int pz = z - dz;
-    int py = y - dy;
-    int px = x - dx;
-    if (pz < 0 || pz >= sz || py < 0 || py >= sy || px < 0 || px >= sx)
-        return 1;
-    return sv_map[pz * sy * sx + py * sx + px] != lbl;
-}
-
+/* Increment P[label, gray, run_length, angle]. ``rl`` is 0-based (length-1). */
 static void
 sv_glrlm_record_run(long long *P, int li, int Ng, int Nr, int n_angles,
                     int ai, int gl, int rl)
@@ -259,44 +236,55 @@ sv_generate_angles_bidirectional(int *size, int ndim, int force2D, int force2Ddi
 /* ── GLCM ────────────────────────────────────────────────────────────── */
 
 /*
- * Accumulate GLCM counts for one z-slice into ``P``.
- * Thread-safe when each thread writes a private ``P`` buffer.
+ * Accumulate GLCM counts for one angle into the shared ``P``.
+ *
+ * Parallelising over angles (not z) is required for memory: a thread-local
+ * copy of P is ``n_labels * Ng * Ng * n_angles`` long longs (often >100 MB
+ * per thread). Each angle writes a distinct last index of P, so there is
+ * no data race and no reduction. Neighbor bounds are hoisted so OOB voxels
+ * are not visited. Counts are identical to a serial full-volume walk.
  */
 static void
-sv_glcm_accumulate_z(long long *P, int *image, int *sv_map,
-                     int z, int sz, int sy, int sx,
-                     int max_label, int *label_to_idx,
-                     int *distances, int n_distances,
-                     int *angles, int n_angles, int Ng)
+sv_glcm_accumulate_angle(long long *P, const int *image, const int *sv_map,
+                         int sz, int sy, int sx,
+                         int max_label, const int *label_to_idx,
+                         const int *distances, int n_distances,
+                         const int *angles, int n_angles, int ai, int Ng)
 {
-    for (int y = 0; y < sy; y++) {
-        for (int x = 0; x < sx; x++) {
-            int idx = z * sy * sx + y * sx + x;
-            int lbl = sv_map[idx];
-            if (lbl <= 0 || lbl > max_label) continue;
-            int li = label_to_idx[lbl];
-            if (li < 0) continue;
-
-            int gi = image[idx];
-            if (gi <= 0 || gi > Ng) continue;
-
-            for (int di = 0; di < n_distances; di++) {
-                int dist = distances[di];
-                for (int ai = 0; ai < n_angles; ai++) {
-                    int dz = angles[ai * 3] * dist;
-                    int dy = angles[ai * 3 + 1] * dist;
-                    int dx = angles[ai * 3 + 2] * dist;
-
-                    int nz = z + dz, ny = y + dy, nx = x + dx;
-                    if (nz < 0 || nz >= sz || ny < 0 || ny >= sy || nx < 0 || nx >= sx)
+    for (int di = 0; di < n_distances; di++) {
+        int dist = distances[di];
+        int adz = angles[ai * 3] * dist;
+        int ady = angles[ai * 3 + 1] * dist;
+        int adx = angles[ai * 3 + 2] * dist;
+        int z0 = (adz >= 0) ? 0 : -adz;
+        int z1 = (adz <= 0) ? sz : sz - adz;
+        int y0 = (ady >= 0) ? 0 : -ady;
+        int y1 = (ady <= 0) ? sy : sy - ady;
+        int x0 = (adx >= 0) ? 0 : -adx;
+        int x1 = (adx <= 0) ? sx : sx - adx;
+        for (int z = z0; z < z1; z++) {
+            int nz = z + adz;
+            for (int y = y0; y < y1; y++) {
+                int ny = y + ady;
+                int row = z * sy * sx + y * sx;
+                int nrow = nz * sy * sx + ny * sx;
+                for (int x = x0; x < x1; x++) {
+                    int idx = row + x;
+                    int lbl = sv_map[idx];
+                    if (lbl <= 0 || lbl > max_label)
                         continue;
-
-                    int nidx = nz * sy * sx + ny * sx + nx;
-                    if (sv_map[nidx] != lbl) continue;
-
+                    int li = label_to_idx[lbl];
+                    if (li < 0)
+                        continue;
+                    int nidx = nrow + x + adx;
+                    if (sv_map[nidx] != lbl)
+                        continue;
+                    int gi = image[idx];
+                    if (gi <= 0 || gi > Ng)
+                        continue;
                     int gj = image[nidx];
-                    if (gj <= 0 || gj > Ng) continue;
-
+                    if (gj <= 0 || gj > Ng)
+                        continue;
                     P[((li * Ng + (gi - 1)) * Ng + (gj - 1)) * n_angles + ai]++;
                 }
             }
@@ -325,51 +313,20 @@ sv_calculate_glcm(int *image, int *sv_map, int *size, int ndim,
     int sy = (ndim >= 2) ? size[ndim - 2] : 1;
     int sx = size[ndim - 1];
 
+    /* One shared P: each angle writes a distinct last index. */
     sv_omp_apply_thread_limit();
-
-#ifdef _OPENMP
-    /* Thread-local P then reduce: avoids a data race on P[li, gi, gj, ai]++
-     * and keeps integer totals identical to the serial walk. */
     {
-        int omp_failed = 0;
-        #pragma omp parallel
-        {
-            long long *local = (long long *)calloc(p_len, sizeof(long long));
-            if (local == NULL) {
-                #pragma omp atomic write
-                omp_failed = 1;
-            } else {
-                #pragma omp for schedule(static)
-                for (int z = 0; z < sz; z++) {
-                    sv_glcm_accumulate_z(
-                        local, image, sv_map, z, sz, sy, sx,
-                        max_label, label_to_idx, distances, n_distances,
-                        angles, n_angles, Ng);
-                }
-                #pragma omp critical
-                sv_add_ll_into(P, local, p_len);
-                free(local);
-            }
-        }
-        if (omp_failed) {
-            /* A thread could not allocate; recompute serially so counts stay complete. */
-            memset(P, 0, p_len * sizeof(long long));
-            for (int z = 0; z < sz; z++) {
-                sv_glcm_accumulate_z(
-                    P, image, sv_map, z, sz, sy, sx,
-                    max_label, label_to_idx, distances, n_distances,
-                    angles, n_angles, Ng);
-            }
-        }
-    }
-#else
-    for (int z = 0; z < sz; z++) {
-        sv_glcm_accumulate_z(
-            P, image, sv_map, z, sz, sy, sx,
-            max_label, label_to_idx, distances, n_distances,
-            angles, n_angles, Ng);
-    }
+        int ai;
+#ifdef _OPENMP
+        #pragma omp parallel for schedule(static)
 #endif
+        for (ai = 0; ai < n_angles; ai++) {
+            sv_glcm_accumulate_angle(
+                P, image, sv_map, sz, sy, sx,
+                max_label, label_to_idx, distances, n_distances,
+                angles, n_angles, ai, Ng);
+        }
+    }
 
     *P_glcm_out = P;
     *angles_out = angles;
@@ -407,85 +364,113 @@ sv_calculate_glrlm(int *image, int *sv_map, int *size, int ndim,
     int sy = (ndim >= 2) ? size[ndim - 2] : 1;
     int sx = size[ndim - 1];
 
-    /* Parallelize over angles: each ``ai`` writes a distinct last index of P
-     * and of multi_element, so there is no shared increment. */
+    /* PyRadiomics ``calculate_glrlm`` starts each line on the incoming
+     * bounding-box face and walks it once. Mask holes end a run but the
+     * walk continues, so a later island is not double-counted. Starting
+     * a new walk at every "previous voxel is another label" site would
+     * re-walk that line and inflate GLRLM versus execute(). */
     sv_omp_apply_thread_limit();
 #ifdef _OPENMP
-    #pragma omp parallel for schedule(static)
+#pragma omp parallel
 #endif
-    for (int ai = 0; ai < n_angles; ai++) {
-        int dz = angles[ai * 3];
-        int dy = angles[ai * 3 + 1];
-        int dx = angles[ai * 3 + 2];
+    {
+        int *elements_line = (int *)calloc((size_t)n_labels, sizeof(int));
+        int ai;
+#ifdef _OPENMP
+        #pragma omp for schedule(static)
+#endif
+        for (ai = 0; ai < n_angles; ai++) {
+            int dz = angles[ai * 3];
+            int dy = angles[ai * 3 + 1];
+            int dx = angles[ai * 3 + 2];
+            if (!elements_line)
+                continue;
 
-        for (int z = 0; z < sz; z++) {
-            for (int y = 0; y < sy; y++) {
-                for (int x = 0; x < sx; x++) {
-                    int idx = z * sy * sx + y * sx + x;
-                    int lbl = sv_map[idx];
-                    if (lbl <= 0 || lbl > max_label)
-                        continue;
-                    int li = label_to_idx[lbl];
-                    if (li < 0)
-                        continue;
-                    if (!sv_glrlm_is_run_start(z, y, x, sz, sy, sx, dz, dy, dx,
-                                               sv_map, lbl))
-                        continue;
+            for (int z = 0; z < sz; z++) {
+                for (int y = 0; y < sy; y++) {
+                    for (int x = 0; x < sx; x++) {
+                        int pz = z - dz;
+                        int py = y - dy;
+                        int px = x - dx;
+                        /* Incoming face only: one walk per discrete line. */
+                        if (pz >= 0 && pz < sz && py >= 0 && py < sy &&
+                            px >= 0 && px < sx)
+                            continue;
 
-                    int cz = z, cy = y, cx = x;
-                    int gl = -1;
-                    int rl = 0;
-                    int elements = 0;
+                        memset(elements_line, 0, (size_t)n_labels * sizeof(int));
+                        int cz = z, cy = y, cx = x;
+                        int cur_li = -1;
+                        int gl = -1;
+                        int rl = 0;
 
-                    /* PyRadiomics-style ray march: collect runs of constant gray level
-                     * within the same supervoxel label along this angle. */
-                    for (;;) {
-                        if (cz < 0 || cz >= sz || cy < 0 || cy >= sy || cx < 0 || cx >= sx)
-                            break;
+                        for (;;) {
+                            if (cz < 0 || cz >= sz || cy < 0 || cy >= sy ||
+                                cx < 0 || cx >= sx)
+                                break;
 
-                        int cidx = cz * sy * sx + cy * sx + cx;
-                        int in_label = (sv_map[cidx] == lbl);
-                        int gi = image[cidx];
+                            int cidx = cz * sy * sx + cy * sx + cx;
+                            int lbl = sv_map[cidx];
+                            int li = -1;
+                            int gi = image[cidx];
+                            int in_roi = 0;
+                            if (lbl > 0 && lbl <= max_label) {
+                                li = label_to_idx[lbl];
+                                in_roi = (li >= 0 && gi > 0 && gi <= Ng);
+                            }
 
-                        if (in_label && gi > 0 && gi <= Ng) {
-                            elements++;
-                            if (gl < 0) {
-                                gl = gi;
-                                rl = 0;
-                            } else if (gi == gl) {
-                                rl++;
-                            } else {
-                                sv_glrlm_record_run(P, li, Ng, Nr, n_angles, ai, gl, rl);
-                                gl = gi;
+                            if (in_roi) {
+                                elements_line[li]++;
+                                if (cur_li != li) {
+                                    if (gl >= 0 && cur_li >= 0)
+                                        sv_glrlm_record_run(
+                                            P, cur_li, Ng, Nr, n_angles, ai, gl, rl
+                                        );
+                                    cur_li = li;
+                                    gl = gi;
+                                    rl = 0;
+                                } else if (gi == gl) {
+                                    rl++;
+                                } else {
+                                    sv_glrlm_record_run(
+                                        P, cur_li, Ng, Nr, n_angles, ai, gl, rl
+                                    );
+                                    gl = gi;
+                                    rl = 0;
+                                }
+                            } else if (gl >= 0 && cur_li >= 0) {
+                                sv_glrlm_record_run(
+                                    P, cur_li, Ng, Nr, n_angles, ai, gl, rl
+                                );
+                                cur_li = -1;
+                                gl = -1;
                                 rl = 0;
                             }
-                        } else if (gl >= 0) {
-                            sv_glrlm_record_run(P, li, Ng, Nr, n_angles, ai, gl, rl);
-                            gl = -1;
-                            rl = 0;
+
+                            cz += dz;
+                            cy += dy;
+                            cx += dx;
                         }
 
-                        cz += dz;
-                        cy += dy;
-                        cx += dx;
+                        if (gl >= 0 && cur_li >= 0)
+                            sv_glrlm_record_run(
+                                P, cur_li, Ng, Nr, n_angles, ai, gl, rl
+                            );
+                        for (int li = 0; li < n_labels; li++) {
+                            if (elements_line[li] > 1)
+                                multi_element[li * n_angles + ai] = 1;
+                        }
                     }
-
-                    if (gl >= 0)
-                        sv_glrlm_record_run(P, li, Ng, Nr, n_angles, ai, gl, rl);
-
-                    if (elements > 1)
-                        multi_element[li * n_angles + ai] = 1;
                 }
             }
-        }
 
-        /* Remove angle columns that are degenerate for a label (2D segmentation). */
-        for (int li = 0; li < n_labels; li++) {
-            if (multi_element[li * n_angles + ai])
-                continue;
-            for (int gi = 0; gi < Ng; gi++)
-                P[((li * Ng + gi) * Nr + 0) * n_angles + ai] = 0;
+            for (int li = 0; li < n_labels; li++) {
+                if (multi_element[li * n_angles + ai])
+                    continue;
+                for (int gi = 0; gi < Ng; gi++)
+                    P[((li * Ng + gi) * Nr + 0) * n_angles + ai] = 0;
+            }
         }
+        free(elements_line);
     }
 
     free(multi_element);
@@ -642,11 +627,12 @@ sv_calculate_glszm(int *image, int *sv_map, int *size, int ndim,
     {
         char *local_mask = (char *)malloc(ni * sizeof(char));
         if (local_mask == NULL) {
-            #pragma omp atomic write
-            failed = 1;
+            #pragma omp atomic
+            failed += 1;
         } else {
+            int li;
             #pragma omp for schedule(static)
-            for (int li = 0; li < n_labels; li++) {
+            for (li = 0; li < n_labels; li++) {
                 int lbl = labels[li];
                 for (size_t i = 0; i < ni; i++)
                     local_mask[i] = (sv_map[i] == lbl) ? 1 : 0;
@@ -654,8 +640,8 @@ sv_calculate_glszm(int *image, int *sv_map, int *size, int ndim,
                     image, local_mask, size, strides, ndim, ni, angles, n_angles, Ng,
                     NULL, 0);
                 if (label_max_zone < 0) {
-                    #pragma omp atomic write
-                    failed = 1;
+                    #pragma omp atomic
+                    failed += 1;
                 } else {
                     label_max_zones[li] = label_max_zone;
                 }
@@ -710,11 +696,12 @@ sv_calculate_glszm(int *image, int *sv_map, int *size, int ndim,
     {
         char *local_mask = (char *)malloc(ni * sizeof(char));
         if (local_mask == NULL) {
-            #pragma omp atomic write
-            failed = 1;
+            #pragma omp atomic
+            failed += 1;
         } else {
+            int li;
             #pragma omp for schedule(static)
-            for (int li = 0; li < n_labels; li++) {
+            for (li = 0; li < n_labels; li++) {
                 int lbl = labels[li];
                 for (size_t i = 0; i < ni; i++)
                     local_mask[i] = (sv_map[i] == lbl) ? 1 : 0;
@@ -722,8 +709,8 @@ sv_calculate_glszm(int *image, int *sv_map, int *size, int ndim,
                     image, local_mask, size, strides, ndim, ni, angles, n_angles, Ng,
                     final_P + (size_t)li * (size_t)Ng * (size_t)max_zone, max_zone);
                 if (label_max_zone < 0) {
-                    #pragma omp atomic write
-                    failed = 1;
+                    #pragma omp atomic
+                    failed += 1;
                 }
             }
             free(local_mask);
@@ -855,11 +842,12 @@ sv_calculate_ngtdm(int *image, int *sv_map, int *size, int ndim,
         {
             double *local = (double *)calloc(p_len, sizeof(double));
             if (local == NULL) {
-                #pragma omp atomic write
-                omp_failed = 1;
+                #pragma omp atomic
+                omp_failed += 1;
             } else {
+                int z;
                 #pragma omp for schedule(static)
-                for (int z = 0; z < sz; z++) {
+                for (z = 0; z < sz; z++) {
                     sv_ngtdm_accumulate_z(
                         local, image, sv_map, z, sz, sy, sx,
                         max_label, label_to_idx, distances, n_distances,
@@ -987,11 +975,12 @@ sv_calculate_gldm(int *image, int *sv_map, int *size, int ndim,
         {
             long long *local = (long long *)calloc(p_len, sizeof(long long));
             if (local == NULL) {
-                #pragma omp atomic write
-                omp_failed = 1;
+                #pragma omp atomic
+                omp_failed += 1;
             } else {
+                int z;
                 #pragma omp for schedule(static)
-                for (int z = 0; z < sz; z++) {
+                for (z = 0; z < sz; z++) {
                     sv_gldm_accumulate_z(
                         local, image, sv_map, z, sz, sy, sx,
                         max_label, label_to_idx, distances, n_distances,
@@ -1095,10 +1084,12 @@ sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
     /* Voxel collection stays serial (per-label realloc). Stats over labels
      * are independent: each ``li`` writes a distinct ``stats`` slice. */
     sv_omp_apply_thread_limit();
+    {
+    int li;
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static)
 #endif
-    for (int li = 0; li < n_labels; li++) {
+    for (li = 0; li < n_labels; li++) {
         int n = counts[li];
         double *base = stats + li * N_FIRSTORDER_STATS;
 
@@ -1212,6 +1203,7 @@ sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
         base[15] = kurtosis;
         base[16] = uniformity;
     }
+    }
 
     for (int i = 0; i < n_labels; i++) free(sorted[i]);
     free(sorted); free(sorted_cap); free(sorted_len);
@@ -1222,10 +1214,15 @@ sv_calculate_firstorder(double *image, int *sv_map, int *size, int ndim,
     return 0;
 }
 
-/* ── GLCM formulas (all default features except MCC) ─────────────────── */
+/* ── GLCM formulas (24 default features; MCC is last) ─────────────── */
 
-#define N_GLCM_FORMULA_FEATURES 23
+#define N_GLCM_FORMULA_FEATURES 24
 #define SV_GLCM_EPS 2.220446049250313e-16
+
+static double sv_second_eig_symmetric(double *A, int n, double *d, double *e);
+static double sv_mcc_from_norm_glcm(const double *S, const double *px, int Ng,
+                                    double *Q, double *inv_px, double *inv_py,
+                                    int *used);
 
 int
 sv_glcm_formulas(const double *P, int n_labels, int Ng, int n_angles,
@@ -1237,10 +1234,16 @@ sv_glcm_formulas(const double *P, int n_labels, int Ng, int n_angles,
         return -1;
     }
     double *out = (double *)malloc((size_t)n_labels * N_GLCM_FORMULA_FEATURES * sizeof(double));
-    if (!out) {
+    size_t n_va_feat = (size_t)n_labels * (size_t)n_angles * N_GLCM_FORMULA_FEATURES;
+    double *ang_feat = (double *)malloc(n_va_feat * sizeof(double));
+    if (!out || !ang_feat) {
+        free(out);
+        free(ang_feat);
         PyErr_NoMemory();
         return -1;
     }
+    for (size_t i = 0; i < n_va_feat; i++)
+        ang_feat[i] = NAN;
 
     sv_omp_apply_thread_limit();
 #ifdef _OPENMP
@@ -1248,34 +1251,35 @@ sv_glcm_formulas(const double *P, int n_labels, int Ng, int n_angles,
 #endif
     {
         double *S = (double *)malloc((size_t)Ng * (size_t)Ng * sizeof(double));
+        double *Q = (double *)malloc((size_t)Ng * (size_t)Ng * sizeof(double));
         double *px = (double *)malloc((size_t)Ng * sizeof(double));
         double *py = (double *)malloc((size_t)Ng * sizeof(double));
         double *px_sub = (double *)malloc((size_t)Ng * sizeof(double));
         double *px_add = (double *)malloc((size_t)(2 * Ng - 1) * sizeof(double));
-        if (!S || !px || !py || !px_sub || !px_add) {
+        double *inv_px = (double *)malloc((size_t)Ng * sizeof(double));
+        double *inv_py = (double *)malloc((size_t)Ng * sizeof(double));
+        int *used = (int *)malloc((size_t)Ng * sizeof(int));
+        if (!S || !Q || !px || !py || !px_sub || !px_add || !inv_px || !inv_py || !used) {
 #ifdef _OPENMP
             #pragma omp critical
 #endif
             {
                 PyErr_NoMemory();
             }
-            free(S); free(px); free(py); free(px_sub); free(px_add);
+            free(S); free(Q); free(px); free(py); free(px_sub); free(px_add);
+            free(inv_px); free(inv_py); free(used);
         } else {
+            int va;
 #ifdef _OPENMP
             #pragma omp for schedule(static)
 #endif
-            for (int v = 0; v < n_labels; v++) {
-                double acc[N_GLCM_FORMULA_FEATURES];
-                int cnt[N_GLCM_FORMULA_FEATURES];
-                for (int f = 0; f < N_GLCM_FORMULA_FEATURES; f++) {
-                    acc[f] = 0.0;
-                    cnt[f] = 0;
-                }
+            for (va = 0; va < n_labels * n_angles; va++) {
+                int v = va / n_angles;
+                int a = va % n_angles;
                 double ng_scale = (ng_full != NULL) ? ng_full[v] : (double)Ng;
                 if (ng_scale <= 0.0)
                     ng_scale = (double)Ng;
-
-                for (int a = 0; a < n_angles; a++) {
+                {
                     double sum = 0.0;
                     for (int i = 0; i < Ng; i++) {
                         for (int j = 0; j < Ng; j++) {
@@ -1395,31 +1399,48 @@ sv_glcm_formulas(const double *P, int n_labels, int Ng, int n_angles,
                             imc2 = sqrt(inner);
                     }
 
+                    /* Reuse the already-normalised S and px; do not walk P again. */
+                    double mcc_ang = sv_mcc_from_norm_glcm(
+                        S, px, Ng, Q, inv_px, inv_py, used);
                     double vals[N_GLCM_FORMULA_FEATURES] = {
                         ac, ux, cp, cs, ct, contrast, corr,
                         da, dent, dvar, joint_energy, hxy, imc1, imc2,
-                        idm, idmn, id, idn, inv, maxprob, savg, sent, sumsq
+                        idm, idmn, id, idn, inv, maxprob, savg, sent, sumsq,
+                        mcc_ang
                     };
-                    for (int f = 0; f < N_GLCM_FORMULA_FEATURES; f++) {
-                        if (vals[f] == vals[f]) {
-                            acc[f] += vals[f];
-                            cnt[f] += 1;
-                        }
-                    }
+                    double *slot = ang_feat
+                        + ((size_t)v * n_angles + (size_t)a) * N_GLCM_FORMULA_FEATURES;
+                    for (int f = 0; f < N_GLCM_FORMULA_FEATURES; f++)
+                        slot[f] = vals[f];
                 }
-
-                double *row = out + (size_t)v * N_GLCM_FORMULA_FEATURES;
-                for (int f = 0; f < N_GLCM_FORMULA_FEATURES; f++)
-                    row[f] = (cnt[f] > 0) ? (acc[f] / (double)cnt[f]) : NAN;
             }
-            free(S); free(px); free(py); free(px_sub); free(px_add);
+            free(S); free(Q); free(px); free(py); free(px_sub); free(px_add);
+            free(inv_px); free(inv_py); free(used);
         }
     }
 
     if (PyErr_Occurred()) {
         free(out);
+        free(ang_feat);
         return -1;
     }
+    for (int v = 0; v < n_labels; v++) {
+        double *row = out + (size_t)v * N_GLCM_FORMULA_FEATURES;
+        for (int f = 0; f < N_GLCM_FORMULA_FEATURES; f++) {
+            double acc = 0.0;
+            int cnt = 0;
+            for (int a = 0; a < n_angles; a++) {
+                double val = ang_feat[
+                    ((size_t)v * n_angles + (size_t)a) * N_GLCM_FORMULA_FEATURES + (size_t)f];
+                if (val == val) {
+                    acc += val;
+                    cnt += 1;
+                }
+            }
+            row[f] = (cnt > 0) ? (acc / (double)cnt) : NAN;
+        }
+    }
+    free(ang_feat);
     *out_features = out;
     *n_features_out = N_GLCM_FORMULA_FEATURES;
     return 0;
@@ -1427,67 +1448,163 @@ sv_glcm_formulas(const double *P, int n_labels, int Ng, int n_angles,
 
 /* ── GLCM MCC (explicit Q + cyclic Jacobi, OpenMP over label×angle) ── */
 
-#define SV_MCC_JACOBI_SWEEPS 24
-#define SV_MCC_JACOBI_TOL 1e-12
+#define SV_QL_MAX_ITER 40
 
 /*
- * Second-largest eigenvalue of symmetric row-major A[n,n].
- * Overwrites A with a nearly-diagonal matrix (classic cyclic Jacobi).
- * Matches ``numpy.linalg.eigvalsh(Q)[..., -2]`` for the GLCM Q matrix.
+ * Householder reduction of symmetric row-major A[n,n] to tridiagonal form.
+ * Eigenvalues-only (no eigenvector accumulation). On exit, d is the
+ * diagonal and e[1..n-1] is the sub-diagonal (e[0] = 0). A is destroyed.
+ * Translation of the public-domain EISPACK TRED1 recurrence.
  */
-static double
-sv_second_eig_jacobi(double *A, int n)
+static void
+sv_tred1(double *A, int n, double *d, double *e)
 {
-    if (n < 2)
-        return 0.0;
-    for (int sweep = 0; sweep < SV_MCC_JACOBI_SWEEPS; sweep++) {
-        double off = 0.0;
-        for (int p = 0; p < n - 1; p++) {
-            for (int q = p + 1; q < n; q++)
-                off += fabs(A[(size_t)p * n + q]);
-        }
-        if (off <= SV_MCC_JACOBI_TOL)
-            break;
-        for (int p = 0; p < n - 1; p++) {
-            for (int q = p + 1; q < n; q++) {
-                double apq = A[(size_t)p * n + q];
-                if (fabs(apq) <= SV_MCC_JACOBI_TOL)
-                    continue;
-                double app = A[(size_t)p * n + p];
-                double aqq = A[(size_t)q * n + q];
-                double theta = 0.5 * (aqq - app) / apq;
-                double t;
-                if (theta == 0.0)
-                    t = 1.0;
-                else {
-                    double sgn = (theta >= 0.0) ? 1.0 : -1.0;
-                    t = sgn / (fabs(theta) + sqrt(1.0 + theta * theta));
+    int i, j, k;
+    for (i = 0; i < n; i++)
+        d[i] = A[(size_t)(n - 1) * n + i];
+    for (i = n - 1; i >= 1; i--) {
+        int l = i - 1;
+        double h = 0.0, scale = 0.0;
+        for (k = 0; k <= l; k++)
+            scale += fabs(d[k]);
+        if (scale == 0.0) {
+            e[i] = d[l];
+            for (j = 0; j <= l; j++) {
+                d[j] = A[(size_t)(i - 1) * n + j];
+                A[(size_t)i * n + j] = 0.0;
+                A[(size_t)j * n + i] = 0.0;
+            }
+        } else {
+            for (k = 0; k <= l; k++) {
+                d[k] /= scale;
+                h += d[k] * d[k];
+            }
+            double f = d[l];
+            double g = (f >= 0.0) ? -sqrt(h) : sqrt(h);
+            e[i] = scale * g;
+            h -= f * g;
+            d[l] = f - g;
+            for (j = 0; j <= l; j++)
+                e[j] = 0.0;
+            for (j = 0; j <= l; j++) {
+                f = d[j];
+                A[(size_t)j * n + i] = f;
+                g = e[j] + A[(size_t)j * n + j] * f;
+                for (k = j + 1; k <= l; k++) {
+                    g += A[(size_t)k * n + j] * d[k];
+                    e[k] += A[(size_t)k * n + j] * f;
                 }
-                double c = 1.0 / sqrt(1.0 + t * t);
-                double s = t * c;
-                A[(size_t)p * n + p] = app - t * apq;
-                A[(size_t)q * n + q] = aqq + t * apq;
-                A[(size_t)p * n + q] = 0.0;
-                A[(size_t)q * n + p] = 0.0;
-                for (int k = 0; k < n; k++) {
-                    if (k == p || k == q)
-                        continue;
-                    double aik = A[(size_t)p * n + k];
-                    double aqk = A[(size_t)q * n + k];
-                    double bik = c * aik - s * aqk;
-                    double bqk = s * aik + c * aqk;
-                    A[(size_t)p * n + k] = bik;
-                    A[(size_t)k * n + p] = bik;
-                    A[(size_t)q * n + k] = bqk;
-                    A[(size_t)k * n + q] = bqk;
-                }
+                e[j] = g;
+            }
+            f = 0.0;
+            for (j = 0; j <= l; j++) {
+                e[j] /= h;
+                f += e[j] * d[j];
+            }
+            double hh = f / (h + h);
+            for (j = 0; j <= l; j++)
+                e[j] -= hh * d[j];
+            for (j = 0; j <= l; j++) {
+                f = d[j];
+                g = e[j];
+                for (k = j; k <= l; k++)
+                    A[(size_t)k * n + j] -= f * e[k] + g * d[k];
+                d[j] = A[(size_t)(i - 1) * n + j];
+                A[(size_t)i * n + j] = 0.0;
             }
         }
+        d[i] = h;
+    }
+    e[0] = 0.0;
+    for (i = 0; i < n; i++) {
+        d[i] = A[(size_t)i * n + i];
+        A[(size_t)i * n + i] = 0.0;
+    }
+}
+
+/*
+ * Implicit QL on a symmetric tridiagonal matrix (eigenvalues only).
+ * d is the diagonal, e[1..n-1] the sub-diagonal. Returns 0 on success.
+ * Recurrence follows the public-domain EISPACK IMTQL1 algorithm.
+ */
+static int
+sv_imtql1(int n, double *d, double *e)
+{
+    int l, i, m, iter;
+    if (n == 1)
+        return 0;
+    for (i = 1; i < n; i++)
+        e[i - 1] = e[i];
+    e[n - 1] = 0.0;
+    for (l = 0; l < n; l++) {
+        iter = 0;
+        for (;;) {
+            for (m = l; m < n - 1; m++) {
+                double testd = fabs(d[m]) + fabs(d[m + 1]);
+                if (fabs(e[m]) + testd == testd)
+                    break;
+            }
+            if (m == l)
+                break;
+            if (iter++ >= SV_QL_MAX_ITER)
+                return -1;
+            double g = (d[l + 1] - d[l]) / (2.0 * e[l]);
+            double r = hypot(g, 1.0);
+            g = d[m] - d[l] + e[l] / (g + ((g >= 0.0) ? r : -r));
+            double s = 1.0, c = 1.0, p = 0.0;
+            for (i = m - 1; i >= l; i--) {
+                double f = s * e[i];
+                double b = c * e[i];
+                r = hypot(f, g);
+                e[i + 1] = r;
+                if (r == 0.0) {
+                    d[i + 1] -= p;
+                    e[m] = 0.0;
+                    break;
+                }
+                s = f / r;
+                c = g / r;
+                g = d[i + 1] - p;
+                r = (d[i] - g) * s + 2.0 * c * b;
+                p = s * r;
+                d[i + 1] = g + p;
+                g = c * r - b;
+            }
+            if (r == 0.0 && i >= l)
+                continue;
+            d[l] -= p;
+            e[l] = g;
+            e[m] = 0.0;
+        }
+    }
+    return 0;
+}
+
+/*
+ * Second-largest eigenvalue of a symmetric row-major A[n,n].
+ * Householder + implicit QL (O(n^3) once). A is destroyed. ``d`` and
+ * ``e`` are length-n workspaces. If QL does not converge the caller
+ * receives 0 (finite MCC).
+ *
+ * Applied to the Gram matrix that is diagonally similar to the
+ * (non-symmetric) PyRadiomics Q, not to Q itself.
+ */
+static double
+sv_second_eig_symmetric(double *A, int n, double *d, double *e)
+{
+    int i;
+    if (n < 2)
+        return 0.0;
+    sv_tred1(A, n, d, e);
+    if (sv_imtql1(n, d, e) != 0) {
+        /* Rare QL failure: recover via Jacobi on the now-destroyed A is
+         * impossible. Return 0 so the caller keeps a finite MCC. */
+        return 0.0;
     }
     double top = -1.0e300;
     double second = -1.0e300;
-    for (int i = 0; i < n; i++) {
-        double ev = A[(size_t)i * n + i];
+    for (i = 0; i < n; i++) {
+        double ev = d[i];
         if (ev > top) {
             second = top;
             top = ev;
@@ -1496,6 +1613,55 @@ sv_second_eig_jacobi(double *A, int n)
         }
     }
     return second;
+}
+
+/*
+ * MCC for one already-normalised GLCM ``S`` with row marginals ``px``.
+ *
+ * Q is not symmetric. After GLCM symmetrisation (px == py) it is
+ * diagonally similar to the Gram matrix
+ *   G[i, j] = sum_k P[i,k] P[j,k] / (sqrt(px[i]) sqrt(px[j]) px[k])
+ * which shares eigenvalues with Q. Jacobi runs on G.
+ */
+static double
+sv_mcc_from_norm_glcm(const double *S, const double *px, int Ng,
+                      double *Q, double *inv_px, double *inv_py, int *used)
+{
+    int i, j, k, n_used;
+    if (Ng < 2)
+        return 1.0;
+    n_used = 0;
+    for (i = 0; i < Ng; i++) {
+        if (px[i] > 0.0)
+            used[n_used++] = i;
+    }
+    if (n_used < 2)
+        return 1.0;
+    for (i = 0; i < n_used; i++) {
+        double pxi = px[used[i]];
+        inv_px[i] = 1.0 / sqrt(pxi);
+        inv_py[i] = 1.0 / (pxi + SV_GLCM_EPS);
+    }
+    for (i = 0; i < n_used; i++) {
+        int ii = used[i];
+        double isi = inv_px[i];
+        for (j = 0; j <= i; j++) {
+            int jj = used[j];
+            double acc = 0.0;
+            for (k = 0; k < n_used; k++) {
+                int kk = used[k];
+                acc += S[ii * Ng + kk] * S[jj * Ng + kk] * inv_py[k];
+            }
+            acc *= isi * inv_px[j];
+            Q[i * n_used + j] = acc;
+            Q[j * n_used + i] = acc;
+        }
+    }
+    {
+        /* inv_px / inv_py are free after Q is assembled; reuse as QL work. */
+        double lam2 = sv_second_eig_symmetric(Q, n_used, inv_px, inv_py);
+        return (lam2 > 0.0) ? sqrt(lam2) : 0.0;
+    }
 }
 
 int
@@ -1527,64 +1693,49 @@ sv_glcm_mcc(const double *P, int n_labels, int Ng, int n_angles,
         double *px = (double *)malloc((size_t)Ng * sizeof(double));
         double *inv_px = (double *)malloc((size_t)Ng * sizeof(double));
         double *inv_py = (double *)malloc((size_t)Ng * sizeof(double));
-        if (!S || !Q || !px || !inv_px || !inv_py) {
+        int *used = (int *)malloc((size_t)Ng * sizeof(int));
+        if (!S || !Q || !px || !inv_px || !inv_py || !used) {
 #ifdef _OPENMP
             #pragma omp critical
 #endif
             {
                 PyErr_NoMemory();
             }
-            free(S); free(Q); free(px); free(inv_px); free(inv_py);
+            free(S); free(Q); free(px); free(inv_px); free(inv_py); free(used);
         } else {
+            int va;
 #ifdef _OPENMP
-            #pragma omp for collapse(2) schedule(static)
+            #pragma omp for schedule(static)
 #endif
-            for (int v = 0; v < n_labels; v++) {
-                for (int a = 0; a < n_angles; a++) {
-                    double sum = 0.0;
-                    for (int i = 0; i < Ng; i++) {
-                        for (int j = 0; j < Ng; j++) {
-                            double val = P[(((size_t)v * Ng + i) * Ng + j) * n_angles + a];
-                            if (symmetrical)
-                                val += P[(((size_t)v * Ng + j) * Ng + i) * n_angles + a];
-                            S[i * Ng + j] = val;
-                            sum += val;
-                        }
+            for (va = 0; va < n_labels * n_angles; va++) {
+                int v = va / n_angles;
+                int a = va % n_angles;
+                int i, j;
+                double sum = 0.0;
+                for (i = 0; i < Ng; i++) {
+                    for (j = 0; j < Ng; j++) {
+                        double val = P[(((size_t)v * Ng + i) * Ng + j) * n_angles + a];
+                        if (symmetrical)
+                            val += P[(((size_t)v * Ng + j) * Ng + i) * n_angles + a];
+                        S[i * Ng + j] = val;
+                        sum += val;
                     }
-                    if (!(sum > 0.0) || Ng < 2)
-                        continue;
-                    double inv_sum = 1.0 / sum;
-                    for (int i = 0; i < Ng * Ng; i++)
-                        S[i] *= inv_sum;
-                    for (int i = 0; i < Ng; i++)
-                        px[i] = 0.0;
-                    for (int i = 0; i < Ng; i++) {
-                        for (int j = 0; j < Ng; j++)
-                            px[i] += S[i * Ng + j];
-                    }
-                    /* Symmetric S => py == px. Keep both for the textbook Q. */
-                    for (int i = 0; i < Ng; i++) {
-                        inv_px[i] = (px[i] > 0.0) ? (1.0 / px[i]) : 0.0;
-                        inv_py[i] = inv_px[i];
-                    }
-                    /* Q[i,j] = sum_k S[i,k] S[j,k] / (px[i] py[k]) */
-                    for (int i = 0; i < Ng; i++) {
-                        double ipx = inv_px[i];
-                        for (int j = 0; j <= i; j++) {
-                            double acc = 0.0;
-                            for (int k = 0; k < Ng; k++)
-                                acc += S[i * Ng + k] * S[j * Ng + k] * inv_py[k];
-                            acc *= ipx;
-                            Q[i * Ng + j] = acc;
-                            Q[j * Ng + i] = acc;
-                        }
-                    }
-                    double lam2 = sv_second_eig_jacobi(Q, Ng);
-                    double mcc = (lam2 > 0.0) ? sqrt(lam2) : 0.0;
-                    ang[(size_t)v * n_angles + a] = mcc;
                 }
+                if (!(sum > 0.0))
+                    continue;
+                double inv_sum = 1.0 / sum;
+                for (i = 0; i < Ng * Ng; i++)
+                    S[i] *= inv_sum;
+                for (i = 0; i < Ng; i++)
+                    px[i] = 0.0;
+                for (i = 0; i < Ng; i++) {
+                    for (j = 0; j < Ng; j++)
+                        px[i] += S[i * Ng + j];
+                }
+                ang[(size_t)v * n_angles + a] = sv_mcc_from_norm_glcm(
+                    S, px, Ng, Q, inv_px, inv_py, used);
             }
-            free(S); free(Q); free(px); free(inv_px); free(inv_py);
+            free(S); free(Q); free(px); free(inv_px); free(inv_py); free(used);
         }
     }
 
@@ -1644,10 +1795,11 @@ sv_glrlm_formulas(const double *P, int n_labels, int Ng, int Nr, int n_angles,
             }
             free(pr); free(pg);
         } else {
+            int v;
 #ifdef _OPENMP
             #pragma omp for schedule(static)
 #endif
-            for (int v = 0; v < n_labels; v++) {
+            for (v = 0; v < n_labels; v++) {
                 double acc[N_GLRLM_FORMULA_FEATURES];
                 int cnt[N_GLRLM_FORMULA_FEATURES];
                 for (int f = 0; f < N_GLRLM_FORMULA_FEATURES; f++) {

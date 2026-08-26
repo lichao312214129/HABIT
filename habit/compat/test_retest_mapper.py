@@ -78,6 +78,7 @@ from typing import Dict, Tuple, List, Any, Optional
 from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
+from habit.kernels.habitat_label_match import match_labels_by_features
 from habit.utils.log_utils import setup_logger, get_module_logger
 from habit.utils.optional_deps import require_excel_backend, require_parquet_backend
 from habit.utils.progress_utils import CustomTqdm
@@ -191,37 +192,58 @@ def find_habitat_mapping(test_habitat_table: str, retest_habitat_table: str,
         if missing_features:
             raise ValueError(f"The following features do not exist in the data: {missing_features}")
     
-    # Get unique habitat labels
-    unique_habitats = np.unique(retest_df['habitats'])
-    
-    # Calculate median features for each habitat
-    median_features_test = {}
-    median_features_retest = {}
-    for habitat_label in unique_habitats:
-        median_features_test[habitat_label] = test_df[features][
-            test_df['habitats'] == habitat_label].median()
-        median_features_retest[habitat_label] = retest_df[features][
-            retest_df['habitats'] == habitat_label].median()
-    
-    # Convert to DataFrame for easier calculation
-    median_features_test = pd.DataFrame(median_features_test).T
-    median_features_retest = pd.DataFrame(median_features_retest).T
-    
-    # Find best matching habitats
-    habitat_mapping = {}
-    for habitat_label in unique_habitats:
-        similarities = {}
-        retest_features = median_features_retest.loc[habitat_label].values
-        for test_label in unique_habitats:
-            test_features = median_features_test.loc[test_label].values
-            similarities[test_label] = calculate_similarity(
-                retest_features, test_features, similarity_method)
-        
-        # Map to the test habitat with highest similarity
-        best_match = max(similarities.items(), key=lambda x: x[1])[0]
-        habitat_mapping[habitat_label] = best_match
-    
-    return habitat_mapping
+    # Per-habitat median of the unscaled table columns. Cohort z-score and
+    # Hungarian assignment live in match_labels_by_features: greedy
+    # argmax can map two retest ids onto one test id.
+    test_ids = np.asarray(np.unique(test_df["habitats"]), dtype=np.int64)
+    retest_ids = np.asarray(np.unique(retest_df["habitats"]), dtype=np.int64)
+    if test_ids.size == 0 or retest_ids.size == 0:
+        return {}
+    test_rows = np.vstack(
+        [
+            test_df.loc[test_df["habitats"] == habitat_id, features]
+            .median()
+            .to_numpy(dtype=np.float64)
+            for habitat_id in test_ids.tolist()
+        ]
+    )
+    retest_rows = np.vstack(
+        [
+            retest_df.loc[retest_df["habitats"] == habitat_id, features]
+            .median()
+            .to_numpy(dtype=np.float64)
+            for habitat_id in retest_ids.tolist()
+        ]
+    )
+    requested = str(similarity_method).strip().lower()
+    if requested == "kendall":
+        logger.warning(
+            "find_habitat_mapping: kendall assignment now uses spearman "
+            "(rank correlation + Hungarian)."
+        )
+        requested = "spearman"
+    metric_alias = {
+        "pearson": "pearson",
+        "spearman": "spearman",
+        "euclidean": "euclidean",
+        "cosine": "cosine",
+        "manhattan": "manhattan",
+        "chebyshev": "chebyshev",
+    }
+    metric = metric_alias.get(requested)
+    if metric is None:
+        raise ValueError(
+            "find_habitat_mapping: similarity_method must be one of "
+            f"{sorted(metric_alias) + ['kendall']}; got {similarity_method!r}."
+        )
+    return match_labels_by_features(
+        test_ids,
+        test_rows,
+        retest_ids,
+        retest_rows,
+        metric=metric,
+        standardize="zscore",
+    )
 
 
 def change_habitat_label(retest_nrrd: str, habitat_mapping: Dict[int, int], out_dir: str) -> str:

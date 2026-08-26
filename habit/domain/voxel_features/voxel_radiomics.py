@@ -70,6 +70,7 @@ class VoxelRadiomicsFeaturesParams(BaseModel):
     output_float32: bool = True
     class_progress: bool = False
     crop_to_roi: bool = True
+    cache_dir: Optional[str] = None
 
 
 @VoxelFeatureExtractorRegistry.register("voxel_radiomics")
@@ -118,6 +119,9 @@ class VoxelRadiomicsFeatures:
             just keeps the full-volume diagnostics (``sitk.Hash``,
             whole-image statistics) and mask checks off the big volume,
             saving several seconds per modality on whole-body scans.
+        cache_dir: Optional directory for extracted fields. A hit skips
+            PyRadiomics. The cache key ignores ``voxel_batch`` and device
+            knobs so a later run with a larger batch can reuse the file.
     """
 
     def __init__(
@@ -135,6 +139,7 @@ class VoxelRadiomicsFeatures:
         output_float32: bool = True,
         class_progress: bool = False,
         crop_to_roi: bool = True,
+        cache_dir: Optional[str] = None,
         modality: Optional[str] = None,
         as_: Optional[str] = None,
     ) -> None:
@@ -167,6 +172,7 @@ class VoxelRadiomicsFeatures:
         self.output_float32 = bool(output_float32)
         self.class_progress = bool(class_progress)
         self.crop_to_roi = bool(crop_to_roi)
+        self.cache_dir = str(cache_dir) if cache_dir else None
 
     @property
     def spec(self) -> Spec:
@@ -197,6 +203,7 @@ class VoxelRadiomicsFeatures:
         # fingerprint (the crop does not change any feature value).
         if not self.crop_to_roi:
             spec_params["crop_to_roi"] = False
+        # cache_dir is an execution hint, not part of the scientific fingerprint.
         return Spec(name="voxel_radiomics", params=spec_params)
 
     def _resolved_params_file(self) -> Optional[str]:
@@ -331,6 +338,31 @@ class VoxelRadiomicsFeatures:
                 extraction does not cover every ROI voxel.
         """
         from habit.domain.habitat_features._radiomics import sitk_image_from_contract
+        from habit.domain.voxel_features.cache import (
+            load_cached_voxel_field,
+            save_cached_voxel_field,
+            voxel_radiomics_cache_key,
+        )
+
+        cache_key: Optional[str] = None
+        if self.cache_dir:
+            cache_key = voxel_radiomics_cache_key(
+                subject.subject_id,
+                kernel_radius=self.kernel_radius,
+                roi=self.roi,
+                modalities=self.modalities,
+                params=self.params,
+                params_file=self.params_file,
+                output_float32=self.output_float32,
+                crop_to_roi=self.crop_to_roi,
+                modality=self.modality,
+                as_=self.as_,
+            )
+            cached = load_cached_voxel_field(
+                self.cache_dir, subject.subject_id, cache_key
+            )
+            if cached is not None:
+                return cached
 
         modalities = resolve_voxel_modalities(
             subject, self.modalities, owner="voxel_radiomics"
@@ -366,9 +398,12 @@ class VoxelRadiomicsFeatures:
             columns.append(frame.to_numpy())
 
         values = np.concatenate(columns, axis=1)
-        return build_voxel_field(
+        field = build_voxel_field(
             subject, mask, voxel_index, names, values, self.spec
         )
+        if self.cache_dir and cache_key is not None:
+            save_cached_voxel_field(self.cache_dir, cache_key, field)
+        return field
 
 
 VoxelFeatureExtractorRegistry.register_params_model(

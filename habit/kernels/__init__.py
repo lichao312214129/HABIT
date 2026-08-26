@@ -45,6 +45,7 @@ from habit.kernels.habitat_graph import (
     extract_habitat_nodes,
     pair_count,
 )
+from habit.kernels.habitat_label_match import adjusted_rand_index
 from habit.kernels.habitat_metrics import (
     habitat_ith_dispersion,
     habitat_region_stats,
@@ -95,6 +96,7 @@ __all__ = [
     "habitat_region_stats",
     "habitat_ith_dispersion",
     "ith_score",
+    "adjusted_rand_index",
     "HabitatGraphFeatureOptions",
     "GraphNullModelOptions",
     "GraphNullModelResult",

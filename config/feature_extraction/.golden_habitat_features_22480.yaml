@@ -1,0 +1,13 @@
+raw_img_folder: ../../demo_data/preprocessed
+habitats_map_folder: F:/work/habit_project/demo_data/results/_golden/habitat_two_step
+out_dir: F:\work\habit_project\demo_data\results\_golden_graph_debug\habitat_features
+n_processes: 2
+habitat_pattern: '*_habitats.nrrd'
+feature_types:
+- volume
+- msi
+- ith_score
+- non_radiomics
+- graph
+n_habitats: null
+debug: false

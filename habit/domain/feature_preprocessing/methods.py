@@ -55,6 +55,8 @@ __all__ = [
     "BinningParams",
     "CorrelationFilter",
     "CorrelationFilterParams",
+    "PreciseCorrelationFilter",
+    "PreciseCorrelationFilterParams",
     "FeatureWhitelist",
     "FeatureWhitelistParams",
     "Impute",
@@ -789,6 +791,89 @@ class CorrelationFilter:
         return block[kept]
 
 
+class PreciseCorrelationFilterParams(BaseModel):
+    """Constructor parameters for :class:`PreciseCorrelationFilter`."""
+
+    model_config = ConfigDict(extra="forbid")
+    #: Drop when signed Spearman r is strictly greater than this (Prior code).
+    corr_threshold: float = 0.7
+    #: Drop only when the Spearman p-value is below this (Prior code: 0.05).
+    p_threshold: float = 0.05
+
+
+@FeaturePreprocessingMethodRegistry.register("precise_correlation_filter")
+class PreciseCorrelationFilter:
+    """
+    Prior 2024 Spearman screen: signed r, p-value, keep the later column.
+
+    ``correlation_filter`` uses |r| and keeps the first column. This method
+    copies ``filtering()`` in precise-habitats so a habitat spec can lock
+    the same column rule as that paper's published code.
+
+    Args:
+        corr_threshold: Signed Spearman cut-off; drop when r is greater.
+        p_threshold: Spearman p-value cut-off; drop only when p is smaller.
+    """
+
+    _name = "precise_correlation_filter"
+    changes_columns: bool = True
+
+    def __init__(
+        self,
+        corr_threshold: float = 0.7,
+        p_threshold: float = 0.05,
+    ) -> None:
+        self._corr_threshold = float(corr_threshold)
+        self._p_threshold = float(p_threshold)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._name,
+            params={
+                "corr_threshold": self._corr_threshold,
+                "p_threshold": self._p_threshold,
+            },
+        )
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the surviving column subset on the training (baseline) matrix.
+
+        Args:
+            block: Unit-by-feature matrix to screen.
+
+        Returns:
+            State naming the columns to keep.
+        """
+        return {
+            "columns": _kernel.select_precise_correlation_columns(
+                block, self._corr_threshold, self._p_threshold
+            )
+        }
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Restrict the matrix to the learned columns.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The matrix with only the surviving columns.
+        """
+        kept: List[str] = [
+            column for column in state["columns"] if column in block.columns
+        ]
+        if not kept:
+            return block
+        return block[kept]
+
+
 FeaturePreprocessingMethodRegistry.register_params_model("impute", ImputeParams)
 FeaturePreprocessingMethodRegistry.register_params_model(
     "minmax", MinMaxScalingParams
@@ -812,4 +897,7 @@ FeaturePreprocessingMethodRegistry.register_params_model(
 )
 FeaturePreprocessingMethodRegistry.register_params_model(
     "correlation_filter", CorrelationFilterParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "precise_correlation_filter", PreciseCorrelationFilterParams
 )

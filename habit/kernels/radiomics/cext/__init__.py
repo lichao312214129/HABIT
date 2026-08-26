@@ -258,7 +258,7 @@ def glcm_formulas(
     symmetrical: int = 1,
 ) -> np.ndarray:
     """
-    Evaluate stacked GLCM formulas in OpenMP C (every default feature except MCC).
+    Evaluate stacked GLCM formulas in OpenMP C (24 default features; MCC last).
 
     Args:
         p_counts: Raw GLCM counts ``[K, Ng, Ng, Na]``.
@@ -267,7 +267,7 @@ def glcm_formulas(
         symmetrical: 1 to add the transpose before normalising.
 
     Returns:
-        np.ndarray: ``[K, 23]`` in ``GLCM_FORMULA_COLUMNS`` order.
+        np.ndarray: ``[K, 24]`` in ``GLCM_FORMULA_COLUMNS`` order.
     """
     p_arr = np.ascontiguousarray(np.asarray(p_counts, dtype=np.float64))
     gray = np.ascontiguousarray(np.asarray(gray_levels, dtype=np.float64).reshape(-1))

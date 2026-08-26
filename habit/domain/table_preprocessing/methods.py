@@ -71,6 +71,8 @@ __all__ = [
     "VarianceFilterPreprocessorParams",
     "CorrelationFilterPreprocessor",
     "CorrelationFilterPreprocessorParams",
+    "PreciseCorrelationFilterPreprocessor",
+    "PreciseCorrelationFilterPreprocessorParams",
 ]
 
 
@@ -580,6 +582,66 @@ class CorrelationFilterPreprocessor(_FittedPreprocessor):
         return self._finish(table, block[list(kept)], kept)
 
 
+class PreciseCorrelationFilterPreprocessorParams(BaseModel):
+    """Constructor parameters for :class:`PreciseCorrelationFilterPreprocessor`."""
+
+    model_config = ConfigDict(extra="forbid")
+    #: Drop when signed Spearman r is strictly greater than this (Prior code).
+    corr_threshold: float = 0.7
+    #: Drop only when the Spearman p-value is below this (Prior code: 0.05).
+    p_threshold: float = 0.05
+
+
+@TablePreprocessorRegistry.register("precise_correlation_filter")
+class PreciseCorrelationFilterPreprocessor(_FittedPreprocessor):
+    """
+    Prior 2024 Spearman screen on a modelling table.
+
+    Same kernel as the voxel-level ``precise_correlation_filter``: signed r,
+    p-value gate, keep the later column. Fit on the training table and
+    replay the column list at transform time.
+    """
+
+    _spec_name = "precise_correlation_filter"
+
+    def __init__(
+        self,
+        corr_threshold: float = 0.7,
+        p_threshold: float = 0.05,
+    ) -> None:
+        super().__init__()
+        self._corr_threshold = float(corr_threshold)
+        self._p_threshold = float(p_threshold)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._spec_name,
+            params={
+                "corr_threshold": self._corr_threshold,
+                "p_threshold": self._p_threshold,
+            },
+        )
+
+    def fit(self, table: FeatureTable) -> "PreciseCorrelationFilterPreprocessor":
+        """Learn the surviving column subset from the training table."""
+        block = table.frame[list(table.feature_columns)]
+        columns = _kernel.select_precise_correlation_columns(
+            block, self._corr_threshold, self._p_threshold
+        )
+        self._remember_fit(table, {"columns": columns})
+        return self
+
+    def transform(self, table: FeatureTable) -> FeatureTable:
+        """Restrict the table to the fitted surviving columns."""
+        block = self._block_for_transform(table)
+        state = self._state
+        assert state is not None
+        kept: Tuple[str, ...] = tuple(state["columns"])
+        return self._finish(table, block[list(kept)], kept)
+
+
 # ---------------------------------------------------------------------------
 # Parameter schemas (registered after the classes so names resolve)
 # ---------------------------------------------------------------------------
@@ -595,4 +657,7 @@ TablePreprocessorRegistry.register_params_model(
 )
 TablePreprocessorRegistry.register_params_model(
     "correlation_filter", CorrelationFilterPreprocessorParams
+)
+TablePreprocessorRegistry.register_params_model(
+    "precise_correlation_filter", PreciseCorrelationFilterPreprocessorParams
 )

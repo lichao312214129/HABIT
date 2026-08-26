@@ -645,14 +645,14 @@ static PyMethodDef SvCmatricesMethods[] = {
      "  P_gldm with shape (n_labels, Ng, max_dependence)"},
 
     {"glcm_formulas", py_glcm_formulas, METH_VARARGS,
-     "Evaluate stacked GLCM formulas (all default features except MCC).\n\n"
+     "Evaluate stacked GLCM formulas (24 default features; MCC last).\n\n"
      "Args:\n"
      "  P: float64 [K, Ng, Ng, Na] raw counts\n"
      "  gray: float64 [Ng] gray-level values\n"
      "  ng_full: float64 [K] per-label Ng for Idn/Idmn\n"
      "  symmetrical: int 0/1\n\n"
      "Returns:\n"
-     "  float64 [K, 23] in GLCM_FORMULA_COLUMNS order"},
+     "  float64 [K, 24] in GLCM_FORMULA_COLUMNS order"},
 
     {"glcm_mcc", py_glcm_mcc, METH_VARARGS,
      "Evaluate stacked GLCM MCC (second-largest eigenvalue of Q).\n\n"

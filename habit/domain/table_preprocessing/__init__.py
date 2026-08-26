@@ -21,6 +21,8 @@ from habit.domain.table_preprocessing.methods import (
     BinningPreprocessorParams,
     CorrelationFilterPreprocessor,
     CorrelationFilterPreprocessorParams,
+    PreciseCorrelationFilterPreprocessor,
+    PreciseCorrelationFilterPreprocessorParams,
     LogPreprocessor,
     LogPreprocessorParams,
     MinMaxPreprocessor,
@@ -54,4 +56,6 @@ __all__ = [
     "VarianceFilterPreprocessorParams",
     "CorrelationFilterPreprocessor",
     "CorrelationFilterPreprocessorParams",
+    "PreciseCorrelationFilterPreprocessor",
+    "PreciseCorrelationFilterPreprocessorParams",
 ]

@@ -51,7 +51,7 @@ FIRSTORDER_CEXT_COLUMNS: Sequence[str] = (
     "Uniformity",
 )
 
-# Column order returned by ``sv_glcm_formulas`` (MCC is a separate C call).
+# Column order returned by ``sv_glcm_formulas`` (MCC is the last column).
 GLCM_FORMULA_COLUMNS: Sequence[str] = (
     "Autocorrelation",
     "JointAverage",
@@ -76,6 +76,7 @@ GLCM_FORMULA_COLUMNS: Sequence[str] = (
     "SumAverage",
     "SumEntropy",
     "SumSquares",
+    "MCC",
 )
 
 # Column order returned by ``sv_glrlm_formulas``.
@@ -122,6 +123,72 @@ def _gray_vector(n_gray: int, gray_levels: Optional[np.ndarray]) -> np.ndarray:
     if gray_levels is not None and np.asarray(gray_levels).size == n_gray:
         return np.asarray(gray_levels, dtype=np.float64).reshape(-1)
     return np.arange(1, n_gray + 1, dtype=np.float64)
+
+
+def _mcc_pruned_eigvals(
+    p_norm: np.ndarray,
+    px: np.ndarray,
+    py: np.ndarray,
+    empty: np.ndarray,
+    n_gray: int,
+    n_labels: int,
+    n_angles: int,
+    eps: float,
+) -> np.ndarray:
+    """
+    MCC matching PyRadiomics ``getMCCFeatureValue``.
+
+    Q is not symmetric:
+
+        Q(i, j) = sum_k P(i,k) P(j,k) / (p_x(i) p_y(k))
+
+    so the second-largest eigenvalue must come from ``eigvals``, not
+    ``eigvalsh`` / Jacobi-on-Q. Unused gray levels (``p_x = 0``) add only
+    zero eigenvalues and can be dropped.
+
+    Args:
+        p_norm: Normalised GLCM ``[K, Ng, Ng, Na]``.
+        px: Row marginals ``[K, Ng, 1, Na]``.
+        py: Column marginals ``[K, 1, Ng, Na]``.
+        empty: Boolean mask of labels/angles with zero mass ``[K, Na]``.
+        n_gray: Union-bin gray-level count.
+        n_labels: Number of labels.
+        n_angles: Number of angles.
+        eps: Floor added to the Q denominator (PyRadiomics ``eps``).
+
+    Returns:
+        np.ndarray: MCC averaged over angles, shape ``[K]``.
+    """
+    if n_gray < 2:
+        return np.ones(n_labels, dtype=np.float64)
+    p_ij = np.nan_to_num(p_norm, nan=0.0)
+    px_va = np.nan_to_num(px[:, :, 0, :], nan=0.0)
+    py_va = np.nan_to_num(py[:, 0, :, :], nan=0.0)
+    ang_vals = np.full((n_labels, n_angles), np.nan, dtype=np.float64)
+    for v in range(n_labels):
+        for a in range(n_angles):
+            keep = np.flatnonzero(px_va[v, :, a] > 0.0)
+            if keep.size < 2:
+                # PyRadiomics returns 1 when every GLCM is 1x1 (flat region).
+                ang_vals[v, a] = 1.0
+                continue
+            s = p_ij[v][np.ix_(keep, keep)][:, :, a]
+            px_k = px_va[v, keep, a]
+            py_k = py_va[v, keep, a]
+            # True (non-symmetric) Q; match radiomics/glcm.py getMCCFeatureValue.
+            q = (s[:, None, :] * s[None, :, :]) / (
+                px_k[:, None, None] * py_k[None, None, :] + eps
+            )
+            q = q.sum(axis=-1)
+            ev = np.linalg.eigvals(q)
+            ev.sort()
+            ang_vals[v, a] = float(np.real(np.sqrt(ev[-2])))
+    ang_vals[empty] = np.nan
+    return _nanmean_angles(ang_vals)
+
+
+# Backward-compatible name used by older tests / call sites.
+_mcc_pruned_eigvalsh = _mcc_pruned_eigvals
 
 
 def glcm_features(
@@ -188,8 +255,7 @@ def glcm_features(
         if not finite_c:
             out.clear()
         else:
-            # MCC stays on numpy eigvalsh (same quantity as PyRadiomics).
-            needed = (needed - set(c_names)) | ({"MCC"} & needed)
+            needed = needed - set(c_names)
             if not needed:
                 return out
 
@@ -331,23 +397,13 @@ def glcm_features(
         out["Imc2"] = _nanmean_angles(imc2)
     if "Idm" in needed and px_suby is not None:
         out["Idm"] = _nanmean_angles((px_suby / (1.0 + k_diff[None, :, None] ** 2)).sum(axis=1))
-    if "MCC" in needed:
-        # Q[v,i,j,a] = sum_k P[v,i,k,a] P[v,j,k,a] / (px[v,i,a] py[v,k,a])
-        # One einsum instead of a Python loop over Ng (that loop was ~1 s for
-        # K=100, Ng~40, Na=13). Q is real-symmetric so eigvalsh is enough.
-        p_ij = np.nan_to_num(p_norm, nan=0.0)
-        inv_px = 1.0 / (np.nan_to_num(px[:, :, 0, :], nan=0.0) + eps)
-        inv_py = 1.0 / (np.nan_to_num(py[:, 0, :, :], nan=0.0) + eps)
-        weighted = p_ij * inv_py[:, None, :, :]
-        q = np.einsum("vika,vjka,via->vija", weighted, p_ij, inv_px, optimize=True)
-        q_batched = np.transpose(q, (0, 3, 1, 2))
-        if n_gray < 2:
-            out["MCC"] = np.ones(n_labels, dtype=np.float64)
-        else:
-            eig = np.linalg.eigvalsh(q_batched)
-            mcc_ang = np.sqrt(np.clip(eig[:, :, -2], 0.0, None))
-            mcc_ang[empty] = np.nan
-            out["MCC"] = _nanmean_angles(mcc_ang)
+    if "MCC" in needed and px is not None and py is not None:
+        # Unused gray levels make zero rows of Q and do not change the
+        # second-largest eigenvalue. Prune per (label, angle) so eigvals
+        # runs on Ng_used x Ng_used, not the union-bin Ng.
+        out["MCC"] = _mcc_pruned_eigvals(
+            p_norm, px, py, empty, n_gray, n_labels, n_angles, eps
+        )
     if "Idmn" in needed and px_suby is not None:
         scale = (ng_scale ** 2)[:, None, None]
         out["Idmn"] = _nanmean_angles(

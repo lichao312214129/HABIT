@@ -473,12 +473,12 @@ def test_predict_delegates_to_legacy_api(
 
 
 @pytest.mark.cli
-def test_multi_model_config_logs_first_classifier_only(
+def test_multi_model_config_fits_every_yaml_entry(
     tmp_path: Path,
     synthetic_table: tuple[FeatureTable, Path],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A multi-model sweep fits only the first YAML entry (v1 MLSpec rule)."""
+    """A multi-model YAML fits every entry, matching v0.1 CLI behaviour."""
     _, csv_path = synthetic_table
     out_dir = tmp_path / "out_multi"
     yaml_text = _config_yaml(csv_path, out_dir).replace(
@@ -496,5 +496,12 @@ def test_multi_model_config_logs_first_classifier_only(
 
     run_ml(str(config_path), mode=None)
 
-    assert len(captured_specs) == 1
-    assert captured_specs[0].classifier.name == "LogisticRegression"
+    assert [spec.classifier.name for spec in captured_specs] == [
+        "LogisticRegression",
+        "RandomForest",
+    ]
+    pred = out_dir / "all_prediction_results.csv"
+    assert pred.is_file()
+    header = pred.read_text(encoding="utf-8").splitlines()[0]
+    assert "LogisticRegression_prob" in header
+    assert "RandomForest_prob" in header

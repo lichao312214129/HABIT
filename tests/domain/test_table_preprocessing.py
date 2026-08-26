@@ -23,6 +23,7 @@ from habit.api.exceptions import HABITAPIError
 from habit.domain.table_preprocessing import (
     BinningPreprocessor,
     CorrelationFilterPreprocessor,
+    PreciseCorrelationFilterPreprocessor,
     LogPreprocessor,
     MinMaxPreprocessor,
     RobustPreprocessor,
@@ -44,6 +45,7 @@ _ALL = (
     LogPreprocessor,
     VarianceFilterPreprocessor,
     CorrelationFilterPreprocessor,
+    PreciseCorrelationFilterPreprocessor,
 )
 
 
@@ -59,6 +61,7 @@ def test_registry_lists_all_eight_methods() -> None:
         "log",
         "variance_filter",
         "correlation_filter",
+        "precise_correlation_filter",
     }
     for name in TablePreprocessorRegistry.available():
         instance = TablePreprocessorRegistry.create(name)
@@ -198,6 +201,39 @@ def test_correlation_filter_drops_redundant_later_column() -> None:
     transformed = CorrelationFilterPreprocessor(corr_threshold=0.9).fit(table).transform(table)
     assert "signal" in transformed.feature_columns
     assert "signal_copy" not in transformed.feature_columns
+
+
+@pytest.mark.unit
+def test_precise_correlation_filter_keeps_later_column_and_ignores_negative_r() -> None:
+    """Prior rule: drop the earlier of a +r pair; do not drop a -r pair."""
+    table = make_feature_table(n_noise=0)
+    n = len(table.frame)
+    rng = np.random.default_rng(0)
+    early = rng.normal(size=n)
+    later = early + rng.normal(scale=0.01, size=n)
+    opposite = -early + rng.normal(scale=0.01, size=n)
+    noise = rng.normal(size=n)
+    frame = table.frame.copy()
+    frame["early"] = early
+    frame["later"] = later
+    frame["opposite"] = opposite
+    frame["noise"] = noise
+    table = type(table)(
+        frame=frame,
+        id_columns=table.id_columns,
+        feature_columns=("early", "later", "opposite", "noise"),
+        outcome=table.outcome,
+        provenance=table.provenance,
+    )
+    transformed = (
+        PreciseCorrelationFilterPreprocessor(corr_threshold=0.7, p_threshold=0.05)
+        .fit(table)
+        .transform(table)
+    )
+    assert "early" not in transformed.feature_columns
+    assert "later" in transformed.feature_columns
+    assert "opposite" in transformed.feature_columns
+    assert "noise" in transformed.feature_columns
 
 
 @pytest.mark.unit

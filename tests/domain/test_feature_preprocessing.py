@@ -603,3 +603,26 @@ def test_feature_whitelist_builds_through_the_registry() -> None:
     out = SubjectPreprocessingChain(methods)(block)
     assert list(out.columns) == ["b"]
     assert methods[0].spec.to_dict()["params"]["features"] == ["b"]
+
+
+@pytest.mark.unit
+def test_precise_correlation_filter_matches_prior_keep_last_rule() -> None:
+    """Signed r>0.7 and p<0.05 drops the earlier column, not the later one."""
+    rng = np.random.default_rng(1)
+    n = 60
+    early = rng.normal(size=n)
+    later = early + rng.normal(scale=0.02, size=n)
+    opposite = -early
+    noise = rng.normal(size=n)
+    block = pd.DataFrame(
+        {"early": early, "later": later, "opposite": opposite, "noise": noise}
+    )
+    methods = build_methods(
+        [{
+            "name": "precise_correlation_filter",
+            "params": {"corr_threshold": 0.7, "p_threshold": 0.05},
+        }]
+    )
+    out = SubjectPreprocessingChain(methods)(block)
+    assert "early" not in out.columns
+    assert list(out.columns) == ["later", "opposite", "noise"]

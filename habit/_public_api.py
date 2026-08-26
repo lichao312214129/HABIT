@@ -308,6 +308,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "habitat_region_stats",
         "habitat_ith_dispersion",
         "ith_score",
+        "adjusted_rand_index",
         "HabitatGraphFeatureOptions",
         "GraphNullModelOptions",
         "GraphNullModelResult",

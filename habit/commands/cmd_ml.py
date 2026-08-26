@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import replace
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence
 
@@ -62,7 +63,7 @@ from habit.recipes.modeling import (
     train_model,
 )
 from habit.spec.legacy import LegacyConfigAdapter
-from habit.spec.specs import MLSpec
+from habit.spec.specs import MLSpec, Spec
 from habit.utils.log_utils import setup_logger, stop_queue_listener
 
 #: v1 pipeline artefact written under the output directory.
@@ -179,7 +180,12 @@ def run_kfold(config_file: str) -> None:
 
 def _run_train_model(config: MLConfig, logger: logging.Logger) -> None:
     """
-    Fit one pipeline through the v1 ``train_model`` recipe.
+    Fit every YAML ``models`` entry through the v1 ``train_model`` recipe.
+
+    ``MLSpec`` still describes one classifier per fit. The CLI restores the
+    v0.1 sweep: the same table, split and preprocessing chain are reused,
+    and each ``models`` entry is fitted in YAML order. Predictions are
+    merged into one ``all_prediction_results.csv``.
 
     The v0.1 hold-out workflow always split before fitting, so the split
     design is stated here from the config: ``custom`` follows the id files,
@@ -191,19 +197,24 @@ def _run_train_model(config: MLConfig, logger: logging.Logger) -> None:
     """
     document = _translate_document(config, workflow="model")
     _log_translation_warnings(document, logger)
-    spec = _spec_from_document(document)
+    base_spec = _spec_from_document(document)
     table = _load_feature_table(config, logger)
     split_kwargs = _resolve_split_kwargs(config, table, logger)
-    logger.info(
-        "Running v1 recipe train_model (classifier=%s, rows=%d, features=%d, "
-        "split=%s)",
-        spec.classifier.name,
-        len(table.frame),
-        len(table.feature_columns),
-        config.split_method,
-    )
-    result = train_model(table, spec, seed=config.random_state, **split_kwargs)
-    _save_model_result(result, table, config, logger)
+    specs = _classifier_specs(config, base_spec)
+    results: List[ModelResult] = []
+    for spec in specs:
+        logger.info(
+            "Running v1 recipe train_model (classifier=%s, rows=%d, features=%d, "
+            "split=%s)",
+            spec.classifier.name,
+            len(table.frame),
+            len(table.feature_columns),
+            config.split_method,
+        )
+        results.append(
+            train_model(table, spec, seed=config.random_state, **split_kwargs)
+        )
+    _save_model_results(results, table, config, logger)
 
 
 def _run_cross_validate(config: MLConfig, logger: logging.Logger) -> None:
@@ -216,17 +227,29 @@ def _run_cross_validate(config: MLConfig, logger: logging.Logger) -> None:
     """
     document = _translate_document(config, workflow="cv")
     _log_translation_warnings(document, logger)
-    spec = _spec_from_document(document)
+    base_spec = _spec_from_document(document)
     table = _load_feature_table(config, logger)
     n_splits = int(config.n_splits)
-    logger.info(
-        "Running v1 recipe cross_validate (classifier=%s, n_splits=%d, rows=%d)",
-        spec.classifier.name,
-        n_splits,
-        len(table.frame),
-    )
-    result = cross_validate(table, spec, n_splits=n_splits, seed=config.random_state)
-    _save_cv_result(result, config, logger, table=table)
+    specs = _classifier_specs(config, base_spec)
+    results: List[CVResult] = []
+    for spec in specs:
+        logger.info(
+            "Running v1 recipe cross_validate (classifier=%s, n_splits=%d, rows=%d)",
+            spec.classifier.name,
+            n_splits,
+            len(table.frame),
+        )
+        results.append(
+            cross_validate(table, spec, n_splits=n_splits, seed=config.random_state)
+        )
+    if len(results) == 1:
+        _save_cv_result(results[0], config, logger, table=table)
+        return
+    for spec, result in zip(specs, results):
+        sub_config = config.model_copy(
+            update={"output": str(Path(config.output) / spec.classifier.name)}
+        )
+        _save_cv_result(result, sub_config, logger, table=table)
 
 
 def _run_predict(config: MLConfig, logger: logging.Logger) -> None:
@@ -563,10 +586,9 @@ def _log_translation_warnings(
     legacy = document.get("legacy") or {}
     models_block = legacy.get("models")
     if isinstance(models_block, Mapping) and len(models_block) > 1:
-        logger.warning(
-            "v0 trained %d models in one run; the v1 MLSpec describes ONE "
-            "classifier -- only the first entry is fitted. The full block "
-            "is preserved under legacy.",
+        logger.info(
+            "YAML lists %d models; the CLI fits every entry in order "
+            "(one v1 MLSpec per classifier, same table and split).",
             len(models_block),
         )
 
@@ -712,6 +734,144 @@ def _load_feature_table(config: MLConfig, logger: logging.Logger) -> FeatureTabl
         outcome=BinaryOutcome(column=label_col, positive_label=1),
         provenance=provenance,
     )
+
+
+def _classifier_specs(config: MLConfig, base_spec: MLSpec) -> List[MLSpec]:
+    """
+    Expand a translated spec across every YAML ``models`` entry.
+
+    ``LegacyConfigAdapter`` still emits one classifier (the first entry) so
+    the MLSpec fingerprint stays stable. The CLI then clones that spec and
+    swaps the terminal classifier for each remaining name, which is the
+    v0.1 "train every model in one run" behaviour.
+
+    Args:
+        config: Validated v0.1 ML configuration.
+        base_spec: Translated spec (preprocessing + first classifier).
+
+    Returns:
+        One spec per ``models`` entry, in YAML order.
+
+    Raises:
+        ValueError: When ``models`` is missing or empty.
+    """
+    models = config.models or {}
+    if not models:
+        raise ValueError("Train configs must carry a non-empty 'models' block.")
+    specs: List[MLSpec] = []
+    for name, model_cfg in models.items():
+        params = dict(getattr(model_cfg, "params", None) or {})
+        params.pop("random_state", None)
+        specs.append(
+            replace(base_spec, classifier=Spec(name=str(name), params=params))
+        )
+    return specs
+
+
+def _save_model_results(
+    results: Sequence[ModelResult],
+    table: FeatureTable,
+    config: MLConfig,
+    logger: logging.Logger,
+) -> None:
+    """
+    Persist one or many hold-out results with v0.1-friendly filenames.
+
+    A single-model run keeps the historical ``metrics.json`` shape. A
+    multi-model run writes per-classifier train/test panels, one
+    ``{Model}_model.habitpipeline`` each, and a merged prediction CSV.
+    """
+    if not results:
+        raise ValueError("No fitted models to save.")
+    if len(results) == 1:
+        _save_model_result(results[0], table, config, logger)
+        return
+
+    out_dir = Path(config.output)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    metrics_payload: Dict[str, Any] = {}
+    legacy_payload: Dict[str, Any] = {"train": {}, "test": {}}
+    frames: List[Any] = []
+    selected_by_model: Dict[str, List[str]] = {}
+
+    from habit.recipes.yaml_runner import (
+        _build_holdout_prediction_frame,
+        _write_all_prediction_results,
+    )
+
+    for result in results:
+        model_name = result.pipeline.model.spec.name
+        if result.test_metrics is not None:
+            metrics_payload[model_name] = {
+                "train": dict(result.train_metrics),
+                "test": dict(result.test_metrics),
+            }
+            legacy_payload["train"][model_name] = {
+                "metrics": dict(result.train_metrics)
+            }
+            legacy_payload["test"][model_name] = {
+                "metrics": dict(result.test_metrics)
+            }
+        else:
+            metrics_payload[model_name] = dict(result.train_metrics)
+            legacy_payload["train"][model_name] = {
+                "metrics": dict(result.train_metrics)
+            }
+        selected_by_model[model_name] = list(
+            result.pipeline.transform(table).feature_columns
+        )
+        if config.is_save_model:
+            pipeline_path = result.pipeline.save(
+                out_dir / f"{model_name}_model.habitpipeline"
+            )
+            logger.info("Saved fitted pipeline to %s", pipeline_path)
+        frame = _build_holdout_prediction_frame(result, table)
+        if frame is not None:
+            frames.append(frame)
+        if config.is_visualize:
+            _maybe_write_ml_figures(
+                result=result,
+                table=table,
+                config=config,
+                out_dir=out_dir / model_name,
+                logger=logger,
+                mode="holdout",
+            )
+
+    metrics_path = out_dir / "metrics.json"
+    metrics_path.write_text(
+        json.dumps(metrics_payload, indent=2), encoding="utf-8"
+    )
+    results[0].manifest.to_json(out_dir / "run_manifest.json")
+    (out_dir / _LEGACY_HOLDOUT_RESULTS).write_text(
+        json.dumps(legacy_payload, indent=2), encoding="utf-8"
+    )
+    (out_dir / "selected_features.json").write_text(
+        json.dumps(selected_by_model, indent=2), encoding="utf-8"
+    )
+    if frames:
+        merged = frames[0]
+        for extra in frames[1:]:
+            extra_cols = [
+                column
+                for column in extra.columns
+                if column not in {"subject_id", "label", "dataset"}
+            ]
+            merged = merged.merge(
+                extra[["subject_id", "dataset", *extra_cols]],
+                on=["subject_id", "dataset"],
+                how="inner",
+            )
+        destination = out_dir / "all_prediction_results.csv"
+        merged.to_csv(destination, index=False)
+        logger.info("Saved hold-out predictions to %s", destination)
+    else:
+        _write_all_prediction_results(results[0], table, out_dir, logger=logger)
+
+    if config.is_save_model:
+        first_path = results[0].pipeline.save(out_dir / _V1_PIPELINE_NAME)
+        logger.info("Saved first-model pipeline to %s", first_path)
+    logger.info("Metrics written to %s", metrics_path)
 
 
 def _save_model_result(

@@ -40,6 +40,11 @@ from habit.domain.voxel_features.local_entropy import (
 )
 from habit.domain.voxel_features.raw import RawVoxelFeatures, RawVoxelFeaturesParams
 from habit.domain.voxel_features.registry import VoxelFeatureExtractorRegistry
+from habit.domain.voxel_features.cache import (
+    load_cached_voxel_field,
+    save_cached_voxel_field,
+    voxel_radiomics_cache_key,
+)
 from habit.domain.voxel_features.voxel_radiomics import (
     VoxelRadiomicsFeatures,
     VoxelRadiomicsFeaturesParams,
@@ -60,6 +65,9 @@ __all__ = [
     "LocalEntropyVoxelFeaturesParams",
     "RawVoxelFeatures",
     "RawVoxelFeaturesParams",
+    "load_cached_voxel_field",
+    "save_cached_voxel_field",
+    "voxel_radiomics_cache_key",
     "VoxelRadiomicsFeatures",
     "VoxelRadiomicsFeaturesParams",
     "VoxelFeatureExtractorRegistry",

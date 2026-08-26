@@ -223,8 +223,11 @@ def _probe_openmp_flags() -> tuple[List[str], List[str]]:
         return [], []
 
     if sys.platform == "win32":
+        # MSVC 14.30+ LLVM OpenMP accepts ``atomic write`` and C99
+        # ``for (int i = ...)`` in ``#pragma omp for``. Classic ``/openmp``
+        # rejects both; the linker also does not take ``/openmp``.
         compile_args = ["/openmp"]
-        link_args = ["/openmp"]
+        link_args = []
     else:
         compile_args = ["-fopenmp"]
         link_args = ["-fopenmp"]

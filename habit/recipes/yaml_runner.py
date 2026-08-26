@@ -1267,20 +1267,19 @@ def _save_model_result(
     )
 
 
-def _write_all_prediction_results(
+def _build_holdout_prediction_frame(
     result: ModelResult,
     table: FeatureTable,
-    out_dir: Path,
-    *,
-    logger: Optional[logging.Logger],
-) -> None:
-    """Write ``all_prediction_results.csv`` for compare / DeLong (v0.1 compat).
+) -> Optional[Any]:
+    """Build the v0.1 hold-out prediction table for one fitted model.
 
-    Only emitted when a hold-out split ran; mirrors the v0.1 report writer
-    column layout (subject_id, label, dataset, {Model}_prob, {Model}_pred).
+    Returns:
+        A frame with ``subject_id``, ``label``, ``dataset``,
+        ``{Model}_prob`` and ``{Model}_pred``, or ``None`` when the run
+        had no hold-out split.
     """
     if result.test_metrics is None or not result.train_row_ids:
-        return
+        return None
     import pandas as pd
     from habit.recipes.modeling import predict_model, _select_rows, _row_ids
 
@@ -1317,8 +1316,24 @@ def _write_all_prediction_results(
         test_df[f"{model_name}_prob"] = (
             test_pred.probabilities.iloc[:, pos_idx].to_numpy()
         )
+    return pd.concat([train_df, test_df], ignore_index=True)
 
-    all_df = pd.concat([train_df, test_df], ignore_index=True)
+
+def _write_all_prediction_results(
+    result: ModelResult,
+    table: FeatureTable,
+    out_dir: Path,
+    *,
+    logger: Optional[logging.Logger],
+) -> None:
+    """Write ``all_prediction_results.csv`` for compare / DeLong (v0.1 compat).
+
+    Only emitted when a hold-out split ran; mirrors the v0.1 report writer
+    column layout (subject_id, label, dataset, {Model}_prob, {Model}_pred).
+    """
+    all_df = _build_holdout_prediction_frame(result, table)
+    if all_df is None:
+        return
     destination = out_dir / "all_prediction_results.csv"
     all_df.to_csv(destination, index=False)
     log = logger or logging.getLogger(__name__)

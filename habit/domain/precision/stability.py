@@ -41,13 +41,14 @@ from habit.contracts.habitat import HabitatMap
 from habit.exceptions import HABITAPIError
 from habit.kernels.habitat_label_match import (
     align_label_array,
+    habitat_dice_from_mapping,
     match_label_ids,
     present_habitat_ids,
 )
 
 __all__ = ["align_habitat_map", "habitat_stability"]
 
-AlignMethod = Literal["centroid", "overlap"]
+AlignMethod = Literal["centroid", "features", "overlap"]
 
 
 def _as_image_array(image: Any, argument_name: str) -> np.ndarray:
@@ -75,6 +76,15 @@ def align_habitat_map(
     reference_centroids: Optional[np.ndarray] = None,
     moving_centroids: Optional[np.ndarray] = None,
     force: bool = False,
+    metric: str = "euclidean",
+    standardize: Optional[str] = None,
+    reduction: Literal["mean", "median"] = "mean",
+    volume_tiebreak: bool = False,
+    reference_volumes: Optional[np.ndarray] = None,
+    moving_volumes: Optional[np.ndarray] = None,
+    volume_weight: Optional[float] = None,
+    location: Optional[np.ndarray] = None,
+    scale: Optional[np.ndarray] = None,
 ) -> HabitatMap:
     """
     Remap ``moving`` habitat ids onto the ``reference`` id space.
@@ -92,6 +102,9 @@ def align_habitat_map(
     :attr:`~habit.contracts.habitat.HabitatModel.centroids` when available;
     otherwise mean image intensity, then spatial means.
 
+    ``method="features"`` is the cross-patient naming path: unscaled
+    habitat summaries, cohort z-score, then Hungarian. Pass the original
+    texture volume (or unscaled means), not per-tumour MinMax centres.
     ``method="overlap"`` uses maximal voxel overlap. Use the same
     ``method`` in :func:`habitat_stability` so Dice is scored on the
     same pairing. Do not feed an already-aligned map back into
@@ -105,12 +118,14 @@ def align_habitat_map(
             the moving map when ``moving_image`` is omitted). Accepts a
             NumPy array or an object with ``.data`` (``ImageVolume``).
         moving_image: Optional intensity volume for the moving map.
-        method: ``"centroid"`` (default) or ``"overlap"``.
+        method: ``"centroid"`` (default), ``"features"``, or ``"overlap"``.
         reference_centroids: Optional cluster centres of the reference fit,
             shape ``(n_habitats, n_features)``, rows in
             ``reference.habitat_ids`` order (row ``i`` is habitat
             ``habitat_ids[i]``).
         moving_centroids: Optional cluster centres of the moving fit.
+            For ``method="features"`` these must be **unscaled** habitat
+            means / medians, not per-tumour MinMax cluster centres.
         force: If True, align even when ``model_id`` already matches.
             Independent ``one_step`` / ``fit_predict`` runs on the same
             subject share a model_id (spec + subject-id digest, not image
@@ -135,10 +150,10 @@ def align_habitat_map(
     if not force and _same_model_id(reference, moving):
         return moving
     resolved = str(method).strip().lower()
-    if resolved not in ("centroid", "overlap"):
+    if resolved not in ("centroid", "features", "overlap"):
         raise HABITAPIError(
-            f"align_habitat_map: method must be 'centroid' or 'overlap'; "
-            f"got {method!r}."
+            f"align_habitat_map: method must be 'centroid', 'features', "
+            f"or 'overlap'; got {method!r}."
         )
     ref_image: Optional[np.ndarray] = None
     mov_image: Optional[np.ndarray] = None
@@ -172,6 +187,15 @@ def align_habitat_map(
                 if moving_centroids is not None
                 else None
             ),
+            metric=metric,
+            standardize=standardize,
+            reduction=reduction,
+            volume_tiebreak=volume_tiebreak,
+            reference_volumes=reference_volumes,
+            moving_volumes=moving_volumes,
+            volume_weight=volume_weight,
+            location=location,
+            scale=scale,
         )
     except ValueError as exc:
         raise HABITAPIError(f"align_habitat_map: {exc}") from exc
@@ -204,6 +228,12 @@ def habitat_stability(
     moving_images: Optional[Sequence[Any]] = None,
     reference_centroids: Optional[np.ndarray] = None,
     moving_centroids: Optional[Sequence[Optional[np.ndarray]]] = None,
+    metric: str = "euclidean",
+    standardize: Optional[str] = None,
+    reduction: Literal["mean", "median"] = "mean",
+    volume_tiebreak: bool = False,
+    location: Optional[np.ndarray] = None,
+    scale: Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
     """
     Score habitat stability between a reference map and perturbed maps.
@@ -215,9 +245,8 @@ def habitat_stability(
     clusters on the perturbed map) score Dice 0.
 
     Default ``method="overlap"`` is the Prior 2024 Hungarian / overlap
-    pairing. ``method="centroid"`` pairs by Hungarian assignment on
-    per-habitat **mean** feature distance (explicit centroids, else mean
-    intensity of ``image`` / ``moving_images``, else spatial means).
+    pairing. ``method="centroid"`` pairs by raw Euclidean on per-habitat
+    means. ``method="features"`` z-scores unscaled summaries first.
     Use the same ``method`` as :func:`align_habitat_map` so the compare
     figure and the Dice table share one correspondence.
 
@@ -228,7 +257,7 @@ def habitat_stability(
         reference: Habitat map of the original subject.
         perturbed: Habitat maps computed independently on perturbed copies,
             each on the same voxel grid as ``reference``.
-        method: ``"overlap"`` (default) or ``"centroid"``.
+        method: ``"overlap"`` (default), ``"centroid"``, or ``"features"``.
         image: Optional intensity / feature volume for the reference map.
             Required for intensity-mean centroid matching when explicit
             centroids are omitted.
@@ -252,10 +281,10 @@ def habitat_stability(
     if not perturbed:
         raise HABITAPIError("habitat_stability: at least one perturbed map is required.")
     resolved = str(method).strip().lower()
-    if resolved not in ("centroid", "overlap"):
+    if resolved not in ("centroid", "features", "overlap"):
         raise HABITAPIError(
-            f"habitat_stability: method must be 'centroid' or 'overlap'; "
-            f"got {method!r}."
+            f"habitat_stability: method must be 'centroid', 'features', "
+            f"or 'overlap'; got {method!r}."
         )
     if moving_images is not None and len(moving_images) != len(perturbed):
         raise HABITAPIError(
@@ -268,7 +297,6 @@ def habitat_stability(
             f"perturbed map; got {len(moving_centroids)} vs {len(perturbed)}."
         )
     reference_labels = np.asarray(reference.label_array)
-    reference_ids = present_habitat_ids(reference_labels)
     ref_image: Optional[np.ndarray] = (
         _as_image_array(image, "image") if image is not None else None
     )
@@ -309,35 +337,21 @@ def habitat_stability(
                     if mov_cent is not None
                     else None
                 ),
+                metric=metric,
+                standardize=standardize,
+                reduction=reduction,
+                volume_tiebreak=volume_tiebreak,
+                location=location,
+                scale=scale,
             )
         except ValueError as exc:
             raise HABITAPIError(f"habitat_stability: {exc}") from exc
-        # Invert {moving_id: reference_id} so each reference habitat looks up
-        # its matched moving id (unmatched reference habitats score Dice 0).
-        matched_moving = {ref_id: mov_id for mov_id, ref_id in mapping.items()}
-        for habitat_id in reference_ids:
-            habitat_id = int(habitat_id)
-            n_reference = int(np.count_nonzero(reference_labels == habitat_id))
-            if habitat_id in matched_moving:
-                moved_id = int(matched_moving[habitat_id])
-                n_moved = int(np.count_nonzero(moved_labels == moved_id))
-                intersection = int(
-                    np.count_nonzero(
-                        (reference_labels == habitat_id) & (moved_labels == moved_id)
-                    )
-                )
-                dice = (
-                    2.0 * intersection / (n_reference + n_moved)
-                    if n_reference + n_moved > 0
-                    else 0.0
-                )
-                records.append(
-                    (index, habitat_id, moved_id, dice, n_reference, n_moved)
-                )
-            else:
-                records.append(
-                    (index, habitat_id, None, 0.0, n_reference, 0)
-                )
+        for habitat_id, moved_id, dice, n_reference, n_moved in habitat_dice_from_mapping(
+            reference_labels, moved_labels, mapping
+        ):
+            records.append(
+                (index, habitat_id, moved_id, dice, n_reference, n_moved)
+            )
     return pd.DataFrame.from_records(
         records,
         columns=[

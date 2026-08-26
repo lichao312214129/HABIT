@@ -20,11 +20,16 @@ import numpy as np
 import pytest
 
 from habit.kernels.habitat_label_match import (
+    adjusted_rand_index,
     align_label_array,
+    fit_feature_match_scale,
+    habitat_dice_from_mapping,
     habitat_intensity_centroids,
     match_label_ids,
     match_labels_by_centroid,
+    match_labels_by_features,
     match_labels_by_overlap,
+    overlap_count_table,
     remap_label_array,
 )
 
@@ -209,7 +214,223 @@ def test_intensity_centroids_are_means() -> None:
 
 
 def test_unknown_method_raises() -> None:
-    """Only centroid and overlap are accepted."""
+    """Only centroid, features, and overlap are accepted."""
     labels = _two_block_labels()
     with pytest.raises(ValueError, match="method"):
         align_label_array(labels, labels, method="hungarian")
+
+
+def test_feature_match_zscore_recovers_energy_shift() -> None:
+    """Unscaled habitat means + cohort z-score survive a global Energy shift.
+
+    Patient A: habitat 1 = (8e6, 0.12), habitat 2 = (2e7, 0.03).
+    Patient B is the same pair with Energy += 1.5e7 and ids swapped.
+    A global Energy offset makes raw Euclidean costs nearly tied
+    (1-D translation invariance). After column z-score, Coarseness
+    has equal weight and the swapped ids are recovered uniquely.
+    """
+    reference_ids = np.array([1, 2], dtype=np.int64)
+    moving_ids = np.array([1, 2], dtype=np.int64)
+    # Rows: habitat 1, habitat 2. Columns: Energy, Coarseness.
+    reference = np.array([[8.0e6, 0.12], [2.0e7, 0.03]], dtype=np.float64)
+    # Moving id 1 is the bright habitat, id 2 is the dark one, plus shift.
+    moving = np.array([[2.0e7 + 1.5e7, 0.03], [8.0e6 + 1.5e7, 0.12]], dtype=np.float64)
+    named = match_labels_by_features(reference_ids, reference, moving_ids, moving)
+    assert named == {1: 2, 2: 1}
+
+
+def test_feature_match_not_per_tumor_minmax() -> None:
+    """Per-tumour MinMax moves a habitat when that tumour's own range changes.
+
+    Unscaled means of the dark habitat stay close (8e6 vs 9e6). After
+    each tumour MinMax, a wider Energy max on B pulls the same biology
+    from 0.26 down to 0.11. Cohort z-score on the unscaled rows still
+    pairs dark-to-dark / bright-to-bright.
+    """
+    reference_ids = np.array([1, 2], dtype=np.int64)
+    moving_ids = np.array([1, 2], dtype=np.int64)
+    reference_raw = np.array([[8.0e6, 0.12], [2.0e7, 0.03]], dtype=np.float64)
+    moving_raw = np.array([[2.2e7, 0.04], [9.0e6, 0.11]], dtype=np.float64)
+    a_energy = (8.0e6 - 2.0e6) / (2.5e7 - 2.0e6)
+    b_energy_wide = (9.0e6 - 5.0e6) / (4.0e7 - 5.0e6)
+    b_energy_narrow = (9.0e6 - 5.0e6) / (2.8e7 - 5.0e6)
+    assert abs(a_energy - b_energy_wide) > abs(a_energy - b_energy_narrow)
+    named = match_labels_by_features(
+        reference_ids, reference_raw, moving_ids, moving_raw
+    )
+    assert named == {1: 2, 2: 1}
+
+
+def test_feature_match_volume_is_tiebreak_only() -> None:
+    """Equal feature rows: volume fraction breaks the remaining tie."""
+    reference_ids = np.array([1, 2], dtype=np.int64)
+    moving_ids = np.array([1, 2], dtype=np.int64)
+    # Identical feature profiles; Hungarian needs a secondary key.
+    features = np.array([[0.0, 1.0], [0.0, 1.0]], dtype=np.float64)
+    mapping = match_labels_by_features(
+        reference_ids,
+        features,
+        moving_ids,
+        features,
+        standardize="none",
+        reference_volumes=np.array([0.8, 0.2]),
+        moving_volumes=np.array([0.25, 0.75]),
+    )
+    assert mapping == {1: 2, 2: 1}
+
+
+def test_feature_match_pearson_after_zscore() -> None:
+    """Pearson cost after cohort z-score still recovers a swapped pair."""
+    reference_ids = np.array([1, 2], dtype=np.int64)
+    moving_ids = np.array([1, 2], dtype=np.int64)
+    reference = np.array(
+        [[8.0e6, 0.12, 1.0], [2.0e7, 0.03, 8.0]], dtype=np.float64
+    )
+    moving = np.array(
+        [[2.0e7, 0.03, 8.0], [8.0e6, 0.12, 1.0]], dtype=np.float64
+    )
+    mapping = match_labels_by_features(
+        reference_ids, reference, moving_ids, moving, metric="pearson"
+    )
+    assert mapping == {1: 2, 2: 1}
+
+
+def test_feature_match_hungarian_is_one_to_one() -> None:
+    """Two moving habitats cannot claim the same reference id."""
+    reference_ids = np.array([1, 2], dtype=np.int64)
+    moving_ids = np.array([1, 2], dtype=np.int64)
+    # Both moving rows are closer to reference 1 than to reference 2.
+    reference = np.array([[0.0, 0.0], [10.0, 10.0]], dtype=np.float64)
+    moving = np.array([[0.1, 0.1], [0.2, 0.2]], dtype=np.float64)
+    mapping = match_labels_by_features(
+        reference_ids, reference, moving_ids, moving, standardize="none"
+    )
+    assert mapping == {1: 1, 2: 2}
+    assert len(set(mapping.values())) == 2
+
+
+def test_locked_cohort_scaler_matches_pairwise_zscore() -> None:
+    """A scaler fit on stacked rows equals the pairwise default."""
+    reference = np.array([[8.0e6, 0.12], [2.0e7, 0.03]], dtype=np.float64)
+    moving = np.array([[9.0e6, 0.11], [2.2e7, 0.04]], dtype=np.float64)
+    ids = np.array([1, 2], dtype=np.int64)
+    location, scale = fit_feature_match_scale((reference, moving))
+    locked = match_labels_by_features(
+        ids, reference, ids, moving, location=location, scale=scale
+    )
+    pairwise = match_labels_by_features(ids, reference, ids, moving)
+    assert locked == pairwise == {1: 1, 2: 2}
+
+
+def test_median_reduction_is_robust_to_one_outlier_voxel() -> None:
+    """Median summaries ignore a single extreme voxel; mean does not."""
+    labels = _two_block_labels()
+    image = np.zeros(labels.shape + (2,), dtype=np.float64)
+    image[labels == 1] = (8.0e6, 0.12)
+    image[labels == 2] = (2.0e7, 0.03)
+    image[0, 0, 0] = (8.0e8, 0.12)
+    _ids_mean, mean_cent = habitat_intensity_centroids(image, labels, reduction="mean")
+    _ids_med, med_cent = habitat_intensity_centroids(image, labels, reduction="median")
+    assert mean_cent[0, 0] > med_cent[0, 0]
+    assert med_cent[0, 0] == pytest.approx(8.0e6)
+
+
+def _overlap_table_nested_loop(
+    reference: np.ndarray, moving: np.ndarray
+) -> np.ndarray:
+    """Pre-speedup overlap table: one full-volume scan per id pair."""
+    from habit.kernels.habitat_label_match import present_habitat_ids
+
+    ref_ids = present_habitat_ids(reference)
+    mov_ids = present_habitat_ids(moving)
+    overlap = np.zeros((mov_ids.size, ref_ids.size), dtype=np.int64)
+    for column, ref_id in enumerate(ref_ids):
+        selector = reference == ref_id
+        overlap[:, column] = [
+            int(np.count_nonzero(selector & (moving == mov_id)))
+            for mov_id in mov_ids
+        ]
+    return overlap
+
+
+def test_overlap_bincount_matches_nested_loop() -> None:
+    """bincount contingency must be bit-identical to the old nested loop."""
+    rng = np.random.default_rng(7)
+    # Sparse labels on a large lattice: the case that used to cost O(K^2 N).
+    volume = np.zeros((64, 80, 80), dtype=np.int32)
+    volume[8:24, 10:40, 12:44] = rng.integers(0, 5, size=(16, 30, 32))
+    moving = volume.copy()
+    remap = {1: 3, 2: 1, 3: 4, 4: 2}
+    for old_id, new_id in remap.items():
+        moving[volume == old_id] = new_id
+    moving[20:22, 10:16, 12:18] = 2
+    _ref_ids, _mov_ids, table = overlap_count_table(volume, moving)
+    assert np.array_equal(table, _overlap_table_nested_loop(volume, moving))
+    mapping = match_labels_by_overlap(volume, moving)
+    from scipy.optimize import linear_sum_assignment
+
+    rows, columns = linear_sum_assignment(-_overlap_table_nested_loop(volume, moving))
+    from habit.kernels.habitat_label_match import present_habitat_ids
+
+    ref_ids = present_habitat_ids(volume)
+    mov_ids = present_habitat_ids(moving)
+    expected = {
+        int(mov_ids[row]): int(ref_ids[column])
+        for row, column in zip(rows.tolist(), columns.tolist())
+    }
+    assert mapping == expected
+
+
+def test_dice_from_mapping_matches_count_nonzero() -> None:
+    """Dice helper must match a full-volume count_nonzero scan."""
+    reference = _two_block_labels()
+    moving = _swap_ids(reference)
+    moving[1, 0, 0] = 0
+    mapping = match_labels_by_overlap(reference, moving)
+    rows = habitat_dice_from_mapping(reference, moving, mapping)
+    matched_moving = {ref_id: mov_id for mov_id, ref_id in mapping.items()}
+    by_id = {int(hid): (mid, dice, n_ref, n_mov) for hid, mid, dice, n_ref, n_mov in rows}
+    for hid in (1, 2):
+        mid = int(matched_moving[hid])
+        n_ref = int(np.count_nonzero(reference == hid))
+        n_mov = int(np.count_nonzero(moving == mid))
+        inter = int(np.count_nonzero((reference == hid) & (moving == mid)))
+        dice = 2.0 * inter / (n_ref + n_mov)
+        assert by_id[hid][0] == mid
+        assert by_id[hid][2] == n_ref
+        assert by_id[hid][3] == n_mov
+        assert by_id[hid][1] == pytest.approx(dice)
+
+
+def test_adjusted_rand_index_permutation_invariant() -> None:
+    """Swapping habitat ids must leave ARI at 1 on an otherwise identical map."""
+    reference = _two_block_labels()
+    moving = _swap_ids(reference)
+    assert adjusted_rand_index(reference, moving) == pytest.approx(1.0)
+    assert adjusted_rand_index(reference, reference) == pytest.approx(1.0)
+
+
+def test_adjusted_rand_index_matches_sklearn_and_ignores_background() -> None:
+    """Kernel ARI must match sklearn on jointly labelled voxels only."""
+    from sklearn.metrics import adjusted_rand_score
+
+    reference = _two_block_labels()
+    moving = reference.copy()
+    moving[0:2, 0:2, 0:2] = 2
+    moving[2:4, 0:2, 0:2] = 1
+    moving[0, 3, 3] = 1
+    both = (reference > 0) & (moving > 0)
+    expected = float(adjusted_rand_score(reference[both], moving[both]))
+    assert adjusted_rand_index(reference, moving) == pytest.approx(expected)
+    mask = np.zeros(reference.shape, dtype=bool)
+    mask[0:2] = True
+    both_m = mask & (reference > 0) & (moving > 0)
+    if int(both_m.sum()) >= 2:
+        expected_m = float(adjusted_rand_score(reference[both_m], moving[both_m]))
+        assert adjusted_rand_index(reference, moving, mask=mask) == pytest.approx(expected_m)
+
+
+def test_adjusted_rand_index_empty_is_nan() -> None:
+    """Fewer than two jointly labelled voxels yield NaN, not a fake 1."""
+    empty = np.zeros((3, 3, 3), dtype=np.int32)
+    assert np.isnan(adjusted_rand_index(empty, empty))

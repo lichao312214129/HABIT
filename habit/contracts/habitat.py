@@ -54,6 +54,8 @@ __all__ = [
 #: changes; older files must either load or fail with a clear message.
 _FORMAT_NAME = "habit.habitatmodel"
 _FORMAT_VERSION = 1
+_VOXEL_FIELD_FORMAT_NAME = "habit.voxelfeaturefield"
+_VOXEL_FIELD_FORMAT_VERSION = 1
 
 
 @dataclass(frozen=True, eq=False)
@@ -191,6 +193,129 @@ class VoxelFeatureField:
                 produced_by=produced_by,
                 spec_fingerprint=spec_fingerprint,
             ),
+        )
+
+    def save(self, path: Union[str, Path]) -> Path:
+        """
+        Persist the field as a versioned zip (manifest + arrays).
+
+        Not a pickle: the archive stays readable across HABIT versions.
+        ``voxel_batch`` and device knobs do not belong here; they do not
+        change the numbers.
+
+        Args:
+            path: Destination file path.
+
+        Returns:
+            The written path.
+        """
+        import io
+
+        from habit.utils.write_access import write_via_temp_then_replace
+
+        destination = Path(path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        manifest = {
+            "format": _VOXEL_FIELD_FORMAT_NAME,
+            "format_version": _VOXEL_FIELD_FORMAT_VERSION,
+            "habit_version": _habit_version,
+            "subject_id": self.subject_id,
+            "feature_names": list(self.feature_names),
+            "geometry": {
+                "shape": list(self.geometry.shape),
+                "spacing": list(self.geometry.spacing),
+                "origin": list(self.geometry.origin),
+                "direction": list(self.geometry.direction),
+                "frame_of_reference": self.geometry.frame_of_reference,
+            },
+            "provenance": _provenance_to_dict(self.provenance),
+        }
+        values_buf = io.BytesIO()
+        index_buf = io.BytesIO()
+        np.save(values_buf, self.values, allow_pickle=False)
+        np.save(index_buf, self.voxel_index, allow_pickle=False)
+
+        def _write_archive(tmp_path: Path) -> None:
+            with zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                zf.writestr(
+                    "manifest.json",
+                    json.dumps(manifest, indent=2, sort_keys=True),
+                )
+                zf.writestr("arrays/values.npy", values_buf.getvalue())
+                zf.writestr("arrays/voxel_index.npy", index_buf.getvalue())
+
+        write_via_temp_then_replace(destination, _write_archive)
+        return destination
+
+    @classmethod
+    def load(cls, path: Union[str, Path]) -> "VoxelFeatureField":
+        """
+        Load a field previously written by :meth:`save`.
+
+        Args:
+            path: Source file path.
+
+        Returns:
+            The reconstructed field.
+
+        Raises:
+            FileNotFoundError: If ``path`` does not exist.
+            CompatibilityError: If the archive is not a voxel-field file
+                or is newer than this HABIT can read.
+        """
+        import io
+
+        source = Path(path)
+        if not source.is_file():
+            raise FileNotFoundError(f"VoxelFeatureField file not found: {source}")
+        try:
+            archive = zipfile.ZipFile(source, "r")
+        except zipfile.BadZipFile as exc:
+            raise CompatibilityError(
+                f"{source} is not a {_VOXEL_FIELD_FORMAT_NAME} archive."
+            ) from exc
+        with archive:
+            try:
+                manifest = json.loads(archive.read("manifest.json").decode("utf-8"))
+            except KeyError as exc:
+                raise CompatibilityError(
+                    f"{source} lacks manifest.json; not a "
+                    f"{_VOXEL_FIELD_FORMAT_NAME} file."
+                ) from exc
+            if manifest.get("format") != _VOXEL_FIELD_FORMAT_NAME:
+                raise CompatibilityError(
+                    f"{source} has format {manifest.get('format')!r}; expected "
+                    f"{_VOXEL_FIELD_FORMAT_NAME!r}."
+                )
+            file_version = int(manifest.get("format_version", 0))
+            if file_version > _VOXEL_FIELD_FORMAT_VERSION:
+                raise CompatibilityError(
+                    f"{source} was written with format version {file_version}, "
+                    f"but this HABIT (v{_habit_version}) reads up to version "
+                    f"{_VOXEL_FIELD_FORMAT_VERSION}."
+                )
+            values = np.load(
+                io.BytesIO(archive.read("arrays/values.npy")),
+                allow_pickle=False,
+            )
+            voxel_index = np.load(
+                io.BytesIO(archive.read("arrays/voxel_index.npy")),
+                allow_pickle=False,
+            )
+        geo = manifest["geometry"]
+        return cls(
+            subject_id=str(manifest["subject_id"]),
+            feature_names=tuple(str(name) for name in manifest["feature_names"]),
+            values=values,
+            voxel_index=voxel_index,
+            geometry=Geometry(
+                shape=tuple(int(v) for v in geo["shape"]),
+                spacing=tuple(float(v) for v in geo["spacing"]),
+                origin=tuple(float(v) for v in geo["origin"]),
+                direction=tuple(float(v) for v in geo["direction"]),
+                frame_of_reference=geo.get("frame_of_reference"),
+            ),
+            provenance=_provenance_from_dict(manifest["provenance"]),
         )
 
 
