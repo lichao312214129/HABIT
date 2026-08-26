@@ -530,12 +530,38 @@ def test_registry_exposes_every_v01_method_name() -> None:
         "minmax",
         "zscore",
         "robust",
+        "maxabs",
+        "quantile",
+        "l2",
         "log",
         "winsorize",
         "binning",
         "variance_filter",
         "correlation_filter",
     }
+
+
+@pytest.mark.unit
+def test_maxabs_quantile_l2_are_finite() -> None:
+    """New scalers run on a mixed-scale block without NaN."""
+    block = _block()
+    maxabs = FeaturePreprocessingMethodRegistry.create("maxabs")
+    quantile = FeaturePreprocessingMethodRegistry.create(
+        "quantile", n_quantiles=32,
+    )
+    l2 = FeaturePreprocessingMethodRegistry.create("l2")
+    maxabs_out = maxabs.transform(block, maxabs.fit(block))
+    quantile_out = quantile.transform(block, quantile.fit(block))
+    l2_out = l2.transform(block, l2.fit(block))
+    assert np.isfinite(maxabs_out.to_numpy()).all()
+    assert np.isfinite(quantile_out.to_numpy()).all()
+    assert np.isfinite(l2_out.to_numpy()).all()
+    np.testing.assert_allclose(
+        maxabs_out.abs().max().to_numpy(),
+        np.ones(maxabs_out.shape[1]),
+    )
+    norms = np.linalg.norm(l2_out.to_numpy(dtype=np.float64), axis=1)
+    np.testing.assert_allclose(norms, np.ones(len(norms)), atol=1e-12)
 
 
 @pytest.mark.unit

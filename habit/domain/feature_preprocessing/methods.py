@@ -63,8 +63,14 @@ __all__ = [
     "ImputeParams",
     "LogTransform",
     "LogTransformParams",
+    "L2Normalizer",
+    "L2NormalizerParams",
+    "MaxAbsScaling",
+    "MaxAbsScalingParams",
     "MinMaxScaling",
     "MinMaxScalingParams",
+    "QuantileTransform",
+    "QuantileTransformParams",
     "RobustScaling",
     "RobustScalingParams",
     "VarianceFilter",
@@ -315,6 +321,196 @@ class RobustScaling(_ScopedMethod):
             The robust-scaled matrix.
         """
         return _kernel.apply_robust(block, state)
+
+
+class MaxAbsScalingParams(BaseModel):
+    """Constructor parameters for :class:`MaxAbsScaling`."""
+
+    model_config = ConfigDict(extra="forbid")
+    across_features: bool = False
+
+
+@FeaturePreprocessingMethodRegistry.register("maxabs")
+class MaxAbsScaling(_ScopedMethod):
+    """
+    Scale features by the maximum absolute value.
+
+    Leaves zeros at zero and does not shift the origin, so sparse or
+    already-centered radiomics columns keep their sign. A zero-peak column
+    divides by 1.0.
+    """
+
+    _name = "maxabs"
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn the max-absolute peaks.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_maxabs(block, self._across_features)
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Apply the learned max-absolute scaling.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The scaled matrix.
+        """
+        return _kernel.apply_maxabs(block, state)
+
+
+class QuantileTransformParams(BaseModel):
+    """Constructor parameters for :class:`QuantileTransform`."""
+
+    model_config = ConfigDict(extra="forbid")
+    across_features: bool = False
+    n_quantiles: int = 1000
+    output_distribution: str = "uniform"
+
+
+@FeaturePreprocessingMethodRegistry.register("quantile")
+class QuantileTransform:
+    """
+    Map each feature onto a uniform or normal distribution by percentile rank.
+
+    Distance-based clustering then sees comparable marginals even when one
+    radiomics column is heavy-tailed and another is bounded. Knots are
+    learned at fit time; prediction rows are interpolated and clipped to
+    the training extrema.
+    """
+
+    _name = "quantile"
+    changes_columns: bool = False
+
+    def __init__(
+        self,
+        across_features: bool = False,
+        n_quantiles: int = 1000,
+        output_distribution: str = "uniform",
+    ) -> None:
+        dist = str(output_distribution).strip().lower()
+        if dist not in _kernel.QUANTILE_DISTRIBUTIONS:
+            raise HABITAPIError(
+                f"quantile: unknown output_distribution {output_distribution!r}; "
+                f"expected one of {list(_kernel.QUANTILE_DISTRIBUTIONS)}."
+            )
+        if int(n_quantiles) < 2:
+            raise HABITAPIError(
+                f"quantile: n_quantiles must be >= 2; got {n_quantiles!r}."
+            )
+        self._across_features = bool(across_features)
+        self._n_quantiles = int(n_quantiles)
+        self._output_distribution = dist
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._name,
+            params={
+                "across_features": self._across_features,
+                "n_quantiles": self._n_quantiles,
+                "output_distribution": self._output_distribution,
+            },
+        )
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Learn quantile knots.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_quantile(
+            block,
+            self._across_features,
+            n_quantiles=self._n_quantiles,
+            output_distribution=self._output_distribution,
+        )
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Apply the learned quantile map.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The rank-mapped matrix.
+        """
+        return _kernel.apply_quantile(block, state)
+
+
+class L2NormalizerParams(BaseModel):
+    """Constructor parameters for :class:`L2Normalizer`."""
+
+    model_config = ConfigDict(extra="forbid")
+
+
+@FeaturePreprocessingMethodRegistry.register("l2")
+class L2Normalizer:
+    """
+    Scale each row (voxel / supervoxel) to unit Euclidean length.
+
+    After this step clustering compares feature *directions*, not magnitudes.
+    A zero-length row stays zero. There are no training statistics: fit only
+    records the column count so a later schema change is rejected.
+    """
+
+    _name = "l2"
+    changes_columns: bool = False
+
+    def __init__(self) -> None:
+        return
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(name=self._name, params={})
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Record the feature width.
+
+        Args:
+            block: Unit-by-feature matrix to learn from.
+
+        Returns:
+            State to pass to :meth:`transform`.
+        """
+        return _kernel.fit_l2(block)
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Apply per-row L2 normalisation.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit`.
+
+        Returns:
+            The row-normalised matrix.
+        """
+        return _kernel.apply_l2(block, state)
 
 
 class LogTransformParams(BaseModel):
@@ -884,6 +1080,13 @@ FeaturePreprocessingMethodRegistry.register_params_model(
 FeaturePreprocessingMethodRegistry.register_params_model(
     "robust", RobustScalingParams
 )
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "maxabs", MaxAbsScalingParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "quantile", QuantileTransformParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model("l2", L2NormalizerParams)
 FeaturePreprocessingMethodRegistry.register_params_model("log", LogTransformParams)
 FeaturePreprocessingMethodRegistry.register_params_model(
     "winsorize", WinsorizingParams

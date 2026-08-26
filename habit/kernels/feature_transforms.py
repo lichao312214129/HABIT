@@ -74,17 +74,24 @@ from scipy import stats
 
 __all__ = [
     "IMPUTE_STRATEGIES",
+    "QUANTILE_DISTRIBUTIONS",
     "apply_binning",
     "apply_impute",
+    "apply_l2",
     "apply_log",
+    "apply_maxabs",
     "apply_minmax",
+    "apply_quantile",
     "apply_robust",
     "apply_winsorize",
     "apply_zscore",
     "fit_binning",
     "fit_impute",
+    "fit_l2",
     "fit_log",
+    "fit_maxabs",
     "fit_minmax",
+    "fit_quantile",
     "fit_robust",
     "fit_winsorize",
     "fit_zscore",
@@ -439,6 +446,210 @@ def apply_robust(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
         _as_series(state["q3s"], columns) - _as_series(state["q1s"], columns)
     ).replace(0, 1.0)
     return (block - _as_series(state["medians"], columns)) / spread
+
+
+#: Output maps for :func:`fit_quantile` / :func:`apply_quantile`.
+QUANTILE_DISTRIBUTIONS: Tuple[str, ...] = ("uniform", "normal")
+#: Clip uniform ranks before ``norm.ppf`` so a 0/1 rank does not become +/-inf.
+_QUANTILE_NORMAL_CLIP: float = 1e-7
+
+
+def fit_maxabs(block: pd.DataFrame, across_features: bool) -> Dict[str, Any]:
+    """
+    Learn max-absolute scaling state.
+
+    Args:
+        block: Matrix to learn from.
+        across_features: Pool every column into one peak instead of
+            keeping per-column peaks.
+
+    Returns:
+        Serialisable state for :func:`apply_maxabs`.
+    """
+    abs_block = block.abs()
+    if across_features:
+        peak = float(abs_block.to_numpy().max())
+        return {
+            "across_features": True,
+            "maxabs": peak if peak != 0.0 else 1.0,
+        }
+    return {
+        "across_features": False,
+        "maxabs": _as_state(abs_block.max().replace(0, 1.0)),
+    }
+
+
+def apply_maxabs(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
+    """
+    Scale features by the learned max absolute value.
+
+    Args:
+        block: Matrix to transform.
+        state: State from :func:`fit_maxabs`.
+
+    Returns:
+        The scaled matrix. A zero peak divides by 1.0 so the column stays 0.
+    """
+    if state["across_features"]:
+        peak = _scalar_matching(state["maxabs"], block)
+        return block / peak
+    columns = list(block.columns)
+    return block / _as_series_matching(state["maxabs"], columns, block)
+
+
+def fit_quantile(
+    block: pd.DataFrame,
+    across_features: bool,
+    n_quantiles: int = 1000,
+    output_distribution: str = "uniform",
+) -> Dict[str, Any]:
+    """
+    Learn percentile ranks for a quantile transform.
+
+    Args:
+        block: Matrix to learn from.
+        across_features: Pool every column into one reference distribution.
+        n_quantiles: Maximum number of quantile knots. Capped at the number
+            of finite samples so a small table still has a well-defined map.
+        output_distribution: ``uniform`` maps ranks to [0, 1]; ``normal``
+            then applies the standard-normal quantile function.
+
+    Returns:
+        Serialisable state for :func:`apply_quantile`.
+
+    Raises:
+        ValueError: If ``n_quantiles`` is below 2 or the distribution name
+            is unknown.
+    """
+    if int(n_quantiles) < 2:
+        raise ValueError(f"n_quantiles must be >= 2; got {n_quantiles!r}.")
+    dist = str(output_distribution).strip().lower()
+    if dist not in QUANTILE_DISTRIBUTIONS:
+        raise ValueError(
+            f"output_distribution must be one of {QUANTILE_DISTRIBUTIONS}; "
+            f"got {output_distribution!r}."
+        )
+    values = block.to_numpy(dtype=np.float64, copy=False)
+    if across_features:
+        finite = values[np.isfinite(values)]
+        n_knots = int(min(int(n_quantiles), max(finite.size, 2)))
+        probs = np.linspace(0.0, 1.0, n_knots)
+        if finite.size == 0:
+            knots = np.zeros(n_knots, dtype=np.float64)
+        else:
+            knots = np.quantile(finite, probs)
+        return {
+            "across_features": True,
+            "n_quantiles": n_knots,
+            "output_distribution": dist,
+            "references": probs.tolist(),
+            "quantiles": knots.tolist(),
+        }
+    n_rows = int(values.shape[0])
+    n_knots = int(min(int(n_quantiles), max(n_rows, 2)))
+    probs = np.linspace(0.0, 1.0, n_knots)
+    knots: List[List[float]] = []
+    for column in range(int(values.shape[1])):
+        finite = values[:, column]
+        finite = finite[np.isfinite(finite)]
+        if finite.size == 0:
+            knots.append(np.zeros(n_knots, dtype=np.float64).tolist())
+        else:
+            knots.append(np.quantile(finite, probs).tolist())
+    return {
+        "across_features": False,
+        "n_quantiles": n_knots,
+        "output_distribution": dist,
+        "references": probs.tolist(),
+        "quantiles": knots,
+    }
+
+
+def _quantile_map_column(
+    values: np.ndarray,
+    knots: np.ndarray,
+    references: np.ndarray,
+) -> np.ndarray:
+    """Map one column through learned quantile knots to uniform ranks.
+
+    Duplicate knots (constant or nearly constant columns) collapse to the
+    mid-rank 0.5 so the column does not become NaN.
+    """
+    if knots.size == 0:
+        return np.full(values.shape, 0.5, dtype=np.float64)
+    if float(np.nanmax(knots) - np.nanmin(knots)) == 0.0:
+        return np.full(values.shape, 0.5, dtype=np.float64)
+    return np.interp(values, knots, references, left=references[0], right=references[-1])
+
+
+def apply_quantile(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
+    """
+    Map features onto the learned quantile distribution.
+
+    Args:
+        block: Matrix to transform.
+        state: State from :func:`fit_quantile`.
+
+    Returns:
+        Uniform ranks in [0, 1], or standard-normal scores when the fitted
+        distribution is ``normal``. Training extrema clip out-of-range
+        values (no test leakage of quantile knots).
+    """
+    references = np.asarray(state["references"], dtype=np.float64)
+    values = block.to_numpy(dtype=np.float64, copy=True)
+    if state["across_features"]:
+        knots = np.asarray(state["quantiles"], dtype=np.float64)
+        mapped = _quantile_map_column(values.ravel(), knots, references)
+        values = mapped.reshape(values.shape)
+    else:
+        knots_all = np.asarray(state["quantiles"], dtype=np.float64)
+        for column in range(values.shape[1]):
+            values[:, column] = _quantile_map_column(
+                values[:, column], knots_all[column], references,
+            )
+    if str(state["output_distribution"]) == "normal":
+        clipped = np.clip(values, _QUANTILE_NORMAL_CLIP, 1.0 - _QUANTILE_NORMAL_CLIP)
+        values = stats.norm.ppf(clipped)
+    return pd.DataFrame(values, columns=block.columns, index=block.index)
+
+
+def fit_l2(block: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Record that L2 normalisation is per-row and has no training statistics.
+
+    Args:
+        block: Matrix to learn from. Only the column count is stored so a
+            later transform can reject a schema change.
+
+    Returns:
+        Serialisable state for :func:`apply_l2`.
+    """
+    return {"n_features": int(block.shape[1])}
+
+
+def apply_l2(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
+    """
+    Scale each row to unit Euclidean length.
+
+    Args:
+        block: Matrix to transform. Each row is one clustering unit.
+        state: State from :func:`fit_l2`.
+
+    Returns:
+        Row-normalised matrix. A zero-length row stays zero.
+
+    Raises:
+        ValueError: If the column count does not match the fitted width.
+    """
+    expected = int(state["n_features"])
+    if int(block.shape[1]) != expected:
+        raise ValueError(
+            f"l2 expected {expected} feature columns; got {block.shape[1]}."
+        )
+    values = block.to_numpy(dtype=np.float64, copy=True)
+    norms = np.linalg.norm(values, axis=1, keepdims=True)
+    norms = np.where(norms == 0.0, 1.0, norms)
+    return pd.DataFrame(values / norms, columns=block.columns, index=block.index)
 
 
 # ---------------------------------------------------------------------------

@@ -61,6 +61,12 @@ __all__ = [
     "ZScorePreprocessorParams",
     "RobustPreprocessor",
     "RobustPreprocessorParams",
+    "MaxAbsPreprocessor",
+    "MaxAbsPreprocessorParams",
+    "QuantilePreprocessor",
+    "QuantilePreprocessorParams",
+    "L2Preprocessor",
+    "L2PreprocessorParams",
     "BinningPreprocessor",
     "BinningPreprocessorParams",
     "WinsorizePreprocessor",
@@ -244,6 +250,143 @@ class RobustPreprocessor(_ScopedScaler):
     _spec_name = "robust"
     _fit_kernel = staticmethod(_kernel.fit_robust)
     _apply_kernel = staticmethod(_kernel.apply_robust)
+
+
+class MaxAbsPreprocessorParams(BaseModel):
+    """Constructor parameters for :class:`MaxAbsPreprocessor`."""
+
+    model_config = ConfigDict(extra="forbid")
+    #: When true, learn ONE peak across all feature columns.
+    across_features: bool = False
+
+
+@TablePreprocessorRegistry.register("maxabs")
+class MaxAbsPreprocessor(_ScopedScaler):
+    """
+    Scale every feature by its training max absolute value.
+
+    Does not shift the origin. A zero-peak column divides by 1.0.
+    """
+
+    _spec_name = "maxabs"
+    _fit_kernel = staticmethod(_kernel.fit_maxabs)
+    _apply_kernel = staticmethod(_kernel.apply_maxabs)
+
+
+class QuantilePreprocessorParams(BaseModel):
+    """Constructor parameters for :class:`QuantilePreprocessor`."""
+
+    model_config = ConfigDict(extra="forbid")
+    across_features: bool = False
+    n_quantiles: int = 1000
+    output_distribution: str = "uniform"
+
+
+@TablePreprocessorRegistry.register("quantile")
+class QuantilePreprocessor(_FittedPreprocessor):
+    """
+    Map each feature onto a uniform or normal distribution by percentile rank.
+
+    Knots come from the training table only. Prediction rows are interpolated
+    and clipped to those training extrema.
+    """
+
+    _spec_name = "quantile"
+
+    def __init__(
+        self,
+        across_features: bool = False,
+        n_quantiles: int = 1000,
+        output_distribution: str = "uniform",
+    ) -> None:
+        super().__init__()
+        dist = str(output_distribution).strip().lower()
+        if dist not in _kernel.QUANTILE_DISTRIBUTIONS:
+            raise HABITAPIError(
+                f"quantile: unknown output_distribution {output_distribution!r}; "
+                f"expected one of {list(_kernel.QUANTILE_DISTRIBUTIONS)}."
+            )
+        if int(n_quantiles) < 2:
+            raise HABITAPIError(
+                f"quantile: n_quantiles must be >= 2; got {n_quantiles!r}."
+            )
+        self._across_features = bool(across_features)
+        self._n_quantiles = int(n_quantiles)
+        self._output_distribution = dist
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(
+            name=self._spec_name,
+            params={
+                "across_features": self._across_features,
+                "n_quantiles": self._n_quantiles,
+                "output_distribution": self._output_distribution,
+            },
+        )
+
+    def fit(self, table: FeatureTable) -> "QuantilePreprocessor":
+        """Learn quantile knots from the training table."""
+        block = table.frame[list(table.feature_columns)]
+        self._remember_fit(
+            table,
+            _kernel.fit_quantile(
+                block,
+                self._across_features,
+                n_quantiles=self._n_quantiles,
+                output_distribution=self._output_distribution,
+            ),
+        )
+        return self
+
+    def transform(self, table: FeatureTable) -> FeatureTable:
+        """Apply the learned quantile map."""
+        block = self._block_for_transform(table)
+        state = self._state
+        assert state is not None
+        return self._finish(
+            table, _kernel.apply_quantile(block, state), self._fit_columns
+        )
+
+
+class L2PreprocessorParams(BaseModel):
+    """Constructor parameters for :class:`L2Preprocessor`."""
+
+    model_config = ConfigDict(extra="forbid")
+
+
+@TablePreprocessorRegistry.register("l2")
+class L2Preprocessor(_FittedPreprocessor):
+    """
+    Scale each table row to unit Euclidean length.
+
+    On a modelling table each row is one subject. Fit records the feature
+    width only; a later column-set change is rejected.
+    """
+
+    _spec_name = "l2"
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(name=self._spec_name, params={})
+
+    def fit(self, table: FeatureTable) -> "L2Preprocessor":
+        """Record the feature width from the training table."""
+        block = table.frame[list(table.feature_columns)]
+        self._remember_fit(table, _kernel.fit_l2(block))
+        return self
+
+    def transform(self, table: FeatureTable) -> FeatureTable:
+        """Apply per-row L2 normalisation."""
+        block = self._block_for_transform(table)
+        state = self._state
+        assert state is not None
+        return self._finish(table, _kernel.apply_l2(block, state), self._fit_columns)
 
 
 # ---------------------------------------------------------------------------
@@ -649,6 +792,11 @@ class PreciseCorrelationFilterPreprocessor(_FittedPreprocessor):
 TablePreprocessorRegistry.register_params_model("minmax", MinMaxPreprocessorParams)
 TablePreprocessorRegistry.register_params_model("zscore", ZScorePreprocessorParams)
 TablePreprocessorRegistry.register_params_model("robust", RobustPreprocessorParams)
+TablePreprocessorRegistry.register_params_model("maxabs", MaxAbsPreprocessorParams)
+TablePreprocessorRegistry.register_params_model(
+    "quantile", QuantilePreprocessorParams
+)
+TablePreprocessorRegistry.register_params_model("l2", L2PreprocessorParams)
 TablePreprocessorRegistry.register_params_model("binning", BinningPreprocessorParams)
 TablePreprocessorRegistry.register_params_model("winsorize", WinsorizePreprocessorParams)
 TablePreprocessorRegistry.register_params_model("log", LogPreprocessorParams)

@@ -24,8 +24,11 @@ from habit.domain.table_preprocessing import (
     BinningPreprocessor,
     CorrelationFilterPreprocessor,
     PreciseCorrelationFilterPreprocessor,
+    L2Preprocessor,
     LogPreprocessor,
+    MaxAbsPreprocessor,
     MinMaxPreprocessor,
+    QuantilePreprocessor,
     RobustPreprocessor,
     TablePreprocessorRegistry,
     VarianceFilterPreprocessor,
@@ -40,6 +43,9 @@ _ALL = (
     MinMaxPreprocessor,
     ZScorePreprocessor,
     RobustPreprocessor,
+    MaxAbsPreprocessor,
+    QuantilePreprocessor,
+    L2Preprocessor,
     BinningPreprocessor,
     WinsorizePreprocessor,
     LogPreprocessor,
@@ -56,6 +62,9 @@ def test_registry_lists_all_eight_methods() -> None:
         "minmax",
         "zscore",
         "robust",
+        "maxabs",
+        "quantile",
+        "l2",
         "binning",
         "winsorize",
         "log",
@@ -118,6 +127,39 @@ def test_robust_scales_by_median_and_iqr() -> None:
     transformed = RobustPreprocessor().fit(table).transform(table)
     block = transformed.frame[list(transformed.feature_columns)]
     np.testing.assert_allclose(block.median().to_numpy(), np.zeros(block.shape[1]), atol=1e-12)
+
+
+@pytest.mark.unit
+def test_maxabs_divides_by_training_peak() -> None:
+    """Training peaks map to +/-1; a wider test row exceeds that."""
+    table = make_feature_table()
+    pre = MaxAbsPreprocessor().fit(table)
+    block = pre.transform(table).frame[list(table.feature_columns)]
+    np.testing.assert_allclose(block.abs().max().to_numpy(), np.ones(block.shape[1]))
+    new = make_feature_table(["X1", "X2"], seed=99)
+    new.frame.loc[:, "signal"] = [table.frame["signal"].abs().max() * 2, 0.0]
+    out = pre.transform(new)
+    assert abs(float(out.frame.loc[0, "signal"])) > 1.0
+
+
+@pytest.mark.unit
+def test_quantile_uniform_is_in_unit_interval() -> None:
+    """Uniform quantile ranks on training data stay in [0, 1]."""
+    table = make_feature_table()
+    transformed = QuantilePreprocessor(n_quantiles=32).fit(table).transform(table)
+    block = transformed.frame[list(table.feature_columns)]
+    assert float(block.min().min()) >= 0.0
+    assert float(block.max().max()) <= 1.0
+
+
+@pytest.mark.unit
+def test_l2_rows_have_unit_length() -> None:
+    """Each modelling row has Euclidean norm 1 after L2."""
+    table = make_feature_table()
+    transformed = L2Preprocessor().fit(table).transform(table)
+    block = transformed.frame[list(table.feature_columns)]
+    norms = np.linalg.norm(block.to_numpy(dtype=np.float64), axis=1)
+    np.testing.assert_allclose(norms, np.ones(len(norms)), atol=1e-12)
 
 
 @pytest.mark.unit
