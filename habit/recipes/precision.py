@@ -31,7 +31,7 @@ artefact a habitat study publishes so others cluster the SAME features.
 from __future__ import annotations
 
 import dataclasses
-from typing import Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -50,12 +50,56 @@ from habit.exceptions import HABITAPIError
 from habit.spec.specs import Spec
 from habit.utils.progress_utils import CustomTqdm
 
-__all__ = ["identify_precise_voxel_features", "voxel_radiomics_factory"]
+__all__ = [
+    "identify_precise_voxel_features",
+    "prior2024_voxel_extract_params",
+    "voxel_radiomics_factory",
+]
 
 #: Experiment names used in the result's ``panels`` / ``experiments``.
 EXPERIMENT_REPEATABILITY = "repeatability"
 EXPERIMENT_KERNEL_RADIUS = "reproducibility_kernel_radius"
 EXPERIMENT_BIN_WIDTH = "reproducibility_bin_width"
+
+
+def prior2024_voxel_extract_params(
+    params: Optional[Dict[str, Any]],
+    bin_width: float,
+) -> Dict[str, Any]:
+    """
+    Overlay Prior 2024 ``ROI_R*B*.yaml`` extract settings on a params dict.
+
+    Their GitHub ``feature_extraction/ROI_R3B12.yaml`` (and the R1/B25
+    siblings) set ``binWidth``, B-spline interpolation, isotropic 1 mm
+    resampling, ``correctMask: True``, ``maskedKernel: true``, and
+    ``initValue: nan``. The YAML omits ``voxelArrayShift``, so this
+    overlay writes ``0`` (PyRadiomics default) and overrides a HABIT
+    voxel preset that still ships ``300``. GLCM MCC / Imc1 / Imc2 stay
+    whatever the caller already listed (the paper extracts them and
+    drops MCC only at ICC).
+
+    Args:
+        params: Existing PyRadiomics mapping; ``None`` starts empty.
+        bin_width: Discretisation bin width in HU.
+
+    Returns:
+        A new mapping with the paper extract settings merged in.
+    """
+    merged: Dict[str, Any] = {} if params is None else dict(params)
+    setting: Dict[str, Any] = dict(merged.get("setting") or {})
+    setting["binWidth"] = float(bin_width)
+    setting["normalize"] = False
+    setting["interpolator"] = "sitkBSpline"
+    setting["resampledPixelSpacing"] = [1.0, 1.0, 1.0]
+    setting["correctMask"] = True
+    # Prior YAML does not set voxelArrayShift; PyRadiomics then uses 0.
+    setting["voxelArrayShift"] = 0
+    merged["setting"] = setting
+    voxel_setting: Dict[str, Any] = dict(merged.get("voxelSetting") or {})
+    voxel_setting.setdefault("maskedKernel", True)
+    voxel_setting.setdefault("initValue", float("nan"))
+    merged["voxelSetting"] = voxel_setting
+    return merged
 
 
 def voxel_radiomics_factory(
@@ -64,9 +108,10 @@ def voxel_radiomics_factory(
     """
     Build the default extractor: the bundled voxel preset at one grid point.
 
-    The preset is the CT habitat setting (R3B12, 21 stable GLCM features);
-    only ``binWidth`` varies across the grid, exactly as the paper's
-    ``ROI_R*r*B*.yaml`` files do.
+    The preset is the CT habitat setting (R3B12, 21 stable GLCM features).
+    ``binWidth`` and the Prior 2024 extract YAML (1 mm B-spline resample,
+    ``correctMask``, masked kernel) are applied on top, matching
+    ``ROI_R*B*.yaml`` in radiomicsgroup/precise-habitats.
 
     Args:
         kernel_radius: Neighbourhood radius in voxels (the ``R`` of the
@@ -80,7 +125,7 @@ def voxel_radiomics_factory(
     from habit.utils.radiomics_preset_utils import get_preset_path
 
     params = load_radiomics_params_yaml(get_preset_path("voxel"))
-    params.setdefault("setting", {})["binWidth"] = bin_width
+    params = prior2024_voxel_extract_params(params, bin_width)
     return VoxelRadiomicsFeatures(kernel_radius=kernel_radius, params=params)
 
 
@@ -140,7 +185,7 @@ def identify_precise_voxel_features(
         base_bin_width: Bin width of the base (repeatability) setting.
         perturbation: Simulated-retest perturbation; ``None`` selects the
             paper's chain (Chang-estimated Gaussian noise, sub-voxel
-            translation up to one voxel, 0.5-degree in-plane rotation).
+            translation, 0.5-degree in-plane rotation, original ROI kept).
         lcl_threshold: Lower-confidence-limit cutoff; ``0.5`` is the
             paper's "at least good" boundary.
         include: Expert overrides added regardless of the criteria.

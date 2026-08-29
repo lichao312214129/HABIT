@@ -219,6 +219,67 @@ class VoxelRadiomicsFeatures:
 
         return resolve_params_file(self.params_file, preset="voxel")
 
+    def _extract_params_for_pyradiomics(self) -> Optional[Dict[str, Any]]:
+        """
+        Copy ``params`` and drop spacing so PyRadiomics does not resample twice.
+
+        HABIT applies ``resampledPixelSpacing`` on the Subject first
+        (see :meth:`_subject_on_extract_grid`). Leaving it in the extractor
+        would resample again and desynchronise ``roi_voxels`` from the maps.
+        """
+        if self.params is None:
+            return None
+        copied: Dict[str, Any] = dict(self.params)
+        setting = dict(copied.get("setting") or {})
+        setting.pop("resampledPixelSpacing", None)
+        copied["setting"] = setting
+        return copied
+
+    def _subject_on_extract_grid(self, subject: Subject) -> Subject:
+        """
+        Resample the subject onto Prior-style isotropic spacing when asked.
+
+        Their ``ROI_R*B*.yaml`` sets ``resampledPixelSpacing: [1,1,1]`` and
+        B-spline interpolation. Doing that here keeps ``roi_voxels`` and the
+        feature maps on one grid.
+
+        Args:
+            subject: Input subject on the acquisition grid.
+
+        Returns:
+            The same subject when no spacing is requested or already matches;
+            otherwise a resampled copy (B-spline images, nearest masks).
+        """
+        if not self.params:
+            return subject
+        setting = self.params.get("setting") or {}
+        spacing = setting.get("resampledPixelSpacing")
+        if spacing is None:
+            return subject
+        target = tuple(float(v) for v in spacing)
+        if len(target) != 3:
+            raise HABITAPIError(
+                "voxel_radiomics: resampledPixelSpacing must have 3 values; "
+                f"got {target}."
+            )
+        first = next(iter(subject.images), None)
+        if first is None:
+            return subject
+        current = tuple(float(v) for v in subject.image(first).geometry.spacing)
+        if all(abs(a - b) <= 1e-4 for a, b in zip(current, target)):
+            return subject
+        raw = str(setting.get("interpolator") or "sitkBSpline")
+        mode = raw.replace("sitk", "").lower()
+        if mode in {"bspline", "bicubic"}:
+            img_mode = "bspline"
+        elif mode in {"linear", "bilinear"}:
+            img_mode = "bilinear"
+        else:
+            img_mode = "bspline"
+        from habit.domain.image_preprocessing.methods import Resample
+
+        return Resample(target_spacing=target, img_mode=img_mode)(subject)
+
     def _extract_one_modality(
         self,
         subject: Subject,
@@ -266,7 +327,9 @@ class VoxelRadiomicsFeatures:
         mask_sitk.CopyInformation(image_sitk)
 
         extractor = build_pyradiomics_extractor(
-            self._resolved_params_file(), self.params, owner="voxel_radiomics"
+            self._resolved_params_file(),
+            self._extract_params_for_pyradiomics(),
+            owner="voxel_radiomics",
         )
         configure_voxel_glcm_on_extractor(extractor)
         backend, device = resolve_voxel_radiomics_backend(
@@ -364,6 +427,7 @@ class VoxelRadiomicsFeatures:
             if cached is not None:
                 return cached
 
+        subject = self._subject_on_extract_grid(subject)
         modalities = resolve_voxel_modalities(
             subject, self.modalities, owner="voxel_radiomics"
         )

@@ -15,17 +15,18 @@
 """Built-in image perturbations: the simulated test-retest family.
 
 The three components mirror the perturbation chain of Prior et al. (Radiol
-Artif Intell 2024;6(2):e230118, Appendix E2) -- Gaussian noise, sub-voxel
+Artif Intell 2024;6(2):e230118, Appendix S2) -- Gaussian noise, sub-voxel
 translation, small-angle rotation -- implemented on the L0 kernels of
 :mod:`habit.kernels.image_perturbation`. Each one maps a
 :class:`~habit.contracts.subject.Subject` to a perturbed copy on the SAME
 voxel grid, so perturbed feature maps stay comparable to the original
 voxel-by-voxel.
 
-Geometric perturbations transform the masks as well (nearest-neighbour),
-because a shifted acquisition images a shifted patient; the precision
-analysis then aligns the original and perturbed feature fields on their
-common ROI voxels.
+Prior's published extractor (radiomicsgroup/precise-habitats
+``compute_features_parallel_perturbed.py``) pairs the perturbed CT with
+the original ROI file. Geometric steps therefore keep the original
+masks unless ``warp_masks=True`` (Zwanenburg / MIRP "patient moved"
+style). :func:`prior2024_retest_perturbation` uses the paper default.
 """
 
 from __future__ import annotations
@@ -128,16 +129,22 @@ def _geometric_transform(
     subject: Subject,
     transform,
     interpolator: str,
+    *,
+    warp_masks: bool = True,
 ) -> Subject:
     """
-    Apply one geometric kernel to every image and mask of a subject.
+    Apply one geometric kernel to every image, and optionally every mask.
 
     Args:
         subject: Source subject.
         transform: Kernel (``translate_image`` / ``rotate_image``) called as
             ``transform(sitk_image, interpolator=..., default_value=...)``.
         interpolator: Interpolator for the intensity images; masks always
-            use nearest neighbour.
+            use nearest neighbour when ``warp_masks`` is True.
+        warp_masks: When True, apply the same rigid move to every ROI
+            (nearest neighbour). When False, keep the original masks so
+            the voxel list stays the Prior 2024 GitHub pairing (perturbed
+            image, original ROI).
 
     Returns:
         The perturbed subject copy.
@@ -153,6 +160,9 @@ def _geometric_transform(
             default_value=0.0,
         )
         images[modality] = sitk.GetArrayFromImage(moved)
+    if not warp_masks:
+        # Empty mask map: _replace_images keeps subject.masks unchanged.
+        return _replace_images(subject, images, {})
     masks: Dict[str, np.ndarray] = {}
     for roi in subject.masks:
         mask = subject.mask(roi)
@@ -357,6 +367,7 @@ class TranslationPerturbationParams(BaseModel):
     max_shift_voxels: float = Field(default=1.0, ge=0.0)
     random_signs: bool = True
     interpolator: str = "bspline"
+    warp_masks: bool = True
 
 
 @ImagePerturbationRegistry.register("translation")
@@ -382,7 +393,10 @@ class TranslationPerturbation:
             each axis (MIRP interpolates at a shifted grid; the direction
             of the shift is not anatomically privileged).
         interpolator: Interpolator for the intensity images (``"bspline"``
-            is the paper's choice); masks always use nearest neighbour.
+            is the paper's choice); masks use nearest neighbour only when
+            ``warp_masks`` is True.
+        warp_masks: When True, apply the same translation to every ROI.
+            Prior 2024 extraction keeps the original mask (False).
     """
 
     def __init__(
@@ -392,6 +406,7 @@ class TranslationPerturbation:
         interpolator: str = "bspline",
         shift_fraction: Optional[float] = None,
         random_signs: bool = True,
+        warp_masks: bool = True,
     ) -> None:
         if shift_voxels is not None and len(tuple(shift_voxels)) != 3:
             raise HABITAPIError(
@@ -420,6 +435,7 @@ class TranslationPerturbation:
         self.max_shift_voxels = float(max_shift_voxels)
         self.random_signs = bool(random_signs)
         self.interpolator = str(interpolator)
+        self.warp_masks = bool(warp_masks)
 
     @property
     def spec(self) -> Spec:
@@ -432,6 +448,7 @@ class TranslationPerturbation:
                 "max_shift_voxels": self.max_shift_voxels,
                 "random_signs": self.random_signs,
                 "interpolator": self.interpolator,
+                "warp_masks": self.warp_masks,
             },
         )
 
@@ -466,6 +483,7 @@ class TranslationPerturbation:
                 image, shift, interpolator=interpolator, default_value=default_value
             ),
             self.interpolator,
+            warp_masks=self.warp_masks,
         )
 
 
@@ -477,6 +495,7 @@ class RotationPerturbationParams(BaseModel):
     axis: str = "z"
     interpolator: str = "bspline"
     random_sign: bool = False
+    warp_masks: bool = True
 
 
 @ImagePerturbationRegistry.register("rotation")
@@ -490,11 +509,14 @@ class RotationPerturbation:
         axis: Axis to rotate around (``"x"``, ``"y"`` or ``"z"``; ``"z"``
             is the axial in-plane axis, the paper's choice).
         interpolator: Interpolator for the intensity images (``"bspline"``
-            is the paper's choice); masks always use nearest neighbour.
+            is the paper's choice); masks use nearest neighbour only when
+            ``warp_masks`` is True.
         random_sign: When ``True``, the sign of ``angle_degrees`` is drawn
             as ``±1`` per call (some MIRP configs randomize the sense of
             the 0.5° in-plane rotation). The paper's default is a fixed
             ``+0.5`` degrees, so this stays ``False``.
+        warp_masks: When True, apply the same rotation to every ROI.
+            Prior 2024 extraction keeps the original mask (False).
     """
 
     def __init__(
@@ -503,6 +525,7 @@ class RotationPerturbation:
         axis: str = "z",
         interpolator: str = "bspline",
         random_sign: bool = False,
+        warp_masks: bool = True,
     ) -> None:
         if axis not in ("x", "y", "z"):
             raise HABITAPIError(
@@ -512,6 +535,7 @@ class RotationPerturbation:
         self.axis = axis
         self.interpolator = str(interpolator)
         self.random_sign = bool(random_sign)
+        self.warp_masks = bool(warp_masks)
 
     @property
     def spec(self) -> Spec:
@@ -523,6 +547,7 @@ class RotationPerturbation:
                 "axis": self.axis,
                 "interpolator": self.interpolator,
                 "random_sign": self.random_sign,
+                "warp_masks": self.warp_masks,
             },
         )
 
@@ -550,6 +575,7 @@ class RotationPerturbation:
                 default_value=default_value,
             ),
             self.interpolator,
+            warp_masks=self.warp_masks,
         )
 
 
@@ -564,6 +590,7 @@ class RigidPerturbationParams(BaseModel):
     axis: str = "z"
     interpolator: str = "bspline"
     random_sign: bool = False
+    warp_masks: bool = True
 
 
 @ImagePerturbationRegistry.register("rigid")
@@ -586,6 +613,8 @@ class RigidPerturbation:
         axis: Rotation axis (paper: ``"z"``).
         interpolator: Intensity interpolator (paper: ``"bspline"``).
         random_sign: Randomize the rotation sense.
+        warp_masks: When True, apply the same rigid move to every ROI.
+            Prior 2024 extraction keeps the original mask (False).
     """
 
     def __init__(
@@ -597,6 +626,7 @@ class RigidPerturbation:
         axis: str = "z",
         interpolator: str = "bspline",
         random_sign: bool = False,
+        warp_masks: bool = True,
     ) -> None:
         if shift_voxels is not None and len(tuple(shift_voxels)) != 3:
             raise HABITAPIError(
@@ -621,6 +651,7 @@ class RigidPerturbation:
         self.axis = axis
         self.interpolator = str(interpolator)
         self.random_sign = bool(random_sign)
+        self.warp_masks = bool(warp_masks)
 
     @property
     def spec(self) -> Spec:
@@ -635,6 +666,7 @@ class RigidPerturbation:
                 "axis": self.axis,
                 "interpolator": self.interpolator,
                 "random_sign": self.random_sign,
+                "warp_masks": self.warp_masks,
             },
         )
 
@@ -671,6 +703,7 @@ class RigidPerturbation:
                 default_value=default_value,
             ),
             self.interpolator,
+            warp_masks=self.warp_masks,
         )
 
 
@@ -1038,6 +1071,7 @@ def prior2024_retest_perturbation(    *,
     angle_degrees: float = 0.5,
     interpolator: str = "bspline",
     single_resample: bool = False,
+    warp_masks: bool = False,
 ) -> "PerturbationChain":
     """
     Simulated-retest chain of Prior et al. 2024 / MIRP 1.2.0 Appendix S2.
@@ -1048,9 +1082,14 @@ def prior2024_retest_perturbation(    *,
 
     Order: Gaussian noise (Chang wavelet sigma) → sub-voxel translation
     (fraction ``η`` of voxel spacing, default 0.5, random axis signs) →
-    0.5° in-plane (z) rotation. Images use B-spline; masks nearest
-    neighbour. ``single_resample=True`` composes translation+rotation
-    (MIRP ≥ 2); the paper used two geometric resamples.
+    0.5° in-plane (z) rotation. Images use B-spline.
+    ``single_resample=True`` composes translation+rotation (MIRP ≥ 2);
+    the paper used two geometric resamples.
+
+    Default ``warp_masks=False`` matches their GitHub extractor: the
+    perturbed CT is paired with the original ROI
+    (``compute_features_parallel_perturbed.py``). Set ``warp_masks=True``
+    for the Zwanenburg / MIRP "image and mask move together" variant.
 
     ROI morphological grow/shrink (MIRP ``perturbation_roi_adapt_size``)
     is not in this protocol. MONAI elastic / B-spline free-form warps
@@ -1062,6 +1101,8 @@ def prior2024_retest_perturbation(    *,
         angle_degrees: In-plane rotation in degrees.
         interpolator: Intensity interpolator.
         single_resample: Compose translation and rotation into one affine.
+        warp_masks: When True, nearest-neighbour warp every ROI with the
+            image. Paper / GitHub default is False.
 
     Returns:
         A :class:`~habit.domain.precision.PerturbationChain`.
@@ -1077,6 +1118,7 @@ def prior2024_retest_perturbation(    *,
                     shift_fraction=shift_fraction,
                     angle_degrees=angle_degrees,
                     interpolator=interpolator,
+                    warp_masks=warp_masks,
                 ),
             ]
         )
@@ -1084,10 +1126,14 @@ def prior2024_retest_perturbation(    *,
         [
             noise,
             TranslationPerturbation(
-                shift_fraction=shift_fraction, interpolator=interpolator
+                shift_fraction=shift_fraction,
+                interpolator=interpolator,
+                warp_masks=warp_masks,
             ),
             RotationPerturbation(
-                angle_degrees=angle_degrees, interpolator=interpolator
+                angle_degrees=angle_degrees,
+                interpolator=interpolator,
+                warp_masks=warp_masks,
             ),
         ]
     )

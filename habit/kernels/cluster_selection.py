@@ -54,6 +54,7 @@ __all__ = [
     "best_index",
     "vote_best_index",
     "gap_statistic",
+    "prior2024_bic_gradient_k",
 ]
 
 #: Selection rule: the best score is the largest one.
@@ -94,6 +95,50 @@ def score_direction(method: str) -> str:
         names fall back to :data:`MAXIMIZE`, matching the v0.1 default.
     """
     return SCORE_DIRECTIONS.get(str(method), MAXIMIZE)
+
+
+def prior2024_bic_gradient_k(
+    bic_scores: Sequence[float],
+    k_values: Sequence[int],
+) -> int:
+    """
+    Choose K the way Prior 2024 ``habitat_computation.optimal_k`` does.
+
+    They fit GMM for ``k`` in 1..5, take ``np.gradient`` of the BIC
+    curve, then the first difference of that slope, and pick the ``k``
+    at the largest absolute change of slope (their ``i_max + 1`` index
+    into ``k_list``). This is not minimum-BIC.
+
+    Args:
+        bic_scores: One BIC per candidate ``k``, same order as
+            ``k_values``. Need at least three candidates.
+        k_values: Candidate habitat counts (Prior used ``range(1, 6)``).
+
+    Returns:
+        The selected ``k``.
+
+    Raises:
+        ValueError: If the two sequences differ in length or are shorter
+            than three points (their second-difference needs three gaps).
+    """
+    scores = np.asarray(bic_scores, dtype=np.float64)
+    ks = np.asarray(k_values, dtype=np.int64)
+    if scores.size != ks.size:
+        raise ValueError(
+            "prior2024_bic_gradient_k: bic_scores and k_values must have "
+            f"the same length; got {scores.size} and {ks.size}."
+        )
+    if scores.size < 3:
+        raise ValueError(
+            "prior2024_bic_gradient_k: need at least three candidate k "
+            f"values; got {scores.size}."
+        )
+    x = ks.astype(np.float64)
+    y = np.gradient(scores)
+    slope = np.diff(y) / np.diff(x)
+    slope_change = np.abs(np.diff(slope))
+    index = int(np.argmax(slope_change)) + 1
+    return int(ks[index])
 
 
 def knee_index(scores: Sequence[float]) -> int:

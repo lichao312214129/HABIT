@@ -20,13 +20,14 @@ across the cohort by the per-feature median -- the paper's aggregation
 (Radiol Artif Intell 2024;6(2):e230118) -- and a feature is *precise* when
 its median lower confidence limit clears the threshold in EVERY experiment.
 
-Two deliberate refinements over the reference implementation, both
-documented in the methods text they produce:
-
-* voxels are aligned across conditions on their COMMON ROI coordinates
-  (the reference appended zeros when the NaN patterns differed), and
-* rows with a NaN in any condition are dropped pairwise-completely instead
-  of being condition-wise truncated.
+Default pairing (``pair_mode="common_index"``) aligns voxels on shared
+ROI coordinates and drops a row if any condition is NaN. Pass
+``pair_mode="prior_pad"`` to copy the reference scripts
+(``metrics_repeat.py`` / ``metrics_repro.py``): each condition drops its
+own NaNs independently, then the shorter finite vector is padded with
+zeros. ``round_decimals=3`` matches those scripts' per-lesion ICC
+rounding; the ICC formula itself is the erratum-corrected form in
+:mod:`habit.kernels.voxel_icc`.
 
 The per-condition min-max scaling of the reference implementation is kept
 (``scale=True``): it removes the arbitrary intensity scale of each feature
@@ -35,7 +36,7 @@ map before agreement is measured, so the ICC reflects pattern agreement.
 
 from __future__ import annotations
 
-from typing import Mapping, Optional, Sequence
+from typing import List, Literal, Mapping, Optional, Sequence
 
 import warnings
 
@@ -58,6 +59,11 @@ _AGREEMENTS = {"absolute": icc3a_1, "consistency": icc3c_1}
 #: Minimum number of paired voxels for a trustworthy ICC; below this the
 #: feature is reported as unmeasurable (NaN) rather than trusted.
 DEFAULT_MIN_VOXELS = 10
+
+#: How conditions are lined up before the ICC. ``common_index`` is the
+#: HABIT default (spatial join). ``prior_pad`` is the paper GitHub.
+PAIR_MODES = ("common_index", "prior_pad")
+PairMode = Literal["common_index", "prior_pad"]
 
 
 def _flat_voxel_index(field: VoxelFeatureField) -> np.ndarray:
@@ -129,6 +135,49 @@ def _aligned_matrices(
     return tuple(first.feature_names), matrices
 
 
+def _finite_feature_columns(
+    conditions: Mapping[str, VoxelFeatureField],
+    feature: str,
+) -> List[np.ndarray]:
+    """
+    Drop non-finite values of one feature independently per condition.
+
+    This is their ``feat_arr[~np.isnan(feat_arr)]``: voxel order is the
+    field's stored row order, not a shared coordinate join.
+
+    Args:
+        conditions: Condition name to voxel feature field; insertion
+            order becomes the ICC column order.
+        feature: Feature name present in every field.
+
+    Returns:
+        One 1-D finite array per condition.
+    """
+    columns: List[np.ndarray] = []
+    for field in conditions.values():
+        index = field.feature_names.index(feature)
+        values = np.asarray(field.values, dtype=np.float64)[:, index]
+        columns.append(values[np.isfinite(values)])
+    return columns
+
+
+def _pad_columns_with_zeros(columns: Sequence[np.ndarray]) -> np.ndarray:
+    """
+    Pad shorter 1-D columns with trailing zeros to a common length.
+
+    Args:
+        columns: Finite (already scaled, if requested) 1-D arrays.
+
+    Returns:
+        Array of shape ``(n_padded, n_conditions)``.
+    """
+    n_pad = max((int(column.size) for column in columns), default=0)
+    data = np.zeros((n_pad, len(columns)), dtype=np.float64)
+    for j, column in enumerate(columns):
+        data[: int(column.size), j] = column
+    return data
+
+
 def _minmax_scale(column: np.ndarray) -> np.ndarray:
     """
     Scale one column to ``[0, 1]``; a constant column maps to zeros.
@@ -156,6 +205,8 @@ def precision_panel(
     alpha: float = 0.05,
     scale: bool = True,
     min_voxels: int = DEFAULT_MIN_VOXELS,
+    pair_mode: PairMode = "common_index",
+    round_decimals: Optional[int] = None,
 ) -> pd.DataFrame:
     """
     Compute the per-feature ICC panel of ONE subject under ONE experiment.
@@ -172,6 +223,13 @@ def precision_panel(
             (the paper's preprocessing).
         min_voxels: Minimum number of paired, NaN-free voxels; features
             below it are reported as NaN (unmeasurable, fails the screen).
+        pair_mode: ``"common_index"`` joins on shared voxel coordinates
+            and drops pairwise-incomplete rows. ``"prior_pad"`` drops
+            NaNs independently per condition and pads the shorter vector
+            with zeros (Prior GitHub ``metrics_repeat.py``).
+        round_decimals: If set, round ``value`` / ``lcl`` / ``ucl`` to
+            this many decimals after the ICC (their scripts use ``3``).
+            ``None`` keeps full precision.
 
     Returns:
         DataFrame indexed by feature name with columns ``value``, ``lcl``,
@@ -179,7 +237,7 @@ def precision_panel(
 
     Raises:
         HABITAPIError: For fewer than two conditions, an unknown agreement
-            flavour, misaligned inputs, or no shared voxels.
+            flavour or pair mode, misaligned inputs, or no shared voxels.
     """
     if len(conditions) < 2:
         raise HABITAPIError(
@@ -193,23 +251,58 @@ def precision_panel(
             f"precision_panel: agreement must be one of {sorted(_AGREEMENTS)}; "
             f"got {agreement!r}."
         ) from None
-    feature_names, matrices = _aligned_matrices(conditions)
-    stacked = np.stack([matrices[name] for name in conditions], axis=1)
-    # stacked: (n_common_voxels, n_conditions, n_features)
+    if pair_mode not in PAIR_MODES:
+        raise HABITAPIError(
+            f"precision_panel: pair_mode must be one of {list(PAIR_MODES)}; "
+            f"got {pair_mode!r}."
+        )
+    if round_decimals is not None and int(round_decimals) < 0:
+        raise HABITAPIError(
+            f"precision_panel: round_decimals must be >= 0 or None; "
+            f"got {round_decimals!r}."
+        )
     records = []
-    for column, feature in enumerate(feature_names):
-        data = stacked[:, :, column]
-        complete = ~np.isnan(data).any(axis=1)
-        data = data[complete]
+    if pair_mode == "common_index":
+        feature_names, matrices = _aligned_matrices(conditions)
+        stacked = np.stack([matrices[name] for name in conditions], axis=1)
+        feature_data = []
+        for column, feature in enumerate(feature_names):
+            data = stacked[:, :, column]
+            complete = ~np.isnan(data).any(axis=1)
+            feature_data.append((feature, data[complete]))
+    else:
+        first = next(iter(conditions.values()))
+        feature_names = tuple(first.feature_names)
+        for field in conditions.values():
+            if set(field.feature_names) != set(feature_names):
+                raise HABITAPIError(
+                    "precision_panel: prior_pad requires every condition "
+                    "to share the same feature-name set."
+                )
+        feature_data = [
+            (feature, _pad_columns_with_zeros(
+                [
+                    _minmax_scale(column) if scale and column.size else column
+                    for column in _finite_feature_columns(conditions, feature)
+                ]
+            ))
+            for feature in feature_names
+        ]
+    for feature, data in feature_data:
         if data.shape[0] < min_voxels:
             records.append((feature, np.nan, np.nan, np.nan, int(data.shape[0])))
             continue
-        if scale:
+        # prior_pad already min-max'd the finite values before the zero pad.
+        if scale and pair_mode == "common_index":
             data = np.apply_along_axis(_minmax_scale, 0, data)
         estimate = kernel(data, alpha=alpha)
-        records.append(
-            (feature, estimate.value, estimate.lcl, estimate.ucl, int(data.shape[0]))
-        )
+        value, lcl, ucl = estimate.value, estimate.lcl, estimate.ucl
+        if round_decimals is not None:
+            digits = int(round_decimals)
+            value = float(np.round(value, digits))
+            lcl = float(np.round(lcl, digits))
+            ucl = float(np.round(ucl, digits))
+        records.append((feature, value, lcl, ucl, int(data.shape[0])))
     frame = pd.DataFrame.from_records(
         records, columns=["feature", "value", "lcl", "ucl", "n_voxels"]
     )

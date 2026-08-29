@@ -72,7 +72,7 @@ from habit.exceptions import HABITAPIError
 from habit.contracts.ops import SubjectOperator, SubjectResult
 from habit.execution.backends import _cache_key_of, _subject_id_of
 from habit.execution.checkpoint import CheckpointStore
-from habit.utils.parallel_gpu_utils import HABIT_GPU_SLOT_INDEX_ENV
+from habit.utils.parallel_gpu_utils import pin_worker_visible_cuda_device
 
 if TYPE_CHECKING:
     # Typing-only reference: ``habit.spec`` sits outside the layers the
@@ -122,7 +122,10 @@ def _configure_worker_runtime(worker_index: int) -> None:
     """
     for key in _WORKER_THREAD_ENV:
         os.environ.setdefault(key, "1")
-    os.environ[HABIT_GPU_SLOT_INDEX_ENV] = str(int(worker_index))
+    # Hide every GPU except this slot *before* importing torch. Otherwise
+    # both workers see cuda:0 and cuda:1, initialize both, and kernels
+    # pile onto GPU 0 while GPU 1 stays idle.
+    pin_worker_visible_cuda_device(int(worker_index))
     try:
         import torch
 

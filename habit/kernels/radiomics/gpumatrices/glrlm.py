@@ -309,6 +309,8 @@ def _accumulate_glrlm(
     gl = grid.img_flat[centre_flat][centre_valid]
     size_max = max(grid.size)
     # Keep every point of one matrix in the same sort so runs are not split.
+    # Each chunk still writes into the shared p_flat; multiElement wipe
+    # inside _rle_all_angles is restricted to matrices in that chunk.
     max_pts = max(1, int(max_sort_elems) // max(na, 1))
     if n_pts <= max_pts:
         _rle_all_angles(
@@ -469,6 +471,14 @@ def _rle_all_angles(
         torch.where(big, 1, 0).to(torch.int32),
     )
     multi = (multi_counts[:n_ma] > 0).reshape(n_matrices, na)
+    # C multiElement is per listed voxel (one output matrix). Sort-size
+    # chunking calls this function on a subset of voxels that still share
+    # the full p_flat / n_matrices. Voxels not in this chunk have
+    # multi=False here; zeroing their length-1 bins would erase counts
+    # that a previous chunk already wrote. Restrict the wipe to mid_s.
+    present = torch.zeros(n_matrices, dtype=torch.bool, device=device)
+    if mid_s.numel() > 0:
+        present[mid_s.to(torch.long)] = True
     v_all = torch.arange(n_matrices, device=device)
     g_all = torch.arange(ng, device=device)
     a_all = torch.arange(na, device=device)
@@ -476,4 +486,5 @@ def _rle_all_angles(
         None, None, :
     ]
     cur = p_flat[idx0]
-    p_flat[idx0] = torch.where(~multi[:, None, :], zero16, cur)
+    wipe = present[:, None] & ~multi
+    p_flat[idx0] = torch.where(wipe[:, None, :], zero16, cur)

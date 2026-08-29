@@ -51,6 +51,7 @@ from habit.domain.voxel_features import (
     roi_voxels,
 )
 from habit.recipes import identify_precise_voxel_features
+from habit.recipes.precision import prior2024_voxel_extract_params
 from habit.spec.specs import Spec
 
 _BASE_RADIUS = 3
@@ -328,3 +329,16 @@ def test_selection_boundary_is_a_prefix_of_the_noise_gradient() -> None:
     assert [name in selected for name in ordered] == [True] * boundary + [
         False
     ] * (len(ordered) - boundary)
+
+
+@pytest.mark.unit
+def test_prior2024_extract_params_force_voxel_array_shift_zero() -> None:
+    """Prior YAML omits voxelArrayShift; the overlay must write 0."""
+    merged = prior2024_voxel_extract_params(
+        {"setting": {"voxelArrayShift": 300, "binWidth": 25}},
+        bin_width=12.0,
+    )
+    assert merged["setting"]["voxelArrayShift"] == 0
+    assert merged["setting"]["binWidth"] == 12.0
+    assert merged["setting"]["interpolator"] == "sitkBSpline"
+    assert merged["voxelSetting"]["initValue"] != merged["voxelSetting"]["initValue"]

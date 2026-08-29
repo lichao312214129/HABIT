@@ -29,6 +29,7 @@ from habit.kernels.cluster_selection import (
     best_index,
     gap_statistic,
     knee_index,
+    prior2024_bic_gradient_k,
     score_direction,
     vote_best_index,
 )
@@ -86,6 +87,7 @@ __all__ = [
     "KNEE",
     "score_direction",
     "knee_index",
+    "prior2024_bic_gradient_k",
     "best_index",
     "vote_best_index",
     "gap_statistic",

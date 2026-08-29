@@ -30,6 +30,7 @@ from habit.recipes.features import extract_habitat_features, traditional_radiomi
 from habit.recipes.icc import icc_analysis
 from habit.recipes.precision import (
     identify_precise_voxel_features,
+    prior2024_voxel_extract_params,
     voxel_radiomics_factory,
 )
 from habit.recipes.modeling import (
@@ -105,5 +106,6 @@ __all__ = [
     "traditional_radiomics",
     "train_model",
     "two_step_habitat",
+    "prior2024_voxel_extract_params",
     "voxel_radiomics_factory",
 ]

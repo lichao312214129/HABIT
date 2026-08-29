@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import builtins
 import logging
+import os
 from types import ModuleType
 from typing import Any, Callable
 from unittest.mock import Mock
@@ -122,3 +123,57 @@ def test_cache_cleanup_dll_error_never_escapes_worker(
     persistent_worker_entry._maybe_empty_cuda_cache(logger)
 
     logger.warning.assert_called_once()
+
+
+def test_gpu_slot_uses_visible_pool_when_torch_gpus_omitted(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A process-pool slot must land on cuda:N, not always cuda:0."""
+    monkeypatch.setattr(
+        "habit.utils.torch_radiomics_utils.is_torch_available", lambda: True
+    )
+    monkeypatch.setattr(
+        "habit.utils.torch_radiomics_utils.is_cuda_available", lambda: True
+    )
+    monkeypatch.setattr(
+        "habit.utils.torch_radiomics_utils.cuda_device_count", lambda: 4
+    )
+    monkeypatch.setattr(
+        "habit.utils.torch_radiomics_utils.validate_torch_gpu_indices",
+        lambda indices: None,
+    )
+
+    backend, device = resolve_voxel_radiomics_backend(
+        use_torch_radiomics="true",
+        torch_device="auto",
+        gpu_slot_index=2,
+    )
+
+    assert backend == "torch"
+    assert device == "cuda:2"
+
+
+def test_pin_worker_uses_parent_visible_list(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Worker N must keep only CUDA_VISIBLE_DEVICES[N], then slot 0."""
+    from habit.utils.parallel_gpu_utils import (
+        HABIT_GPU_SLOT_INDEX_ENV,
+        pin_worker_visible_cuda_device,
+    )
+
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "2,5,7")
+    chosen = pin_worker_visible_cuda_device(1)
+    assert chosen == "5"
+    assert os.environ["CUDA_VISIBLE_DEVICES"] == "5"
+    assert os.environ[HABIT_GPU_SLOT_INDEX_ENV] == "0"
+
+
+def test_pin_worker_wraps_when_more_workers_than_gpus(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Extra workers wrap the parent-visible pool instead of inventing GPU 3."""
+    from habit.utils.parallel_gpu_utils import pin_worker_visible_cuda_device
+
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0,1")
+    assert pin_worker_visible_cuda_device(3) == "1"

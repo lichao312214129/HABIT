@@ -131,6 +131,27 @@ def is_cuda_available() -> bool:
         return False
 
 
+def cuda_device_count() -> int:
+    """
+    Return the number of CUDA devices visible to this process.
+
+    ``CUDA_VISIBLE_DEVICES`` is already applied by torch, so the count is
+    the local pool (``0 .. n-1``), not the host's physical index list.
+
+    Returns:
+        int: Visible device count, or ``0`` when CUDA is unavailable.
+    """
+    if not is_cuda_available():
+        return 0
+    try:
+        import torch
+
+        return int(torch.cuda.device_count())
+    except Exception as exc:
+        logger.debug("torch.cuda.device_count failed: %s", exc)
+        return 0
+
+
 def normalize_use_torch_radiomics(value: UseTorchRadiomicsSetting) -> str:
     """
     Normalize user-facing ``use_torch_radiomics`` values to ``auto|true|false``.
@@ -406,7 +427,10 @@ def resolve_voxel_radiomics_backend(
     When ``torch_gpus`` is set, it overrides ``torch_device`` for CUDA device selection.
     ``torch_gpu_count`` limits how many entries from ``torch_gpus`` are used.
     With multiple GPUs and parallel subjects, subjects are mapped to GPUs via a
-    stable hash of ``subject``.
+    stable hash of ``subject``. Process-pool workers export
+    ``HABIT_GPU_SLOT_INDEX``; when that slot is set and ``torch_gpus`` is
+    omitted, the visible CUDA devices become the pool so workers do not
+    all pile onto ``cuda:0``.
 
     Args:
         use_torch_radiomics: ``auto``, ``true``, ``false``, or boolean equivalent.
@@ -429,6 +453,12 @@ def resolve_voxel_radiomics_backend(
         parse_torch_gpu_indices(torch_gpus),
         torch_gpu_count=torch_gpu_count,
     )
+    # Process-pool children set HABIT_GPU_SLOT_INDEX but YAML often omits
+    # torch_gpus. Use every visible device so slot N maps to cuda:N.
+    if not parsed_gpus and gpu_slot_index is not None:
+        n_visible = cuda_device_count()
+        if n_visible > 0:
+            parsed_gpus = list(range(n_visible))
 
     if mode == "false":
         return "pyradiomics", None

@@ -38,6 +38,70 @@ HABIT_GPU_SLOT_INDEX_ENV: str = "HABIT_GPU_SLOT_INDEX"
 logger = logging.getLogger(__name__)
 
 
+def _unmasked_host_gpu_count() -> int:
+    """Count host NVIDIA GPUs without importing torch.
+
+    Prefers ``/dev/nvidiaN`` (Linux), then ``nvidia-smi -L``. Returns 0
+    when neither is available so the caller can fall back to ``\"0\"``.
+
+    Returns:
+        int: Physical GPU count, or 0 when it cannot be determined.
+    """
+    n_dev = 0
+    while os.path.exists(f"/dev/nvidia{n_dev}"):
+        n_dev += 1
+    if n_dev > 0:
+        return n_dev
+    try:
+        import subprocess
+
+        listing = subprocess.check_output(
+            ["nvidia-smi", "-L"],
+            text=True,
+            timeout=5,
+        )
+        return sum(
+            1 for line in listing.splitlines() if line.startswith("GPU ")
+        )
+    except Exception:
+        return 0
+
+
+def pin_worker_visible_cuda_device(worker_index: int) -> str:
+    """Restrict this process to one GPU before torch initializes.
+
+    Process-pool children previously kept every host GPU visible and
+    selected ``cuda:N`` via ``HABIT_GPU_SLOT_INDEX``. Torch still builds a
+    context on ``cuda:0``, so two workers can pile kernels onto GPU 0
+    while GPU 1 stays idle. Masking ``CUDA_VISIBLE_DEVICES`` to a single
+    id makes that GPU appear as ``cuda:0``; the slot index is then 0.
+
+    Must run before ``import torch`` in the child.
+
+    Args:
+        worker_index: Zero-based worker slot.
+
+    Returns:
+        str: The single ``CUDA_VISIBLE_DEVICES`` value assigned.
+    """
+    raw = os.environ.get("CUDA_VISIBLE_DEVICES", "").strip()
+    if raw and raw != "-1":
+        pool = [part.strip() for part in raw.split(",") if part.strip() != ""]
+    else:
+        n_host = _unmasked_host_gpu_count()
+        pool = [str(i) for i in range(n_host)] if n_host > 0 else ["0"]
+    chosen = pool[int(worker_index) % len(pool)]
+    os.environ["CUDA_VISIBLE_DEVICES"] = chosen
+    # Only one device is visible now; extractors must use cuda:0.
+    os.environ[HABIT_GPU_SLOT_INDEX_ENV] = "0"
+    logger.info(
+        "Pinned worker %s to CUDA_VISIBLE_DEVICES=%s (HABIT_GPU_SLOT_INDEX=0)",
+        worker_index,
+        chosen,
+    )
+    return chosen
+
+
 def read_worker_gpu_slot_index() -> Optional[int]:
     """
     Read the parallel worker GPU slot index from the current process environment.

@@ -32,6 +32,7 @@ from habit.kernels.cluster_selection import (
     best_index,
     gap_statistic,
     knee_index,
+    prior2024_bic_gradient_k,
     score_direction,
     vote_best_index,
 )
@@ -168,3 +169,15 @@ def test_gap_statistic_guards_degenerate_input() -> None:
         gap_statistic(matrix, np.zeros(5, dtype=int))
     with pytest.raises(ValueError):
         gap_statistic(np.zeros(6, dtype=np.float64), np.zeros(6, dtype=int))
+
+
+@pytest.mark.unit
+def test_prior2024_bic_gradient_k_matches_their_index_rule() -> None:
+    """Same arithmetic as precise-habitats ``optimal_k`` on a toy BIC curve."""
+    k_values = (1, 2, 3, 4, 5)
+    bic_scores = (100.0, 70.0, 55.0, 50.0, 49.0)
+    y = np.gradient(np.asarray(bic_scores, dtype=float))
+    x = np.asarray(k_values, dtype=float)
+    slope = np.diff(y) / np.diff(x)
+    expected_index = int(np.argmax(np.abs(np.diff(slope)))) + 1
+    assert prior2024_bic_gradient_k(bic_scores, k_values) == k_values[expected_index]

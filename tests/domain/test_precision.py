@@ -329,6 +329,28 @@ class TestPrior2024RetestPerturbation:
         )
         assert perturbed.image("T1").data.shape == subject.image("T1").data.shape
 
+    def test_default_keeps_original_mask(self) -> None:
+        # precise-habitats pairs the perturbed CT with the original ROI.
+        subject = _blob_subject()
+        original_mask = np.asarray(subject.mask("tumor").data)
+        perturbed = prior2024_retest_perturbation()(
+            subject, rng=np.random.default_rng(0)
+        )
+        np.testing.assert_array_equal(
+            np.asarray(perturbed.mask("tumor").data),
+            original_mask,
+        )
+
+    def test_warp_masks_moves_roi(self) -> None:
+        subject = _blob_subject()
+        original_mask = np.asarray(subject.mask("tumor").data)
+        perturbed = prior2024_retest_perturbation(warp_masks=True)(
+            subject, rng=np.random.default_rng(0)
+        )
+        # Sub-voxel shift + 0.5 deg can leave a tiny mask unchanged; the
+        # option must still be wired (nearest-neighbour path ran).
+        assert perturbed.mask("tumor").data.shape == original_mask.shape
+
 
 class TestMorphologicalPerturbation:
     def test_grow_increases_mask_image_untouched(self) -> None:
@@ -720,6 +742,42 @@ class TestPrecisionPanel:
         field = _field(np.arange(12.0))
         with pytest.raises(HABITAPIError, match="agreement"):
             precision_panel({"a": field, "b": field}, agreement="bogus")
+
+    def test_prior_pad_appends_zeros_when_lengths_differ(self) -> None:
+        # 11 finite vs 10 finite: pad the shorter side with a trailing 0.
+        first = _field(np.arange(1.0, 12.0))
+        second = _field(np.arange(1.0, 11.0) + 0.1)
+        panel = precision_panel(
+            {"a": first, "b": second},
+            scale=False,
+            pair_mode="prior_pad",
+            min_voxels=2,
+        )
+        assert panel.loc["f1", "n_voxels"] == 11
+
+    def test_round_decimals_matches_prior_scripts(self) -> None:
+        first = _field(np.array([1.0, 2.0, 3.0, 4.0, 5.0]))
+        second = _field(np.array([1.2, 1.8, 3.1, 3.9, 5.2]))
+        raw = precision_panel(
+            {"a": first, "b": second}, scale=False, min_voxels=2
+        )
+        rounded = precision_panel(
+            {"a": first, "b": second},
+            scale=False,
+            min_voxels=2,
+            round_decimals=3,
+        )
+        assert rounded.loc["f1", "value"] == pytest.approx(
+            float(np.round(raw.loc["f1", "value"], 3))
+        )
+        assert rounded.loc["f1", "lcl"] == pytest.approx(
+            float(np.round(raw.loc["f1", "lcl"], 3))
+        )
+
+    def test_bad_pair_mode_raises(self) -> None:
+        field = _field(np.arange(12.0))
+        with pytest.raises(HABITAPIError, match="pair_mode"):
+            precision_panel({"a": field, "b": field}, pair_mode="bogus")  # type: ignore[arg-type]
 
 
 class TestAggregatePanels:
