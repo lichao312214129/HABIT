@@ -44,6 +44,7 @@ from habit.domain.voxel_features.cache import (
     load_cached_voxel_field,
     save_cached_voxel_field,
     voxel_radiomics_cache_key,
+    voxel_volume_fingerprint,
 )
 from habit.domain.voxel_features.voxel_radiomics import (
     VoxelRadiomicsFeatures,
@@ -68,6 +69,7 @@ __all__ = [
     "load_cached_voxel_field",
     "save_cached_voxel_field",
     "voxel_radiomics_cache_key",
+    "voxel_volume_fingerprint",
     "VoxelRadiomicsFeatures",
     "VoxelRadiomicsFeaturesParams",
     "VoxelFeatureExtractorRegistry",

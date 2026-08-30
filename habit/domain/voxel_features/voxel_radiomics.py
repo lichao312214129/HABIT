@@ -39,6 +39,10 @@ from habit.domain.voxel_features._base import (
 from habit.domain.voxel_features.registry import VoxelFeatureExtractorRegistry
 from habit.exceptions import HABITAPIError
 from habit.spec.specs import Spec
+from habit.utils.voxel_batch_utils import (
+    DEFAULT_VOXEL_BATCH as _UTILS_DEFAULT_VOXEL_BATCH,
+    resolve_voxel_batch,
+)
 
 __all__ = ["VoxelRadiomicsFeatures", "VoxelRadiomicsFeaturesParams"]
 
@@ -46,9 +50,9 @@ __all__ = ["VoxelRadiomicsFeatures", "VoxelRadiomicsFeaturesParams"]
 #: Prior O, et al., Radiol Artif Intell 2024;6(2):e230118.
 DEFAULT_KERNEL_RADIUS = 3
 
-#: v0.1 default voxel batch; balances memory against speed. PyRadiomics reads
-#: -1 as "all ROI voxels at once".
-DEFAULT_VOXEL_BATCH = 1000
+#: Documented default batch (safe on 8 GB GPUs). Pass a larger integer
+#: on big cards, or ``\"auto\"`` to pick from VRAM.
+DEFAULT_VOXEL_BATCH = _UTILS_DEFAULT_VOXEL_BATCH
 
 
 class VoxelRadiomicsFeaturesParams(BaseModel):
@@ -62,7 +66,7 @@ class VoxelRadiomicsFeaturesParams(BaseModel):
     params_file: Optional[str] = None
     params: Optional[Dict[str, Any]] = None
     kernel_radius: int = Field(default=DEFAULT_KERNEL_RADIUS, gt=0)
-    voxel_batch: int = DEFAULT_VOXEL_BATCH
+    voxel_batch: Union[int, str] = DEFAULT_VOXEL_BATCH
     use_torch_radiomics: Union[str, bool] = "auto"
     torch_device: str = "auto"
     torch_dtype: str = "float32"
@@ -97,7 +101,8 @@ class VoxelRadiomicsFeatures:
             in memory. Mutually exclusive with ``params_file``.
         kernel_radius: Neighbourhood radius in voxels; radius 1 is a 3x3x3
             cube, radius 3 a 7x7x7 cube.
-        voxel_batch: ROI voxels PyRadiomics processes per batch.
+        voxel_batch: ROI voxels per batch. Default 1000. Pass a larger
+            integer on a 12–24 GB GPU, or ``\"auto\"`` to pick from VRAM.
         use_torch_radiomics: ``"auto"``, ``True`` or ``False`` -- whether to
             use the TorchRadiomics path when torch and CUDA are present.
         torch_device: Torch device string, or ``"auto"`` to select one.
@@ -131,7 +136,7 @@ class VoxelRadiomicsFeatures:
         params_file: Optional[str] = None,
         params: Optional[Dict[str, Any]] = None,
         kernel_radius: int = DEFAULT_KERNEL_RADIUS,
-        voxel_batch: int = DEFAULT_VOXEL_BATCH,
+        voxel_batch: Union[int, str] = DEFAULT_VOXEL_BATCH,
         use_torch_radiomics: Union[str, bool] = "auto",
         torch_device: str = "auto",
         torch_dtype: str = "float32",
@@ -164,9 +169,13 @@ class VoxelRadiomicsFeatures:
         self.params_file = params_file
         self.params = dict(params) if params is not None else None
         self.kernel_radius = int(kernel_radius)
-        self.voxel_batch = int(voxel_batch)
-        self.use_torch_radiomics = use_torch_radiomics
         self.torch_device = str(torch_device)
+        self.voxel_batch = resolve_voxel_batch(
+            voxel_batch,
+            kernel_radius=self.kernel_radius,
+            torch_device=self.torch_device,
+        )
+        self.use_torch_radiomics = use_torch_radiomics
         self.torch_dtype = str(torch_dtype)
         self.use_gpu_matrices = use_gpu_matrices
         self.output_float32 = bool(output_float32)
@@ -405,32 +414,35 @@ class VoxelRadiomicsFeatures:
             load_cached_voxel_field,
             save_cached_voxel_field,
             voxel_radiomics_cache_key,
+            voxel_volume_fingerprint,
         )
 
+        subject = self._subject_on_extract_grid(subject)
+        modalities = resolve_voxel_modalities(
+            subject, self.modalities, owner="voxel_radiomics"
+        )
         cache_key: Optional[str] = None
         if self.cache_dir:
             cache_key = voxel_radiomics_cache_key(
                 subject.subject_id,
                 kernel_radius=self.kernel_radius,
                 roi=self.roi,
-                modalities=self.modalities,
+                modalities=modalities,
                 params=self.params,
                 params_file=self.params_file,
                 output_float32=self.output_float32,
                 crop_to_roi=self.crop_to_roi,
                 modality=self.modality,
                 as_=self.as_,
+                volume_fingerprint=voxel_volume_fingerprint(
+                    subject, modalities=modalities, roi=self.roi
+                ),
             )
             cached = load_cached_voxel_field(
                 self.cache_dir, subject.subject_id, cache_key
             )
             if cached is not None:
                 return cached
-
-        subject = self._subject_on_extract_grid(subject)
-        modalities = resolve_voxel_modalities(
-            subject, self.modalities, owner="voxel_radiomics"
-        )
         # ``resolve_voxel_modalities`` may expand an empty request to every
         # subject image; labels track that expansion one-to-one.
         labels = (

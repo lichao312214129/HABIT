@@ -154,7 +154,7 @@ def extract_voxel_texture(
     bin_width: float = 12.0,
     feature_classes: Optional[Mapping[str, Sequence[str]]] = None,
     params: Optional[Dict[str, Any]] = None,
-    voxel_batch: int = DEFAULT_VOXEL_BATCH,
+    voxel_batch: Union[int, str] = DEFAULT_VOXEL_BATCH,
     use_torch_radiomics: Union[str, bool] = "auto",
     use_gpu_matrices: Union[str, bool] = "auto",
 ) -> VoxelFeatureField:
@@ -181,7 +181,8 @@ def extract_voxel_texture(
         params: Full in-memory PyRadiomics settings. Mutually exclusive
             with ``feature_classes``. ``bin_width`` still overwrites
             ``setting.binWidth``.
-        voxel_batch: ROI voxels processed per batch.
+        voxel_batch: ROI voxels per batch (default 1000). ``\"auto\"``
+            picks from this machine's VRAM; an explicit integer is kept.
         use_torch_radiomics: ``"auto"``, ``True``, or ``False``.
         use_gpu_matrices: ``"auto"``, ``True``, or ``False`` -- build the
             TorchRadiomics texture matrices on GPU (bit-identical counts).
@@ -209,7 +210,7 @@ def extract_voxel_texture(
         roi=roi,
         params=built,
         kernel_radius=int(kernel_radius),
-        voxel_batch=int(voxel_batch),
+        voxel_batch=voxel_batch,
         use_torch_radiomics=use_torch_radiomics,
         use_gpu_matrices=use_gpu_matrices,
     )

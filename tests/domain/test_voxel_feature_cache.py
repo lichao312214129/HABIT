@@ -77,6 +77,27 @@ def test_cache_key_ignores_nothing_about_scientific_settings() -> None:
 
 
 @pytest.mark.unit
+def test_cache_key_splits_same_id_different_volumes() -> None:
+    """Original vs perturbed CT of one subject must not share a zip."""
+    common = dict(
+        kernel_radius=3,
+        roi="tumor",
+        modalities=["CT"],
+        params={"setting": {"binWidth": 12.0}},
+        params_file=None,
+        output_float32=True,
+        crop_to_roi=True,
+    )
+    original = voxel_radiomics_cache_key(
+        "s1", volume_fingerprint="aaa", **common
+    )
+    perturbed = voxel_radiomics_cache_key(
+        "s1", volume_fingerprint="bbb", **common
+    )
+    assert original != perturbed
+
+
+@pytest.mark.unit
 def test_cache_hit_and_miss(tmp_path: Path) -> None:
     """A written archive is returned; a missing key is None."""
     field = make_field("P2", n_voxels=6)

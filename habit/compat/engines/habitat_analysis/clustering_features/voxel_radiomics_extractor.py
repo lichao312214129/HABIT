@@ -50,8 +50,7 @@ from habit.utils.radiomics_preset_utils import resolve_params_file
 
 logger = get_module_logger(__name__)
 
-# Habit default batch size; balances memory use on typical 8-16 GB machines vs speed.
-# PyRadiomics accepts -1 for no batching (all ROI voxels at once).
+# Habit default; pass a larger value on 12–24 GB GPUs or \"auto\" to probe VRAM.
 DEFAULT_VOXEL_BATCH = 1000
 
 # CT habitat voxel texture default (R3B12): 7×7×7 neighborhood at radius 3.
@@ -188,7 +187,13 @@ class VoxelRadiomicsExtractor(BaseClusteringExtractor):
             # used for voxel-based feature extraction. A radius of 1 means a 3×3×3 cube
             # centered on each voxel, radius of 2 means 5×5×5, etc.
             kernel_radius = kwargs.get('kernel_radius', DEFAULT_KERNEL_RADIUS)
-            voxel_batch = kwargs.get('voxel_batch', DEFAULT_VOXEL_BATCH)
+            from habit.utils.voxel_batch_utils import resolve_voxel_batch
+
+            voxel_batch = resolve_voxel_batch(
+                kwargs.get("voxel_batch", DEFAULT_VOXEL_BATCH),
+                kernel_radius=int(kernel_radius),
+                torch_device=str(kwargs.get("torch_device", "auto")),
+            )
             backend, torch_device = resolve_voxel_radiomics_backend(
                 use_torch_radiomics=kwargs.get('use_torch_radiomics', 'auto'),
                 torch_device=kwargs.get('torch_device', 'auto'),

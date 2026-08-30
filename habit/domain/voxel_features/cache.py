@@ -27,14 +27,18 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Any, Mapping, Optional, Union
+from typing import Any, Mapping, Optional, Sequence, Union
+
+import numpy as np
 
 from habit.contracts.habitat import VoxelFeatureField
+from habit.contracts.subject import Subject
 from habit.exceptions import CompatibilityError
 
 __all__ = [
     "voxel_radiomics_cache_key",
     "voxel_radiomics_cache_path",
+    "voxel_volume_fingerprint",
     "load_cached_voxel_field",
     "save_cached_voxel_field",
 ]
@@ -46,6 +50,46 @@ _SAFE_ID = re.compile(r"[^A-Za-z0-9._-]+")
 def _canonical_json(payload: Mapping[str, Any]) -> str:
     """Stable JSON for hashing (sorted keys, no whitespace drift)."""
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
+
+
+def voxel_volume_fingerprint(
+    subject: Subject,
+    *,
+    modalities: Sequence[str],
+    roi: Optional[str],
+) -> str:
+    """
+    Hash the image and mask arrays that enter voxel radiomics.
+
+    ``subject_id`` alone is not enough: original vs perturbed CT of the
+    same person share an id. A miss here used to return the other map
+    and produced ICC = 1.0.
+
+    Args:
+        subject: Subject already on the extract grid.
+        modalities: Image keys that will be extracted.
+        roi: Mask key, or ``None`` for the subject's only mask.
+
+    Returns:
+        Hex SHA-256 digest of geometry plus voxel bytes.
+    """
+    digest = hashlib.sha256()
+    keys = list(modalities) if modalities else list(subject.images)
+    for name in keys:
+        volume = subject.image(name)
+        array = np.ascontiguousarray(np.asarray(volume.data), dtype=np.float32)
+        geom = volume.geometry
+        digest.update(str(name).encode("utf-8"))
+        digest.update(np.asarray(array.shape, dtype=np.int64).tobytes())
+        digest.update(np.asarray(geom.spacing, dtype=np.float64).tobytes())
+        digest.update(np.asarray(geom.origin, dtype=np.float64).tobytes())
+        digest.update(np.asarray(geom.direction, dtype=np.float64).tobytes())
+        digest.update(array.tobytes())
+    mask_key = roi if roi is not None else next(iter(subject.masks))
+    mask = np.ascontiguousarray(np.asarray(subject.mask(mask_key).data) > 0)
+    digest.update(str(mask_key).encode("utf-8"))
+    digest.update(mask.astype(np.uint8).tobytes())
+    return digest.hexdigest()
 
 
 def voxel_radiomics_cache_key(
@@ -60,6 +104,7 @@ def voxel_radiomics_cache_key(
     crop_to_roi: bool,
     modality: Optional[str] = None,
     as_: Optional[str] = None,
+    volume_fingerprint: Optional[str] = None,
 ) -> str:
     """
     Hash the settings that change voxel-radiomics numbers.
@@ -75,6 +120,8 @@ def voxel_radiomics_cache_key(
         crop_to_roi: Whether the extractor cropped to the ROI bbox.
         modality: Singular modality form, when used.
         as_: Column alias, when used.
+        volume_fingerprint: Digest from :func:`voxel_volume_fingerprint`.
+            Required to keep original and perturbed images apart.
 
     Returns:
         Hex SHA-256 digest of the canonical payload.
@@ -90,6 +137,7 @@ def voxel_radiomics_cache_key(
         "params_file": params_file,
         "roi": roi,
         "subject_id": str(subject_id),
+        "volume_fingerprint": volume_fingerprint,
     }
     digest = hashlib.sha256(_canonical_json(payload).encode("utf-8"))
     return digest.hexdigest()
