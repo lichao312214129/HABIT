@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Morphology-aware precise screening" href="precise_screening.html" />
+    <link rel="next" title="Habitat analysis" href="habitat_analysis.html" />
     <link rel="prev" title="Quickstart: run the demo (YAML + CLI)" href="quickstart.html" /> 
 </head>
 
@@ -67,9 +67,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#get-demo-data">2. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#activate-and-check">3. Activate and check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#next">Next</a></li>
 </ul>
@@ -83,6 +83,17 @@
 <li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="habitat_analysis.html">Habitat analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#three-layers-outer-shells-last">Three layers (outer shells last)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#dataflow-classical-two-step">Dataflow (classical two-step)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#which-strategy">Which strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#what-the-maps-look-like">What the maps look like</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#matching-ids-after-independent-clustering">Matching ids after independent clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#voxel-features-that-define-habitats">Voxel features that define habitats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis.html#next">Next</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="precise_screening.html">Morphology-aware precise screening</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
@@ -93,6 +104,15 @@
 <li class="toctree-l2"><a class="reference internal" href="precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="precise_screening.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="execution.html">Parallel execution and fault tolerance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="execution.html#pick-a-backend">Pick a backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execution.html#failure-policy">Failure policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execution.html#resume-and-checkpoints">Resume and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execution.html#other-soft-failure-knobs">Other soft-failure knobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execution.html#yaml">YAML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execution.html#next">Next</a></li>
 </ul>
 </li>
 </ul>
@@ -114,12 +134,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#option-b-folder-tree">Option B — folder tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#option-c-python-api-gallery-your-own-tree">Option C — Python API (gallery / your own tree)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#what-success-looks-like">What success looks like</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/preprocess.html">Preprocessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#run">Run</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#your-data">Your data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/segment_habitat.html">Habitat segmentation</a><ul>
@@ -178,14 +192,25 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#who-builds-the-texture-matrices">Who builds the texture matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/voxel_texture.html#simulated-three-way-comparison">Simulated three-way comparison</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#python-api-sklearn-short">Python API (sklearn-short)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#layouts">Layouts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#also-see">Also see</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/preprocess.html">Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#run">Run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/radiomics.html">Traditional radiomics</a><ul>
@@ -211,6 +236,7 @@
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_analysis_overview.html">Habitat analysis overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/data_from_arrays.html#key-types">Key types</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/data_from_arrays.html#script">Script</a></li>
@@ -220,31 +246,15 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/data_from_arrays.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/image_preprocessing.html">Batch image preprocessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#entry-points">Entry points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#draw-the-figures">Draw the figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#draw-the-figures">Draw the figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_analysis_overview.html">Habitat analysis overview (recipes → atoms → custom)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#dataflow-classical-two-step">Dataflow (classical two-step)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#what-the-core-path-looks-like">What the core path looks like</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#reading-order">Reading order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#operators-call-shapes">Operators (call shapes)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#fit-time-vs-apply-time">Fit-time vs apply-time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#embed-patterns">Embed patterns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
@@ -260,6 +270,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#stream-per-subject-report">Stream per subject (<code class="docutils literal notranslate"><span class="pre">report=</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -292,14 +303,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/apply_saved_model.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#pipeline-shown">Pipeline shown</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#fit-time-vs-apply-time">Fit-time vs apply-time</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#draw-the-figures">Draw the figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_label_match.html">Match habitat ids (observers vs patients)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
@@ -311,6 +320,25 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_custom_pipeline.html#common-swaps">Common swaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_custom_pipeline.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_custom_pipeline.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/image_preprocessing.html">Batch image preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#entry-points">Entry points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/voxel_texture.html">Voxel texture maps</a><ul>
@@ -389,6 +417,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-node-lattice">2D node lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -446,6 +475,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#report-figure-atoms-complete">Report figure atoms (complete)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
@@ -470,6 +500,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#stream-one-step-artefacts-report">Stream one-step artefacts (<code class="docutils literal notranslate"><span class="pre">Report</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -546,16 +577,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../configuration/recipe_catalog.html#field-reference-pages">Field reference pages</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/preprocessing.html">Preprocessing Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html#preprocessing-configuration-parameters">Preprocessing configuration parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html#dicom-sort-configuration-habit-sort-dicom">DICOM sort configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code>)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/dicom_sort.html">DICOM Sort Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html#top-level-fields">Top-level fields</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html#notes">Notes</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="../configuration/habitat.html">Habitat Segmentation Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../configuration/habitat.html#habitat-analysis-configuration-parameters">Habitat Analysis Configuration Parameters</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../configuration/habitat.html#habitat-segmentation-supervoxel-slic-superpixel-configuration">habitat_segmentation.supervoxel — SLIC Superpixel Configuration</a></li>
@@ -572,6 +593,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#logging"><code class="docutils literal notranslate"><span class="pre">logging</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#backward-compatible-flat-keys">Backward-compatible flat keys</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#pyradiomics-parameter-yaml">PyRadiomics parameter YAML</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/preprocessing.html">Preprocessing Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html#preprocessing-configuration-parameters">Preprocessing configuration parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html#dicom-sort-configuration-habit-sort-dicom">DICOM sort configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/dicom_sort.html">DICOM Sort Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html#top-level-fields">Top-level fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html#notes">Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../configuration/machine_learning.html">Machine Learning Configuration</a><ul>
@@ -634,7 +665,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
@@ -656,7 +690,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -752,6 +790,49 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.CVResult.html">CVResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#report-habit-report">Report (<code class="docutils literal notranslate"><span class="pre">habit.report</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Report.html">Report</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report"><code class="docutils literal notranslate"><span class="pre">Report</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html">FigureAtom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.FigureAtom.html#habit.report.FigureAtom"><code class="docutils literal notranslate"><span class="pre">FigureAtom</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html">SubjectContext</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.SubjectContext.html#habit.report.SubjectContext"><code class="docutils literal notranslate"><span class="pre">SubjectContext</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.Overlay.html">Overlay</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.Overlay.html#habit.report.Overlay"><code class="docutils literal notranslate"><span class="pre">Overlay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html">VolumeFractions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.VolumeFractions.html#habit.report.VolumeFractions"><code class="docutils literal notranslate"><span class="pre">VolumeFractions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.MSI.html">MSI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.MSI.html#habit.report.MSI"><code class="docutils literal notranslate"><span class="pre">MSI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ITH.html">ITH</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ITH.html#habit.report.ITH"><code class="docutils literal notranslate"><span class="pre">ITH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html">ClusterValidation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.ClusterValidation.html#habit.report.ClusterValidation"><code class="docutils literal notranslate"><span class="pre">ClusterValidation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html">GraphSlice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphSlice.html#habit.report.GraphSlice"><code class="docutils literal notranslate"><span class="pre">GraphSlice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.report.GraphNetwork2D.html#habit.report.GraphNetwork2D"><code class="docutils literal notranslate"><span class="pre">GraphNetwork2D</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1466,7 +1547,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/python_api.html">Python API guide (v1.0)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#mental-model">Mental model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-entry-study">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1557,6 +1638,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#habitat-label-matching">Habitat label matching</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#stability">Stability</a></li>
 </ul>
 </li>
@@ -1785,23 +1867,23 @@
              
   <section id="quickstart-python-api">
 <h1>Quickstart: Python API<a class="headerlink" href="#quickstart-python-api" title="Link to this heading"></a></h1>
-<p>Install first (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>). This page is the <strong>same demo</strong> as
-<a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>, expressed as <strong>pure Python</strong> — construct a cohort,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code> / <code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code>, and call
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes</span></code> with explicit arguments (no YAML path, no
-<a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a>).</p>
-<p>Parameters below mirror the bundled demo configs
+<p>Install first (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>). This is the <strong>beginner</strong> Python
+path: construct a cohort, <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code> /
+<code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code>, and call <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes</span></code> with explicit
+arguments (no YAML). Copy a block, save as <code class="docutils literal notranslate"><span class="pre">.py</span></code>, run it.</p>
+<p>To embed <strong>one</strong> operator in your own notebook or product (no
+<code class="docutils literal notranslate"><span class="pre">Study</span></code>), see <a class="reference internal" href="../examples/habitat_atomic_ops.html"><span class="doc">Atomic habitat operators (no YAML, no recipe)</span></a> after this page.
+Concept: <a class="reference internal" href="habitat_analysis.html"><span class="doc">Habitat analysis</span></a>.</p>
+<p>Parameters below follow the bundled demo settings
 (<code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step.yaml</span></code>,
 <code class="docutils literal notranslate"><span class="pre">config/feature_extraction/config_extract_features_demo.yaml</span></code>,
 <code class="docutils literal notranslate"><span class="pre">config/machine_learning/config_machine_learning_radiomics_minimal.yaml</span></code>)
-so habitat label maps match the CLI voxel-wise when you use the same
-<code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>, seed, and execution policy.</p>
-<p>YAML / CLI remain an alternate shell for the same recipes
-(<a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>); they are not required here. For the recipe → atomic →
-custom layering of habitat analysis, see
-<a class="reference internal" href="../examples/habitat_analysis_overview.html"><span class="doc">Habitat analysis overview (recipes → atoms → custom)</span></a>.</p>
-<p>Work from a directory that already has <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code> (and optionally
-<code class="docutils literal notranslate"><span class="pre">config/</span></code> if you also use the CLI). See <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a> steps 1–2:</p>
+so habitat maps match when you use the same <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>, seed, and
+execution policy.</p>
+<p>For the recipe → atomic → custom layering of habitat analysis, see
+<a class="reference internal" href="../examples/habitat_analysis_overview.html"><span class="doc">Habitat analysis overview</span></a>.</p>
+<p>Work from a directory that already has <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>. See
+<a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a> steps 1–2:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Windows - Anaconda Prompt</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
 <span class="n">cd</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>          <span class="c1"># your work_dir (has demo_data/)</span>
@@ -1809,14 +1891,10 @@ custom layering of habitat analysis, see
 </div>
 <section id="habitat-analysis-two-step">
 <h2>1. Habitat analysis (two-step)<a class="headerlink" href="#habitat-analysis-two-step" title="Link to this heading"></a></h2>
-<p>CLI twin (same scientific settings):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step</span><span class="o">.</span><span class="n">yaml</span>
-</pre></div>
-</div>
 <p>Save the block below as a <code class="docutils literal notranslate"><span class="pre">.py</span></code> file (for example <code class="docutils literal notranslate"><span class="pre">run_two_step.py</span></code>)
 and run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">run_two_step.py</span></code>. Do <strong>not</strong> paste it at the top level
 of a script without the <code class="docutils literal notranslate"><span class="pre">__main__</span></code> guard — the demo uses a process
-pool (same as the CLI YAML <code class="docutils literal notranslate"><span class="pre">processes:</span> <span class="pre">2</span></code>).</p>
+pool (2 workers).</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p><strong>Windows + process pool:</strong> spawning workers re-imports your script.
@@ -1844,15 +1922,15 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">modalities</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">)</span>
-    <span class="c1"># Match the CLI YAML loader: ROI key = first modality in the concat list.</span>
+    <span class="c1"># ROI key is the first modality in the concat list.</span>
     <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span>
         <span class="s2">&quot;demo_data/preprocessed&quot;</span><span class="p">,</span>
         <span class="n">modalities</span><span class="o">=</span><span class="n">modalities</span><span class="p">,</span>
         <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Same science as config/habitat/config_habitat_two_step.yaml,</span>
-    <span class="c1"># declared as ordered stages (source of truth). Strategy is inferred:</span>
+    <span class="c1"># Same science as the bundled two-step demo config, declared as</span>
+    <span class="c1"># ordered stages (source of truth). Strategy is inferred:</span>
     <span class="c1"># partition + pool → two_step.</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;habitat_two_step&quot;</span><span class="p">,</span>
@@ -1924,7 +2002,7 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
         <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Match YAML processes / timeout so process-pool execution matches CLI.</span>
+    <span class="c1"># Process pool: 2 workers, 900s per-subject timeout.</span>
     <span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
         <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
@@ -1943,34 +2021,17 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
     <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
 
-    <span class="c1"># Export a complete effective v1 YAML so CLI / run_from_yaml can replay</span>
-    <span class="c1"># this exact run (expanded defaults, not only overridden fields).</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_habitat_config</span>
-
-    <span class="n">save_habitat_config</span><span class="p">(</span>
-        <span class="s2">&quot;demo_data/results/habitat_two_step/effective_config.yaml&quot;</span><span class="p">,</span>
-        <span class="n">spec</span><span class="p">,</span>
-        <span class="n">data_source</span><span class="o">=</span><span class="s2">&quot;demo_data/preprocessed&quot;</span><span class="p">,</span>
-        <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
-        <span class="n">policy</span><span class="o">=</span><span class="n">policy</span><span class="p">,</span>
-    <span class="p">)</span>
-
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Outputs land under <code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_two_step/</span></code> (including
-<code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> and <code class="docutils literal notranslate"><span class="pre">habitat_model.habitatmodel</span></code>). The exported
-<code class="docutils literal notranslate"><span class="pre">effective_config.yaml</span></code> is a native v1 document: reload it with
-<a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a> or
-<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">…/effective_config.yaml</span></code> for <strong>voxel-identical</strong>
-habitat maps (same seed, data, and policy).</p>
-<p>The overlay below is <strong>not</strong> from <code class="docutils literal notranslate"><span class="pre">main()</span></code> above. <code class="docutils literal notranslate"><span class="pre">main()</span></code> matches the
-CLI YAML (four modalities, <code class="docutils literal notranslate"><span class="pre">roi=&quot;pre_contrast&quot;</span></code>) and draws a different
-map. This PNG is written by the two-step gallery
-(<a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a>) — Script + Draw the figures. Reproduce
-it with one line (needs <code class="docutils literal notranslate"><span class="pre">[viz]</span></code>):</p>
+<code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> and <code class="docutils literal notranslate"><span class="pre">habitat_model.habitatmodel</span></code>).</p>
+<p>The overlay below is <strong>not</strong> from <code class="docutils literal notranslate"><span class="pre">main()</span></code> above. <code class="docutils literal notranslate"><span class="pre">main()</span></code> uses four
+modalities and <code class="docutils literal notranslate"><span class="pre">roi=&quot;pre_contrast&quot;</span></code> and draws a different map. This PNG
+is written by the two-step gallery (<a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a>) —
+Script + Draw the figures. Reproduce it with one line (needs <code class="docutils literal notranslate"><span class="pre">[viz]</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">two_step_habitat_quickstart</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
@@ -1990,10 +2051,6 @@ live under <a class="reference internal" href="../examples/index.html"><span cla
 </section>
 <section id="view">
 <h2>2. View<a class="headerlink" href="#view" title="Link to this heading"></a></h2>
-<p>CLI twin (one line — conda / Windows terminals do not support <code class="docutils literal notranslate"><span class="pre">\</span></code> continuation):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">view</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">LAP</span><span class="o">/</span><span class="n">WATER__WATER__Ax_Dyn_LAVA_Flex</span><span class="o">+</span><span class="n">C_Series0009</span><span class="o">.</span><span class="n">nrrd</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_two_step</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span>
-</pre></div>
-</div>
 <p>Append inside the same <code class="docutils literal notranslate"><span class="pre">main()</span></code> from step 1 (uses <code class="docutils literal notranslate"><span class="pre">cohort</span></code> /
 <code class="docutils literal notranslate"><span class="pre">result</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">view_habitat_napari</span>
@@ -2006,9 +2063,6 @@ live under <a class="reference internal" href="../examples/index.html"><span cla
 </div>
 <p>Needs napari (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>). Blocks until you close the window.
 In napari, select the habitats Labels layer (Contour <code class="docutils literal notranslate"><span class="pre">0</span></code> = filled regions).</p>
-<p>For fuller 3D review, also open the source volume and <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>
-in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>SimpleITK</strong>-based viewer — not only
-the napari 2D slice slider.</p>
 <table class="docutils align-center">
 <colgroup>
 <col style="width: 50.0%" />
@@ -2038,11 +2092,7 @@ the napari 2D slice slider.</p>
 <section id="apply-a-saved-model">
 <h2>3. Apply a saved model<a class="headerlink" href="#apply-a-saved-model" title="Link to this heading"></a></h2>
 <p>After step 1, the archive sits at
-<code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_two_step/habitat_model.habitatmodel</span></code>.
-CLI twin:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step_predict</span><span class="o">.</span><span class="n">yaml</span> <span class="o">-</span><span class="n">m</span> <span class="n">predict</span>
-</pre></div>
-</div>
+<code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_two_step/habitat_model.habitatmodel</span></code>.</p>
 <p>Still inside <code class="docutils literal notranslate"><span class="pre">main()</span></code> (reuses <code class="docutils literal notranslate"><span class="pre">cohort</span></code>, <code class="docutils literal notranslate"><span class="pre">spec</span></code>, <code class="docutils literal notranslate"><span class="pre">backend</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatModel</span>
 
@@ -2060,12 +2110,8 @@ CLI twin:</p>
 </section>
 <section id="extract-habitat-features">
 <h2>4. Extract habitat features<a class="headerlink" href="#extract-habitat-features" title="Link to this heading"></a></h2>
-<p>CLI twin:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">extract</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">feature_extraction</span><span class="o">/</span><span class="n">config_extract_features_demo</span><span class="o">.</span><span class="n">yaml</span>
-</pre></div>
-</div>
 <p>Needs step 1 outputs (<code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>). Pass the same fields as the
-demo YAML, as a Python <code class="docutils literal notranslate"><span class="pre">dict</span></code> (still no config file).
+demo YAML, as a Python <code class="docutils literal notranslate"><span class="pre">dict</span></code> (no config file).
 <code class="docutils literal notranslate"><span class="pre">n_processes:</span> <span class="pre">2</span></code> also spawns workers — keep this call under
 <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code> (see the note in step 1).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2105,10 +2151,6 @@ demo YAML, as a Python <code class="docutils literal notranslate"><span class="p
 </section>
 <section id="tabular-ml">
 <h2>5. Tabular ML<a class="headerlink" href="#tabular-ml" title="Link to this heading"></a></h2>
-<p>CLI twin:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">model</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">machine_learning</span><span class="o">/</span><span class="n">config_machine_learning_radiomics_minimal</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">mode</span> <span class="n">train</span>
-</pre></div>
-</div>
 <p>Needs the <strong>ML pack</strong> under <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/</span></code> (see <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>
 step 2). Build a <a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a> and
 <code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code> in code (no process pool; <code class="docutils literal notranslate"><span class="pre">__main__</span></code> optional
@@ -2184,11 +2226,13 @@ here, but harmless to keep):</p>
 <section id="next">
 <h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p>Habitat analysis (what / which strategy): <a class="reference internal" href="habitat_analysis.html"><span class="doc">Habitat analysis</span></a></p></li>
+<li><p>Embed one operator in your workflow: <a class="reference internal" href="../examples/habitat_atomic_ops.html"><span class="doc">Atomic habitat operators (no YAML, no recipe)</span></a></p></li>
+<li><p>Parallel / fault tolerance: <a class="reference internal" href="execution.html"><span class="doc">Parallel execution and fault tolerance</span></a></p></li>
 <li><p>Examples gallery: <a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a></p></li>
-<li><p>Graph topology / voxel texture: <a class="reference internal" href="../how_to/graph_features.html"><span class="doc">Graph topology features</span></a> ·
-<a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a></p></li>
 <li><p>API reference: <a class="reference internal" href="../api/index.html"><span class="doc">API Reference</span></a></p></li>
 <li><p>Your own data: <a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a></p></li>
+<li><p>YAML / CLI demo: <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a></p></li>
 </ul>
 </section>
 </section>
@@ -2198,7 +2242,7 @@ here, but harmless to keep):</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart: run the demo (YAML + CLI)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="precise_screening.html" class="btn btn-neutral float-right" title="Morphology-aware precise screening" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habitat_analysis.html" class="btn btn-neutral float-right" title="Habitat analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

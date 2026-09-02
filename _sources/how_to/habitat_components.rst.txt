@@ -3,6 +3,9 @@ Choosing habitat Spec components
 
 **You copied an example and want a different method — start here.**
 
+Concept and embedding: :doc:`../tutorial/habitat_analysis` ·
+:doc:`../examples/habitat_atomic_ops`.
+
 The gallery scripts (one-step, two-step, direct-pooling) show **one**
 worked :class:`~habit.spec.HabitatSpec`. This page is the chooser from
 that example outward: which registered names exist for each stage, what

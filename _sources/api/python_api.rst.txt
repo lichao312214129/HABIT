@@ -30,21 +30,30 @@ Architecture in one diagram
 Mental model
 ------------
 
-1. **Cohort** = ordered subjects (lazy images).
-2. **``HabitatSpec.stages``** = ordered named stages (source of truth); strategy
-   is inferred (partition+pool → two_step; pool only → direct_pooling;
-   neither → one_step).
-3. **Subject-level operators** are one-argument callables (no YAML required).
+1. **Subject-level operators** are one-argument callables
+   (``voxel(subject)``, ``pipe(subject)``). No YAML, no directory layout.
+   This is the embedding surface — :doc:`../examples/habitat_atomic_ops`.
+2. **Cohort** = ordered subjects (lazy images). Optional until you fit
+   a shared :class:`~habit.contracts.HabitatModel` or ``map`` a pipeline.
+3. **``HabitatSpec.stages``** = ordered named stages (source of truth);
+   strategy is inferred (partition+pool → two_step; pool only →
+   direct_pooling; neither → one_step).
 4. **``pool``** is the only subject↔cohort watershed; post-pool feature
    preprocess is first-class.
-5. Publish **``HabitatModel`` + ``SubjectPipeline``** = definition + procedure.
+5. Publish **``HabitatModel`` + ``SubjectPipeline``** = definition +
+   procedure.
 6. Writing to disk is explicit (``HabitatModel.save`` /
    ``StudyResult.save``). For a one-step cohort that must not hold every
    subject's volumes, pass ``report=Report(...)`` so each subject is
    persisted (and optionally drawn) as it completes.
 
-Primary entry: ``Study``
-------------------------
+Beginners: copy :doc:`../tutorial/quickstart_python` (a ``Study``
+recipe). Integrators: atoms first, then this page. Concept:
+:doc:`../tutorial/habitat_analysis`. Parallel / fault tolerance:
+:doc:`../tutorial/execution`.
+
+Primary entry: ``Study`` (cohort recipe)
+----------------------------------------
 
 Declare stages, then call :meth:`~habit.recipes.Study.fit_predict`. Nothing is
 written until you ask for it:
@@ -400,15 +409,17 @@ Where to go next
      - :doc:`data_model`
    * - Directory / file image adapters
      - :doc:`adapters`
+   * - Embed ``op(subject)`` / ``SubjectPipeline``
+     - :doc:`../examples/habitat_atomic_ops`
    * - Habitat protocols, registries, ``SubjectPipeline``,
        ``HabitatComponents``
      - :doc:`domain_habitat`
+   * - Parallel backends, timeout, resume
+     - :doc:`../tutorial/execution` · :doc:`execution`
    * - Table ML: preprocessors, selectors, classifiers, ``TablePipeline``
      - :doc:`domain_table`
    * - ``HabitatSpec`` / ``RunPolicy`` / migrate YAML
      - :doc:`spec`
-   * - Parallel execution and checkpoints
-     - :doc:`execution`
    * - Streaming persist + per-subject figures (``Report``)
      - :doc:`../examples/one_step_habitat`
    * - Pure numeric kernels

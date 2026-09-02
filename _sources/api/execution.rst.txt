@@ -1,6 +1,11 @@
 Execution backends
 ==================
 
+Integrator chapter (which backend, continue vs fail_fast, resume):
+:doc:`../tutorial/execution`. Runnable demos:
+:doc:`../examples/parallel_execution` and
+:doc:`../examples/fault_tolerance`.
+
 ``habit.execution`` runs subject-level operators across a contracts ``Cohort``.
 Scheduling knobs live on :class:`~habit.spec.RunPolicy`; backends consume a
 subset of those knobs. YAML twins and the v0.1 ↔ v1 field rename table are in

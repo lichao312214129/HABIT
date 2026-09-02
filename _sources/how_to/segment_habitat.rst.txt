@@ -3,6 +3,10 @@ Habitat segmentation
 
 Goal: get ``*_habitats.nrrd`` maps, then view them.
 
+Concept, strategy choice, and embedding:
+:doc:`../tutorial/habitat_analysis`. Python operators (no YAML):
+:doc:`../examples/habitat_atomic_ops`.
+
 Before you start
 ----------------
 

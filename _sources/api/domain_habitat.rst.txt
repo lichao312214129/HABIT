@@ -2,14 +2,26 @@ Habitat domain API
 ==================
 
 Imaging-side protocols, built-in operators, registries, and
-``SubjectPipeline``. Import registries from ``habit.domain`` (they are **not**
-top-level ``habit`` exports).
+``SubjectPipeline``. This is the **embedding API**: each protocol is
+``op(subject)`` or ``op(field)`` and returns a typed contract. Import
+registries from ``habit.domain`` (they are **not** top-level ``habit``
+exports).
 
-For end-to-end habitat studies without hand-wiring each operator, prefer
-:meth:`~habit.recipes.Study.fit_predict` with :attr:`~habit.spec.HabitatSpec.stages`
-(documented in :doc:`python_api`). The mode-named aliases
-(:func:`~habit.recipes.two_step_habitat`, :func:`~habit.recipes.direct_pooling_habitat`,
+Walkthrough (stop after any step, bring your own ``Subject``):
+:doc:`../examples/habitat_atomic_ops`. Concept:
+:doc:`../tutorial/habitat_analysis`. Arrays in:
+:doc:`../examples/data_from_arrays`.
+
+For a whole-cohort study without hand-wiring each operator, use
+:meth:`~habit.recipes.Study.fit_predict` with
+:attr:`~habit.spec.HabitatSpec.stages` (:doc:`python_api`, beginner
+path :doc:`../tutorial/quickstart_python`). The mode-named aliases
+(:func:`~habit.recipes.two_step_habitat`,
+:func:`~habit.recipes.direct_pooling_habitat`,
 :func:`~habit.recipes.one_step_habitat`) remain as thin validators.
+
+A backend is optional. One subject is ``pipe(subject)``. Parallel /
+checkpoints: :doc:`../tutorial/execution`.
 
 .. code-block:: python
 

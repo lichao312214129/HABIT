@@ -628,7 +628,8 @@ Execution (``habit.execution``)
 
 Execution backends control how subject-level operators are mapped over a
 cohort: serially, in a process pool, with per-subject timeouts and
-checkpoint/resume. See :doc:`execution`.
+checkpoint/resume. Integrator chapter: :doc:`../tutorial/execution`.
+Reference: :doc:`execution`.
 
 .. autosummary::
    :toctree: generated

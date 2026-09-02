@@ -1,6 +1,9 @@
 Fault tolerance patterns
 ========================
 
+Teaching chapter (backends + raise vs continue):
+:doc:`../tutorial/execution`.
+
 v1.0 exposes **explicit** resilience knobs — geometry policy, batch
 ``fail_fast``, plugin ``strict``, execution ``on_subject_failure``, and
 format-gated ``HabitatModel.load`` — so third-party pipelines can choose

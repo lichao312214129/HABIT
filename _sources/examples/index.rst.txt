@@ -1,8 +1,10 @@
 Examples
 ========
 
-Runnable Python scripts with captured narrative. Prefer the How-to chapter for
-**YAML + demo_data** operators; this gallery is the **Python API** surface.
+Runnable Python scripts with captured narrative. Habitat analysis is the
+core — start at :doc:`../tutorial/habitat_analysis`, then
+:doc:`habitat_atomic_ops` to embed operators. How-to pages cover the
+**YAML + demo_data** operator path.
 
 Habitat examples load ``demo_data/preprocessed`` via
 :func:`~habit.cohort_from_directory`. Edit ``DATA`` / ``MODALITIES`` / ``ROI``
@@ -21,8 +23,9 @@ Habitat examples that open a viewer end with a **napari eye-check**. Close the
 window to continue; ``HABIT_NO_VIEW=1`` skips GUI. For 3D, load image +
 ``*_habitats`` in ITK-SNAP / 3D Slicer / SimpleITK.
 
-**Habitat analysis is the core** — read :doc:`habitat_analysis_overview` for the
-recipe → atomic → custom layering before diving into individual pages.
+**Habitat analysis is the core** — :doc:`../tutorial/habitat_analysis`
+(concept) then :doc:`habitat_atomic_ops` (embed). Image preprocessing
+and tabular ML examples are marked supporting in the list below.
 
 .. figure:: ../_static/images/examples/two_step_overlay.png
    :alt: Anatomy mid-slice and habitat label overlay from the two-step demo
@@ -44,18 +47,18 @@ Scripts live in ``docs/source/examples/scripts/``. Lightweight smoke
    :maxdepth: 1
    :hidden:
 
-   data_from_arrays
-   image_preprocessing
-   image_preprocessing_api
    habitat_analysis_overview
+   data_from_arrays
+   habitat_atomic_ops
    two_step_habitat
    one_step_habitat
    direct_pooling_habitat
    habitat_fit_modes
    apply_saved_model
-   habitat_atomic_ops
    habitat_label_match
    habitat_custom_pipeline
+   image_preprocessing
+   image_preprocessing_api
    voxel_texture
    feature_composition
    habitat_feature_routes
@@ -157,16 +160,14 @@ the ROI, optional cyan contour.
 
 .. rubric:: All examples (flat)
 
-* :doc:`data_from_arrays` — data and cohorts
-* :doc:`image_preprocessing` — batch image preprocessing
-* :doc:`image_preprocessing_api` — image preprocessing API
-* :doc:`habitat_analysis_overview` — habitat analysis overview
+* :doc:`habitat_analysis_overview` — pointer to the habitat guide
+* :doc:`data_from_arrays` — ``Subject`` / ``Cohort`` from NumPy (no HABIT folders)
+* :doc:`habitat_atomic_ops` — embed ``op(subject)`` / ``SubjectPipeline``
 * :doc:`two_step_habitat` — two-step habitat
 * :doc:`one_step_habitat` — one-step habitat (optional streaming ``Report``)
 * :doc:`direct_pooling_habitat` — direct-pooling habitat
 * :doc:`habitat_fit_modes` — habitat fit modes
 * :doc:`apply_saved_model` — apply a saved model
-* :doc:`habitat_atomic_ops` — atomic habitat operators
 * :doc:`habitat_label_match` — match ids (observers vs patients)
 * :doc:`habitat_custom_pipeline` — custom habitat pipeline
 * :doc:`voxel_texture` — local entropy + GLCM maps; anatomy + ROI contour plots
@@ -180,15 +181,17 @@ the ROI, optional cyan contour.
 * :doc:`habitat_feature_compare` — each_habitat contrast figures (heatmap / pair-delta / CVA components / violin / faceted bars)
 * :doc:`feature_extraction` — light families + radiomics extract recipes
 * :doc:`features_radiomics_api` — radiomics features API
-* :doc:`tabular_ml` — tabular ML
-* :doc:`tabular_ml_api` — tabular ML API
-* :doc:`ml_advanced` — advanced ML
+* :doc:`image_preprocessing` — batch image preprocessing (supporting)
+* :doc:`image_preprocessing_api` — image preprocessing API (supporting)
+* :doc:`tabular_ml` — tabular ML (supporting)
+* :doc:`tabular_ml_api` — tabular ML API (supporting)
+* :doc:`ml_advanced` — advanced ML (supporting)
 * :doc:`visualization` — visualization
 * :doc:`viz_parallel_extras_api` — viz / parallel extras API
 * :doc:`persistence` — persistence
 * :doc:`provenance_methods` — provenance / methods text
-* :doc:`parallel_execution` — parallel execution
-* :doc:`fault_tolerance` — fault tolerance
+* :doc:`parallel_execution` — parallel execution (see also :doc:`../tutorial/execution`)
+* :doc:`fault_tolerance` — fault tolerance (see also :doc:`../tutorial/execution`)
 * :doc:`plugin_entry_points` — plugin entry points
 * :doc:`run_from_yaml` — run from YAML
 * :doc:`cli_yaml_workflows` — CLI / YAML workflows

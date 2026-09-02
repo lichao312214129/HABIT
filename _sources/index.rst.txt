@@ -1,7 +1,11 @@
 HABIT Documentation
 =====================
 
-**HABIT** — preprocess → habitat maps → features → ML.
+**HABIT** — habitat maps from images, then quantify those habitats.
+
+Image preprocessing and tabular ML are **supporting** tools. The product
+is the habitat API: ``op(subject)``, :class:`~habit.domain.SubjectPipeline`,
+or :class:`~habit.recipes.Study`.
 
 .. warning::
 
@@ -12,16 +16,18 @@ Start here
 
 1. :doc:`tutorial/installation` — install
 2. :doc:`tutorial/quickstart` — **run the demo** (YAML + CLI)
-3. :doc:`how_to/prepare_data` — point HABIT at **your** images
-4. :doc:`how_to/index` — each pipeline step (copy command → edit ★ → run)
+3. :doc:`tutorial/habitat_analysis` — what habitats are, which strategy,
+   how to embed operators
+4. :doc:`how_to/prepare_data` — point HABIT at **your** images
 
-Python users: :doc:`tutorial/quickstart_python`. Precise voxel features
-before clustering: :doc:`tutorial/precise_screening`.
-Stuck: :doc:`troubleshooting/faq`.
+Python beginners: :doc:`tutorial/quickstart_python` (copy-paste
+:class:`~habit.recipes.Study`). Embed one step in your own workflow:
+:doc:`examples/habitat_atomic_ops`. Parallel / fault tolerance:
+:doc:`tutorial/execution`. Stuck: :doc:`troubleshooting/faq`.
 
-Also: habitat **graph topology** features — :doc:`how_to/graph_features`
-(how-to) · :doc:`examples/graph_features` (gallery). Voxel **texture** maps —
-:doc:`how_to/voxel_texture` · :doc:`examples/voxel_texture`.
+Also: :doc:`tutorial/precise_screening` (which voxel features may define
+habitats) · :doc:`how_to/graph_features` (topology) ·
+:doc:`how_to/voxel_texture` (texture maps as inputs).
 
 .. toctree::
    :maxdepth: 2
@@ -30,7 +36,9 @@ Also: habitat **graph topology** features — :doc:`how_to/graph_features`
    tutorial/installation
    tutorial/quickstart
    tutorial/quickstart_python
+   tutorial/habitat_analysis
    tutorial/precise_screening
+   tutorial/execution
 
 .. toctree::
    :maxdepth: 1

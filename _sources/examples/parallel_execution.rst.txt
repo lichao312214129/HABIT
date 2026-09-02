@@ -1,6 +1,9 @@
 Parallel execution with RunPolicy
 =================================
 
+Teaching chapter (which backend, continue vs fail_fast, resume):
+:doc:`../tutorial/execution`.
+
 :class:`~habit.spec.HabitatSpec` declares *what* to compute;
 :class:`~habit.spec.RunPolicy` declares *how* to schedule it. Pass a
 :class:`~habit.execution.process_pool.ProcessPoolBackend` to any habitat recipe

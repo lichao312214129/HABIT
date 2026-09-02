@@ -1,6 +1,12 @@
 Preprocessing
 =============
 
+.. note::
+
+   Supporting tool, not the habitat core. Habitat analysis:
+   :doc:`../tutorial/habitat_analysis`. Demo pack is already preprocessed
+   — go to :doc:`segment_habitat`.
+
 Goal: turn images (or DICOM) into a preprocessed ``images/`` + ``masks/`` tree.
 
 **First demo run:** skip this page — the demo pack already has
