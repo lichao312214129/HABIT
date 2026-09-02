@@ -4,6 +4,11 @@ Batch image preprocessing
 **Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** none ·
 **Time:** ~1–4 min
 
+.. note::
+
+   Supporting example, not the habitat core.
+   :doc:`../tutorial/habitat_analysis` · :doc:`habitat_atomic_ops`.
+
 :func:`~habit.recipes.preprocess_images` is the programmatic twin of
 ``habit preprocess``. The full literature-aligned pipeline on real MRI is
 **N4 → registration → resample → z-score** (see

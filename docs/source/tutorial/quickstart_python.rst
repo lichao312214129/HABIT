@@ -1,26 +1,27 @@
 Quickstart: Python API
 ========================
 
-Install first (:doc:`installation`). This page is the **same demo** as
-:doc:`quickstart`, expressed as **pure Python** — construct a cohort,
-:class:`~habit.HabitatSpec` / :class:`~habit.MLSpec`, and call
-:mod:`habit.recipes` with explicit arguments (no YAML path, no
-:func:`~habit.recipes.run_from_yaml`).
+Install first (:doc:`installation`). This is the **beginner** Python
+path: construct a cohort, :class:`~habit.HabitatSpec` /
+:class:`~habit.MLSpec`, and call :mod:`habit.recipes` with explicit
+arguments (no YAML). Copy a block, save as ``.py``, run it.
 
-Parameters below mirror the bundled demo configs
+To embed **one** operator in your own notebook or product (no
+``Study``), see :doc:`../examples/habitat_atomic_ops` after this page.
+Concept: :doc:`habitat_analysis`.
+
+Parameters below follow the bundled demo settings
 (``config/habitat/config_habitat_two_step.yaml``,
 ``config/feature_extraction/config_extract_features_demo.yaml``,
 ``config/machine_learning/config_machine_learning_radiomics_minimal.yaml``)
-so habitat label maps match the CLI voxel-wise when you use the same
-``demo_data/``, seed, and execution policy.
+so habitat maps match when you use the same ``demo_data/``, seed, and
+execution policy.
 
-YAML / CLI remain an alternate shell for the same recipes
-(:doc:`quickstart`); they are not required here. For the recipe → atomic →
-custom layering of habitat analysis, see
+For the recipe → atomic → custom layering of habitat analysis, see
 :doc:`../examples/habitat_analysis_overview`.
 
-Work from a directory that already has ``demo_data/`` (and optionally
-``config/`` if you also use the CLI). See :doc:`quickstart` steps 1–2::
+Work from a directory that already has ``demo_data/``. See
+:doc:`quickstart` steps 1–2::
 
    # Windows - Anaconda Prompt
    conda activate habit
@@ -29,14 +30,10 @@ Work from a directory that already has ``demo_data/`` (and optionally
 1. Habitat analysis (two-step)
 ------------------------------
 
-CLI twin (same scientific settings)::
-
-   habit get-habitat --config config/habitat/config_habitat_two_step.yaml
-
 Save the block below as a ``.py`` file (for example ``run_two_step.py``)
 and run ``python run_two_step.py``. Do **not** paste it at the top level
 of a script without the ``__main__`` guard — the demo uses a process
-pool (same as the CLI YAML ``processes: 2``).
+pool (2 workers).
 
 .. include:: ../_includes/windows_multiprocessing.rst
 
@@ -51,15 +48,15 @@ pool (same as the CLI YAML ``processes: 2``).
 
    def main() -> None:
        modalities = ("pre_contrast", "LAP", "PVP", "delay_3min")
-       # Match the CLI YAML loader: ROI key = first modality in the concat list.
+       # ROI key is the first modality in the concat list.
        cohort = cohort_from_directory(
            "demo_data/preprocessed",
            modalities=modalities,
            roi="pre_contrast",
        )
 
-       # Same science as config/habitat/config_habitat_two_step.yaml,
-       # declared as ordered stages (source of truth). Strategy is inferred:
+       # Same science as the bundled two-step demo config, declared as
+       # ordered stages (source of truth). Strategy is inferred:
        # partition + pool → two_step.
        spec = HabitatSpec(
            name="habitat_two_step",
@@ -131,7 +128,7 @@ pool (same as the CLI YAML ``processes: 2``).
            random_seed=42,
        )
 
-       # Match YAML processes / timeout so process-pool execution matches CLI.
+       # Process pool: 2 workers, 900s per-subject timeout.
        policy = RunPolicy(
            workers=2,
            backend="process",
@@ -150,34 +147,17 @@ pool (same as the CLI YAML ``processes: 2``).
        )
        print(result.habitat_model.summary())
 
-       # Export a complete effective v1 YAML so CLI / run_from_yaml can replay
-       # this exact run (expanded defaults, not only overridden fields).
-       from habit import save_habitat_config
-
-       save_habitat_config(
-           "demo_data/results/habitat_two_step/effective_config.yaml",
-           spec,
-           data_source="demo_data/preprocessed",
-           out_dir=out_dir,
-           policy=policy,
-       )
-
 
    if __name__ == "__main__":
        main()
 
 Outputs land under ``demo_data/results/habitat_two_step/`` (including
-``*_habitats.nrrd`` and ``habitat_model.habitatmodel``). The exported
-``effective_config.yaml`` is a native v1 document: reload it with
-:func:`~habit.recipes.run_from_yaml` or
-``habit get-habitat --config …/effective_config.yaml`` for **voxel-identical**
-habitat maps (same seed, data, and policy).
+``*_habitats.nrrd`` and ``habitat_model.habitatmodel``).
 
-The overlay below is **not** from ``main()`` above. ``main()`` matches the
-CLI YAML (four modalities, ``roi="pre_contrast"``) and draws a different
-map. This PNG is written by the two-step gallery
-(:doc:`../examples/two_step_habitat`) — Script + Draw the figures. Reproduce
-it with one line (needs ``[viz]``)::
+The overlay below is **not** from ``main()`` above. ``main()`` uses four
+modalities and ``roi="pre_contrast"`` and draws a different map. This PNG
+is written by the two-step gallery (:doc:`../examples/two_step_habitat`) —
+Script + Draw the figures. Reproduce it with one line (needs ``[viz]``)::
 
    python docs/source/examples/scripts/two_step_habitat_quickstart.py
 
@@ -197,10 +177,6 @@ live under :doc:`../examples/index`.
 2. View
 -------
 
-CLI twin (one line — conda / Windows terminals do not support ``\`` continuation)::
-
-   habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
-
 Append inside the same ``main()`` from step 1 (uses ``cohort`` /
 ``result``)::
 
@@ -213,10 +189,6 @@ Append inside the same ``main()`` from step 1 (uses ``cohort`` /
 
 Needs napari (:doc:`installation`). Blocks until you close the window.
 In napari, select the habitats Labels layer (Contour ``0`` = filled regions).
-
-For fuller 3D review, also open the source volume and ``*_habitats.nrrd``
-in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer — not only
-the napari 2D slice slider.
 
 .. list-table::
    :widths: 50 50
@@ -239,9 +211,6 @@ the napari 2D slice slider.
 
 After step 1, the archive sits at
 ``demo_data/results/habitat_two_step/habitat_model.habitatmodel``.
-CLI twin::
-
-   habit get-habitat --config config/habitat/config_habitat_two_step_predict.yaml -m predict
 
 Still inside ``main()`` (reuses ``cohort``, ``spec``, ``backend``)::
 
@@ -260,12 +229,8 @@ Still inside ``main()`` (reuses ``cohort``, ``spec``, ``backend``)::
 4. Extract habitat features
 ---------------------------
 
-CLI twin::
-
-   habit extract --config config/feature_extraction/config_extract_features_demo.yaml
-
 Needs step 1 outputs (``*_habitats.nrrd``). Pass the same fields as the
-demo YAML, as a Python ``dict`` (still no config file).
+demo YAML, as a Python ``dict`` (no config file).
 ``n_processes: 2`` also spawns workers — keep this call under
 ``if __name__ == "__main__":`` (see the note in step 1).
 
@@ -308,10 +273,6 @@ Voxel **texture** maps (local entropy on anatomy + ROI) are a separate
 
 5. Tabular ML
 -------------
-
-CLI twin::
-
-   habit model --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml --mode train
 
 Needs the **ML pack** under ``demo_data/ml_data/`` (see :doc:`quickstart`
 step 2). Build a :class:`~habit.contracts.FeatureTable` and
@@ -387,8 +348,10 @@ here, but harmless to keep)::
 Next
 ----
 
+* Habitat analysis (what / which strategy): :doc:`habitat_analysis`
+* Embed one operator in your workflow: :doc:`../examples/habitat_atomic_ops`
+* Parallel / fault tolerance: :doc:`execution`
 * Examples gallery: :doc:`../examples/index`
-* Graph topology / voxel texture: :doc:`../how_to/graph_features` ·
-  :doc:`../how_to/voxel_texture`
 * API reference: :doc:`../api/index`
 * Your own data: :doc:`../how_to/prepare_data`
+* YAML / CLI demo: :doc:`quickstart`

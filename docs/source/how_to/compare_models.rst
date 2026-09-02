@@ -1,6 +1,11 @@
 Model comparison
 ================
 
+.. note::
+
+   Supporting tool, not the habitat core. Habitat analysis:
+   :doc:`../tutorial/habitat_analysis`.
+
 Goal: compare prediction CSVs (ROC, etc.) after training.
 
 Run the demo

@@ -4,6 +4,9 @@ Before you start
 Do this once, then every how-to page is just copy → edit ★ → run.
 A git clone is **not** required after ``pip install habitat-analysis``.
 
+Habitat analysis is the core (:doc:`../tutorial/habitat_analysis`).
+These steps only set up the terminal, ``config/``, and ``demo_data/``.
+
 1. Terminal + env
 -----------------
 

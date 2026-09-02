@@ -1,49 +1,46 @@
 How-to guides
 =============
 
-YAML + CLI operator path. Pattern on every page:
+Habitat analysis is the core. Image preprocessing, whole-ROI radiomics,
+and tabular ML are supporting pages at the bottom.
+
+**Concept and embedding:** :doc:`../tutorial/habitat_analysis` ·
+:doc:`../examples/habitat_atomic_ops`. **Parallel / fault tolerance:**
+:doc:`../tutorial/execution`.
+
+YAML + CLI operator path on the pages below:
 
 1. Copy a shipped config under ``config/``
 2. Edit only ★ fields (usually ``data_dir`` / ``out_dir``)
 3. ``habit check-config -c …`` then the run command
 
-Start: :doc:`before_you_start` → :doc:`prepare_data` → pipeline pages below.
+Start: :doc:`before_you_start` → :doc:`prepare_data` →
+:doc:`segment_habitat`.
 
 **Which Spec to put in each habitat stage** (one series first, then
 combiners such as ``concat(raw("T1"), voxel_radiomics("T2"))``):
 :doc:`habitat_components`.
 
 **Features from habitat maps** (after habitats exist): :doc:`extract_features`
-and topology :doc:`graph_features` (built-in ``graph`` family; now in the
-default extract list). Galleries: :doc:`../examples/graph_features` and
-habitat-vs-habitat contrast :doc:`../examples/habitat_feature_compare`.
+and topology :doc:`graph_features`. Galleries:
+:doc:`../examples/graph_features` and
+:doc:`../examples/habitat_feature_compare`.
 
-**Publication figures** (pure :mod:`habit.viz` + one-step
-:class:`~habit.report.Report` atoms, including ``figure_layout``):
-:doc:`../examples/visualization`. Graph lattice / network:
-:doc:`graph_features`.
-
-**Voxel texture maps** (local entropy / GLCM via ``voxel_radiomics``):
-:doc:`voxel_texture`. Gallery: :doc:`../examples/voxel_texture`.
-
-**Precise voxel features** (morphology-aware screen before clustering):
-:doc:`../tutorial/precise_screening` (Gaussian noise, 0.5-voxel
-translation, 0.5° rotation; optional MONAI B-spline ROI warp, then
-habitats and light families on the intersection of the two masks).
-Gallery:
-:doc:`../examples/precise_features`.
+**Voxel texture maps** (inputs to clustering, via ``voxel_radiomics``):
+:doc:`voxel_texture`. Precise-feature screen:
+:doc:`../tutorial/precise_screening`.
 
 .. toctree::
    :maxdepth: 1
 
    before_you_start
    prepare_data
-   preprocess
    segment_habitat
    habitat_components
    extract_features
    graph_features
    voxel_texture
+   preprocess
    radiomics
    train_model
    compare_models

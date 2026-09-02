@@ -1,6 +1,11 @@
 Machine learning
 ================
 
+.. note::
+
+   Supporting tool, not the habitat core. Habitat maps and features:
+   :doc:`../tutorial/habitat_analysis` · :doc:`extract_features`.
+
 Goal: train / CV models on feature CSVs.
 
 Demo tabular data

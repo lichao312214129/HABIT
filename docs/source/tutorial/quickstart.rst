@@ -114,10 +114,9 @@ Outputs land under ``demo_data/results/``.
 Next
 ----
 
+* Habitat analysis (what / which strategy): :doc:`habitat_analysis`
 * Your own data: :doc:`../how_to/prepare_data` then :doc:`../how_to/index`
-* Graph topology features: :doc:`../how_to/graph_features`
-* Voxel texture maps: :doc:`../how_to/voxel_texture`
-* 3D viewers (ITK-SNAP / 3D Slicer): load the source image and
-  ``*_habitats.nrrd`` together
-* Python API: :doc:`quickstart_python`
+* Python API (beginner ``Study``): :doc:`quickstart_python`
+* Embed one operator: :doc:`../examples/habitat_atomic_ops`
+* Parallel / fault tolerance: :doc:`execution`
 * All commands: :doc:`../reference/cli`

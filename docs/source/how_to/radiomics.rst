@@ -1,6 +1,12 @@
 Traditional radiomics
 =====================
 
+.. note::
+
+   Whole-ROI radiomics without habitat maps. For features **on** habitat
+   maps use :doc:`extract_features`. Habitat core:
+   :doc:`../tutorial/habitat_analysis`.
+
 Goal: whole-ROI PyRadiomics **without** habitat maps. For habitat features use
 :doc:`extract_features`. ROI-level radiomics, voxel-level radiomics, and
 3-D shape match PyRadiomics ``execute()``; the digital-phantom table and
