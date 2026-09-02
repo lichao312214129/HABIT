@@ -420,9 +420,9 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -602,6 +602,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#what-the-core-path-looks-like">What the core path looks like</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#matching-ids-after-independent-clustering">Matching ids after independent clustering</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#reading-order">Reading order</a></li>
 </ul>
 </li>
@@ -659,6 +660,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_label_match.html">Match habitat ids (observers vs patients)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
@@ -1969,6 +1978,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#habitat-label-matching">Habitat label matching</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#stability">Stability</a></li>
 </ul>
 </li>
@@ -2261,8 +2271,14 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;ImputeParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LogTransform&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LogTransformParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;L2Normalizer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;L2NormalizerParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MaxAbsScaling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MaxAbsScalingParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MinMaxScaling&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MinMaxScalingParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QuantileTransform&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QuantileTransformParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RobustScaling&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RobustScalingParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;VarianceFilter&quot;</span><span class="p">,</span>
@@ -2564,6 +2580,196 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">apply_robust</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span></div>
 </div>
 
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MaxAbsScalingParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`MaxAbsScaling`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="n">across_features</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="nd">@FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;maxabs&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MaxAbsScaling</span><span class="p">(</span><span class="n">_ScopedMethod</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scale features by the maximum absolute value.</span>
+
+<span class="sd">    Leaves zeros at zero and does not shift the origin, so sparse or</span>
+<span class="sd">    already-centered radiomics columns keep their sign. A zero-peak column</span>
+<span class="sd">    divides by 1.0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;maxabs&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Learn the max-absolute peaks.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Unit-by-feature matrix to learn from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            State to pass to :meth:`transform`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">fit_maxabs</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_across_features</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the learned max-absolute scaling.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Matrix to transform.</span>
+<span class="sd">            state: State from :meth:`fit`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The scaled matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">apply_maxabs</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantileTransformParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`QuantileTransform`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="n">across_features</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">n_quantiles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">output_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;uniform&quot;</span>
+
+
+<span class="nd">@FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;quantile&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantileTransform</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map each feature onto a uniform or normal distribution by percentile rank.</span>
+
+<span class="sd">    Distance-based clustering then sees comparable marginals even when one</span>
+<span class="sd">    radiomics column is heavy-tailed and another is bounded. Knots are</span>
+<span class="sd">    learned at fit time; prediction rows are interpolated and clipped to</span>
+<span class="sd">    the training extrema.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;quantile&quot;</span>
+    <span class="n">changes_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">across_features</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">n_quantiles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">output_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">output_distribution</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dist</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">QUANTILE_DISTRIBUTIONS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;quantile: unknown output_distribution </span><span class="si">{</span><span class="n">output_distribution</span><span class="si">!r}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;expected one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_kernel</span><span class="o">.</span><span class="n">QUANTILE_DISTRIBUTIONS</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_quantiles</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;quantile: n_quantiles must be &gt;= 2; got </span><span class="si">{</span><span class="n">n_quantiles</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_across_features</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">across_features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_quantiles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_quantiles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_distribution</span> <span class="o">=</span> <span class="n">dist</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_across_features</span><span class="p">,</span>
+                <span class="s2">&quot;n_quantiles&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_quantiles</span><span class="p">,</span>
+                <span class="s2">&quot;output_distribution&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_distribution</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Learn quantile knots.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Unit-by-feature matrix to learn from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            State to pass to :meth:`transform`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">fit_quantile</span><span class="p">(</span>
+            <span class="n">block</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_across_features</span><span class="p">,</span>
+            <span class="n">n_quantiles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_quantiles</span><span class="p">,</span>
+            <span class="n">output_distribution</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_distribution</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the learned quantile map.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Matrix to transform.</span>
+<span class="sd">            state: State from :meth:`fit`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The rank-mapped matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">apply_quantile</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">L2NormalizerParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`L2Normalizer`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;l2&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">L2Normalizer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scale each row (voxel / supervoxel) to unit Euclidean length.</span>
+
+<span class="sd">    After this step clustering compares feature *directions*, not magnitudes.</span>
+<span class="sd">    A zero-length row stays zero. There are no training statistics: fit only</span>
+<span class="sd">    records the column count so a later schema change is rejected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;l2&quot;</span>
+    <span class="n">changes_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{})</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Record the feature width.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Unit-by-feature matrix to learn from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            State to pass to :meth:`transform`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">fit_l2</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply per-row L2 normalisation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Matrix to transform.</span>
+<span class="sd">            state: State from :meth:`fit`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The row-normalised matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">apply_l2</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="LogTransformParams">
@@ -3223,6 +3429,13 @@ window.runMermaid = runMermaid;</script>
 <span class="n">FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
     <span class="s2">&quot;robust&quot;</span><span class="p">,</span> <span class="n">RobustScalingParams</span>
 <span class="p">)</span>
+<span class="n">FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
+    <span class="s2">&quot;maxabs&quot;</span><span class="p">,</span> <span class="n">MaxAbsScalingParams</span>
+<span class="p">)</span>
+<span class="n">FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
+    <span class="s2">&quot;quantile&quot;</span><span class="p">,</span> <span class="n">QuantileTransformParams</span>
+<span class="p">)</span>
+<span class="n">FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;l2&quot;</span><span class="p">,</span> <span class="n">L2NormalizerParams</span><span class="p">)</span>
 <span class="n">FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">LogTransformParams</span><span class="p">)</span>
 <span class="n">FeaturePreprocessingMethodRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
     <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span> <span class="n">WinsorizingParams</span>

@@ -188,6 +188,48 @@ Classification statistics
    hl = hosmer_lemeshow_test(y_true, scores, n_groups=10)
    sp = spiegelhalter_z_test(y_true, scores)
 
+Habitat label matching
+----------------------
+
+Independently clustered maps permute integer ids. Import the kernel
+directly (it is not re-exported from :mod:`habit.kernels`).
+
+* **overlap** — same grid, Hungarian on voxel overlap (observers /
+  test–retest of one tumour).
+* **features** — unscaled habitat means, cohort z-score, then
+  Hungarian (cross-patient naming). Lock ``location`` / ``scale`` from
+  :func:`~habit.kernels.habitat_label_match.fit_feature_match_scale`
+  so every subject uses the same ruler.
+* **centroid** — raw Euclidean, no cohort scale. Same-image intensity
+  or an already-commensurate space only.
+
+Copy-ready walkthrough: :doc:`../examples/habitat_label_match`.
+
+.. code-block:: python
+
+   from habit.kernels.habitat_label_match import (
+       fit_feature_match_scale,
+       match_labels_by_features,
+       match_labels_by_overlap,
+   )
+
+   # Same tumour, two observers: overlap.
+   mapping = match_labels_by_overlap(physician2_labels, other_labels)
+
+   # Different patients: unscaled means (n_habitats, n_features).
+   location, scale = fit_feature_match_scale([patient_a, patient_b, patient_c])
+   mapping = match_labels_by_features(
+       atlas_ids, patient_a,
+       moving_ids, patient_b,
+       metric="euclidean",
+       standardize="zscore",
+       location=location,
+       scale=scale,
+   )
+
+:func:`~habit.domain.align_habitat_map` accepts ``method="overlap"``,
+``"centroid"``, or ``"features"``.
+
 Stability
 ---------
 

@@ -67,9 +67,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -178,6 +178,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#small-world-sigma-and-random-graph-nulls">Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
@@ -248,6 +249,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#what-the-core-path-looks-like">What the core path looks like</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#matching-ids-after-independent-clustering">Matching ids after independent clustering</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#reading-order">Reading order</a></li>
 </ul>
 </li>
@@ -305,6 +307,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_atomic_ops.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_atomic_ops.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_label_match.html">Match habitat ids (observers vs patients)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
@@ -667,7 +677,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -1611,6 +1625,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kernels.html#habitat-label-matching">Habitat label matching</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#stability">Stability</a></li>
 </ul>
 </li>

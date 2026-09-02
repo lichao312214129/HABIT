@@ -71,6 +71,7 @@ Same scientific product as the two-step recipe, built operator-by-operator.
 What to read next
 -----------------
 
+* :doc:`habitat_label_match` — remap ids across observers or patients
 * :doc:`habitat_custom_pipeline` — Registry.create and Spec-stage customisation
 * :doc:`habitat_analysis_overview` — where this sits vs recipes
 * :doc:`two_step_habitat` — same design via ``Study.fit_predict``

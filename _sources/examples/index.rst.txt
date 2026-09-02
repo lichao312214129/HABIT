@@ -54,6 +54,7 @@ Scripts live in ``docs/source/examples/scripts/``. Lightweight smoke
    habitat_fit_modes
    apply_saved_model
    habitat_atomic_ops
+   habitat_label_match
    habitat_custom_pipeline
    voxel_texture
    feature_composition
@@ -166,6 +167,7 @@ the ROI, optional cyan contour.
 * :doc:`habitat_fit_modes` — habitat fit modes
 * :doc:`apply_saved_model` — apply a saved model
 * :doc:`habitat_atomic_ops` — atomic habitat operators
+* :doc:`habitat_label_match` — match ids (observers vs patients)
 * :doc:`habitat_custom_pipeline` — custom habitat pipeline
 * :doc:`voxel_texture` — local entropy + GLCM maps; anatomy + ROI contour plots
 * :doc:`feature_composition` — feature composition

@@ -86,7 +86,11 @@ This section documents **Test-Retest reproducibility** configuration. Example: `
 **Optional fields**
 
 - ``features``: feature columns for similarity; ``null`` means all
-- ``similarity_method`` (default ``pearson``): ``pearson``, ``spearman``, ``kendall``, ``euclidean``, ``cosine``, ``manhattan``, ``chebyshev``
+- ``similarity_method`` (default ``pearson``): ``pearson``, ``spearman``,
+  ``kendall`` (alias of spearman), ``euclidean``, ``cosine``,
+  ``manhattan``, ``chebyshev``. Assignment is **Hungarian** on
+  cohort-z-scored habitat medians (not greedy argmax). See
+  :doc:`../examples/habitat_label_match`.
 - ``processes`` (default ``4``)
 - ``debug`` (default ``false``)
 

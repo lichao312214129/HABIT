@@ -420,9 +420,9 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -602,6 +602,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#what-the-core-path-looks-like">What the core path looks like</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#matching-ids-after-independent-clustering">Matching ids after independent clustering</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#reading-order">Reading order</a></li>
 </ul>
 </li>
@@ -659,6 +660,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_label_match.html">Match habitat ids (observers vs patients)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
@@ -1969,6 +1978,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#habitat-label-matching">Habitat label matching</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#stability">Stability</a></li>
 </ul>
 </li>
@@ -2259,6 +2269,12 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;ZScorePreprocessorParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RobustPreprocessor&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RobustPreprocessorParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MaxAbsPreprocessor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MaxAbsPreprocessorParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QuantilePreprocessor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QuantilePreprocessorParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;L2Preprocessor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;L2PreprocessorParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BinningPreprocessor&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BinningPreprocessorParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;WinsorizePreprocessor&quot;</span><span class="p">,</span>
@@ -2460,6 +2476,143 @@ window.runMermaid = runMermaid;</script>
     <span class="n">_fit_kernel</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">_kernel</span><span class="o">.</span><span class="n">fit_robust</span><span class="p">)</span>
     <span class="n">_apply_kernel</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">_kernel</span><span class="o">.</span><span class="n">apply_robust</span><span class="p">)</span></div>
 
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MaxAbsPreprocessorParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`MaxAbsPreprocessor`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="c1">#: When true, learn ONE peak across all feature columns.</span>
+    <span class="n">across_features</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="nd">@TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;maxabs&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MaxAbsPreprocessor</span><span class="p">(</span><span class="n">_ScopedScaler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scale every feature by its training max absolute value.</span>
+
+<span class="sd">    Does not shift the origin. A zero-peak column divides by 1.0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_spec_name</span> <span class="o">=</span> <span class="s2">&quot;maxabs&quot;</span>
+    <span class="n">_fit_kernel</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">_kernel</span><span class="o">.</span><span class="n">fit_maxabs</span><span class="p">)</span>
+    <span class="n">_apply_kernel</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">_kernel</span><span class="o">.</span><span class="n">apply_maxabs</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantilePreprocessorParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`QuantilePreprocessor`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="n">across_features</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">n_quantiles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">output_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;uniform&quot;</span>
+
+
+<span class="nd">@TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;quantile&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantilePreprocessor</span><span class="p">(</span><span class="n">_FittedPreprocessor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map each feature onto a uniform or normal distribution by percentile rank.</span>
+
+<span class="sd">    Knots come from the training table only. Prediction rows are interpolated</span>
+<span class="sd">    and clipped to those training extrema.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_spec_name</span> <span class="o">=</span> <span class="s2">&quot;quantile&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">across_features</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">n_quantiles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">output_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">output_distribution</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dist</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">QUANTILE_DISTRIBUTIONS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;quantile: unknown output_distribution </span><span class="si">{</span><span class="n">output_distribution</span><span class="si">!r}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;expected one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_kernel</span><span class="o">.</span><span class="n">QUANTILE_DISTRIBUTIONS</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_quantiles</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;quantile: n_quantiles must be &gt;= 2; got </span><span class="si">{</span><span class="n">n_quantiles</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_across_features</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">across_features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_quantiles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_quantiles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_distribution</span> <span class="o">=</span> <span class="n">dist</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spec_name</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_across_features</span><span class="p">,</span>
+                <span class="s2">&quot;n_quantiles&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_quantiles</span><span class="p">,</span>
+                <span class="s2">&quot;output_distribution&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_distribution</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;QuantilePreprocessor&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Learn quantile knots from the training table.&quot;&quot;&quot;</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remember_fit</span><span class="p">(</span>
+            <span class="n">table</span><span class="p">,</span>
+            <span class="n">_kernel</span><span class="o">.</span><span class="n">fit_quantile</span><span class="p">(</span>
+                <span class="n">block</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_across_features</span><span class="p">,</span>
+                <span class="n">n_quantiles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_quantiles</span><span class="p">,</span>
+                <span class="n">output_distribution</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_distribution</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the learned quantile map.&quot;&quot;&quot;</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block_for_transform</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span>
+        <span class="k">assert</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finish</span><span class="p">(</span>
+            <span class="n">table</span><span class="p">,</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">apply_quantile</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_columns</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">L2PreprocessorParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`L2Preprocessor`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;l2&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">L2Preprocessor</span><span class="p">(</span><span class="n">_FittedPreprocessor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scale each table row to unit Euclidean length.</span>
+
+<span class="sd">    On a modelling table each row is one subject. Fit records the feature</span>
+<span class="sd">    width only; a later column-set change is rejected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_spec_name</span> <span class="o">=</span> <span class="s2">&quot;l2&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spec_name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{})</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;L2Preprocessor&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Record the feature width from the training table.&quot;&quot;&quot;</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remember_fit</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">fit_l2</span><span class="p">(</span><span class="n">block</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply per-row L2 normalisation.&quot;&quot;&quot;</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block_for_transform</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span>
+        <span class="k">assert</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finish</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">_kernel</span><span class="o">.</span><span class="n">apply_l2</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_columns</span><span class="p">)</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -2934,6 +3087,11 @@ window.runMermaid = runMermaid;</script>
 <span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="n">MinMaxPreprocessorParams</span><span class="p">)</span>
 <span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">,</span> <span class="n">ZScorePreprocessorParams</span><span class="p">)</span>
 <span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;robust&quot;</span><span class="p">,</span> <span class="n">RobustPreprocessorParams</span><span class="p">)</span>
+<span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;maxabs&quot;</span><span class="p">,</span> <span class="n">MaxAbsPreprocessorParams</span><span class="p">)</span>
+<span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
+    <span class="s2">&quot;quantile&quot;</span><span class="p">,</span> <span class="n">QuantilePreprocessorParams</span>
+<span class="p">)</span>
+<span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;l2&quot;</span><span class="p">,</span> <span class="n">L2PreprocessorParams</span><span class="p">)</span>
 <span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;binning&quot;</span><span class="p">,</span> <span class="n">BinningPreprocessorParams</span><span class="p">)</span>
 <span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;winsorize&quot;</span><span class="p">,</span> <span class="n">WinsorizePreprocessorParams</span><span class="p">)</span>
 <span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">LogPreprocessorParams</span><span class="p">)</span>

@@ -420,9 +420,9 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -602,6 +602,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#what-the-core-path-looks-like">What the core path looks like</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#matching-ids-after-independent-clustering">Matching ids after independent clustering</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_analysis_overview.html#reading-order">Reading order</a></li>
 </ul>
 </li>
@@ -659,6 +660,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_label_match.html">Match habitat ids (observers vs patients)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_label_match.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
@@ -1969,6 +1978,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#habitat-label-matching">Habitat label matching</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/kernels.html#stability">Stability</a></li>
 </ul>
 </li>
@@ -2213,17 +2223,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;Built-in image perturbations: the simulated test-retest family.</span>
 
 <span class="sd">The three components mirror the perturbation chain of Prior et al. (Radiol</span>
-<span class="sd">Artif Intell 2024;6(2):e230118, Appendix E2) -- Gaussian noise, sub-voxel</span>
+<span class="sd">Artif Intell 2024;6(2):e230118, Appendix S2) -- Gaussian noise, sub-voxel</span>
 <span class="sd">translation, small-angle rotation -- implemented on the L0 kernels of</span>
 <span class="sd">:mod:`habit.kernels.image_perturbation`. Each one maps a</span>
 <span class="sd">:class:`~habit.contracts.subject.Subject` to a perturbed copy on the SAME</span>
 <span class="sd">voxel grid, so perturbed feature maps stay comparable to the original</span>
 <span class="sd">voxel-by-voxel.</span>
 
-<span class="sd">Geometric perturbations transform the masks as well (nearest-neighbour),</span>
-<span class="sd">because a shifted acquisition images a shifted patient; the precision</span>
-<span class="sd">analysis then aligns the original and perturbed feature fields on their</span>
-<span class="sd">common ROI voxels.</span>
+<span class="sd">Prior&#39;s published extractor (radiomicsgroup/precise-habitats</span>
+<span class="sd">``compute_features_parallel_perturbed.py``) pairs the perturbed CT with</span>
+<span class="sd">the original ROI file. Geometric steps therefore keep the original</span>
+<span class="sd">masks unless ``warp_masks=True`` (Zwanenburg / MIRP &quot;patient moved&quot;</span>
+<span class="sd">style). :func:`prior2024_retest_perturbation` uses the paper default.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2326,16 +2337,22 @@ window.runMermaid = runMermaid;</script>
     <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span>
     <span class="n">transform</span><span class="p">,</span>
     <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">warp_masks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Apply one geometric kernel to every image and mask of a subject.</span>
+<span class="sd">    Apply one geometric kernel to every image, and optionally every mask.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        subject: Source subject.</span>
 <span class="sd">        transform: Kernel (``translate_image`` / ``rotate_image``) called as</span>
 <span class="sd">            ``transform(sitk_image, interpolator=..., default_value=...)``.</span>
 <span class="sd">        interpolator: Interpolator for the intensity images; masks always</span>
-<span class="sd">            use nearest neighbour.</span>
+<span class="sd">            use nearest neighbour when ``warp_masks`` is True.</span>
+<span class="sd">        warp_masks: When True, apply the same rigid move to every ROI</span>
+<span class="sd">            (nearest neighbour). When False, keep the original masks so</span>
+<span class="sd">            the voxel list stays the Prior 2024 GitHub pairing (perturbed</span>
+<span class="sd">            image, original ROI).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The perturbed subject copy.</span>
@@ -2351,6 +2368,9 @@ window.runMermaid = runMermaid;</script>
             <span class="n">default_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">images</span><span class="p">[</span><span class="n">modality</span><span class="p">]</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">moved</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">warp_masks</span><span class="p">:</span>
+        <span class="c1"># Empty mask map: _replace_images keeps subject.masks unchanged.</span>
+        <span class="k">return</span> <span class="n">_replace_images</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="p">{})</span>
     <span class="n">masks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">subject</span><span class="o">.</span><span class="n">masks</span><span class="p">:</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span>
@@ -2568,7 +2588,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">shift_fraction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="n">max_shift_voxels</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="n">random_signs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span></div>
+    <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span>
+    <span class="n">warp_masks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
 
@@ -2597,7 +2618,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            each axis (MIRP interpolates at a shifted grid; the direction</span>
 <span class="sd">            of the shift is not anatomically privileged).</span>
 <span class="sd">        interpolator: Interpolator for the intensity images (``&quot;bspline&quot;``</span>
-<span class="sd">            is the paper&#39;s choice); masks always use nearest neighbour.</span>
+<span class="sd">            is the paper&#39;s choice); masks use nearest neighbour only when</span>
+<span class="sd">            ``warp_masks`` is True.</span>
+<span class="sd">        warp_masks: When True, apply the same translation to every ROI.</span>
+<span class="sd">            Prior 2024 extraction keeps the original mask (False).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TranslationPerturbation.__init__">
@@ -2609,6 +2633,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span><span class="p">,</span>
         <span class="n">shift_fraction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">random_signs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">warp_masks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">shift_voxels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">shift_voxels</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
@@ -2636,7 +2661,8 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_shift_voxels</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_shift_voxels</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_signs</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">random_signs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">interpolator</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">interpolator</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">warp_masks</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -2650,6 +2676,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;max_shift_voxels&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_shift_voxels</span><span class="p">,</span>
                 <span class="s2">&quot;random_signs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_signs</span><span class="p">,</span>
                 <span class="s2">&quot;interpolator&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">,</span>
+                <span class="s2">&quot;warp_masks&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -2686,6 +2713,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">image</span><span class="p">,</span> <span class="n">shift</span><span class="p">,</span> <span class="n">interpolator</span><span class="o">=</span><span class="n">interpolator</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="n">default_value</span>
             <span class="p">),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">,</span>
+            <span class="n">warp_masks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -2700,7 +2728,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">angle_degrees</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
     <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;z&quot;</span>
     <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span>
-    <span class="n">random_sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+    <span class="n">random_sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">warp_masks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
 
@@ -2717,11 +2746,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        axis: Axis to rotate around (``&quot;x&quot;``, ``&quot;y&quot;`` or ``&quot;z&quot;``; ``&quot;z&quot;``</span>
 <span class="sd">            is the axial in-plane axis, the paper&#39;s choice).</span>
 <span class="sd">        interpolator: Interpolator for the intensity images (``&quot;bspline&quot;``</span>
-<span class="sd">            is the paper&#39;s choice); masks always use nearest neighbour.</span>
+<span class="sd">            is the paper&#39;s choice); masks use nearest neighbour only when</span>
+<span class="sd">            ``warp_masks`` is True.</span>
 <span class="sd">        random_sign: When ``True``, the sign of ``angle_degrees`` is drawn</span>
 <span class="sd">            as ``±1`` per call (some MIRP configs randomize the sense of</span>
 <span class="sd">            the 0.5° in-plane rotation). The paper&#39;s default is a fixed</span>
 <span class="sd">            ``+0.5`` degrees, so this stays ``False``.</span>
+<span class="sd">        warp_masks: When True, apply the same rotation to every ROI.</span>
+<span class="sd">            Prior 2024 extraction keeps the original mask (False).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RotationPerturbation.__init__">
@@ -2732,6 +2764,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span>
         <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span><span class="p">,</span>
         <span class="n">random_sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">warp_masks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">axis</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
@@ -2740,7 +2773,8 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">angle_degrees</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">angle_degrees</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">interpolator</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">random_sign</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">random_sign</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_sign</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">random_sign</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">warp_masks</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -2753,6 +2787,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;axis&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span>
                 <span class="s2">&quot;interpolator&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">,</span>
                 <span class="s2">&quot;random_sign&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_sign</span><span class="p">,</span>
+                <span class="s2">&quot;warp_masks&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -2782,6 +2817,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">default_value</span><span class="o">=</span><span class="n">default_value</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">,</span>
+            <span class="n">warp_masks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -2799,7 +2835,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">angle_degrees</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
     <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;z&quot;</span>
     <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span>
-    <span class="n">random_sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+    <span class="n">random_sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">warp_masks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
 
@@ -2825,6 +2862,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        axis: Rotation axis (paper: ``&quot;z&quot;``).</span>
 <span class="sd">        interpolator: Intensity interpolator (paper: ``&quot;bspline&quot;``).</span>
 <span class="sd">        random_sign: Randomize the rotation sense.</span>
+<span class="sd">        warp_masks: When True, apply the same rigid move to every ROI.</span>
+<span class="sd">            Prior 2024 extraction keeps the original mask (False).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RigidPerturbation.__init__">
@@ -2838,6 +2877,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span>
         <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span><span class="p">,</span>
         <span class="n">random_sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">warp_masks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">shift_voxels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">shift_voxels</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
@@ -2861,7 +2901,8 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">angle_degrees</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">angle_degrees</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">interpolator</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">random_sign</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">random_sign</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_sign</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">random_sign</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">warp_masks</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -2877,6 +2918,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;axis&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span>
                 <span class="s2">&quot;interpolator&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">,</span>
                 <span class="s2">&quot;random_sign&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_sign</span><span class="p">,</span>
+                <span class="s2">&quot;warp_masks&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -2915,6 +2957,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">default_value</span><span class="o">=</span><span class="n">default_value</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">,</span>
+            <span class="n">warp_masks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">warp_masks</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -3322,6 +3365,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">angle_degrees</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span><span class="p">,</span>
     <span class="n">single_resample</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">warp_masks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PerturbationChain&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simulated-retest chain of Prior et al. 2024 / MIRP 1.2.0 Appendix S2.</span>
@@ -3332,9 +3376,14 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Order: Gaussian noise (Chang wavelet sigma) → sub-voxel translation</span>
 <span class="sd">    (fraction ``η`` of voxel spacing, default 0.5, random axis signs) →</span>
-<span class="sd">    0.5° in-plane (z) rotation. Images use B-spline; masks nearest</span>
-<span class="sd">    neighbour. ``single_resample=True`` composes translation+rotation</span>
-<span class="sd">    (MIRP ≥ 2); the paper used two geometric resamples.</span>
+<span class="sd">    0.5° in-plane (z) rotation. Images use B-spline.</span>
+<span class="sd">    ``single_resample=True`` composes translation+rotation (MIRP ≥ 2);</span>
+<span class="sd">    the paper used two geometric resamples.</span>
+
+<span class="sd">    Default ``warp_masks=False`` matches their GitHub extractor: the</span>
+<span class="sd">    perturbed CT is paired with the original ROI</span>
+<span class="sd">    (``compute_features_parallel_perturbed.py``). Set ``warp_masks=True``</span>
+<span class="sd">    for the Zwanenburg / MIRP &quot;image and mask move together&quot; variant.</span>
 
 <span class="sd">    ROI morphological grow/shrink (MIRP ``perturbation_roi_adapt_size``)</span>
 <span class="sd">    is not in this protocol. MONAI elastic / B-spline free-form warps</span>
@@ -3346,6 +3395,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        angle_degrees: In-plane rotation in degrees.</span>
 <span class="sd">        interpolator: Intensity interpolator.</span>
 <span class="sd">        single_resample: Compose translation and rotation into one affine.</span>
+<span class="sd">        warp_masks: When True, nearest-neighbour warp every ROI with the</span>
+<span class="sd">            image. Paper / GitHub default is False.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`~habit.domain.precision.PerturbationChain`.</span>
@@ -3361,6 +3412,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">shift_fraction</span><span class="o">=</span><span class="n">shift_fraction</span><span class="p">,</span>
                     <span class="n">angle_degrees</span><span class="o">=</span><span class="n">angle_degrees</span><span class="p">,</span>
                     <span class="n">interpolator</span><span class="o">=</span><span class="n">interpolator</span><span class="p">,</span>
+                    <span class="n">warp_masks</span><span class="o">=</span><span class="n">warp_masks</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">]</span>
         <span class="p">)</span>
@@ -3368,10 +3420,14 @@ window.runMermaid = runMermaid;</script>
         <span class="p">[</span>
             <span class="n">noise</span><span class="p">,</span>
             <span class="n">TranslationPerturbation</span><span class="p">(</span>
-                <span class="n">shift_fraction</span><span class="o">=</span><span class="n">shift_fraction</span><span class="p">,</span> <span class="n">interpolator</span><span class="o">=</span><span class="n">interpolator</span>
+                <span class="n">shift_fraction</span><span class="o">=</span><span class="n">shift_fraction</span><span class="p">,</span>
+                <span class="n">interpolator</span><span class="o">=</span><span class="n">interpolator</span><span class="p">,</span>
+                <span class="n">warp_masks</span><span class="o">=</span><span class="n">warp_masks</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">RotationPerturbation</span><span class="p">(</span>
-                <span class="n">angle_degrees</span><span class="o">=</span><span class="n">angle_degrees</span><span class="p">,</span> <span class="n">interpolator</span><span class="o">=</span><span class="n">interpolator</span>
+                <span class="n">angle_degrees</span><span class="o">=</span><span class="n">angle_degrees</span><span class="p">,</span>
+                <span class="n">interpolator</span><span class="o">=</span><span class="n">interpolator</span><span class="p">,</span>
+                <span class="n">warp_masks</span><span class="o">=</span><span class="n">warp_masks</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">]</span>
     <span class="p">)</span></div>

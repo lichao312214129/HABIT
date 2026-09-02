@@ -67,9 +67,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -249,6 +249,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#what-the-core-path-looks-like">What the core path looks like</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#matching-ids-after-independent-clustering">Matching ids after independent clustering</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_analysis_overview.html#reading-order">Reading order</a></li>
 </ul>
 </li>
@@ -306,6 +307,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_label_match.html">Match habitat ids (observers vs patients)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_label_match.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
@@ -1616,6 +1625,7 @@
 <li class="toctree-l4"><a class="reference internal" href="kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kernels.html#habitat-label-matching">Habitat label matching</a></li>
 <li class="toctree-l4"><a class="reference internal" href="kernels.html#stability">Stability</a></li>
 </ul>
 </li>
@@ -2243,8 +2253,8 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">voxel_batch</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
-<td><p>int</p></td>
-<td><p>ROI voxels PyRadiomics processes per batch.</p></td>
+<td><p>int | str</p></td>
+<td><p>ROI voxels per batch. Default 1000. Pass a larger integer on a 12–24 GB GPU, or <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> to pick from VRAM.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
@@ -2761,10 +2771,42 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </tbody>
 </table>
 </dd>
+<dt><strong>l2</strong></dt><dd><p>Scale each row (voxel / supervoxel) to unit Euclidean length.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;l2&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;l2&quot;)</span></code></p>
+</dd>
 <dt><strong>log</strong></dt><dd><p>Compress right-skewed features with <code class="docutils literal notranslate"><span class="pre">log(x</span> <span class="pre">-</span> <span class="pre">min</span> <span class="pre">+</span> <span class="pre">1)</span></code>.
 Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;log&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;log&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>Pool statistics across every feature column instead of computing them per column.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt><strong>maxabs</strong></dt><dd><p>Scale features by the maximum absolute value.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;maxabs&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;maxabs&quot;)</span></code></p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 18.0%" />
@@ -2843,6 +2885,43 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p><code class="docutils literal notranslate"><span class="pre">0.05</span></code></p></td>
 <td><p>float</p></td>
 <td><p>Spearman p-value cut-off; drop only when p is smaller.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt><strong>quantile</strong></dt><dd><p>Map each feature onto a uniform or normal distribution by percentile rank.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features,</span> <span class="pre">n_quantiles,</span> <span class="pre">output_distribution</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;quantile&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;quantile&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_quantiles</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
+<td><p>int</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">output_distribution</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'uniform'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>See the component docstring.</p></td>
 </tr>
 </tbody>
 </table>
@@ -3830,7 +3909,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </table>
 </dd>
 <dt><strong>rigid</strong></dt><dd><p>Sub-voxel translation and small-angle rotation in ONE resample.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">shift_voxels,</span> <span class="pre">shift_fraction,</span> <span class="pre">random_signs,</span> <span class="pre">angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">interpolator,</span> <span class="pre">random_sign</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">shift_voxels,</span> <span class="pre">shift_fraction,</span> <span class="pre">random_signs,</span> <span class="pre">angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">interpolator,</span> <span class="pre">random_sign,</span> <span class="pre">warp_masks</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;rigid&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;rigid&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -3883,11 +3962,16 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>bool</p></td>
 <td><p>Randomize the rotation sense.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warp_masks</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When True, apply the same rigid move to every ROI. Prior 2024 extraction keeps the original mask (False).</p></td>
+</tr>
 </tbody>
 </table>
 </dd>
 <dt><strong>rotation</strong></dt><dd><p>Rotate image content by a small fixed angle about the image centre.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">interpolator,</span> <span class="pre">random_sign</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">interpolator,</span> <span class="pre">random_sign,</span> <span class="pre">warp_masks</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;rotation&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;rotation&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -3918,12 +4002,17 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">interpolator</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'bspline'</span></code></p></td>
 <td><p>str</p></td>
-<td><p>Interpolator for the intensity images (<code class="docutils literal notranslate"><span class="pre">&quot;bspline&quot;</span></code> is the paper’s choice); masks always use nearest neighbour.</p></td>
+<td><p>Interpolator for the intensity images (<code class="docutils literal notranslate"><span class="pre">&quot;bspline&quot;</span></code> is the paper’s choice); masks use nearest neighbour only when <code class="docutils literal notranslate"><span class="pre">warp_masks</span></code> is True.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">random_sign</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, the sign of <code class="docutils literal notranslate"><span class="pre">angle_degrees</span></code> is drawn as <code class="docutils literal notranslate"><span class="pre">±1</span></code> per call (some MIRP configs randomize the sense of the 0.5° in-plane rotation). The paper’s default is a fixed <code class="docutils literal notranslate"><span class="pre">+0.5</span></code> degrees, so this stays <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">warp_masks</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When True, apply the same rotation to every ROI. Prior 2024 extraction keeps the original mask (False).</p></td>
 </tr>
 </tbody>
 </table>
@@ -3971,7 +4060,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </table>
 </dd>
 <dt><strong>translation</strong></dt><dd><p>Translate image content by a (random) sub-voxel shift.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">shift_voxels,</span> <span class="pre">shift_fraction,</span> <span class="pre">max_shift_voxels,</span> <span class="pre">random_signs,</span> <span class="pre">interpolator</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">shift_voxels,</span> <span class="pre">shift_fraction,</span> <span class="pre">max_shift_voxels,</span> <span class="pre">random_signs,</span> <span class="pre">interpolator,</span> <span class="pre">warp_masks</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;translation&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;translation&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -4012,7 +4101,12 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">interpolator</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'bspline'</span></code></p></td>
 <td><p>str</p></td>
-<td><p>Interpolator for the intensity images (<code class="docutils literal notranslate"><span class="pre">&quot;bspline&quot;</span></code> is the paper’s choice); masks always use nearest neighbour.</p></td>
+<td><p>Interpolator for the intensity images (<code class="docutils literal notranslate"><span class="pre">&quot;bspline&quot;</span></code> is the paper’s choice); masks use nearest neighbour only when <code class="docutils literal notranslate"><span class="pre">warp_masks</span></code> is True.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warp_masks</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When True, apply the same translation to every ROI. Prior 2024 extraction keeps the original mask (False).</p></td>
 </tr>
 </tbody>
 </table>
@@ -4465,10 +4559,42 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </tbody>
 </table>
 </dd>
+<dt><strong>l2</strong></dt><dd><p>Scale each table row to unit Euclidean length.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;l2&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;l2&quot;)</span></code></p>
+</dd>
 <dt><strong>log</strong></dt><dd><p>Log transform <code class="docutils literal notranslate"><span class="pre">log(x</span> <span class="pre">-</span> <span class="pre">min_train</span> <span class="pre">+</span> <span class="pre">1)</span></code> of every feature.
 Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;log&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;log&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt><strong>maxabs</strong></dt><dd><p>Scale every feature by its training max absolute value.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;maxabs&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;maxabs&quot;)</span></code></p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 18.0%" />
@@ -4546,6 +4672,43 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">p_threshold</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.05</span></code></p></td>
 <td><p>float</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt><strong>quantile</strong></dt><dd><p>Map each feature onto a uniform or normal distribution by percentile rank.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features,</span> <span class="pre">n_quantiles,</span> <span class="pre">output_distribution</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;quantile&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;quantile&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_quantiles</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
+<td><p>int</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">output_distribution</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'uniform'</span></code></p></td>
+<td><p>str</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
 </tbody>

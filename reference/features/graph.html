@@ -68,9 +68,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -250,6 +250,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#what-the-core-path-looks-like">What the core path looks like</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#matching-ids-after-independent-clustering">Matching ids after independent clustering</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_analysis_overview.html#reading-order">Reading order</a></li>
 </ul>
 </li>
@@ -307,6 +308,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_atomic_ops.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_atomic_ops.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_label_match.html">Match habitat ids (observers vs patients)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_label_match.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
@@ -669,7 +678,11 @@
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#definition">Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="traditional.html#feature-definitions">Feature definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
@@ -1613,6 +1626,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#habitat-label-matching">Habitat label matching</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#stability">Stability</a></li>
 </ul>
 </li>
@@ -1963,11 +1977,14 @@ only; every pair with <span class="math notranslate nohighlight">\(d\le\tau\)</s
 <li><p><strong>Pairwise graph</strong> for unordered labels <span class="math notranslate nohighlight">\((a,b)\)</span>, <span class="math notranslate nohighlight">\(a&lt;b\)</span>:
 <strong>inter</strong> edges between a node of <span class="math notranslate nohighlight">\(a\)</span> and a node of <span class="math notranslate nohighlight">\(b\)</span>
 with <span class="math notranslate nohighlight">\(d\le\tau\)</span>. If <code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code> is true
-(default), <strong>intra</strong> edges are also added within each label under the
-same <span class="math notranslate nohighlight">\(\tau\)</span>. Interface metrics below use <strong>inter edges only</strong>;
-whole-graph metrics (modularity, assortativity, betweenness, components,
-extended efficiency) use the <strong>full</strong> graph (inter + optional intra).</p></li>
+(default), <strong>intra</strong> edges are also added within each label under the</p></li>
 </ul>
+<p>same <span class="math notranslate nohighlight">\(\tau\)</span>. Interface metrics below use <strong>inter-class neighbors
+only</strong> (isolated ratio, R21/R12, pair degree family);
+whole-graph metrics (modularity, assortativity, betweenness, components,
+extended efficiency) use this pair’s full two-label graph (inter +
+optional intra), not an all-habitat union graph. They are not
+interface-only scores.</p>
 <p>Edge weight <code class="docutils literal notranslate"><span class="pre">w</span></code> from <code class="docutils literal notranslate"><span class="pre">edge_weight</span></code>:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}w =
@@ -2184,13 +2201,21 @@ is <span class="math notranslate nohighlight">\(0\)</span> or <span class="math 
 </section>
 <section id="pairwise-metrics">
 <h2>Pairwise metrics<a class="headerlink" href="#pairwise-metrics" title="Link to this heading"></a></h2>
-<p>Prefix <code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_</span></code> with <span class="math notranslate nohighlight">\(a&lt;b\)</span>. Let <span class="math notranslate nohighlight">\(V_a,V_b\)</span> be the
-node sets of the two labels, <span class="math notranslate nohighlight">\(n_1=|V_a|\)</span>, <span class="math notranslate nohighlight">\(n_2=|V_b|\)</span>,
-<span class="math notranslate nohighlight">\(N=n_1+n_2\)</span>, and <span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> the inter-class
-edges only (<code class="docutils literal notranslate"><span class="pre">edge_type</span> <span class="pre">!=</span> <span class="pre">'intra'</span></code>). Interface metrics below use
-<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> only. Whole-graph metrics (components,
-modularity, assortativity, betweenness, extended efficiency) use the
-<strong>full</strong> pairwise graph (inter + optional intra).</p>
+<p>Prefix <code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_</span></code> with <span class="math notranslate nohighlight">\(a&lt;b\)</span>. This graph contains
+<strong>only</strong> nodes of habitats <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>. It is <strong>not</strong> a
+union of all habitats in the map: <code class="docutils literal notranslate"><span class="pre">pair_h1_h2_modularity</span></code> does not
+see H3, and there is no default all-habitat mega-graph.
+<code class="docutils literal notranslate"><span class="pre">single_h{k}_*</span></code> is the one-habitat graph for label <span class="math notranslate nohighlight">\(k\)</span> only.</p>
+<p>Let <span class="math notranslate nohighlight">\(V_a,V_b\)</span> be the node sets of the two labels,
+<span class="math notranslate nohighlight">\(n_1=|V_a|\)</span>, <span class="math notranslate nohighlight">\(n_2=|V_b|\)</span>, <span class="math notranslate nohighlight">\(N=n_1+n_2\)</span>, and
+<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> the inter-class edges only
+(<code class="docutils literal notranslate"><span class="pre">edge_type</span> <span class="pre">!=</span> <span class="pre">'intra'</span></code>). Interface metrics below use cross-class
+neighbors / <span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> only (isolated ratio, R21/R12,
+<code class="docutils literal notranslate"><span class="pre">degree_cv</span></code>, <code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code>, <code class="docutils literal notranslate"><span class="pre">degree_skewness</span></code>). “Whole-graph”
+below means the <strong>full two-label pair graph</strong> (inter + optional intra
+inside this pair), not the whole-tumour habitat map. Those pair
+topology columns (components, modularity, assortativity, betweenness,
+extended efficiency) are therefore <strong>not</strong> interface-only scores.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \mathrm{n\_nodes\_1} &amp;= n_1 \\
@@ -2227,7 +2252,10 @@ adjacent voxel-<strong>pair</strong> count on edge <span class="math notranslate
    \quad\text{(0 if no inter edges)}
 \end{aligned}\end{split}\]</div>
 <p>Cross degree of <span class="math notranslate nohighlight">\(v\in V_a\)</span> counts neighbours in <span class="math notranslate nohighlight">\(V_b\)</span>
-only. Isolated ratio and R21 / R12 (mean other-class neighbours):</p>
+only. Isolated ratio, R21 / R12, <code class="docutils literal notranslate"><span class="pre">degree_cv</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code> all use this count. Pair <code class="docutils literal notranslate"><span class="pre">avg_degree_*</span></code> is not
+exported: it would duplicate <code class="docutils literal notranslate"><span class="pre">avg_h{b}_per_h{a}</span></code>. Within-habitat
+mean degree is <code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_degree</span></code>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \deg_{\mathrm{cross}}(v)
@@ -2243,33 +2271,22 @@ only. Isolated ratio and R21 / R12 (mean other-class neighbours):</p>
 \mathrm{avg\_h\{a\}\_per\_h\{b\}}
 &amp;= \overline{\deg_{\mathrm{cross}}}(V_b) \\
 \mathrm{avg\_h\{a\}\_per\_h\{b\}\_norm}
-&amp;= \overline{\deg_{\mathrm{cross}}}(V_b)/n_1
-\end{aligned}\end{split}\]</div>
-<p>AD / CV / EN use <strong>total</strong> degree (intra + inter) so the triple
-shares one basis. Hop-normalized AD divides by <span class="math notranslate nohighlight">\(N-1\)</span>:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{aligned}
-\mathrm{avg\_degree\_1}
-&amp;= \overline{\{\deg(v):v\in V_a\}} \\
-\mathrm{avg\_degree\_1\_norm}
-&amp;= \mathrm{avg\_degree\_1}/(N-1) \\
-\mathrm{avg\_degree\_2}
-&amp;= \overline{\{\deg(v):v\in V_b\}} \\
-\mathrm{avg\_degree\_2\_norm}
-&amp;= \mathrm{avg\_degree\_2}/(N-1) \\
+&amp;= \overline{\deg_{\mathrm{cross}}}(V_b)/n_1 \\
 \mathrm{degree\_cv\_1}
-&amp;= \mathrm{sd}(\deg|_{V_a})/\overline{\deg|_{V_a}} \\
+&amp;= \mathrm{sd}(\deg_{\mathrm{cross}}|_{V_a})/
+   \overline{\deg_{\mathrm{cross}}|_{V_a}} \\
 \mathrm{degree\_cv\_2}
-&amp;= \mathrm{sd}(\deg|_{V_b})/\overline{\deg|_{V_b}} \\
+&amp;= \mathrm{sd}(\deg_{\mathrm{cross}}|_{V_b})/
+   \overline{\deg_{\mathrm{cross}}|_{V_b}} \\
 \mathrm{degree\_entropy\_1}
-&amp;= H(\{\deg(v):v\in V_a\}) \\
+&amp;= H(\{\deg_{\mathrm{cross}}(v):v\in V_a\}) \\
 \mathrm{degree\_entropy\_2}
-&amp;= H(\{\deg(v):v\in V_b\})
+&amp;= H(\{\deg_{\mathrm{cross}}(v):v\in V_b\})
 \end{aligned}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(H\)</span> is the same Shannon entropy as
 <code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code> above.</p>
-<p>Connected components and modularity use the <strong>full</strong> pairwise graph
-<span class="math notranslate nohighlight">\(G\)</span>:</p>
+<p>Connected components and modularity use the <strong>full two-label</strong> pair
+graph <span class="math notranslate nohighlight">\(G\)</span> (habitats <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span> only):</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \mathrm{connected\_components} &amp;= c(G) \\
@@ -2277,10 +2294,13 @@ shares one basis. Hop-normalized AD divides by <span class="math notranslate noh
 \mathrm{modularity} &amp;= Q(G)
    \quad\text{(same Louvain }Q\text{ as single-habitat)}
 \end{aligned}\end{split}\]</div>
-<p>Mean betweenness is NetworkX-normalized BC on the <strong>full</strong> graph,
-averaged per class (<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(N\le 1\)</span> or <span class="math notranslate nohighlight">\(m_{\mathrm{full}}=0\)</span>).
-Habitat-label assortativity is Newman’s attribute assortativity on
-<code class="docutils literal notranslate"><span class="pre">habitat_label</span></code> (same definedness gate):</p>
+<p>Mean betweenness is NetworkX-normalized BC on the <strong>full</strong> graph
+(intra + inter paths), averaged per class (<span class="math notranslate nohighlight">\(0\)</span> if
+<span class="math notranslate nohighlight">\(N\le 1\)</span> or <span class="math notranslate nohighlight">\(m_{\mathrm{full}}=0\)</span>). It is not an
+interface-only brokerage score. Habitat-label assortativity is
+Newman’s attribute assortativity on <code class="docutils literal notranslate"><span class="pre">habitat_label</span></code> (same
+definedness gate); it needs intra edges to be non-trivial (an
+inter-only graph is perfectly disassortative):</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \mathrm{betweenness\_mean\_1}
@@ -2427,7 +2447,8 @@ divided by <span class="math notranslate nohighlight">\((n^{\star}-1)(n^{\star}-
 (<code class="docutils literal notranslate"><span class="pre">scipy.stats.skew(...,</span> <span class="pre">bias=False)</span></code>) of degrees on
 <span class="math notranslate nohighlight">\(G^{\star}\)</span> (<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(n^{\star}&lt;3\)</span>). Pairwise graphs
 replace the single value by per-class
-<code class="docutils literal notranslate"><span class="pre">degree_skewness_1</span></code> / <code class="docutils literal notranslate"><span class="pre">degree_skewness_2</span></code> on the <strong>full</strong> graph:</p>
+<code class="docutils literal notranslate"><span class="pre">degree_skewness_1</span></code> / <code class="docutils literal notranslate"><span class="pre">degree_skewness_2</span></code> of <strong>cross-class</strong>
+degree (same neighbor counts as pair <code class="docutils literal notranslate"><span class="pre">avg_h*_per_h*</span></code> / <code class="docutils literal notranslate"><span class="pre">degree_cv</span></code>):</p>
 <div class="math notranslate nohighlight">
 \[\mathrm{degree\_skewness}
 = g_1\bigl(\{\deg(v):v\in V(G^{\star})\}\bigr)\]</div>
@@ -2640,7 +2661,7 @@ below match the kernel dataclass.</p>
 <td><p>Minimum <strong>strict</strong> occupied fraction of a cube to keep the cell (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>). Applied per cell; tiny in-cell fragments use <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
-<td><p>Add same-habitat proximity edges in pairwise graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>); interface metrics still use inter-class edges only</p></td>
+<td><p>Add same-habitat proximity edges in that pair’s two-label graph (default <code class="docutils literal notranslate"><span class="pre">true</span></code>). Interface metrics still use inter-class neighbors only. Pair modularity / betweenness / components are this pair’s full graph, not an all-habitat union.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
 <td><p>Efficiency, one small-world <span class="math notranslate nohighlight">\(\sigma\)</span>, rich-club, node-distribution summaries (default <code class="docutils literal notranslate"><span class="pre">true</span></code>; set <code class="docutils literal notranslate"><span class="pre">false</span></code> to omit)</p></td>

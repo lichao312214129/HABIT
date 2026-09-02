@@ -139,9 +139,12 @@ Implemented with a KD-tree (``scipy.spatial.cKDTree.query_pairs`` /
   **inter** edges between a node of :math:`a` and a node of :math:`b`
   with :math:`d\le\tau`. If ``pairwise_include_intra_edges`` is true
   (default), **intra** edges are also added within each label under the
-  same :math:`\tau`. Interface metrics below use **inter edges only**;
-  whole-graph metrics (modularity, assortativity, betweenness, components,
-  extended efficiency) use the **full** graph (inter + optional intra).
+same :math:`\tau`. Interface metrics below use **inter-class neighbors
+only** (isolated ratio, R21/R12, pair degree family);
+whole-graph metrics (modularity, assortativity, betweenness, components,
+extended efficiency) use this pair's full two-label graph (inter +
+optional intra), not an all-habitat union graph. They are not
+interface-only scores.
 
 Edge weight ``w`` from ``edge_weight``:
 
@@ -404,13 +407,22 @@ is :math:`0` or :math:`1`.
 Pairwise metrics
 ----------------
 
-Prefix ``pair_h{a}_h{b}_`` with :math:`a<b`. Let :math:`V_a,V_b` be the
-node sets of the two labels, :math:`n_1=|V_a|`, :math:`n_2=|V_b|`,
-:math:`N=n_1+n_2`, and :math:`E_{\mathrm{inter}}` the inter-class
-edges only (``edge_type != 'intra'``). Interface metrics below use
-:math:`E_{\mathrm{inter}}` only. Whole-graph metrics (components,
-modularity, assortativity, betweenness, extended efficiency) use the
-**full** pairwise graph (inter + optional intra).
+Prefix ``pair_h{a}_h{b}_`` with :math:`a<b`. This graph contains
+**only** nodes of habitats :math:`a` and :math:`b`. It is **not** a
+union of all habitats in the map: ``pair_h1_h2_modularity`` does not
+see H3, and there is no default all-habitat mega-graph.
+``single_h{k}_*`` is the one-habitat graph for label :math:`k` only.
+
+Let :math:`V_a,V_b` be the node sets of the two labels,
+:math:`n_1=|V_a|`, :math:`n_2=|V_b|`, :math:`N=n_1+n_2`, and
+:math:`E_{\mathrm{inter}}` the inter-class edges only
+(``edge_type != 'intra'``). Interface metrics below use cross-class
+neighbors / :math:`E_{\mathrm{inter}}` only (isolated ratio, R21/R12,
+``degree_cv``, ``degree_entropy``, ``degree_skewness``). "Whole-graph"
+below means the **full two-label pair graph** (inter + optional intra
+inside this pair), not the whole-tumour habitat map. Those pair
+topology columns (components, modularity, assortativity, betweenness,
+extended efficiency) are therefore **not** interface-only scores.
 
 .. math::
 
@@ -456,7 +468,10 @@ adjacent voxel-**pair** count on edge :math:`e`:
    \end{aligned}
 
 Cross degree of :math:`v\in V_a` counts neighbours in :math:`V_b`
-only. Isolated ratio and R21 / R12 (mean other-class neighbours):
+only. Isolated ratio, R21 / R12, ``degree_cv``, and
+``degree_entropy`` all use this count. Pair ``avg_degree_*`` is not
+exported: it would duplicate ``avg_h{b}_per_h{a}``. Within-habitat
+mean degree is ``single_h{k}_avg_degree``.
 
 .. math::
 
@@ -474,38 +489,24 @@ only. Isolated ratio and R21 / R12 (mean other-class neighbours):
    \mathrm{avg\_h\{a\}\_per\_h\{b\}}
    &= \overline{\deg_{\mathrm{cross}}}(V_b) \\
    \mathrm{avg\_h\{a\}\_per\_h\{b\}\_norm}
-   &= \overline{\deg_{\mathrm{cross}}}(V_b)/n_1
-   \end{aligned}
-
-AD / CV / EN use **total** degree (intra + inter) so the triple
-shares one basis. Hop-normalized AD divides by :math:`N-1`:
-
-.. math::
-
-   \begin{aligned}
-   \mathrm{avg\_degree\_1}
-   &= \overline{\{\deg(v):v\in V_a\}} \\
-   \mathrm{avg\_degree\_1\_norm}
-   &= \mathrm{avg\_degree\_1}/(N-1) \\
-   \mathrm{avg\_degree\_2}
-   &= \overline{\{\deg(v):v\in V_b\}} \\
-   \mathrm{avg\_degree\_2\_norm}
-   &= \mathrm{avg\_degree\_2}/(N-1) \\
+   &= \overline{\deg_{\mathrm{cross}}}(V_b)/n_1 \\
    \mathrm{degree\_cv\_1}
-   &= \mathrm{sd}(\deg|_{V_a})/\overline{\deg|_{V_a}} \\
+   &= \mathrm{sd}(\deg_{\mathrm{cross}}|_{V_a})/
+      \overline{\deg_{\mathrm{cross}}|_{V_a}} \\
    \mathrm{degree\_cv\_2}
-   &= \mathrm{sd}(\deg|_{V_b})/\overline{\deg|_{V_b}} \\
+   &= \mathrm{sd}(\deg_{\mathrm{cross}}|_{V_b})/
+      \overline{\deg_{\mathrm{cross}}|_{V_b}} \\
    \mathrm{degree\_entropy\_1}
-   &= H(\{\deg(v):v\in V_a\}) \\
+   &= H(\{\deg_{\mathrm{cross}}(v):v\in V_a\}) \\
    \mathrm{degree\_entropy\_2}
-   &= H(\{\deg(v):v\in V_b\})
+   &= H(\{\deg_{\mathrm{cross}}(v):v\in V_b\})
    \end{aligned}
 
 where :math:`H` is the same Shannon entropy as
 ``degree_entropy`` above.
 
-Connected components and modularity use the **full** pairwise graph
-:math:`G`:
+Connected components and modularity use the **full two-label** pair
+graph :math:`G` (habitats :math:`a` and :math:`b` only):
 
 .. math::
 
@@ -516,10 +517,13 @@ Connected components and modularity use the **full** pairwise graph
       \quad\text{(same Louvain }Q\text{ as single-habitat)}
    \end{aligned}
 
-Mean betweenness is NetworkX-normalized BC on the **full** graph,
-averaged per class (:math:`0` if :math:`N\le 1` or :math:`m_{\mathrm{full}}=0`).
-Habitat-label assortativity is Newman's attribute assortativity on
-``habitat_label`` (same definedness gate):
+Mean betweenness is NetworkX-normalized BC on the **full** graph
+(intra + inter paths), averaged per class (:math:`0` if
+:math:`N\le 1` or :math:`m_{\mathrm{full}}=0`). It is not an
+interface-only brokerage score. Habitat-label assortativity is
+Newman's attribute assortativity on ``habitat_label`` (same
+definedness gate); it needs intra edges to be non-trivial (an
+inter-only graph is perfectly disassortative):
 
 .. math::
 
@@ -690,7 +694,8 @@ Degree skewness is the unbiased sample skewness
 (``scipy.stats.skew(..., bias=False)``) of degrees on
 :math:`G^{\star}` (:math:`0` if :math:`n^{\star}<3`). Pairwise graphs
 replace the single value by per-class
-``degree_skewness_1`` / ``degree_skewness_2`` on the **full** graph:
+``degree_skewness_1`` / ``degree_skewness_2`` of **cross-class**
+degree (same neighbor counts as pair ``avg_h*_per_h*`` / ``degree_cv``):
 
 .. math::
 
@@ -885,7 +890,7 @@ below match the kernel dataclass.
    * - ``block_min_coverage``
      - Minimum **strict** occupied fraction of a cube to keep the cell (default ``0.2``). Applied per cell; tiny in-cell fragments use ``min_region_voxels``
    * - ``pairwise_include_intra_edges``
-     - Add same-habitat proximity edges in pairwise graphs (default ``true``); interface metrics still use inter-class edges only
+     - Add same-habitat proximity edges in that pair's two-label graph (default ``true``). Interface metrics still use inter-class neighbors only. Pair modularity / betweenness / components are this pair's full graph, not an all-habitat union.
    * - ``include_extended_metrics``
      - Efficiency, one small-world :math:`\sigma`, rich-club, node-distribution summaries (default ``true``; set ``false`` to omit)
    * - ``extended_min_nodes``
