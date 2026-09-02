@@ -141,9 +141,12 @@ def build_centroid_distance_graph(
         distance_threshold: Maximum Euclidean centroid distance in pixel units.
         edge_weight: Optional distance-derived edge weighting mode.
         include_intra_edges: For pairwise graphs, also add same-label proximity
-            edges within each habitat. This matches the source PathPrism
-            multi-tissue graph, where whole-graph metrics use both inter- and
-            intra-class edges while interface metrics use inter-class edges only.
+            edges within each habitat. PathPrism source
+            (``multi_graph_process.py``) adds those intra edges even though
+            the STAR Methods text said inter-only. Whole-graph metrics
+            (modularity, assortativity, betweenness) use the full graph;
+            interface metrics (isolated ratio, ``avg_h*_per_h*``, pair
+            degree family) count inter-class neighbors only.
 
     Returns:
         HabitatGraph: Lightweight graph with all input nodes and inferred edges.

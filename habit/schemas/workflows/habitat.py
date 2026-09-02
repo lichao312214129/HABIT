@@ -776,8 +776,10 @@ class GraphFeatureBlock(BaseModel):
         True,
         description=(
             "Add same-habitat proximity edges to pairwise graphs so whole-graph "
-            "metrics reflect real tissue organization; interface metrics still "
-            "use inter-class edges only."
+            "metrics (modularity, assortativity, betweenness) reflect "
+            "two-habitat spatial organization. Interface metrics (isolated "
+            "ratio, avg other-class neighbors, pair degree family) still "
+            "count inter-class neighbors only."
         ),
     )
     include_extended_metrics: bool = Field(

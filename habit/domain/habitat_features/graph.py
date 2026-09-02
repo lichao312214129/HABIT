@@ -93,8 +93,10 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: in-cell fragments are dropped by ``min_region_voxels``.
     block_min_coverage: float = Field(default=0.2, ge=0.0, le=1.0)
     #: Add same-habitat proximity edges to pairwise graphs so whole-graph
-    #: metrics (modularity, assortativity, betweenness) reflect real tissue
-    #: organization; interface metrics still use inter-class edges only.
+    #: metrics (modularity, assortativity, betweenness) reflect two-habitat
+    #: spatial organization. Interface metrics (isolated ratio, avg
+    #: other-class neighbors, pair degree family) still count inter-class
+    #: neighbors only.
     pairwise_include_intra_edges: bool = True
     #: Compute extended graph metrics: global/local efficiency, small-world
     #: sigma, rich-club coefficient, and node-level distribution summaries.

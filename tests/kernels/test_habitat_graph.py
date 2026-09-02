@@ -316,9 +316,10 @@ def test_extractor_returns_single_and_pairwise_graph_features() -> None:
     assert features["pair_h1_h2_n_nodes_1"] == 2
     assert features["pair_h1_h2_n_nodes_2"] == 2
     assert "pair_h1_h2_edge_density" in features
-    # AD1/AD2 (average total degree per class) must be reported.
-    assert "pair_h1_h2_avg_degree_1" in features
-    assert "pair_h1_h2_avg_degree_2" in features
+    assert "pair_h1_h2_avg_h2_per_h1" in features
+    assert "pair_h1_h2_avg_h1_per_h2" in features
+    assert "pair_h1_h2_avg_degree_1" not in features
+    assert "pair_h1_h2_avg_degree_2" not in features
 
 
 @pytest.mark.unit
@@ -521,12 +522,83 @@ def test_pairwise_normalized_features_use_graph_size_denominators() -> None:
     assert features["pair_h1_h2_avg_h1_per_h2_norm"] == (
         features["pair_h1_h2_avg_h1_per_h2"] / n_nodes_1
     )
-    assert features["pair_h1_h2_avg_degree_1_norm"] == (
-        features["pair_h1_h2_avg_degree_1"] / (total_nodes - 1.0)
+    assert "pair_h1_h2_avg_degree_1" not in features
+    assert "pair_h1_h2_avg_degree_2" not in features
+
+
+@pytest.mark.unit
+def test_pairwise_degree_cv_uses_cross_class_degree() -> None:
+    """Pair degree columns use other-class neighbor counts only.
+
+    Intra-class edges are present on the graph, so full-degree summaries
+    differ. Pair ``avg_h*_per_h*``, CV, and entropy must follow the
+    cross-class vector, not G.degree(). Pair ``avg_degree_*`` is not
+    exported (it would duplicate ``avg_h*_per_h*``).
+    """
+    from habit.kernels.habitat_graph.metrics import calculate_pairwise_graph_metrics
+    from habit.kernels.habitat_graph.models import (
+        HabitatGraph,
+        HabitatGraphEdge,
+        HabitatGraphNode,
     )
-    assert features["pair_h1_h2_avg_degree_2_norm"] == (
-        features["pair_h1_h2_avg_degree_2"] / (total_nodes - 1.0)
+
+    def _node(node_id: str, habitat_label: int, component_id: int) -> HabitatGraphNode:
+        return HabitatGraphNode(
+            node_id=node_id,
+            habitat_label=habitat_label,
+            component_id=component_id,
+            centroid=np.array([float(component_id), float(habitat_label)], dtype=float),
+            voxel_count=8,
+            bbox=(0, 0, 1, 1),
+        )
+
+    def _edge(source: str, target: str, edge_type: str) -> HabitatGraphEdge:
+        return HabitatGraphEdge(
+            source=source,
+            target=target,
+            edge_type=edge_type,
+            distance=1.0,
+            contact_voxels=None,
+            weight=1.0,
+        )
+
+    # H1 nodes a1/a2/a3: only a1 touches H2 (two inter edges). Intra chain
+    # a1-a2-a3 so full degrees [3, 2, 1] differ from cross degrees [2, 0, 0].
+    graph = HabitatGraph(
+        graph_kind="pairwise",
+        labels=(1, 2),
+        nodes={
+            "a1": _node("a1", 1, 0),
+            "a2": _node("a2", 1, 1),
+            "a3": _node("a3", 1, 2),
+            "b1": _node("b1", 2, 0),
+            "b2": _node("b2", 2, 1),
+        },
+        edges=[
+            _edge("a1", "a2", "intra"),
+            _edge("a2", "a3", "intra"),
+            _edge("a1", "b1", "inter"),
+            _edge("a1", "b2", "inter"),
+        ],
     )
+    features = calculate_pairwise_graph_metrics(
+        graph, include_extended_metrics=False
+    )
+
+    cross_h1 = np.array([2.0, 0.0, 0.0])
+    total_h1 = np.array([3.0, 2.0, 1.0])
+    expected_cv = float(np.std(cross_h1) / np.mean(cross_h1))
+    total_cv = float(np.std(total_h1) / np.mean(total_h1))
+    assert expected_cv != pytest.approx(total_cv)
+    assert features["pair_h1_h2_degree_cv_1"] == pytest.approx(expected_cv)
+    assert features["pair_h1_h2_avg_h2_per_h1"] == pytest.approx(float(np.mean(cross_h1)))
+    assert features["pair_h1_h2_avg_h2_per_h1"] != pytest.approx(float(np.mean(total_h1)))
+    assert "pair_h1_h2_avg_degree_1" not in features
+    # Shannon entropy of the discrete cross-degree multiset {2, 0, 0}.
+    p_cross = np.array([2.0, 1.0], dtype=float) / 3.0
+    expected_entropy = float(-np.sum(p_cross * np.log2(p_cross + 1e-12)))
+    assert features["pair_h1_h2_degree_entropy_1"] == pytest.approx(expected_entropy)
+    assert features["pair_h1_h2_isolated_ratio_1"] == pytest.approx(2.0 / 3.0)
 
 
 @pytest.mark.unit

@@ -744,7 +744,6 @@ def _pairwise_features_from_arrays(
     local_contact_values = _local_contact_from_arrays(arrays)
     n_nodes = len(arrays.node_ids)
     indptr, indices = _csr_from_arrays(arrays)
-    degrees = degrees_csr(indptr)
     cross = np.zeros(n_nodes, dtype=np.int64)
     for node in range(n_nodes):
         start = int(indptr[node])
@@ -756,16 +755,11 @@ def _pairwise_features_from_arrays(
                 cross[node] += 1
     cross_a = cross[mask_a].astype(int).tolist()
     cross_b = cross[mask_b].astype(int).tolist()
-    total_a = degrees[mask_a].astype(int).tolist()
-    total_b = degrees[mask_b].astype(int).tolist()
     isolated_a = sum(1 for value in cross_a if value == 0)
     isolated_b = sum(1 for value in cross_b if value == 0)
     total_nodes = n_nodes_a + n_nodes_b
-    graph_degree_scale = float(total_nodes - 1)
     avg_cross_a = _safe_mean(cross_a)
     avg_cross_b = _safe_mean(cross_b)
-    avg_degree_a = _safe_mean(total_a)
-    avg_degree_b = _safe_mean(total_b)
     hop_full, n_components = hop_from_graph_arrays(
         arrays, largest_component=False
     )
@@ -803,14 +797,10 @@ def _pairwise_features_from_arrays(
         f"{prefix}_avg_{label_token(label_a)}_per_{label_token(label_b)}_norm": (
             _safe_divide(avg_cross_b, float(n_nodes_a))
         ),
-        f"{prefix}_avg_degree_1": avg_degree_a,
-        f"{prefix}_avg_degree_1_norm": _safe_divide(avg_degree_a, graph_degree_scale),
-        f"{prefix}_avg_degree_2": avg_degree_b,
-        f"{prefix}_avg_degree_2_norm": _safe_divide(avg_degree_b, graph_degree_scale),
-        f"{prefix}_degree_cv_1": _coefficient_of_variation(total_a),
-        f"{prefix}_degree_cv_2": _coefficient_of_variation(total_b),
-        f"{prefix}_degree_entropy_1": _entropy(total_a),
-        f"{prefix}_degree_entropy_2": _entropy(total_b),
+        f"{prefix}_degree_cv_1": _coefficient_of_variation(cross_a),
+        f"{prefix}_degree_cv_2": _coefficient_of_variation(cross_b),
+        f"{prefix}_degree_entropy_1": _entropy(cross_a),
+        f"{prefix}_degree_entropy_2": _entropy(cross_b),
         f"{prefix}_connected_components": float(n_components),
         f"{prefix}_connected_components_norm": _safe_divide(
             float(n_components),
@@ -851,11 +841,14 @@ def calculate_pairwise_graph_metrics(
     """
     Calculate graph features for one pair of habitat labels.
 
-    Degree statistics use two complementary bases. Interface features
-    (``avg_h*_per_h*`` = R21/R12 and the isolated-node ratios) count only
-    other-class neighbors, while ``avg_degree_*`` (AD1/AD2), ``degree_cv_*``,
-    and ``degree_entropy_*`` use the full node degree (intra + inter edges) so
-    that the average/variability/entropy triple shares one degree basis.
+    Isolated ratios, ``avg_h*_per_h*``, ``degree_cv_*``, and
+    ``degree_entropy_*`` all count other-class neighbors only (the
+    habitat–habitat interface). PathPrism's pair ``avg_degree_*`` is
+    omitted: after the interface-only definition it duplicates
+    ``avg_h*_per_h*``. Whole-graph columns (components, modularity,
+    assortativity, betweenness, extended efficiency) use this pair's
+    full two-label graph (optional intra + inter), not a union graph
+    of every habitat.
 
     Args:
         graph: Pairwise inter-habitat graph.

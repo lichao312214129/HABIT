@@ -554,8 +554,8 @@ def compute_extended_pairwise_metrics(
     Compute extended metrics for a pairwise habitat graph.
 
     Whole-graph efficiency/small-world/rich-club are computed on the full graph.
-    Class-specific hub summaries use per-class betweenness maxima and degree
-    skewness.
+    Class-specific hub summaries use per-class betweenness maxima (full-graph
+    paths) and degree skewness of *cross-class* degree.
 
     Args:
         nx_graph: Full pairwise NetworkX graph (intra + inter edges).
@@ -600,8 +600,18 @@ def compute_extended_pairwise_metrics(
         betweenness = {}
 
     for suffix, node_ids in (("_1", nodes_a), ("_2", nodes_b)):
-        degrees = [int(nx_graph.degree(node_id)) for node_id in node_ids]
-        features[f"{prefix}_degree_skewness{suffix}"] = _safe_skew(degrees)
+        # Same interface basis as pair avg_h*_per_h* / degree_cv / entropy:
+        # other-class neighbors only, not full (intra + inter) degree.
+        cross_degrees = [
+            sum(
+                1
+                for neighbor in nx_graph.neighbors(node_id)
+                if int(nx_graph.nodes[neighbor]["habitat_label"])
+                != int(nx_graph.nodes[node_id]["habitat_label"])
+            )
+            for node_id in node_ids
+        ]
+        features[f"{prefix}_degree_skewness{suffix}"] = _safe_skew(cross_degrees)
 
         bc_values = [
             float(betweenness[node_id])
