@@ -40,6 +40,7 @@ and topology :doc:`graph_features`. Galleries:
    extract_features
    graph_features
    voxel_texture
+   ../tutorial/precise_screening
    preprocess
    radiomics
    train_model

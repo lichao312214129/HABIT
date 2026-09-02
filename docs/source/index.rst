@@ -25,8 +25,7 @@ Python beginners: :doc:`tutorial/quickstart_python` (copy-paste
 :doc:`examples/habitat_atomic_ops`. Parallel / fault tolerance:
 :doc:`tutorial/execution`. Stuck: :doc:`troubleshooting/faq`.
 
-Also: :doc:`tutorial/precise_screening` (which voxel features may define
-habitats) · :doc:`how_to/graph_features` (topology) ·
+Also: :doc:`how_to/graph_features` (topology) ·
 :doc:`how_to/voxel_texture` (texture maps as inputs).
 
 .. toctree::
@@ -37,7 +36,6 @@ habitats) · :doc:`how_to/graph_features` (topology) ·
    tutorial/quickstart
    tutorial/quickstart_python
    tutorial/habitat_analysis
-   tutorial/precise_screening
    tutorial/execution
 
 .. toctree::

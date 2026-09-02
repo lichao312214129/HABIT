@@ -14,4 +14,4 @@
 #
 """Single source for the package version string exposed as ``habit.__version__``."""
 
-__version__ = "1.1.3"
+__version__ = "1.2.0"

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-02
+
+**vs 1.1.3:** habitat-first docs and embeddable atomic API; graph-topology
+defaults and several public feature / viz APIs. Upgrade with
+``pip install -U "habitat-analysis[tables,viz]"``.
+
 ### Added
 
 - Contour perturbation gallery (``morphological`` / ``gradient_weighted``
@@ -31,6 +37,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   ``plot_shap_force`` (static matplotlib). YAML ``plot_types`` accepts
   the new names; they stay opt-in (default still includes ``shap``
   beeswarm only). ML gallery documents the full set.
+- Clustering feature-chain scalers: MaxAbs, quantile, and L2
+  (``feature_preprocessing_method``).
+- One-step ``Report`` streaming with ``figure_layout="by_subject"`` and
+  graph figure atoms.
+- GPU texture-matrix path and native OpenMP C supervoxel matrix extract
+  (opt-in / auto).
 
 ### Changed
 
@@ -62,11 +74,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Previously the default was one binary-erosion iteration before labeling,
   which could drop thin contacts. Pass ``erosion_radius=1`` (or higher) to
   shrink habitats before edges.
-- Docs: quickstart reminds Baidu Netdisk ML pack download / extract path
-  immediately before ``habit model``.
-- Docs: Python API quickstart uses the same demo YAML as the CLI via
-  ``recipes.run_from_yaml`` (habitat / predict / extract / model), so API
-  and CLI results match on the demo pack.
+- Docs: habitat analysis is the product spine (concept, atomic embed,
+  ``SubjectPipeline``, ``Study``). Image preprocessing and tabular ML
+  are supporting. CLI and Python quickstarts no longer show each
+  other's twins. New tutorial: parallel backends and fault tolerance.
+  Precise screening lives under How-to, not the Tutorial start list.
 - Docs: habitat Spec chooser splits voxel / supervoxel stages into
   single-modality leaves and multi-modality combiners; nested trees stay
   on the feature-composition example.
@@ -79,6 +91,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Docs: real-data gallery for habitat-feature contrast
   (``to_habitat_feature_panel`` / ``compare_habitat_features``) on
   ``demo_data/`` maps with ``each_habitat`` + ``graph``.
+- ITH auxiliary columns are opt-in; connected-component cleanup crops
+  maps before labeling.
 
 ## [1.1.3] - 2026-08-09
 
