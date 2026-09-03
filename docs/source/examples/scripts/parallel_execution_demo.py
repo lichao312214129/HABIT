@@ -92,7 +92,6 @@ def main() -> tuple:
     print(f"Atomic predict on {subject.subject_id}: "
           f"{len(set(habitat_map.label_array[habitat_map.label_array > 0]))} labels")
 
-    print("\nYAML twin: add a top-level ``policy:`` block (see config/habitat/*_wsl.yaml)")
     return cohort, parallel_result
 
 

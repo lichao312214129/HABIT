@@ -178,9 +178,7 @@ Need more later?
 ----------------
 
 Missing optional packages raise ``OptionalDependencyError`` with the exact
-``pip install`` command. Install only what you use::
-
-   pip install "habitat-analysis[ml,analysis]"
+``pip install`` command. Install only what you use.
 
 .. list-table::
    :header-rows: 1
@@ -189,31 +187,24 @@ Missing optional packages raise ``OptionalDependencyError`` with the exact
    * - Extra
      - Needed for
    * - ``viz``
-     - Figures (``habit.viz``, ML / clustering plots)
+     - Figures (``habit.viz``, clustering plots)
    * - ``tables``
      - ``.parquet`` / ``.xlsx`` (default habitats table is parquet)
    * - ``dicom``
      - ``habit dicom-info`` / ``habit sort-dicom``
    * - ``slic``
      - SLIC supervoxels (default ``kmeans`` / ``gmm`` need nothing)
-   * - ``accel``
-     - No-op alias: numba is in the default install; ``[accel]`` installs nothing extra
-   * - ``ml``
-     - XGBoost, SMOTE, mRMR / VIF / stepwise (includes ``viz``, ``tables``)
-   * - ``analysis``
-     - SHAP, Plotly, ICC, survival (includes ``viz``, ``tables``)
-   * - ``registration``
-     - ANTs registration
-   * - ``automl``
-     - AutoGluon Tabular
    * - ``torch``
      - TorchRadiomics / GPU texture
-   * - ``monai``
-     - MONAI ``Rand3DElastic`` image / ROI warp (``BSplineDeformPerturbation``; pulls ``torch``)
-   * - ``all``
-     - All of the above except ``torch``, ``monai``, and PyRadiomics
+   * - ``registration``
+     - ANTs registration
    * - ``view``
      - napari for ``habit view`` (clone: ``pip install -e ".[view]"``)
+   * - ``all``
+     - Remaining extras except ``torch``, ``monai``, and PyRadiomics
+
+GPU texture needs a CUDA PyTorch wheel; install steps and speedup numbers
+are on :doc:`../examples/voxel_texture`.
 
 
 PyRadiomics (only if you need radiomics)

@@ -213,23 +213,14 @@ intratumoural heterogeneity (ITH), and graph topology:
 
 ``"graph"`` extracts graph network features (or call
 :func:`~habit.kernels.extract_graph_features` on a label array). See
-:doc:`../how_to/graph_features` and :doc:`../examples/graph_features`.
-
-.. note::
-
-   **Scaling to multiple processes**:
-   When running large cohorts in batch mode with a process pool
-   (e.g., ``RunPolicy(workers=4, backend="process")``), wrap execution in
-   ``if __name__ == "__main__":`` to satisfy Windows multiprocessing spawn
-   guards. See :doc:`execution` for details.
+:doc:`../examples/feature_extraction`.
 
 Next
 ----
 
-* Habitat analysis strategies: :doc:`habitat_analysis`
-* Embed one operator in your workflow: :doc:`../examples/habitat_atomic_ops`
-* Parallel execution and fault tolerance: :doc:`execution`
-* Habitat Guide: :doc:`../examples/index`
-* API reference: :doc:`../api/index`
 * Your own data: :doc:`../examples/data_from_arrays`
-* YAML / CLI demo: :doc:`quickstart`
+* Habitat recipes: :doc:`../examples/habitat_recipes`
+* Custom voxel features: :doc:`../examples/custom_voxel_features`
+* Voxel texture / GPU: :doc:`../examples/voxel_texture`
+* Rigor (IBSI, provenance): :doc:`../examples/rigor`
+

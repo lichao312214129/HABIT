@@ -18,18 +18,16 @@ Python galleries stay in the Guide. Field-by-field schemas stay in
   :doc:`../examples/voxel_texture` ·
   :doc:`../examples/custom_voxel_features`)
 * Habitat maps — :doc:`segment_habitat`
-  (Guide: :doc:`../examples/two_step_habitat` ·
-  :doc:`../examples/one_step_habitat` ·
-  :doc:`../examples/direct_pooling_habitat` ·
+  (Guide: :doc:`../examples/habitat_recipes` ·
   :doc:`../examples/habitat_atomic_ops` ·
   :doc:`../examples/apply_saved_model`)
 * Quantify — :doc:`extract_features` · :doc:`graph_features` ·
   :doc:`radiomics`
   (Guide: :doc:`../examples/feature_extraction` ·
-  :doc:`../examples/graph_features`)
+  :doc:`../examples/rigor`)
 * Supporting tools — :doc:`preprocess` · :doc:`auxiliary_tools`
-  (Guide appendix: :doc:`../examples/image_preprocessing` ·
-  :doc:`../examples/cohort_plugins_auxiliary`)
+  (CLI and YAML: :doc:`../configuration/preprocessing` ·
+  :doc:`../configuration/auxiliary`)
 
 .. toctree::
    :maxdepth: 1

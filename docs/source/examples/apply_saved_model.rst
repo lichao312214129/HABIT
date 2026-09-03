@@ -1,72 +1,21 @@
-Apply a saved .habitatmodel to new subjects
-===========================================
+Apply a saved model
+===================
 
-**Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** optional
-``[view]`` · **Time:** ~20–60 s
-
-A fitted :class:`~habit.contracts.HabitatModel` is HABIT's primary
-scientific artefact: a self-describing habitat definition that can be
-published alongside a paper and applied by other groups to their own
-cohorts. This example shows the publish-and-reuse workflow:
-
-1. train a definition on a discovery cohort with
-   :meth:`~habit.recipes.Study.fit_predict` (two-step stages),
-2. round-trip it through a ``.habitatmodel`` archive
-   (:meth:`~habit.contracts.HabitatModel.save` /
-   :meth:`~habit.contracts.HabitatModel.load`),
-3. project the reloaded definition onto **new, previously unseen subjects**
-   with :meth:`~habit.recipes.Study.predict`.
-
-No fitting happens after the reload: the model's stored cohort-level
-preprocessing state is replayed, so the new supervoxels are scored in the
-training feature space — the guarantee that train and predict stay
-consistent. Prediction also inherits the training-time
-``postprocess_habitat`` persisted on the model; an explicit conflicting
-declaration on the prediction spec raises ``HABITAPIError``.
-
-Script
-------
-
-Load the directory tree with :func:`~habit.contracts.cohort_from_directory`
-(:doc:`data_from_arrays`). Change ``DATA`` /
-``MODALITIES`` / ``ROI`` to your preprocessed layout. The demo pack has
-``subj001`` … ``subj005``; this recipe trains on the first three subjects
-and applies the saved model to the last two. Keep the same
-:class:`~habit.spec.HabitatSpec` for train and apply. The fit stage uses
-a fixed ``n_habitats=3`` with ``n_supervoxels=32`` (not auto-K) so the
-applied maps keep more than one habitat visible.
+Train a definition, write a ``.habitatmodel``, then project it onto new
+subjects with :meth:`~habit.recipes.Study.from_model` +
+:meth:`~habit.recipes.Study.predict`. No fitting after the reload: the
+model's stored cohort preprocessing is replayed in the training feature
+space.
 
 .. literalinclude:: scripts/apply_saved_model_demo.py
    :language: python
    :start-after: # BEGIN example
    :end-before: # END example
 
-Draw the figures
-----------------
-
-Paste this after the Script block (it uses ``new_cohort``, ``prediction``,
-``train_cohort``, ``train_result``, ``model``, and ``spec``). Writes
-``out/apply_*.png``.
-
 .. literalinclude:: scripts/apply_saved_model_demo.py
    :language: python
    :start-after: # BEGIN figures
    :end-before: # END figures
-
-Output
-------
-
-Illustrative::
-
-   Train: ['subj001', 'subj002', 'subj003']; apply: ['subj004', 'subj005']
-   Saved out/habitat_model.habitatmodel
-     subj003: {...}
-     subj004: {...}
-
-Running the script regenerates gallery PNGs; ``HABIT_NO_VIEW=1`` skips napari.
-
-Figures
--------
 
 .. figure:: ../_static/images/examples/apply_overlay.png
    :alt: Habitats after applying a saved model
@@ -74,54 +23,27 @@ Figures
 
    Habitats on a new subject after ``Study.from_model(...).predict``.
 
-.. figure:: ../_static/images/examples/apply_triptych.png
-   :alt: Anatomy, supervoxels, and applied habitats
-   :width: 720
+Save and load
+-------------
 
-   Apply-time partitions (:func:`~habit.viz.plot_partition_triptych`).
+:meth:`~habit.contracts.HabitatModel.save` / :meth:`~habit.contracts.HabitatModel.load`
+round-trip the definition as a ``.habitatmodel`` archive.
+:meth:`~habit.recipes.StudyResult.save` writes maps, tables, and
+``run_manifest.json`` after the cohort is in memory.
+Reload the model and call ``Study.from_model(model, spec).predict`` —
+do not treat a raw pickle as a habitat definition.
 
-.. figure:: ../_static/images/examples/apply_train_label_compare.png
-   :alt: Train fit versus replay predict
-   :width: 720
+Match labels
+------------
 
-   Train fit vs replay predict on a discovery subject
-   (:func:`~habit.viz.plot_habitat_label_compare`).
+Applying a saved model with :meth:`~habit.recipes.Study.predict` keeps
+the training integer ids. Rematch only when two maps were clustered
+independently.
 
-.. figure:: ../_static/images/examples/apply_volume_fractions.png
-   :alt: Volume fractions on an applied subject
-   :width: 420
+* Same tumour, two observers: :func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`.
+* Different patients: unscaled texture means, one cohort z-score, then
+  :func:`~habit.kernels.habitat_label_match.match_labels_by_features`.
 
-   Volume fractions on the applied map.
+Runnable numbers: ``docs/source/examples/scripts/habitat_label_match_demo.py``.
 
-.. figure:: ../_static/images/examples/apply_msi_matrix.png
-   :alt: MSI matrix on an applied subject
-   :width: 420
-
-   MSI matrix.
-
-.. figure:: ../_static/images/examples/apply_ith_summary.png
-   :alt: ITH summary on an applied subject
-   :width: 520
-
-   ITH summary.
-
-Matching ids after independent clustering
------------------------------------------
-
-One-step (and any per-subject ``fit_predict``) emits **permuted**
-integers. Two matchers, one order — runnable numbers:
-:doc:`habitat_label_match`.
-
-* Same tumour, two observers: overlap
-  (:func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`).
-* Different patients: unscaled texture means, one cohort z-score,
-  Hungarian
-  (:func:`~habit.kernels.habitat_label_match.match_labels_by_features`).
-
-What to read next
------------------
-
-* :doc:`persistence` — ``StudyResult.save`` and ``run_manifest.json``
-* :doc:`parallel_execution` — same maps, scheduled over a cohort
-* :doc:`run_from_yaml` — the same predict path driven by a YAML document
-* :class:`~habit.contracts.HabitatModel` — the model contract
+Next: :doc:`habitat_recipes` · :doc:`parallel_execution`.

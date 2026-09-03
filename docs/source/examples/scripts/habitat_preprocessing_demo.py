@@ -51,11 +51,11 @@ YAML_CHAIN_MAP: Tuple[Tuple[str, str], ...] = (
     ("(two-step only, subject)", "supervoxel_feature_preprocessors"),
     ("preprocessing_for_group_level", "cohort_feature_preprocessors"),
 )
-# BEGIN example
 print("=== Older YAML -> HabitatSpec preprocessing chain names ===")
 for yaml_name, spec_name in YAML_CHAIN_MAP:
     print(f"  {yaml_name:40s} -> {spec_name}")
 
+# BEGIN example
 # --- Cohort: real demo when available, else synthetic ------------------------
 if IMAGING_ROOT.is_dir():
     cohort = cohort_from_directory(

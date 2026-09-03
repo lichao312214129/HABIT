@@ -1,8 +1,9 @@
 Command reference
 =================
 
-Every command is a thin shell over the Python API. Walk-throughs:
-:doc:`../examples/index`. YAML fields: :doc:`../configuration/index`.
+Every command is a thin shell over the Python API. YAML fields:
+:doc:`../configuration/index`. Habitat maps and extract walk-throughs
+are Python-first in the Guide.
 
 .. list-table::
    :header-rows: 1
@@ -13,13 +14,13 @@ Every command is a thin shell over the Python API. Walk-throughs:
      - Guide
    * - ``habit preprocess``
      - Image preprocessing
-     - :doc:`../examples/image_preprocessing`
+     - :doc:`../configuration/preprocessing`
    * - ``habit sort-dicom``
      - DICOM sort / rename
      - :doc:`../configuration/dicom_sort`
    * - ``habit get-habitat``
      - Habitat maps
-     - :doc:`../examples/two_step_habitat`
+     - :doc:`../examples/habitat_recipes`
    * - ``habit view``
      - Overlay habitat on image (paths, no YAML)
      - :doc:`../examples/visualization`
@@ -29,12 +30,6 @@ Every command is a thin shell over the Python API. Walk-throughs:
    * - ``habit radiomics``
      - Whole-ROI radiomics
      - :doc:`../configuration/radiomics`
-   * - ``habit model`` / ``habit cv``
-     - Train / CV / predict
-     - :doc:`../configuration/index`
-   * - ``habit compare``
-     - Compare models
-     - :doc:`../configuration/index`
    * - ``habit check-config``
      - Validate YAML
      - :doc:`../tutorial/quickstart`
@@ -52,7 +47,7 @@ Every command is a thin shell over the Python API. Walk-throughs:
      - :doc:`../api/plugins`
    * - ``habit icc`` / ``dicom-info`` / ``merge-csv`` / ``dice``
      - Utilities
-     - :doc:`../how_to/auxiliary_tools`
+     - :doc:`../configuration/auxiliary`
 
 Help: ``habit --help``, ``habit <cmd> --help``.
 Demo templates: ``habit copy-demo-config`` (or ``from habit.api.demo_config import copy_demo_config``).
