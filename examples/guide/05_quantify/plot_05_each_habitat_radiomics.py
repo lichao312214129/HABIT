@@ -6,13 +6,15 @@ Extract first-order and GLCM features **within each habitat subregion**
 using :class:`~habit.habitat_features.EachHabitatRadiomicsFeatures`.
 """
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 1
 
 # %%
 # One-step habitats, then per-habitat PyRadiomics on the intensity image.
-from typing import Any, Dict
+from pathlib import Path
+from typing import Any, Dict, List
 
-import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
@@ -48,3 +50,42 @@ display_cols = [
 print("Per-habitat radiomics (sample columns):")
 print(row[display_cols].to_string())
 row[display_cols]
+
+# %%
+# Grouped bar chart: Mean, Energy, and GLCM Id across H1 / H2 / H3.
+Path("out").mkdir(exist_ok=True)
+habitat_ids: List[int] = list(habitat_map.habitat_ids)
+# Column pattern: habitat_{id}_original_{class}_{name}_of_{modality}
+feature_specs = [
+    ("Mean", "firstorder_Mean"),
+    ("Energy", "firstorder_Energy"),
+    ("GLCM Id", "glcm_Id"),
+]
+values_by_feature: Dict[str, List[float]] = {}
+for label, suffix in feature_specs:
+    series: List[float] = []
+    for hid in habitat_ids:
+        col = next(
+            (
+                c
+                for c in table.feature_columns
+                if c.startswith(f"habitat_{hid}_") and suffix in c
+            ),
+            None,
+        )
+        series.append(float(row[col]) if col is not None else float("nan"))
+    values_by_feature[label] = series
+
+fig, ax = plt.subplots(figsize=(7, 3.5))
+x = np.arange(len(habitat_ids))
+width = 0.25
+for offset, (label, _) in enumerate(feature_specs):
+    ax.bar(x + (offset - 1) * width, values_by_feature[label], width, label=label)
+ax.set_xticks(x)
+ax.set_xticklabels([f"H{hid}" for hid in habitat_ids])
+ax.set_ylabel("Feature value")
+ax.set_title("Per-habitat radiomics (Mean, Energy, GLCM Id)")
+ax.legend(frameon=False)
+fig.tight_layout()
+fig.savefig("out/each_habitat_radiomics_bar.png", dpi=150, bbox_inches="tight")
+plt.show()

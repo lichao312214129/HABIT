@@ -13,7 +13,6 @@ Both plug into ``HabitatSpec.voxel_feature_extractor`` and the same recipes.
 # Register an in-process plugin. A third-party package would instead
 # declare an entry point under ``habit.voxel_feature_extractor``.
 from pathlib import Path
-import os
 from typing import Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
@@ -124,8 +123,7 @@ fig = plot_habitat_overlay(
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/custom_voxel_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # The registered ``t1_t2_contrast`` plugin, called as a ``Spec`` name.

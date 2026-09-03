@@ -8,7 +8,7 @@ feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch
 encoder output with the same ``(C, z, y, x)`` layout).
 """
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 1
 
 # %%
 # Habitat map from HABIT, synthetic 64-channel feature volume from a DL model.
@@ -130,7 +130,4 @@ ax.set_yticklabels([f"H{idx}" for idx in embeddings.index])
 ax.set_title("Masked spatial average pooling (64-D, first 16 shown)")
 fig.colorbar(im, ax=ax, label="Pooled activation")
 fig.savefig("out/dl_habitat_embeddings.png", dpi=150, bbox_inches="tight")
-import os
-
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()

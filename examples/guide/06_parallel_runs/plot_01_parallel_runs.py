@@ -29,7 +29,6 @@ Knob-by-knob: :doc:`/api/execution`.
 # Compare serial, persistent process-pool, and isolated process-pool on
 # the same two-step spec. Label maps must match when the seed is fixed.
 from pathlib import Path
-import os
 import time
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -293,8 +292,7 @@ if __name__ == "__main__":
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/parallel_execution_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
     print(serial_result.features.frame.head())
     serial_result.features.frame.head()
     texture_table = run_texture_timing()

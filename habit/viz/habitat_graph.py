@@ -40,8 +40,9 @@ All text drawn on the figures is English-only.
 
 from __future__ import annotations
 
+import dataclasses
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -952,10 +953,43 @@ def _apply_display_grid(
     return display_size
 
 
+def _resolve_plot_graph_options(
+    options: Optional[HabitatGraphFeatureOptions],
+    kwargs: Mapping[str, Any],
+) -> HabitatGraphFeatureOptions:
+    """
+    Merge optional graph options with flat keyword overrides (sklearn style).
+
+    Resolution mirrors :func:`habit.kernels.habitat_graph.features._resolve_graph_feature_options`:
+
+    * ``options is None`` and no kwargs → default ``HabitatGraphFeatureOptions()``
+    * ``options is None`` and kwargs → ``HabitatGraphFeatureOptions(**kwargs)``
+    * ``options`` given and kwargs → ``dataclasses.replace(options, **kwargs)``
+    * ``options`` given and no kwargs → ``options`` unchanged
+
+    Only keys that are fields of :class:`HabitatGraphFeatureOptions` are valid
+    in ``kwargs``; unknown names raise ``TypeError`` from the dataclass.
+
+    Args:
+        options: Optional base options dataclass (or ``None``).
+        kwargs: Field overrides matching ``HabitatGraphFeatureOptions``.
+
+    Returns:
+        HabitatGraphFeatureOptions: Resolved frozen options instance.
+    """
+    if options is None:
+        if not kwargs:
+            return HabitatGraphFeatureOptions()
+        return HabitatGraphFeatureOptions(**kwargs)
+    if not kwargs:
+        return options
+    return dataclasses.replace(options, **kwargs)
+
+
 def plot_habitat_graph_slice(
     label_array: np.ndarray,
     *,
-    options: HabitatGraphFeatureOptions = HabitatGraphFeatureOptions(),
+    options: Optional[HabitatGraphFeatureOptions] = None,
     slice_index: Optional[int] = None,
     show_grid: bool = True,
     block_size: Optional[int] = None,
@@ -966,6 +1000,7 @@ def plot_habitat_graph_slice(
     panel_size: float = 3.2,
     colorbar: ColorbarSpec = True,
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
+    **kwargs: Any,
 ) -> "Figure":
     """
     Draw the colored habitat map at the largest cross-section (2D).
@@ -975,9 +1010,16 @@ def plot_habitat_graph_slice(
     ``options``. Default lattice: ``block_size=None`` →
     ``options.block_size`` (library default 8 voxels), dashed lines.
 
+    Graph-construction fields may be passed as flat ``**kwargs`` (same names
+    as :class:`~habit.kernels.HabitatGraphFeatureOptions`), so callers do not
+    need a separate options object::
+
+        plot_habitat_graph_slice(labels, block_size=8, show_grid=True)
+
     Args:
         label_array: 2D or 3D habitat label map (background encoded as 0).
         options: Graph construction options shared with the extractor.
+            ``None`` (default) builds defaults, optionally from ``kwargs``.
         slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the
             largest cross-section. Ignored for 2D input.
         show_grid: Draw the node lattice (default ``True``).
@@ -991,6 +1033,9 @@ def plot_habitat_graph_slice(
         colorbar: Discrete habitat-ID colorbar (default ``True``). Background
             ``0`` is omitted from the bar. Pass ``False`` to hide it.
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
+        **kwargs: Optional field overrides for
+            :class:`~habit.kernels.HabitatGraphFeatureOptions` (merged into
+            ``options`` as described above).
 
     Returns:
         The matplotlib ``Figure``; the caller decides where it goes.
@@ -998,6 +1043,7 @@ def plot_habitat_graph_slice(
     Raises:
         OptionalDependencyError: When matplotlib is not installed.
     """
+    options = _resolve_plot_graph_options(options, kwargs)
     plt = _plt()
     from matplotlib.colors import ListedColormap
 
@@ -1057,7 +1103,7 @@ def plot_habitat_graph_slice(
 def plot_habitat_graph_network_2d(
     label_array: np.ndarray,
     *,
-    options: HabitatGraphFeatureOptions = HabitatGraphFeatureOptions(),
+    options: Optional[HabitatGraphFeatureOptions] = None,
     slice_index: Optional[int] = None,
     show_background: bool = True,
     show_grid: bool = True,
@@ -1071,6 +1117,7 @@ def plot_habitat_graph_network_2d(
     node_size: float = _DEFAULT_NODE_SIZE,
     colorbar: ColorbarSpec = True,
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
+    **kwargs: Any,
 ) -> Optional["Figure"]:
     """
     Draw the intra/inter habitat graphs built from the 2D slice habitat map.
@@ -1079,6 +1126,12 @@ def plot_habitat_graph_network_2d(
     as the feature extractor, but the input is the representative cross-section
     rather than the full 3D volume. Display knobs override ``options`` for
     drawing only (extraction still uses ``options``).
+
+    Graph-construction fields may be passed as flat ``**kwargs`` (same names
+    as :class:`~habit.kernels.HabitatGraphFeatureOptions`), so callers do not
+    need a separate options object::
+
+        plot_habitat_graph_network_2d(labels, block_size=8, show_grid=True)
 
     Each H1--Hk panel fills only that habitat in its palette colour and
     overlays white intra-edges plus white nodes (solid dots, thin dark
@@ -1097,6 +1150,7 @@ def plot_habitat_graph_network_2d(
     Args:
         label_array: 2D or 3D habitat label map (background encoded as 0).
         options: Graph construction options shared with the feature extractor.
+            ``None`` (default) builds defaults, optionally from ``kwargs``.
         slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the
             largest cross-section. Ignored for 2D input.
         show_background: Whether to draw habitat partitions behind the
@@ -1124,6 +1178,9 @@ def plot_habitat_graph_network_2d(
             it does not shrink any H or pair panel (default ``True``).
             Pass ``False`` to hide it.
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
+        **kwargs: Optional field overrides for
+            :class:`~habit.kernels.HabitatGraphFeatureOptions` (merged into
+            ``options`` as described above).
 
     Returns:
         The matplotlib ``Figure``, or ``None`` when the slice holds no habitat
@@ -1132,6 +1189,7 @@ def plot_habitat_graph_network_2d(
     Raises:
         OptionalDependencyError: When matplotlib is not installed.
     """
+    options = _resolve_plot_graph_options(options, kwargs)
     plt = _plt()
     from matplotlib.lines import Line2D
 

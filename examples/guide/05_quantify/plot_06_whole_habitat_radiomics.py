@@ -7,12 +7,14 @@ using :class:`~habit.habitat_features.WholeHabitatRadiomicsFeatures`.
 The habitat label image plays both intensity and mask roles.
 """
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 1
 
 # %%
 # One-step habitats, then whole-map PyRadiomics on the label field.
-from typing import Any, Dict
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
+import matplotlib.pyplot as plt
 import pandas as pd
 
 from habit.contracts import cohort_from_directory
@@ -43,3 +45,23 @@ row = table.frame.iloc[0]
 print("Whole-habitat radiomics:")
 print(row.to_string())
 row
+
+# %%
+# Horizontal bar chart of shape and first-order features on the label map.
+Path("out").mkdir(exist_ok=True)
+plot_items: List[Tuple[str, str]] = [
+    ("Sphericity", "original_shape_Sphericity"),
+    ("SurfaceArea", "original_shape_SurfaceArea"),
+    ("Mean", "original_firstorder_Mean"),
+    ("Entropy", "original_firstorder_Entropy"),
+]
+labels = [name for name, _ in plot_items]
+values = [float(row[col]) for _, col in plot_items]
+
+fig, ax = plt.subplots(figsize=(7, 3.5))
+ax.barh(labels, values, color="#4C72B0")
+ax.set_xlabel("Feature value")
+ax.set_title("Whole-habitat radiomics (shape + first-order)")
+fig.tight_layout()
+fig.savefig("out/whole_habitat_radiomics_bar.png", dpi=150, bbox_inches="tight")
+plt.show()

@@ -7,12 +7,11 @@ Atomic MSI from a habitat label map (Wu et al., *Radiology* 2018):
 :func:`~habit.kernels.msi_features_from_matrix`.
 """
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 1
 
 # %%
 # Build a habitat map, then compute the MSI matrix and scalar summaries.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -53,5 +52,4 @@ print("MSI scalars:", {k: round(v, 4) for k, v in features.items()})
 Path("out").mkdir(exist_ok=True)
 fig_msi = plot_msi_matrix(matrix, habitat_ids=tuple(range(1, n_classes)))
 fig_msi.savefig("out/msi_matrix_heatmap.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()

@@ -13,7 +13,6 @@ preprocessed directory tree with :func:`~habit.contracts.cohort_from_directory`.
 # :func:`~habit.datasets.fetch_demo` prints the absolute path and an
 # inventory. That printed tree is what your own ``DATA`` must match.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 
@@ -42,5 +41,4 @@ fig_anatomy = plot_intensity_slice(
     roi_contour=True,
 )
 fig_anatomy.savefig("out/data_in_anatomy.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()

@@ -14,7 +14,6 @@ that. This page is only ``raw`` vs ``concat``.
 # Load two demo subjects. ``raw`` concatenates LAP and PVP intensities
 # inside the ROI.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 
@@ -68,8 +67,7 @@ fig = plot_habitat_overlay(
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/habitat_feature_routes_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # ``concat`` joins two ``raw`` extractors column-wise. The head() table

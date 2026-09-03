@@ -385,6 +385,31 @@ def test_graph_compare_extracts_full_volume_not_slice() -> None:
     assert feats_3d["graph_num_nodes_total"] > feats_slice["graph_num_nodes_total"]
 
 
+def test_plot_habitat_graph_network_2d_accepts_flat_option_kwargs() -> None:
+    """Sklearn-style flat kwargs build options without an options object."""
+    labels = _synthetic_2d_labels()
+    fig = plot_habitat_graph_network_2d(
+        labels,
+        block_size=8,
+        show_grid=True,
+        include_extended_metrics=False,
+        edge_method="min_distance",
+    )
+    assert isinstance(fig, Figure)
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+    fig_slice = plot_habitat_graph_slice(
+        labels,
+        block_size=8,
+        show_grid=True,
+        include_extended_metrics=False,
+    )
+    assert isinstance(fig_slice, Figure)
+    plt.close(fig_slice)
+
+
 def test_plot_habitat_graph_network_2d_display_block_size_overrides() -> None:
     """Plot ``block_size`` / linestyle override extraction options for drawing."""
     labels = np.ones((16, 16), dtype=np.int32)

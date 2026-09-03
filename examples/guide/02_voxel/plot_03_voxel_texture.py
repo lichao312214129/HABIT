@@ -14,7 +14,6 @@ Pass :class:`~habit.api.image.ImageVolume` /
 # Local entropy on one demo subject. :func:`~habit.kernels.local_entropy_map`
 # returns a volume; :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
 from pathlib import Path
-import os
 import time
 from typing import Any, Dict, Optional
 
@@ -43,8 +42,7 @@ fig = plot_voxel_texture_slice(
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/voxel_texture_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # Same ``voxel_radiomics`` Spec on CPU and (when CUDA is present) GPU.
@@ -94,8 +92,7 @@ fig_glcm = plot_voxel_texture_slice(
     cpu_field, feature=0, anatomy=image_vol, roi_mask=mask_vol
 )
 fig_glcm.savefig("out/voxel_texture_glcm_contrast.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # GPU radiomics
