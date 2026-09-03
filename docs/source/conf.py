@@ -3,6 +3,7 @@
 
 import importlib.util
 import os
+import re
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -61,17 +62,73 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.githubpages",
 ]
-try:
-    import sphinx_copybutton  # noqa: F401
+# Copy button on every code block (nilearn / sphinx-copybutton).
+extensions.append("sphinx_copybutton")
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
 
-    extensions.append("sphinx_copybutton")
-except ImportError:
-    pass
+# Executed Guide / Quickstart examples (nilearn-style sphinx-gallery).
+extensions.append("sphinx_gallery.gen_gallery")
+
+
+def _patch_sphinx_gallery_replace_md5() -> None:
+    """Skip missing ``*.examples.new`` on Windows case-insensitive filesystems.
+
+    sphinx-gallery finalises backreferences by renaming ``name.examples.new``
+    to ``name.examples``. Two identified names that differ only by case, or a
+    second pass after a successful rename, raise ``FileNotFoundError``
+    (WinError 2) and abort the build. Linux CI never hits this.
+    """
+    import sphinx_gallery.utils as sg_utils
+
+    original = sg_utils._replace_md5
+
+    def _safe_replace_md5(fname_new, fname_old=None, **kwargs):
+        fname_new = str(fname_new)
+        if not os.path.isfile(fname_new):
+            return None
+        try:
+            return original(fname_new, fname_old, **kwargs)
+        except FileNotFoundError:
+            return None
+
+    sg_utils._replace_md5 = _safe_replace_md5
+
+
+_patch_sphinx_gallery_replace_md5()
 
 # Mermaid diagrams (developer architecture pages). Rendered client-side via
 # mermaid.js — works on GitHub Pages without a local graphviz binary.
 # Required: pip install sphinxcontrib-mermaid (see docs/requirements.txt).
 extensions.append("sphinxcontrib.mermaid")
+
+# Headless matplotlib + skip napari windows while the gallery executes.
+os.environ.setdefault("HABIT_NO_VIEW", "1")
+os.environ.setdefault("MPLBACKEND", "Agg")
+
+sphinx_gallery_conf = {
+    "examples_dirs": [
+        str(project_root / "examples" / "guide"),
+        str(project_root / "examples" / "quickstart"),
+    ],
+    "gallery_dirs": ["auto_examples", "auto_quickstart"],
+    "filename_pattern": r"plot_",
+    "ignore_pattern": r"__init__",
+    "abort_on_example_error": True,
+    "doc_module": ("habit",),
+    "reference_url": {"habit": None},
+    "capture_repr": ("_repr_html_", "__repr__"),
+    "remove_config_comments": True,
+    "nested_sections": True,
+    "within_subsection_order": "FileNameSortKey",
+    # Same directory as autosummary stubs so generated pages can
+    # ``.. include:: {{fullname}}.examples`` (nilearn pattern).
+    "backreferences_dir": str(Path("api") / "generated"),
+    "download_all_examples": False,
+    "plot_gallery": True,
+    "reset_modules": ("matplotlib",),
+    "min_reported_time": 1,
+}
 
 # Client-side rendering for static hosting (GitHub Pages).
 mermaid_output_format = "raw"
@@ -127,6 +184,7 @@ autodoc_default_options = {
 # Autosummary: generate one stub page per public symbol (scikit-learn style
 # API reference). Stubs land in api/generated/ and are gitignored.
 autosummary_generate = True
+autosummary_generate_overwrite = True
 autosummary_imported_members = False
 autosummary_filename_map = {}
 
@@ -195,6 +253,7 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
     "sklearn": ("https://scikit-learn.org/stable/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
     "pyradiomics": ("https://pyradiomics.readthedocs.io/en/latest/", None),
 }
 
@@ -329,3 +388,173 @@ def _write_plugin_catalog_include() -> None:
 
 
 _write_plugin_catalog_include()
+
+
+# sphinx-gallery nested_sections=True writes one hidden toctree of subsection
+# index files at the *end* of auto_examples/index.rst, after the last inlined
+# heading ("6. Scaled Execution"). Sphinx attaches a toctree to the nearest
+# preceding section, so sphinx_rtd_theme nests the whole Habitat Guide under
+# Parallel runs. Lift that toctree to the gallery root heading instead.
+_GALLERY_NESTED_TOCTREE_RE = re.compile(
+    r"\n\.\. toctree::\n"
+    r"   :hidden:\n"
+    r"   :includehidden:\n"
+    r"\n+"
+    r"(?:   [^\n]*auto_examples/[^\n]+/index(?:\.rst)?\n)+"
+    r"\n*",
+)
+
+
+def _is_rst_h1_rule(line: str) -> bool:
+    """Return True if *line* is an RST ``====`` heading underline."""
+    stripped = line.strip()
+    return bool(stripped) and set(stripped) == {"="} and len(stripped) >= 3
+
+
+_BROKEN_H1_RE = re.compile(
+    r"(?m)^(?P<title>\S[^\n]*?)\n\n+(?P<rule>=+)\s*$"
+)
+
+
+def _repair_broken_rst_h1(text: str) -> str:
+    """Join a title and ``====`` underline that gallery split with a blank line.
+
+    sphinx-gallery sometimes writes ``Title\\n\\n=======``, which is not a
+    heading. Sphinx then omits that subsection index from the sidebar, so
+    its pages appear as leaves under the previous numbered section (no ``+``).
+    """
+
+    def _join(match: re.Match[str]) -> str:
+        title = match.group("title")
+        rule = match.group("rule")
+        if len(rule) < len(title):
+            rule = "=" * len(title)
+        return f"{title}\n{rule}"
+
+    return _BROKEN_H1_RE.sub(_join, text)
+
+
+def _repair_gallery_headings(app, docname: str, source: list[str]) -> None:
+    """Fix broken H1s in generated Habitat Guide index pages.
+
+    Also write the repair back to disk so the next gallery pass does not
+    leave ``Title\\n\\n====`` in ``auto_examples/**/index.rst``.
+    """
+    if not docname.startswith("auto_examples"):
+        return
+    source[0] = _repair_broken_rst_h1(source[0])
+    path = Path(app.srcdir) / f"{docname}.rst"
+    if path.is_file():
+        on_disk = path.read_text(encoding="utf-8")
+        fixed = _repair_broken_rst_h1(on_disk)
+        if fixed != on_disk:
+            path.write_text(fixed, encoding="utf-8")
+
+
+def _lift_gallery_nested_toctree(app, docname: str, source: list[str]) -> None:
+    """Move the Habitat Guide subsection toctree under the document title.
+
+    Also demote inlined subsection headings (``====`` copied from each
+    folder README) to ``----``. Those extra H1s are siblings of the
+    document title, so RTD would otherwise repeat them as extra
+    top-level sidebar entries next to Habitat Guide.
+
+    Parameters
+    ----------
+    app:
+        Sphinx application (unused; required by the ``source-read`` event).
+    docname:
+        Document name relative to the source directory.
+    source:
+        Single-element list with the RST text; rewritten in place.
+    """
+    if docname != "auto_examples/index":
+        return
+    text = source[0]
+    match = _GALLERY_NESTED_TOCTREE_RE.search(text)
+    if match is None:
+        return
+    toctree = match.group(0)
+    remainder = text[: match.start()] + text[match.end() :]
+    lines = remainder.splitlines(keepends=True)
+    insert_at = None
+    for i, line in enumerate(lines):
+        if _is_rst_h1_rule(line):
+            insert_at = i + 1
+            break
+    if insert_at is None:
+        return
+    if not toctree.startswith("\n"):
+        toctree = "\n" + toctree
+    if not toctree.endswith("\n"):
+        toctree += "\n"
+    lines.insert(insert_at, toctree)
+    seen_root_title = False
+    demoted: list[str] = []
+    for line in lines:
+        if _is_rst_h1_rule(line):
+            if seen_root_title:
+                demoted.append(line.replace("=", "-"))
+                continue
+            seen_root_title = True
+        demoted.append(line)
+    source[0] = "".join(demoted)
+
+
+def _ensure_api_generated_dir(app) -> None:
+    """Create ``api/generated`` before gallery / autodoc write ``.examples`` files.
+
+    Parameters
+    ----------
+    app:
+        Sphinx application. ``srcdir`` is the documentation source root.
+    """
+    generated = Path(app.srcdir) / "api" / "generated"
+    generated.mkdir(parents=True, exist_ok=True)
+
+
+def touch_example_backreferences(
+    app,
+    what: str,
+    name: str,
+    obj: object,
+    options: dict,
+    lines: list[str],
+) -> None:
+    """Create empty sphinx-gallery ``.examples`` files when a symbol has no hits.
+
+    Autosummary stubs ``include`` ``{{fullname}}.examples``. Without a
+    placeholder, objects that never appear in the Habitat Guide fail the
+    build. Matches nilearn ``doc/conf.py``.
+
+    Parameters
+    ----------
+    app:
+        Sphinx application.
+    what:
+        Object type (``class``, ``function``, …). Required by the event.
+    name:
+        Fully-qualified object name (the ``.examples`` file stem).
+    obj:
+        The documented object. Required by the event; unused.
+    options:
+        Autodoc options. Required by the event; unused.
+    lines:
+        Docstring lines. Required by the event; unused.
+    """
+    del what, obj, options, lines
+    if not name:
+        return
+    examples_path = Path(app.srcdir) / "api" / "generated" / f"{name}.examples"
+    examples_path.parent.mkdir(parents=True, exist_ok=True)
+    if not examples_path.exists():
+        examples_path.touch()
+
+
+def setup(app) -> dict[str, object]:
+    """Register docs-only Sphinx event hooks."""
+    app.connect("builder-inited", _ensure_api_generated_dir)
+    app.connect("source-read", _repair_gallery_headings)
+    app.connect("source-read", _lift_gallery_nested_toctree)
+    app.connect("autodoc-process-docstring", touch_example_backreferences)
+    return {"parallel_read_safe": True, "parallel_write_safe": True}

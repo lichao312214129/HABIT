@@ -1,7 +1,125 @@
+.. _api-kernels:
+
 Numeric kernels (``habit.kernels``)
 ===================================
 
+.. automodule:: habit.kernels
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.kernels
+
+**User guide:** Habitat Guide
+:doc:`../auto_examples/05_quantify/plot_04_graph_features`.
 Pure NumPy / SciPy functions. No ``Subject``, no YAML, no IO.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   HabitatGraphFeatureOptions
+   GraphNullModelOptions
+   GraphNullModelResult
+   ICCEstimate
+
+Functions
+---------
+
+Habitat metrics
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   local_entropy_map
+   spatial_interaction_matrix
+   msi_features_from_matrix
+   habitat_volume_fractions
+   habitat_region_stats
+   habitat_ith_dispersion
+   ith_score
+   adjusted_rand_index
+   extract_graph_features
+   extract_graph_features_for_labels
+   extract_habitat_nodes
+   build_centroid_distance_graph
+   build_min_distance_graph
+   build_adjacency_graph
+   pair_count
+   compare_graph_to_degree_preserving_null
+   remove_small_connected_components
+
+Model selection
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   score_direction
+   knee_index
+   prior2024_bic_gradient_k
+   best_index
+   vote_best_index
+   gap_statistic
+
+.. currentmodule:: habit.kernels.cluster_selection
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   SCORE_DIRECTIONS
+   MAXIMIZE
+   MINIMIZE
+   KNEE
+
+.. currentmodule:: habit.kernels
+
+Image perturbation and voxel reliability
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   estimate_noise_sigma
+   add_gaussian_noise
+   translate_image
+   rotate_image
+   rigid_transform_image
+   morphological_grow_shrink
+   boundary_band_mask
+   boundary_weighted_perturbation
+   slice_extent_perturbation
+   icc3a_1
+   icc3c_1
+   icc2_1_estimate
+
+Classification and agreement statistics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bookmarks for table-ML kernels. Not the habitat core.
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   compute_midrank
+   fast_delong
+   delong_roc_variance
+   delong_roc_test
+   delong_roc_ci
+   hosmer_lemeshow_test
+   spiegelhalter_z_test
+   two_way_mean_squares
+   icc3_1
+   icc2_1
 
 .. code-block:: python
 
@@ -28,8 +146,8 @@ Pure NumPy / SciPy functions. No ``Subject``, no YAML, no IO.
        compute_midrank,
    )
 
-Habitat metrics
----------------
+Habitat metrics (examples)
+--------------------------
 
 .. code-block:: python
 
