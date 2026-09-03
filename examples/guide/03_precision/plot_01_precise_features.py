@@ -2,82 +2,30 @@
 Precise voxel features
 ======================
 
-Goal: decide **which voxel features are allowed to define habitats**, then
-cluster only those features. This is not a new clustering algorithm. It is
-the precision screen of Prior et al. (*Radiol Artif Intell*
-2024;6(2):e230118; `DOI <https://doi.org/10.1148/ryai.230118>`__), taught
-as the same combinatorial experiments the paper ran.
+Decide **which voxel features may define habitats**, then cluster only
+those. This is the Prior et al. precision screen (*Radiol Artif Intell*
+2024;6(2):e230118; `DOI <https://doi.org/10.1148/ryai.230118>`__), not a
+new clustering algorithm.
 
-A voxel radiomic map :math:`F(\\mathbf{x})` is a **local morphological
-descriptor**: each voxel's value is computed in a neighbourhood whose size
-is the kernel radius (and, for many features, a grey-level bin width). If
-that map does not survive a simulated re-acquisition, or a change of
-neighbourhood scale, clustering it produces partitions nobody can
-reproduce.
-
-The paper's combinations are two atoms, then a small composition. Appendix
-S2 simulated retest is Gaussian (Chang) noise, then 0.5-voxel translation,
-then 0.5° in-plane rotation. The three ICC experiments are:
-
-* **repeatability** — ICC(3A,1) between the base-setting maps of the
-  original image and of one Appendix S2 perturbed copy (absolute
-  agreement);
-* **reproducibility_kernel_radius** — ICC(3C,1) between maps at the given
-  kernel radii (the paper contrasts R1 with R3) at fixed bin width
-  (consistency);
-* **reproducibility_bin_width** — ICC(3C,1) between maps at the given bin
-  widths (the paper contrasts B12 with B25 HU) at fixed radius
-  (consistency).
-
-A feature is *precise* when the **lower confidence limit** of its ICC
-reaches ``lcl_threshold`` (default ``0.5``) in **every** experiment that
-was actually run (the intersection).
-:func:`~habit.precision.identify_precise_features` is that intersection;
-:func:`~habit.precision.aggregate_panels` takes the cohort median when you
-have more than one subject.
-
-Three morphological facts are easy to miss if one treats ICC as a generic
-correlation:
-
-1. **The features themselves are morphological.** Kernel radius is a
-   neighbourhood scale. The kernel-radius experiment asks whether the
-   *spatial pattern* of a feature survives a change in that scale.
-2. **Acquisition perturbation moves anatomy.** Translation and rotation
-   are rigid morphological changes of the patient in the scanner. Noise
-   is not morphology, but it is part of the paper's simulated retest.
-3. **Agreement is computed on the common ROI.** Condition fields are
-   aligned on shared ROI coordinates; any voxel that is NaN in any
-   condition is dropped. The pairing is the **intersection of the
-   morphologies**, not a rectangular crop filled with dummy intensities.
-
-Passing the screen means the map is *repeatable / reproducible under the
-stated perturbations*, not that it encodes a cell type, a driver
-mutation, or a clinical outcome. Screening on the same cohort that will
-be clustered is still a discovery analysis. Auto-selection of :math:`k`
-remains a modelling choice. Absent experiments (single radius, single
-bin width) are skipped, not failed — read ``precise.to_frame()`` before
-claiming "all three experiments".
-
-This page also runs an **extra** ROI-edge / contour experiment (mask-only
-``morphological`` grow). That is inter-rater contour uncertainty, not
-Prior Appendix S2 image retest. It is **not** folded into the Precise
-intersection; the whitelist stays the paper's three ICC experiments.
-The extra panel is shown so the reader can compare the two definitions.
+Appendix S2 simulated retest is Gaussian noise → 0.5-voxel translation →
+0.5° rotation. Three ICC experiments (repeatability; kernel-radius;
+bin-width) must all clear ``lcl_threshold`` (default 0.5). An **extra**
+MONAI ``bspline_deform`` block below shows smooth elastic ROI / anatomy
+warp (Dice / overlap) — it is **not** folded into the Precise whitelist.
 """
 
-# sphinx_gallery_thumbnail_number = 4
+# sphinx_gallery_thumbnail_number = 2
 
 # %%
-# Load one demo subject. Do not hand-crop the ``Subject``:
-# ``extract_voxel_texture`` crops to the ROI bounding box plus kernel
-# padding internally (``crop_to_roi=True`` by default).
+# Load one demo subject. ``extract_voxel_texture`` crops to the ROI box
+# internally (``crop_to_roi=True``).
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
 
 from habit.contracts import Cohort, Subject, cohort_from_directory
 from habit.datasets import fetch_demo
@@ -88,6 +36,7 @@ from habit.kernels.habitat_label_match import (
     present_habitat_ids,
     remap_label_array,
 )
+from habit.kernels.image_perturbation import binary_mask_dice
 from habit.precision import (
     ImagePerturbationRegistry,
     aggregate_panels,
@@ -99,8 +48,8 @@ from habit.recipes import Study
 from habit.spec import HabitatSpec, Spec
 from habit.voxel_features import extract_voxel_texture
 from habit.viz import plot_habitat_label_compare, plot_intensity_slice, plot_precision_icc
-from habit.viz.labels import sanitize_label
 from habit.viz import use_style
+from habit.viz.labels import sanitize_label
 
 DATA = fetch_demo()
 MODALITIES = ("LAP",)
@@ -109,132 +58,34 @@ cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
 subject = cohort[0]
 image = subject.image(MODALITIES[0])
 mask = subject.mask(ROI)
+Path("out").mkdir(exist_ok=True)
 print(f"Grid shape: {image.data.shape}")
 
 # %%
-# Appendix S2 retest chain — three sequential :func:`~habit.precision.perturb_image`
-# atoms on the same ``rng`` (noise → translation → rotation).
+# Appendix S2 retest chain on one shared RNG.
 retest_rng = np.random.default_rng(7)
 noisy = perturb_image(image, method="gaussian_noise", rng=retest_rng)
 shifted = perturb_image(
-    noisy,
-    method="translation",
-    shift_fraction=0.5,
-    rng=retest_rng,
+    noisy, method="translation", shift_fraction=0.5, rng=retest_rng
 )
 perturbed = perturb_image(
-    shifted,
-    method="rotation",
-    angle_degrees=0.5,
-    rng=retest_rng,
+    shifted, method="rotation", angle_degrees=0.5, rng=retest_rng
 )
-print("Appendix S2 chain: gaussian_noise -> translation -> rotation")
-print(f"  grid unchanged: {perturbed.data.shape == image.data.shape}")
-
-Path("out").mkdir(exist_ok=True)
-
-
-def _show_fig(fig: object) -> None:
-    """Save is already done by the caller; always ``show`` so sphinx-gallery
-    scrapes the figure. ``HABIT_NO_VIEW`` only skips interactive windows
-    (napari). Matplotlib Agg + gallery intercept ``show()``, so no GUI.
-    """
-    fig  # keep the figure referenced for scrapers that walk locals
-    plt.show()
-
-
-# Official pair plots: original vs each sequential atom. Full FOV; ROI contour.
-for after, title, fname, right_label in (
-    (noisy, "Original vs Gaussian noise", "precise_features_perturb_noise.png", "Gaussian noise"),
-    (
-        shifted,
-        "Original vs +0.5-voxel translation",
-        "precise_features_perturb_translation.png",
-        "+ translation 0.5 vx",
-    ),
-    (
-        perturbed,
-        "Original vs +0.5 deg rotation",
-        "precise_features_perturb_rotation.png",
-        "+ rotation 0.5 deg",
-    ),
-):
-    fig_step = plot_intensity_slice(
-        after,
-        before=image,
-        roi_mask=mask,
-        roi_contour=True,
-        title=title,
-        before_label="Original",
-        image_label=right_label,
-    )
-    fig_step.savefig(f"out/{fname}", dpi=150, bbox_inches="tight")
-    _show_fig(fig_step)
+print("Appendix S2: gaussian_noise -> translation -> rotation")
+fig_s2 = plot_intensity_slice(
+    perturbed,
+    before=image,
+    roi_mask=mask,
+    roi_contour=True,
+    title="Appendix S2 chain (original vs final)",
+    before_label="Original",
+    image_label="+ noise / shift / rotation",
+)
+fig_s2.savefig("out/precise_features_perturb_methods.png", dpi=150, bbox_inches="tight")
+plt.show()
 
 # %%
-# Four-panel mosaic plus a signed difference (after minus original). The analysis
-# volumes stay full-grid; the *display* window is the ROI bbox so a 0.5-voxel
-# / 0.5 deg change is visible (whole-FOV greyscale looks unchanged).
-mask_arr = np.asarray(mask.data)
-counts = np.sum(mask_arr > 0, axis=(1, 2))
-slice_index = (
-    int(np.argmax(counts)) if int(np.max(counts)) > 0 else int(mask_arr.shape[0] // 2)
-)
-nz = np.argwhere(mask_arr > 0)
-lo_idx = np.maximum(nz.min(axis=0) - 8, 0)
-hi_idx = np.minimum(nz.max(axis=0) + 9, mask_arr.shape)
-row_sl = slice(int(lo_idx[1]), int(hi_idx[1]))
-col_sl = slice(int(lo_idx[2]), int(hi_idx[2]))
-panels = (
-    ("Original", np.asarray(image.data)),
-    ("Gaussian noise", np.asarray(noisy.data)),
-    ("+ translation 0.5 vx", np.asarray(shifted.data)),
-    ("+ rotation 0.5 deg", np.asarray(perturbed.data)),
-)
-orig_vol = np.asarray(image.data)
-orig_sl = np.take(orig_vol, slice_index, axis=0)[row_sl, col_sl]
-finite = orig_sl[np.isfinite(orig_sl)]
-vmin, vmax = np.percentile(finite, (1.0, 99.0))
-with use_style("radiology"):
-    fig_chain, axes_chain = plt.subplots(
-        2, 4, figsize=(12.8, 6.4), constrained_layout=True
-    )
-    for col, (label, volume) in enumerate(panels):
-        sl = np.take(volume, slice_index, axis=0)[row_sl, col_sl]
-        axes_chain[0, col].imshow(
-            sl, cmap="gray", interpolation="nearest", origin="upper", vmin=vmin, vmax=vmax
-        )
-        axes_chain[0, col].set_title(sanitize_label(label))
-        axes_chain[0, col].axis("off")
-        if col == 0:
-            axes_chain[1, col].axis("off")
-            axes_chain[1, col].set_title(sanitize_label("Difference vs original"))
-            continue
-        delta = sl - orig_sl
-        lim = float(np.nanpercentile(np.abs(delta), 99.0)) or 1.0
-        axes_chain[1, col].imshow(
-            delta,
-            cmap="RdBu_r",
-            interpolation="nearest",
-            origin="upper",
-            vmin=-lim,
-            vmax=lim,
-        )
-        axes_chain[1, col].set_title(sanitize_label(f"{label} minus original"))
-        axes_chain[1, col].axis("off")
-    fig_chain.suptitle(
-        sanitize_label("Appendix S2 chain (ROI window + difference)")
-    )
-fig_chain.savefig("out/precise_features_perturb_methods.png", dpi=150, bbox_inches="tight")
-_show_fig(fig_chain)
-
-# %%
-# Extract voxel texture at the paper's base setting (R3, B12) and the two
-# reproducibility contrasts (R1 vs R3, B12 vs B25). Then combine panels
-# with :func:`~habit.precision.identify_precise_features`:
-# repeatability uses ICC(3A,1) / absolute; kernel-radius and bin-width
-# use ICC(3C,1) / consistency. Precise = LCL >= 0.5 (default) in
-# **every** experiment that was run.
+# Texture at base R3/B12 and the two reproducibility contrasts.
 FEATURE_CLASSES: Dict[str, Tuple[str, ...]] = {
     "firstorder": ("Entropy", "Mean", "Variance", "Skewness", "Kurtosis"),
     "glcm": (
@@ -257,54 +108,45 @@ feat_b25 = extract_voxel_texture(
 feat_pert = extract_voxel_texture(
     perturbed, mask, kernel_radius=3, bin_width=12, feature_classes=FEATURE_CLASSES
 )
-all_feature_names = list(feat_r3.feature_names)
-print(f"Full texture set ({len(all_feature_names)} features): {all_feature_names}")
-print("Original texture head:")
-print(feat_r3.feature_frame().head())
+print(f"Texture features ({len(feat_r3.feature_names)}): {list(feat_r3.feature_names)}")
+feat_r3.feature_frame().head()
 
-repeat_panel = precision_panel(
-    {"original": feat_r3, "perturbed": feat_pert},
-    agreement="absolute",
-)
-kernel_panel = precision_panel(
-    {"R1": feat_r1, "R3": feat_r3},
-    agreement="consistency",
-)
-bin_panel = precision_panel(
-    {"B12": feat_r3, "B25": feat_b25},
-    agreement="consistency",
-)
+# %%
+# Precise = LCL >= 0.5 in every experiment that was run.
 precise = identify_precise_features(
     {
-        "repeatability": aggregate_panels([repeat_panel]),
-        "reproducibility_kernel_radius": aggregate_panels([kernel_panel]),
-        "reproducibility_bin_width": aggregate_panels([bin_panel]),
+        "repeatability": aggregate_panels(
+            [precision_panel({"original": feat_r3, "perturbed": feat_pert}, agreement="absolute")]
+        ),
+        "reproducibility_kernel_radius": aggregate_panels(
+            [precision_panel({"R1": feat_r1, "R3": feat_r3}, agreement="consistency")]
+        ),
+        "reproducibility_bin_width": aggregate_panels(
+            [precision_panel({"B12": feat_r3, "B25": feat_b25}, agreement="consistency")]
+        ),
     },
     lcl_threshold=0.5,
 )
 evidence = precise.to_frame().round(3)
-kept = list(precise.feature_names)
-dropped = [name for name in all_feature_names if name not in set(kept)]
-print(f"\nICC screen (LCL >= {precise.lcl_threshold} in every experiment):")
-print(f"  kept ({len(kept)}): {kept}")
-print(f"  dropped ({len(dropped)}): {dropped}")
-print(evidence.to_string(index=False))
+kept: List[str] = list(precise.feature_names)
+dropped = [n for n in feat_r3.feature_names if n not in set(kept)]
+print(f"kept ({len(kept)}): {kept}")
+print(f"dropped ({len(dropped)}): {dropped}")
 evidence
 
 # %%
-# Three ICC forests: a feature is precise only when LCL >= 0.5 in **every**
-# experiment that was run (repeatability, kernel radius, bin width).
+# One ICC forest per experiment (immediate figure after each panel).
 for experiment, fname, title in (
-    ("repeatability", "precise_features_icc_lcl.png", "Repeatability ICC and 95% CI"),
+    ("repeatability", "precise_features_icc_lcl.png", "Repeatability ICC"),
     (
         "reproducibility_kernel_radius",
         "precise_features_icc_kernel.png",
-        "Kernel-radius reproducibility ICC and 95% CI",
+        "Kernel-radius reproducibility ICC",
     ),
     (
         "reproducibility_bin_width",
         "precise_features_icc_bin.png",
-        "Bin-width reproducibility ICC and 95% CI",
+        "Bin-width reproducibility ICC",
     ),
 ):
     panel = evidence.loc[evidence["experiment"] == experiment].drop(
@@ -317,22 +159,14 @@ for experiment, fname, title in (
         orientation="row",
     )
     fig_icc.savefig(f"out/{fname}", dpi=150, bbox_inches="tight")
-    _show_fig(fig_icc)
+    plt.show()
 
 # %%
-# Publish the artefact, then whitelist it **first** in
-# ``voxel_feature_preprocessors`` so only precise columns reach scaling
-# and clustering. Same extractor and :math:`k` search: all texture
-# columns vs the precise subset. Another lab should cluster the **same**
-# names (``precise.save(...)``), not re-screen after seeing the endpoint.
-#
-# Under Appendix S2 image perturbation, fit habitats on the original and
-# on the perturbed volume (same mask), match integer ids by voxel overlap,
-# then score Dice / ARI. Precise features should keep a more stable
-# partition (higher mean Dice and ARI) than the full texture set.
+# Cluster all texture vs precise whitelist; score partition stability
+# under the same Appendix S2 image (shared mask).
 texture_params = {
     "imageType": {"Original": {}},
-    "featureClass": {key: list(values) for key, values in FEATURE_CLASSES.items()},
+    "featureClass": {k: list(v) for k, v in FEATURE_CLASSES.items()},
     "setting": {"binWidth": 12.0, "normalize": False},
 }
 extractor_spec = Spec(
@@ -363,71 +197,34 @@ spec_all = HabitatSpec(
 result_all_orig = Study(spec_all).fit_predict(demo)
 result_all_pert = Study(spec_all).fit_predict(demo_pert)
 
-
-def _perturbation_agreement(
-    reference_map: Any,
-    moving_map: Any,
-) -> Tuple[np.ndarray, float, float, List[Dict[str, Any]]]:
-    """Match ``moving`` ids onto ``reference``, then score Dice / ARI.
-
-    Same-grid original vs Appendix S2 perturbed habitats use
-    :func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`.
-    Dice needs that pairing; ARI is permutation-invariant but is reported
-    on the same voxels for a single summary table.
-
-    Args:
-        reference_map: Habitat map whose integer ids are kept.
-        moving_map: Independently clustered map to remap onto reference.
-
-    Returns:
-        ``(aligned_labels, mean_dice, ari, per_habitat_rows)`` where
-        ``per_habitat_rows`` is a list of dicts with habitat Dice.
-    """
-    ref = np.asarray(reference_map.label_array)
-    mov = np.asarray(moving_map.label_array)
-    mapping = match_labels_by_overlap(ref, mov)
-    reserved = [int(v) for v in present_habitat_ids(ref).tolist()]
-    aligned = remap_label_array(mov, mapping, reserved_ids=reserved)
-    dice_rows: List[Dict[str, Any]] = []
-    dice_values: List[float] = []
-    for habitat_id, matched_id, dice, n_ref, n_mov in habitat_dice_from_mapping(
-        ref, mov, mapping
-    ):
-        dice_values.append(float(dice))
-        dice_rows.append(
-            {
-                "habitat_id": int(habitat_id),
-                "matched_id": None if matched_id is None else int(matched_id),
-                "dice": float(dice),
-                "n_reference": int(n_ref),
-                "n_moving": int(n_mov),
-            }
-        )
-    mean_dice = float(np.mean(dice_values)) if dice_values else float("nan")
-    ari = float(adjusted_rand_index(ref, mov))
-    return aligned, mean_dice, ari, dice_rows
-
-
-aligned_all, mean_dice_all, ari_all, dice_all = _perturbation_agreement(
-    result_all_orig.habitat_maps[0],
-    result_all_pert.habitat_maps[0],
+ref_all = np.asarray(result_all_orig.habitat_maps[0].label_array)
+mov_all = np.asarray(result_all_pert.habitat_maps[0].label_array)
+map_all = match_labels_by_overlap(ref_all, mov_all)
+aligned_all = remap_label_array(
+    mov_all, map_all, reserved_ids=[int(v) for v in present_habitat_ids(ref_all)]
 )
+dice_all = [float(d) for _, _, d, _, _ in habitat_dice_from_mapping(ref_all, mov_all, map_all)]
+mean_dice_all = float(np.mean(dice_all)) if dice_all else float("nan")
+ari_all = float(adjusted_rand_index(ref_all, mov_all))
+print(f"All texture: mean Dice={mean_dice_all:.3f}, ARI={ari_all:.3f}")
 fig_cmp_all = plot_habitat_label_compare(
     image,
     result_all_orig.habitat_maps[0],
     aligned_all,
     titles=(
-        "All features: Original habitats",
-        f"All features: Perturbed (matched, Dice={mean_dice_all:.3f}, ARI={ari_all:.3f})",
+        "All features: original",
+        f"All features: S2 perturbed (Dice={mean_dice_all:.3f})",
     ),
     align_labels=False,
 )
-fig_cmp_all.savefig(
-    "out/precise_features_all_orig_vs_pert.png", dpi=150, bbox_inches="tight"
-)
-_show_fig(fig_cmp_all)
+fig_cmp_all.savefig("out/precise_features_all_orig_vs_pert.png", dpi=150, bbox_inches="tight")
+plt.show()
 
-if kept:
+# %%
+# Precise whitelist first in ``voxel_feature_preprocessors``.
+if not kept:
+    print("No feature passed every experiment; skip precise habitats")
+else:
     whitelist = precise.preprocessor()
     spec_precise = HabitatSpec(
         name="precise_one_step",
@@ -440,33 +237,36 @@ if kept:
     )
     result_precise_orig = Study(spec_precise).fit_predict(demo)
     result_precise_pert = Study(spec_precise).fit_predict(demo_pert)
-    aligned_precise, mean_dice_precise, ari_precise, dice_precise = (
-        _perturbation_agreement(
-            result_precise_orig.habitat_maps[0],
-            result_precise_pert.habitat_maps[0],
-        )
+    ref_p = np.asarray(result_precise_orig.habitat_maps[0].label_array)
+    mov_p = np.asarray(result_precise_pert.habitat_maps[0].label_array)
+    map_p = match_labels_by_overlap(ref_p, mov_p)
+    aligned_p = remap_label_array(
+        mov_p, map_p, reserved_ids=[int(v) for v in present_habitat_ids(ref_p)]
     )
-    fig_cmp_precise = plot_habitat_label_compare(
+    dice_p = [float(d) for _, _, d, _, _ in habitat_dice_from_mapping(ref_p, mov_p, map_p)]
+    mean_dice_p = float(np.mean(dice_p)) if dice_p else float("nan")
+    ari_p = float(adjusted_rand_index(ref_p, mov_p))
+    stability = pd.DataFrame(
+        [
+            {"feature_set": "All texture", "mean_dice": mean_dice_all, "ari": ari_all},
+            {"feature_set": "Precise only", "mean_dice": mean_dice_p, "ari": ari_p},
+        ]
+    )
+    print(stability.to_string(index=False))
+    fig_cmp_p = plot_habitat_label_compare(
         image,
         result_precise_orig.habitat_maps[0],
-        aligned_precise,
+        aligned_p,
         titles=(
-            "Precise features: Original habitats",
-            (
-                "Precise features: Perturbed "
-                f"(matched, Dice={mean_dice_precise:.3f}, ARI={ari_precise:.3f})"
-            ),
+            "Precise: original",
+            f"Precise: S2 perturbed (Dice={mean_dice_p:.3f})",
         ),
         align_labels=False,
     )
-    fig_cmp_precise.savefig(
-        "out/precise_features_precise_orig_vs_pert.png",
-        dpi=150,
-        bbox_inches="tight",
+    fig_cmp_p.savefig(
+        "out/precise_features_precise_orig_vs_pert.png", dpi=150, bbox_inches="tight"
     )
-    _show_fig(fig_cmp_precise)
-
-    # Side-by-side all-texture vs precise on the original image (whitelist effect).
+    plt.show()
     fig_cmp = plot_habitat_label_compare(
         image,
         result_all_orig.habitat_maps[0],
@@ -474,257 +274,92 @@ if kept:
         titles=("All texture features", "Precise features only"),
         align_labels=True,
     )
-    fig_cmp.savefig(
-        "out/precise_features_all_vs_precise.png", dpi=150, bbox_inches="tight"
-    )
-    _show_fig(fig_cmp)
-
-    summary = [
-        {
-            "feature_set": "All texture features",
-            "mean_dice": mean_dice_all,
-            "ari": ari_all,
-            "n_habitats_ref": int(len(present_habitat_ids(
-                result_all_orig.habitat_maps[0].label_array
-            ))),
-        },
-        {
-            "feature_set": "Precise features only",
-            "mean_dice": mean_dice_precise,
-            "ari": ari_precise,
-            "n_habitats_ref": int(len(present_habitat_ids(
-                result_precise_orig.habitat_maps[0].label_array
-            ))),
-        },
-    ]
-    print("\nPerturbation stability (Appendix S2; overlap-matched Dice / ARI):")
-    print(
-        f"{'feature_set':<28} {'mean_dice':>10} {'ari':>10} {'n_habitats':>10}"
-    )
-    for row in summary:
-        print(
-            f"{row['feature_set']:<28} "
-            f"{row['mean_dice']:>10.4f} {row['ari']:>10.4f} "
-            f"{row['n_habitats_ref']:>10d}"
-        )
-    print(
-        "Precise features keep a more reproducible habitat partition when "
-        "mean Dice and ARI are higher than the full texture set."
-    )
-    print(f"Per-habitat Dice (all features): {dice_all}")
-    print(f"Per-habitat Dice (precise): {dice_precise}")
-    print(
-        f"Habitat maps: all={len(result_all_orig.habitat_maps)} "
-        f"precise={len(result_precise_orig.habitat_maps)}"
-    )
-else:
-    print("No feature passed every experiment; skip precise habitats")
-    print(
-        f"All-features perturbation: mean_dice={mean_dice_all:.4f}, "
-        f"ARI={ari_all:.4f}"
-    )
+    fig_cmp.savefig("out/precise_features_all_vs_precise.png", dpi=150, bbox_inches="tight")
+    plt.show()
+    stability
 
 # %%
-# Extra experiment: ROI-edge / contour reproducibility (not Prior Appendix S2).
-#
-# Appendix S2 above perturbs the **image** (noise → translation → rotation)
-# and keeps the original mask. This section perturbs the **mask** and keeps
-# the original image. That is a different scientific object: observer
-# contour / ROI-edge uncertainty, not a simulated re-acquisition.
-#
-# ``perturb_image`` returns only the intensity volume, so mask-only atoms
-# must be called as a registered component on a ``Subject``. HABIT ships
-# three built-in contour atoms (no MONAI extra):
-#
-# * ``morphological`` — uniform grow / shrink (MIRP
-#   ``perturbation_roi_adapt_size``);
-# * ``gradient_weighted`` — flip more voxels on fuzzy (low-gradient) edges;
-# * ``slice_extent`` — add or drop whole axial slices at the z ends.
-#
-# The old tutorial's optional ROI-follow-up used MONAI
-# ``bspline_deform`` (image **and** mask share one B-spline / elastic FFD).
-# That operator still exists as an optional extra, but it is a deformable
-# re-acquisition, not mask-only contour noise, and it pulls in ``monai``.
-# This page uses the built-in ``morphological`` grow (+4 mm) so the ROI
-# boundary actually moves and the reader needs no extra dependency.
-#
-# Texture is extracted on the **same** image at the base R3/B12 setting,
-# once with the original mask and once with the grown mask. HABIT voxel
-# radiomics uses ``maskedKernel=True``, so a larger ROI changes the
-# neighbourhood of original-edge voxels; the ICC is not a no-op.
-# Agreement is ICC(3C,1) / consistency: a different ROI definition is a
-# changing condition, the same flavour as kernel-radius / bin-width, not
-# Appendix S2 absolute repeatability. Pairing is the intersection of the
-# two masks (the original core when we grow).
-#
-# This panel is **not** passed to :func:`~habit.precision.identify_precise_features`.
-# Adding it would change the taught Prior three-experiment intersection.
-# The Precise whitelist above stays those three; the forest below is extra
-# so the reader can see how mask uncertainty differs from image-noise ICC.
-
-ORIGINAL_ROI_COLOR = "#00E5FF"
-GROWN_ROI_COLOR = "#D55E00"
-XOR_COLOR = "#F0E442"
-
-# Official registered contour atom on the full-grid Subject (no hand crop).
-# extract_voxel_texture still auto-crops (crop_to_roi=True).
-contour_op = ImagePerturbationRegistry.create(
-    "morphological", grow_mm=4.0, roi=ROI, connectivity=1
+# Extra (not Prior S2): MONAI elastic / B-spline warp of image **and** mask.
+# Omit ``target_dice`` — that triggers a multi-step search (minutes on CPU).
+# Default ``target_dice=None`` is one Rand3DElasticd pass (~tens of seconds).
+# Keep ``sigma_range=(2, 4)``; use a larger ``magnitude_range`` than the
+# textbook (4, 8) so nearest-neighbour ROI edges actually move on this
+# clinical FOV ((4, 8) leaves Dice == 1.0 here).
+deform = ImagePerturbationRegistry.create(
+    "bspline_deform",
+    sigma_range=(2.0, 4.0),
+    magnitude_range=(20.0, 30.0),
 )
-contoured = contour_op(subject, rng=np.random.default_rng(0))
-mask_edge = contoured.mask(ROI)
-orig_n = int((np.asarray(mask.data) > 0).sum())
-edge_n = int((np.asarray(mask_edge.data) > 0).sum())
-print(
-    f"morphological grow +4 mm: ROI voxels {orig_n} -> {edge_n} "
-    f"(delta={edge_n - orig_n})"
+warped = deform(subject, rng=np.random.default_rng(0))
+image_w = warped.image(MODALITIES[0])
+mask_w = warped.mask(ROI)
+ref_bin = np.asarray(mask.data) > 0
+mov_bin = np.asarray(mask_w.data) > 0
+n_inter = int(np.count_nonzero(ref_bin & mov_bin))
+n_union = int(np.count_nonzero(ref_bin | mov_bin))
+overlap = pd.DataFrame(
+    [
+        {
+            "metric": "dice",
+            "value": binary_mask_dice(ref_bin, mov_bin),
+        },
+        {
+            "metric": "jaccard",
+            "value": float(n_inter / n_union) if n_union else float("nan"),
+        },
+        {
+            "metric": "intersection_voxels",
+            "value": float(n_inter),
+        },
+        {
+            "metric": "union_voxels",
+            "value": float(n_union),
+        },
+    ]
 )
-if edge_n <= orig_n:
-    raise RuntimeError(
-        "ROI-edge grow did not enlarge the mask; the overlay would be a no-op."
-    )
+print("MONAI bspline_deform ROI overlap (target_dice=None, single pass):")
+print(overlap.round(4).to_string(index=False))
+overlap
 
+# %%
+# Anatomy before / after the shared elastic field (HABIT intensity plotter).
+fig_warp = plot_intensity_slice(
+    image_w,
+    before=image,
+    roi_mask=mask,
+    roi_contour=True,
+    title="MONAI Rand3DElastic (image + ROI share one field)",
+    before_label="Original",
+    image_label="bspline_deform",
+)
+fig_warp.savefig("out/precise_features_bspline_anatomy.png", dpi=150, bbox_inches="tight")
+plt.show()
 
-def _draw_binary_contour(
-    ax: object,
-    mask_2d: np.ndarray,
-    color: str,
-    *,
-    linewidth: float = 1.8,
-) -> None:
-    """Outline a 2-D binary mask on axes that already show anatomy.
-
-    Args:
-        ax: Matplotlib axes.
-        mask_2d: Slice; values ``> 0`` are inside the ROI.
-        color: Outline color (ASCII / hex).
-        linewidth: Contour line width in points.
-
-    Returns:
-        None. Draws in place.
-    """
-    binary = (np.asarray(mask_2d) > 0).astype(np.float64)
-    if not np.any(binary):
-        return
-    ax.contour(
-        binary,
-        levels=[0.5],
-        colors=[color],
-        linewidths=linewidth,
-        linestyles="-",
-        origin="upper",
-    )
-
-
-def _fill_binary(
-    ax: object,
-    mask_2d: np.ndarray,
-    color: str,
-    *,
-    alpha: float = 0.45,
-) -> None:
-    """Fill a 2-D binary region (XOR / membership change).
-
-    Args:
-        ax: Matplotlib axes.
-        mask_2d: Slice; values ``> 0`` are filled.
-        color: Fill color.
-        alpha: Face alpha in ``[0, 1]``.
-
-    Returns:
-        None. Draws in place.
-    """
-    binary = (np.asarray(mask_2d) > 0).astype(np.float64)
-    if not np.any(binary):
-        return
-    ax.contourf(
-        binary,
-        levels=[0.5, 1.5],
-        colors=[color],
-        alpha=float(alpha),
-        origin="upper",
-    )
-
-
-# Display-only ROI window: union of original and grown masks so the new
-# edge is visible. Analysis volumes stay full-grid (no Subject crop).
-union_mask = (np.asarray(mask.data) > 0) | (np.asarray(mask_edge.data) > 0)
-nz_edge = np.argwhere(union_mask)
-lo_edge = np.maximum(nz_edge.min(axis=0) - 8, 0)
-hi_edge = np.minimum(nz_edge.max(axis=0) + 9, union_mask.shape)
-row_edge = slice(int(lo_edge[1]), int(hi_edge[1]))
-col_edge = slice(int(lo_edge[2]), int(hi_edge[2]))
-orig_sl_edge = np.take(np.asarray(image.data), slice_index, axis=0)[row_edge, col_edge]
-mask_o_sl = np.take(np.asarray(mask.data) > 0, slice_index, axis=0)[row_edge, col_edge]
-mask_g_sl = np.take(np.asarray(mask_edge.data) > 0, slice_index, axis=0)[
-    row_edge, col_edge
-]
-xor_sl = np.logical_xor(mask_o_sl, mask_g_sl)
-finite_edge = orig_sl_edge[np.isfinite(orig_sl_edge)]
-vmin_edge, vmax_edge = np.percentile(finite_edge, (1.0, 99.0))
+# %%
+# Original vs deformed contour on one anatomy slice (dual outline).
+counts = np.sum(ref_bin, axis=(1, 2))
+z = int(np.argmax(counts)) if int(np.max(counts)) > 0 else int(ref_bin.shape[0] // 2)
+grey = np.take(np.asarray(image.data), z, axis=0)
+m0 = np.take(ref_bin, z, axis=0)
+m1 = np.take(mov_bin, z, axis=0)
+finite = grey[np.isfinite(grey)]
+vmin, vmax = np.percentile(finite, (1.0, 99.0))
 with use_style("radiology"):
-    fig_edge, axes_edge = plt.subplots(
-        1, 2, figsize=(9.6, 5.0), constrained_layout=True
-    )
-    for ax, show_xor, panel_title in (
-        (axes_edge[0], False, "Original vs grown ROI"),
-        (axes_edge[1], True, "Membership change (XOR)"),
-    ):
-        ax.imshow(
-            orig_sl_edge,
-            cmap="gray",
-            interpolation="nearest",
-            origin="upper",
-            vmin=vmin_edge,
-            vmax=vmax_edge,
-        )
-        if show_xor:
-            _fill_binary(ax, xor_sl, XOR_COLOR, alpha=0.50)
-        _draw_binary_contour(ax, mask_o_sl, ORIGINAL_ROI_COLOR)
-        _draw_binary_contour(ax, mask_g_sl, GROWN_ROI_COLOR)
-        ax.set_title(sanitize_label(panel_title))
-        ax.axis("off")
-    fig_edge.suptitle(
-        sanitize_label("ROI-edge contour (morphological +4 mm; not Prior S2)")
-    )
-    fig_edge.legend(
+    fig_c, ax = plt.subplots(figsize=(5.5, 5.0), constrained_layout=True)
+    ax.imshow(grey, cmap="gray", origin="upper", vmin=vmin, vmax=vmax)
+    ax.contour(m0.astype(float), levels=[0.5], colors=["#00E5FF"], linewidths=1.8)
+    ax.contour(m1.astype(float), levels=[0.5], colors=["#D55E00"], linewidths=1.8)
+    ax.set_title(sanitize_label("Original vs MONAI-deformed ROI"))
+    ax.axis("off")
+    fig_c.legend(
         handles=[
-            Line2D([0], [0], color=ORIGINAL_ROI_COLOR, lw=2.0, label="Original ROI"),
-            Line2D([0], [0], color=GROWN_ROI_COLOR, lw=2.0, label="Grown ROI (+4 mm)"),
-            Patch(facecolor=XOR_COLOR, edgecolor="none", alpha=0.50, label="XOR"),
+            Line2D([0], [0], color="#00E5FF", lw=2.0, label="Original ROI"),
+            Line2D([0], [0], color="#D55E00", lw=2.0, label="bspline_deform ROI"),
         ],
         loc="lower center",
-        ncol=3,
+        ncol=2,
         frameon=False,
-        bbox_to_anchor=(0.5, -0.04),
+        bbox_to_anchor=(0.5, -0.02),
     )
-fig_edge.savefig("out/precise_features_roi_edge_overlay.png", dpi=150, bbox_inches="tight")
-_show_fig(fig_edge)
-
-# Same image, perturbed mask, base R3/B12. Extra panel only — not in Precise.
-feat_edge = extract_voxel_texture(
-    image, mask_edge, kernel_radius=3, bin_width=12, feature_classes=FEATURE_CLASSES
-)
-contour_panel = precision_panel(
-    {"original_roi": feat_r3, "grown_roi": feat_edge},
-    agreement="consistency",
-)
-contour_frame = contour_panel.reset_index().rename(columns={"index": "feature"})
-contour_frame["experiment"] = "reproducibility_roi_edge"
-print("\nROI-edge / contour ICC (extra; not in the Precise intersection):")
-print(contour_frame.round(3).to_string(index=False))
-edge_pass = contour_panel.loc[contour_panel["lcl"] >= precise.lcl_threshold].index.tolist()
-edge_fail = [name for name in all_feature_names if name not in set(edge_pass)]
-print(f"  LCL >= {precise.lcl_threshold} under ROI-edge: {edge_pass}")
-print(f"  LCL <  threshold under ROI-edge: {edge_fail}")
-print(f"  Taught Precise whitelist (Prior three only): {kept}")
-
-fig_edge_icc = plot_precision_icc(
-    contour_frame.dropna(subset=["value", "lcl", "ucl"]),
-    lcl_threshold=precise.lcl_threshold,
-    title="ROI-edge / contour reproducibility ICC and 95% CI (extra)",
-    orientation="row",
-)
-fig_edge_icc.savefig("out/precise_features_icc_roi_edge.png", dpi=150, bbox_inches="tight")
-_show_fig(fig_edge_icc)
-contour_frame.round(3)
+fig_c.savefig("out/precise_features_bspline_contours.png", dpi=150, bbox_inches="tight")
+plt.show()
