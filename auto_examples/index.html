@@ -29,7 +29,6 @@
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../_static/copybutton.js?v=30646c52"></script>
         <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -685,7 +684,7 @@ chains.</p>
 simulated image retest perturbation (noise, translation, rotation) and
 ROI contour edge perturbation, evaluated across kernel radii and bin
 widths with multi-panel ICC forest plots.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Goal: decide which voxel features are allowed to define habitats, then cluster only those features. This is not a new clustering algorithm. It is the precision screen of Prior et al. (Radiol Artif Intell 2024;6(2):e230118; DOI), taught as the same combinatorial experiments the paper ran."><img alt="" src="../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI), not a new clustering algorithm."><img alt="" src="../_images/sphx_glr_plot_01_precise_features_thumb.png" />
 <p><a class="reference internal" href="03_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
 </div></div></section>
@@ -700,7 +699,7 @@ Dice/ARI), applying a saved model, and matching independently clustered ids.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Each subject-level step is a single-argument callable. Call op(subject) (or op(field)) with no Study."><img alt="" src="../_images/sphx_glr_plot_02_atomic_ops_thumb.png" />
 <p><a class="reference internal" href="04_habitat_maps/plot_02_atomic_ops.html"><span class="doc">Atomic operators</span></a></p>
   <div class="sphx-glr-thumbnail-title">Atomic operators</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. Those two names are different generative assumptions on the same units (spherical hard clusters vs Gaussian mixtures). The assigner in this build is nearest_centroid only."><img alt="" src="../_images/sphx_glr_plot_03_choose_algorithm_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter."><img alt="" src="../_images/sphx_glr_plot_03_choose_algorithm_thumb.png" />
 <p><a class="reference internal" href="04_habitat_maps/plot_03_choose_algorithm.html"><span class="doc">Choose a habitat algorithm</span></a></p>
   <div class="sphx-glr-thumbnail-title">Choose a habitat algorithm</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />

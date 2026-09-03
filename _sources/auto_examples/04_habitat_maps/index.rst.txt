@@ -57,7 +57,7 @@ Dice/ARI), applying a saved model, and matching independently clustered ids.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. Those two names are different generative assumptions on the same units (spherical hard clusters vs Gaussian mixtures). The assigner in this build is nearest_centroid only.">
+    <div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter.">
 
 .. only:: html
 

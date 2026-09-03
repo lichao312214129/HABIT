@@ -219,7 +219,7 @@ widths with multi-panel ICC forest plots.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Goal: decide which voxel features are allowed to define habitats, then cluster only those features. This is not a new clustering algorithm. It is the precision screen of Prior et al. (Radiol Artif Intell 2024;6(2):e230118; DOI), taught as the same combinatorial experiments the paper ran.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI), not a new clustering algorithm.">
 
 .. only:: html
 
@@ -295,7 +295,7 @@ Dice/ARI), applying a saved model, and matching independently clustered ids.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. Those two names are different generative assumptions on the same units (spherical hard clusters vs Gaussian mixtures). The assigner in this build is nearest_centroid only.">
+    <div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter.">
 
 .. only:: html
 

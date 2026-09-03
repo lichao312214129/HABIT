@@ -1044,27 +1044,15 @@ overridden fields. Fingerprints still use <a class="reference internal" href="#h
 
 <section id="examples-using-habit-spec-habitatspec">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.spec.HabitatSpec</span></code><a class="headerlink" href="#examples-using-habit-spec-habitatspec" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Clustering uses the voxel field you define — not a fixed T1 image. This page is the intensity pair: raw (concatenate modality intensities inside the ROI) and concat (join families column-wise)."><img alt="" src="../../_images/sphx_glr_plot_01_feature_routes_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_01_feature_routes.html"><span class="doc">Voxel features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Voxel features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="When raw / concat are not enough — for example square(LAP / PVP^3), or a neighbourhood / embedding feature — use a built-in expression or a registered voxel extractor."><img alt="" src="../../_images/sphx_glr_plot_02_custom_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_custom_features.html"><span class="doc">Custom features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Custom features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Clustering operates on preprocessed feature matrices, not raw intensities. HabitatSpec exposes three ordered chains:"><img alt="" src="../../_images/sphx_glr_plot_04_feature_preprocessing_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html"><span class="doc">Feature chains</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Feature chains</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Three Study designs. Same scaffolding: load a cohort, declare HabitatSpec stages, call fit_predict."><img alt="" src="../../_images/sphx_glr_plot_01_recipes_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_01_recipes.html"><span class="doc">Recipes</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Recipes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html"><span class="doc">Apply a saved model</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Apply a saved model</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI), not a new clustering algorithm."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/03_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter."><img alt="" src="../../_images/sphx_glr_plot_03_choose_algorithm_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html"><span class="doc">Choose a habitat algorithm</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Choose a habitat algorithm</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a ProcessPoolBackend into fit_predict. With a fixed random_seed the maps match serial execution."><img alt="" src="../../_images/sphx_glr_plot_01_parallel_runs_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html"><span class="doc">Parallel and checkpoints</span></a></p>
   <div class="sphx-glr-thumbnail-title">Parallel and checkpoints</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
-<p><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

@@ -886,51 +886,15 @@ file when plotly is installed.</p></li>
 
 <section id="examples-using-habit-recipes-studyresult">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.recipes.StudyResult</span></code><a class="headerlink" href="#examples-using-habit-recipes-studyresult" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Clustering uses the voxel field you define — not a fixed T1 image. This page is the intensity pair: raw (concatenate modality intensities inside the ROI) and concat (join families column-wise)."><img alt="" src="../../_images/sphx_glr_plot_01_feature_routes_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_01_feature_routes.html"><span class="doc">Voxel features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Voxel features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="When raw / concat are not enough — for example square(LAP / PVP^3), or a neighbourhood / embedding feature — use a built-in expression or a registered voxel extractor."><img alt="" src="../../_images/sphx_glr_plot_02_custom_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_custom_features.html"><span class="doc">Custom features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Custom features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Clustering operates on preprocessed feature matrices, not raw intensities. HabitatSpec exposes three ordered chains:"><img alt="" src="../../_images/sphx_glr_plot_04_feature_preprocessing_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html"><span class="doc">Feature chains</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Feature chains</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Three Study designs. Same scaffolding: load a cohort, declare HabitatSpec stages, call fit_predict."><img alt="" src="../../_images/sphx_glr_plot_01_recipes_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_01_recipes.html"><span class="doc">Recipes</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Recipes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html"><span class="doc">Apply a saved model</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Apply a saved model</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Independent fits permute integer ids: habitat 1 of subject B need not be habitat 1 of subject A. habit.kernels.habitat_label_match recovers a {moving_id: reference_id} map."><img alt="" src="../../_images/sphx_glr_plot_05_match_labels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html"><span class="doc">Match habitat labels</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Match habitat labels</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats."><img alt="" src="../../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_01_volume_fractions.html"><span class="doc">Volume and fractions</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix."><img alt="" src="../../_images/sphx_glr_plot_02_msi_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_02_msi.html"><span class="doc">Multiregional spatial interaction (MSI)</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Multiregional spatial interaction (MSI)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic ITH metrics from a habitat label map: ith_score and habitat_ith_dispersion."><img alt="" src="../../_images/sphx_glr_plot_03_ith_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_03_ith.html"><span class="doc">Intratumoral heterogeneity (ITH)</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Intratumoral heterogeneity (ITH)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_04_graph_features.html"><span class="doc">Graph features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Graph features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Quantify the shape and spatial distribution of the partition map itself using WholeHabitatRadiomicsFeatures. The habitat label image plays both intensity and mask roles."><img alt="" src="../../_images/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_06_whole_habitat_radiomics.html"><span class="doc">Whole-habitat radiomics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Whole-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Bridge HABIT habitat maps to deep-learning pipelines: extract a binary mask per habitat and apply masked spatial average pooling on a 3-D feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch encoder output with the same (C, z, y, x) layout)."><img alt="" src="../../_images/sphx_glr_plot_07_deep_learning_embeddings_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html"><span class="doc">Deep-learning habitat embeddings</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Deep-learning habitat embeddings</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI), not a new clustering algorithm."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/03_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter."><img alt="" src="../../_images/sphx_glr_plot_03_choose_algorithm_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html"><span class="doc">Choose a habitat algorithm</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Choose a habitat algorithm</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a ProcessPoolBackend into fit_predict. With a fixed random_seed the maps match serial execution."><img alt="" src="../../_images/sphx_glr_plot_01_parallel_runs_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html"><span class="doc">Parallel and checkpoints</span></a></p>
   <div class="sphx-glr-thumbnail-title">Parallel and checkpoints</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
-<p><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 
