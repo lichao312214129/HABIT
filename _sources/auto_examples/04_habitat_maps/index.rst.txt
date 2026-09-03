@@ -1,0 +1,124 @@
+
+
+.. _sphx_glr_auto_examples_04_habitat_maps:
+
+4. Habitat Mapping
+==================
+
+From voxel features to habitat label maps: recipes, atomic operators,
+choosing a partition/fitter (k-means vs GMM with label matching and
+Dice/ARI), applying a saved model, and matching independently clustered ids.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Three Study designs. Same scaffolding: load a cohort, declare HabitatSpec stages, call fit_predict.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_01_recipes_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_habitat_maps/plot_01_recipes`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Recipes</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Each subject-level step is a single-argument callable. Call op(subject) (or op(field)) with no Study.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_02_atomic_ops_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_habitat_maps/plot_02_atomic_ops`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Atomic operators</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. Those two names are different generative assumptions on the same units (spherical hard clusters vs Gaussian mixtures). The assigner in this build is nearest_centroid only.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_03_choose_algorithm_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_habitat_maps/plot_03_choose_algorithm`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Choose a habitat algorithm</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_04_apply_saved_model_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Apply a saved model</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Independent fits permute integer ids: habitat 1 of subject B need not be habitat 1 of subject A. habit.kernels.habitat_label_match recovers a {moving_id: reference_id} map.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_05_match_labels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Match habitat labels</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/04_habitat_maps/plot_01_recipes
+   /auto_examples/04_habitat_maps/plot_02_atomic_ops
+   /auto_examples/04_habitat_maps/plot_03_choose_algorithm
+   /auto_examples/04_habitat_maps/plot_04_apply_saved_model
+   /auto_examples/04_habitat_maps/plot_05_match_labels
+

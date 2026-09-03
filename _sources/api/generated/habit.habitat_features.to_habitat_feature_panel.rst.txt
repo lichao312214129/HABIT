@@ -1,6 +1,19 @@
 ﻿to\_habitat\_feature\_panel
 ===========================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.habitat_features
 
 .. autofunction:: to_habitat_feature_panel
+
+.. include:: habit.habitat_features.to_habitat_feature_panel.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

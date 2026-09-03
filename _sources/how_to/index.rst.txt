@@ -1,33 +1,15 @@
+:orphan:
+
 CLI / YAML bookmarks
 ====================
 
-Compact operator notes (commands and ★ YAML fields). Task walk-throughs
-live in the **Habitat Guide**: :doc:`../examples/index`.
+This collection is no longer listed in the sidebar. Use:
 
-Do not treat this column as a second tutorial. Concept pages and long
-Python galleries stay in the Guide. Field-by-field schemas stay in
-:doc:`../configuration/index`. Registered ``Spec`` names stay in
-:doc:`habitat_components` (Reference).
+* **Habitat Guide** (Python walk-throughs): :doc:`../auto_examples/index`
+* **Quickstart CLI / YAML**: :doc:`../tutorial/quickstart`
+* **Configuration reference**: :doc:`../configuration/index`
 
-.. rubric:: Same scientific order as the Guide
-
-* Data in — :doc:`before_you_start` · :doc:`prepare_data`
-  (Guide: :doc:`../examples/data_from_arrays`)
-* Voxel representation — :doc:`voxel_texture`
-  (Guide: :doc:`../examples/habitat_feature_routes` ·
-  :doc:`../examples/voxel_texture` ·
-  :doc:`../examples/custom_voxel_features`)
-* Habitat maps — :doc:`segment_habitat`
-  (Guide: :doc:`../examples/habitat_recipes` ·
-  :doc:`../examples/habitat_atomic_ops` ·
-  :doc:`../examples/apply_saved_model`)
-* Quantify — :doc:`extract_features` · :doc:`graph_features` ·
-  :doc:`radiomics`
-  (Guide: :doc:`../examples/feature_extraction` ·
-  :doc:`../examples/rigor`)
-* Supporting tools — :doc:`preprocess` · :doc:`auxiliary_tools`
-  (CLI and YAML: :doc:`../configuration/preprocessing` ·
-  :doc:`../configuration/auxiliary`)
+The pages below remain at stable URLs for bookmarks and cross-links.
 
 .. toctree::
    :maxdepth: 1

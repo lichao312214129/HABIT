@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipes &mdash; HABIT Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=211e58f4" />
+
+  
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/auto_examples/04_habitat_maps/plot_01_recipes.html" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=51b770b3"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=30646c52"></script>
+        <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Atomic operators" href="plot_02_atomic_ops.html" />
+    <link rel="prev" title="4. Habitat Mapping" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+              <div class="version">
+                2.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#install-miniconda">1. Install Miniconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#need-more-later">Need more later?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#problems">Problems?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#get-the-demo-images-once">Get the demo images (once)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#run">4. Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#next">Next</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Habitat Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Habitat Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../01_data_in/index.html">1. Data In</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01_data_in/plot_01_directory.html">Load from directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../02_voxel/index.html">2. Voxel Representation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../03_precision/index.html">3. Precise Feature Screening</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03_precision/plot_01_precise_features.html">Precise voxel features</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">4. Habitat Mapping</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Recipes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_02_atomic_ops.html">Atomic operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_04_apply_saved_model.html">Apply a saved model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_05_match_labels.html">Match habitat labels</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../05_quantify/index.html">5. Habitat Quantification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_01_volume_fractions.html">Volume and fractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_02_msi.html">Multiregional spatial interaction (MSI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_03_ith.html">Intratumoral heterogeneity (ITH)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_04_graph_features.html">Graph features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_05_each_habitat_radiomics.html">Per-habitat radiomics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_06_whole_habitat_radiomics.html">Whole-habitat radiomics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../06_parallel_runs/index.html">6. Scaled Execution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/index.html#habitat-analysis-pipeline">Habitat analysis pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/recipes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes</span></code>: named study designs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/recipes.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/recipes.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/recipes.html#supporting-recipes">Supporting recipes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#run-the-translated-spec-with-a-recipe">Run the translated spec with a recipe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/spec.html#cli">CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/contracts.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.contracts</span></code>: in-memory data model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/contracts.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/contracts.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/voxel_features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.voxel_features</span></code>: per-voxel descriptors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/voxel_features.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/voxel_features.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/supervoxel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.supervoxel</span></code>: partition an ROI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/supervoxel.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/supervoxel.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/habitat_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.habitat_model</span></code>: fit and assign habitats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/habitat_model.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/habitat_model.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/habitat_features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.habitat_features</span></code>: quantify habitats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/habitat_features.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/habitat_features.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/feature_preprocessing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.feature_preprocessing</span></code>: scale voxel-feature matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/feature_preprocessing.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/feature_preprocessing.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/precision.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.precision</span></code>: repeatability screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/precision.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/precision.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.pipeline</span></code>: compose subject / table pipelines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/pipeline.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/pipeline.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/combiners.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.combiners</span></code>: compose feature trees</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/combiners.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/combiners.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/report.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.report</span></code>: run-scoped persistence and figures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/report.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/report.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/viz.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code>: publication overlays</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/viz.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/viz.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/execution.html">Execution backends</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/execution.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/execution.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/execution.html#backend-selection-from-cli-and-run-from-yaml">Backend selection from CLI and run_from_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/execution.html#serialbackend">SerialBackend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/execution.html#failure-policy-continue-vs-fail-fast">Failure policy: <code class="docutils literal notranslate"><span class="pre">continue</span></code> vs <code class="docutils literal notranslate"><span class="pre">fail_fast</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/execution.html#processpoolbackend">ProcessPoolBackend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/execution.html#checkpointstore">CheckpointStore</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/adapters.html">Adapters (<code class="docutils literal notranslate"><span class="pre">habit.adapters</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/adapters.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/adapters.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/adapters.html#directorydatasource">DirectoryDataSource</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/adapters.html#fileimageref">FileImageRef</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/adapters.html#directoryresultwriter">DirectoryResultWriter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.datasets</span></code>: demo pack and synthetic builders</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/datasets.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/datasets.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#habitat-metrics-examples">Habitat metrics (examples)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#graph-topology-kernels">Graph topology kernels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#icc-kernels">ICC kernels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#image-perturbation">Image perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#habitat-label-matching">Habitat label matching</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kernels.html#stability">Stability</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/registry.html">Component registry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/registry.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/plugins.html">Plugin introspection API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/plugins.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/plugins.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/plugins.html#types">Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/exceptions.html">Errors and optional dependencies</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/exceptions.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/exceptions.html#when-each-exception-is-raised">When each exception is raised</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/exceptions.html#soft-failure-switches-not-exceptions">Soft-failure switches (not exceptions)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/index.html#supporting-bookmarks">Supporting bookmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/table_ml.html">Tabular ML (bookmark)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/table_ml.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/table_ml.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/image_io.html">Low-level image I/O helpers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/image_io.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/image_io.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/image_io.html#geometrypolicy-modes">GeometryPolicy modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/image_io.html#low-level-radiomics-extraction">Low-level radiomics extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/image_preprocessing.html">Image preprocessing (bookmark)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/image_preprocessing.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/index.html#narrative-guides">Narrative guides</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/python_api.html">Python API guide (v2.0)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/python_api.html#mental-model">Mental model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/python_api.html#common-workflows">Common workflows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/python_api.html#where-to-go-next">Where to go next</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/python_api.html#tabular-machine-learning">Tabular machine learning</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data_model.html">Data model (<code class="docutils literal notranslate"><span class="pre">habit.contracts</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#geometry">Geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#image-references-and-volumes">Image references and volumes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#subject-and-cohort">Subject and Cohort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#habitat-artefacts">Habitat artefacts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#featuretable">FeatureTable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#outcome">Outcome</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#provenance">Provenance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#runmanifest-and-studyresult">RunManifest and StudyResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data_model.html#operator-protocols">Operator protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/domain.html">Domain protocols and registries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#import-style">Import style</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#single-subject-operators">Single-subject operators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#five-habitat-protocols">Five habitat protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#hand-assembled-two-step-chain">Hand-assembled two-step chain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#subjectpipeline"><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#habitatcomponents-spec-live-objects"><code class="docutils literal notranslate"><span class="pre">HabitatComponents</span></code> (spec → live objects)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#composing-features-trees-combiners-and-statistics">Composing features: trees, combiners, and statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#precision-screen-perturbations-and-precise-features">Precision screen: perturbations and precise features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#randomness-seedable">Randomness (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#built-in-registry-domains">Built-in registry domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/domain_habitat.html">Habitat domain API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#protocols">Protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#ordered-stages-and-the-shared-executor">Ordered stages and the shared executor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#registry-pattern-all-domains">Registry pattern (all domains)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#step-inspection-optional">Step inspection (optional)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#subjectpipeline"><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#hand-assembled-two-step-chain">Hand-assembled two-step chain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_habitat.html#image-preprocessing-domain">Image preprocessing domain</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/domain_table.html">Table ML domain API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_table.html#table-preprocessors">Table preprocessors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_table.html#feature-selectors">Feature selectors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_table.html#classifiers">Classifiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_table.html#metrics">Metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/habitat_components.html">Habitat Spec component catalog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#feature-preprocessing">2. Feature preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#feature-preprocessing-method">feature_preprocessing_method</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#supervoxel-partition">3. Supervoxel partition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#supervoxelizer">supervoxelizer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#pool">5. Pool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#pooling">pooling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#fit-habitats">6. Fit habitats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#habitat-model-fitter">habitat_model_fitter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#assign">7. Assign</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#habitat-assigner">habitat_assigner</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#quantify">8. Quantify</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/habitat_components.html#habitat-feature-extractor">habitat_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/habitat_components.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/features/index.html">Features from habitat maps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/msi.html">MSI Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/ith_score.html">ITH Score</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#notes">Notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/graph.html">Graph topology features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/non_radiomics.html">Non-radiomics Morphology</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/traditional.html">Traditional Radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#whole-habitat">whole_habitat</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#definition">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#output-columns">Output columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#each-habitat">each_habitat</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#id1">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#id2">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#id4">Output columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">CLI and YAML</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#starter-demos">Starter demos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#field-reference-pages">Field reference pages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/habitat.html">Habitat Segmentation Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/habitat.html#habitat-analysis-configuration-parameters">Habitat Analysis Configuration Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration/habitat.html#habitat-segmentation-supervoxel-slic-superpixel-configuration">habitat_segmentation.supervoxel — SLIC Superpixel Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration/habitat.html#habitat-stage-1-parallelism-and-checkpoint-resume-top-level-field-reference">Habitat Stage-1 Parallelism and Checkpoint Resume (Top-Level Field Reference)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/feature_extraction.html">Feature Extraction Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/radiomics.html">Traditional Radiomics Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#paths"><code class="docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#processing"><code class="docutils literal notranslate"><span class="pre">processing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#export"><code class="docutils literal notranslate"><span class="pre">export</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#logging"><code class="docutils literal notranslate"><span class="pre">logging</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#backward-compatible-flat-keys">Backward-compatible flat keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#pyradiomics-parameter-yaml">PyRadiomics parameter YAML</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/preprocessing.html">Preprocessing Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/preprocessing.html#preprocessing-configuration-parameters">Preprocessing configuration parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/preprocessing.html#dicom-sort-configuration-habit-sort-dicom">DICOM sort configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/dicom_sort.html">DICOM Sort Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/dicom_sort.html#top-level-fields">Top-level fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/dicom_sort.html#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/auxiliary.html">Auxiliary Tools and Data Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#data-configuration-parameters">Data configuration parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#icc-analysis-configuration-habit-icc">ICC analysis configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#traditional-radiomics-cli-configuration-habit-radiomics">Traditional radiomics CLI configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#repository-configuration-template-index">Repository configuration template index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#configuration-file-validation">Configuration file validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#faq">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/index.html#supporting-bookmarks">Supporting bookmarks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/cli.html">Command reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting/faq.html">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/faq.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/faq.html#run">Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/faq.html#data">Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/upstream_libraries.html">Upstream Dependencies and Documentation Links</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#image-preprocessing-habit-preprocess">Image preprocessing (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#habitat-segmentation-habit-get-habitat">Habitat segmentation (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#habitat-features-and-traditional-radiomics-habit-extract-habit-radiomics">Habitat features and traditional radiomics (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#machine-learning-habit-model-habit-cv">Machine learning (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#model-comparison-habit-compare">Model comparison (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#icc-testretest-other">ICC / Test–retest / other</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#roi-delineation-external-tools">ROI delineation (external tools)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../development/architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#design-principles">Design principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#the-six-layers">The six layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#two-execution-paths">Two execution paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#key-components">Key components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#subsystems">Subsystems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#cli-to-core-mapping">CLI-to-core mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#design-philosophy">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#habitat-and-api-glossary">Habitat and API glossary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#invariants">Invariants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#where-to-look-in-the-repo">Where to look in the repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../development/contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../development/contributing.html#how-to-contribute">How to contribute</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/contributing.html#report-bugs">Report bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/contributing.html#submit-code">Submit code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/contributing.html#code-style">Code style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/contributing.html#development-setup">Development setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/contributing.html#how-to-run-tests">How to run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/contributing.html#pull-requests">Pull requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/contributing.html#code-of-conduct">Code of conduct</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../customization/index.html">Extending HABIT</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#v1-registry-and-entry-points">v1 registry and entry points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#v1-custom-voxel-feature-extractors">v1 custom voxel feature extractors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#extension-principles">Extension principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#image-preprocessing-and-tabular-ml">Image preprocessing and tabular ML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#faq">FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#bug-fixes">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-1-x">Version 1.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#future-roadmap">Future Roadmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../acknowledgments.html">Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#core-developers">Core developers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#future-developers">Future developers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#clinical-collaborators">Clinical collaborators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#special-thanks">Special thanks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#open-source-community">Open source community</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#how-to-contribute">How to contribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#contact">Contact</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Habitat Guide</a></li>
+          <li class="breadcrumb-item"><a href="index.html">4. Habitat Mapping</a></li>
+      <li class="breadcrumb-item active">Recipes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/auto_examples/04_habitat_maps/plot_01_recipes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-04-habitat-maps-plot-01-recipes-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="recipes">
+<span id="sphx-glr-auto-examples-04-habitat-maps-plot-01-recipes-py"></span><h1>Recipes<a class="headerlink" href="#recipes" title="Link to this heading"></a></h1>
+<p>Three <a class="reference internal" href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code></a> designs. Same scaffolding: load a
+cohort, declare <a class="reference internal" href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> stages, call
+<a class="reference internal" href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a>.</p>
+<p>Two-step includes the clustering-feature preprocessor chain used in the
+Quickstart.</p>
+<ul class="simple">
+<li><p><strong>two_step</strong> — <code class="docutils literal notranslate"><span class="pre">partition</span></code> + <code class="docutils literal notranslate"><span class="pre">pool</span></code>: shared cohort definition;
+supervoxels first (typical paper pipeline).</p></li>
+<li><p><strong>direct_pooling</strong> — <code class="docutils literal notranslate"><span class="pre">pool</span></code> only: shared cohort, cluster voxels
+(no supervoxels).</p></li>
+<li><p><strong>one_step</strong> — neither: habitats <strong>per subject</strong>; integer ids are
+permuted — match labels before comparing patients.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>Load two demo subjects.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">,</span> <a href="../../api/generated/habit.viz.plot_partition_triptych.html#habit.viz.plot_partition_triptych" title="habit.viz.plot_partition_triptych" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_partition_triptych</span></a>
+<span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">()</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cohort: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">)</span><span class="si">}</span><span class="s2"> subjects -&gt; </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort.subject_ids" title="habit.contracts.Cohort.subject_ids" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-property"><span class="n">cohort</span><span class="o">.</span><span class="n">subject_ids</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>HABIT demo data (cached)
+DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
+
+On-disk inventory of this folder:
+  subjects (5): subj001, subj002, subj003, subj004, subj005
+  image series: LAP, PVP, delay_3min, pre_contrast
+  mask keys:    LAP, PVP, delay_3min, pre_contrast
+  example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
+  example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
+
+Your own data must use the same folder tree (change IDs / series names):
+
+  DATA/
+    images/&lt;subject_id&gt;/&lt;modality&gt;/&lt;one image file&gt;
+    masks/&lt;subject_id&gt;/&lt;roi&gt;/&lt;one mask file&gt;
+
+Then load it with the same call the demos use:
+
+  cohort = cohort_from_directory(DATA, modalities=(&quot;LAP&quot;,), roi=&quot;LAP&quot;)
+
+Swap DATA / modalities / roi to match your tree. Mask key is often the
+same as one image series (here LAP).
+Cohort: 2 subjects -&gt; [&#39;subj001&#39;, &#39;subj002&#39;]
+</pre></div>
+</div>
+<p>Two-step: <code class="docutils literal notranslate"><span class="pre">partition</span></code> + <code class="docutils literal notranslate"><span class="pre">pool</span></code>. Supervoxels first, then a shared
+cohort definition. Voxel winsorize + minmax run before parcels form.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">two_step</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;habitat_two_step&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">)})),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
+            <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
+            <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;winsorize&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+        <span class="p">),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
+            <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+            <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span>
+                <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+                    <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;quantify2&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">)),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;quantify3&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">two_step_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">recipes</span><span class="o">.</span><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">two_step</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">two_step_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">two_step_result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span></a><span class="p">())</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">two_step_result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span></a><span class="p">()</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">two_step_result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;habitats (two-step)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/two_step_overlay.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HABIT_NO_VIEW&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+
+<span class="c1"># ImageVolume + supervoxelization + HabitatMap (not ``.data``).</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig_tri</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_partition_triptych.html#habit.viz.plot_partition_triptych" title="habit.viz.plot_partition_triptych" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_partition_triptych</span></a><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">two_step_result</span><span class="o">.</span><span class="n">units</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">two_step_result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig_tri</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/two_step_triptych.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HABIT_NO_VIEW&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_plot_01_recipes_001.png" srcset="../../_images/sphx_glr_plot_01_recipes_001.png" alt="habitats (two-step), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_plot_01_recipes_002.png" srcset="../../_images/sphx_glr_plot_01_recipes_002.png" alt="Two-step partitions, Anatomy, Supervoxels, Habitats" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.45s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.44s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.44s/it]
+
+Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.33it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.38it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.38it/s]
+HabitatModel kmeans-3dc01b676bbed095
+  habitats           : 3
+  features (1)    : LAP
+  defining cohort    : n=2
+  modalities         : LAP
+  cohort digest      : cc1b16a34cc7478d...
+  produced by        : habitat_model_fitter.kmeans
+  habit version      : 2.0.0
+  random seed        : 42
+  preprocessing state: inertia, selection_report, validation
+   subject  habitat_1_voxel_count  ...    energy  ith_score
+0  subj001                14732.0  ...  4.010323   0.954196
+1  subj002                 3837.0  ...  2.666441   0.483423
+
+[2 rows x 30 columns]
+F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
+F:\work\habit_project\habit\viz\habitat_core.py:1079: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
+</pre></div>
+</div>
+<p>One-step: neither <code class="docutils literal notranslate"><span class="pre">partition</span></code> nor <code class="docutils literal notranslate"><span class="pre">pool</span></code>. Cluster voxels inside
+each subject (no supervoxels). Integer ids are per-subject.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one_step</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;habitat_one_step&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">)})),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
+            <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
+            <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;winsorize&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+        <span class="p">),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
+            <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+            <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span>
+                <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+                    <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one_step_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">recipes</span><span class="o">.</span><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one_step</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[:</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Per-subject models: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one_step_result</span><span class="o">.</span><span class="n">subject_models</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">one_step_result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span></a><span class="p">())</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">one_step_result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span></a><span class="p">()</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig_one</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one_step_result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;habitats (one-step)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig_one</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/one_step_overlay.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HABIT_NO_VIEW&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_01_recipes_003.png" srcset="../../_images/sphx_glr_plot_01_recipes_003.png" alt="habitats (one-step), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.17s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.17s/it]
+Per-subject models: [&#39;subj001&#39;]
+   subject  ...  habitat_3_volume_fraction
+0  subj001  ...                   0.381536
+
+[1 rows x 7 columns]
+F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
+</pre></div>
+</div>
+<p>Direct-pooling: <code class="docutils literal notranslate"><span class="pre">pool</span></code> only. Skip the cluster partition and pool
+existing voxel units across the cohort.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">direct</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;habitat_direct_pooling&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">)})),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
+            <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+            <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span>
+                <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+                    <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">direct_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">recipes</span><span class="o">.</span><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">direct</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[:</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">direct_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">direct_result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span></a><span class="p">())</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">direct_result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span></a><span class="p">()</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig_direct</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">direct_result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;habitats (direct-pooling)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig_direct</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/direct_pooling_overlay.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HABIT_NO_VIEW&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_01_recipes_004.png" srcset="../../_images/sphx_glr_plot_01_recipes_004.png" alt="habitats (direct-pooling), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.41s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.41s/it]
+
+Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00&lt;00:00,  1.94it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00&lt;00:00,  1.94it/s]
+HabitatModel kmeans-bd97684aacf278ac
+  habitats           : 3
+  features (1)    : LAP
+  defining cohort    : n=1
+  modalities         : LAP
+  cohort digest      : bbf1d587b6155a53...
+  produced by        : habitat_model_fitter.kmeans
+  habit version      : 2.0.0
+  random seed        : 42
+  preprocessing state: inertia, selection_report, validation
+   subject  ...  habitat_3_volume_fraction
+0  subj001  ...                   0.408918
+
+[1 rows x 7 columns]
+F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 15.736 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-habitat-maps-plot-01-recipes-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c5af241921e628ec02523c5ae6fde1c1/plot_01_recipes.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_recipes.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/7dbe2acf3d8214121f1dd448f7bd32e2/plot_01_recipes.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_01_recipes.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/327267627d003bb0e0d797c1575a2c26/plot_01_recipes.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_01_recipes.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="4. Habitat Mapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plot_02_atomic_ops.html" class="btn btn-neutral float-right" title="Atomic operators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, HABIT Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

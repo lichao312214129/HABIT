@@ -1,0 +1,19 @@
+﻿migrate\_v01\_checkpoint\_if\_needed
+====================================
+
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
+.. currentmodule:: habit.execution
+
+.. autofunction:: migrate_v01_checkpoint_if_needed
+
+.. include:: habit.execution.migrate_v01_checkpoint_if_needed.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

@@ -12,9 +12,9 @@ Start here
 ----------
 
 1. :doc:`tutorial/installation` — install
-2. :doc:`tutorial/quickstart_python` — first habitat map (Python)
+2. :doc:`auto_quickstart/plot_quickstart_python` — first habitat map (Python)
 3. :doc:`tutorial/quickstart` — first habitat map (CLI / YAML)
-4. :doc:`examples/index` — **Habitat Guide** (one task per page)
+4. :doc:`auto_examples/index` — **Habitat Guide** (one task per page)
 
 Stuck: :doc:`troubleshooting/faq`.
 Signatures and defaults: :doc:`api/index`.
@@ -26,14 +26,15 @@ Scientific definitions: :doc:`reference/features/index`.
    :caption: Get started
 
    tutorial/installation
-   tutorial/quickstart_python
+   auto_quickstart/plot_quickstart_python
    tutorial/quickstart
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Habitat Guide
+   :titlesonly:
 
-   examples/index
+   auto_examples/index
 
 .. toctree::
    :maxdepth: 2
@@ -45,24 +46,31 @@ Scientific definitions: :doc:`reference/features/index`.
    configuration/index
    reference/cli
    troubleshooting/faq
+   reference/upstream_libraries
 
 .. toctree::
    :maxdepth: 1
    :caption: Developer
 
-   development/index
+   development/architecture
+   development/contributing
    customization/index
-   reference/upstream_libraries
-   changelog
-   acknowledgments
 
 .. toctree::
-   :hidden:
+   :maxdepth: 1
+   :caption: Changelog
 
-   how_to/index
-   tutorial/habitat_analysis
-   tutorial/execution
-   tutorial/precise_screening
-   reference/auxiliary
+   changelog
+
+.. Do not add another toctree after Acknowledgments. Sphinx / RTD parents
+   a later toctree onto the last caption, which would dump leftover pages
+   into the Acknowledgments sidebar. CLI / YAML how_to bookmark pages stay
+   :orphan: (reachable by URL / cross-links). Guide duplicates stay :orphan:.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Acknowledgments
+
+   acknowledgments
 
 - GitHub: |github_repo|

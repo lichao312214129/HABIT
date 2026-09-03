@@ -1,3 +1,5 @@
+:orphan:
+
 Habitat segmentation (CLI / YAML)
 =================================
 

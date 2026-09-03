@@ -1,3 +1,5 @@
+:orphan:
+
 Voxel texture feature maps
 ==========================
 

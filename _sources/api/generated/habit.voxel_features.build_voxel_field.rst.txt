@@ -1,0 +1,19 @@
+﻿build\_voxel\_field
+===================
+
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
+.. currentmodule:: habit.voxel_features
+
+.. autofunction:: build_voxel_field
+
+.. include:: habit.voxel_features.build_voxel_field.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

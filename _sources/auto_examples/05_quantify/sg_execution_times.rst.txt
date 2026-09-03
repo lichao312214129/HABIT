@@ -1,0 +1,55 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_05_quantify_sg_execution_times:
+
+
+Computation times
+=================
+**01:06.828** total execution time for 7 files **from auto_examples\05_quantify**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_07_deep_learning_embeddings.py` (``plot_07_deep_learning_embeddings.py``)
+     - 00:36.226
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_01_volume_fractions.py` (``plot_01_volume_fractions.py``)
+     - 00:14.559
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_04_graph_features.py` (``plot_04_graph_features.py``)
+     - 00:10.383
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_06_whole_habitat_radiomics.py` (``plot_06_whole_habitat_radiomics.py``)
+     - 00:05.659
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_02_msi.py` (``plot_02_msi.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_03_ith.py` (``plot_03_ith.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_05_each_habitat_radiomics.py` (``plot_05_each_habitat_radiomics.py``)
+     - 00:00.000
+     - 0.0

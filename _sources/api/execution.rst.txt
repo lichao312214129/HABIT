@@ -1,16 +1,46 @@
+.. _api-execution:
+
 Execution backends
 ==================
+
+.. automodule:: habit.execution
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.execution
 
 Integrator chapter (which backend, continue vs fail_fast, resume):
 :doc:`../tutorial/execution`. Runnable demos:
 :doc:`../examples/parallel_execution` and
-:doc:`../examples/fault_tolerance`.
-
-``habit.execution`` runs subject-level operators across a contracts ``Cohort``.
-Scheduling knobs live on :class:`~habit.spec.RunPolicy`; backends consume a
-subset of those knobs. YAML twins and the v0.1 ↔ v1 field rename table are in
+:doc:`../examples/fault_tolerance`. YAML twins:
 :doc:`spec`. Habitat CLI / recipe wiring:
 :doc:`../configuration/habitat`.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   SerialBackend
+   ProcessPoolBackend
+   SubjectTimeoutError
+   CheckpointStore
+   LegacyCheckpointMigrationReport
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   backend_from_policy
+   should_use_process_pool
+   is_v01_checkpoint_layout
+   migrate_v01_checkpoint_if_needed
 
 Backend selection from CLI and run_from_yaml
 --------------------------------------------

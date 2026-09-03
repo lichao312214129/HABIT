@@ -1,0 +1,52 @@
+
+
+.. _sphx_glr_auto_examples_06_parallel_runs:
+
+6. Scaled Execution
+===================
+
+Schedule a cohort with RunPolicy and ProcessPoolBackend. Compare
+serial, persistent, and isolated process pools; checkpoints let a
+second run skip subjects already recorded as success.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a ProcessPoolBackend into fit_predict. With a fixed random_seed the maps match serial execution.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_01_parallel_runs_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_01_parallel_runs`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Parallel and checkpoints</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/06_parallel_runs/plot_01_parallel_runs
+

@@ -1,6 +1,19 @@
 ﻿save\_run\_policy
 =================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.spec
 
 .. autofunction:: save_run_policy
+
+.. include:: habit.spec.save_run_policy.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

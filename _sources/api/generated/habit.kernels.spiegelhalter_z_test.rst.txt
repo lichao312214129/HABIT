@@ -1,6 +1,19 @@
 ﻿spiegelhalter\_z\_test
 ======================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.kernels
 
 .. autofunction:: spiegelhalter_z_test
+
+.. include:: habit.kernels.spiegelhalter_z_test.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

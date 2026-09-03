@@ -1,6 +1,19 @@
 ﻿validate\_v1\_document
 ======================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.spec
 
 .. autofunction:: validate_v1_document
+
+.. include:: habit.spec.validate_v1_document.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

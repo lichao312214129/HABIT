@@ -1,0 +1,19 @@
+﻿format\_plugin\_catalog\_rst
+============================
+
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
+.. currentmodule:: habit.api.plugins
+
+.. autofunction:: format_plugin_catalog_rst
+
+.. include:: habit.api.plugins.format_plugin_catalog_rst.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

@@ -1,6 +1,19 @@
 ﻿plot\_habitat\_graph\_network\_2d
 =================================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.viz
 
 .. autofunction:: plot_habitat_graph_network_2d
+
+.. include:: habit.viz.plot_habitat_graph_network_2d.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

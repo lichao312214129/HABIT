@@ -1,6 +1,19 @@
 ﻿render\_habitat\_graph\_network\_3d
 ===================================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.viz
 
 .. autofunction:: render_habitat_graph_network_3d
+
+.. include:: habit.viz.render_habitat_graph_network_3d.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

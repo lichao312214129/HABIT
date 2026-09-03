@@ -1,11 +1,6 @@
-5. Scale
-========
+:orphan:
 
-Schedule a cohort with :class:`~habit.spec.RunPolicy` and
-:class:`~habit.execution.process_pool.ProcessPoolBackend`. Checkpoints
-let a second run skip subjects already recorded as success.
+5. Parallel runs
+================
 
-.. toctree::
-   :maxdepth: 1
-
-   parallel_execution
+Moved to :doc:`/auto_examples/06_parallel_runs/plot_01_parallel_runs`.

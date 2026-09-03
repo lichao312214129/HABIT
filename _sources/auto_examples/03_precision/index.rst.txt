@@ -1,0 +1,53 @@
+
+
+.. _sphx_glr_auto_examples_03_precision:
+
+3. Precise Feature Screening
+============================
+
+Repeatability and reproducibility screening (Prior et al., 2024):
+simulated image retest perturbation (noise, translation, rotation) and
+ROI contour edge perturbation, evaluated across kernel radii and bin
+widths with multi-panel ICC forest plots.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Goal: decide which voxel features are allowed to define habitats, then cluster only those features. This is not a new clustering algorithm. It is the precision screen of Prior et al. (Radiol Artif Intell 2024;6(2):e230118; DOI), taught as the same combinatorial experiments the paper ran.">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_precision/images/thumb/sphx_glr_plot_01_precise_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_precision/plot_01_precise_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/03_precision/plot_01_precise_features
+

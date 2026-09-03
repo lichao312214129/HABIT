@@ -1,6 +1,19 @@
 ﻿inspect\_preprocessed\_root
 ===========================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.datasets
 
 .. autofunction:: inspect_preprocessed_root
+
+.. include:: habit.datasets.inspect_preprocessed_root.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

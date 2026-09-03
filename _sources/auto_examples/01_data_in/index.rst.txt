@@ -1,0 +1,87 @@
+
+
+.. _sphx_glr_auto_examples_01_data_in:
+
+1. Data In
+==========
+
+Load images and ROIs into Subject / Cohort objects from directory trees,
+SimpleITK image objects, or NumPy arrays and deep-learning tensors.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HABIT operators take a Subject (or a Cohort of them). Build that object from a preprocessed directory tree with cohort_from_directory.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_data_in/images/thumb/sphx_glr_plot_01_directory_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_data_in/plot_01_directory`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load from directory</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Read NRRD / NIfTI with SimpleITK, then wrap volumes with ImageVolume and MaskVolume. Spacing, origin, and direction cosines are preserved.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_data_in/images/thumb/sphx_glr_plot_02_simpleitk_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_data_in/plot_02_simpleitk`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load from SimpleITK</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Wrap raw NumPy arrays or deep-learning tensors with ArrayImageRef and explicit Geometry. Axis order is (z, y, x); mask arrays must be integer labels (``0`` = background).">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_data_in/images/thumb/sphx_glr_plot_03_numpy_arrays_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_data_in/plot_03_numpy_arrays`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load from NumPy arrays</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/01_data_in/plot_01_directory
+   /auto_examples/01_data_in/plot_02_simpleitk
+   /auto_examples/01_data_in/plot_03_numpy_arrays
+

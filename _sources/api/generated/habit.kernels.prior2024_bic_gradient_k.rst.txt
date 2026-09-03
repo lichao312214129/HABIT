@@ -1,0 +1,19 @@
+﻿prior2024\_bic\_gradient\_k
+===========================
+
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
+.. currentmodule:: habit.kernels
+
+.. autofunction:: prior2024_bic_gradient_k
+
+.. include:: habit.kernels.prior2024_bic_gradient_k.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

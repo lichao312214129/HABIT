@@ -1,6 +1,19 @@
 ﻿make\_synthetic\_cohort
 =======================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.datasets
 
 .. autofunction:: make_synthetic_cohort
+
+.. include:: habit.datasets.make_synthetic_cohort.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

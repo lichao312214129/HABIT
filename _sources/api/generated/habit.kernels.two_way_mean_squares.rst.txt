@@ -1,6 +1,19 @@
 ﻿two\_way\_mean\_squares
 =======================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.kernels
 
 .. autofunction:: two_way_mean_squares
+
+.. include:: habit.kernels.two_way_mean_squares.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

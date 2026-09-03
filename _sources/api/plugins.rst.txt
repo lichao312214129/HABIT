@@ -1,8 +1,53 @@
 Plugin introspection API
 ========================
 
+.. automodule:: habit.api.plugins
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.api.plugins
+
+**User guide:** :doc:`../how_to/habitat_components` · :doc:`registry`.
 Discover built-in and entry-point components. Parameter order is always
 ``(name, domain)``.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   PluginInfo
+   PluginParamInfo
+   PluginCatalogEntry
+   PluginLoadReport
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   list_plugins
+   get_plugin_info
+   get_param_schema
+   plugin_catalog
+   format_plugin_catalog_rst
+   load_plugins
+
+.. currentmodule:: habit.api.utils
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   setup_logger
+   is_available
+   show_versions
+   check_component
 
 .. code-block:: python
 

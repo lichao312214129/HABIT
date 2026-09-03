@@ -1,0 +1,161 @@
+
+
+.. _sphx_glr_auto_examples_05_quantify:
+
+5. Habitat Quantification
+=========================
+
+Quantify habitats with atomic functions: volume and fractions,
+multiregional spatial interaction (MSI, Wu et al. 2018), intratumoral
+heterogeneity (ITH), graph topology networks, per-habitat radiomics,
+whole-habitat radiomics, and deep-learning masked embeddings.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_01_volume_fractions_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_quantify/plot_01_volume_fractions`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_02_msi_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_quantify/plot_02_msi`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiregional spatial interaction (MSI)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Atomic ITH metrics from a habitat label map: ith_score and habitat_ith_dispersion.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_03_ith_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_quantify/plot_03_ith`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Intratumoral heterogeneity (ITH)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is Spec(&quot;graph&quot;) on a study.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_04_graph_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_quantify/plot_04_graph_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Graph features</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_05_each_habitat_radiomics_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_quantify/plot_05_each_habitat_radiomics`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Quantify the shape and spatial distribution of the partition map itself using WholeHabitatRadiomicsFeatures. The habitat label image plays both intensity and mask roles.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_quantify/plot_06_whole_habitat_radiomics`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Whole-habitat radiomics</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Bridge HABIT habitat maps to deep-learning pipelines: extract a binary mask per habitat and apply masked spatial average pooling on a 3-D feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch encoder output with the same (C, z, y, x) layout).">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_07_deep_learning_embeddings_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_quantify/plot_07_deep_learning_embeddings`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Deep-learning habitat embeddings</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/05_quantify/plot_01_volume_fractions
+   /auto_examples/05_quantify/plot_02_msi
+   /auto_examples/05_quantify/plot_03_ith
+   /auto_examples/05_quantify/plot_04_graph_features
+   /auto_examples/05_quantify/plot_05_each_habitat_radiomics
+   /auto_examples/05_quantify/plot_06_whole_habitat_radiomics
+   /auto_examples/05_quantify/plot_07_deep_learning_embeddings
+

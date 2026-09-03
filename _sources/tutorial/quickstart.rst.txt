@@ -103,6 +103,7 @@ Outputs land under ``demo_data/results/``.
 Next
 ----
 
+* Habitat Guide (Python): :doc:`../auto_examples/index`
 * Habitat analysis (what / which strategy): :doc:`habitat_analysis`
 * Your own data: :doc:`../examples/data_from_arrays`
 * Python API (beginner ``Study``): :doc:`quickstart_python`

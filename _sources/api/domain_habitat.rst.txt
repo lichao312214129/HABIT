@@ -15,7 +15,7 @@ Walkthrough (stop after any step, bring your own ``Subject``):
 For a whole-cohort study without hand-wiring each operator, use
 :meth:`~habit.recipes.Study.fit_predict` with
 :attr:`~habit.spec.HabitatSpec.stages` (:doc:`python_api`, beginner
-path :doc:`../tutorial/quickstart_python`). The mode-named aliases
+path :doc:`../auto_quickstart/plot_quickstart_python`). The mode-named aliases
 (:func:`~habit.recipes.two_step_habitat`,
 :func:`~habit.recipes.direct_pooling_habitat`,
 :func:`~habit.recipes.one_step_habitat`) remain as thin validators.

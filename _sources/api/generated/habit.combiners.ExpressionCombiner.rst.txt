@@ -1,7 +1,21 @@
 ﻿ExpressionCombiner
 ==================
 
+.. note::
+
+   This page is a reference documentation. It only explains the class
+   signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.combiners
 
 .. autoclass:: ExpressionCombiner
    :show-inheritance:
+
+
+.. include:: habit.combiners.ExpressionCombiner.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

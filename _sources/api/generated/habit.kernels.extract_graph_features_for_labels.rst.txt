@@ -1,6 +1,19 @@
 ﻿extract\_graph\_features\_for\_labels
 =====================================
 
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
 .. currentmodule:: habit.kernels
 
 .. autofunction:: extract_graph_features_for_labels
+
+.. include:: habit.kernels.extract_graph_features_for_labels.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

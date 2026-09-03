@@ -34,6 +34,23 @@ Code style
 * Add tests for new behavior.
 * Ensure ``pytest tests/`` passes.
 
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Convention
+     - Description
+   * - Type annotations
+     - Annotate function inputs and outputs explicitly, for example
+       ``x_train: np.ndarray``.
+   * - Comment language
+     - Write detailed code comments in **English**.
+   * - Plot text
+     - All text generated inside programmatic plots must be **English**.
+   * - Utility organization
+     - Put shared utilities in ``habit/utils/`` and use
+       ``habit/utils/progress_utils.py`` for progress bars.
+
 Documentation
 -------------
 
@@ -46,13 +63,47 @@ Documentation contributions are welcome:
 Development setup
 -----------------
 
-Use the same **Python 3.10** conda environment ``habit`` as end users (see :doc:`../tutorial/installation`).
-
-.. code-block:: bash
+Use the same **Python 3.10** conda environment ``habit`` as end users (see
+:doc:`../tutorial/installation`)::
 
    conda activate habit
    pip install -e .
    pytest tests/
+
+How to run tests
+----------------
+
+Tests live in the repository-level ``tests/`` directory and are configured
+by ``tests/pytest.ini``. There are two main categories:
+
+1. **pytest unit and CLI tests** (``test_*.py``), using
+   ``click.testing.CliRunner`` or direct API calls.
+2. **Executable demo scripts**, such as
+   ``tests/habitat/habitat_two_step_voxel_radiomics_train.py``. These use demo
+   YAML files under ``config/`` and provide end-to-end smoke coverage.
+
+Select tests by marker (markers are defined in ``pytest.ini``)::
+
+   pytest tests/ -m unit
+   pytest tests/ -m "habitat and not slow"
+   pytest tests/ -m cli
+   pytest tests/test_architecture_contracts.py -m unit
+
+Available markers: ``slow`` / ``integration`` / ``unit`` / ``preprocessing`` /
+``habitat`` / ``ml`` / ``utils`` / ``cli``.
+
+``tests/test_architecture_contracts.py`` protects registry and orchestrator
+contracts. It **must pass** after adding a factory or orchestrator. For the
+rules themselves, see :doc:`architecture` (Invariants).
+
+``tests/conftest.py`` provides fixtures such as ``project_root`` and
+``demo_data_dir``; example data is stored in ``demo_data/``. End-to-end
+examples are in ``tests/integration/``.
+
+Third-party habitat plugins (registries and entry points) are documented in
+:doc:`../customization/index`. Adding a CLI command or a v0.1 YAML step
+schema is a maintainer task; see ``developer/sphinx_archive/dev_workflow.rst``
+in the repository.
 
 Pull requests
 -------------
