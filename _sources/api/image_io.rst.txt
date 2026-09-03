@@ -7,7 +7,7 @@ need SimpleITK-backed read / geometry checks outside a ``Subject``.
 
 .. code-block:: python
 
-   from habit import (
+   from habit.api.image import (
        GeometryPolicy,
        ImageMaskPair,
        align_image_mask,
@@ -66,7 +66,8 @@ Low-level radiomics extraction
 
 Component API (not the YAML workflow)::
 
-   from habit import extract_features, extract_batch, GeometryPolicy
+   from habit.api.image import GeometryPolicy
+   from habit.api.radiomics import extract_batch, extract_features
 
    result = extract_features(image, mask, params="params.yaml")
    batch = extract_batch(

@@ -35,7 +35,7 @@ Lazy on-disk image reference implementing ``ImageRef``:
    from habit.adapters import FileImageRef
    from habit.contracts import Geometry
 
-   # Usually produced by DirectoryDataSource / NnUNetDataSource.
+   # Usually produced by DirectoryDataSource.
    # Constructing manually:
    ref = FileImageRef(
        "data/subj001/T1.nii.gz",
@@ -71,8 +71,3 @@ The write-side counterpart of ``DirectoryDataSource``, implementing the
 created on the first write, so constructing a writer you end up not using
 leaves nothing behind. Implement the same four methods elsewhere to send
 results to an object store or an in-memory sink instead.
-
-NnU-Net layout
---------------
-
-See :doc:`compat` for ``NnUNetDataSource`` (lives in ``habit.compat.nnunet``).

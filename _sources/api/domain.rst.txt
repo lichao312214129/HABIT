@@ -1,20 +1,22 @@
 Domain protocols and registries
 ================================
 
-``habit.domain`` implements the v1 operator surface: subject-level callables,
+The v2 capability packages implement the operator surface: subject-level callables,
 one cohort-level habitat fitter, table-ML components, and registries that
 construct them by name.
 
 Import style
 ------------
 
-* Protocols and pipelines: ``from habit import SubjectPipeline, ...`` **or**
-  ``from habit.domain import ...``
+* Import every public protocol, component, and pipeline from its canonical
+  capability package, for example ``from habit.pipeline import SubjectPipeline``.
 * **Registries** are **not** top-level exports::
 
-     from habit.domain import SupervoxelizerRegistry, HabitatModelFitterRegistry
+   from habit.supervoxel import SupervoxelizerRegistry
 
-Importing ``habit.domain`` registers built-in components.
+   from habit.habitat_model import HabitatModelFitterRegistry
+
+Importing the v2 capability packages registers built-in components.
 
 Single-subject operators
 ------------------------
@@ -24,8 +26,9 @@ YAML is required to process one subject:
 
 .. code-block:: python
 
-   from habit.domain import RawVoxelFeatures, SlicSupervoxelizer
+   from habit.voxel_features import RawVoxelFeatures
 
+   from habit.supervoxel import SlicSupervoxelizer
    voxel_fx = RawVoxelFeatures(modalities=["T1", "T2"])
    svx = SlicSupervoxelizer(n_supervoxels=50)
 
@@ -36,8 +39,9 @@ Registry construction (same pattern for every domain):
 
 .. code-block:: python
 
-   from habit.domain import SupervoxelizerRegistry, HabitatModelFitterRegistry
+   from habit.supervoxel import SupervoxelizerRegistry
 
+   from habit.habitat_model import HabitatModelFitterRegistry
    svx = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
    fitter = HabitatModelFitterRegistry.create("kmeans", n_habitats=4, n_init=10)
 
@@ -75,11 +79,11 @@ Hand-assembled two-step chain
 
 .. code-block:: python
 
-   from habit.domain import (
-       HabitatModelFitterRegistry,
-       RawVoxelFeatures,
-       SlicSupervoxelizer,
-   )
+   from habit.habitat_model import HabitatModelFitterRegistry
+
+   from habit.voxel_features import RawVoxelFeatures
+
+   from habit.supervoxel import SlicSupervoxelizer
 
    voxel_fx = RawVoxelFeatures(modalities=["T1", "T2"])
    svx = SlicSupervoxelizer(n_supervoxels=50)
@@ -98,14 +102,9 @@ Compose the subject-level chain into one callable (HABIT's typed Compose):
 
 .. code-block:: python
 
-   from habit.domain import (
-       GraphHabitatFeatures,
-       HabitatVolumeFeatures,
-       IthHabitatFeatures,
-       MsiHabitatFeatures,
-       NonRadiomicsHabitatFeatures,
-       SubjectPipeline,
-   )
+   from habit.habitat_features import GraphHabitatFeatures, HabitatVolumeFeatures, IthHabitatFeatures, MsiHabitatFeatures, NonRadiomicsHabitatFeatures
+
+   from habit.pipeline import SubjectPipeline
 
    pipe = SubjectPipeline(
        voxel_feature_extractor=voxel_fx,
@@ -141,11 +140,11 @@ are not recomputed.
 ``HabitatComponents`` (spec → live objects)
 -------------------------------------------
 
-:func:`~habit.domain.assembly.build_habitat_components` is the single
+:func:`~habit.pipeline.assembly.build_habitat_components` is the single
 construction site that turns a :class:`~habit.spec.HabitatSpec` into live
 operators. Attribute names on
-:class:`~habit.domain.assembly.HabitatComponents` match the corresponding
-``HabitatSpec`` fields and :class:`~habit.domain.pipeline.SubjectPipeline`
+:class:`~habit.pipeline.assembly.HabitatComponents` match the corresponding
+``HabitatSpec`` fields and :class:`~habit.pipeline.SubjectPipeline`
 parameters (assembled preprocessor chains use the singular form, as on the
 pipeline):
 
@@ -174,7 +173,7 @@ pipeline):
 
 .. code-block:: python
 
-   from habit.domain.assembly import build_habitat_components
+   from habit.pipeline.assembly import build_habitat_components
 
    components = build_habitat_components(spec)
    # Same name as on the Spec — the live VoxelFeatureExtractor instance:
@@ -203,8 +202,10 @@ Every extraction stage accepts one **node** abstraction — a recursive
 
 .. code-block:: python
 
-   from habit.domain import build_voxel_extractor, build_supervoxel_extractor
-   from habit import parse_feature_expression
+   from habit.voxel_features import build_voxel_extractor
+
+   from habit.supervoxel import build_supervoxel_extractor
+   from habit.spec import parse_feature_expression
 
    voxel_fx = build_voxel_extractor(
        parse_feature_expression(
@@ -232,14 +233,17 @@ See :doc:`../examples/feature_composition` for a runnable tour.
 Precision screen: perturbations and precise features
 ----------------------------------------------------
 
-Two volume-level atoms match the combinatorial design of Prior et al.
-(*Radiol Artif Intell* 2024;6(2):e230118). Neither needs a
-:class:`~habit.contracts.subject.Cohort` or YAML.
+Precision screening *compares* voxel-texture maps; it does not extract
+them. Maps come from :func:`~habit.voxel_features.extract_voxel_texture` or
+:class:`~habit.voxel_features.VoxelRadiomicsFeatures` (see Voxel feature
+extractors). :func:`~habit.precision.perturb_image` builds the simulated retest.
+Neither atom needs a :class:`~habit.contracts.subject.Cohort` or YAML.
 
 .. code-block:: python
 
    import numpy as np
-   from habit import extract_voxel_texture, perturb_image
+   from habit.precision import perturb_image
+   from habit.voxel_features import extract_voxel_texture
 
    retest_rng = np.random.default_rng(7)
    noisy = perturb_image(image, method="gaussian_noise", rng=retest_rng)
@@ -254,14 +258,18 @@ that return a perturbed **intensity** volume (``gaussian_noise``,
 Mask-only contour methods (``morphological``, ``gradient_weighted``,
 ``slice_extent``) must be called on a
 :class:`~habit.contracts.subject.Subject` via
-:class:`~habit.domain.ImagePerturbationRegistry` — see
+:class:`~habit.precision.ImagePerturbationRegistry` — see
 :doc:`../examples/precise_features`. ``extract_voxel_texture`` is one
 voxel-radiomics pass; paper combinations are repeated calls (R1 vs R3,
 B12 vs B25, original vs perturbed). Then compose ICC panels:
 
 .. code-block:: python
 
-   from habit import aggregate_panels, identify_precise_features, precision_panel
+   from habit.precision import (
+       aggregate_panels,
+       identify_precise_features,
+       precision_panel,
+   )
 
    panel = precision_panel(
        {"original": field, "perturbed": perturbed_field},
@@ -275,7 +283,7 @@ B12 vs B25, original vs perturbed). Then compose ICC panels:
 
 The ninth protocol, ``ImagePerturbation``, is the Subject-level form of
 the same methods (``component(subject, rng=...)``). The paper default
-chain is :func:`~habit.domain.precision.prior2024_retest_perturbation`
+chain is :func:`~habit.precision.prior2024_retest_perturbation`
 (Appendix S2 / MIRP 1.2.0). Optional ``bspline_deform`` (MONAI
 ``Rand3DElastic``; extra ``monai``) is **not** in that chain.
 
@@ -295,8 +303,9 @@ so every stage shares one seeding surface.
 
 .. code-block:: python
 
-   from habit.domain import HabitatModelFitterRegistry, SupervoxelizerRegistry
+   from habit.habitat_model import HabitatModelFitterRegistry
 
+   from habit.supervoxel import SupervoxelizerRegistry
    slic = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
    km = SupervoxelizerRegistry.create("kmeans", n_supervoxels=40)
    slic.set_random_state(42)
@@ -318,7 +327,7 @@ Discover names at runtime with :doc:`plugins` (``list_plugins(domain)``).
      - Examples
    * - ``VoxelFeatureExtractorRegistry``
      - ``voxel_feature_extractor``
-     - ``raw``
+     - ``raw``, ``local_entropy``, ``voxel_radiomics``, ``concat``, ``expression``, ``kinetic``
    * - ``SupervoxelizerRegistry``
      - ``supervoxelizer``
      - ``slic``, ``kmeans``, ``gmm``
@@ -359,6 +368,6 @@ tabular ML outside the imaging path.
 See also
 --------
 
-* Protocol and registry source: ``habit/domain/``
+* Protocol and registry source: the canonical ``habit.<capability>`` packages
 * Introspection: :doc:`plugins`
 * In-memory types: :doc:`data_model`

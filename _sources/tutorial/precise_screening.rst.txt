@@ -9,8 +9,8 @@ paper ran.
 
 Runnable gallery (atoms, paper combinations, all-vs-precise habitats):
 :doc:`../examples/precise_features`. Volume-level atoms:
-:func:`~habit.perturb_image` and
-:func:`~habit.extract_voxel_texture`.
+:func:`~habit.precision.perturb_image` and
+:func:`~habit.voxel_features.extract_voxel_texture`.
 
 What is screened
 ----------------
@@ -26,8 +26,20 @@ The paper's combinations are two atoms, then a small composition:
 
 .. code-block:: python
 
-   from habit import extract_voxel_texture, perturb_image, precision_panel
    import numpy as np
+
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.precision import perturb_image, precision_panel
+   from habit.voxel_features import extract_voxel_texture
+
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+   image = subject.image(ROI)
+   mask = subject.mask(ROI)
 
    retest_rng = np.random.default_rng(7)
    noisy = perturb_image(image, method="gaussian_noise", rng=retest_rng)
@@ -53,8 +65,8 @@ The paper's combinations are two atoms, then a small composition:
 
 A feature is *precise* when the **lower confidence limit** of its ICC
 reaches ``lcl_threshold`` (default ``0.5``) in **every** experiment that
-was actually run. :func:`~habit.identify_precise_features` is that
-intersection; :func:`~habit.aggregate_panels` takes the cohort median
+was actually run. :func:`~habit.precision.identify_precise_features` is that
+intersection; :func:`~habit.precision.aggregate_panels` takes the cohort median
 when you have more than one subject.
 
 .. figure:: ../_static/images/examples/precise_features_original_vs_perturbed.png
@@ -72,7 +84,7 @@ when you have more than one subject.
 
    Sequential Appendix S2 atoms on one slice: original, after Chang
    noise, after +0.5-voxel translation, after +0.5° rotation. Each
-   panel is one :func:`~habit.perturb_image` call. Geometric methods
+   panel is one :func:`~habit.precision.perturb_image` call. Geometric methods
    resample back onto the original grid.
 
 Why "morphology-aware"
@@ -108,9 +120,12 @@ shell command. Full copy-ready script:
 **1. Atoms.** Load one image and mask, then perturb and extract::
 
    import numpy as np
-   from habit import cohort_from_directory, extract_voxel_texture, perturb_image
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.precision import perturb_image
+   from habit.voxel_features import extract_voxel_texture
 
-   DATA = "demo_data/preprocessed"
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
    cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
    image = cohort[0].image("LAP")
    mask = cohort[0].mask("LAP")
@@ -121,9 +136,9 @@ shell command. Full copy-ready script:
    feat_r1 = extract_voxel_texture(image, mask, kernel_radius=1, bin_width=12)
    feat_r3 = extract_voxel_texture(image, mask, kernel_radius=3, bin_width=12)
 
-**2. Combine.** Build one :func:`~habit.precision_panel` per experiment,
+**2. Combine.** Build one :func:`~habit.precision.precision_panel` per experiment,
 aggregate if you have several subjects, then
-:func:`~habit.identify_precise_features`.
+:func:`~habit.precision.identify_precise_features`.
 
 **3. Publish the artefact.** ``precise.save("precise_features.json")``
 writes the feature names plus the evidence panels. Another lab should
@@ -133,13 +148,21 @@ cluster the **same** names, not re-screen after seeing the endpoint.
 ``voxel_feature_preprocessors`` so only precise columns reach scaling
 and clustering::
 
-   from habit import HabitatSpec, Spec
-   from habit.recipes import Study
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.recipes import Study, identify_precise_voxel_features
+   from habit.spec import HabitatSpec, Spec
 
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
+   precise = identify_precise_voxel_features(cohort, seed=7)
    whitelist = precise.preprocessor()
    spec = HabitatSpec(
        name="precise_habitats",
-       voxel_feature_extractor=Spec("raw", {"modalities": ["LAP"]}),
+       voxel_feature_extractor=Spec("raw", {"modalities": list(MODALITIES)}),
        voxel_feature_preprocessors=(
            whitelist.spec,
            Spec("minmax", {"across_features": False}),
@@ -205,7 +228,7 @@ map figures; the ICC / difference panels use three cropped subjects.
    One-step habitats on the original vs warped subject, both
    restricted to the intersection. Warped ids are remapped by
    mean-intensity Hungarian pairing
-   (:func:`~habit.align_habitat_map`, ``method="centroid"``,
+   (:func:`~habit.precision.align_habitat_map`, ``method="centroid"``,
    ``force=True``) so the same colour is the same intensity-defined
    habitat on both panels.
 
@@ -213,7 +236,7 @@ map figures; the ICC / difference panels use three cropped subjects.
    :alt: Per-habitat Dice on the ROI intersection
    :width: 480
 
-   Per-habitat Dice from :func:`~habit.habitat_stability`
+   Per-habitat Dice from :func:`~habit.precision.habitat_stability`
    (``method="centroid"``): ordinary
    :math:`2|A\cap B|/(|A|+|B|)` after the same mean-intensity pairing
    on the intersection.
@@ -227,7 +250,7 @@ map figures; the ICC / difference panels use three cropped subjects.
    intersection. The gallery figure keeps the teaching columns plus
    a random graph subset (``random_state=0``); the script still
    scores every shared column. Three demo subjects, original-core vs
-   mean-aligned warped-core (:func:`~habit.icc3a_1`,
+   mean-aligned warped-core (:func:`~habit.kernels.icc3a_1`,
    :func:`~habit.viz.plot_precision_icc`). Colour is
    ``LCL >= 0.5`` only — this is **not** the voxel-texture
    PreciseFeatureSet. Wide intervals at ``n=3`` are expected.
@@ -294,11 +317,15 @@ table.
 
 .. code-block:: python
 
-   from habit import cohort_from_directory
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
    from habit.recipes import identify_precise_voxel_features
 
-   DATA = "demo_data/preprocessed"
-   cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
    precise = identify_precise_voxel_features(cohort, seed=7)
 
 What is not claimed

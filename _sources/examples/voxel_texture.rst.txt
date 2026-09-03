@@ -1,44 +1,25 @@
-Voxel texture maps
-==================
+Voxel texture and GPU
+=====================
 
-**Level:** atomic · **Data:** ``demo_data`` or synthetic · **Extras:** ``[viz]``;
-PyRadiomics for GLCM · **Time:** ~10–90 s
+Texture maps are **inputs to clustering**, not post-label tables.
+GPU is a faster implementation of the same IBSI / PyRadiomics definition —
+the numbers do not change because of GPU.
 
-End-to-end: one subject → :func:`~habit.local_entropy_map` plus a small
-``voxel_radiomics`` GLCM set → :func:`~habit.viz.plot_voxel_texture_slice`.
+Compute one map
+---------------
 
-Default ``mode="overlay"``: greyscale anatomy, **opaque** feature colours
-inside the ROI, optional cyan contour. Pass ``mode="side_by_side"`` when you
-also want a sibling raw-anatomy panel. The script shows
-``VoxelFeatureExtractorRegistry.create`` for a small GLCM set — edit
-``featureClass`` for more columns.
-
-Script
-------
-
-Change ``DATA`` / ``MODALITY`` / ``ROI`` to your preprocessed tree. Figures
-land under ``out/``.
+:func:`~habit.kernels.local_entropy_map` plus
+:func:`~habit.viz.plot_voxel_texture_slice`. Pass ``ImageVolume`` /
+``MaskVolume`` to the plotter (not ``.data``) so direction and spacing
+stay attached.
 
 .. literalinclude:: scripts/voxel_texture_demo.py
    :language: python
    :start-after: # BEGIN example
    :end-before: # END example
 
-Run from the repository root (one line)::
-
-   python docs/source/examples/scripts/voxel_texture_demo.py
-
-Output
-------
-
-::
-
-   Wrote out/voxel_texture_entropy.png
-   Wrote out/voxel_texture_entropy_side_by_side.png
-   Wrote out/voxel_texture_glcm_contrast.png
-
-Local entropy on anatomy
-------------------------
+The first ``plot_voxel_texture_slice(entropy, anatomy=image_vol, roi_mask=mask_vol)``
+writes the figure below (the script also saves sibling panels).
 
 .. figure:: ../_static/images/examples/voxel_texture_overlay.png
    :alt: Opaque local-entropy overlay on greyscale anatomy
@@ -47,36 +28,85 @@ Local entropy on anatomy
    Default overlay: grey anatomy outside the ROI, opaque entropy colours
    inside, cyan ROI contour.
 
-Sibling anatomy panel
----------------------
+GPU radiomics
+-------------
 
-.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
-   :alt: Anatomy with ROI contour beside local-entropy map
-   :width: 720
+Install CUDA torch, then the optional extra, then confirm the device::
 
-   ``mode="side_by_side"`` when you also want the raw image as its own panel.
+   pip install torch --index-url https://download.pytorch.org/whl/cu124
+   pip install "habitat-analysis[torch]"
+   python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
 
-GLCM Contrast on anatomy
-------------------------
+Same extractor as the script. Use CUDA when ``torch.cuda.is_available()``
+is true; otherwise this block uses CPU so it still runs::
 
-.. figure:: ../_static/images/examples/voxel_texture_glcm_overlay.png
-   :alt: Opaque GLCM Contrast overlay on greyscale anatomy
-   :width: 720
+   import torch
 
-   Same default overlay for a densified ``voxel_radiomics`` GLCM Contrast column.
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.voxel_features import VoxelFeatureExtractorRegistry
 
-Orthogonal local entropy
-------------------------
+   DATA = fetch_demo()
+   MODALITY = "LAP"
+   subject = cohort_from_directory(DATA, modalities=(MODALITY,), roi=MODALITY)[0]
+   device = "cuda" if torch.cuda.is_available() else "cpu"
+   glcm = VoxelFeatureExtractorRegistry.create(
+       "voxel_radiomics",
+       modality=MODALITY,
+       kernel_radius=1,
+       torch_device=device,
+       use_gpu_matrices="auto",
+       params={
+           "imageType": {"Original": {}},
+           "featureClass": {"glcm": ["Contrast"]},
+           "setting": {"binWidth": 25},
+       },
+   )(subject)
+   print(device, getattr(glcm, "shape", type(glcm)))
 
-.. figure:: ../_static/images/examples/voxel_texture_orthogonal.png
-   :alt: Orthogonal local-entropy overlays on anatomy
-   :width: 520
+Speedup (RTX 3070 Laptop, 4096-voxel ROI)
+-----------------------------------------
 
-   Three orthogonal planes (opaque overlay + contour) when ``axis`` is omitted.
+End-to-end vs PyRadiomics CPU (same definition):
 
-What to read next
------------------
+.. list-table::
+   :header-rows: 1
+   :widths: 22 26 26 26
 
-* :doc:`../how_to/voxel_texture` — layouts, C vs GPU matrix backends, simulated parity
-* :doc:`graph_features` — graph topology **on habitat maps** (different product)
-* :doc:`habitat_feature_routes` — using voxel textures inside habitat recipes
+   * - Class
+     - PyRadiomics CPU (s)
+     - HABIT CUDA (s)
+     - Speedup
+   * - First-order
+     - 0.760
+     - 0.037
+     - ~21×
+   * - GLCM
+     - 2.556
+     - 0.197
+     - ~13×
+   * - GLRLM
+     - 1.567
+     - 0.530
+     - ~3×
+   * - GLDM / NGTDM
+     - 0.189 / 0.175
+     - 0.154 / 0.131
+     - ~1.2×
+   * - GLSZM
+     - 0.138
+     - 0.168
+     - no win on this toy
+
+Accuracy: integer count matrices are bit-identical; texture formulas sit at
+about :math:`10^{-14}` vs PyRadiomics; first-order is about
+:math:`10^{-8}` (different quantile algorithms).
+
+IBSI
+----
+
+Definition check uses the IBSI-1 Phase 1 digital phantom,
+**3-D averaged** texture. Reference table:
+:doc:`../reference/features/traditional`.
+
+**Next:** :doc:`habitat_preprocessing`

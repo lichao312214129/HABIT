@@ -1,23 +1,20 @@
 API Reference
 =============
 
-HABIT v1.0 is **API-first**: the Python API is the product, and the CLI and
+HABIT v2.0 is **API-first**: the Python API is the product, and the CLI and
 YAML configuration files are thin shells over the objects documented here.
 The layered core is:
 
-``kernels`` → ``contracts`` → ``domain`` → ``spec`` / ``execution`` /
+``kernels`` → ``contracts`` → capability packages → ``spec`` / ``execution`` /
 ``adapters`` → ``recipes`` / ``report``
 
-Every symbol listed on this page is importable either from the top-level
-package (``from habit import two_step``) or from its canonical subpackage
-(``from habit.recipes import two_step``); both names refer to the same object.
+Every component listed on this page is imported from its canonical capability
+package. The package root exports version metadata only.
 The declarative registry of the stable surface lives in
 ``habit/_public_api.py``.
 
-**Stability.** Symbols listed here follow semantic versioning within v1.x:
-they may gain optional parameters but will not be removed or renamed without
-a deprecation cycle. Anything not listed here is internal and may change
-without notice.
+**Stability.** Symbols listed here are the canonical v2.0 public surface.
+Anything not listed here is internal and may change without notice.
 
 .. rubric:: Contents
 
@@ -68,31 +65,21 @@ build a :class:`~habit.recipes.Study` with a declared design.
 Precision screen
 ~~~~~~~~~~~~~~~~
 
-The precise-feature screen of Prior et al. (Radiol Artif Intell
-2024;6(2):e230118): which voxel features are repeatable and reproducible
-enough to define habitats. See :doc:`../examples/precise_features`.
+Which already-extracted voxel features are repeatable and reproducible
+enough to define habitats (Prior et al., Radiol Artif Intell
+2024;6(2):e230118). Maps come from
+:func:`~habit.voxel_features.extract_voxel_texture` /
+:class:`~habit.voxel_features.VoxelRadiomicsFeatures`. See
+:doc:`../examples/precise_features`.
 
 .. autosummary::
    :toctree: generated
 
-   habit.perturb_image
-   habit.extract_voxel_texture
-   habit.precision_panel
-   habit.identify_precise_features
+   habit.precision.perturb_image
+   habit.precision.precision_panel
+   habit.precision.identify_precise_features
    habit.recipes.identify_precise_voxel_features
    habit.recipes.voxel_radiomics_factory
-
-Machine learning
-~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.recipes.train_model
-   habit.recipes.cross_validate
-   habit.recipes.predict_model
-   habit.recipes.compare_models
-   habit.recipes.pairwise_delong_test
 
 Feature extraction (config-driven)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,7 +101,6 @@ Study utilities
    habit.recipes.preprocess_subject
    habit.recipes.preprocess_image
    habit.recipes.icc_analysis
-   habit.recipes.test_retest_analysis
    habit.recipes.sort_dicom
    habit.recipes.dice
    habit.recipes.dicom_info
@@ -279,13 +265,13 @@ YAML migration
 
 .. _api-domain:
 
-Domain components (``habit.domain``)
-------------------------------------
+Capability packages
+-------------------
 
 The pluggable operator surface. Every component is constructed either
 directly (``SlicSupervoxelizer(n_supervoxels=50)``) or by name through its
 registry (``SupervoxelizerRegistry.create("slic", ...)``). Importing
-``habit.domain`` registers the built-ins listed here. See :doc:`domain` for
+the v2 capability packages registers the built-ins listed here. See :doc:`domain` for
 the narrative overview, :doc:`domain_habitat` and :doc:`domain_table` for the
 two pipeline families, and :doc:`plugins` for runtime introspection.
 
@@ -295,8 +281,8 @@ Pipelines
 .. autosummary::
    :toctree: generated
 
-   habit.domain.SubjectPipeline
-   habit.domain.TablePipeline
+   habit.pipeline.SubjectPipeline
+   habit.pipeline.TablePipeline
 
 Habitat protocols
 ~~~~~~~~~~~~~~~~~
@@ -304,22 +290,58 @@ Habitat protocols
 .. autosummary::
    :toctree: generated
 
-   habit.domain.VoxelFeatureExtractor
-   habit.domain.Supervoxelizer
-   habit.domain.SupervoxelFeatureExtractor
-   habit.domain.HabitatModelFitter
-   habit.domain.HabitatAssigner
-   habit.domain.HabitatFeatureExtractor
-   habit.domain.Seedable
+   habit.voxel_features.VoxelFeatureExtractor
+   habit.supervoxel.Supervoxelizer
+   habit.supervoxel.SupervoxelFeatureExtractor
+   habit.habitat_model.HabitatModelFitter
+   habit.habitat_model.HabitatAssigner
+   habit.habitat_features.HabitatFeatureExtractor
+   habit.combiners.Combiner
+   habit._protocols.Seedable
 
 Voxel feature extractors
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+Registered domain ``voxel_feature_extractor``. ``raw`` / ``local_entropy``
+/ ``voxel_radiomics`` describe each ROI voxel; ``concat`` / ``expression``
+/ ``kinetic`` compose those families. :func:`~habit.voxel_features.extract_voxel_texture`
+is the same ``voxel_radiomics`` pass on one ``ImageVolume`` + mask (no
+``Subject``). Precise screening uses these maps; it does not extract them.
+
 .. autosummary::
    :toctree: generated
 
-   habit.domain.RawVoxelFeatures
-   habit.domain.RawVoxelFeaturesParams
+   habit.voxel_features.extract_voxel_texture
+   habit.voxel_features.RawVoxelFeatures
+   habit.voxel_features.LocalEntropyVoxelFeatures
+   habit.voxel_features.VoxelRadiomicsFeatures
+   habit.voxel_features.ConcatVoxelFeatures
+   habit.voxel_features.ExpressionVoxelFeatures
+   habit.voxel_features.KineticVoxelFeatures
+   habit.voxel_features.VoxelFeatureExtractorRegistry
+
+Feature trees and combiners
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compose extractors into one node (``concat(raw("T1"), voxel_radiomics("T2"))``).
+
+.. autosummary::
+   :toctree: generated
+
+   habit.voxel_features.VoxelFeatureTree
+   habit.voxel_features.build_voxel_extractor
+   habit.supervoxel.SupervoxelFeatureTree
+   habit.supervoxel.build_supervoxel_extractor
+   habit.habitat_features.HabitatFeatureTree
+   habit.habitat_features.build_habitat_extractor
+   habit.combiners.CombinerRegistry
+   habit.combiners.ConcatCombiner
+   habit.combiners.WeightedConcatCombiner
+   habit.combiners.AverageCombiner
+   habit.combiners.RatioCombiner
+   habit.combiners.DifferenceCombiner
+   habit.combiners.ExpressionCombiner
+   habit.combiners.KineticCombiner
 
 Supervoxelizers
 ~~~~~~~~~~~~~~~
@@ -327,12 +349,9 @@ Supervoxelizers
 .. autosummary::
    :toctree: generated
 
-   habit.domain.SlicSupervoxelizer
-   habit.domain.SlicSupervoxelizerParams
-   habit.domain.KMeansSupervoxelizer
-   habit.domain.KMeansSupervoxelizerParams
-   habit.domain.GmmSupervoxelizer
-   habit.domain.GmmSupervoxelizerParams
+   habit.supervoxel.SlicSupervoxelizer
+   habit.supervoxel.KMeansSupervoxelizer
+   habit.supervoxel.GmmSupervoxelizer
 
 Supervoxel feature extractors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -340,10 +359,12 @@ Supervoxel feature extractors
 .. autosummary::
    :toctree: generated
 
-   habit.domain.MeanVoxelFeatures
-   habit.domain.MeanVoxelFeaturesParams
-   habit.domain.SupervoxelRadiomicsFeatures
-   habit.domain.SupervoxelRadiomicsFeaturesParams
+   habit.supervoxel.MeanVoxelFeatures
+   habit.supervoxel.MeanSupervoxelFeatures
+   habit.supervoxel.StdSupervoxelFeatures
+   habit.supervoxel.PercentileSupervoxelFeatures
+   habit.supervoxel.SupervoxelRadiomicsFeatures
+   habit.supervoxel.SupervoxelFeatureExtractorRegistry
 
 Habitat model fitters
 ~~~~~~~~~~~~~~~~~~~~~
@@ -351,10 +372,8 @@ Habitat model fitters
 .. autosummary::
    :toctree: generated
 
-   habit.domain.KMeansHabitatModelFitter
-   habit.domain.KMeansHabitatModelFitterParams
-   habit.domain.GmmHabitatModelFitter
-   habit.domain.GmmHabitatModelFitterParams
+   habit.habitat_model.KMeansHabitatModelFitter
+   habit.habitat_model.GmmHabitatModelFitter
 
 Habitat assigners
 ~~~~~~~~~~~~~~~~~
@@ -362,8 +381,7 @@ Habitat assigners
 .. autosummary::
    :toctree: generated
 
-   habit.domain.NearestCentroidAssigner
-   habit.domain.NearestCentroidAssignerParams
+   habit.habitat_model.NearestCentroidAssigner
 
 Habitat feature extractors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -371,26 +389,18 @@ Habitat feature extractors
 .. autosummary::
    :toctree: generated
 
-   habit.domain.HabitatVolumeFeatures
-   habit.domain.HabitatVolumeFeaturesParams
-   habit.domain.IthHabitatFeatures
-   habit.domain.IthHabitatFeaturesParams
-   habit.domain.MsiHabitatFeatures
-   habit.domain.MsiHabitatFeaturesParams
-   habit.domain.GraphHabitatFeatures
-   habit.domain.GraphHabitatFeaturesParams
-   habit.domain.NonRadiomicsHabitatFeatures
-   habit.domain.NonRadiomicsHabitatFeaturesParams
-   habit.domain.EachHabitatRadiomicsFeatures
-   habit.domain.EachHabitatRadiomicsFeaturesParams
-   habit.domain.to_habitat_feature_panel
-   habit.domain.compare_habitat_features
-   habit.domain.HabitatFeaturePanel
-   habit.domain.HabitatFeatureComparison
-   habit.domain.WholeHabitatRadiomicsFeatures
-   habit.domain.WholeHabitatRadiomicsFeaturesParams
-   habit.domain.TraditionalRadiomicsHabitatFeatures
-   habit.domain.TraditionalRadiomicsHabitatFeaturesParams
+   habit.habitat_features.HabitatVolumeFeatures
+   habit.habitat_features.IthHabitatFeatures
+   habit.habitat_features.MsiHabitatFeatures
+   habit.habitat_features.GraphHabitatFeatures
+   habit.habitat_features.NonRadiomicsHabitatFeatures
+   habit.habitat_features.EachHabitatRadiomicsFeatures
+   habit.habitat_features.to_habitat_feature_panel
+   habit.habitat_features.compare_habitat_features
+   habit.habitat_features.HabitatFeaturePanel
+   habit.habitat_features.HabitatFeatureComparison
+   habit.habitat_features.WholeHabitatRadiomicsFeatures
+   habit.habitat_features.TraditionalRadiomicsHabitatFeatures
 
 Voxel-feature preprocessing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -401,66 +411,64 @@ chains.
 .. autosummary::
    :toctree: generated
 
-   habit.domain.SubjectFeaturePreprocessor
-   habit.domain.CohortFeaturePreprocessor
-   habit.domain.SubjectPreprocessingChain
-   habit.domain.CohortPreprocessingChain
-   habit.domain.build_methods
-   habit.domain.ZScoreScaling
-   habit.domain.ZScoreScalingParams
-   habit.domain.MinMaxScaling
-   habit.domain.MinMaxScalingParams
-   habit.domain.RobustScaling
-   habit.domain.RobustScalingParams
-   habit.domain.Winsorizing
-   habit.domain.WinsorizingParams
-   habit.domain.LogTransform
-   habit.domain.LogTransformParams
-   habit.domain.Binning
-   habit.domain.BinningParams
-   habit.domain.Impute
-   habit.domain.ImputeParams
-   habit.domain.VarianceFilter
-   habit.domain.VarianceFilterParams
-   habit.domain.CorrelationFilter
-   habit.domain.CorrelationFilterParams
-   habit.domain.FeatureWhitelist
-   habit.domain.FeatureWhitelistParams
+   habit.feature_preprocessing.SubjectFeaturePreprocessor
+   habit.feature_preprocessing.CohortFeaturePreprocessor
+   habit.feature_preprocessing.SubjectPreprocessingChain
+   habit.feature_preprocessing.CohortPreprocessingChain
+   habit.feature_preprocessing.build_methods
+   habit.feature_preprocessing.ZScoreScaling
+   habit.feature_preprocessing.MinMaxScaling
+   habit.feature_preprocessing.RobustScaling
+   habit.feature_preprocessing.Winsorizing
+   habit.feature_preprocessing.LogTransform
+   habit.feature_preprocessing.Binning
+   habit.feature_preprocessing.Impute
+   habit.feature_preprocessing.VarianceFilter
+   habit.feature_preprocessing.CorrelationFilter
+   habit.feature_preprocessing.PreciseCorrelationFilter
+   habit.feature_preprocessing.MaxAbsScaling
+   habit.feature_preprocessing.QuantileTransform
+   habit.feature_preprocessing.L2Normalizer
+   habit.feature_preprocessing.FeatureWhitelist
 
 Precision screen
 ~~~~~~~~~~~~~~~~
 
-Simulated-retest perturbations, the per-feature ICC analysis, and the
-resulting precise-feature artefact. See :doc:`../examples/precise_features`.
+Simulated-retest perturbations and the ICC intersection that decides
+which extracted voxel columns may define habitats. See
+:doc:`../examples/precise_features`.
 
 .. autosummary::
    :toctree: generated
 
-   habit.domain.ImagePerturbation
-   habit.domain.GaussianNoisePerturbation
-   habit.domain.GaussianNoisePerturbationParams
-   habit.domain.TranslationPerturbation
-   habit.domain.TranslationPerturbationParams
-   habit.domain.RotationPerturbation
-   habit.domain.RotationPerturbationParams
-   habit.domain.RigidPerturbation
-   habit.domain.RigidPerturbationParams
-   habit.domain.MorphologicalPerturbation
-   habit.domain.MorphologicalPerturbationParams
-   habit.domain.GradientWeightedPerturbation
-   habit.domain.GradientWeightedPerturbationParams
-   habit.domain.SliceExtentPerturbation
-   habit.domain.SliceExtentPerturbationParams
-   habit.domain.perturb_image
-   habit.domain.extract_voxel_texture
-   habit.domain.PerturbationChain
-   habit.domain.prior2024_retest_perturbation
-   habit.domain.PreciseFeatureSet
-   habit.domain.precision_panel
-   habit.domain.aggregate_panels
-   habit.domain.identify_precise_features
-   habit.domain.align_habitat_map
-   habit.domain.habitat_stability
+   habit.precision.ImagePerturbation
+   habit.precision.GaussianNoisePerturbation
+   habit.precision.TranslationPerturbation
+   habit.precision.RotationPerturbation
+   habit.precision.RigidPerturbation
+   habit.precision.BSplineDeformPerturbation
+   habit.precision.MorphologicalPerturbation
+   habit.precision.GradientWeightedPerturbation
+   habit.precision.SliceExtentPerturbation
+   habit.precision.perturb_image
+   habit.precision.PerturbationChain
+   habit.precision.prior2024_retest_perturbation
+   habit.precision.PreciseFeatureSet
+   habit.precision.precision_panel
+   habit.precision.aggregate_panels
+   habit.precision.identify_precise_features
+
+Habitat label matching
+~~~~~~~~~~~~~~~~~~~~~~
+
+Match independently clustered habitat ids (e.g. observers vs patients).
+See :doc:`../examples/habitat_label_match`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.precision.align_habitat_map
+   habit.precision.habitat_stability
 
 Table protocols
 ~~~~~~~~~~~~~~~
@@ -468,10 +476,10 @@ Table protocols
 .. autosummary::
    :toctree: generated
 
-   habit.domain.TablePreprocessor
-   habit.domain.FeatureSelector
-   habit.domain.Classifier
-   habit.domain.Metric
+   habit.table_preprocessing.TablePreprocessor
+   habit.feature_selection.FeatureSelector
+   habit.classification.Classifier
+   habit.evaluation.Metric
 
 Table preprocessors
 ~~~~~~~~~~~~~~~~~~~
@@ -479,22 +487,14 @@ Table preprocessors
 .. autosummary::
    :toctree: generated
 
-   habit.domain.ZScorePreprocessor
-   habit.domain.ZScorePreprocessorParams
-   habit.domain.MinMaxPreprocessor
-   habit.domain.MinMaxPreprocessorParams
-   habit.domain.RobustPreprocessor
-   habit.domain.RobustPreprocessorParams
-   habit.domain.WinsorizePreprocessor
-   habit.domain.WinsorizePreprocessorParams
-   habit.domain.LogPreprocessor
-   habit.domain.LogPreprocessorParams
-   habit.domain.BinningPreprocessor
-   habit.domain.BinningPreprocessorParams
-   habit.domain.VarianceFilterPreprocessor
-   habit.domain.VarianceFilterPreprocessorParams
-   habit.domain.CorrelationFilterPreprocessor
-   habit.domain.CorrelationFilterPreprocessorParams
+   habit.table_preprocessing.ZScorePreprocessor
+   habit.table_preprocessing.MinMaxPreprocessor
+   habit.table_preprocessing.RobustPreprocessor
+   habit.table_preprocessing.WinsorizePreprocessor
+   habit.table_preprocessing.LogPreprocessor
+   habit.table_preprocessing.BinningPreprocessor
+   habit.table_preprocessing.VarianceFilterPreprocessor
+   habit.table_preprocessing.CorrelationFilterPreprocessor
 
 Feature selectors
 ~~~~~~~~~~~~~~~~~
@@ -502,30 +502,18 @@ Feature selectors
 .. autosummary::
    :toctree: generated
 
-   habit.domain.VarianceSelector
-   habit.domain.VarianceSelectorParams
-   habit.domain.CorrelationSelector
-   habit.domain.CorrelationSelectorParams
-   habit.domain.AnovaSelector
-   habit.domain.AnovaSelectorParams
-   habit.domain.Chi2Selector
-   habit.domain.Chi2SelectorParams
-   habit.domain.IccSelector
-   habit.domain.IccSelectorParams
-   habit.domain.LassoSelector
-   habit.domain.LassoSelectorParams
-   habit.domain.MrmrSelector
-   habit.domain.MrmrSelectorParams
-   habit.domain.RfecvSelector
-   habit.domain.RfecvSelectorParams
-   habit.domain.StatisticalTestSelector
-   habit.domain.StatisticalTestSelectorParams
-   habit.domain.StepwiseSelector
-   habit.domain.StepwiseSelectorParams
-   habit.domain.UnivariateLogisticSelector
-   habit.domain.UnivariateLogisticSelectorParams
-   habit.domain.VifSelector
-   habit.domain.VifSelectorParams
+   habit.feature_selection.VarianceSelector
+   habit.feature_selection.CorrelationSelector
+   habit.feature_selection.AnovaSelector
+   habit.feature_selection.Chi2Selector
+   habit.feature_selection.IccSelector
+   habit.feature_selection.LassoSelector
+   habit.feature_selection.MrmrSelector
+   habit.feature_selection.RfecvSelector
+   habit.feature_selection.StatisticalTestSelector
+   habit.feature_selection.StepwiseSelector
+   habit.feature_selection.UnivariateLogisticSelector
+   habit.feature_selection.VifSelector
 
 Classifiers
 ~~~~~~~~~~~
@@ -533,34 +521,20 @@ Classifiers
 .. autosummary::
    :toctree: generated
 
-   habit.domain.LogisticRegressionClassifier
-   habit.domain.LogisticRegressionClassifierParams
-   habit.domain.SvmClassifier
-   habit.domain.SvmClassifierParams
-   habit.domain.SvcClassifier
-   habit.domain.SvcClassifierParams
-   habit.domain.RandomForestClassifier
-   habit.domain.RandomForestClassifierParams
-   habit.domain.GradientBoostingClassifier
-   habit.domain.GradientBoostingClassifierParams
-   habit.domain.AdaboostClassifier
-   habit.domain.AdaboostClassifierParams
-   habit.domain.DecisionTreeClassifier
-   habit.domain.DecisionTreeClassifierParams
-   habit.domain.KnnClassifier
-   habit.domain.KnnClassifierParams
-   habit.domain.MlpClassifier
-   habit.domain.MlpClassifierParams
-   habit.domain.GaussianNbClassifier
-   habit.domain.GaussianNbClassifierParams
-   habit.domain.BernoulliNbClassifier
-   habit.domain.BernoulliNbClassifierParams
-   habit.domain.MultinomialNbClassifier
-   habit.domain.MultinomialNbClassifierParams
-   habit.domain.XgboostClassifier
-   habit.domain.XgboostClassifierParams
-   habit.domain.AutogluonTabularClassifier
-   habit.domain.AutogluonTabularClassifierParams
+   habit.classification.LogisticRegressionClassifier
+   habit.classification.SvmClassifier
+   habit.classification.SvcClassifier
+   habit.classification.RandomForestClassifier
+   habit.classification.GradientBoostingClassifier
+   habit.classification.AdaboostClassifier
+   habit.classification.DecisionTreeClassifier
+   habit.classification.KnnClassifier
+   habit.classification.MlpClassifier
+   habit.classification.GaussianNbClassifier
+   habit.classification.BernoulliNbClassifier
+   habit.classification.MultinomialNbClassifier
+   habit.classification.XgboostClassifier
+   habit.classification.AutogluonTabularClassifier
 
 Metrics
 ~~~~~~~
@@ -568,24 +542,15 @@ Metrics
 .. autosummary::
    :toctree: generated
 
-   habit.domain.AccuracyMetric
-   habit.domain.AccuracyMetricParams
-   habit.domain.AucMetric
-   habit.domain.AucMetricParams
-   habit.domain.F1ScoreMetric
-   habit.domain.F1ScoreMetricParams
-   habit.domain.SensitivityMetric
-   habit.domain.SensitivityMetricParams
-   habit.domain.SpecificityMetric
-   habit.domain.SpecificityMetricParams
-   habit.domain.PpvMetric
-   habit.domain.PpvMetricParams
-   habit.domain.NpvMetric
-   habit.domain.NpvMetricParams
-   habit.domain.HosmerLemeshowPValueMetric
-   habit.domain.HosmerLemeshowPValueMetricParams
-   habit.domain.SpiegelhalterZPValueMetric
-   habit.domain.SpiegelhalterZPValueMetricParams
+   habit.evaluation.AccuracyMetric
+   habit.evaluation.AucMetric
+   habit.evaluation.F1ScoreMetric
+   habit.evaluation.SensitivityMetric
+   habit.evaluation.SpecificityMetric
+   habit.evaluation.PpvMetric
+   habit.evaluation.NpvMetric
+   habit.evaluation.HosmerLemeshowPValueMetric
+   habit.evaluation.SpiegelhalterZPValueMetric
 
 Evaluation statistics
 ~~~~~~~~~~~~~~~~~~~~~
@@ -593,14 +558,14 @@ Evaluation statistics
 .. autosummary::
    :toctree: generated
 
-   habit.domain.auc_confidence_interval
-   habit.domain.calibration_tests
-   habit.domain.delong_test
-   habit.domain.icc_analysis
-   habit.domain.repeat_measurement_matrix
-   habit.domain.AucConfidenceInterval
-   habit.domain.CalibrationResult
-   habit.domain.DelongResult
+   habit.evaluation.auc_confidence_interval
+   habit.evaluation.calibration_tests
+   habit.evaluation.delong_test
+   habit.evaluation.icc_analysis
+   habit.evaluation.repeat_measurement_matrix
+   habit.evaluation.AucConfidenceInterval
+   habit.evaluation.CalibrationResult
+   habit.evaluation.DelongResult
 
 Component registries
 ~~~~~~~~~~~~~~~~~~~~
@@ -608,18 +573,18 @@ Component registries
 .. autosummary::
    :toctree: generated
 
-   habit.domain.VoxelFeatureExtractorRegistry
-   habit.domain.SupervoxelizerRegistry
-   habit.domain.SupervoxelFeatureExtractorRegistry
-   habit.domain.HabitatModelFitterRegistry
-   habit.domain.HabitatAssignerRegistry
-   habit.domain.HabitatFeatureExtractorRegistry
-   habit.domain.FeaturePreprocessingMethodRegistry
-   habit.domain.ImagePerturbationRegistry
-   habit.domain.TablePreprocessorRegistry
-   habit.domain.FeatureSelectorRegistry
-   habit.domain.ClassifierRegistry
-   habit.domain.MetricRegistry
+   habit.voxel_features.VoxelFeatureExtractorRegistry
+   habit.supervoxel.SupervoxelizerRegistry
+   habit.supervoxel.SupervoxelFeatureExtractorRegistry
+   habit.habitat_model.HabitatModelFitterRegistry
+   habit.habitat_model.HabitatAssignerRegistry
+   habit.habitat_features.HabitatFeatureExtractorRegistry
+   habit.feature_preprocessing.FeaturePreprocessingMethodRegistry
+   habit.precision.ImagePerturbationRegistry
+   habit.table_preprocessing.TablePreprocessorRegistry
+   habit.feature_selection.FeatureSelectorRegistry
+   habit.classification.ClassifierRegistry
+   habit.evaluation.MetricRegistry
 
 .. _api-execution:
 
@@ -667,31 +632,35 @@ Prefer contract volumes inside pipelines (:doc:`data_model`); see
 .. autosummary::
    :toctree: generated
 
-   habit.GeometryPolicy
-   habit.GeometryReport
-   habit.ImageVolume
-   habit.MaskVolume
-   habit.ImageMaskPair
-   habit.read_image
-   habit.read_mask
-   habit.validate_geometry
-   habit.align_image_mask
-   habit.extract_features
-   habit.extract_batch
-   habit.FeatureResult
-   habit.FeatureTableResult
+   habit.api.image.GeometryPolicy
+   habit.api.image.GeometryReport
+   habit.api.image.ImageVolume
+   habit.api.image.MaskVolume
+   habit.api.image.ImageMaskPair
+   habit.api.image.read_image
+   habit.api.image.read_mask
+   habit.api.image.validate_geometry
+   habit.api.image.align_image_mask
+   habit.api.radiomics.extract_features
+   habit.api.radiomics.extract_batch
+   habit.api.radiomics.FeatureResult
+   habit.api.radiomics.FeatureTableResult
 
 .. _api-datasets:
 
 Datasets (``habit.datasets``)
 -----------------------------
 
-Deterministic synthetic data for tutorials, tests, and API exploration. All
-generators take an explicit seed and never touch the network or disk.
+Official imaging pack (:func:`~habit.datasets.fetch_demo`, downloaded once) plus
+deterministic synthetic builders for tests and in-memory API exploration.
 
 .. autosummary::
    :toctree: generated
 
+   habit.datasets.fetch_demo
+   habit.datasets.get_data_home
+   habit.datasets.inspect_preprocessed_root
+   habit.datasets.PreprocessedInventory
    habit.datasets.make_synthetic_cohort
    habit.datasets.make_synthetic_feature_table
 
@@ -707,18 +676,17 @@ The generic name → component mapping underlying every domain registry. See
    :toctree: generated
 
    habit.registry.ComponentRegistry
-   habit.list_plugins
-   habit.get_plugin_info
-   habit.get_param_schema
-   habit.plugin_catalog
-   habit.load_plugins
-   habit.PluginInfo
-   habit.PluginCatalogEntry
-   habit.PluginLoadReport
-   habit.setup_logger
-   habit.is_available
-   habit.show_versions
-   habit.check_component
+   habit.api.plugins.list_plugins
+   habit.api.plugins.get_plugin_info
+   habit.api.plugins.plugin_catalog
+   habit.api.plugins.load_plugins
+   habit.api.plugins.PluginInfo
+   habit.api.plugins.PluginCatalogEntry
+   habit.api.plugins.PluginLoadReport
+   habit.api.utils.setup_logger
+   habit.api.utils.is_available
+   habit.api.utils.show_versions
+   habit.api.utils.check_component
 
 .. _api-kernels:
 
@@ -812,44 +780,11 @@ Image perturbation and voxel reliability
 
 .. _api-compat:
 
-Ecosystem compatibility (``habit.compat``)
-------------------------------------------
+Legacy compat (``habit.compat``)
+--------------------------------
 
-Adapters to neighbouring ecosystems. The factory functions are top-level
-exports; the generated estimator classes stay namespaced. See :doc:`compat`.
-
-scikit-learn
-~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.compat.sklearn.as_estimator
-   habit.compat.sklearn.as_transformer
-   habit.compat.sklearn.as_classifier
-   habit.compat.sklearn.HabitatFeaturesEstimator
-   habit.compat.sklearn.TableClassifierEstimator
-   habit.compat.sklearn.TableTransformerEstimator
-
-MONAI
-~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.compat.monai.to_monai_dict
-   habit.compat.monai.from_monai_dict
-   habit.compat.monai.AsMonaiDict
-   habit.compat.monai.FromMonaiDict
-   habit.compat.monai.AsDictTransform
-
-nnU-Net
-~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.compat.nnunet.NnUNetDataSource
+v2 removed external ecosystem adapters (scikit-learn / MONAI / nnU-Net
+wrappers). Remaining submodules are frozen v0.1 helpers. See :doc:`compat`.
 
 .. _api-viz:
 

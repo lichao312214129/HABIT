@@ -15,7 +15,7 @@ simpler structures; see :doc:`repo_layout`.
      ``direct_pooling_habitat``) over ``HabitatSpec.stages`` /
      ``habit/domain/`` registries.
    * Tabular ML: ``habit.recipes.train_model`` / ``cross_validate`` /
-     ``predict_model`` over :class:`~habit.domain.TablePipeline`, with
+     ``predict_model`` over :class:`~habit.pipeline.TablePipeline`, with
      figures via :mod:`habit.recipes.ml_reporting` + ``habit.viz``.
    * Feature extract / radiomics: ``extract_habitat_features`` /
      ``traditional_radiomics`` in :mod:`habit.recipes.features` (parallel
@@ -97,7 +97,7 @@ visualization is enabled — figures under ``<output>/visualizations/`` via
 (prefixes ``train_`` / ``test_`` / ``cv_``). ``habit compare`` is a separate
 recipe (:func:`~habit.recipes.compare_models`); it merges prediction CSVs,
 computes metrics / DeLong in
-:mod:`habit.domain.evaluation.comparison`, and writes multi-model curves
+:mod:`habit.evaluation.comparison`, and writes multi-model curves
 through :mod:`habit.recipes.comparison_reporting`.
 
 **v0.1 engine (compat).** The modules below live under

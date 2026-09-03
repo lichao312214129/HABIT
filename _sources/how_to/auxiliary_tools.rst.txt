@@ -6,11 +6,10 @@ Copy-paste demos. Flags: ``habit <cmd> --help``.
 ::
 
    habit icc --config config/auxiliary/config_icc_demo.yaml
-   habit retest --config config/auxiliary/config_test_retest.yaml
 
-Retest label assignment is Hungarian on cohort-z-scored habitat
-medians. Cross-patient naming (no shared grid) is the same kernel:
-:doc:`../examples/habitat_label_match`.
+For in-memory habitat label alignment after independent clustering, use
+:func:`~habit.precision.align_habitat_map` (see
+:doc:`../examples/habitat_label_match`).
 
 ::
 

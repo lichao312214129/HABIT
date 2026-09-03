@@ -9,7 +9,8 @@ entropy and densified ``voxel_radiomics`` columns (e.g. GLCM) — as publication
 ``voxel_radiomics`` uses PyRadiomics / TorchRadiomics for per-voxel maps; keep
 the enabled ``featureClass`` list small for interactive demos.
 
-Runnable gallery: :doc:`../examples/voxel_texture`.
+Walk-through (Guide): :doc:`../examples/voxel_texture`. This page keeps
+runtime / backend notes that the gallery does not repeat.
 
 Who builds the texture matrices
 -------------------------------
@@ -161,11 +162,25 @@ algorithms. Force the matrix backend with ``use_gpu_matrices: true`` /
 Python API (sklearn-short)
 --------------------------
 
-::
+The figure below is written by the voxel-texture gallery
+(:doc:`../examples/voxel_texture`). Reproduce it::
 
-   from habit import local_entropy_map
+   python docs/source/examples/scripts/voxel_texture_demo.py
+
+Or paste the same load + plot the gallery shows::
+
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.kernels import local_entropy_map
    from habit.viz import plot_voxel_texture_slice
 
+   # Change DATA / MODALITY / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITY = "LAP"
+   ROI = "LAP"
+   subject = cohort_from_directory(DATA, modalities=(MODALITY,), roi=ROI)[0]
+   image_vol = subject.image(MODALITY)
+   mask_vol = subject.mask(ROI)
    entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
    fig = plot_voxel_texture_slice(
        entropy, anatomy=image_vol, roi_mask=mask_vol,

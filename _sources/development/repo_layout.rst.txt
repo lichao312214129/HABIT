@@ -118,8 +118,13 @@ Top-level package responsibilities
    * - ``habit/plugins/``
      - Plugin discovery and ``list_plugins`` introspection.
    * - ``habit/api/``
-     - v0.1 configuration-object facade (``run_ml``, ``run_kfold``,
-       ``run_preprocess``, ...), kept for YAML parity.
+     - Workflow configuration-object facade split by domain — import from
+       ``habit.api.preprocessing`` (``PreprocessingConfig``, ``run_preprocess``),
+       ``habit.api.habitat`` (``run_habitat_analysis``, ``run_feature_extraction``,
+       ``run_radiomics``, ...), ``habit.api.machine_learning`` (``run_ml``,
+       ``run_kfold``, ``run_model_comparison``, ...), and related submodules.
+       ``import habit`` exposes only ``__version__``; configs and runners are not
+       re-exported at the package root.
    * - ``habit/schemas/``
      - Pydantic configuration models for workflows, step parameters, parameter
        registration, and validation (v1.0 canonical location).

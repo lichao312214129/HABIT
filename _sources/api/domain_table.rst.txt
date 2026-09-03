@@ -6,13 +6,15 @@ Tabular preprocessing, feature selection, classification, metrics, and
 
 .. code-block:: python
 
-   from habit.domain import (
-       ClassifierRegistry,
-       FeatureSelectorRegistry,
-       MetricRegistry,
-       TablePipeline,
-       TablePreprocessorRegistry,
-   )
+   from habit.classification import ClassifierRegistry
+
+   from habit.feature_selection import FeatureSelectorRegistry
+
+   from habit.evaluation import MetricRegistry
+
+   from habit.pipeline import TablePipeline
+
+   from habit.table_preprocessing import TablePreprocessorRegistry
 
 Table preprocessors
 -------------------
@@ -21,8 +23,7 @@ Domain: ``table_preprocessor``
 
 .. code-block:: python
 
-   from habit.domain import TablePreprocessorRegistry
-
+   from habit.table_preprocessing import TablePreprocessorRegistry
    z = TablePreprocessorRegistry.create("zscore")
    mm = TablePreprocessorRegistry.create("minmax")
    rob = TablePreprocessorRegistry.create("robust")
@@ -45,8 +46,7 @@ Domain: ``feature_selector``
 
 .. code-block:: python
 
-   from habit.domain import FeatureSelectorRegistry
-
+   from habit.feature_selection import FeatureSelectorRegistry
    var = FeatureSelectorRegistry.create("variance", threshold=0.01)
    corr = FeatureSelectorRegistry.create("correlation")
    vif = FeatureSelectorRegistry.create("vif")
@@ -74,8 +74,7 @@ Domain: ``classifier`` (not ``model`` — avoids clashing with ``HabitatModel``)
 
 .. code-block:: python
 
-   from habit.domain import ClassifierRegistry
-
+   from habit.classification import ClassifierRegistry
    lr = ClassifierRegistry.create("LogisticRegression", max_iter=500)
    svm = ClassifierRegistry.create("SVM")
    svc = ClassifierRegistry.create("SVC")
@@ -106,8 +105,7 @@ Domain: ``metric``
 
 .. code-block:: python
 
-   from habit.domain import MetricRegistry
-
+   from habit.evaluation import MetricRegistry
    acc = MetricRegistry.create("accuracy")
    sens = MetricRegistry.create("sensitivity")
    spec = MetricRegistry.create("specificity")
@@ -127,13 +125,7 @@ Statistical helpers
 
 .. code-block:: python
 
-   from habit.domain import (
-       auc_confidence_interval,
-       calibration_tests,
-       delong_test,
-       icc_analysis,
-       repeat_measurement_matrix,
-   )
+   from habit.evaluation import auc_confidence_interval, calibration_tests, delong_test, icc_analysis, repeat_measurement_matrix
 
    delong = delong_test(y_true, scores_a, scores_b)
    ci = auc_confidence_interval(y_true, scores)
@@ -145,17 +137,15 @@ Statistical helpers
 
 .. code-block:: python
 
-   from habit.domain import (
-       AccuracyMetric,
-       AucMetric,
-       ClassifierRegistry,
-       FeatureSelectorRegistry,
-       LogisticRegressionClassifier,
-       TablePipeline,
-       TablePreprocessorRegistry,
-       VarianceSelector,
-       ZScorePreprocessor,
-   )
+   from habit.evaluation import AccuracyMetric, AucMetric
+
+   from habit.classification import ClassifierRegistry, LogisticRegressionClassifier
+
+   from habit.feature_selection import FeatureSelectorRegistry, VarianceSelector
+
+   from habit.pipeline import TablePipeline
+
+   from habit.table_preprocessing import TablePreprocessorRegistry, ZScorePreprocessor
 
    pipe = TablePipeline(
        steps=[VarianceSelector(threshold=0.01), ZScorePreprocessor()],
@@ -222,7 +212,7 @@ the ``FrameToTable`` head rebuild the table from a declared column schema:
 
    from sklearn.model_selection import GridSearchCV
 
-   from habit.domain.sklearn_interop import FrameToTable
+   from habit.pipeline.sklearn_interop import FrameToTable
 
    pipe = TablePipeline(
        steps=[FrameToTable.from_table(train_table), ZScorePreprocessor()],

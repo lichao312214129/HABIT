@@ -79,7 +79,7 @@ The v1 stack (L0–L5, see :doc:`architecture`) has its own vocabulary:
      - ``DirectoryDataSource``
    * - **Component registry**
      - Maps ``Spec("name", params)`` references to implementations.
-     - ``habit.domain`` registries, ``ComponentRegistry``
+     - the v2 capability packages registries, ``ComponentRegistry``
 
 The classic v0.1 roles below still describe the compat engines under
 ``habit/compat/engines/`` (and the YAML parsing layer in

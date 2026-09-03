@@ -4,11 +4,10 @@ Graph topology features
 Goal: extract built-in habitat **graph topology** features (nodes / edges /
 metrics) from habitat label maps, optionally with 2D/3D figures.
 
-Need habitat maps first (:doc:`segment_habitat`). Reviewer-grade formulas
-(nodes, edges, metrics, VOI normalization):
-:doc:`../reference/features/graph`. Short end-to-end gallery:
-:doc:`../examples/graph_features` (one-step with **fixed** ``n_habitats=4``,
-then graph features + overlay / 2D network using the library defaults).
+Need habitat maps first (:doc:`segment_habitat`). This page is the CLI /
+YAML bookmark. End-to-end Python gallery:
+:doc:`../examples/graph_features`. Reviewer-grade formulas:
+:doc:`../reference/features/graph`.
 
 ``graph`` is a **built-in** light family under
 :doc:`../reference/features/index` (same tier as ``volume`` / ``msi`` /
@@ -90,15 +89,13 @@ lattice). Reproduce it::
 
 Or paste the same code the gallery shows::
 
-   from habit import (
-       HabitatGraphFeatureOptions,
-       cohort_from_directory,
-       extract_graph_features,
-       one_step_habitat,
-   )
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.kernels import HabitatGraphFeatureOptions, extract_graph_features
+   from habit.recipes import one_step_habitat
    from habit.viz import plot_habitat_graph_network_2d, plot_habitat_graph_slice
 
-   DATA = "demo_data/preprocessed"
+   DATA = fetch_demo()
    MODALITIES = ("LAP",)
    ROI = "LAP"
    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
@@ -127,9 +124,12 @@ so each completed subject writes ``graph_slice.png`` and
 
    from dataclasses import asdict
 
-   from habit import GraphNetwork2D, GraphSlice, HabitatGraphFeatureOptions, Report
+   from habit.adapters import DirectoryResultWriter
+   from habit.kernels import HabitatGraphFeatureOptions
+   from habit.report import GraphNetwork2D, GraphSlice, Report
 
    graph = HabitatGraphFeatureOptions(edge_method="min_distance", block_size=8)
+   writer = DirectoryResultWriter("out/study")
    # Spec("graph", asdict(graph)) on the quantify stage, then:
    report = Report(
        figures=(GraphSlice(options=graph), GraphNetwork2D(options=graph)),
@@ -174,14 +174,19 @@ requested and successful random graphs, so inspect ``is_valid`` before using
 the Z score::
 
    import networkx as nx
-   from habit import (
+   import numpy as np
+
+   from habit.kernels import (
        GraphNullModelOptions,
        build_min_distance_graph,
        compare_graph_to_degree_preserving_null,
        extract_habitat_nodes,
    )
 
-   # ``labels`` is the same uniformly resampled 3D label map used above.
+   # Swap in a HabitatMap.label_array from the previous block when you have one.
+   labels = np.zeros((16, 16, 16), dtype=np.int32)
+   labels[2:14, 2:14, 2:14] = 1
+   labels[6:10, 6:10, 6:10] = 2
    nodes = extract_habitat_nodes(
        label_array=labels,
        node_method="uniform_grid",

@@ -24,18 +24,6 @@ Intraclass correlation (ICC) for feature reproducibility.
 See :doc:`../configuration/auxiliary` · walkthrough
 :doc:`../how_to/auxiliary_tools`.
 
-habit retest
-------------
-
-Test-retest habitat mapping analysis.
-
-.. code-block:: bash
-
-   habit retest --config config/auxiliary/config_test_retest.yaml
-
-See :doc:`../configuration/auxiliary` · walkthrough
-:doc:`../how_to/auxiliary_tools`.
-
 habit merge-csv
 ---------------
 

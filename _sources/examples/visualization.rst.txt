@@ -1,406 +1,72 @@
-Publication figures with habit.viz
-==================================
+Figures and methods
+===================
 
-Interactive napari
-(:func:`~habit.viz.view_habitat_napari` / default ``habit view``)
-is a convenient way to inspect habitat maps after ``get-habitat`` — see
-region vs contour screenshots in :doc:`../tutorial/quickstart`. It needs the
-optional ``[view]`` extra (recommended at :doc:`../tutorial/installation`);
-without it the CLI falls back to a matplotlib PNG. Force the static path with
-``habit view --backend matplotlib`` (:func:`~habit.viz.plot_habitat_overlay`,
-needs ``[viz]``). Orthogonal panels follow the radiological display
-convention (anterior / superior up; patient's right on the viewer's left)
-via ``display_convention`` (``\"radiological\"`` default,
-``\"neurological\"``, or ``\"native\"`` to skip flips). Pass an
-:class:`~habit.ImageVolume` rather than ``.data`` so direction and
-spacing travel with the array — otherwise coronal / sagittal superior-inferior
-can look flipped relative to ITK-SNAP. See :mod:`habit.viz.orientation`.
+:func:`~habit.viz.plot_habitat_overlay` draws a habitat map on anatomy.
+Pass an :class:`~habit.api.image.ImageVolume` and a
+:class:`~habit.contracts.HabitatMap` so direction stays attached.
+Do not pass ``.data``.
 
-For fuller **3D** review, load the source image and ``*_habitats.nrrd``
-together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer
-(label overlay / segmentation).
+.. code-block:: python
 
-Every function in :mod:`habit.viz` is **pure**: arrays or contract objects in,
-a matplotlib ``Figure`` out — no ``savefig`` inside the library. Callers choose
-where figures go. All text is English/ASCII via
-:func:`~habit.viz.labels.sanitize_label`.
+   from pathlib import Path
 
-Per-subject habitat overlays, volume / MSI / ITH bars, auto-K curves,
-and 2D graph slice / network figures can also be **declared** as
-:class:`~habit.report.Report` figure atoms
-(:class:`~habit.report.GraphSlice`, :class:`~habit.report.GraphNetwork2D`)
-and written as each one-step subject completes — see :doc:`one_step_habitat`
-(**Stream per subject**). Pass the same
-:class:`~habit.HabitatGraphFeatureOptions` to ``Spec("graph")`` and the
-atoms; the PNGs are a representative 2D slice (display-only), while
-graph metrics use the full 3D volume. :mod:`habit.viz` stays pure; the
-Report owns ``savefig``. ``figure_layout="by_subject"`` nests each
-subject's PNGs under ``figures/<subject_id>/``.
+   from habit.datasets import make_synthetic_cohort
+   from habit.spec import HabitatSpec, Spec, Stage
+   from habit.viz import plot_habitat_overlay
+   import habit.recipes as recipes
 
-Report figure atoms (complete)
-------------------------------
-
-Every built-in atom calls a pure :mod:`habit.viz` function and writes one
-PNG per subject. ``figure_layout="flat"`` (default) writes
-``figures/<subject>_<kind>.png``; ``"by_subject"`` writes
-``figures/<subject_id>/<kind>.png``. Custom atoms implement
-:class:`~habit.report.FigureAtom` (``stem`` + ``draw``).
-
-.. list-table::
-   :header-rows: 1
-   :widths: 22 38 40
-
-   * - Report atom
-     - ``habit.viz`` function
-     - Example
-   * - :class:`~habit.report.Overlay`
-     - :func:`~habit.viz.plot_habitat_overlay`
-     - :doc:`one_step_habitat`, this page
-   * - :class:`~habit.report.VolumeFractions`
-     - :func:`~habit.viz.plot_habitat_volume_fractions`
-     - :doc:`one_step_habitat`, :doc:`feature_extraction`
-   * - :class:`~habit.report.MSI`
-     - :func:`~habit.viz.plot_msi_matrix`
-     - :doc:`one_step_habitat`, :doc:`feature_extraction`
-   * - :class:`~habit.report.ITH`
-     - :func:`~habit.viz.plot_ith_summary`
-     - :doc:`one_step_habitat`, :doc:`feature_extraction`
-   * - :class:`~habit.report.ClusterValidation`
-     - :func:`~habit.viz.plot_cluster_validation_from_report`
-     - :doc:`one_step_habitat`
-   * - :class:`~habit.report.GraphSlice`
-     - :func:`~habit.viz.plot_habitat_graph_slice`
-     - :doc:`graph_features`, :doc:`one_step_habitat` (**Stream per subject**)
-   * - :class:`~habit.report.GraphNetwork2D`
-     - :func:`~habit.viz.plot_habitat_graph_network_2d`
-     - :doc:`graph_features`, :doc:`one_step_habitat` (**Stream per subject**)
-
-Graph atoms take :class:`~habit.HabitatGraphFeatureOptions` — pass the
-same object to ``Spec("graph", asdict(options))``. 2D PNGs are
-display-only slices; metrics use the full 3D volume. 3D graph renders
-(:func:`~habit.viz.render_habitat_graph_surface_3d`,
-:func:`~habit.viz.render_habitat_graph_network_3d`) stay on
-:mod:`habit.viz` (needs ``[view]``); they are not Report atoms.
-
-Runnable stream script:
-``docs/source/examples/scripts/one_step_report_demo.py``.
-
-This example covers:
-
-* population-level habitat-clustering PCA from a two-step ``StudyResult``,
-* Kaplan-Meier curves stratified by a **risk split** (not by the event itself),
-* Cox forest, risk triptych, time-dependent AUC, Brier, survival calibration,
-* **habitat features → Cox → KM / forest / calibration** (synthetic labels),
-* regression diagnostics (predicted vs observed, residuals, Q-Q, Bland-Altman).
-
-Binary ML ROC / PR / calibration / DCA plots live on :doc:`tabular_ml` and
-:doc:`ml_advanced`.
-
-Script
-------
-
-Figures land under ``out/``. Survival rows are constructed in the script with
-a moderate effect and independent censoring so the KM strata overlap; swap
-that block for your own ``time`` / ``event`` table.
-
-.. literalinclude:: scripts/visualization_demo.py
-   :language: python
-   :start-after: # BEGIN example
-   :end-before: # END example
-
-Run from the repository root (one line)::
-
-   python docs/source/examples/scripts/visualization_demo.py
-
-Output
-------
-
-::
-
-   Wrote out/habitat_pca_2d.png
-   Wrote out/kaplan_meier.png
-   Wrote out/cox_forest.png
-   Wrote out/risk_triptych.png
-   Wrote out/survival_calibration.png
-   Wrote out/time_dependent_auc.png
-   Wrote out/brier_curve.png
-   Wrote out/predicted_vs_observed.png
-   Wrote out/residuals.png
-   Wrote out/residual_qq.png
-   Wrote out/bland_altman.png
-
-Figures (PCA / survival / regression)
--------------------------------------
-
-Regenerated by ``python docs/source/examples/scripts/visualization_demo.py``.
-Survival / regression panels are synthetic demos, not a clinical claim.
-
-.. figure:: ../_static/images/examples/viz_habitat_pca_2d.png
-   :alt: Habitat clustering PCA scatter
-   :width: 520
-
-   Population clustering PCA (:func:`~habit.viz.plot_habitat_clustering_pca_2d`).
-
-.. figure:: ../_static/images/examples/viz_kaplan_meier.png
-   :alt: Kaplan-Meier survival curves by risk split
-   :width: 520
-
-   Kaplan-Meier by high/low risk (:func:`~habit.viz.plot_kaplan_meier`).
-
-.. figure:: ../_static/images/examples/viz_cox_forest.png
-   :alt: Cox hazard-ratio forest plot
-   :width: 480
-
-   Cox hazard ratios (:func:`~habit.viz.plot_cox_forest`).
-
-.. figure:: ../_static/images/examples/viz_risk_triptych.png
-   :alt: Risk-score triptych
-   :width: 720
-
-   Risk triptych (:func:`~habit.viz.plot_risk_triptych`).
-
-.. figure:: ../_static/images/examples/viz_survival_calibration.png
-   :alt: Survival calibration at a fixed horizon
-   :width: 420
-
-   Survival calibration (:func:`~habit.viz.plot_survival_calibration`).
-
-.. figure:: ../_static/images/examples/viz_time_dependent_auc.png
-   :alt: Time-dependent AUC curve
-   :width: 420
-
-   Time-dependent AUC (:func:`~habit.viz.plot_time_dependent_auc`).
-
-.. figure:: ../_static/images/examples/viz_brier_curve.png
-   :alt: Brier score over follow-up time
-   :width: 420
-
-   Brier score curve (:func:`~habit.viz.plot_brier_curve`).
-
-.. figure:: ../_static/images/examples/viz_predicted_vs_observed.png
-   :alt: Predicted versus observed scatter
-   :width: 420
-
-   Regression diagnostic (:func:`~habit.viz.plot_predicted_vs_observed`).
-
-.. figure:: ../_static/images/examples/viz_residuals.png
-   :alt: Residuals against fitted values
-   :width: 420
-
-   Residuals (:func:`~habit.viz.plot_residuals`).
-
-.. figure:: ../_static/images/examples/viz_residual_qq.png
-   :alt: Residual normal Q-Q plot
-   :width: 420
-
-   Residual Q-Q (:func:`~habit.viz.plot_residual_qq`).
-
-.. figure:: ../_static/images/examples/viz_bland_altman.png
-   :alt: Bland-Altman limits of agreement
-   :width: 420
-
-   Bland-Altman (:func:`~habit.viz.plot_bland_altman`).
-
-Habitat features → survival model
----------------------------------
-
-The KM / Cox / calibration panels above use a **synthetic** ``time`` /
-``event`` table that is not derived from habitats. This section is the
-missing taught path: extract habitat features, attach survival labels
-(here synthetic and driven by ``ith_score`` — swap for your own
-``os_time`` / ``os_event``), fit HABIT ``CoxPH`` through
-:class:`~habit.domain.TablePipeline`, and draw the same figure family.
-It is **not** the binary-classification path on :doc:`tabular_ml`.
-
-.. literalinclude:: scripts/habitat_survival_demo.py
-   :language: python
-   :start-after: # BEGIN example
-   :end-before: # END example
-
-Draw the figures (writes ``out/habitat_survival_*.png``)::
-
-   python docs/source/examples/scripts/habitat_survival_demo.py
-
-.. literalinclude:: scripts/habitat_survival_demo.py
-   :language: python
-   :start-after: # BEGIN figures
-   :end-before: # END figures
-
-.. figure:: ../_static/images/examples/habitat_survival_km.png
-   :alt: Kaplan-Meier by habitat-feature Cox risk
-   :width: 520
-
-   Kaplan-Meier by high/low Cox risk from habitat features
-   (:func:`~habit.viz.plot_kaplan_meier`).
-
-.. figure:: ../_static/images/examples/habitat_survival_forest.png
-   :alt: Cox forest plot of habitat features
-   :width: 480
-
-   Hazard ratios (:func:`~habit.viz.plot_cox_forest`).
-
-.. figure:: ../_static/images/examples/habitat_survival_calibration.png
-   :alt: Survival calibration from habitat-feature Cox
-   :width: 420
-
-   Calibration at the median follow-up
-   (:func:`~habit.viz.plot_survival_calibration`).
-
-Habitat graph topology figures
-------------------------------
-
-When extracting the built-in ``graph`` family with ``graph.visualize: true``,
-the recipe writes optional figures under ``visualizations/graph/``. The same
-construction is available as pure plotters (``[viz]``; 3D also needs
-``[view]``)::
-
-   from habit.viz import (
-       plot_habitat_graph_network_2d,
-       plot_habitat_graph_slice,
-       render_habitat_graph_network_3d,
-       render_habitat_graph_surface_3d,
+   cohort = make_synthetic_cohort(n_subjects=2, shape=(16, 16, 16), rng=3)
+   spec = HabitatSpec(
+       name="viz_overlay",
+       stages=(
+           Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+           Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 3})),
+           Stage("pool", Spec("pool")),
+           Stage(
+               "fit",
+               Spec(
+                   "kmeans",
+                   {
+                       "min_habitats": 2,
+                       "max_habitats": 3,
+                       "validation": "elbow",
+                       "n_init": 3,
+                   },
+               ),
+           ),
+           Stage("assign", Spec("nearest_centroid")),
+       ),
+       random_seed=3,
    )
+   result = recipes.Study(spec=spec).fit_predict(cohort)
+   subject = cohort[0]
+   habitat_map = result.habitat_maps[0]
+   Path("out").mkdir(exist_ok=True)
+   fig = plot_habitat_overlay(subject.image("T1"), habitat_map, title="habitats")
+   fig.savefig("out/habitat_overlay.png", dpi=150, bbox_inches="tight")
+   print("Wrote out/habitat_overlay.png")
 
-Or declare :class:`~habit.report.GraphSlice` /
-:class:`~habit.report.GraphNetwork2D` on a one-step
-:class:`~habit.report.Report` (same
-:class:`~habit.HabitatGraphFeatureOptions` as ``Spec("graph")``).
-
-See :doc:`graph_features` and :doc:`../reference/features/graph`.
-
-Voxel texture / feature-map slices
-----------------------------------
-
-Local entropy (and densified ``VoxelFeatureField`` columns such as
-``voxel_radiomics``) use the same pure-figure contract::
-
-   from habit.viz import dense_voxel_feature_map, plot_voxel_texture_slice
-
-See :doc:`voxel_texture` and :doc:`../how_to/voxel_texture`.
-
-Habitat-core figures (maps, validation, compare)
-------------------------------------------------
-
-Beyond PCA / graph / texture, the habitat product spine also has pure plotters::
-
-   from habit.viz import (
-       plot_cluster_validation_from_report,  # auto-K curves on HabitatModel
-       plot_habitat_volume_fractions,
-       plot_msi_matrix,
-       plot_ith_summary,
-       plot_partition_triptych,              # anatomy | supervoxels | habitats
-       plot_habitat_label_compare,           # train vs predict (+ disagreement)
-   )
-
-End-to-end on ``demo_data/preprocessed`` (swap ``DATA`` / modalities / ROI);
-figures go to ``out/``.
-
-.. literalinclude:: scripts/habitat_core_viz_demo.py
-   :language: python
-   :start-after: # BEGIN example
-   :end-before: # END example
-
-Run::
-
-   python docs/source/examples/scripts/habitat_core_viz_demo.py
-
-.. figure:: ../_static/images/examples/habitat_core_triptych.png
-   :alt: Anatomy, supervoxel overlay, and habitat overlay
-   :width: 720
-
-   Two-step partitions (:func:`~habit.viz.plot_partition_triptych`).
+Optional path check: ``habit view image.nrrd habitats.nrrd``.
 
 .. figure:: ../_static/images/examples/habitat_core_overlay.png
-   :alt: Habitat overlay
+   :alt: Habitat labels overlaid on anatomy
    :width: 420
 
-   Overlay (:func:`~habit.viz.plot_habitat_overlay`).
+   Overlay from ``plot_habitat_overlay`` (``ImageVolume`` + ``HabitatMap``).
 
-.. figure:: ../_static/images/examples/habitat_core_volume_fractions.png
-   :alt: Volume fractions
-   :width: 420
+Methods paragraph
+-----------------
 
-   Volume fractions.
+After a study, :class:`~habit.contracts.RunManifest` records what actually
+ran. :meth:`~habit.contracts.RunManifest.describe_methods` drafts a
+manuscript methods paragraph from that record.
+:meth:`~habit.spec.HabitatSpec.fingerprint` changes when a stage param
+changes, so two specs that look similar are not interchangeable.
 
-.. figure:: ../_static/images/examples/habitat_core_msi_matrix.png
-   :alt: MSI spatial interaction heatmap
-   :width: 420
-
-   MSI matrix (:func:`~habit.viz.plot_msi_matrix`).
-
-.. figure:: ../_static/images/examples/habitat_core_ith_summary.png
-   :alt: ITH summary
-   :width: 520
-
-   ITH summary.
-
-.. figure:: ../_static/images/examples/habitat_core_cluster_validation.png
-   :alt: Cluster validation curves
-   :width: 520
-
-   Auto-K curves.
-
-.. figure:: ../_static/images/examples/habitat_core_label_compare.png
-   :alt: Habitat label compare with disagreement panel
-   :width: 720
-
-   Label compare (:func:`~habit.viz.plot_habitat_label_compare`).
-
-Habitat feature contrast (heatmap / Cliff's delta / CVA / violin / bars)
--------------------------------------------------------------------------
-
-After an ``each_habitat`` (or any wide ``habitat_{id}_{feature}``) table,
-:func:`~habit.compare_habitat_features` plus the
-``plot_habitat_feature_*`` helpers are the reviewer figures. The default
-effect figure is the features x pair Cliff's :math:`\delta` heatmap;
-``pair=(a, b)`` keeps the lollipop. With dozens of features the heatmap
-keeps the top-k by max :math:`|\delta|`. If that heatmap would be too
-tall, :func:`~habit.viz.plot_habitat_feature_components` shows the same
-habitat contrast on a few CVA (or PCA) component scores.
-Bars are **faceted by feature** so Energy and ``volume_fraction`` do not
-share one linear y-axis. Regenerated by
-``python docs/source/examples/scripts/habitat_feature_compare_demo.py``.
-
-.. literalinclude:: scripts/habitat_feature_compare_demo.py
-   :language: python
-   :start-after: # BEGIN figures
-   :end-before: # END figures
-
-.. figure:: ../_static/images/examples/habitat_feature_heatmap_cohort.png
-   :alt: Cohort habitat-by-feature z-score heatmap
-   :width: 520
-
-   Cohort mean heatmap (:func:`~habit.viz.plot_habitat_feature_heatmap`).
-
-.. figure:: ../_static/images/examples/habitat_feature_effect.png
-   :alt: Features-by-pair Cliff's delta heatmap
-   :width: 520
-
-   Default features x pair Cliff's delta
-   (:func:`~habit.viz.plot_habitat_feature_effect`).
-
-.. figure:: ../_static/images/examples/habitat_feature_components.png
-   :alt: Habitat contrast on CVA component scores
-   :width: 620
-
-   Same contrast, shown on 2 CVA components (use this when there are
-   dozens of features)
-   (:func:`~habit.viz.plot_habitat_feature_components`).
-
-.. figure:: ../_static/images/examples/habitat_feature_violin.png
-   :alt: Per-feature habitat distributions
-   :width: 520
-
-   Distributions (:func:`~habit.viz.plot_habitat_feature_violin`).
-
-.. figure:: ../_static/images/examples/habitat_feature_bars.png
-   :alt: Per-feature habitat means with independent y-axes
-   :width: 620
-
-   Faceted bars (:func:`~habit.viz.plot_habitat_feature_bars`).
+The full fingerprint, IBSI, and golden-test story is on :doc:`rigor`.
 
 What to read next
 -----------------
 
-* :doc:`persistence` — ``StudyResult.save(write_cluster_plots=True)``
-* :doc:`../api/python_api` — when to use ``habit.viz`` vs CLI plot outputs
+* :doc:`feature_extraction` — volume, MSI, ITH, graph
+* :doc:`rigor` — IBSI, provenance, numerical gates

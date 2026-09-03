@@ -71,7 +71,7 @@ validation path as ``from_file``:
 
 .. code-block:: python
 
-   from habit import run_preprocess
+   from habit.api.preprocessing import run_preprocess
 
    result = run_preprocess({
        "data_dir": "data/raw",

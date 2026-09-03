@@ -7,9 +7,10 @@ described — the same document shape as v1 YAML.
 ``Spec("name", {params})`` uses the registered plugin name for that stage's
 domain. **Chooser (habitat stages, parameter meanings, and allowed values):**
 :doc:`../how_to/habitat_components`. The live list of names and parameters
-is generated from ``params_model`` — see :doc:`plugins` (do not hand-copy a
-table). ``Registry.create("bad_name")`` / ``get_plugin_info`` list the names
-that exist in that domain.
+come from each component constructor (and
+``Registry.constructor_signature`` / ``Registry.create``) — see
+:doc:`plugins` (do not hand-copy a table). ``Registry.create("bad_name")``
+and ``list_plugins`` list the names that exist in that domain.
 
 ``Stage`` and ``HabitatSpec.stages`` (source of truth)
 ------------------------------------------------------
@@ -49,7 +50,7 @@ Primary entry: :meth:`~habit.recipes.Study.fit_predict`.
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, Stage
+   from habit.spec import HabitatSpec, Spec, Stage
    import habit.recipes as recipes
 
    # two_step shape (partition + pool)
@@ -136,7 +137,7 @@ name promises before :meth:`~habit.recipes.Study.fit`.
 
 Sugar form (same two-step science as above)::
 
-   from habit import HabitatSpec, Spec
+   from habit.spec import HabitatSpec, Spec
 
    sugar = HabitatSpec(
        name="two_step_sugar",
@@ -159,7 +160,7 @@ Save / load and runnable YAML
 
 .. code-block:: python
 
-   from habit import (
+   from habit.spec import (
        HabitatSpec,
        RunPolicy,
        Spec,
@@ -220,7 +221,7 @@ mapping entry to ``Spec.from_dict``):
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Stage, parse_feature_expression
+   from habit.spec import HabitatSpec, Spec, Stage, parse_feature_expression
 
    expr = parse_feature_expression(
        'concat(raw("T1"), local_entropy("T2", kernel_size=3))'
@@ -270,24 +271,18 @@ YAML ``policy:`` block and the Python form stay one-to-one.
 
 .. code-block:: python
 
-   from habit import RunPolicy, load_run_policy, save_run_policy
+   from habit.spec import RunPolicy, load_run_policy, save_run_policy
 
-   def main() -> None:
-       policy = RunPolicy(
-           workers=4,
-           backend="process",              # "serial" | "process"
-           on_subject_failure="continue",  # or "fail_fast"
-           subject_timeout_sec=900.0,
-           parallel_mode="persistent",     # library default
-           auto_retry_rounds=2,
-       )
-       save_run_policy(policy, "run_policy.yaml")
-       policy2 = load_run_policy("run_policy.yaml")
-       # Pass policy into recipes / ProcessPoolBackend only under __main__.
-
-
-   if __name__ == "__main__":
-       main()
+   policy = RunPolicy(
+       workers=4,
+       backend="process",              # "serial" | "process"
+       on_subject_failure="continue",  # or "fail_fast"
+       subject_timeout_sec=900.0,
+       parallel_mode="persistent",     # library default
+       auto_retry_rounds=2,
+   )
+   save_run_policy(policy, "run_policy.yaml")
+   policy2 = load_run_policy("run_policy.yaml")
 
 ``on_subject_failure="continue"`` isolates errors inside the execution
 backend. :meth:`~habit.contracts.Cohort.map` still raises
@@ -477,7 +472,7 @@ Detect, validate, migrate YAML
    from pathlib import Path
    import yaml
 
-   from habit import (
+   from habit.spec import (
        LegacyConfigAdapter,
        detect_yaml_version,
        migrate_yaml,
@@ -544,8 +539,8 @@ build a :class:`~habit.spec.specs.HabitatSpec`, then call
    from pathlib import Path
 
    import yaml
-   from habit import LegacyConfigAdapter, make_synthetic_cohort
-   from habit.spec import HabitatSpec
+   from habit.datasets import make_synthetic_cohort
+   from habit.spec import HabitatSpec, LegacyConfigAdapter
    import habit.recipes as recipes
 
    payload = yaml.safe_load(

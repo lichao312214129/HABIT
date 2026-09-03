@@ -105,7 +105,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 - **Type**: string
 - **Required**: yes
 - **Default**: none (required)
-- **Description**: ``data_dir`` may be a directory **or** a manifest YAML (e.g. ``file_habitat.yaml``, or ``file_habitat_registered_single_roi.yaml`` when modalities are already co-registered and each subject has one ROI). Never a bare ``.nii.gz``. ``out_dir`` is the default parent directory for results and checkpoints. See :doc:`../how_to/prepare_data`.
+- **Description**: ``data_dir`` may be a directory **or** a manifest YAML (e.g. ``file_habitat.yaml``, or ``file_habitat_registered_single_roi.yaml`` when modalities are already co-registered and each subject has one ROI). Never a bare ``.nii.gz``. ``out_dir`` is the default parent directory for results and checkpoints. See :doc:`../examples/data_from_arrays`.
 
 **feature_construction**: Feature extraction settings
 
@@ -212,7 +212,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         Omit ``params_file`` to use bundled ``params_voxel_radiomics.yaml``; ``kernel_radius`` defaults to 3.
         Reference: Prior O, et al. *Radiol Artif Intell*. 2024;6(2):e230118. https://doi.org/10.1148/ryai.230118
         The simulated-retest perturbation used to *define* those precise features
-        is :func:`~habit.domain.precision.prior2024_retest_perturbation` (MIRP 1.2.0
+        is :func:`~habit.precision.prior2024_retest_perturbation` (MIRP 1.2.0
         Appendix S2: noise + 0.5-voxel translation fraction + 0.5° z-rotation).
         See :doc:`../examples/precise_features`.
 
@@ -878,7 +878,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
   - ``postprocess_supervoxel`` applies to supervoxel label maps (mainly two_step stage).
   - ``postprocess_habitat`` applies to final habitat label maps (one_step/two_step/direct_pooling).
   - In the v1 path these settings land on ``HabitatSpec.postprocess_*`` and run
-    inside :class:`~habit.domain.pipeline.SubjectPipeline` (after
+    inside :class:`~habit.pipeline.SubjectPipeline` (after
     supervoxelization / after habitat assignment, before feature extraction).
     :class:`~habit.adapters.writers.DirectoryResultWriter` writes the already
     cleaned in-memory maps and does not re-run cleanup.

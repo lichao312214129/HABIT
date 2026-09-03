@@ -5,7 +5,7 @@ Public exception types (stable):
 
 .. code-block:: python
 
-   from habit import (
+   from habit.exceptions import (
        HABITAPIError,
        HabitError,
        ConfigurationError,
@@ -93,18 +93,18 @@ Probe optional stacks without importing heavy backends:
 
 .. code-block:: python
 
-   import habit
+   from habit.api.utils import is_available
 
-   if habit.is_available("torch"):
+   if is_available("torch"):
        ...
-   if habit.is_available("radiomics"):
+   if is_available("radiomics"):
        ...
 
 Logger helper for scripts:
 
 .. code-block:: python
 
-   from habit import setup_logger
+   from habit.api.utils import setup_logger
 
    logger = setup_logger(
        name="study",

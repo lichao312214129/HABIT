@@ -1,8 +1,8 @@
 Parallel execution and fault tolerance
 ======================================
 
-:class:`~habit.HabitatSpec` declares **what** to compute.
-:class:`~habit.RunPolicy` (and an execution backend) declare **how** to
+:class:`~habit.spec.HabitatSpec` declares **what** to compute.
+:class:`~habit.spec.RunPolicy` (and an execution backend) declare **how** to
 schedule subjects. Scientific numbers do not change when you switch
 serial ↔ process pool if ``random_seed`` is fixed.
 
@@ -46,24 +46,54 @@ True in-process serial needs ``backend="serial"`` **and**
 
 Pass the backend into a recipe or into :meth:`~habit.contracts.Cohort.map`::
 
-   from habit import RunPolicy
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
    from habit.execution import backend_from_policy
-   import habit.recipes as recipes
+   from habit.recipes import one_step_habitat
+   from habit.spec import RunPolicy
 
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+   study = one_step_habitat(
+       modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
+   )
    policy = RunPolicy(
-       workers=2,
-       backend="process",
-       subject_timeout_sec=900.0,
+       workers=1,
+       backend="serial",
+       subject_timeout_sec=None,
        on_subject_failure="continue",
        resume=True,
    )
    backend = backend_from_policy(policy)
-   result = recipes.Study(spec=spec).fit_predict(cohort, backend=backend)
+   result = study.fit_predict(cohort, backend=backend)
 
-Atomic path (no ``Study``)::
+Atomic path (no ``Study``) — ``pipe`` is an apply-time
+:class:`~habit.pipeline.SubjectPipeline` (see
+:doc:`../examples/habitat_atomic_ops`)::
 
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
    from habit.execution import SerialBackend
+   from habit.habitat_model import KMeansHabitatModelFitter
+   from habit.pipeline import SubjectPipeline
+   from habit.supervoxel import KMeansSupervoxelizer
+   from habit.voxel_features import RawVoxelFeatures
 
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+   voxel = RawVoxelFeatures(modalities=list(MODALITIES))
+   svx = KMeansSupervoxelizer(n_supervoxels=8, n_init=3)
+   svx.set_random_state(7)
+   fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=5)
+   fitter.set_random_state(7)
+   model = fitter.fit([svx(voxel(subject)) for subject in cohort], cohort=cohort)
+   pipe = SubjectPipeline(voxel, svx, model.assigner())
    maps = cohort.map(pipe, backend=SerialBackend())
 
 One subject does not need a backend: ``habitat_map = pipe(subject)``.
@@ -81,9 +111,11 @@ Both backends accept ``on_subject_failure``:
 :class:`~habit.exceptions.ProcessingError` when any slot failed, **even
 if** the backend used ``continue``. Recipes / CLI pass
 ``raise_on_failure=False`` so a partial cohort can finish. Embedders who
-want the same::
+want the same (uses ``cohort`` / ``pipe`` from the atomic path)::
 
-   slots = cohort.map(pipe, backend=backend, raise_on_failure=False)
+   from habit.execution import SerialBackend
+
+   slots = cohort.map(pipe, backend=SerialBackend(), raise_on_failure=False)
 
 Or call ``backend.map(pipe, cohort)`` and read ``slot.error``.
 
@@ -97,7 +129,8 @@ Resume and checkpoints
 ----------------------
 
 Attach a :class:`~habit.execution.CheckpointStore` so a second run skips
-subjects already recorded as success::
+subjects already recorded as success (uses ``cohort`` / ``pipe`` from the
+atomic path above)::
 
    from habit.execution import CheckpointStore, SerialBackend
 
