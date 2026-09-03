@@ -1350,6 +1350,73 @@ def test_single_node_graph_has_zero_edges_and_key_columns() -> None:
 
 
 @pytest.mark.unit
+def test_extract_graph_features_accepts_kwargs_without_options() -> None:
+    """Option fields may be passed as kwargs; no HabitatGraphFeatureOptions needed."""
+    label_array: np.ndarray = np.array(
+        [
+            [1, 1, 0, 2],
+            [1, 0, 0, 2],
+            [0, 0, 1, 2],
+            [2, 2, 0, 0],
+        ],
+        dtype=np.int32,
+    )
+    via_kwargs = extract_graph_features(
+        label_array,
+        block_size=5,
+        include_extended_metrics=False,
+        node_method="component",
+        subdivide_region_voxels=0,
+        erosion_radius=0,
+        distance_threshold=3.0,
+    )
+    via_options = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(
+            block_size=5,
+            include_extended_metrics=False,
+            node_method="component",
+            subdivide_region_voxels=0,
+            erosion_radius=0,
+            distance_threshold=3.0,
+        ),
+    )
+    assert via_kwargs == via_options
+    assert "single_h1_n_nodes" in via_kwargs
+    assert "single_h1_small_world_sigma" not in via_kwargs
+
+    # options + kwargs: kwargs override individual fields.
+    mixed = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(
+            block_size=8,
+            include_extended_metrics=True,
+            node_method="component",
+            subdivide_region_voxels=0,
+            erosion_radius=0,
+            distance_threshold=3.0,
+        ),
+        block_size=5,
+        include_extended_metrics=False,
+    )
+    assert mixed == via_kwargs
+
+    # Same kwargs path for the label-restricted entry point.
+    restricted = extract_graph_features_for_labels(
+        label_array,
+        labels=(1, 2),
+        block_size=5,
+        include_extended_metrics=False,
+        node_method="component",
+        subdivide_region_voxels=0,
+        erosion_radius=0,
+        distance_threshold=3.0,
+    )
+    assert restricted["graph_num_habitats"] == 2.0
+    assert "single_h1_n_nodes" in restricted
+
+
+@pytest.mark.unit
 def test_extract_graph_features_for_labels_restricts_habitats() -> None:
     """Restricting labels zeros out non-selected habitats before extraction."""
     label_array: np.ndarray = np.array(

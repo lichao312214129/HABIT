@@ -22,10 +22,11 @@ reviewable and reproducible.
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
 from itertools import combinations
 import re
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -590,11 +591,42 @@ def _flatten_nodes(
     return flattened
 
 
+def _resolve_graph_feature_options(
+    options: Optional[HabitatGraphFeatureOptions],
+    kwargs: Mapping[str, Any],
+) -> HabitatGraphFeatureOptions:
+    """
+    Merge an optional options object with keyword overrides.
+
+    Resolution rules (same for both extract entry points):
+
+    * ``options is None`` and no kwargs → default ``HabitatGraphFeatureOptions()``
+    * ``options is None`` and kwargs → ``HabitatGraphFeatureOptions(**kwargs)``
+    * ``options`` given and kwargs → ``dataclasses.replace(options, **kwargs)``
+    * ``options`` given and no kwargs → ``options`` unchanged
+
+    Args:
+        options: Optional base options dataclass (or ``None``).
+        kwargs: Field overrides matching ``HabitatGraphFeatureOptions``.
+
+    Returns:
+        HabitatGraphFeatureOptions: Resolved frozen options instance.
+    """
+    if options is None:
+        if not kwargs:
+            return HabitatGraphFeatureOptions()
+        return HabitatGraphFeatureOptions(**kwargs)
+    if not kwargs:
+        return options
+    return dataclasses.replace(options, **kwargs)
+
+
 def extract_graph_features(
     label_array: np.ndarray,
     *,
-    options: HabitatGraphFeatureOptions = HabitatGraphFeatureOptions(),
+    options: Optional[HabitatGraphFeatureOptions] = None,
     expected_labels: Optional[Sequence[int]] = None,
+    **kwargs: Any,
 ) -> Dict[str, float]:
     """
     Extract subject-level graph features from a habitat label map.
@@ -605,12 +637,19 @@ def extract_graph_features(
     Pass ``node_method='component'`` / ``edge_method='adjacency'`` for the
     older connected-component contact graph.
 
+    Keyword arguments that match :class:`HabitatGraphFeatureOptions` fields
+    may be passed directly (for example
+    ``extract_graph_features(labels, include_extended_metrics=False)``).
+    When both ``options`` and kwargs are given, kwargs override individual
+    fields via :func:`dataclasses.replace`.
+
     Args:
         label_array: Already segmented habitat map. Label 0 is treated as
             background and excluded from graph construction. A full-CT
             lattice is cropped to the tumour VOI before nodes, edges,
             metrics, and size-normalized companions are computed.
-        options: Graph construction and metric options.
+        options: Graph construction and metric options. When ``None``, a
+            default instance is built (optionally from ``kwargs``).
         expected_labels: Optional canonical habitat ids to report. When given,
             every listed label produces its ``single_h*`` columns and every
             unordered pair its ``pair_h*_h*`` columns even when the label is
@@ -618,10 +657,13 @@ def extract_graph_features(
             so cohort-level tables have stable columns. When ``None``, only
             labels actually present in ``label_array`` are reported (the
             historical v0.1 behaviour).
+        **kwargs: Optional field overrides for
+            :class:`HabitatGraphFeatureOptions` (merged as described above).
 
     Returns:
         Dict[str, float]: Flat feature dictionary ready for table assembly.
     """
+    options = _resolve_graph_feature_options(options, kwargs)
     labels_array = _crop_to_tumor_voi(
         np.asarray(label_array).astype(np.int32, copy=False)
     )
@@ -816,19 +858,28 @@ def extract_graph_features_for_labels(
     label_array: np.ndarray,
     labels: Sequence[int],
     *,
-    options: HabitatGraphFeatureOptions = HabitatGraphFeatureOptions(),
+    options: Optional[HabitatGraphFeatureOptions] = None,
+    **kwargs: Any,
 ) -> Dict[str, float]:
     """
     Extract graph features after restricting the habitat map to selected labels.
 
+    Keyword arguments that match :class:`HabitatGraphFeatureOptions` fields
+    may be passed directly; see :func:`extract_graph_features` for the
+    ``options`` / kwargs merge rules.
+
     Args:
         label_array: Already segmented habitat map.
         labels: Habitat labels to keep. Other labels are set to background.
-        options: Graph construction and metric options.
+        options: Graph construction and metric options. When ``None``, a
+            default instance is built (optionally from ``kwargs``).
+        **kwargs: Optional field overrides for
+            :class:`HabitatGraphFeatureOptions`.
 
     Returns:
         Dict[str, float]: Flat feature dictionary for the selected labels.
     """
+    options = _resolve_graph_feature_options(options, kwargs)
     labels_array = _crop_to_tumor_voi(
         np.asarray(label_array).astype(np.int32, copy=False)
     )
