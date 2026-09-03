@@ -1014,10 +1014,11 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">combinations</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -1585,13 +1586,44 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">flattened</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_graph_feature_options</span><span class="p">(</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatGraphFeatureOptions</span><span class="p">],</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge an optional options object with keyword overrides.</span>
+
+<span class="sd">    Resolution rules (same for both extract entry points):</span>
+
+<span class="sd">    * ``options is None`` and no kwargs → default ``HabitatGraphFeatureOptions()``</span>
+<span class="sd">    * ``options is None`` and kwargs → ``HabitatGraphFeatureOptions(**kwargs)``</span>
+<span class="sd">    * ``options`` given and kwargs → ``dataclasses.replace(options, **kwargs)``</span>
+<span class="sd">    * ``options`` given and no kwargs → ``options`` unchanged</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        options: Optional base options dataclass (or ``None``).</span>
+<span class="sd">        kwargs: Field overrides matching ``HabitatGraphFeatureOptions``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        HabitatGraphFeatureOptions: Resolved frozen options instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">options</span>
+    <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="extract_graph_features">
 <a class="viewcode-back" href="../../../../api/generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_graph_features</span><span class="p">(</span>
     <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(),</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatGraphFeatureOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">expected_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract subject-level graph features from a habitat label map.</span>
@@ -1602,12 +1634,19 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Pass ``node_method=&#39;component&#39;`` / ``edge_method=&#39;adjacency&#39;`` for the</span>
 <span class="sd">    older connected-component contact graph.</span>
 
+<span class="sd">    Keyword arguments that match :class:`HabitatGraphFeatureOptions` fields</span>
+<span class="sd">    may be passed directly (for example</span>
+<span class="sd">    ``extract_graph_features(labels, include_extended_metrics=False)``).</span>
+<span class="sd">    When both ``options`` and kwargs are given, kwargs override individual</span>
+<span class="sd">    fields via :func:`dataclasses.replace`.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: Already segmented habitat map. Label 0 is treated as</span>
 <span class="sd">            background and excluded from graph construction. A full-CT</span>
 <span class="sd">            lattice is cropped to the tumour VOI before nodes, edges,</span>
 <span class="sd">            metrics, and size-normalized companions are computed.</span>
-<span class="sd">        options: Graph construction and metric options.</span>
+<span class="sd">        options: Graph construction and metric options. When ``None``, a</span>
+<span class="sd">            default instance is built (optionally from ``kwargs``).</span>
 <span class="sd">        expected_labels: Optional canonical habitat ids to report. When given,</span>
 <span class="sd">            every listed label produces its ``single_h*`` columns and every</span>
 <span class="sd">            unordered pair its ``pair_h*_h*`` columns even when the label is</span>
@@ -1615,10 +1654,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            so cohort-level tables have stable columns. When ``None``, only</span>
 <span class="sd">            labels actually present in ``label_array`` are reported (the</span>
 <span class="sd">            historical v0.1 behaviour).</span>
+<span class="sd">        **kwargs: Optional field overrides for</span>
+<span class="sd">            :class:`HabitatGraphFeatureOptions` (merged as described above).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, float]: Flat feature dictionary ready for table assembly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">_resolve_graph_feature_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
     <span class="n">labels_array</span> <span class="o">=</span> <span class="n">_crop_to_tumor_voi</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="p">)</span>
@@ -1816,19 +1858,28 @@ window.runMermaid = runMermaid;</script>
     <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(),</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatGraphFeatureOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract graph features after restricting the habitat map to selected labels.</span>
 
+<span class="sd">    Keyword arguments that match :class:`HabitatGraphFeatureOptions` fields</span>
+<span class="sd">    may be passed directly; see :func:`extract_graph_features` for the</span>
+<span class="sd">    ``options`` / kwargs merge rules.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: Already segmented habitat map.</span>
 <span class="sd">        labels: Habitat labels to keep. Other labels are set to background.</span>
-<span class="sd">        options: Graph construction and metric options.</span>
+<span class="sd">        options: Graph construction and metric options. When ``None``, a</span>
+<span class="sd">            default instance is built (optionally from ``kwargs``).</span>
+<span class="sd">        **kwargs: Optional field overrides for</span>
+<span class="sd">            :class:`HabitatGraphFeatureOptions`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, float]: Flat feature dictionary for the selected labels.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">_resolve_graph_feature_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
     <span class="n">labels_array</span> <span class="o">=</span> <span class="n">_crop_to_tumor_voi</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="p">)</span>

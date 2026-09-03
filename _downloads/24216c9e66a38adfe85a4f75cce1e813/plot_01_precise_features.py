@@ -72,15 +72,22 @@ The extra panel is shown so the reader can compare the two definitions.
 # ``extract_voxel_texture`` crops to the ROI bounding box plus kernel
 # padding internally (``crop_to_roi=True`` by default).
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
-from habit.contracts import Cohort, cohort_from_directory
+from habit.contracts import Cohort, Subject, cohort_from_directory
 from habit.datasets import fetch_demo
+from habit.kernels.habitat_label_match import (
+    adjusted_rand_index,
+    habitat_dice_from_mapping,
+    match_labels_by_overlap,
+    present_habitat_ids,
+    remap_label_array,
+)
 from habit.precision import (
     ImagePerturbationRegistry,
     aggregate_panels,
@@ -318,6 +325,11 @@ for experiment, fname, title in (
 # and clustering. Same extractor and :math:`k` search: all texture
 # columns vs the precise subset. Another lab should cluster the **same**
 # names (``precise.save(...)``), not re-screen after seeing the endpoint.
+#
+# Under Appendix S2 image perturbation, fit habitats on the original and
+# on the perturbed volume (same mask), match integer ids by voxel overlap,
+# then score Dice / ARI. Precise features should keep a more stable
+# partition (higher mean Dice and ARI) than the full texture set.
 texture_params = {
     "imageType": {"Original": {}},
     "featureClass": {key: list(values) for key, values in FEATURE_CLASSES.items()},
@@ -332,46 +344,185 @@ fitter_spec = Spec(
     {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
 )
 minmax_spec = Spec("minmax", {"across_features": False})
+subject_pert = Subject(
+    subject_id=subject.subject_id,
+    images={MODALITIES[0]: perturbed},
+    masks=subject.masks,
+)
 demo = Cohort(subjects=(subject,))
-result_all = Study(
-    HabitatSpec(
-        name="all_texture_one_step",
+demo_pert = Cohort(subjects=(subject_pert,))
+spec_all = HabitatSpec(
+    name="all_texture_one_step",
+    voxel_feature_extractor=extractor_spec,
+    voxel_feature_preprocessors=(minmax_spec,),
+    habitat_model_fitter=fitter_spec,
+    habitat_assigner=Spec("nearest_centroid"),
+    random_seed=11,
+    pooling="none",
+)
+result_all_orig = Study(spec_all).fit_predict(demo)
+result_all_pert = Study(spec_all).fit_predict(demo_pert)
+
+
+def _perturbation_agreement(
+    reference_map: Any,
+    moving_map: Any,
+) -> Tuple[np.ndarray, float, float, List[Dict[str, Any]]]:
+    """Match ``moving`` ids onto ``reference``, then score Dice / ARI.
+
+    Same-grid original vs Appendix S2 perturbed habitats use
+    :func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`.
+    Dice needs that pairing; ARI is permutation-invariant but is reported
+    on the same voxels for a single summary table.
+
+    Args:
+        reference_map: Habitat map whose integer ids are kept.
+        moving_map: Independently clustered map to remap onto reference.
+
+    Returns:
+        ``(aligned_labels, mean_dice, ari, per_habitat_rows)`` where
+        ``per_habitat_rows`` is a list of dicts with habitat Dice.
+    """
+    ref = np.asarray(reference_map.label_array)
+    mov = np.asarray(moving_map.label_array)
+    mapping = match_labels_by_overlap(ref, mov)
+    reserved = [int(v) for v in present_habitat_ids(ref).tolist()]
+    aligned = remap_label_array(mov, mapping, reserved_ids=reserved)
+    dice_rows: List[Dict[str, Any]] = []
+    dice_values: List[float] = []
+    for habitat_id, matched_id, dice, n_ref, n_mov in habitat_dice_from_mapping(
+        ref, mov, mapping
+    ):
+        dice_values.append(float(dice))
+        dice_rows.append(
+            {
+                "habitat_id": int(habitat_id),
+                "matched_id": None if matched_id is None else int(matched_id),
+                "dice": float(dice),
+                "n_reference": int(n_ref),
+                "n_moving": int(n_mov),
+            }
+        )
+    mean_dice = float(np.mean(dice_values)) if dice_values else float("nan")
+    ari = float(adjusted_rand_index(ref, mov))
+    return aligned, mean_dice, ari, dice_rows
+
+
+aligned_all, mean_dice_all, ari_all, dice_all = _perturbation_agreement(
+    result_all_orig.habitat_maps[0],
+    result_all_pert.habitat_maps[0],
+)
+fig_cmp_all = plot_habitat_label_compare(
+    image,
+    result_all_orig.habitat_maps[0],
+    aligned_all,
+    titles=(
+        "All features: Original habitats",
+        f"All features: Perturbed (matched, Dice={mean_dice_all:.3f}, ARI={ari_all:.3f})",
+    ),
+    align_labels=False,
+)
+fig_cmp_all.savefig(
+    "out/precise_features_all_orig_vs_pert.png", dpi=150, bbox_inches="tight"
+)
+_show_fig(fig_cmp_all)
+
+if kept:
+    whitelist = precise.preprocessor()
+    spec_precise = HabitatSpec(
+        name="precise_one_step",
         voxel_feature_extractor=extractor_spec,
-        voxel_feature_preprocessors=(minmax_spec,),
+        voxel_feature_preprocessors=(whitelist.spec, minmax_spec),
         habitat_model_fitter=fitter_spec,
         habitat_assigner=Spec("nearest_centroid"),
         random_seed=11,
         pooling="none",
     )
-).fit_predict(demo)
-if kept:
-    whitelist = precise.preprocessor()
-    result_precise = Study(
-        HabitatSpec(
-            name="precise_one_step",
-            voxel_feature_extractor=extractor_spec,
-            voxel_feature_preprocessors=(whitelist.spec, minmax_spec),
-            habitat_model_fitter=fitter_spec,
-            habitat_assigner=Spec("nearest_centroid"),
-            random_seed=11,
-            pooling="none",
+    result_precise_orig = Study(spec_precise).fit_predict(demo)
+    result_precise_pert = Study(spec_precise).fit_predict(demo_pert)
+    aligned_precise, mean_dice_precise, ari_precise, dice_precise = (
+        _perturbation_agreement(
+            result_precise_orig.habitat_maps[0],
+            result_precise_pert.habitat_maps[0],
         )
-    ).fit_predict(demo)
+    )
+    fig_cmp_precise = plot_habitat_label_compare(
+        image,
+        result_precise_orig.habitat_maps[0],
+        aligned_precise,
+        titles=(
+            "Precise features: Original habitats",
+            (
+                "Precise features: Perturbed "
+                f"(matched, Dice={mean_dice_precise:.3f}, ARI={ari_precise:.3f})"
+            ),
+        ),
+        align_labels=False,
+    )
+    fig_cmp_precise.savefig(
+        "out/precise_features_precise_orig_vs_pert.png",
+        dpi=150,
+        bbox_inches="tight",
+    )
+    _show_fig(fig_cmp_precise)
+
+    # Side-by-side all-texture vs precise on the original image (whitelist effect).
     fig_cmp = plot_habitat_label_compare(
         image,
-        result_all.habitat_maps[0],
-        result_precise.habitat_maps[0],
+        result_all_orig.habitat_maps[0],
+        result_precise_orig.habitat_maps[0],
         titles=("All texture features", "Precise features only"),
         align_labels=True,
     )
-    fig_cmp.savefig("out/precise_features_all_vs_precise.png", dpi=150, bbox_inches="tight")
+    fig_cmp.savefig(
+        "out/precise_features_all_vs_precise.png", dpi=150, bbox_inches="tight"
+    )
     _show_fig(fig_cmp)
+
+    summary = [
+        {
+            "feature_set": "All texture features",
+            "mean_dice": mean_dice_all,
+            "ari": ari_all,
+            "n_habitats_ref": int(len(present_habitat_ids(
+                result_all_orig.habitat_maps[0].label_array
+            ))),
+        },
+        {
+            "feature_set": "Precise features only",
+            "mean_dice": mean_dice_precise,
+            "ari": ari_precise,
+            "n_habitats_ref": int(len(present_habitat_ids(
+                result_precise_orig.habitat_maps[0].label_array
+            ))),
+        },
+    ]
+    print("\nPerturbation stability (Appendix S2; overlap-matched Dice / ARI):")
     print(
-        f"Habitat maps: all={len(result_all.habitat_maps)} "
-        f"precise={len(result_precise.habitat_maps)}"
+        f"{'feature_set':<28} {'mean_dice':>10} {'ari':>10} {'n_habitats':>10}"
+    )
+    for row in summary:
+        print(
+            f"{row['feature_set']:<28} "
+            f"{row['mean_dice']:>10.4f} {row['ari']:>10.4f} "
+            f"{row['n_habitats_ref']:>10d}"
+        )
+    print(
+        "Precise features keep a more reproducible habitat partition when "
+        "mean Dice and ARI are higher than the full texture set."
+    )
+    print(f"Per-habitat Dice (all features): {dice_all}")
+    print(f"Per-habitat Dice (precise): {dice_precise}")
+    print(
+        f"Habitat maps: all={len(result_all_orig.habitat_maps)} "
+        f"precise={len(result_precise_orig.habitat_maps)}"
     )
 else:
     print("No feature passed every experiment; skip precise habitats")
+    print(
+        f"All-features perturbation: mean_dice={mean_dice_all:.4f}, "
+        f"ARI={ari_all:.4f}"
+    )
 
 # %%
 # Extra experiment: ROI-edge / contour reproducibility (not Prior Appendix S2).

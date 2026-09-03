@@ -25,10 +25,20 @@ After a habitat map exists, :func:`~habit.kernels.extract_graph_features`
 summarises region topology (lattice nodes, closest-voxel edges).
 The same family is ``Spec("graph")`` on a study.
 
+**Cross-tumour id alignment.** With ``one_step`` clustering each subject
+is clustered independently, so integer habitat ids are permuted across
+patients: cluster 1 in subject A need not be the same phenotype as
+cluster 1 in subject B. Before extracting subject-level features that
+name habitats (especially graph columns ``single_h*``, ``pair_h*_*``),
+remap moving maps onto a reference subject with
+:func:`~habit.precision.align_habitat_map` (``method="features"`` or
+``method="centroid"``). Only then does ``single_h1`` mean the same
+biological habitat across the cohort.
+
 2-D network figures are display-only (one representative slice). Tables
 use the full 3-D :class:`~habit.contracts.HabitatMap`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-14
+.. GENERATED FROM PYTHON SOURCE LINES 22-24
 
 .. code-block:: Python
    :dedent: 1
@@ -42,12 +52,14 @@ use the full 3-D :class:`~habit.contracts.HabitatMap`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-18
+.. GENERATED FROM PYTHON SOURCE LINES 26-30
 
 One-step habitats with a known K so the graph has a fixed number of
-labels. ``include_extended_metrics=False`` keeps the table narrow.
+labels. Pass graph-option fields directly to
+:func:`~habit.kernels.extract_graph_features` (no separate
+``HabitatGraphFeatureOptions`` required for the table).
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-56
+.. GENERATED FROM PYTHON SOURCE LINES 30-68
 
 .. code-block:: Python
 
@@ -60,6 +72,7 @@ labels. ``include_extended_metrics=False`` keeps the table narrow.
     from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.kernels import HabitatGraphFeatureOptions, extract_graph_features
+    from habit.precision import align_habitat_map
     from habit.recipes import one_step_habitat
     from habit.spec import Spec
     from habit.viz import (
@@ -74,7 +87,6 @@ labels. ``include_extended_metrics=False`` keeps the table narrow.
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     print(f"Cohort: {list(cohort.subject_ids)}")
 
-    options = HabitatGraphFeatureOptions(include_extended_metrics=False)
     result = one_step_habitat(
         modalities=MODALITIES,
         n_habitats=3,
@@ -85,7 +97,7 @@ labels. ``include_extended_metrics=False`` keeps the table narrow.
             Spec("graph", {"include_extended_metrics": False}),
         ],
     ).fit_predict(cohort)
-    print("Study graph columns (head):")
+    print("Study graph columns before cross-tumour alignment (head):")
     print(result.features.frame.head())
     result.features.frame.head()
 
@@ -120,8 +132,8 @@ labels. ``include_extended_metrics=False`` keeps the table narrow.
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort: ['subj001', 'subj002']
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:03<00:03,  3.21s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:05<00:00,  2.64s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:05<00:00,  2.64s/it]
-    Study graph columns (head):
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:03<00:03,  3.52s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:05<00:00,  2.90s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:05<00:00,  2.90s/it]
+    Study graph columns before cross-tumour alignment (head):
        subject  ...  pair_h2_h3_contact_voxels_sum_per_pair_area_scale
     0  subj001  ...                                                0.0
     1  subj002  ...                                                0.0
@@ -410,24 +422,48 @@ labels. ``include_extended_metrics=False`` keeps the table narrow.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 57-59
+.. GENERATED FROM PYTHON SOURCE LINES 69-74
 
-Kernel extract on the full 3-D label array (same options as the plot).
-Do not extract from a 2-D slice — the network figure is display-only.
+Align every moving subject onto subject 0 so habitat integers share one
+phenotype naming. ``method="features"`` uses unscaled habitat summaries
+(Hungarian after cohort z-score). ``method="centroid"`` is the
+mean-intensity / centroid alternative when feature means are unavailable.
+``force=True`` is safe when independent ``one_step`` digests collide.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-71
+.. GENERATED FROM PYTHON SOURCE LINES 74-107
 
 .. code-block:: Python
 
+    reference_map = result.habitat_maps[0]
+    reference_image = cohort[0].image(MODALITIES[0])
+    aligned_maps = [reference_map]
+    for subject, habitat_map in zip(cohort[1:], result.habitat_maps[1:]):
+        aligned = align_habitat_map(
+            reference_map,
+            habitat_map,
+            method="features",
+            image=reference_image,
+            moving_image=subject.image(MODALITIES[0]),
+            force=True,
+        )
+        aligned_maps.append(aligned)
+        print(
+            f"Aligned {subject.subject_id} onto {cohort[0].subject_id}: "
+            f"ids {list(habitat_map.habitat_ids)} -> {list(aligned.habitat_ids)}"
+        )
+
+    # Kernel extract on the **aligned** full 3-D label arrays. Do not extract
+    # from a 2-D slice — the network figure is display-only.
     rows = []
-    for subject, habitat_map in zip(cohort, result.habitat_maps):
+    for subject, habitat_map in zip(cohort, aligned_maps):
         feats = extract_graph_features(
             habitat_map.label_array,
-            options=options,
             expected_labels=habitat_map.habitat_ids,
+            include_extended_metrics=False,
         )
         rows.append({"subject_id": subject.subject_id, **feats})
     table = pd.DataFrame(rows)
+    print("Graph features after cross-tumour alignment (single_h1 shared phenotype):")
     print(table.head())
     table.head()
 
@@ -439,6 +475,8 @@ Do not extract from a 2-D slice — the network figure is display-only.
 
  .. code-block:: none
 
+    Aligned subj002 onto subj001: ids [1, 2, 3] -> [1, 2, 3]
+    Graph features after cross-tumour alignment (single_h1 shared phenotype):
       subject_id  ...  pair_h2_h3_contact_voxels_sum_per_pair_area_scale
     0    subj001  ...                                                0.0
     1    subj002  ...                                                0.0
@@ -608,7 +646,7 @@ Do not extract from a 2-D slice — the network figure is display-only.
           <td>0.036346</td>
           <td>0.028672</td>
           <td>0.029120</td>
-          <td>0.01573</td>
+          <td>0.015730</td>
           <td>0.015976</td>
           <td>0.0</td>
           <td>0.0</td>
@@ -640,6 +678,36 @@ Do not extract from a 2-D slice — the network figure is display-only.
           <td>subj002</td>
           <td>3.0</td>
           <td>117.0</td>
+          <td>50.0</td>
+          <td>242.0</td>
+          <td>0.197551</td>
+          <td>1.0</td>
+          <td>9.680000</td>
+          <td>24.0</td>
+          <td>1.0</td>
+          <td>0.197551</td>
+          <td>0.489796</td>
+          <td>0.020408</td>
+          <td>0.516711</td>
+          <td>3.823145</td>
+          <td>1.905313</td>
+          <td>1.103127</td>
+          <td>69.160000</td>
+          <td>85.854845</td>
+          <td>1.241395</td>
+          <td>6.260756</td>
+          <td>0.020000</td>
+          <td>1.877411</td>
+          <td>0.283280</td>
+          <td>1.0</td>
+          <td>0.718242</td>
+          <td>2.256327</td>
+          <td>4.0</td>
+          <td>0.046047</td>
+          <td>0.081633</td>
+          <td>0.026173</td>
+          <td>0.453705</td>
+          <td>-0.017128</td>
           <td>29.0</td>
           <td>146.0</td>
           <td>0.359606</td>
@@ -647,59 +715,18 @@ Do not extract from a 2-D slice — the network figure is display-only.
           <td>10.068966</td>
           <td>20.0</td>
           <td>3.0</td>
-          <td>0.359606</td>
-          <td>0.714286</td>
-          <td>0.107143</td>
-          <td>0.386789</td>
-          <td>3.650410</td>
-          <td>1.918283</td>
-          <td>1.081437</td>
-          <td>138.931034</td>
-          <td>112.217440</td>
-          <td>0.807720</td>
-          <td>5.912795</td>
-          <td>0.034483</td>
-          <td>1.697838</td>
-          <td>0.161874</td>
-          <td>1.0</td>
-          <td>0.717085</td>
-          <td>1.800493</td>
-          <td>3.0</td>
-          <td>0.064303</td>
-          <td>0.107143</td>
-          <td>0.029648</td>
-          <td>0.568555</td>
-          <td>0.010976</td>
-          <td>38.0</td>
-          <td>100.0</td>
-          <td>0.142248</td>
-          <td>2.0</td>
-          <td>5.263158</td>
-          <td>12.0</td>
-          <td>1.0</td>
           <td>...</td>
-          <td>0.024078</td>
-          <td>0.007016</td>
-          <td>0.019068</td>
-          <td>0.008709</td>
-          <td>0.023671</td>
-          <td>0.129730</td>
-          <td>0.136653</td>
-          <td>0.002942</td>
-          <td>0.006934</td>
-          <td>0.003855</td>
-          <td>0.018546</td>
-          <td>0.020998</td>
-          <td>0.064621</td>
-          <td>0.064621</td>
-          <td>0.02041</td>
-          <td>0.020410</td>
-          <td>0.0</td>
-          <td>0.0</td>
-          <td>0.002942</td>
-          <td>0.006934</td>
+          <td>0.026745</td>
+          <td>0.004709</td>
+          <td>0.022655</td>
+          <td>0.006669</td>
+          <td>0.032084</td>
+          <td>0.145399</td>
+          <td>0.149805</td>
           <td>0.005072</td>
           <td>0.013785</td>
+          <td>0.002942</td>
+          <td>0.006934</td>
           <td>0.040779</td>
           <td>0.044726</td>
           <td>0.047113</td>
@@ -707,15 +734,26 @@ Do not extract from a 2-D slice — the network figure is display-only.
           <td>0.025463</td>
           <td>0.0</td>
           <td>0.0</td>
-          <td>0.003855</td>
-          <td>0.018546</td>
           <td>0.005072</td>
           <td>0.013785</td>
+          <td>0.003855</td>
+          <td>0.018546</td>
           <td>0.030229</td>
           <td>0.047706</td>
           <td>0.047706</td>
           <td>0.026986</td>
           <td>0.026986</td>
+          <td>0.0</td>
+          <td>0.0</td>
+          <td>0.002942</td>
+          <td>0.006934</td>
+          <td>0.003855</td>
+          <td>0.018546</td>
+          <td>0.020998</td>
+          <td>0.064621</td>
+          <td>0.064621</td>
+          <td>0.020410</td>
+          <td>0.020410</td>
           <td>0.0</td>
           <td>0.0</td>
         </tr>
@@ -727,21 +765,23 @@ Do not extract from a 2-D slice — the network figure is display-only.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-74
+.. GENERATED FROM PYTHON SOURCE LINES 108-111
 
 Overlay, lattice slice, and 2-D network. ``block_size=8`` is the
 library default (same as :class:`~habit.kernels.HabitatGraphFeatureOptions`).
+Viz helpers still take an options object; the feature table above used kwargs.
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-103
+.. GENERATED FROM PYTHON SOURCE LINES 111-141
 
 .. code-block:: Python
 
     Path("out").mkdir(exist_ok=True)
-    labels = result.habitat_maps[0].label_array
+    options = HabitatGraphFeatureOptions(include_extended_metrics=False)
+    labels = aligned_maps[0].label_array
     fig = plot_habitat_overlay(
         cohort[0].image(MODALITIES[0]),
-        result.habitat_maps[0],
-        title="One-step habitats (K=3)",
+        aligned_maps[0],
+        title="One-step habitats (K=3, reference subject)",
     )
     fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
     if os.environ.get("HABIT_NO_VIEW") != "1":
@@ -774,7 +814,7 @@ library default (same as :class:`~habit.kernels.HabitatGraphFeatureOptions`).
     *
 
       .. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_04_graph_features_001.png
-         :alt: One-step habitats (K=3), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+         :alt: One-step habitats (K=3, reference subject), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
          :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_04_graph_features_001.png
          :class: sphx-glr-multi-img
 
@@ -806,7 +846,7 @@ library default (same as :class:`~habit.kernels.HabitatGraphFeatureOptions`).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 10.383 seconds)
+   **Total running time of the script:** (0 minutes 12.366 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_04_graph_features.py:

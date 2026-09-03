@@ -6,6 +6,16 @@ After a habitat map exists, :func:`~habit.kernels.extract_graph_features`
 summarises region topology (lattice nodes, closest-voxel edges).
 The same family is ``Spec("graph")`` on a study.
 
+**Cross-tumour id alignment.** With ``one_step`` clustering each subject
+is clustered independently, so integer habitat ids are permuted across
+patients: cluster 1 in subject A need not be the same phenotype as
+cluster 1 in subject B. Before extracting subject-level features that
+name habitats (especially graph columns ``single_h*``, ``pair_h*_*``),
+remap moving maps onto a reference subject with
+:func:`~habit.precision.align_habitat_map` (``method="features"`` or
+``method="centroid"``). Only then does ``single_h1`` mean the same
+biological habitat across the cohort.
+
 2-D network figures are display-only (one representative slice). Tables
 use the full 3-D :class:`~habit.contracts.HabitatMap`.
 """
@@ -14,7 +24,9 @@ use the full 3-D :class:`~habit.contracts.HabitatMap`.
 
 # %%
 # One-step habitats with a known K so the graph has a fixed number of
-# labels. ``include_extended_metrics=False`` keeps the table narrow.
+# labels. Pass graph-option fields directly to
+# :func:`~habit.kernels.extract_graph_features` (no separate
+# ``HabitatGraphFeatureOptions`` required for the table).
 from pathlib import Path
 import os
 
@@ -24,6 +36,7 @@ import pandas as pd
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.kernels import HabitatGraphFeatureOptions, extract_graph_features
+from habit.precision import align_habitat_map
 from habit.recipes import one_step_habitat
 from habit.spec import Spec
 from habit.viz import (
@@ -38,7 +51,6 @@ ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(f"Cohort: {list(cohort.subject_ids)}")
 
-options = HabitatGraphFeatureOptions(include_extended_metrics=False)
 result = one_step_habitat(
     modalities=MODALITIES,
     n_habitats=3,
@@ -49,34 +61,60 @@ result = one_step_habitat(
         Spec("graph", {"include_extended_metrics": False}),
     ],
 ).fit_predict(cohort)
-print("Study graph columns (head):")
+print("Study graph columns before cross-tumour alignment (head):")
 print(result.features.frame.head())
 result.features.frame.head()
 
 # %%
-# Kernel extract on the full 3-D label array (same options as the plot).
-# Do not extract from a 2-D slice — the network figure is display-only.
+# Align every moving subject onto subject 0 so habitat integers share one
+# phenotype naming. ``method="features"`` uses unscaled habitat summaries
+# (Hungarian after cohort z-score). ``method="centroid"`` is the
+# mean-intensity / centroid alternative when feature means are unavailable.
+# ``force=True`` is safe when independent ``one_step`` digests collide.
+reference_map = result.habitat_maps[0]
+reference_image = cohort[0].image(MODALITIES[0])
+aligned_maps = [reference_map]
+for subject, habitat_map in zip(cohort[1:], result.habitat_maps[1:]):
+    aligned = align_habitat_map(
+        reference_map,
+        habitat_map,
+        method="features",
+        image=reference_image,
+        moving_image=subject.image(MODALITIES[0]),
+        force=True,
+    )
+    aligned_maps.append(aligned)
+    print(
+        f"Aligned {subject.subject_id} onto {cohort[0].subject_id}: "
+        f"ids {list(habitat_map.habitat_ids)} -> {list(aligned.habitat_ids)}"
+    )
+
+# Kernel extract on the **aligned** full 3-D label arrays. Do not extract
+# from a 2-D slice — the network figure is display-only.
 rows = []
-for subject, habitat_map in zip(cohort, result.habitat_maps):
+for subject, habitat_map in zip(cohort, aligned_maps):
     feats = extract_graph_features(
         habitat_map.label_array,
-        options=options,
         expected_labels=habitat_map.habitat_ids,
+        include_extended_metrics=False,
     )
     rows.append({"subject_id": subject.subject_id, **feats})
 table = pd.DataFrame(rows)
+print("Graph features after cross-tumour alignment (single_h1 shared phenotype):")
 print(table.head())
 table.head()
 
 # %%
 # Overlay, lattice slice, and 2-D network. ``block_size=8`` is the
 # library default (same as :class:`~habit.kernels.HabitatGraphFeatureOptions`).
+# Viz helpers still take an options object; the feature table above used kwargs.
 Path("out").mkdir(exist_ok=True)
-labels = result.habitat_maps[0].label_array
+options = HabitatGraphFeatureOptions(include_extended_metrics=False)
+labels = aligned_maps[0].label_array
 fig = plot_habitat_overlay(
     cohort[0].image(MODALITIES[0]),
-    result.habitat_maps[0],
-    title="One-step habitats (K=3)",
+    aligned_maps[0],
+    title="One-step habitats (K=3, reference subject)",
 )
 fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
 if os.environ.get("HABIT_NO_VIEW") != "1":
