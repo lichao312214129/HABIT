@@ -16,11 +16,13 @@
 
 from __future__ import annotations
 
+import inspect
+
 import numpy as np
 import pytest
 
 from habit.api.exceptions import HABITAPIError
-from habit.domain.table_preprocessing import (
+from habit.table_preprocessing import (
     BinningPreprocessor,
     CorrelationFilterPreprocessor,
     PreciseCorrelationFilterPreprocessor,
@@ -35,7 +37,7 @@ from habit.domain.table_preprocessing import (
     WinsorizePreprocessor,
     ZScorePreprocessor,
 )
-from habit.domain.table_protocols import TablePreprocessor
+from habit._table_protocols import TablePreprocessor
 
 from .conftest import make_feature_table
 
@@ -76,7 +78,9 @@ def test_registry_lists_all_eight_methods() -> None:
         instance = TablePreprocessorRegistry.create(name)
         assert isinstance(instance, TablePreprocessor)
         assert instance.spec.name == name
-        assert TablePreprocessorRegistry.get_params_model(name) is not None
+        assert isinstance(
+            TablePreprocessorRegistry.constructor_signature(name), inspect.Signature
+        )
 
 
 @pytest.mark.unit

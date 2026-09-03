@@ -22,11 +22,7 @@ from typing import Optional
 
 import pandas as pd
 
-from habit.schemas.workflows.habitat import (
-    FeatureExtractionConfig,
-    HabitatAnalysisConfig,
-    RadiomicsConfig,
-)
+from habit.schemas.workflows.habitat import HabitatAnalysisConfig
 from habit.compat.engines.habitat_analysis.configurator import HabitatConfigurator
 from habit.utils.log_utils import get_module_logger
 
@@ -118,60 +114,3 @@ def run_habitat_analysis_from_config(
 
     return analysis.fit(save_results_csv=config.save_results_csv)
 
-
-def run_feature_extraction_from_config(
-    config: FeatureExtractionConfig,
-    *,
-    plugin_configs: Optional[dict] = None,
-    logger: Optional[logging.Logger] = None,
-) -> None:
-    """
-    Run habitat feature extraction from a validated config.
-
-    Args:
-        config: Validated feature-extraction configuration.
-        plugin_configs: Optional private plugin configuration mapping.
-        logger: Optional logger for the configurator.
-
-    Raises:
-        Exception: Propagates extractor failures.
-    """
-    log = logger or _LOG
-    configurator = HabitatConfigurator(
-        config=config,
-        logger=log,
-        plugin_configs=plugin_configs,
-    )
-    extractor = configurator.create_feature_extractor()
-    log.info("Executing feature extraction")
-    extractor.run(
-        feature_types=config.feature_types,
-        n_habitats=config.n_habitats,
-    )
-    log.info("Feature extraction completed")
-
-
-def run_radiomics_from_config(
-    config: RadiomicsConfig,
-    *,
-    logger: Optional[logging.Logger] = None,
-    output_dir: Optional[str] = None,
-) -> None:
-    """
-    Run traditional radiomics extraction from a validated config.
-
-    Args:
-        config: Validated radiomics configuration.
-        logger: Optional logger for the configurator.
-        output_dir: Optional output directory override.
-
-    Raises:
-        Exception: Propagates extractor failures.
-    """
-    log = logger or _LOG
-    out = output_dir or str(config.out_dir or config.paths.out_dir)
-    configurator = HabitatConfigurator(config=config, logger=log, output_dir=out)
-    extractor = configurator.create_radiomics_extractor()
-    log.info("Executing radiomics extraction")
-    extractor.run()
-    log.info("Radiomics extraction completed")

@@ -12,7 +12,7 @@ needs ``[viz]``). Orthogonal panels follow the radiological display
 convention (anterior / superior up; patient's right on the viewer's left)
 via ``display_convention`` (``\"radiological\"`` default,
 ``\"neurological\"``, or ``\"native\"`` to skip flips). Pass an
-:class:`~habit.ImageVolume` rather than ``.data`` so direction and
+:class:`~habit.api.image.ImageVolume` rather than ``.data`` so direction and
 spacing travel with the array — otherwise coronal / sagittal superior-inferior
 can look flipped relative to ITK-SNAP. See :mod:`habit.viz.orientation`.
 
@@ -31,7 +31,7 @@ and 2D graph slice / network figures can also be **declared** as
 (:class:`~habit.report.GraphSlice`, :class:`~habit.report.GraphNetwork2D`)
 and written as each one-step subject completes — see :doc:`one_step_habitat`
 (**Stream per subject**). Pass the same
-:class:`~habit.HabitatGraphFeatureOptions` to ``Spec("graph")`` and the
+:class:`~habit.kernels.HabitatGraphFeatureOptions` to ``Spec("graph")`` and the
 atoms; the PNGs are a representative 2D slice (display-only), while
 graph metrics use the full 3D volume. :mod:`habit.viz` stays pure; the
 Report owns ``savefig``. ``figure_layout="by_subject"`` nests each
@@ -75,7 +75,7 @@ PNG per subject. ``figure_layout="flat"`` (default) writes
      - :func:`~habit.viz.plot_habitat_graph_network_2d`
      - :doc:`graph_features`, :doc:`one_step_habitat` (**Stream per subject**)
 
-Graph atoms take :class:`~habit.HabitatGraphFeatureOptions` — pass the
+Graph atoms take :class:`~habit.kernels.HabitatGraphFeatureOptions` — pass the
 same object to ``Spec("graph", asdict(options))``. 2D PNGs are
 display-only slices; metrics use the full 3D volume. 3D graph renders
 (:func:`~habit.viz.render_habitat_graph_surface_3d`,
@@ -92,9 +92,6 @@ This example covers:
 * Cox forest, risk triptych, time-dependent AUC, Brier, survival calibration,
 * **habitat features → Cox → KM / forest / calibration** (synthetic labels),
 * regression diagnostics (predicted vs observed, residuals, Q-Q, Bland-Altman).
-
-Binary ML ROC / PR / calibration / DCA plots live on :doc:`tabular_ml` and
-:doc:`ml_advanced`.
 
 Script
 ------
@@ -209,8 +206,7 @@ The KM / Cox / calibration panels above use a **synthetic** ``time`` /
 missing taught path: extract habitat features, attach survival labels
 (here synthetic and driven by ``ith_score`` — swap for your own
 ``os_time`` / ``os_event``), fit HABIT ``CoxPH`` through
-:class:`~habit.domain.TablePipeline`, and draw the same figure family.
-It is **not** the binary-classification path on :doc:`tabular_ml`.
+:class:`~habit.pipeline.TablePipeline`, and draw the same figure family.
 
 .. literalinclude:: scripts/habitat_survival_demo.py
    :language: python
@@ -264,7 +260,7 @@ construction is available as pure plotters (``[viz]``; 3D also needs
 Or declare :class:`~habit.report.GraphSlice` /
 :class:`~habit.report.GraphNetwork2D` on a one-step
 :class:`~habit.report.Report` (same
-:class:`~habit.HabitatGraphFeatureOptions` as ``Spec("graph")``).
+:class:`~habit.kernels.HabitatGraphFeatureOptions` as ``Spec("graph")``).
 
 See :doc:`graph_features` and :doc:`../reference/features/graph`.
 
@@ -350,7 +346,7 @@ Habitat feature contrast (heatmap / Cliff's delta / CVA / violin / bars)
 -------------------------------------------------------------------------
 
 After an ``each_habitat`` (or any wide ``habitat_{id}_{feature}``) table,
-:func:`~habit.compare_habitat_features` plus the
+:func:`~habit.habitat_features.compare_habitat_features` plus the
 ``plot_habitat_feature_*`` helpers are the reviewer figures. The default
 effect figure is the features x pair Cliff's :math:`\delta` heatmap;
 ``pair=(a, b)`` keeps the lollipop. With dozens of features the heatmap

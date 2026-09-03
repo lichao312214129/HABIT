@@ -16,15 +16,16 @@
 
 from __future__ import annotations
 
+import inspect
+
 import numpy as np
 import pytest
 
-from habit.domain.habitat_features import (
+from habit.habitat_features import (
     GraphHabitatFeatures,
-    GraphHabitatFeaturesParams,
     HabitatFeatureExtractorRegistry,
 )
-from habit.domain.protocols import HabitatFeatureExtractor
+from habit._protocols import HabitatFeatureExtractor
 from habit.kernels.habitat_graph import (
     HabitatGraphFeatureOptions,
     extract_graph_features,
@@ -110,19 +111,23 @@ def test_graph_spec_records_all_options() -> None:
 
 @pytest.mark.unit
 def test_graph_registry_round_trip() -> None:
-    """The registry creates the extractor and exposes its params model."""
+    """The registry creates the extractor from its constructor contract."""
     extractor = HabitatFeatureExtractorRegistry.create("graph", block_size=7)
     assert isinstance(extractor, GraphHabitatFeatures)
     assert extractor.spec.params["block_size"] == 7
-    assert HabitatFeatureExtractorRegistry.params_model("graph") is (
-        GraphHabitatFeaturesParams
+    assert "block_size" in HabitatFeatureExtractorRegistry.constructor_signature(
+        "graph"
+    ).parameters
+    assert isinstance(
+        HabitatFeatureExtractorRegistry.constructor_signature("graph"),
+        inspect.Signature,
     )
 
 
 @pytest.mark.unit
-def test_graph_params_model_defaults_match_kernel() -> None:
-    """The pydantic params model mirrors the kernel option defaults."""
-    params = GraphHabitatFeaturesParams()
+def test_graph_constructor_defaults_match_kernel() -> None:
+    """The public constructor mirrors the graph-kernel option defaults."""
+    params = GraphHabitatFeatures()
     kernel = HabitatGraphFeatureOptions()
     assert params.erosion_radius == kernel.erosion_radius == 0
     assert params.subdivide_region_voxels == kernel.subdivide_region_voxels == 1000
@@ -144,8 +149,27 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     assert params.small_world_nrand == kernel.small_world_nrand == 100
     assert params.small_world_niter == kernel.small_world_niter == 100
     assert params.graph_null_sampler == kernel.graph_null_sampler == "analytic"
-    accepted = GraphHabitatFeaturesParams(edge_method="min_distance")
+    accepted = GraphHabitatFeatures(edge_method="min_distance")
     assert accepted.edge_method == "min_distance"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("kwargs", "message"),
+    [
+        ({"edge_method": "unknown"}, "edge_method"),
+        ({"distance_threshold": -1.0}, "distance_threshold"),
+        ({"block_size": 0}, "block_size"),
+        ({"block_min_coverage": 1.1}, "block_min_coverage"),
+        ({"extended_min_nodes": 2}, "extended_min_nodes"),
+    ],
+)
+def test_graph_constructor_rejects_invalid_options(
+    kwargs: dict[str, object], message: str
+) -> None:
+    """The public constructor rejects options outside its documented domain."""
+    with pytest.raises(ValueError, match=message):
+        GraphHabitatFeatures(**kwargs)
 
 
 @pytest.mark.unit

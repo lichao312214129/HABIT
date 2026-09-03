@@ -32,15 +32,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from habit import (
-    HabitatGraphFeatureOptions,
-    cohort_from_directory,
-    extract_graph_features,
-    one_step_habitat,
-)
+from habit.kernels import HabitatGraphFeatureOptions, extract_graph_features
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
+from habit.recipes import one_step_habitat
 
-# Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+# fetch_demo() downloads once and prints the tree. Change DATA for your data.
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 # Visualization: which people to show. Add ids (and load more rows) for all 5.

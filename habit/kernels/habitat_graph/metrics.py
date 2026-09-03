@@ -38,8 +38,8 @@ from habit.kernels.habitat_graph.traversal import (
     hop_metrics,
     mean_betweenness,
 )
-from habit.utils.graph_brandes_utils import csr_from_edge_arrays
-from habit.utils.graph_csr_utils import (
+from habit.kernels.habitat_graph.brandes import csr_from_edge_arrays
+from habit.kernels.habitat_graph.csr import (
     attribute_assortativity_csr,
     average_clustering_csr,
     degree_assortativity_csr,

@@ -32,6 +32,14 @@ from typing import Dict, Iterable, Optional, Tuple
 import numpy as np
 from scipy import ndimage
 
+try:
+    from numba import njit
+
+    _HAS_NUMBA = True
+except Exception:  # pragma: no cover - optional accelerator
+    njit = None
+    _HAS_NUMBA = False
+
 __all__ = [
     "spatial_interaction_matrix",
     "msi_features_from_matrix",
@@ -41,13 +49,13 @@ __all__ = [
     "ith_score",
 ]
 
-#: Face-connected neighbourhood offsets in 3D, matching the v0.1 MSI matrix.
-_FACE_OFFSETS_3D: Tuple[Tuple[int, int, int], ...] = (
-    (-1, 0, 0),
+#: Positive face-connected offsets. Counting only +z/+y/+x and then adding
+#: the transpose recovers the six directed pairs of the v0.1 MSI matrix:
+#: each unordered face ``(a, b)`` contributes once to ``M[L(a), L(b)]`` and
+#: the reverse direction is filled by ``M + M.T`` (diagonal doubled).
+_POS_FACE_OFFSETS_3D: Tuple[Tuple[int, int, int], ...] = (
     (1, 0, 0),
-    (0, -1, 0),
     (0, 1, 0),
-    (0, 0, -1),
     (0, 0, 1),
 )
 
@@ -65,6 +73,11 @@ def spatial_interaction_matrix(
     layer first, so boundary voxels record an interaction with background --
     the exact semantics of the v0.1 ``calculate_MSI_matrix``.
 
+    Implementation (definition unchanged): count each unordered face once
+    along ``+z/+y/+x``, then ``M + M.T`` restores the six directed pairs.
+    A numba kernel is used when numba is installed; otherwise a numpy
+    ``bincount`` histogram of the same pairs.
+
     Args:
         label_array: Integer habitat labels, ``0`` denoting background.
         n_classes: Number of classes including background; sets the matrix
@@ -79,30 +92,119 @@ def spatial_interaction_matrix(
         raise ValueError(
             f"spatial_interaction_matrix expects a 3D array; got {labels.ndim}D."
         )
-    matrix = np.zeros((n_classes, n_classes), dtype=np.int64)
+    n_classes_i = int(n_classes)
+    matrix = np.zeros((n_classes_i, n_classes_i), dtype=np.int64)
     nonzero = np.nonzero(labels)
     if nonzero[0].size == 0:
         return matrix
     bbox = tuple(
         slice(int(axis.min()), int(axis.max()) + 1) for axis in nonzero
     )
-    box = np.pad(labels[bbox], 1, mode="constant", constant_values=0)
-    # Count every directed centre->neighbour pair with vectorised slicing;
-    # visiting all six offsets is what makes the resulting matrix symmetric.
-    for dz, dy, dx in _FACE_OFFSETS_3D:
+    # Contiguous int64 so the numba kernel can index ``M[L(x), L(x')]``
+    # directly and the numpy fallback can pack pairs into ``bincount``.
+    box = np.ascontiguousarray(
+        np.pad(labels[bbox], 1, mode="constant", constant_values=0),
+        dtype=np.int64,
+    )
+    if _HAS_NUMBA and _count_directed_face_pairs_numba is not None:
+        return _count_directed_face_pairs_numba(box, n_classes_i)
+    return _count_directed_face_pairs_numpy(box, n_classes_i)
+
+
+def _count_directed_face_pairs_numpy(
+    box: np.ndarray,
+    n_classes: int,
+) -> np.ndarray:
+    """Numpy fallback: histogram of +z/+y/+x pairs, then symmetrise.
+
+    ``np.bincount`` on packed ``centre * n_classes + neighbour`` indices is
+    the same integer histogram as six directed ``np.add.at`` passes, but
+    without scatter-add collisions into the tiny ``K x K`` matrix.
+
+    Args:
+        box: Padded integer label volume, C-contiguous, values in
+            ``[0, n_classes)``.
+        n_classes: Square matrix size, including background.
+
+    Returns:
+        np.ndarray: Symmetric int64 matrix of shape ``(n_classes, n_classes)``.
+    """
+    matrix = np.zeros((n_classes, n_classes), dtype=np.int64)
+    for dz, dy, dx in _POS_FACE_OFFSETS_3D:
         center_src = [slice(None)] * 3
         neighbor_src = [slice(None)] * 3
         for axis, offset in enumerate((dz, dy, dx)):
-            if offset < 0:
-                center_src[axis] = slice(-offset, None)
-                neighbor_src[axis] = slice(None, offset)
-            elif offset > 0:
-                center_src[axis] = slice(None, -offset)
-                neighbor_src[axis] = slice(offset, None)
+            # Each positive-face offset is 1 along one axis and 0 on the
+            # other two. The zero axes must keep ``slice(None)`` so both
+            # views stay the full length of those dimensions.
+            #
+            # ``slice(None, -offset)`` cannot be used when ``offset == 0``:
+            # in Python ``-0 == 0``, so that becomes ``slice(None, 0)``,
+            # which is an empty slice. ``centers`` then has shape ``(0,)``
+            # while ``neighbors`` is the full ravel, and ``bincount`` /
+            # arithmetic raises
+            # ``ValueError: operands could not be broadcast together``.
+            # Skipping the zero component is definition-preserving: those
+            # axes are not shifted.
+            if offset == 0:
+                continue
+            center_src[axis] = slice(None, -offset)
+            neighbor_src[axis] = slice(offset, None)
         centers = box[tuple(center_src)].ravel()
         neighbors = box[tuple(neighbor_src)].ravel()
-        np.add.at(matrix, (centers, neighbors), 1)
-    return matrix
+        packed = centers * n_classes + neighbors
+        matrix += np.bincount(
+            packed, minlength=n_classes * n_classes
+        ).reshape(n_classes, n_classes)
+    return matrix + matrix.T
+
+
+if _HAS_NUMBA:
+
+    @njit(cache=True)
+    def _count_directed_face_pairs_numba(
+        box: np.ndarray,
+        n_classes: int,
+    ) -> np.ndarray:
+        """Compiled +z/+y/+x face counts, then ``M + M.T``.
+
+        Each in-bounds unordered face is visited once. Adding the transpose
+        restores the six directed pairs of the v0.1 triple loop (diagonal
+        entries are doubled, matching one increment from each side of the
+        face). Integer increments only: the matrix is identical, not
+        approximately equal.
+
+        Args:
+            box: Padded int64 label volume.
+            n_classes: Square matrix size, including background.
+
+        Returns:
+            np.ndarray: Symmetric int64 matrix of shape
+            ``(n_classes, n_classes)``.
+        """
+        nz, ny, nx = box.shape
+        matrix = np.zeros((n_classes, n_classes), dtype=np.int64)
+        for z in range(nz):
+            for y in range(ny):
+                for x in range(nx):
+                    current = box[z, y, x]
+                    if z + 1 < nz:
+                        matrix[current, box[z + 1, y, x]] += 1
+                    if y + 1 < ny:
+                        matrix[current, box[z, y + 1, x]] += 1
+                    if x + 1 < nx:
+                        matrix[current, box[z, y, x + 1]] += 1
+        out = np.empty((n_classes, n_classes), dtype=np.int64)
+        for i in range(n_classes):
+            for j in range(n_classes):
+                if i == j:
+                    out[i, j] = matrix[i, j] * 2
+                else:
+                    out[i, j] = matrix[i, j] + matrix[j, i]
+        return out
+
+else:  # pragma: no cover - no numba
+    _count_directed_face_pairs_numba = None
 
 
 def msi_features_from_matrix(matrix: np.ndarray) -> Dict[str, float]:

@@ -4,7 +4,7 @@ Habitat domain API
 Imaging-side protocols, built-in operators, registries, and
 ``SubjectPipeline``. This is the **embedding API**: each protocol is
 ``op(subject)`` or ``op(field)`` and returns a typed contract. Import
-registries from ``habit.domain`` (they are **not** top-level ``habit``
+registries from the v2 capability packages (they are **not** top-level ``habit``
 exports).
 
 Walkthrough (stop after any step, bring your own ``Subject``):
@@ -25,16 +25,12 @@ checkpoints: :doc:`../tutorial/execution`.
 
 .. code-block:: python
 
-   import habit.domain  # registers all built-ins
-   from habit.domain import (
-       HabitatAssignerRegistry,
-       HabitatFeatureExtractorRegistry,
-       HabitatModelFitterRegistry,
-       SubjectPipeline,
-       SupervoxelFeatureExtractorRegistry,
-       SupervoxelizerRegistry,
-       VoxelFeatureExtractorRegistry,
-   )
+   import the v2 capability packages  # registers all built-ins
+   from habit.habitat_model import HabitatAssignerRegistry, HabitatModelFitterRegistry
+   from habit.habitat_features import HabitatFeatureExtractorRegistry
+   from habit.pipeline import SubjectPipeline
+   from habit.supervoxel import SupervoxelFeatureExtractorRegistry, SupervoxelizerRegistry
+   from habit.voxel_features import VoxelFeatureExtractorRegistry
 
 Protocols
 ---------
@@ -83,8 +79,8 @@ remain sugar that expands to the same sequence.
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, Stage
-   from habit.domain import run_subject_stage_prefix, resolve_habitat_stages
+   from habit.pipeline.stages import resolve_habitat_stages, run_subject_stage_prefix
+   from habit.spec import HabitatSpec, Spec, Stage
    import habit.recipes as recipes
 
    stages = (
@@ -110,9 +106,12 @@ Registry pattern (all domains)
 
 .. code-block:: python
 
+   from habit.supervoxel import SlicSupervoxelizer, SupervoxelizerRegistry
+
    names = SupervoxelizerRegistry.available()
+   print(SupervoxelizerRegistry.constructor_signature("slic"))
    op = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
-   schema = SupervoxelizerRegistry.params_model("slic")
+   op = SlicSupervoxelizer(n_supervoxels=50)
 
 Voxel feature extractors
 ------------------------
@@ -121,7 +120,12 @@ Domain: ``voxel_feature_extractor``
 
 .. code-block:: python
 
-   from habit.domain import RawVoxelFeatures, VoxelFeatureExtractorRegistry
+   from habit.voxel_features import (
+       RawVoxelFeatures,
+       VoxelFeatureExtractorRegistry,
+       VoxelRadiomicsFeatures,
+       extract_voxel_texture,
+   )
 
    voxel = VoxelFeatureExtractorRegistry.create(
        "raw",
@@ -131,7 +135,17 @@ Domain: ``voxel_feature_extractor``
    voxel = RawVoxelFeatures(modalities=["T1", "T2"])
    field = voxel(subject)
 
+   texture = VoxelRadiomicsFeatures(modalities=["T2"], kernel_radius=3)
+   # Same extractor, one ImageVolume + mask (no Subject):
+   field = extract_voxel_texture(image, mask, kernel_radius=3, bin_width=12)
+
 * ``raw`` → ``RawVoxelFeatures``
+* ``local_entropy`` → ``LocalEntropyVoxelFeatures``
+* ``voxel_radiomics`` → ``VoxelRadiomicsFeatures`` (per-voxel texture)
+* ``concat`` / ``expression`` / ``kinetic`` → compose the families above
+* :func:`~habit.voxel_features.extract_voxel_texture` — volume-level ``voxel_radiomics``
+
+Full names and knobs: :doc:`../how_to/habitat_components`.
 
 Supervoxelizers
 ---------------
@@ -140,11 +154,10 @@ Domain: ``supervoxelizer``
 
 .. code-block:: python
 
-   from habit.domain import SupervoxelizerRegistry
-
+   from habit.supervoxel import SupervoxelizerRegistry
    # All built-in supervoxelizers use n_supervoxels (not sklearn's
-   # n_clusters / n_components). Confirm with:
-   # SupervoxelizerRegistry.params_model("kmeans").model_fields
+   # n_clusters / n_components). Confirm with the constructor:
+   # SupervoxelizerRegistry.constructor_signature("kmeans")
    slic = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
    km = SupervoxelizerRegistry.create("kmeans", n_supervoxels=40)
    gmm = SupervoxelizerRegistry.create("gmm", n_supervoxels=40)
@@ -165,8 +178,7 @@ Domain: ``supervoxel_feature_extractor``
 
 .. code-block:: python
 
-   from habit.domain import SupervoxelFeatureExtractorRegistry
-
+   from habit.supervoxel import SupervoxelFeatureExtractorRegistry
    mean_fx = SupervoxelFeatureExtractorRegistry.create("mean_voxel_features")
    rad_fx = SupervoxelFeatureExtractorRegistry.create("supervoxel_radiomics")
 
@@ -180,12 +192,12 @@ Step inspection (optional)
 
 To observe every habitat pipeline boundary in memory, pass
 ``inspect=StepRecorder(...)`` to a recipe. See
-:doc:`../examples/habitat_preprocessing_api` ("Inspect every step") and
+:doc:`../examples/habitat_preprocessing` ("Inspect every step") and
 :doc:`../examples/habitat_atomic_ops`.
 
 .. code-block:: python
 
-   from habit import StepRecorder
+   from habit.inspection import StepRecorder
    import habit.recipes as recipes
 
    rec = StepRecorder(steps=["supervoxels.described"], max_subjects=2)
@@ -199,8 +211,7 @@ Domain: ``habitat_model_fitter`` (cohort-level)
 
 .. code-block:: python
 
-   from habit.domain import HabitatModelFitterRegistry
-
+   from habit.habitat_model import HabitatModelFitterRegistry
    fitter = HabitatModelFitterRegistry.create(
        "kmeans",
        n_habitats=4,
@@ -225,8 +236,7 @@ Domain: ``habitat_assigner``
 
 .. code-block:: python
 
-   from habit.domain import HabitatAssignerRegistry
-
+   from habit.habitat_model import HabitatAssignerRegistry
    # nearest_centroid requires the fitted HabitatModel (not a bare create()).
    assigner = HabitatAssignerRegistry.create("nearest_centroid", model=model)
    # Preferred after fit — same object, no registry call needed:
@@ -242,8 +252,7 @@ Domain: ``habitat_feature_extractor``
 
 .. code-block:: python
 
-   from habit.domain import HabitatFeatureExtractorRegistry
-
+   from habit.habitat_features import HabitatFeatureExtractorRegistry
    msi = HabitatFeatureExtractorRegistry.create("msi")
    ith = HabitatFeatureExtractorRegistry.create("ith_score")
    vol = HabitatFeatureExtractorRegistry.create("volume")
@@ -276,7 +285,7 @@ Compare features between habitats
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After ``each_habitat`` (or any wide ``habitat_{id}_{feature}`` table),
-:func:`~habit.to_habitat_feature_panel` / :func:`~habit.compare_habitat_features`
+:func:`~habit.habitat_features.to_habitat_feature_panel` / :func:`~habit.habitat_features.compare_habitat_features`
 contrast habitats on the **cohort** (paired Cliff's delta, BH-FDR) or on
 one subject. Figures: :func:`~habit.viz.plot_habitat_feature_heatmap`,
 :func:`~habit.viz.plot_habitat_feature_effect`,
@@ -287,17 +296,17 @@ one subject. Figures: :func:`~habit.viz.plot_habitat_feature_heatmap`,
 :doc:`../examples/habitat_feature_compare`.
 
 For array-only callers, use the public kernel helpers
-:func:`~habit.extract_graph_features` /
-:class:`~habit.HabitatGraphFeatureOptions` (same numeric definitions). Prefer
-this domain / kernel path over deprecated ``habit.compat.graph_plugin`` shims.
+:func:`~habit.kernels.extract_graph_features` /
+:class:`~habit.kernels.HabitatGraphFeatureOptions` (same numeric definitions). Prefer
+this domain / kernel path; the ``habit.compat.graph_plugin`` shim was removed
+in v2.0.0.
 
 ``SubjectPipeline``
 -------------------
 
 .. code-block:: python
 
-   from habit.domain import SubjectPipeline
-
+   from habit.pipeline import SubjectPipeline
    pipe = SubjectPipeline(
        voxel_feature_extractor=voxel,
        supervoxelizer=svx,                 # or None for direct clustering
@@ -308,7 +317,7 @@ this domain / kernel path over deprecated ``habit.compat.graph_plugin`` shims.
    table = pipe.extract_features(subject, [msi, ith, vol])
    maps = cohort.map(pipe)
 
-Prefer :func:`~habit.domain.assembly.build_habitat_components` when starting
+Prefer :func:`~habit.pipeline.assembly.build_habitat_components` when starting
 from a :class:`~habit.spec.HabitatSpec`: attribute names on
 ``HabitatComponents`` match Spec / pipeline fields
 (``voxel_feature_extractor``, ``supervoxel_feature_extractor``,
@@ -319,7 +328,7 @@ Direct (no-supervoxel) designs use ``voxel_units``:
 
 .. code-block:: python
 
-   from habit.domain.pipeline import voxel_units
+   from habit.pipeline import voxel_units
 
    units = [voxel_units(voxel(s)) for s in cohort]
    model = fitter.fit(units, cohort=cohort)
@@ -338,14 +347,16 @@ Hand-assembled two-step chain
 Image preprocessing domain
 --------------------------
 
-Domain: ``preprocessor`` (image-space steps). Discover schemas the same way:
+Domain: ``preprocessor`` (image-space steps). Discover names the same way;
+parameters live on each component constructor.
 
 .. code-block:: python
 
-   from habit import get_param_schema, list_plugins
+   from habit.api.plugins import list_plugins
+   from habit.image_preprocessing import PreprocessorRegistry
 
    for info in list_plugins("preprocessor"):
-       print(info.name, get_param_schema(info.name, "preprocessor"))
+       print(info.name, PreprocessorRegistry.constructor_signature(info.name))
 
 Registered names: ``resample``, ``reorientation``, ``registration``,
 ``n4_correction``, ``zscore_normalization``, ``histogram_standardization``,

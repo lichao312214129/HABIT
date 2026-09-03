@@ -11,8 +11,7 @@ data layout, ★ fields, success checks):
 * :doc:`../how_to/preprocess` — preprocess / sort-dicom / dicom-info
 * :doc:`../how_to/segment_habitat` — ``get-habitat`` + ``habit view``
 * :doc:`../how_to/extract_features` / :doc:`../how_to/radiomics`
-* :doc:`../how_to/train_model` / :doc:`../how_to/compare_models`
-* :doc:`../how_to/auxiliary_tools` — icc / retest / merge-csv / dice
+* :doc:`../how_to/auxiliary_tools` — icc / merge-csv / dice
 
 The How-to pages include the same demo commands that were verified against
 local ``demo_data/``. This page remains a compact checklist for readers who
@@ -38,13 +37,8 @@ Command checklist
    habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
    habit extract -c config/feature_extraction/config_extract_features_demo.yaml
    habit radiomics -c config/radiomics/config_traditional_radiomics.yaml
-   habit model -c config/machine_learning/config_machine_learning_radiomics.yaml -m train
-   habit model -c config/machine_learning/config_machine_learning_clinical.yaml -m train
-   habit cv -c config/machine_learning/config_machine_learning_kfold_demo.yaml
-   habit compare -c config/model_comparison/config_model_comparison_demo.yaml
    habit icc -c config/auxiliary/config_icc_demo.yaml
    habit dicom-info -i demo_data/dicom -o demo_data/results/htg_dicom_info.csv --one-file-per-folder
-   habit merge-csv demo_data/ml_data/breast_cancer_dataset.csv demo_data/ml_data/clinical_feature.csv -o demo_data/results/htg_merged.csv --index-col subject_id
    habit dice --input1 demo_data/preprocessed --input2 demo_data/preprocessed --output demo_data/results/htg_dice_results.csv
 
 Predict / migrate extras::
@@ -55,15 +49,17 @@ Predict / migrate extras::
 Figures
 -------
 
-``habit get-habitat`` writes the same maps the Python recipes do. After a
-two-step run, overlay anatomy + ``*_habitats.nrrd``::
+``habit get-habitat`` writes the same maps the Python recipes do. The
+figure below is **not** from the CLI YAML above. It is written by the
+two-step gallery (:doc:`two_step_habitat`). Reproduce it::
+
+   python docs/source/examples/scripts/two_step_habitat_quickstart.py
+
+The plot call in that script (``ROI = "LAP"``)::
 
    from habit.viz import plot_habitat_overlay
-   import SimpleITK as sitk
 
-   image = sitk.GetArrayFromImage(sitk.ReadImage("demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd"))
-   labels = sitk.GetArrayFromImage(sitk.ReadImage("demo_data/results/habitat_two_step/subj001_habitats.nrrd"))
-   fig = plot_habitat_overlay(image, labels, axis=0, title="CLI two-step habitats")
+   fig = plot_habitat_overlay(subject.image(ROI), habitat_map, title="habitats")
 
 .. figure:: ../_static/images/examples/two_step_overlay.png
    :alt: Two-step habitat overlay from get-habitat
@@ -75,6 +71,6 @@ two-step run, overlay anatomy + ``*_habitats.nrrd``::
 What to read next
 -----------------
 
-* :doc:`../how_to/index` — full operator manual
+* :doc:`../how_to/index` — CLI / YAML bookmarks (same scientific order)
 * :doc:`run_from_yaml` — programmatic twin
 * :doc:`../configuration/index` — YAML field reference

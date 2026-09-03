@@ -16,16 +16,22 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import numpy as np
 import pytest
 import SimpleITK as sitk
+import yaml
 
 import habit
+import habit.recipes as recipes
+from habit.contracts.habitat import HabitatModel
 from habit.exceptions import HABITAPIError
+from habit.recipes.comparison import compare_models, pairwise_delong_test
 from habit.recipes.result import StudyResult
 from habit.recipes.yaml_runner import run_from_yaml
+from habit.spec.specs import HabitatSpec
 
 _MODALITY = "t1"
 _SUBJECT_IDS = ("subj001", "subj002")
@@ -64,8 +70,19 @@ def _habitat_config_yaml(
     out_dir: Path,
     *,
     clustering_mode: str = "two_step",
+    postprocess_habitat: bool = False,
 ) -> str:
     """Render a minimal v0.1 habitat config for the synthetic dataset."""
+    postprocess_block = (
+        "  postprocess_habitat:\n"
+        "    enabled: true\n"
+        "    min_component_size: 30\n"
+        "    connectivity: 1\n"
+        "    reassign_method: neighbor_vote\n"
+        "    max_iterations: 3\n"
+        if postprocess_habitat
+        else ""
+    )
     return f"""run_mode: train
 data_dir: "{data_dir.as_posix()}"
 out_dir: "{out_dir.as_posix()}"
@@ -104,7 +121,7 @@ habitat_segmentation:
     fixed_n_clusters: 2
     max_iter: 50
     n_init: 5
-"""
+{postprocess_block}"""
 
 
 def _ml_config_yaml(csv_path: Path, out_dir: Path) -> str:
@@ -131,11 +148,15 @@ is_save_model: false
 
 @pytest.mark.unit
 def test_run_from_yaml_is_public_api() -> None:
-    """``run_from_yaml`` resolves from ``import habit`` and the registry."""
-    assert habit.run_from_yaml is run_from_yaml
-    assert "run_from_yaml" in habit.__all__
-    assert "compare_models" in habit.__all__
-    assert "pairwise_delong_test" in habit.__all__
+    """Workflow runners resolve from ``habit.recipes``, not the package root."""
+    assert recipes.run_from_yaml is run_from_yaml
+    assert recipes.compare_models is compare_models
+    assert recipes.pairwise_delong_test is pairwise_delong_test
+    assert "run_from_yaml" in recipes.__all__
+    assert "compare_models" in recipes.__all__
+    assert "pairwise_delong_test" in recipes.__all__
+    assert habit.__all__ == ["__version__"]
+    assert not hasattr(habit, "run_from_yaml")
 
 
 @pytest.mark.unit
@@ -154,6 +175,69 @@ def test_run_from_yaml_habitat_train_on_synthetic(tmp_path: Path) -> None:
     assert isinstance(result, StudyResult)
     assert result.habitat_model is not None
     assert len(result.habitat_maps) == len(_SUBJECT_IDS)
+
+
+@pytest.mark.unit
+def test_predict_yaml_inherits_serialized_habitat_postprocess(
+    tmp_path: Path,
+) -> None:
+    """
+    An omitted predict cleanup block replays the fitted label definition.
+
+    The train YAML enables connected-component cleanup, while the predict YAML
+    deliberately omits it. The saved model is therefore the source of truth:
+    prediction labels and the executed manifest must retain the fitted cleanup
+    rather than silently reverting to raw nearest-centroid assignment.
+    """
+    data_root = _write_dataset(tmp_path)
+    train_out = tmp_path / "train"
+    train_config = tmp_path / "config_habitat_train.yaml"
+    train_config.write_text(
+        _habitat_config_yaml(
+            data_root,
+            train_out,
+            postprocess_habitat=True,
+        ),
+        encoding="utf-8",
+    )
+    trained = run_from_yaml(train_config, workflow="habitat", save=True)
+    archive = train_out / "habitat_model.habitatmodel"
+    loaded = HabitatModel.load(archive)
+    postprocess = loaded.spec_payload["postprocess_habitat"]
+    assert postprocess["name"] == "connected_components"
+
+    predict_out = tmp_path / "predict"
+    predict_document = yaml.safe_load(
+        _habitat_config_yaml(data_root, predict_out, postprocess_habitat=False)
+    )
+    assert isinstance(predict_document, dict)
+    predict_document["run_mode"] = "predict"
+    predict_document["pipeline_path"] = archive.as_posix()
+    predict_config = tmp_path / "config_habitat_predict.yaml"
+    predict_config.write_text(
+        yaml.safe_dump(predict_document, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    predicted = run_from_yaml(predict_config, workflow="habitat", save=True)
+    for train_map, predicted_map in zip(trained.habitat_maps, predicted.habitat_maps):
+        assert train_map.subject_id == predicted_map.subject_id
+        np.testing.assert_array_equal(
+            train_map.label_array,
+            predicted_map.label_array,
+        )
+        assert predicted_map.provenance.produced_by == (
+            "postprocess.connected_components"
+        )
+    assert predicted.manifest.spec_payload["postprocess_habitat"] == postprocess
+
+    checkpoint_marker = (
+        predict_out / ".habitat_predict_checkpoint" / "run_fingerprint.json"
+    )
+    checkpoint_payload = json.loads(checkpoint_marker.read_text(encoding="utf-8"))
+    assert checkpoint_payload["fingerprint"] == HabitatSpec.from_dict(
+        predicted.manifest.spec_payload
+    ).fingerprint()
 
 
 @pytest.mark.unit
@@ -363,7 +447,7 @@ def test_shipped_steps_example_declares_an_interleaved_pipeline() -> None:
     """
     import yaml
 
-    from habit.domain.assembly import build_table_pipeline
+    from habit.pipeline.assembly import build_table_pipeline
     from habit.spec.legacy import validate_v1_document
     from habit.spec.specs import MLSpec
 

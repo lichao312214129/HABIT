@@ -12,35 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Ecosystem interop adapters (optional integrations).
+"""Legacy v0.1 runners (not third-party interop).
 
-Each submodule bridges HABIT to one third-party ecosystem:
-
-- :mod:`habit.compat.sklearn` -- domain protocols and table-ML components as
-  genuine ``sklearn.base.BaseEstimator`` adapters, usable inside
-  ``sklearn.pipeline.Pipeline`` / ``GridSearchCV``.
-- :mod:`habit.compat.monai` -- ``Subject`` <-> MONAI-style dict conversion so
-  HABIT subject-level operators slot into ``monai.transforms.Compose`` and
-  torch ``DataLoader`` pipelines. Works without MONAI installed.
-- :mod:`habit.compat.nnunet` -- :class:`NnUNetDataSource` reading nnU-Net raw
-  datasets (``imagesTr`` / ``labelsTr`` + ``dataset.json``) directly.
-
-Submodules load lazily on first attribute access so that
-``import habit.compat`` itself stays free of heavy third-party imports.
+Remaining submodules are frozen v0.1 orchestration helpers scheduled for
+further migration or removal. Test-retest habitat remapping was removed;
+use :func:`habit.precision.align_habitat_map` for in-memory label alignment.
 """
 
 from __future__ import annotations
 
-import importlib
-from typing import Any
-
-__all__ = ["sklearn", "monai", "nnunet", "test_retest_mapper"]
-
-
-def __getattr__(name: str) -> Any:
-    """Resolve a compat submodule on first access, keeping imports lazy."""
-    if name in __all__:
-        module = importlib.import_module(f"habit.compat.{name}")
-        globals()[name] = module
-        return module
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+__all__: list[str] = []

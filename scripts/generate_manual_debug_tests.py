@@ -693,17 +693,6 @@ def generate_integration() -> None:
             "config/auxiliary/config_icc_demo.yaml",
         ),
     )
-    _write_script(
-        int_test,
-        "analysis_test_retest.py",
-        _cli_py(
-            "Test-Retest 分析",
-            "integration/analysis_test_retest.py",
-            "retest",
-            "config/auxiliary/config_test_retest.yaml",
-        ),
-    )
-
     workflow_full = [
         ["preprocess", "-c", "config/preprocessing/config_preprocessing_demo.yaml"],
         ["get-habitat", "-c", "config/habitat/config_habitat_two_step.yaml"],

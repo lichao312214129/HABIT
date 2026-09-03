@@ -310,7 +310,12 @@ _HABITAT_CHOOSER_DOMAINS: tuple[str, ...] = (
 
 
 def _write_plugin_catalog_include() -> None:
-    """Regenerate the Spec/create catalog from live ``params_model`` schemas."""
+    """Regenerate the Spec/create catalog from live plugin metadata.
+
+    ``format_plugin_catalog_rst`` prefers a plugin ``params_model`` when one
+    exists; built-ins have none, so rows come from the constructor signature
+    (``_signature_param_infos``). Do not change that generator here.
+    """
     from habit.api.plugins import format_plugin_catalog_rst
 
     dest = Path(__file__).parent / "api" / "_generated_plugin_catalog.rst"

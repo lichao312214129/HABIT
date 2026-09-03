@@ -96,7 +96,7 @@ Two-step / direct-pooling with **no** voxel feature preprocessing can
 under-express habitats when raw intensity scales differ across subjects.
 On the demo pack the empty chain left a mean of 2.8 habitats per map
 versus 4/4 after ``winsorize`` + ``minmax``. Prefer that feature chain
-(or image ``zscore_normalization`` via :func:`~habit.preprocess_subject`
+(or image ``zscore_normalization`` via :func:`~habit.api.preprocessing.preprocess_subject`
 when you need harmonization before extraction). Numbers and the copy-paste
 recipe: :doc:`habitat_preprocessing`.
 

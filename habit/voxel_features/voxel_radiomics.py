@@ -1,0 +1,464 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""Voxel-wise radiomics: a texture feature vector for every voxel.
+
+This is the family behind texture-driven habitats. PyRadiomics computes one
+feature map per enabled feature by sliding a kernel over the ROI; the maps are
+then read back into a voxel-by-feature table. The map alignment and table
+assembly live in :mod:`habit.kernels.radiomics.voxel_maps`, shared with the
+v0.1 extractor, so both paths yield identical numbers.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional, Sequence, Union
+
+import numpy as np
+
+from habit.contracts.habitat import VoxelFeatureField
+from habit.contracts.subject import Subject
+from habit.voxel_features._base import (
+    build_voxel_field,
+    resolve_source_modalities,
+    resolve_voxel_modalities,
+    roi_voxels,
+)
+from habit.voxel_features.registry import VoxelFeatureExtractorRegistry
+from habit.exceptions import HABITAPIError
+from habit.spec.specs import Spec
+from habit.utils.voxel_batch_utils import (
+    DEFAULT_VOXEL_BATCH as _UTILS_DEFAULT_VOXEL_BATCH,
+    resolve_voxel_batch,
+)
+
+__all__ = ["VoxelRadiomicsFeatures"]
+
+#: v0.1 default: a 7x7x7 neighbourhood (radius 3), the CT habitat setting of
+#: Prior O, et al., Radiol Artif Intell 2024;6(2):e230118.
+DEFAULT_KERNEL_RADIUS = 3
+
+#: Documented default batch (safe on 8 GB GPUs). Pass a larger integer
+#: on big cards, or ``\"auto\"`` to pick from VRAM.
+DEFAULT_VOXEL_BATCH = _UTILS_DEFAULT_VOXEL_BATCH
+
+
+@VoxelFeatureExtractorRegistry.register("voxel_radiomics")
+class VoxelRadiomicsFeatures:
+    """
+    Describe every ROI voxel by a PyRadiomics feature vector.
+
+    One extraction pass runs per modality and each column is suffixed with
+    ``-{modality}``, the v0.1 scheme for
+    ``concat(voxel_radiomics(m1), voxel_radiomics(m2))``.
+
+    Args:
+        modality: Single modality key -- the explicit form used inside
+            feature trees. Mutually exclusive with ``modalities``.
+        modalities: Modality keys to extract from, in feature order; empty
+            selects every image the subject carries.
+        as_: Optional output-column alias. Valid only with exactly one
+            resolved modality; the column suffix then uses the alias.
+        roi: Mask key defining the region of interest; ``None`` uses the
+            subject's single mask.
+        params_file: Path to a PyRadiomics parameter YAML; ``None`` selects the
+            bundled voxel preset.
+        params: Inline PyRadiomics settings, for API callers holding settings
+            in memory. Mutually exclusive with ``params_file``.
+        kernel_radius: Neighbourhood radius in voxels; radius 1 is a 3x3x3
+            cube, radius 3 a 7x7x7 cube.
+        voxel_batch: ROI voxels per batch. Default 1000. Pass a larger
+            integer on a 12–24 GB GPU, or ``\"auto\"`` to pick from VRAM.
+        use_torch_radiomics: ``"auto"``, ``True`` or ``False`` -- whether to
+            use the TorchRadiomics path when torch and CUDA are present.
+        torch_device: Torch device string, or ``"auto"`` to select one.
+        torch_dtype: ``"float32"`` or ``"float64"`` for the torch path.
+        use_gpu_matrices: ``"auto"``, ``True`` or ``False`` -- whether the
+            TorchRadiomics texture matrices (GLCM, ...) are built on GPU by
+            ``habit.kernels.radiomics.gpumatrices`` instead of the
+            single-threaded PyRadiomics C extension. ``"auto"`` follows the
+            torch device. Bit-identical counts either way.
+        output_float32: Downcast the feature columns to float32, the v0.1
+            default that keeps large voxel tables manageable.
+        class_progress: When True, print and tqdm each PyRadiomics class
+            (firstorder, glcm, ...). Default False: one ``execute()`` with
+            no per-class lines; ``Cohort.map`` still shows subject progress.
+        crop_to_roi: When True (default), crop image and mask to the ROI
+            bounding box plus ``kernel_radius`` padding before calling
+            ``execute``. PyRadiomics re-applies the identical crop
+            internally, so feature values are bit-identical; the pre-crop
+            just keeps the full-volume diagnostics (``sitk.Hash``,
+            whole-image statistics) and mask checks off the big volume,
+            saving several seconds per modality on whole-body scans.
+        cache_dir: Optional directory for extracted fields. A hit skips
+            PyRadiomics. The cache key ignores ``voxel_batch`` and device
+            knobs so a later run with a larger batch can reuse the file.
+    """
+
+    def __init__(
+        self,
+        modalities: Sequence[str] = (),
+        roi: Optional[str] = None,
+        params_file: Optional[str] = None,
+        params: Optional[Dict[str, Any]] = None,
+        kernel_radius: int = DEFAULT_KERNEL_RADIUS,
+        voxel_batch: Union[int, str] = DEFAULT_VOXEL_BATCH,
+        use_torch_radiomics: Union[str, bool] = "auto",
+        torch_device: str = "auto",
+        torch_dtype: str = "float32",
+        use_gpu_matrices: Union[str, bool] = "auto",
+        output_float32: bool = True,
+        class_progress: bool = False,
+        crop_to_roi: bool = True,
+        cache_dir: Optional[str] = None,
+        modality: Optional[str] = None,
+        as_: Optional[str] = None,
+    ) -> None:
+        if params_file is not None and params is not None:
+            raise HABITAPIError(
+                "voxel_radiomics: params_file and params are mutually "
+                "exclusive; pass the PyRadiomics settings as a file path OR "
+                "as a mapping."
+            )
+        if (
+            isinstance(kernel_radius, bool)
+            or not isinstance(kernel_radius, int)
+            or kernel_radius < 1
+        ):
+            raise HABITAPIError(
+                f"kernel_radius must be a positive integer; got {kernel_radius!r}."
+            )
+        resolved, labels = resolve_source_modalities(
+            modality, modalities, as_, owner="voxel_radiomics"
+        )
+        self.modalities = resolved
+        self.source_labels = labels
+        self.modality = str(modality) if modality is not None else None
+        self.as_ = str(as_) if as_ is not None else None
+        self.roi = roi
+        self.params_file = params_file
+        self.params = dict(params) if params is not None else None
+        self.kernel_radius = int(kernel_radius)
+        self.torch_device = str(torch_device)
+        self.voxel_batch = resolve_voxel_batch(
+            voxel_batch,
+            kernel_radius=self.kernel_radius,
+            torch_device=self.torch_device,
+        )
+        self.use_torch_radiomics = use_torch_radiomics
+        self.torch_dtype = str(torch_dtype)
+        self.use_gpu_matrices = use_gpu_matrices
+        self.output_float32 = bool(output_float32)
+        self.class_progress = bool(class_progress)
+        self.crop_to_roi = bool(crop_to_roi)
+        self.cache_dir = str(cache_dir) if cache_dir else None
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification used for provenance."""
+        spec_params: Dict[str, Any] = {
+            "modalities": list(self.modalities),
+            "roi": self.roi,
+            "params_file": self.params_file,
+            "params": self.params,
+            "kernel_radius": self.kernel_radius,
+            "voxel_batch": self.voxel_batch,
+            "use_torch_radiomics": self.use_torch_radiomics,
+            "torch_device": self.torch_device,
+            "torch_dtype": self.torch_dtype,
+            "use_gpu_matrices": self.use_gpu_matrices,
+            "output_float32": self.output_float32,
+        }
+        # Fold the singular/alias forms in only when set so the historical
+        # ``modalities=[...]`` fingerprint stays byte-identical.
+        if self.modality is not None:
+            spec_params["modality"] = self.modality
+        if self.as_ is not None:
+            spec_params["as_"] = self.as_
+        # Default False is omitted so quiet extraction keeps the old fingerprint.
+        if self.class_progress:
+            spec_params["class_progress"] = True
+        # Default True is omitted so pre-crop extraction keeps the old
+        # fingerprint (the crop does not change any feature value).
+        if not self.crop_to_roi:
+            spec_params["crop_to_roi"] = False
+        # cache_dir is an execution hint, not part of the scientific fingerprint.
+        return Spec(name="voxel_radiomics", params=spec_params)
+
+    def _resolved_params_file(self) -> Optional[str]:
+        """
+        Return the parameter file to use, falling back to the voxel preset.
+
+        Returns:
+            A path, or ``None`` when inline ``params`` were supplied.
+        """
+        if self.params is not None:
+            return None
+        from habit.utils.radiomics_preset_utils import resolve_params_file
+
+        return resolve_params_file(self.params_file, preset="voxel")
+
+    def _extract_params_for_pyradiomics(self) -> Optional[Dict[str, Any]]:
+        """
+        Copy ``params`` and drop spacing so PyRadiomics does not resample twice.
+
+        HABIT applies ``resampledPixelSpacing`` on the Subject first
+        (see :meth:`_subject_on_extract_grid`). Leaving it in the extractor
+        would resample again and desynchronise ``roi_voxels`` from the maps.
+        """
+        if self.params is None:
+            return None
+        copied: Dict[str, Any] = dict(self.params)
+        setting = dict(copied.get("setting") or {})
+        setting.pop("resampledPixelSpacing", None)
+        copied["setting"] = setting
+        return copied
+
+    def _subject_on_extract_grid(self, subject: Subject) -> Subject:
+        """
+        Resample the subject onto Prior-style isotropic spacing when asked.
+
+        Their ``ROI_R*B*.yaml`` sets ``resampledPixelSpacing: [1,1,1]`` and
+        B-spline interpolation. Doing that here keeps ``roi_voxels`` and the
+        feature maps on one grid.
+
+        Args:
+            subject: Input subject on the acquisition grid.
+
+        Returns:
+            The same subject when no spacing is requested or already matches;
+            otherwise a resampled copy (B-spline images, nearest masks).
+        """
+        if not self.params:
+            return subject
+        setting = self.params.get("setting") or {}
+        spacing = setting.get("resampledPixelSpacing")
+        if spacing is None:
+            return subject
+        target = tuple(float(v) for v in spacing)
+        if len(target) != 3:
+            raise HABITAPIError(
+                "voxel_radiomics: resampledPixelSpacing must have 3 values; "
+                f"got {target}."
+            )
+        first = next(iter(subject.images), None)
+        if first is None:
+            return subject
+        current = tuple(float(v) for v in subject.image(first).geometry.spacing)
+        if all(abs(a - b) <= 1e-4 for a, b in zip(current, target)):
+            return subject
+        raw = str(setting.get("interpolator") or "sitkBSpline")
+        mode = raw.replace("sitk", "").lower()
+        if mode in {"bspline", "bicubic"}:
+            img_mode = "bspline"
+        elif mode in {"linear", "bilinear"}:
+            img_mode = "bilinear"
+        else:
+            img_mode = "bspline"
+        from habit.image_preprocessing.methods import Resample
+
+        return Resample(target_spacing=target, img_mode=img_mode)(subject)
+
+    def _extract_one_modality(
+        self,
+        subject: Subject,
+        modality: str,
+        mask_sitk: Any,
+        column_label: Optional[str] = None,
+    ) -> Any:
+        """
+        Run one voxel-based PyRadiomics pass over the ROI of one modality.
+
+        Args:
+            subject: Subject supplying the intensity image.
+            modality: Modality to extract from.
+            mask_sitk: ROI mask as a SimpleITK image.
+            column_label: Output column suffix; defaults to the modality
+                name. The ``as_`` alias lands here.
+
+        Returns:
+            A voxel-by-feature frame for this modality, ROI rows in C order.
+        """
+        from habit.radiomics._domain import (
+            build_pyradiomics_extractor,
+            sitk_image_from_contract,
+        )
+        from habit.kernels.radiomics.voxel_maps import (
+            crop_to_roi_bounding_box,
+            voxel_feature_frame,
+        )
+        from habit.utils.radiomics_params_utils import (
+            configure_voxel_glcm_on_extractor,
+        )
+        from habit.utils.parallel_gpu_utils import read_worker_gpu_slot_index
+        from habit.utils.torch_radiomics_utils import (
+            execute_voxel_based_with_class_progress,
+            injected_torch_radiomics,
+            release_cuda_cache,
+            resolve_torch_dtype,
+            resolve_voxel_radiomics_backend,
+        )
+
+        volume = subject.image(modality)
+        image_sitk = sitk_image_from_contract(volume.load(), volume.geometry)
+        # v0.1 semantics: the mask adopts the image's metadata verbatim so
+        # PyRadiomics accepts the pair without a geometry complaint.
+        mask_sitk.CopyInformation(image_sitk)
+
+        extractor = build_pyradiomics_extractor(
+            self._resolved_params_file(),
+            self._extract_params_for_pyradiomics(),
+            owner="voxel_radiomics",
+        )
+        configure_voxel_glcm_on_extractor(extractor)
+        backend, device = resolve_voxel_radiomics_backend(
+            use_torch_radiomics=self.use_torch_radiomics,
+            torch_device=self.torch_device,
+            subject=subject.subject_id,
+            # Process-pool workers export HABIT_GPU_SLOT_INDEX; honour it so
+            # multi-GPU pools do not all pile onto cuda:0.
+            gpu_slot_index=read_worker_gpu_slot_index(),
+        )
+        extractor.settings.update(
+            {
+                "kernelRadius": self.kernel_radius,
+                "voxelBatch": self.voxel_batch,
+                "geometryTolerance": 1e-3,
+                "use_gpu_matrices": self.use_gpu_matrices,
+            }
+        )
+        if backend == "torch" and device is not None:
+            extractor.settings["device"] = device
+            extractor.settings["dtype"] = resolve_torch_dtype(self.torch_dtype)
+
+        configured_label = extractor.settings.get("label", 1)
+        mask_label = 1 if configured_label is None else int(configured_label)
+
+        if self.crop_to_roi:
+            # Same crop execute() applies internally (bbox + kernelRadius
+            # pad), so feature values are unchanged; only the full-volume
+            # diagnostics and mask checks move off the big image.
+            image_sitk, mask_sitk = crop_to_roi_bounding_box(
+                image_sitk,
+                mask_sitk,
+                label=mask_label,
+                pad_distance=self.kernel_radius,
+            )
+
+        with injected_torch_radiomics(enabled=(backend == "torch")):
+            # Quiet by default: one execute() with no per-class tqdm / stderr.
+            # class_progress=True restores the instrumented per-class loop.
+            if self.class_progress:
+                result = execute_voxel_based_with_class_progress(
+                    extractor, image_sitk, mask_sitk, voxel_based=True
+                )
+            else:
+                result = extractor.execute(image_sitk, mask_sitk, voxelBased=True)
+                release_cuda_cache()
+        del extractor
+
+        return voxel_feature_frame(
+            result,
+            mask_sitk,
+            image_name=column_label if column_label is not None else modality,
+            mask_label=mask_label,
+            output_float32=self.output_float32,
+        )
+
+    def __call__(self, subject: Subject) -> VoxelFeatureField:
+        """
+        Compute per-voxel radiomics for one subject.
+
+        Args:
+            subject: Subject providing the requested modalities and mask.
+
+        Returns:
+            One row per ROI voxel, one column per feature and modality.
+
+        Raises:
+            HABITAPIError: If a requested modality is absent, or a modality's
+                extraction does not cover every ROI voxel.
+        """
+        from habit.radiomics._domain import sitk_image_from_contract
+        from habit.voxel_features.cache import (
+            load_cached_voxel_field,
+            save_cached_voxel_field,
+            voxel_radiomics_cache_key,
+            voxel_volume_fingerprint,
+        )
+
+        subject = self._subject_on_extract_grid(subject)
+        modalities = resolve_voxel_modalities(
+            subject, self.modalities, owner="voxel_radiomics"
+        )
+        cache_key: Optional[str] = None
+        if self.cache_dir:
+            cache_key = voxel_radiomics_cache_key(
+                subject.subject_id,
+                kernel_radius=self.kernel_radius,
+                roi=self.roi,
+                modalities=modalities,
+                params=self.params,
+                params_file=self.params_file,
+                output_float32=self.output_float32,
+                crop_to_roi=self.crop_to_roi,
+                modality=self.modality,
+                as_=self.as_,
+                volume_fingerprint=voxel_volume_fingerprint(
+                    subject, modalities=modalities, roi=self.roi
+                ),
+            )
+            cached = load_cached_voxel_field(
+                self.cache_dir, subject.subject_id, cache_key
+            )
+            if cached is not None:
+                return cached
+        # ``resolve_voxel_modalities`` may expand an empty request to every
+        # subject image; labels track that expansion one-to-one.
+        labels = (
+            self.source_labels
+            if len(self.source_labels) == len(modalities)
+            else modalities
+        )
+        mask, _, voxel_index = roi_voxels(subject, self.roi)
+        mask_array = np.asarray(mask.data)
+
+        names: List[str] = []
+        columns: List[np.ndarray] = []
+        for modality, label in zip(modalities, labels):
+            # A fresh mask image per modality: PyRadiomics rewrites the mask
+            # metadata to match the image it is paired with.
+            frame = self._extract_one_modality(
+                subject,
+                modality,
+                sitk_image_from_contract(mask_array, mask.geometry),
+                column_label=label,
+            )
+            if frame.shape[0] != voxel_index.shape[0]:
+                raise HABITAPIError(
+                    f"voxel_radiomics: modality {modality!r} of subject "
+                    f"{subject.subject_id!r} produced {frame.shape[0]} rows "
+                    f"for {voxel_index.shape[0]} ROI voxels."
+                )
+            names.extend(str(column) for column in frame.columns)
+            columns.append(frame.to_numpy())
+
+        values = np.concatenate(columns, axis=1)
+        field = build_voxel_field(
+            subject, mask, voxel_index, names, values, self.spec
+        )
+        if self.cache_dir and cache_key is not None:
+            save_cached_voxel_field(self.cache_dir, cache_key, field)
+        return field
+

@@ -70,6 +70,10 @@ REQUIRED_DEPENDENCIES: Dict[str, str] = {
         "kernel mathematics, not an optional backend. Pure Python, ~3 MB, "
         "no required transitive dependencies of its own."
     ),
+    "numba": (
+        "Default JIT for MSI / habitat-graph / union-find / CSR kernels. "
+        "llvmlite is the size cost; 0.63+ is the CPython 3.14 wheel floor."
+    ),
 }
 
 #: Optional packages the bare-install smoke test hides from the interpreter.
@@ -102,10 +106,11 @@ def _habit_packages() -> Set[str]:
     )
 
 
-def test_machine_learning_statistics_is_distributable() -> None:
-    """The evaluation dependency must be included in non-editable installs."""
+def test_kernel_statistics_replaces_compat_package() -> None:
+    """The distributable L0 statistics kernel has no retired compat package."""
     packages = _habit_packages()
-    assert "habit.compat.engines.machine_learning.statistics" in packages
+    assert "habit.kernels" in packages
+    assert "habit.compat.engines.machine_learning.statistics" not in packages
 
 
 def test_distribution_excludes_repository_tests() -> None:
@@ -168,10 +173,7 @@ def test_notice_reproduces_vendored_upstream_licenses() -> None:
     assert "https://github.com/Netflix/vmaf" in notice
     assert "Copyright (c) 2020 Netflix, Inc." in notice
     assert "habit/kernels/statistics.py" in notice
-    assert (
-        "habit/compat/engines/machine_learning/statistics/delong_test.py"
-        in notice
-    )
+    assert "habit/compat/engines/machine_learning/statistics/" not in notice
     assert "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS" in notice
     assert "habit/core/" not in notice
 
@@ -368,8 +370,12 @@ spec = HabitatSpec(
     habitat_assigner=Spec(name="nearest_centroid", params={{}}),
     random_seed=42,
 )
-result = recipes.two_step(cohort, spec)
-assert result.habitat_model is not None, "two_step produced no habitat model"
+# Public runner is Study.fit_predict; the old recipes.two_step(cohort, spec)
+# function was renamed. two_step_habitat() is the convenience factory that
+# builds a Study, not a (cohort, spec) runner — this smoke keeps an explicit
+# HabitatSpec so the supervoxelizer stays kmeans (no slic extra).
+result = recipes.Study(spec=spec, design="two_step").fit_predict(cohort)
+assert result.habitat_model is not None, "two-step habitat produced no habitat model"
 assert result.habitat_model.n_habitats >= 2
 
 # 2) Not one blocked package may have been imported along the way. A blocked

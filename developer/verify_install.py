@@ -240,11 +240,6 @@ CLI_SUBCOMMANDS: Tuple[Dict[str, Any], ...] = (
         "optional_options": (),
     },
     {
-        "name": "retest",
-        "required_options": ("--config",),
-        "optional_options": (),
-    },
-    {
         "name": "dice",
         "required_options": ("--input1", "--input2"),
         "optional_options": ("--output", "--mask-keyword", "--label-id"),
@@ -305,8 +300,9 @@ def _build_optional_probes() -> Tuple[OptionalExtraProbe, ...]:
     Construct optional-dependency probes lazily so ``import habit`` happens
     after the runner starts (keeping import timing visible in reports).
     """
-    import habit
+    from habit.api.utils import is_available
     from habit.exceptions import OptionalDependencyError
+    from habit.viz import plot_habitat_clustering_pca_3d_interactive
 
     probes: List[OptionalExtraProbe] = []
 
@@ -342,7 +338,7 @@ def _build_optional_probes() -> Tuple[OptionalExtraProbe, ...]:
 
     # ml extra — XGBoost classifier -----------------------------------------
     def _trigger_xgboost() -> None:
-        from habit.domain.classification.models import XgboostClassifier
+        from habit.classification.models import XgboostClassifier
 
         XgboostClassifier()._build_estimator()
 
@@ -350,7 +346,7 @@ def _build_optional_probes() -> Tuple[OptionalExtraProbe, ...]:
 
     # ml extra — mRMR selector ----------------------------------------------
     def _trigger_mrmr() -> None:
-        from habit.domain.feature_selection.selectors import MrmrSelector
+        from habit.feature_selection.selectors import MrmrSelector
 
         MrmrSelector(n_features=3).fit(None)  # type: ignore[arg-type]
 
@@ -358,7 +354,7 @@ def _build_optional_probes() -> Tuple[OptionalExtraProbe, ...]:
 
     # analysis extra — pingouin ICC -----------------------------------------
     def _trigger_pingouin() -> None:
-        from habit.compat.icc_analyzer import _require_pingouin
+        from habit.evaluation.reliability import _require_pingouin
 
         _require_pingouin()
 
@@ -368,7 +364,7 @@ def _build_optional_probes() -> Tuple[OptionalExtraProbe, ...]:
     def _trigger_plotly() -> None:
         import numpy as np
 
-        habit.plot_habitat_clustering_pca_3d_interactive(
+        plot_habitat_clustering_pca_3d_interactive(
             features=np.zeros((4, 2), dtype=np.float64),
             labels=np.array([1, 1, 2, 2], dtype=np.int64),
             centers=np.zeros((2, 2), dtype=np.float64),
@@ -379,7 +375,7 @@ def _build_optional_probes() -> Tuple[OptionalExtraProbe, ...]:
 
     # automl extra ----------------------------------------------------------
     def _trigger_autogluon() -> None:
-        from habit.domain.classification.autogluon import _lazy_tabular_predictor
+        from habit.classification.autogluon import _lazy_tabular_predictor
 
         _lazy_tabular_predictor()
 
@@ -420,24 +416,24 @@ def _symbol_is_usable(obj: Any) -> bool:
     return isinstance(obj, (str, dict, tuple, list, int, float, bool))
 
 
-def _verify_public_symbol(symbol: str) -> None:
+def _verify_public_symbol(namespace: str, symbol: str) -> None:
     """
-    Resolve one registry symbol through ``getattr(habit, …)`` and validate it.
+    Resolve one v2 capability symbol through its canonical package.
 
     Args:
-        symbol: Name listed in ``PUBLIC_API_SYMBOLS``.
+        namespace: Canonical module path (e.g. ``"habit.voxel_features"``).
+        symbol: Name listed in ``PUBLIC_NAMESPACES[namespace]``.
 
     Raises:
         AssertionError: When the symbol is missing or not usable.
         SkipCheck: Never — import failures are real FAILs.
     """
-    import habit
-
-    obj = getattr(habit, symbol)
-    assert obj is not None, f"{symbol} resolved to None"
+    package = importlib.import_module(namespace)
+    obj = getattr(package, symbol)
+    assert obj is not None, f"{namespace}.{symbol} resolved to None"
     assert _symbol_is_usable(obj), (
-        f"{symbol} is neither callable nor a recognised constant/type "
-        f"({type(obj)!r})"
+        f"{namespace}.{symbol} is neither callable nor a recognised "
+        f"constant/type ({type(obj)!r})"
     )
 
 
@@ -526,9 +522,9 @@ def _load_demo_cohort(demo_root: Path) -> Any:
     Returns:
         :class:`~habit.contracts.subject.Cohort` with lazy file references.
     """
-    import habit
+    from habit.contracts.subject import cohort_from_directory
 
-    return habit.cohort_from_directory(
+    return cohort_from_directory(
         demo_imaging_root(demo_root),
         modalities=_DEMO_MODALITIES,
         roi=_DEMO_ROI,
@@ -550,7 +546,7 @@ def _build_fast_habitat_spec(*, two_step: bool) -> Any:
     Returns:
         Fully wired habitat specification object.
     """
-    from habit import HabitatSpec, Spec
+    from habit.spec import HabitatSpec, Spec
 
     return HabitatSpec(
         name="verify_install_habitat",
@@ -583,7 +579,7 @@ def _build_fast_ml_spec() -> Any:
     Returns:
         :class:`~habit.spec.specs.MLSpec` without optional ml-extra selectors.
     """
-    from habit import MLSpec, Spec
+    from habit.spec import MLSpec, Spec
 
     return MLSpec(
         name="verify_install_ml",
@@ -624,18 +620,18 @@ def run_smoke_import(runner: CheckRunner) -> str:
     runner.run("import", "habit_version", _import_version)
 
     def _show_versions() -> None:
-        import habit
+        from habit.api.utils import show_versions
 
-        versions = habit.show_versions()
+        versions = show_versions()
         assert isinstance(versions, dict)
         assert "habit" in versions
 
     runner.run("import", "show_versions", _show_versions)
 
     def _list_plugins() -> None:
-        import habit
+        from habit.api.plugins import list_plugins
 
-        plugins = habit.list_plugins()
+        plugins = list_plugins()
         assert isinstance(plugins, (list, tuple)), "list_plugins must return a sequence"
         assert len(plugins) > 0, "list_plugins returned an empty registry"
 
@@ -646,19 +642,21 @@ def run_smoke_import(runner: CheckRunner) -> str:
 
 def run_smoke_public_api(runner: CheckRunner) -> None:
     """
-    Verify every symbol in ``PUBLIC_API_SYMBOLS`` resolves and is usable.
+    Verify every symbol in ``PUBLIC_NAMESPACES`` resolves from its owner package.
 
     Each symbol is its own timed check so slow lazy imports are visible in
     the report (important when diagnosing optional heavy backends).
     """
-    from habit.api.registry import PUBLIC_API_SYMBOLS
+    from habit.api.registry import PUBLIC_NAMESPACES
 
-    for symbol in PUBLIC_API_SYMBOLS:
-        runner.run(
-            "public_api",
-            symbol,
-            lambda sym=symbol: _verify_public_symbol(sym),
-        )
+    for namespace, symbols in PUBLIC_NAMESPACES.items():
+        for symbol in symbols:
+            check_name = f"{namespace.rsplit('.', 1)[-1]}.{symbol}"
+            runner.run(
+                "public_api",
+                check_name,
+                lambda ns=namespace, sym=symbol: _verify_public_symbol(ns, sym),
+            )
 
 
 def run_smoke_cli_help(runner: CheckRunner) -> None:
@@ -703,11 +701,11 @@ def run_smoke_optional_deps(runner: CheckRunner, *, skip_extras: bool) -> None:
         )
         return
 
-    import habit
+    from habit.api.utils import is_available
     from habit.exceptions import OptionalDependencyError
 
     for probe in _build_optional_probes():
-        if habit.is_available(probe.module_name):
+        if is_available(probe.module_name):
             runner.add_skip(
                 "optional_deps",
                 probe.description,
@@ -802,7 +800,7 @@ def run_full_atomic_api(runner: CheckRunner, demo_root: Path) -> None:
     """
 
     def _atomic() -> None:
-        import habit
+        from habit.api.preprocessing import preprocess_image, preprocess_subject
 
         cohort = _load_demo_cohort(demo_root)
         subject = cohort[0]
@@ -812,7 +810,7 @@ def run_full_atomic_api(runner: CheckRunner, demo_root: Path) -> None:
                 "img_mode": "bilinear",
             },
         }
-        processed = habit.preprocess_subject(
+        processed = preprocess_subject(
             subject,
             steps,
             mask_roi=_DEMO_ROI,
@@ -823,7 +821,9 @@ def run_full_atomic_api(runner: CheckRunner, demo_root: Path) -> None:
 
         volume = subject.image(_DEMO_MODALITIES[0])
         mask_vol = subject.mask(_DEMO_ROI)
-        single = habit.preprocess_image(volume, steps, mask=mask_vol, modality=_DEMO_MODALITIES[0])
+        single = preprocess_image(
+            volume, steps, mask=mask_vol, modality=_DEMO_MODALITIES[0]
+        )
         assert single.data.shape == probe.data.shape, "preprocess_image spacing/shape mismatch"
 
     runner.run("full_atomic", "preprocess_subject_and_image", _atomic)
@@ -881,7 +881,7 @@ def run_full_feature_extraction(
     Skips PyRadiomics ``traditional`` features when PyRadiomics is absent; MSI
     and volume features remain sufficient to prove the extraction pipeline.
     """
-    import habit
+    from habit.api.utils import is_available
     import habit.recipes as recipes
 
     if habitat_result is None:
@@ -898,7 +898,7 @@ def run_full_feature_extraction(
 
     # Use only feature types that do not require PyRadiomics for minimal runtime.
     feature_types = ["non_radiomics", "whole_habitat", "msi", "ith_score"]
-    if habit.is_available("radiomics"):
+    if is_available("radiomics"):
         feature_types.insert(0, "traditional")
 
     config = {
@@ -927,7 +927,7 @@ def run_full_ml(runner: CheckRunner, demo_root: Path) -> None:
         import pandas as pd
 
         import habit.recipes as recipes
-        from habit import FeatureTable
+        from habit.contracts import FeatureTable
         from habit.contracts.outcome import BinaryOutcome
 
         csv_path = demo_ml_csv(demo_root)

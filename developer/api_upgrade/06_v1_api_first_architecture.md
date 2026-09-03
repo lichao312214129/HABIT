@@ -1,8 +1,10 @@
-# 06 — HABIT v1.0 架构设计：API 优先
+# 06 — HABIT API-first 架构原则（v2 仍适用）
 
-> **状态**：设计评审中（分支 `v1.0.0`）
-> **取代**：`01_master_plan.md` 与 `02_public_api_design.md` 中"API 是 CLI 门面、不重构业务逻辑"的定位。
-> 那两份文件描述的 A 档 MVP 已完成并随 v0.1.x 发布，其内容作为**历史记录**保留，不再作为 v1.0 的执行依据。
+> **状态**：保留为 v2.0.0 的架构原则，不是执行计划。
+> 当前物理包迁移、公开 API、参数契约、注册表和验收步骤以
+> [`09_capability_namespaces.md`](09_capability_namespaces.md) 为准；名称与
+> constructor-only 参数决策以
+> [`08_naming_decisions.md`](08_naming_decisions.md) 为准。
 
 ---
 
@@ -31,7 +33,7 @@
 | **G2** | **领域词汇即 API** | 影像组学研究者读 API 名称即能理解其科学含义，无需先读文档 |
 | **G3** | **`HabitatModel` 可流通** | 一篇论文发布的生境模型，他人可加载并在自己队列上复现同一套生境定义 |
 | **G4** | **溯源与报告内建** | 跑完一次分析可自动导出 Methods 段落与 CLEAR / IBSI 条目自查表 |
-| **G5** | **非编程用户无感** | 现有 CLI 命令与旧 YAML 继续可用，普通用户的操作方式不变 |
+| **G5** | **驱动层可替换** | CLI / GUI / YAML 只是 API 外壳；v2 不为旧 Python 路径或 Params schema 保留兼容层 |
 
 ### 2.2 非目标
 
@@ -499,4 +501,5 @@ result.manifest.to_json(path)                        # 机器可读，供 Agent 
 | 3 | **v0.1.x 的维护期限** | v1.0 稳定后停止维护，仅保留 tag 供复现历史结果 |
 | 4 | **报告规范的对外形态** | 中间路线：先随 HABIT 发布建议清单（`manifest.checklist()`），若被采用再推动正式共识 |
 
-执行计划与重构后的完整使用说明见 [`07_v1_refactor_plan_and_usage.md`](./07_v1_refactor_plan_and_usage.md)。
+v2 的实施步骤、公开 capability package、参数契约和验收门禁见
+[`09_capability_namespaces.md`](09_capability_namespaces.md)。

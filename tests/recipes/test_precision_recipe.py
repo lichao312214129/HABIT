@@ -45,7 +45,7 @@ from habit.contracts import (
     Subject,
     VoxelFeatureField,
 )
-from habit.domain.voxel_features import (
+from habit.voxel_features import (
     aligned_image,
     build_voxel_field,
     roi_voxels,

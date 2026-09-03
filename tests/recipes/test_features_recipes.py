@@ -102,11 +102,11 @@ class _BlockedImportFinder:
 
 
 @pytest.fixture
-def no_compat_graph_loader_imports(
+def no_compat_feature_loader_imports(
     monkeypatch: pytest.MonkeyPatch,
 ) -> Tuple[str, ...]:
     """
-    Make the deprecated compat graph loaders un-importable for one test.
+    Make the remaining compat feature loader un-importable for one test.
 
     The modules are also evicted from ``sys.modules`` so a prior import by
     another test cannot mask a fresh import on the domain path.
@@ -116,7 +116,6 @@ def no_compat_graph_loader_imports(
     """
     blocked = (
         "habit.compat.feature_extraction_loader",
-        "habit.compat.graph_plugin",
     )
     for name in blocked:
         monkeypatch.delitem(sys.modules, name, raising=False)
@@ -131,6 +130,7 @@ def no_compat_graph_loader_imports(
 @pytest.mark.unit
 def test_extract_habitat_features_uses_domain_path(
     monkeypatch: pytest.MonkeyPatch,
+    no_compat_feature_loader_imports: Tuple[str, ...],
 ) -> None:
     """Built-in feature_types run through the domain extract helper."""
     from unittest.mock import MagicMock
@@ -157,39 +157,45 @@ def test_extract_habitat_features_uses_domain_path(
 
 
 @pytest.mark.unit
-def test_extract_habitat_features_falls_back_for_legacy_only_names(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Names known only to the v0.1 factory keep the compat analyzer path."""
-    from unittest.mock import MagicMock
+def test_demo_yaml_feature_routes_enable_graph() -> None:
+    """Demo extract YAML lists light families including ``graph`` explicitly."""
+    from pathlib import Path
 
-    calls: List[Dict[str, Any]] = []
+    from habit.api.habitat import load_feature_extraction_config
+    from habit.recipes.features import _build_domain_extractors
 
-    def _spy(*args: Any, **kwargs: Any) -> MagicMock:
-        calls.append({"args": args, "kwargs": kwargs})
-        return MagicMock(run_id="compat-run", metadata={"engine": "compat"})
-
-    monkeypatch.setattr(
-        "habit.recipes.features._run_compat_extract", _spy
+    demo = (
+        Path(__file__).resolve().parents[2]
+        / "config"
+        / "feature_extraction"
+        / "config_extract_features_demo.yaml"
     )
-    # Simulate a legacy-only plugin: absent from the domain registry but
-    # provided by the v0.1 HabitatFeatureFactory.
-    monkeypatch.setattr(
-        "habit.recipes.features._legacy_feature_type_names",
-        lambda: frozenset({"future_plugin"}),
+    config, plugins = load_feature_extraction_config(str(demo))
+    assert config.feature_types == [
+        "volume",
+        "msi",
+        "ith_score",
+        "non_radiomics",
+        "graph",
+    ]
+    assert "graph" in plugins
+    extractors = _build_domain_extractors(
+        config.feature_types,
+        params_file_of_non_habitat=config.params_file_of_non_habitat,
+        params_file_of_habitat=config.params_file_of_habitat,
+        use_torch_radiomics=config.use_torch_radiomics,
+        torch_device=config.torch_device,
+        torch_dtype=config.torch_dtype,
+        plugin_configs=plugins,
     )
-
-    config = _feature_config(["msi", "future_plugin"])
-    plugins = {"future_plugin": {"enabled": True}}
-    logger = MagicMock()
-
-    result = extract_habitat_features(
-        config, plugin_configs=plugins, logger=logger
-    )
-
-    assert len(calls) == 1
-    assert calls[0]["kwargs"]["plugin_configs"] == plugins
-    assert result.run_id == "compat-run"
+    assert set(extractors) == {
+        "volume",
+        "msi",
+        "ith_score",
+        "non_radiomics",
+        "graph",
+    }
+    assert extractors["ith_score"].include_auxiliary is False
 
 
 @pytest.mark.unit
@@ -208,7 +214,7 @@ def test_extract_habitat_features_routes_domain_registered_plugins_to_domain(
     """Third-party names in the domain registry dispatch like built-ins."""
     from unittest.mock import MagicMock
 
-    from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
+    from habit.habitat_features import HabitatFeatureExtractorRegistry
 
     class _FakeDomainExtractor:
         def __call__(self, subject: Any, habitat_map: Any) -> Any:  # pragma: no cover
@@ -271,7 +277,7 @@ def test_extract_habitat_features_routes_graph_to_domain(
 @pytest.mark.unit
 def test_build_domain_extractors_applies_graph_plugin_params() -> None:
     """Graph plugin settings reach the domain extractor constructor."""
-    from habit.domain.habitat_features import GraphHabitatFeatures
+    from habit.habitat_features import GraphHabitatFeatures
     from habit.recipes.features import _build_domain_extractors
 
     extractors = _build_domain_extractors(
@@ -328,8 +334,7 @@ def test_graph_params_from_plugin_configs_drops_visualization_keys() -> None:
 
 @pytest.mark.unit
 def test_graph_block_from_plugin_configs_coercion() -> None:
-    """The figure hook's block view accepts blocks, mappings, and shims."""
-    from habit.domain.habitat_features.graph import GraphHabitatFeaturesParams
+    """The figure hook's block view accepts validated blocks and mappings."""
     from habit.recipes.features import _graph_block_from_plugin_configs
     from habit.schemas.workflows.habitat import GraphFeatureBlock
 
@@ -340,10 +345,11 @@ def test_graph_block_from_plugin_configs_coercion() -> None:
     assert isinstance(coerced, GraphFeatureBlock)
     assert coerced.visualize is True
 
-    # The deprecated compat shim passes the extraction-only params model; it
-    # carries no visualization fields, so the figure hook stays off.
-    legacy = GraphHabitatFeaturesParams(distance_threshold=8.0)
-    shimmed = _graph_block_from_plugin_configs({"graph": legacy})
+    # A direct API mapping contains extraction settings only, so visualization
+    # remains off while the graph numerical option is preserved.
+    shimmed = _graph_block_from_plugin_configs(
+        {"graph": {"distance_threshold": 8.0}}
+    )
     assert isinstance(shimmed, GraphFeatureBlock)
     assert shimmed.visualize is False
     assert shimmed.distance_threshold == 8.0
@@ -353,18 +359,21 @@ def test_graph_block_from_plugin_configs_coercion() -> None:
 
 
 @pytest.mark.unit
-def test_graph_feature_block_mirrors_domain_params() -> None:
-    """The YAML block's extraction fields mirror the domain params model."""
-    from habit.domain.habitat_features.graph import GraphHabitatFeaturesParams
+def test_graph_feature_block_mirrors_domain_constructor() -> None:
+    """The YAML block's extraction fields mirror the domain constructor."""
+    import inspect
+
+    from habit.habitat_features.graph import GraphHabitatFeatures
     from habit.schemas.workflows.habitat import GraphFeatureBlock
 
-    extraction = set(GraphHabitatFeaturesParams.model_fields)
+    signature = inspect.signature(GraphHabitatFeatures)
+    extraction = set(signature.parameters)
     block_fields = set(GraphFeatureBlock.model_fields)
     assert extraction <= block_fields
     for field in extraction:
         assert (
             GraphFeatureBlock.model_fields[field].default
-            == GraphHabitatFeaturesParams.model_fields[field].default
+            == signature.parameters[field].default
         ), f"default drift on {field}"
 
 
@@ -429,9 +438,9 @@ def test_domain_extract_graph_without_visualize_writes_no_figures(
 @pytest.mark.integration
 def test_graph_extract_full_path_never_imports_compat(
     tmp_path: Path,
-    no_compat_graph_loader_imports: Tuple[str, ...],
+    no_compat_feature_loader_imports: Tuple[str, ...],
 ) -> None:
-    """The graph YAML->CSV->figure path works with compat loaders blocked."""
+    """The graph YAML->CSV->figure path works with compat loading blocked."""
     pytest.importorskip("matplotlib")
 
     import logging
@@ -452,40 +461,14 @@ def test_graph_extract_full_path_never_imports_compat(
     out_dir = Path(result.output_dir)
     assert (out_dir / "habitat_graph_features.csv").is_file()
     assert (out_dir / "visualizations" / "graph" / "sub001_graph_slice.png").is_file()
-    for name in no_compat_graph_loader_imports:
+    for name in no_compat_feature_loader_imports:
         assert name not in sys.modules
-
-
-@pytest.mark.unit
-def test_traditional_radiomics_delegates_to_public_api(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """The radiomics recipe forwards config to habit.api.habitat.run_radiomics."""
-    from unittest.mock import MagicMock
-
-    calls: List[Dict[str, Any]] = []
-
-    def _spy(*args: Any, **kwargs: Any) -> MagicMock:
-        calls.append({"args": args, "kwargs": kwargs})
-        return MagicMock(run_id="radiomics-run")
-
-    monkeypatch.setattr("habit.api.habitat.run_radiomics", _spy)
-
-    config = MagicMock(out_dir="/tmp/radiomics")
-    logger = MagicMock()
-
-    result = traditional_radiomics(config, logger=logger)
-
-    assert len(calls) == 1
-    assert calls[0]["args"][0] is config
-    assert calls[0]["kwargs"]["logger"] is logger
-    assert result.run_id == "radiomics-run"
 
 
 @pytest.mark.unit
 def test_recipes_module_exports_feature_symbols() -> None:
     """New recipes are registered on habit.recipes for CLI and notebooks."""
-    from habit import recipes
+    import habit.recipes as recipes
 
     assert callable(recipes.extract_habitat_features)
     assert callable(recipes.traditional_radiomics)

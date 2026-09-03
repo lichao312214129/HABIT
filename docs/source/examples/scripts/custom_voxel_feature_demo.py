@@ -7,7 +7,7 @@ Two complementary routes for formulas that ``raw`` / ``concat`` cannot express:
 1. **Built-in ``expression``** — restricted arithmetic over modality intensities
    (ratios, powers, ``square`` / ``log`` / ...). Safe AST evaluation, no
    arbitrary Python.
-2. **Custom plugin** — register any :class:`~habit.domain.protocols.VoxelFeatureExtractor`
+2. **Custom plugin** — register any :class:`~habit._protocols.VoxelFeatureExtractor`
    under ``habit.voxel_feature_extractor`` (decorator in-process, or an
    entry point in a third-party package). Use this when the formula needs
    neighbourhoods, learned embeddings, or logic beyond the expression DSL.
@@ -25,11 +25,13 @@ from typing import Optional, Sequence, Tuple
 
 import numpy as np
 
-from habit import HabitatSpec, Spec, make_synthetic_cohort
+from habit.spec import HabitatSpec, Spec
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
 from habit.contracts import VoxelFeatureField
 from habit.contracts.subject import Subject
-from habit.domain.assembly import build_habitat_components
-from habit.domain.voxel_features import (
+from habit.pipeline.assembly import build_habitat_components
+from habit.voxel_features import (
     VoxelFeatureExtractorRegistry,
     aligned_image,
     build_voxel_field,
@@ -47,7 +49,7 @@ import habit.recipes as recipes
 #   t1_t2_contrast = "my_pkg.features:register"
 #
 # where ``register()`` performs the decorator registration below, then call
-# ``habit.load_plugins()`` before building the Spec.
+# ``habit.api.plugins.load_plugins()`` before building the Spec.
 # ---------------------------------------------------------------------------
 @VoxelFeatureExtractorRegistry.register("t1_t2_contrast")
 class T1T2Contrast:
@@ -55,7 +57,7 @@ class T1T2Contrast:
     Example DIY extractor: per-voxel ``(T1 - T2) / (T1 + T2 + eps)``.
 
     Mirrors the registry plugin pattern, targeting the
-    :class:`~habit.domain.protocols.VoxelFeatureExtractor` protocol.
+    :class:`~habit._protocols.VoxelFeatureExtractor` protocol.
     """
 
     def __init__(
@@ -96,19 +98,21 @@ class T1T2Contrast:
 
 
 # BEGIN example
-cohort = make_synthetic_cohort(n_subjects=3, shape=(14, 14, 14), rng=21)
+DATA = fetch_demo()
+MODALITIES = ("LAP", "PVP")
+ROI = "LAP"
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 subject = cohort[0]
+print(f"Cohort: {len(cohort)} subjects -> {list(cohort.subject_ids)}")
 
 # --- A. Built-in expression DSL ---------------------------------------------
 expression_spec = HabitatSpec(
     name="expression_demo",
-    # Runtime order: voxel features -> (no prep) -> supervoxels -> fit -> ...
     voxel_feature_extractor=Spec(
         "expression",
         {
             "features": {
-                # User request: square(T1 / T2^3). ``^`` is accepted as power.
-                "t1_over_t2_sq": "square(T1 / (T2 ^ 3 + eps))",
+                "lap_over_pvp_sq": "square(LAP / (PVP ^ 3 + eps))",
             },
         },
     ),
@@ -132,7 +136,7 @@ expression_spec = HabitatSpec(
 )
 
 units = build_habitat_components(expression_spec).pipeline(assigner=None).units(subject)
-print("=== expression: square(T1 / (T2^3 + eps)) ===")
+print("=== expression: square(LAP / (PVP^3 + eps)) ===")
 print(f"  atomic features: {units.feature_frame().columns.tolist()}")
 print(f"  n_voxels x n_features: {units.features.shape}")
 
@@ -145,7 +149,7 @@ custom_spec = HabitatSpec(
     name="custom_plugin_demo",
     voxel_feature_extractor=Spec(
         "t1_t2_contrast",
-        {"modalities": ["T1", "T2"], "eps": 1e-8},
+        {"modalities": ["LAP", "PVP"], "eps": 1e-8},
     ),
     supervoxelizer=Spec("kmeans", {"n_supervoxels": 5, "n_init": 3}),
     habitat_model_fitter=Spec(
@@ -186,7 +190,7 @@ from habit.viz import plot_habitat_overlay
 
 Path("out").mkdir(exist_ok=True)
 fig = plot_habitat_overlay(
-    subject.image("T1"),
+    subject.image("LAP"),
     custom_result.habitat_maps[0],
     title="habitats",
 )
@@ -198,6 +202,6 @@ if __name__ == "__main__":
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from _habitat_eye_check import eye_check_study
+    from _example_roi import copy_out_figures_to_gallery
 
-    eye_check_study(cohort, custom_result)
+    copy_out_figures_to_gallery(("custom_voxel_overlay.png",))

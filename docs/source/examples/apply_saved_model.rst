@@ -20,13 +20,15 @@ cohorts. This example shows the publish-and-reuse workflow:
 No fitting happens after the reload: the model's stored cohort-level
 preprocessing state is replayed, so the new supervoxels are scored in the
 training feature space — the guarantee that train and predict stay
-consistent.
+consistent. Prediction also inherits the training-time
+``postprocess_habitat`` persisted on the model; an explicit conflicting
+declaration on the prediction spec raises ``HABITAPIError``.
 
 Script
 ------
 
-Load the Option B tree with :func:`~habit.cohort_from_directory`
-(:doc:`../how_to/prepare_data` Option C). Change ``DATA`` /
+Load the directory tree with :func:`~habit.contracts.cohort_from_directory`
+(:doc:`data_from_arrays`). Change ``DATA`` /
 ``MODALITIES`` / ``ROI`` to your preprocessed layout. The demo pack has
 ``subj001`` … ``subj005``; this recipe trains on the first three subjects
 and applies the saved model to the last two. Keep the same
@@ -103,10 +105,23 @@ Figures
 
    ITH summary.
 
+Matching ids after independent clustering
+-----------------------------------------
+
+One-step (and any per-subject ``fit_predict``) emits **permuted**
+integers. Two matchers, one order — runnable numbers:
+:doc:`habitat_label_match`.
+
+* Same tumour, two observers: overlap
+  (:func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`).
+* Different patients: unscaled texture means, one cohort z-score,
+  Hungarian
+  (:func:`~habit.kernels.habitat_label_match.match_labels_by_features`).
+
 What to read next
 -----------------
 
-* :doc:`../how_to/prepare_data` — ``DATA`` / ``MODALITIES`` / ``ROI`` and the folder tree
-* :doc:`two_step_habitat` — the training half of the workflow
-* :class:`~habit.contracts.HabitatModel` — the model contract
+* :doc:`persistence` — ``StudyResult.save`` and ``run_manifest.json``
+* :doc:`parallel_execution` — same maps, scheduled over a cohort
 * :doc:`run_from_yaml` — the same predict path driven by a YAML document
+* :class:`~habit.contracts.HabitatModel` — the model contract

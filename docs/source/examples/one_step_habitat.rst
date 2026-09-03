@@ -4,6 +4,12 @@ One-step habitat analysis
 **Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** optional
 ``[view]`` · **Time:** ~20–60 s
 
+When to use: **one_step** = neither ``partition`` nor ``pool``. Habitats
+are defined **per subject**. Integer ids are permuted — align them before
+comparing patients (:doc:`apply_saved_model`, :doc:`habitat_label_match`).
+Two-step / direct pooling: :doc:`two_step_habitat`,
+:doc:`direct_pooling_habitat`.
+
 The one-step design clusters **voxels inside each subject independently**.
 Declare stages with **neither** ``partition`` **nor** ``pool``, then call
 :meth:`~habit.recipes.Study.fit_predict`. There is **no cohort-level preprocessing
@@ -52,7 +58,7 @@ atomically under ``<writer.root>/figures``. Set
 subdirectory (``figures/<subject_id>/<kind>.png``); the default
 ``"flat"`` keeps ``figures/<subject_id>_<kind>.png``. Graph figures
 (:class:`~habit.report.GraphSlice`, :class:`~habit.report.GraphNetwork2D`)
-take the same :class:`~habit.HabitatGraphFeatureOptions` as
+take the same :class:`~habit.kernels.HabitatGraphFeatureOptions` as
 ``Spec("graph")``. Those PNGs are a representative 2D slice
 (display-only); graph metrics use the full 3D volume.
 
@@ -100,7 +106,7 @@ The script above is **one worked recipe**, not the only recipe. Each
    Stage("preprocess2", Spec("minmax", {"across_features": False}))
 
    # 4) Mixed families — needs two series (raw T1 + entropy T2)
-   from habit import parse_feature_expression
+   from habit.spec import parse_feature_expression
    Stage(
        "extract_voxel_features",
        parse_feature_expression(
@@ -114,10 +120,9 @@ Full list of names, every parameter, allowed values, and the YAML twin:
 
 Discover the same facts in a running interpreter::
 
-   from habit import list_plugins, get_param_schema
+   from habit.api.plugins import list_plugins
 
    print([p.name for p in list_plugins("habitat_model_fitter")])
-   print(get_param_schema("kmeans", "habitat_model_fitter").model_fields.keys())
 
 Output
 ------
@@ -193,11 +198,8 @@ above plus those two graphs with :class:`~habit.report.Report` — see
 What to read next
 -----------------
 
-* :doc:`../how_to/habitat_components` — which ``Spec`` names exist, and what each parameter means
-* :doc:`habitat_analysis_overview` — recipe / atomic / custom map
-* :doc:`habitat_atomic_ops` — operator-level walkthrough
-* :doc:`habitat_preprocessing` — how preprocessing chains differ by design
+* :doc:`feature_extraction` — quantify these maps
+* :doc:`two_step_habitat` — shared cohort definition (typical paper pipeline)
+* :doc:`direct_pooling_habitat` — pool voxels before clustering
 * :doc:`persistence` — ``StudyResult.save`` vs streaming ``Report``
-* :doc:`fault_tolerance` — ``CheckpointStore`` + continue-on-failure
-* :doc:`two_step_habitat` — the cohort-level alternative
-* :doc:`direct_pooling_habitat` — pool all voxels before clustering
+* :doc:`../how_to/habitat_components` — registered ``Spec`` names (Reference)

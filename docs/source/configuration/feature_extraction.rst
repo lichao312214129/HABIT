@@ -120,10 +120,10 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 - **Type**: mapping (validated as ``GraphFeatureBlock``)
 - **Required**: no (defaults apply when ``graph`` is listed in ``feature_types`` without a block)
 - **Description**: extraction options mirror
-  :class:`~habit.domain.GraphHabitatFeaturesParams`; visualization fields are
+  :class:`~habit.habitat_features.GraphHabitatFeatures`; visualization fields are
   consumed by the extract recipe only. ``graph`` is a **built-in** family — not
-  a private plugin. Prefer domain / API paths; ``habit.compat.graph_plugin`` is
-  deprecated.
+  a private plugin. Use the domain / API paths; the former
+  ``habit.compat.graph_plugin`` shim was removed in v2.0.0.
 - **Key extraction fields** (defaults in parentheses):
 
   - ``include_single_habitat_graph`` (``true``) / ``include_pairwise_habitat_graph`` (``true``)

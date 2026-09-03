@@ -24,7 +24,7 @@ from matplotlib.figure import Figure
 from matplotlib.collections import PolyCollection
 
 from habit.contracts.table import FeatureTable
-from habit.domain.habitat_features.compare import compare_habitat_features
+from habit.habitat_features.compare import compare_habitat_features
 from habit.exceptions import HABITAPIError
 from habit.viz import (
     plot_habitat_feature_bars,

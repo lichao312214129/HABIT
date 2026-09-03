@@ -24,16 +24,10 @@ from pathlib import Path
 
 import numpy as np
 
-from habit import cohort_from_directory
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
 from habit.contracts import ArrayImageRef, Geometry
-from habit.domain import (
-    BSplineDeformPerturbation,
-    GaussianNoisePerturbation,
-    RigidPerturbation,
-    RotationPerturbation,
-    TranslationPerturbation,
-    prior2024_retest_perturbation,
-)
+from habit.precision import BSplineDeformPerturbation, GaussianNoisePerturbation, RigidPerturbation, RotationPerturbation, TranslationPerturbation, prior2024_retest_perturbation
 from habit.kernels import local_entropy_map
 
 
@@ -394,8 +388,8 @@ if __name__ == "__main__":
     from habit.viz import plot_voxel_texture_slice, use_style
 
     # BEGIN example
-    # Change DATA / MODALITIES / ROI to your preprocessed layout
-    DATA = "demo_data/preprocessed"
+    # fetch_demo() downloads once and prints the tree. Change DATA for your data.
+    DATA = fetch_demo()
     MODALITIES = ("LAP",)
     ROI = "LAP"
 
@@ -549,7 +543,9 @@ if __name__ == "__main__":
     # Paste after the Script block. Uses ffd_subject, deformed, modality,
     # ROI, MODALITIES, direction, spacing. Same crop + slice as the ROI
     # contour figure (densest original ROI after the union bbox crop).
-    from habit import Cohort, align_habitat_map, habitat_stability, one_step_habitat
+    from habit.contracts import Cohort
+    from habit.precision import align_habitat_map, habitat_stability
+    from habit.recipes import one_step_habitat
     from habit.viz import plot_habitat_label_compare, use_style
 
     import matplotlib.pyplot as plt

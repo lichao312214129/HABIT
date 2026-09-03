@@ -21,7 +21,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from habit import HabitatSpec, RunPolicy, Spec, Stage, make_synthetic_cohort
+from habit.spec import HabitatSpec, RunPolicy, Spec, Stage
+from habit.datasets import make_synthetic_cohort
 from habit.execution.process_pool import ProcessPoolBackend
 from habit.viz import (
     plot_coefficient_forest,
@@ -122,7 +123,7 @@ def main() -> None:
 
     yaml_src = REPO_ROOT / "config" / "habitat" / "config_habitat_two_step_v1.yaml"
     print(
-        f"=== extras: run_from_yaml / icc / retest -> "
+        f"=== extras: run_from_yaml / icc -> "
         f"demo_data/results/api/09_extras (yaml present={yaml_src.is_file()}) ==="
     )
 

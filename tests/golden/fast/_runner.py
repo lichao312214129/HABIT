@@ -136,7 +136,7 @@ def _write_habitat_features(
         study_result: Completed two-step study.
         cohort: Cohort used for the study.
     """
-    from habit.domain.habitat_features import (
+    from habit.habitat_features import (
         HabitatVolumeFeatures,
         IthHabitatFeatures,
         MsiHabitatFeatures,
@@ -147,7 +147,8 @@ def _write_habitat_features(
     subjects = {subject.subject_id: subject for subject in cohort}
     extractors = (
         ("msi_features.csv", MsiHabitatFeatures()),
-        ("ith_scores.csv", IthHabitatFeatures(include_auxiliary=True)),
+        # Default ITH contract: only ``ith_score`` (auxiliaries are opt-in).
+        ("ith_scores.csv", IthHabitatFeatures()),
         ("habitat_basic_features.csv", HabitatVolumeFeatures()),
         (
             "raw_image_radiomics.csv",
@@ -200,11 +201,11 @@ def run_fast_ml_kfold(out_dir: Path) -> Dict[str, Any]:
     Returns:
         Aggregated metrics keyed by model name.
     """
-    from habit.domain.classification import LogisticRegressionClassifier
-    from habit.domain.evaluation import AccuracyMetric, AucMetric
-    from habit.domain.outcome_access import outcome_series
-    from habit.domain.pipeline import TablePipeline
-    from habit.domain.split import kfold_indices
+    from habit.classification import LogisticRegressionClassifier
+    from habit.evaluation import AccuracyMetric, AucMetric
+    from habit.pipeline.outcome_access import outcome_series
+    from habit.pipeline import TablePipeline
+    from habit.evaluation.split import kfold_indices
 
     table = make_synthetic_feature_table(
         n_rows=60,

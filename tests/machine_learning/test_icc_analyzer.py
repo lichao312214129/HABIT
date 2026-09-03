@@ -19,7 +19,6 @@ Covers:
 - Core metric calculation (ICCMetric, analyze_features)
 - ICCConfig loading
 - ICC-based feature selector
-- Habitat test-retest label mapping
 - CLI smoke test via config_icc_demo.yaml
 """
 
@@ -33,19 +32,16 @@ import pandas as pd
 import pytest
 from click.testing import CliRunner
 
+from habit.adapters.icc_io import analyze_feature_files
 from habit.cli import cli
-from habit.compat.engines.machine_learning.feature_selectors.icc.config import ICCConfig
-from habit.compat.engines.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
-from habit.compat.engines.machine_learning.feature_selectors.icc.icc_analyzer import (
+from habit.compat.engines.machine_learning.feature_selectors.icc_selector import icc_selector
+from habit.evaluation.reliability import (
     ICCMetric,
     ICCType,
-    analyze_features,
     prepare_long_format,
 )
-from habit.compat.engines.machine_learning.feature_selectors.icc.habitat_test_retest_mapper import (
-    find_habitat_mapping,
-)
-from habit.compat.engines.machine_learning.feature_selectors.icc_selector import icc_selector
+from habit.recipes.icc_runner import run_icc_analysis_from_config
+from habit.schemas.workflows.icc import ICCConfig
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEMO_ML = PROJECT_ROOT / "demo_data" / "ml_data"
@@ -54,8 +50,6 @@ ICC_OUTPUT = PROJECT_ROOT / "demo_data" / "results" / "icc" / "icc_radiomics.jso
 
 TEST_CSV = DEMO_ML / "breast_cancer_dataset.csv"
 RETEST_CSV = DEMO_ML / "breast_cancer_dataset_retest_simulated.csv"
-HABITATS_TEST = DEMO_ML / "habitats_test.csv"
-HABITATS_RETEST = DEMO_ML / "habitats_retest.csv"
 
 
 @pytest.mark.unit
@@ -86,7 +80,7 @@ class TestICCMetricCore:
         assert TEST_CSV.is_file(), f"Missing demo CSV: {TEST_CSV}"
         assert RETEST_CSV.is_file(), f"Missing demo CSV: {RETEST_CSV}"
 
-        results = analyze_features(
+        results = analyze_feature_files(
             file_paths=[str(TEST_CSV), str(RETEST_CSV)],
             metrics=["icc2", "icc3"],
             selected_features=["compactness error"],
@@ -139,7 +133,7 @@ class TestICCSelector:
 
     def test_icc_selector_uses_demo_results(self, tmp_path: Path) -> None:
         """Selector should return stable features from freshly calculated ICC data."""
-        results = analyze_features(
+        results = analyze_feature_files(
             file_paths=[str(TEST_CSV), str(RETEST_CSV)],
             metrics=["icc3"],
         )
@@ -157,24 +151,6 @@ class TestICCSelector:
         )
         assert "compactness error" in selected
         assert len(selected) == 12
-
-
-@pytest.mark.unit
-@pytest.mark.ml
-class TestHabitatTestRetestMapper:
-    """Habitat label remapping before ICC on feature tables."""
-
-    def test_find_habitat_mapping_identity_on_identical_tables(self) -> None:
-        """Identical test/retest tables should map each label to itself."""
-        assert HABITATS_TEST.is_file()
-        assert HABITATS_RETEST.is_file()
-
-        mapping: dict[int, int] = find_habitat_mapping(
-            test_habitat_table=str(HABITATS_TEST),
-            retest_habitat_table=str(HABITATS_RETEST),
-            similarity_method="pearson",
-        )
-        assert mapping == {1: 1, 2: 2, 3: 3, 4: 4}
 
 
 @pytest.mark.integration

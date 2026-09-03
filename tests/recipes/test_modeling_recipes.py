@@ -301,7 +301,7 @@ def test_predict_model_roundtrips_through_save_load(tmp_path: Path) -> None:
     trained = train_model(table, _spec())
     artefact = trained.pipeline.save(tmp_path / "model.habitpipeline")
 
-    from habit.domain.pipeline import TablePipeline
+    from habit.pipeline import TablePipeline
 
     reloaded = TablePipeline.load(artefact)
     in_memory = predict_model(trained.pipeline, table)
@@ -358,7 +358,7 @@ def test_train_model_with_precomputed_icc_selector(tmp_path: Path) -> None:
 @pytest.mark.unit
 def test_precomputed_icc_selector_requires_groups_and_file(tmp_path: Path) -> None:
     """Missing file and unknown group are loud errors, not empty selections."""
-    from habit.domain.feature_selection.selectors import PrecomputedIccSelector
+    from habit.feature_selection.selectors import PrecomputedIccSelector
 
     table = make_synthetic_feature_table(n_rows=10, n_features=3, rng=31)
     missing = PrecomputedIccSelector(

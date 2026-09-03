@@ -25,8 +25,8 @@ import numpy as np
 import pytest
 
 from habit.contracts import VoxelFeatureField
-from habit.domain.protocols import VoxelFeatureExtractor
-from habit.domain.voxel_features import (
+from habit._protocols import VoxelFeatureExtractor
+from habit.voxel_features import (
     ConcatVoxelFeatures,
     KineticVoxelFeatures,
     LocalEntropyVoxelFeatures,

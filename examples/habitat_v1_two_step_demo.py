@@ -55,7 +55,9 @@ import numpy as np
 
 import habit
 import habit.recipes as recipes
-from habit import Cohort, HabitatModel, HabitatSpec, Spec, StudyResult
+from habit.contracts import Cohort, HabitatModel
+from habit.spec import HabitatSpec, Spec
+from habit.recipes import StudyResult
 
 # --- Paths and analysis constants -----------------------------------------
 

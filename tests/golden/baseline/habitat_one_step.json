@@ -1,10 +1,10 @@
 {
   "artefacts": [
-    ".habitat_checkpoint/37af8303f0d6876087760e69e1c12a5802b02eacdb435b9590bd0828cf74dc5a.pkl",
-    ".habitat_checkpoint/53684b5e243b58114f04b3a09be0b338c06a3e7faecbd53a794766a5ad77be28.pkl",
-    ".habitat_checkpoint/6565e5c71b56926b54235d03ed0bea1c082e29be4664e0dea3f77a16027ddfaf.pkl",
-    ".habitat_checkpoint/bc4c0bdfa9c7e9d4e1f7cb537966212f4c9ce56365113412325839c2392c2ba5.pkl",
-    ".habitat_checkpoint/e41e35d16254fb4cf05dd53f9b736c893bb0060d88327c7f0b1f3ffa798df1d8.pkl",
+    ".habitat_checkpoint/81fdc9aa41bee7d790fe7faedbf2892caf34e0a06f69246892fff10355f467ed.pkl",
+    ".habitat_checkpoint/8b417a7296637a22eaab08adfeda4b48069617f5841502c8153150361a83b4d4.pkl",
+    ".habitat_checkpoint/a074d2d802d553bd05f515365204591b2b99eb36cbf7515dc96fe48e2fff4720.pkl",
+    ".habitat_checkpoint/edd527e8ec828ddbc93e6b7ebae7795463b3961e82e5183ad30e8a085e4a17b8.pkl",
+    ".habitat_checkpoint/fa365a4b64ac40f0c3cdf7ba4eb4ace57b92cdd1f83f6b933ed10800143b3244.pkl",
     ".habitat_checkpoint/run_fingerprint.json",
     "habitat_features.csv",
     "habitats.parquet",
@@ -35,23 +35,23 @@
     }
   },
   "fingerprints": {
-    ".habitat_checkpoint/37af8303f0d6876087760e69e1c12a5802b02eacdb435b9590bd0828cf74dc5a.pkl": {
+    ".habitat_checkpoint/81fdc9aa41bee7d790fe7faedbf2892caf34e0a06f69246892fff10355f467ed.pkl": {
       "kind": "presence",
       "non_empty": true
     },
-    ".habitat_checkpoint/53684b5e243b58114f04b3a09be0b338c06a3e7faecbd53a794766a5ad77be28.pkl": {
+    ".habitat_checkpoint/8b417a7296637a22eaab08adfeda4b48069617f5841502c8153150361a83b4d4.pkl": {
       "kind": "presence",
       "non_empty": true
     },
-    ".habitat_checkpoint/6565e5c71b56926b54235d03ed0bea1c082e29be4664e0dea3f77a16027ddfaf.pkl": {
+    ".habitat_checkpoint/a074d2d802d553bd05f515365204591b2b99eb36cbf7515dc96fe48e2fff4720.pkl": {
       "kind": "presence",
       "non_empty": true
     },
-    ".habitat_checkpoint/bc4c0bdfa9c7e9d4e1f7cb537966212f4c9ce56365113412325839c2392c2ba5.pkl": {
+    ".habitat_checkpoint/edd527e8ec828ddbc93e6b7ebae7795463b3961e82e5183ad30e8a085e4a17b8.pkl": {
       "kind": "presence",
       "non_empty": true
     },
-    ".habitat_checkpoint/e41e35d16254fb4cf05dd53f9b736c893bb0060d88327c7f0b1f3ffa798df1d8.pkl": {
+    ".habitat_checkpoint/fa365a4b64ac40f0c3cdf7ba4eb4ace57b92cdd1f83f6b933ed10800143b3244.pkl": {
       "kind": "presence",
       "non_empty": true
     },
@@ -954,7 +954,7 @@
         0.0,
         0.0,
         0.0,
-        1.0
+        -1.0
       ],
       "dtype": "int32",
       "kind": "array",
@@ -992,7 +992,7 @@
         0.0,
         0.0,
         0.0,
-        1.0
+        -1.0
       ],
       "dtype": "int32",
       "kind": "array",
@@ -1030,7 +1030,7 @@
         0.0,
         0.0,
         0.0,
-        1.0
+        -1.0
       ],
       "dtype": "int32",
       "kind": "array",
@@ -1068,7 +1068,7 @@
         0.0,
         0.0,
         0.0,
-        1.0
+        -1.0
       ],
       "dtype": "int32",
       "kind": "array",
@@ -1107,7 +1107,7 @@
         0.0,
         0.0,
         0.0,
-        1.0
+        -1.0
       ],
       "dtype": "int32",
       "kind": "array",

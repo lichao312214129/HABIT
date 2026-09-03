@@ -15,8 +15,8 @@
 """Filesystem sinks for model-comparison artefacts (L4).
 
 Pure plotters live in :mod:`habit.viz.classification`. Domain evaluation lives
-in :mod:`habit.domain.evaluation.comparison`. This module turns a
-:class:`~habit.domain.evaluation.comparison.ComparisonResult` into the on-disk
+in :mod:`habit.evaluation.comparison`. This module turns a
+:class:`~habit.evaluation.comparison.ComparisonResult` into the on-disk
 layout expected by ``habit compare`` (combined CSV, per-split figures,
 ``delong_results.json``, ``metrics/metrics.json``).
 """
@@ -30,8 +30,8 @@ from typing import Any, Dict, Mapping, Optional, Union
 
 import numpy as np
 
-from habit.domain.evaluation.comparison import ComparisonResult, ModelArrays
-from habit.domain.evaluation.panel import clean_binary_predictions
+from habit.evaluation.comparison import ComparisonResult, ModelArrays
+from habit.evaluation.panel import clean_binary_predictions
 from habit.viz.classification import (
     plot_calibration,
     plot_decision_curve,

@@ -10,7 +10,7 @@
   "environment": {
     "float_atol": 1e-09,
     "float_rtol": 1e-06,
-    "git_commit": "aadf7db8bab613ef14b17106f4841e9c79953396",
+    "git_commit": "71dabed04a38754bc606c213fb5aa3668a08eba8",
     "versions": {
       "SimpleITK": "2.2.1",
       "numpy": "1.26.1",
@@ -104,110 +104,22 @@
       },
       "columns": [
         "subject",
-        "ith_score",
-        "ith_num_habitats",
-        "ith_total_area",
-        "habitat_1_regions",
-        "habitat_1_largest_area",
-        "habitat_1_area_ratio",
-        "habitat_2_regions",
-        "habitat_2_largest_area",
-        "habitat_2_area_ratio",
-        "habitat_3_regions",
-        "habitat_3_largest_area",
-        "habitat_3_area_ratio"
+        "ith_score"
       ],
       "kind": "table",
       "numeric_columns": [
-        "ith_score",
-        "ith_num_habitats",
-        "ith_total_area",
-        "habitat_1_regions",
-        "habitat_1_largest_area",
-        "habitat_1_area_ratio",
-        "habitat_2_regions",
-        "habitat_2_largest_area",
-        "habitat_2_area_ratio",
-        "habitat_3_regions",
-        "habitat_3_largest_area",
-        "habitat_3_area_ratio"
+        "ith_score"
       ],
       "shape": [
         4,
-        13
+        2
       ],
       "values": {
-        "habitat_1_area_ratio": [
-          2203.0,
-          1760.0,
-          2733.0,
-          1852.0
-        ],
-        "habitat_1_largest_area": [
-          2203.0,
-          1760.0,
-          2733.0,
-          1852.0
-        ],
-        "habitat_1_regions": [
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "habitat_2_area_ratio": [
-          885.0,
-          1326.0,
-          935.0,
-          774.0
-        ],
-        "habitat_2_largest_area": [
-          885.0,
-          1326.0,
-          935.0,
-          774.0
-        ],
-        "habitat_2_regions": [
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "habitat_3_area_ratio": [
-          1405.0,
-          2395.0,
-          1133.0,
-          1600.0
-        ],
-        "habitat_3_largest_area": [
-          1405.0,
-          2395.0,
-          1133.0,
-          1600.0
-        ],
-        "habitat_3_regions": [
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "ith_num_habitats": [
-          3.0,
-          3.0,
-          3.0,
-          3.0
-        ],
         "ith_score": [
           0.0,
           0.0,
           0.0,
           0.0
-        ],
-        "ith_total_area": [
-          4493.0,
-          5481.0,
-          4801.0,
-          4226.0
         ]
       }
     },

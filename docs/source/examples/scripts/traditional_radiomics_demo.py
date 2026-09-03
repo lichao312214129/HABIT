@@ -33,44 +33,38 @@ MODALITIES: Tuple[str, ...] = ("pre_contrast", "LAP", "PVP", "delay_3min")
 OUT_DIR: Path = REPO_ROOT / "demo_data" / "results" / "examples" / "traditional_radiomics_docs"
 
 
-def main() -> None:
-    """Assemble the config dict and optionally run traditional radiomics."""
-    dry_run: bool = "--dry-run" in sys.argv
+dry_run: bool = "--dry-run" in sys.argv
 
-    config: Dict[str, Any] = {
-        "paths": {
-            "images_folder": str(IMAGING_ROOT),
-            "out_dir": str(OUT_DIR),
-        },
-        "processing": {
-            "n_processes": 1,
-            "process_image_types": list(MODALITIES),
-        },
-        "export": {
-            "export_by_image_type": True,
-            "export_combined": True,
-        },
-    }
+config: Dict[str, Any] = {
+    "paths": {
+        "images_folder": str(IMAGING_ROOT),
+        "out_dir": str(OUT_DIR),
+    },
+    "processing": {
+        "n_processes": 1,
+        "process_image_types": list(MODALITIES),
+    },
+    "export": {
+        "export_by_image_type": True,
+        "export_combined": True,
+    },
+}
 
-    print(f"Image root: {config['paths']['images_folder']}")
-    print(f"Output: {config['paths']['out_dir']}")
-    print(f"Modalities: {MODALITIES}")
+print(f"Image root: {config['paths']['images_folder']}")
+print(f"Output: {config['paths']['out_dir']}")
+print(f"Modalities: {MODALITIES}")
 
-    if not IMAGING_ROOT.is_dir():
-        raise SystemExit(
-            f"demo_data not found at {IMAGING_ROOT}\n"
-            "Obtain demo_data/ locally or swap images_folder for your cohort."
-        )
+if not IMAGING_ROOT.is_dir():
+    raise SystemExit(
+        f"demo_data not found at {IMAGING_ROOT}\n"
+        "Obtain demo_data/ locally or swap images_folder for your cohort."
+    )
 
-    if dry_run:
-        print("Dry-run OK: config dict assembled.")
-    else:
-        OUT_DIR.mkdir(parents=True, exist_ok=True)
-        result = traditional_radiomics(config)
-        print(f"Workflow output: {result.output_dir}")
+if dry_run:
+    print("Dry-run OK: config dict assembled.")
+else:
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    result = traditional_radiomics(config)
+    print(f"Workflow output: {result.output_dir}")
 
-    print("Done.")
-
-
-if __name__ == "__main__":
-    main()
+print("Done.")

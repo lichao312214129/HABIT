@@ -18,7 +18,9 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from habit import HabitatModel, HabitatSpec, Spec, Stage, make_synthetic_cohort
+from habit.contracts import HabitatModel
+from habit.spec import HabitatSpec, Spec, Stage
+from habit.datasets import make_synthetic_cohort
 import habit.recipes as recipes
 
 

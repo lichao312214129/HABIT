@@ -100,7 +100,6 @@ Total: **3884 statements, 648 missed, 83% covered.**
 | habit/recipes/result.py | 107 | 6 | 94% |
 | habit/recipes/sort_dicom.py | 7 | 0 | 100% |
 | habit/recipes/study.py | 54 | 8 | 85% |
-| habit/recipes/test_retest.py | 7 | 0 | 100% |
 | habit/recipes/yaml_runner.py | 508 | 260 | 49% |
 | habit/spec/__init__.py | 6 | 0 | 100% |
 | habit/spec/legacy.py | 517 | 28 | 95% |
@@ -110,7 +109,7 @@ Total: **3884 statements, 648 missed, 83% covered.**
 | **TOTAL** | **3884** | **648** | **83%** |
 
 Notable gaps: `habit/recipes/yaml_runner.py` (49% -- the v1 runners for
-preprocess/radiomics/model/cv/compare/icc/retest/extract/dicom documents are
+preprocess/radiomics/model/cv/compare/icc/extract/dicom documents are
 only partially exercised through `run_from_yaml`; the habitat path is fully
 covered), `habit/recipes/auxiliary.py` (48% -- the `dice`/`dicom_info` recipe
 functions are not what the CLI commands wire to, see below),

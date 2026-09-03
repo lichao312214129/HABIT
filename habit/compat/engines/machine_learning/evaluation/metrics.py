@@ -31,9 +31,13 @@ from sklearn import metrics
 from sklearn.metrics import roc_auc_score, accuracy_score, roc_curve, f1_score as sklearn_f1_score
 from scipy import stats
 from habit.registry.base import CallableRegistry
-from ..statistics.delong_test import delong_roc_variance, delong_roc_test
-from ..statistics.hosmer_lemeshow_test import hosmer_lemeshow_test
-from ..statistics.spiegelhalter_z_test import spiegelhalter_z_test
+from habit.kernels.statistics import (
+    delong_roc_ci,
+    delong_roc_test,
+    delong_roc_variance,
+    hosmer_lemeshow_test,
+    spiegelhalter_z_test,
+)
 
 # --- Metric Registry System ---
 
@@ -183,8 +187,7 @@ def calc_hl_p(y_true, y_pred, y_prob):
     try:
         # H-L test usually only for binary
         if y_prob.ndim > 1 and y_prob.shape[1] > 1: return np.nan
-        df = pd.DataFrame({'y_true': y_true, 'y_pred_proba': y_prob})
-        _, p_value = hosmer_lemeshow_test(df)
+        _, p_value = hosmer_lemeshow_test(y_true, y_prob)
         return p_value
     except:
         return np.nan
@@ -799,15 +802,6 @@ def apply_target_threshold(y_true: np.ndarray, y_pred_proba: np.ndarray,
     }
 
 # --- Utility Functions (Legacy Support) ---
-
-def delong_roc_ci(y_true: np.ndarray, y_pred_proba: np.ndarray, alpha: float = 0.95) -> Tuple[float, np.ndarray]:
-    """Calculate DeLong confidence intervals for ROC curve."""
-    aucs, auc_cov = delong_roc_variance(y_true, y_pred_proba)
-    auc_std = np.sqrt(auc_cov)
-    lower_upper_q = np.abs(np.array([0, 1]) - (1 - alpha) / 2)
-    ci = stats.norm.ppf(lower_upper_q, loc=aucs, scale=auc_std)
-    ci[ci > 1] = 1
-    return aucs, ci
 
 def calculate_net_benefit(y_true, y_pred_proba, threshold):
     """Used for DCA plotting."""

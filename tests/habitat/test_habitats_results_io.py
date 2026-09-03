@@ -136,9 +136,7 @@ class TestHabitatsResultsIo:
         tmp_path: Path,
     ) -> None:
         """Legacy CSV files with ``Habitats`` must remain non-interactive."""
-        from habit.compat.engines.habitat_extraction.habitat_features.feature_utils import (
-            FeatureUtils,
-        )
+        from habit.adapters.extract_io import resolve_n_habitats
 
         legacy_results = pd.DataFrame(
             {
@@ -148,7 +146,7 @@ class TestHabitatsResultsIo:
         )
         legacy_results.to_csv(tmp_path / "habitats.csv", index=False)
 
-        assert FeatureUtils.get_n_habitats_from_csv(str(tmp_path)) == 2
+        assert resolve_n_habitats(str(tmp_path), None) == 2
 
 
 @pytest.mark.unit

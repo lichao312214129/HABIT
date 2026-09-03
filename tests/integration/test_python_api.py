@@ -38,42 +38,18 @@ def _require_config(relative_path: str) -> Path:
 
 
 class TestPreprocessingAPI:
-    """Tests for ``run_preprocess_from_config`` and BatchProcessor config object."""
+    """Tests for the public batch preprocessing API."""
 
-    def test_batch_processor_accepts_config_without_yaml_reload(self) -> None:
-        """Validated config objects must not trigger a second YAML load."""
-        from habit.compat.engines.preprocessing.config_schemas import PreprocessingConfig
-        from habit.compat.engines.preprocessing.image_processor_pipeline import BatchProcessor
-
-        cfg_path = _require_config("config/preprocessing/config_preprocessing_demo.yaml")
-        config = PreprocessingConfig.from_file(str(cfg_path))
-
-        with patch(
-            "habit.compat.engines.preprocessing.image_processor_pipeline.load_config"
-        ) as mock_load:
-            processor = BatchProcessor(config=config)
-            mock_load.assert_not_called()
-
-        assert processor.config_obj.out_dir == config.out_dir
-
-    def test_run_preprocess_from_config_invokes_processor_run(
-        self,
-        cwd_repo_root: None,
-    ) -> None:
-        """Domain runner should delegate to BatchProcessor.run()."""
-        from habit.compat.engines.preprocessing.config_schemas import PreprocessingConfig
-        from habit.compat.engines.preprocessing.run import run_preprocess_from_config
+    def test_public_runner_invokes_recipe(self, cwd_repo_root: None) -> None:
+        """Validated configurations reach the L4 recipe without YAML reloading."""
+        from habit.api.preprocessing import PreprocessingConfig, run_preprocess
 
         cfg_path = _require_config("config/preprocessing/config_preprocessing_demo.yaml")
         config = PreprocessingConfig.from_file(str(cfg_path))
 
-        with patch(
-            "habit.compat.engines.preprocessing.image_processor_pipeline.BatchProcessor"
-        ) as mock_cls:
-            mock_processor = MagicMock()
-            mock_cls.return_value = mock_processor
-            run_preprocess_from_config(config)
-            mock_processor.run.assert_called_once()
+        with patch("habit.recipes.preprocess.preprocess_images") as mock_recipe:
+            run_preprocess(config)
+            mock_recipe.assert_called_once_with(config, logger=None)
 
 
 class TestDicomSortAPI:
@@ -136,47 +112,23 @@ class TestHabitatAPI:
 class TestFeatureExtractionAPI:
     """Tests for feature extraction programmatic entry."""
 
-    def test_run_feature_extraction_delegates_to_extractor(
+    def test_public_run_feature_extraction_delegates(
         self,
         cwd_repo_root: None,
     ) -> None:
-        """Domain runner should call HabitatMapAnalyzer.run()."""
-        from habit.compat.engines.habitat_analysis.config_schemas import FeatureExtractionConfig
-        from habit.compat.engines.habitat_analysis.run import run_feature_extraction_from_config
+        """``habit.api.habitat.run_feature_extraction`` delegates to the L4 recipe."""
+        from habit.api.habitat import FeatureExtractionConfig, run_feature_extraction
 
         cfg_path = _require_config(
             "config/feature_extraction/config_extract_features_demo.yaml"
         )
         config = FeatureExtractionConfig.from_file(str(cfg_path))
 
-        with patch("habit.compat.engines.habitat_analysis.run.HabitatConfigurator") as mock_cfg_cls:
-            mock_extractor = MagicMock()
-            mock_cfg_cls.return_value.create_feature_extractor.return_value = (
-                mock_extractor
-            )
-            run_feature_extraction_from_config(config)
-            mock_extractor.run.assert_called_once_with(
-                feature_types=config.feature_types,
-                n_habitats=config.n_habitats,
-            )
-
-    def test_public_run_feature_extraction_delegates(
-        self,
-        cwd_repo_root: None,
-    ) -> None:
-        """Top-level ``habit.run_feature_extraction`` delegates to the L4 recipe."""
-        import habit
-
-        cfg_path = _require_config(
-            "config/feature_extraction/config_extract_features_demo.yaml"
-        )
-        config = habit.FeatureExtractionConfig.from_file(str(cfg_path))
-
         with patch(
             "habit.recipes.features.extract_habitat_features"
         ) as mock_run:
             mock_run.return_value = MagicMock(run_id="extract-run")
-            habit.run_feature_extraction(config)
+            run_feature_extraction(config)
             mock_run.assert_called_once_with(
                 config,
                 plugin_configs=None,
@@ -197,39 +149,27 @@ class TestRadiomicsAndAnalysisAPI:
         config = RadiomicsConfig.from_file(str(cfg_path))
         assert config.paths.out_dir
 
-    def test_public_run_radiomics_delegates(self, cwd_repo_root: None) -> None:
-        """Top-level ``habit.run_radiomics`` delegates to the core runner."""
-        import habit
-
-        cfg_path = _require_config(
-            "config/radiomics/config_traditional_radiomics.yaml"
-        )
-        config = habit.RadiomicsConfig.from_file(str(cfg_path))
-
-        with patch(
-            "habit.compat.feature_extraction_runner.run_radiomics_from_config"
-        ) as mock_run:
-            habit.run_radiomics(config)
-            mock_run.assert_called_once_with(config, logger=None)
-
     def test_public_run_model_comparison_delegates(
         self,
         cwd_repo_root: None,
     ) -> None:
-        """Top-level ``habit.run_model_comparison`` delegates to the v1 recipe."""
-        import habit
+        """``habit.api.machine_learning.run_model_comparison`` delegates to the v1 recipe."""
+        from habit.api.machine_learning import (
+            ModelComparisonConfig,
+            run_model_comparison,
+        )
 
         cfg_path = _require_config(
             "config/model_comparison/config_model_comparison_demo.yaml"
         )
-        config = habit.ModelComparisonConfig.from_file(str(cfg_path))
+        config = ModelComparisonConfig.from_file(str(cfg_path))
 
         # The delegate is habit.recipes.comparison.compare_models, not the v0.1
         # ModelComparison engine; habit.api.machine_learning imports it inside
         # the function body, so patching the recipe module is what intercepts
         # the call.
         with patch("habit.recipes.comparison.compare_models") as mock_run:
-            habit.run_model_comparison(config)
+            run_model_comparison(config)
             mock_run.assert_called_once_with(
                 config,
                 logger=None,
@@ -237,24 +177,24 @@ class TestRadiomicsAndAnalysisAPI:
             )
 
     def test_icc_config_from_demo_yaml(self, cwd_repo_root: None) -> None:
-        """ICC schema loads through the public top-level namespace."""
-        import habit
+        """ICC schema loads through ``habit.api.analysis``."""
+        from habit.api.analysis import ICCConfig
 
         cfg_path = _require_config("config/auxiliary/config_icc_demo.yaml")
-        config = habit.ICCConfig.from_file(str(cfg_path))
+        config = ICCConfig.from_file(str(cfg_path))
         assert config.output.path
 
     def test_public_run_icc_analysis_delegates(self, cwd_repo_root: None) -> None:
-        """Top-level ``habit.run_icc_analysis`` delegates to the core runner."""
-        import habit
+        """``habit.api.analysis.run_icc_analysis`` delegates to its L4 recipe."""
+        from habit.api.analysis import ICCConfig, run_icc_analysis
 
         cfg_path = _require_config("config/auxiliary/config_icc_demo.yaml")
-        config = habit.ICCConfig.from_file(str(cfg_path))
+        config = ICCConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.compat.icc_runner.run_icc_analysis_from_config"
+            "habit.recipes.icc_runner.run_icc_analysis_from_config"
         ) as mock_run:
-            habit.run_icc_analysis(config)
+            run_icc_analysis(config)
             mock_run.assert_called_once_with(config)
 
 

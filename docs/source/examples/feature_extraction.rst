@@ -103,5 +103,7 @@ Use ``--dry-run`` to validate the config dict without running extraction.
 What to read next
 -----------------
 
-* :doc:`two_step_habitat` — producing the habitat maps first
-* :doc:`../reference/features/index` — features from habitat maps
+* :doc:`graph_features` — topology on the same maps
+* :doc:`apply_saved_model` — circulate the model that produced the maps
+* :doc:`../reference/features/index` — column definitions (Reference)
+* :doc:`../how_to/extract_features` — CLI / YAML bookmark only

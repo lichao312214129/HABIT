@@ -21,9 +21,7 @@ from typing import Any, Dict
 import numpy as np
 import pytest
 
-from habit.compat.engines.habitat_extraction.habitat_features.msi_features import (
-    MSIFeatureExtractor,
-)
+from habit.kernels.habitat_metrics import msi_features_from_matrix, spatial_interaction_matrix
 
 
 @pytest.mark.unit
@@ -32,10 +30,8 @@ def test_msi_matrix_golden(
     golden_msi_ith_data: Dict[str, Any],
 ) -> None:
     """MSI co-occurrence matrix must match the frozen golden snapshot."""
-    extractor = MSIFeatureExtractor(voxel_cutoff=10)
-    matrix: np.ndarray = extractor.calculate_MSI_matrix(
-        synthetic_habitat_array,
-        unique_class=golden_msi_ith_data["n_habitats"] + 1,
+    matrix: np.ndarray = spatial_interaction_matrix(
+        synthetic_habitat_array, golden_msi_ith_data["n_habitats"] + 1
     )
     expected = np.asarray(golden_msi_ith_data["msi_matrix"], dtype=np.int64)
     np.testing.assert_array_equal(matrix, expected)
@@ -47,12 +43,10 @@ def test_msi_features_golden(
     golden_msi_ith_data: Dict[str, Any],
 ) -> None:
     """MSI first/second-order features must match the frozen golden snapshot."""
-    extractor = MSIFeatureExtractor(voxel_cutoff=10)
-    matrix = extractor.calculate_MSI_matrix(
-        synthetic_habitat_array,
-        unique_class=golden_msi_ith_data["n_habitats"] + 1,
+    matrix = spatial_interaction_matrix(
+        synthetic_habitat_array, golden_msi_ith_data["n_habitats"] + 1
     )
-    features: Dict[str, float] = extractor.calculate_MSI_features(matrix, "golden")
+    features: Dict[str, float] = msi_features_from_matrix(matrix)
     expected: Dict[str, float] = golden_msi_ith_data["msi_features"]
 
     assert set(features.keys()) == set(expected.keys())

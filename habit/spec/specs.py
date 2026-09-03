@@ -659,7 +659,7 @@ class HabitatSpec:
             habitat definition is only reproducible together with the feature
             space it was defined in.
         random_seed: Seed applied to every
-            :class:`~habit.domain.protocols.Seedable` component. Seeds
+            :class:`~habit._protocols.Seedable` component. Seeds
             change the scientific result, so they live in the spec (and its
             fingerprint), not in the run policy.
         on_geometry_mismatch: How to handle image/mask voxel-grid disagreements
@@ -692,7 +692,7 @@ class HabitatSpec:
         A two-step design (supervoxels per subject, habitats across the
         cohort) declared as data:
 
-        >>> from habit import HabitatSpec, Spec
+        >>> from habit.spec import HabitatSpec, Spec
         >>> spec = HabitatSpec(
         ...     name="habitat_two_step",
         ...     voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
@@ -743,7 +743,8 @@ class HabitatSpec:
         """Coerce component payloads into Spec instances and tuples."""
         if not isinstance(self.name, str) or not self.name.strip():
             raise HABITAPIError("HabitatSpec.name must be a non-empty string.")
-        # Validate here (not via habit.domain) so habit.spec stays below L3.
+        # Validate here rather than in an L3 capability package so habit.spec
+        # remains below the capability layer.
         geometry_policy = str(self.on_geometry_mismatch).strip().lower()
         if geometry_policy not in ("resample_mask", "strict"):
             raise HABITAPIError(
@@ -925,7 +926,7 @@ class HabitatSpec:
         spec stays a constructible value object; scientifically meaningless
         combinations are rejected here at entry points (recipes /
         ``habit check-config``). Role inference that needs registries runs in
-        ``habit.domain.stages`` and is invoked from ``Study.fit``.
+        ``habit.pipeline.stages`` and is invoked from ``Study.fit``.
 
         Raises:
             HABITAPIError: On illegal sugar combinations or structural stage
@@ -1402,14 +1403,14 @@ class MLSpec:
         metrics: Specs of the evaluation metric panel. An empty tuple asks
             the calling recipe for its default panel.
         random_seed: Seed applied to every
-            :class:`~habit.domain.protocols.Seedable` component. Seeds
+            :class:`~habit._protocols.Seedable` component. Seeds
             change the scientific result, so they live in the spec (and its
             fingerprint), not in the run policy.
         version: Specification schema version.
         steps: The ordered table-step chain -- preprocessors and feature
             selectors in the exact order they are fitted. Names are
             resolved across both registries by
-            :func:`habit.domain.assembly.build_table_pipeline`; the spec
+            :func:`habit.pipeline.assembly.build_table_pipeline`; the spec
             layer records the order and stays registry-free. Declared last
             among the fields purely so that existing positional
             construction keeps meaning what it meant.

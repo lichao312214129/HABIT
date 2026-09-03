@@ -3,7 +3,7 @@
 # The literal name "HABIT" is prohibited on PyPI (admin block / name policy),
 # so we publish as ``habitat-analysis``: pip install habitat-analysis
 name = "habitat-analysis"
-version = "1.2.0"
+version = "2.0.0"
 description = "Habitat Analysis: Biomedical Imaging Toolkit (HABIT)"
 # PyPI long description must be English by default. Keep README.md (Chinese) in
 # the repository and sdist for bilingual readers; language switcher links use
@@ -45,9 +45,10 @@ classifiers = [
 #
 # Two groups, and nothing else:
 #   * the habitat kernel itself -- numpy / scipy / pandas / scikit-learn /
-#     SimpleITK. These are the imaging + clustering mathematics; there is no
-#     HABIT without them, and together they dominate the install size (~450 MB)
-#     with no way to shrink that without deleting the product.
+#     SimpleITK / networkx / numba. These are the imaging + clustering +
+#     graph / MSI mathematics; there is no HABIT without them, and together
+#     they dominate the install size (~450 MB plus numba's llvmlite) with
+#     no way to shrink that without deleting the product.
 #   * the plumbing every code path crosses -- pydantic (contract validation),
 #     PyYAML (config), click (the `habit` console script), tqdm (the shared
 #     progress bar), joblib (parallel map), kneed (elbow selection of the
@@ -79,6 +80,10 @@ dependencies = [
     # region-graph metric is a NetworkX computation. Pure Python, ~3 MB, no
     # required transitive dependencies of its own.
     "networkx>=3.0,<4",
+    # JIT for MSI / habitat-graph / union-find / CSR graph kernels.
+    # llvmlite is the size cost; 0.63+ is the CPython 3.14 wheel floor;
+    # cap below 0.68 covers current 0.67.
+    "numba>=0.63,<0.68",
 ]
 
 [project.scripts]
@@ -159,6 +164,9 @@ tables = [
 slic = [
     "scikit-image>=0.23,<0.27",
 ]
+# Empty documented alias: numba is now a required dependency. Kept so
+# existing ``pip install "habitat-analysis[accel]"`` commands stay valid.
+accel = []
 # Full tabular-ML workflow: gradient-boosted model, resampling, and the
 # statistical feature selectors (stepwise / univariate-logistic / VIF / mRMR).
 # The selectors draw their own diagnostic figures and read feature tables from
@@ -201,7 +209,7 @@ automl = [
 #
 # `torch` stays out on purpose: CUDA wheel selection needs a --index-url the
 # library metadata must not dictate. PyRadiomics stays out too (install
-# separately; see docs/tutorial/installation.rst).
+# separately; see docs/tutorial/installation.rst). `[view]` stays out (Qt).
 all = [
     "habitat-analysis[analysis,automl,dicom,ml,registration,slic,tables,viz]",
 ]

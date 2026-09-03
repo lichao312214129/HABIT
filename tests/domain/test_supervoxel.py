@@ -21,8 +21,8 @@ import pandas as pd
 import pytest
 
 from habit.api.exceptions import ConfigurationError, HABITAPIError
-from habit.domain.protocols import Supervoxelizer
-from habit.domain.supervoxel import SlicSupervoxelizer, SupervoxelizerRegistry
+from habit._protocols import Supervoxelizer
+from habit.supervoxel import SlicSupervoxelizer, SupervoxelizerRegistry
 
 from .conftest import make_field
 

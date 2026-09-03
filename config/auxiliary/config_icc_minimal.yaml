@@ -1,9 +1,9 @@
-# =============================================================================
+﻿# =============================================================================
 # 0. 文件说明 / Overview
 # 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
 # EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
 #
-# 运行 / Run: habit icc -c <配置文件.yaml> 或 habit retest -c <配置文件.yaml>
+# 运行 / Run: habit icc -c <配置文件.yaml>
 #
 # 【YAML 防错 / YAML safety】
 #   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value

@@ -1,14 +1,6 @@
 #!/usr/bin/env python
 """
-Build Subject / Cohort from NumPy arrays (no HABIT directory layout).
-
-Third-party pipelines often already hold ``(z, y, x)`` arrays from nibabel,
-SimpleITK, or MONAI. This script shows the contracts-layer bridge:
-
-* :class:`~habit.contracts.Geometry` — spatial frame
-* :class:`~habit.contracts.ArrayImageRef` — lazy in-memory ImageRef
-* :class:`~habit.contracts.ImageVolume` / :class:`~habit.contracts.MaskVolume`
-* :class:`~habit.contracts.Subject` / :class:`~habit.contracts.Cohort`
+Get data in: directory, SimpleITK, and NumPy — all from the official demo pack.
 
 Accompanies ``docs/source/examples/data_from_arrays.rst``.
 
@@ -19,123 +11,128 @@ Run from the repository root::
 
 from __future__ import annotations
 
-from typing import Sequence, Tuple
+# BEGIN disk
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo, inspect_preprocessed_root
 
-import numpy as np
+# Official pack (first call downloads; later calls reuse the cache).
+# Your own data: DATA = r"D:/my_study/preprocessed"
+DATA = fetch_demo()
+print(inspect_preprocessed_root(DATA))
+MODALITIES = ("LAP",)
+ROI = "LAP"
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
+print(list(cohort.subject_ids), list(cohort[0].images.keys()))
+# END disk
 
-from habit.contracts import (
-    ArrayImageRef,
-    Cohort,
-    Geometry,
-    ImageVolume,
-    MaskVolume,
-    Subject,
+# BEGIN sitk
+from pathlib import Path
+
+import SimpleITK as sitk
+
+from habit.datasets import fetch_demo
+from habit.contracts import Cohort, ImageVolume, MaskVolume, Subject
+from habit.voxel_features import RawVoxelFeatures
+
+DATA = fetch_demo()
+image_path = next(
+    path for path in (DATA / "images" / "subj001" / "LAP").iterdir() if path.is_file()
 )
-from habit.domain import RawVoxelFeatures
+mask_path = next(
+    path for path in (DATA / "masks" / "subj001" / "LAP").iterdir() if path.is_file()
+)
+sitk_image = sitk.ReadImage(str(image_path))
+sitk_mask = sitk.ReadImage(str(mask_path))
+volume = ImageVolume.from_sitk(sitk_image, modality="LAP")
+roi = MaskVolume.from_sitk(sitk_mask, modality="LAP")
+sitk_subject = Subject(
+    subject_id="subj001",
+    images={"LAP": volume},
+    masks={"LAP": roi},
+)
+sitk_cohort = Cohort([sitk_subject], name="from_sitk")
+sitk_field = RawVoxelFeatures(modalities=["LAP"])(sitk_subject)
+print(
+    f"SimpleITK Subject: id={sitk_subject.subject_id}, "
+    f"LAP shape={volume.data.shape}, voxels={sitk_field.values.shape[0]}"
+)
+# END sitk
+
+# BEGIN sitk_figures
+# Paste after the SimpleITK block. Uses volume and sitk_cohort.
+from pathlib import Path
+
+from habit.recipes import one_step_habitat
+from habit.viz import plot_habitat_overlay
+
+sitk_result = one_step_habitat(
+    modalities=("LAP",), n_habitats=3, random_seed=0, roi="LAP"
+).fit_predict(sitk_cohort)
+fig_sitk = plot_habitat_overlay(
+    volume,
+    sitk_result.habitat_maps[0],
+    title="Habitats from SimpleITK",
+)
+Path("out").mkdir(exist_ok=True)
+fig_sitk.savefig("out/data_from_sitk_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/data_from_sitk_overlay.png")
+# END sitk_figures
 
 # BEGIN example
-SHAPE: Tuple[int, int, int] = (16, 16, 16)
-MODALITIES: Sequence[str] = ("T1", "T2")
+from pathlib import Path
 
+import numpy as np
+import SimpleITK as sitk
 
-def make_subject_from_arrays(subject_id: str, *, seed: int) -> Subject:
-    """
-    Assemble one Subject from synthetic NumPy arrays.
+from habit.datasets import fetch_demo
+from habit.contracts import ArrayImageRef, Cohort, Geometry, Subject
+from habit.voxel_features import RawVoxelFeatures
 
-    Args:
-        subject_id: Unique id within the cohort.
-        seed: RNG seed for modality noise.
-
-    Returns:
-        Subject with lazy ``ArrayImageRef`` handles for images and mask.
-    """
-    rng = np.random.RandomState(seed)
-    geometry = Geometry.from_array(SHAPE, spacing=(1.0, 1.0, 1.0))
-    half = SHAPE[0] // 2
-
-    images = {}
-    for offset, modality in enumerate(MODALITIES):
-        array = np.zeros(SHAPE, dtype=np.float64)
-        array[:half] = 1.0
-        array[half:] = 8.0 + offset
-        array += rng.normal(scale=0.05, size=SHAPE)
-        images[modality] = ArrayImageRef(array=array, geometry=geometry)
-
-    # Masks must be integer labels; 0 = background.
-    mask = np.zeros(SHAPE, dtype=np.int32)
-    mask[2:-2, 2:-2, 2:-2] = 1
-    return Subject(
-        subject_id=subject_id,
-        images=images,
-        masks={"tumor": ArrayImageRef(array=mask, geometry=geometry)},
-        metadata={"center": "A" if seed % 2 == 0 else "B"},
-    )
-
-
-def main() -> None:
-    """Print geometry / materialisation checks and a tiny voxel feature call."""
-    geometry = Geometry.from_array(SHAPE)
-    eager = ImageVolume.from_geometry(
-        np.ones(SHAPE, dtype=np.float32),
-        geometry,
-        modality="T1",
-    )
-    eager_mask = MaskVolume.from_geometry(
-        np.ones(SHAPE, dtype=np.int32),
-        geometry,
-        roi_name="tumor",
-    )
-    print(
-        f"Eager volumes: image.shape={eager.data.shape}, "
-        f"mask.roi={eager_mask.roi_name}, labels={eager_mask.labels}"
-    )
-
-    cohort = Cohort(
-        [make_subject_from_arrays(f"P{i:03d}", seed=i) for i in range(3)],
-        name="from_numpy",
-    )
-    print(f"Cohort: n={len(cohort)} ids={list(cohort.subject_ids)}")
-    print(f"Fingerprint: {cohort.summarize()}")
-
-    subject = cohort[0]
-    t1 = subject.image("T1")
-    roi = subject.mask("tumor")
-    print(
-        f"Materialised {subject.subject_id}: "
-        f"T1 shape={t1.data.shape}, ROI foreground="
-        f"{int((roi.data > 0).sum())}"
-    )
-
-    # Prove the subject is usable by a domain operator (no directory, no YAML).
-    field = RawVoxelFeatures(modalities=list(MODALITIES))(subject)
-    print(
-        f"RawVoxelFeatures: voxels={field.values.shape[0]}, "
-        f"names={list(field.feature_names)}"
-    )
-    print(
-        "Replace ArrayImageRef arrays with your nibabel/SimpleITK buffers; "
-        "downstream habitat recipes stay unchanged."
-    )
-    return cohort, t1
-
-
-cohort, t1 = main()
+DATA = fetch_demo()
+image_path = next(
+    path for path in (DATA / "images" / "subj001" / "LAP").iterdir() if path.is_file()
+)
+mask_path = next(
+    path for path in (DATA / "masks" / "subj001" / "LAP").iterdir() if path.is_file()
+)
+sitk_image = sitk.ReadImage(str(image_path))
+sitk_mask = sitk.ReadImage(str(mask_path))
+array = sitk.GetArrayFromImage(sitk_image)
+mask = np.asarray(sitk.GetArrayFromImage(sitk_mask), dtype=np.int32)
+geometry = Geometry.from_array(
+    array.shape,
+    spacing=tuple(sitk_image.GetSpacing()),
+    origin=tuple(sitk_image.GetOrigin()),
+    direction=tuple(sitk_image.GetDirection()),
+)
+# Masks must be integer labels; 0 = background.
+subject = Subject(
+    subject_id="subj001",
+    images={"LAP": ArrayImageRef(array=array, geometry=geometry)},
+    masks={"LAP": ArrayImageRef(array=mask, geometry=geometry)},
+)
+cohort = Cohort([subject], name="from_numpy")
+t1 = subject.image("LAP")
+field = RawVoxelFeatures(modalities=["LAP"])(subject)
+print(
+    f"NumPy Subject: id={subject.subject_id}, "
+    f"LAP shape={t1.data.shape}, voxels={field.values.shape[0]}"
+)
 # END example
 
 # BEGIN figures
-# Paste after the Script block. Uses cohort, t1, and MODALITIES.
+# Paste after the NumPy block. Uses cohort and t1.
 from pathlib import Path
 
-from habit import one_step_habitat
+from habit.recipes import one_step_habitat
 from habit.viz import plot_habitat_overlay
 
 result = one_step_habitat(
-    modalities=MODALITIES, n_habitats=3, random_seed=0, roi="tumor"
+    modalities=("LAP",), n_habitats=3, random_seed=0, roi="LAP"
 ).fit_predict(cohort)
 fig = plot_habitat_overlay(
-    t1.data,
-    result.habitat_maps[0].label_array,
-    axis=0,
+    t1,
+    result.habitat_maps[0],
     title="Habitats from NumPy Subject",
 )
 Path("out").mkdir(exist_ok=True)
@@ -147,6 +144,8 @@ if __name__ == "__main__":
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from _example_roi import save_example_figure
+    from _example_roi import copy_out_figures_to_gallery
 
-    save_example_figure(fig, "data_from_arrays_overlay.png")
+    copy_out_figures_to_gallery(
+        ("data_from_sitk_overlay.png", "data_from_arrays_overlay.png")
+    )

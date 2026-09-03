@@ -16,22 +16,11 @@ from __future__ import annotations
 from dataclasses import asdict
 from pathlib import Path
 
-from habit import (
-    ClusterValidation,
-    GraphNetwork2D,
-    GraphSlice,
-    HabitatGraphFeatureOptions,
-    HabitatSpec,
-    ITH,
-    MSI,
-    Overlay,
-    Report,
-    Spec,
-    Stage,
-    Study,
-    VolumeFractions,
-    make_synthetic_cohort,
-)
+from habit.report import ClusterValidation, GraphNetwork2D, GraphSlice, ITH, MSI, Overlay, Report, VolumeFractions
+from habit.kernels import HabitatGraphFeatureOptions
+from habit.spec import HabitatSpec, Spec, Stage
+from habit.recipes import Study
+from habit.datasets import make_synthetic_cohort
 from habit.adapters import DirectoryResultWriter
 from habit.execution import CheckpointStore
 

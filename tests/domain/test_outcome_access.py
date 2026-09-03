@@ -31,7 +31,7 @@ from habit.contracts import (
     Outcome,
     SurvivalOutcome,
 )
-from habit.domain.outcome_access import (
+from habit.pipeline.outcome_access import (
     outcome_series,
     require_outcome,
     structured_survival_array,

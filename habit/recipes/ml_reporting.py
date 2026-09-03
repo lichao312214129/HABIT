@@ -546,7 +546,7 @@ def _cv_oof_prediction_arrays(
         ``(y_true, y_prob, y_pred, feature_frame)`` concatenated in fold
         validation order.
     """
-    from habit.domain.split import kfold_indices, stratify_labels
+    from habit.evaluation.split import kfold_indices, stratify_labels
 
     if table.outcome is None:
         raise HABITAPIError(
@@ -598,7 +598,7 @@ def _make_pipeline_predict_fn(
     Build a SHAP-compatible ``f(X) -> positive probability`` callable.
 
     Args:
-        pipeline: Fitted :class:`~habit.domain.pipeline.TablePipeline`.
+        pipeline: Fitted :class:`~habit.pipeline.TablePipeline`.
         table: Source table (provides identifier column names).
         feature_columns: Raw feature column order expected by the pipeline.
 

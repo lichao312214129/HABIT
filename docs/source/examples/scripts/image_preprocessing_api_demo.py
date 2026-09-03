@@ -4,11 +4,11 @@ Image preprocessing API: batch directory pipeline + atomic in-memory operators.
 
 * **Batch** — :func:`habit.recipes.preprocess_images` (CLI twin of
   ``habit preprocess``).
-* **Atomic subject** — :func:`habit.preprocess_subject` / recipe twin
-  ``recipes.preprocess_subject``: one :class:`~habit.contracts.Subject` in,
+* **Atomic subject** — :func:`habit.api.preprocessing.preprocess_subject` / recipe twin
+  ``habit.recipes.preprocess_subject``: one :class:`~habit.contracts.Subject` in,
   one Subject out. No ``data_dir`` / ``out_dir`` / YAML.
-* **Atomic volume** — :func:`habit.preprocess_image` for a single
-  :class:`~habit.ImageVolume`.
+* **Atomic volume** — :func:`habit.api.preprocessing.preprocess_image` for a single
+  :class:`~habit.api.image.ImageVolume`.
 
 Change DATA / MODALITIES / ROI to your preprocessed tree. Accompanies
 ``docs/source/examples/image_preprocessing_api.rst``.
@@ -25,11 +25,13 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict
 
-from habit import cohort_from_directory, preprocess_image, preprocess_subject
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
+from habit.api.preprocessing import preprocess_image, preprocess_subject
 from habit.recipes import preprocess_images
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 

@@ -36,8 +36,10 @@ from typing import Any, Dict, Tuple
 
 import numpy as np
 
-from habit import HabitatModel, HabitatSpec, Spec, cohort_from_directory, make_synthetic_cohort
-from habit.domain.assembly import build_habitat_components
+from habit.contracts import HabitatModel, cohort_from_directory
+from habit.spec import HabitatSpec, Spec
+from habit.datasets import make_synthetic_cohort
+from habit.pipeline.assembly import build_habitat_components
 import habit.recipes as recipes
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]

@@ -21,25 +21,24 @@ from typing import List
 import numpy as np
 import pytest
 
-from habit import (
-    HABITAPIError,
-    HabitatSpec,
-    Spec,
-    StepRecorder,
-    make_synthetic_cohort,
-)
-from habit.contracts.inspection import (
-    STEP_HABITAT_FEATURES,
-    STEP_HABITAT_MAP,
-    STEP_SUPERVOXELS_DESCRIBED,
-    STEP_SUPERVOXELS_PARTITION,
-    STEP_UNITS_COHORT_PREPROCESSED,
-    STEP_VOXEL_FEATURES_PREPROCESSED,
-    STEP_VOXEL_FEATURES_RAW,
-    StepRecord,
-)
+from habit.exceptions import HABITAPIError
+from habit.spec import HabitatSpec, Spec
+from habit.inspection import StepRecorder
+from habit.datasets import make_synthetic_cohort
+from habit.contracts.inspection import STEP_HABITAT_MAP, StepRecord
 from habit.execution.process_pool import ProcessPoolBackend
+from habit.pipeline.stages.executor import COHORT_SUBJECT_ID
 from habit.recipes.study import Study
+
+# v2 stage-bound inspection ids for sugar-resolved two_step specs.
+STEP_EXTRACT_VOXEL = "extract_voxel_features.output"
+STEP_PREPROCESS_VOXEL = "preprocess1.output"
+STEP_PARTITION = "partition.output"
+STEP_EXTRACT_SUPERVOXEL = "extract_supervoxel_features.output"
+STEP_POOL = "pool.output"
+STEP_FIT = "fit.output"
+STEP_ASSIGN = "assign.output"
+STEP_QUANTIFY = "quantify.output"
 
 
 def _two_step_spec(*, with_sv_fx: bool = False, with_voxel_prep: bool = False) -> HabitatSpec:
@@ -132,33 +131,34 @@ def test_two_step_captures_core_steps_with_recorder() -> None:
     result = Study(spec=spec, design="two_step").fit_predict(cohort, inspect=rec)
     assert result.inspection is rec
     steps = set(rec.steps())
-    assert STEP_VOXEL_FEATURES_RAW in steps
-    assert STEP_VOXEL_FEATURES_PREPROCESSED in steps
-    assert STEP_SUPERVOXELS_PARTITION in steps
-    assert STEP_SUPERVOXELS_DESCRIBED in steps
-    assert STEP_UNITS_COHORT_PREPROCESSED in steps
-    assert STEP_HABITAT_MAP in steps
-    assert STEP_HABITAT_FEATURES in steps
+    assert STEP_EXTRACT_VOXEL in steps
+    assert STEP_PREPROCESS_VOXEL in steps
+    assert STEP_PARTITION in steps
+    assert STEP_EXTRACT_SUPERVOXEL in steps
+    assert STEP_POOL in steps
+    assert STEP_FIT in steps
+    assert STEP_ASSIGN in steps
+    assert STEP_QUANTIFY in steps
     summary = rec.summary()
     assert not summary.empty
     sid = cohort[0].subject_id
-    raw = rec.frame(STEP_VOXEL_FEATURES_RAW, sid)
-    described = rec.frame(STEP_SUPERVOXELS_DESCRIBED, sid)
-    cohort_units = rec.frame(STEP_UNITS_COHORT_PREPROCESSED, sid)
+    raw = rec.frame(STEP_EXTRACT_VOXEL, sid)
+    described = rec.frame(STEP_EXTRACT_SUPERVOXEL, sid)
+    pooled = rec.frame(STEP_POOL, COHORT_SUBJECT_ID)
     assert raw.shape[0] > 0
     assert described.shape[0] == 6
     assert result.habitat_model is not None
-    assert list(cohort_units.columns) == list(result.habitat_model.feature_names)
+    assert list(pooled.columns) == list(result.habitat_model.feature_names)
 
 
 def test_steps_filter_skips_unwanted_observer_calls() -> None:
     """Filtered steps must not invoke the observer."""
     cohort = make_synthetic_cohort(n_subjects=2, shape=(10, 10, 10), rng=6)
     spec = _two_step_spec(with_sv_fx=True)
-    spy = _CountingObserver(steps=[STEP_SUPERVOXELS_DESCRIBED])
+    spy = _CountingObserver(steps=[STEP_EXTRACT_SUPERVOXEL])
     Study(spec=spec, design="two_step").fit_predict(cohort, inspect=spy)
     assert spy.calls
-    assert set(spy.calls) == {STEP_SUPERVOXELS_DESCRIBED}
+    assert set(spy.calls) == {STEP_EXTRACT_SUPERVOXEL}
 
 
 def test_max_subjects_and_subjects_filters() -> None:
@@ -166,10 +166,10 @@ def test_max_subjects_and_subjects_filters() -> None:
     cohort = make_synthetic_cohort(n_subjects=3, shape=(10, 10, 10), rng=7)
     spec = _two_step_spec()
     only = cohort[0].subject_id
-    rec = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW], subjects=[only])
+    rec = StepRecorder(steps=[STEP_EXTRACT_VOXEL], subjects=[only])
     Study(spec=spec, design="two_step").fit_predict(cohort, inspect=rec)
     assert rec.subjects() == (only,)
-    capped = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW], max_subjects=1)
+    capped = StepRecorder(steps=[STEP_EXTRACT_VOXEL], max_subjects=1)
     Study(spec=spec, design="two_step").fit_predict(cohort, inspect=capped)
     assert len(capped.subjects()) == 1
 
@@ -178,7 +178,7 @@ def test_process_backend_rejects_inspect() -> None:
     """Process backend + inspect must raise a clear HABITAPIError."""
     cohort = make_synthetic_cohort(n_subjects=2, shape=(10, 10, 10), rng=8)
     spec = _two_step_spec()
-    rec = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW], max_subjects=1)
+    rec = StepRecorder(steps=[STEP_EXTRACT_VOXEL], max_subjects=1)
     with pytest.raises(HABITAPIError, match="serial|workers=1"):
         Study(spec=spec, design="two_step").fit_predict(
             cohort, backend=ProcessPoolBackend(workers=1), inspect=rec
@@ -200,10 +200,10 @@ def test_one_step_and_direct_pooling_and_apply_smoke() -> None:
         habitat_features=(Spec("volume"),),
         random_seed=9,
     )
-    rec_dp = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW, STEP_HABITAT_MAP], max_subjects=1)
+    rec_dp = StepRecorder(steps=[STEP_EXTRACT_VOXEL, STEP_ASSIGN], max_subjects=1)
     dp = Study(spec=dp_spec, design="direct_pooling").fit_predict(cohort, inspect=rec_dp)
-    assert STEP_VOXEL_FEATURES_RAW in rec_dp.steps()
-    assert STEP_HABITAT_MAP in rec_dp.steps()
+    assert STEP_EXTRACT_VOXEL in rec_dp.steps()
+    assert STEP_ASSIGN in rec_dp.steps()
 
     os_spec = HabitatSpec(
         name="os_inspect",
@@ -217,10 +217,10 @@ def test_one_step_and_direct_pooling_and_apply_smoke() -> None:
         habitat_features=(Spec("volume"),),
         random_seed=9,
     )
-    rec_os = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW, STEP_HABITAT_MAP], max_subjects=1)
+    rec_os = StepRecorder(steps=[STEP_EXTRACT_VOXEL, STEP_ASSIGN], max_subjects=1)
     os_result = Study(spec=os_spec, design="one_step").fit_predict(cohort, inspect=rec_os)
     assert os_result.habitat_model is None
-    assert STEP_HABITAT_MAP in rec_os.steps()
+    assert STEP_ASSIGN in rec_os.steps()
 
     train = Study(spec=_two_step_spec(), design="two_step").fit_predict(cohort)
     assert train.habitat_model is not None

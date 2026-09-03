@@ -21,7 +21,7 @@ cloud coverage suite builds its own look-alike tree:
 .. code-block:: text
 
     <root>/images/subj001..subj004/{delay2,delay3,delay5}/image.nrrd
-    <root>/masks/subj001..subj004/delay2/mask.nrrd
+    <root>/masks/subj001..subj004/{delay2,delay3,delay5}/mask.nrrd
     <root>/ml_data/clinical.csv
     <root>/ml_data/radiomics_features.csv
     <root>/ml_data/radiomics_features_retest.csv
@@ -57,7 +57,10 @@ SUBJECT_IDS: Tuple[str, ...] = ("subj001", "subj002", "subj003", "subj004")
 #: Modality keys mirroring the demo DCE phases.
 MODALITIES: Tuple[str, ...] = ("delay2", "delay3", "delay5")
 
-#: Mask folder key used by the conventional directory layout (roi key).
+#: Mask folder key used by habitat ``DirectoryDataSource`` (single ROI).
+#: The same tumour mask is also written under every modality folder so the
+#: standalone radiomics layout (``masks/<subject>/<modality>/``) can pair
+#: each DCE phase with the shared anatomical ROI.
 ROI_KEY: str = "delay2"
 
 #: Volume shape in SimpleITK (x, y, z) order.
@@ -280,7 +283,12 @@ def _write_image_tree(root: Path, seed: int) -> Dict[str, Tuple[float, float, fl
                 root / "images" / subject_id / modality / "image.nrrd",
                 images[modality],
             )
-        _write_nrrd(root / "masks" / subject_id / ROI_KEY / "mask.nrrd", mask)
+        # One ellipsoid ROI shared across DCE phases (clinical convention).
+        for modality in MODALITIES:
+            _write_nrrd(
+                root / "masks" / subject_id / modality / "mask.nrrd",
+                mask,
+            )
         subregion_means[subject_id] = means
     return subregion_means
 

@@ -15,11 +15,11 @@
 """Import gate for every optional third-party backend HABIT can use.
 
 HABIT's required dependency set is deliberately small: only the habitat kernel
-(numpy / scipy / pandas / scikit-learn / SimpleITK) plus the thin plumbing
-layer (pydantic / PyYAML / click / tqdm / joblib / kneed) is installed by a
-bare ``pip install habitat-analysis``. Everything else -- plotting, DICOM,
-parquet/xlsx tables, SLIC supervoxels, tabular ML, survival analysis, ANTs
-registration, PyRadiomics -- lives behind a pip extra.
+(numpy / scipy / pandas / scikit-learn / SimpleITK / networkx / numba) plus
+the thin plumbing layer (pydantic / PyYAML / click / tqdm / joblib / kneed)
+is installed by a bare ``pip install habitat-analysis``. Everything else --
+plotting, DICOM, parquet/xlsx tables, SLIC supervoxels, tabular ML, survival
+analysis, ANTs registration, PyRadiomics -- lives behind a pip extra.
 
 :func:`require` is the single entry point every optional backend must go
 through. It converts the raw ``ModuleNotFoundError`` a missing extra would
@@ -86,6 +86,10 @@ OPTIONAL_EXTRA_MODULES: Mapping[str, tuple[str, ...]] = {
     "torch": ("torch",),
     "monai": ("monai",),
     "radiomics": ("radiomics",),
+    # Empty documented alias: numba is now required. Mapping is kept so
+    # extras coverage stays complete and ``require("numba", extra="accel")``
+    # still resolves; kernels keep a silent ``try: import numba`` fallback.
+    "accel": ("numba",),
 }
 
 #: CPython minor versions for which HABIT publishes ``win_amd64`` wheels.

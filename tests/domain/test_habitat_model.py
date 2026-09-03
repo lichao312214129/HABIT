@@ -22,13 +22,13 @@ import pytest
 
 from habit.api.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts import HabitatModel
-from habit.domain.habitat_model import (
+from habit.habitat_model import (
     GmmHabitatModelFitter,
     HabitatModelFitterRegistry,
     KMeansHabitatModelFitter,
 )
-from habit.domain.habitat_model._base import fingerprint_from_units, pool_supervoxel_features
-from habit.domain.protocols import HabitatModelFitter, Seedable
+from habit.habitat_model._base import fingerprint_from_units, pool_supervoxel_features
+from habit._protocols import HabitatModelFitter, Seedable
 
 from .conftest import make_supervoxelization, two_cluster_units
 

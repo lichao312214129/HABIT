@@ -1,11 +1,8 @@
 HABIT Documentation
 =====================
 
-**HABIT** — habitat maps from images, then quantify those habitats.
-
-Image preprocessing and tabular ML are **supporting** tools. The product
-is the habitat API: ``op(subject)``, :class:`~habit.domain.SubjectPipeline`,
-or :class:`~habit.recipes.Study`.
+**HABIT** turns images + an ROI into habitat maps, then quantifies those
+habitats. Supporting image preprocessing is provided for data ingestion.
 
 .. warning::
 
@@ -15,90 +12,57 @@ Start here
 ----------
 
 1. :doc:`tutorial/installation` — install
-2. :doc:`tutorial/quickstart` — **run the demo** (YAML + CLI)
-3. :doc:`tutorial/habitat_analysis` — what habitats are, which strategy,
-   how to embed operators
-4. :doc:`how_to/prepare_data` — point HABIT at **your** images
+2. :doc:`tutorial/quickstart_python` — first habitat map (Python)
+3. :doc:`tutorial/quickstart` — first habitat map (CLI / YAML)
+4. :doc:`examples/index` — **Habitat Guide** (one task per page)
 
-Python beginners: :doc:`tutorial/quickstart_python` (copy-paste
-:class:`~habit.recipes.Study`). Embed one step in your own workflow:
-:doc:`examples/habitat_atomic_ops`. Parallel / fault tolerance:
-:doc:`tutorial/execution`. Stuck: :doc:`troubleshooting/faq`.
+Stuck: :doc:`troubleshooting/faq`.
+Signatures and defaults: :doc:`api/index`.
+Scientific definitions: :doc:`reference/features/index`.
 
-Also: :doc:`how_to/graph_features` (topology) ·
-:doc:`how_to/voxel_texture` (texture maps as inputs).
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Tutorial
+   :maxdepth: 1
+   :caption: Get started
 
    tutorial/installation
-   tutorial/quickstart
    tutorial/quickstart_python
-   tutorial/habitat_analysis
-   tutorial/execution
+   tutorial/quickstart
 
 .. toctree::
    :maxdepth: 1
-   :caption: How-to guides
-
-   how_to/index
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Examples
+   :caption: Habitat Guide
 
    examples/index
 
 .. toctree::
    :maxdepth: 2
-   :caption: Configuration
+   :caption: Reference
 
-   configuration/index
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Features from habitat maps
-
+   api/index
+   how_to/habitat_components
    reference/features/index
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Command reference
-
+   configuration/index
    reference/cli
-   reference/auxiliary
-
-.. toctree::
-   :maxdepth: 1
-   :caption: FAQ
-
    troubleshooting/faq
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Python API
-
-   api/index
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Development
+   :maxdepth: 1
+   :caption: Developer
 
    development/index
    customization/index
    reference/upstream_libraries
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Changelog
-
    changelog
+   acknowledgments
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Acknowledgments
+   :hidden:
 
-   acknowledgments
+   how_to/index
+   tutorial/habitat_analysis
+   tutorial/execution
+   tutorial/precise_screening
+   reference/auxiliary
 
 - GitHub: |github_repo|

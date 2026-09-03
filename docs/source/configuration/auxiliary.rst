@@ -71,31 +71,6 @@ Corresponds to ``habit.schemas.workflows.icc.ICCConfig``. Example: ``config/auxi
 - ``processes`` (int, optional): parallel process count
 - ``debug`` (bool, default ``false``)
 
-Test-Retest configuration (``habit retest``)
---------------------------------------------
-
-This section documents **Test-Retest reproducibility** configuration. Example: ``config/auxiliary/config_test_retest.yaml``. Command usage: :doc:`../reference/auxiliary`.
-
-**Required fields**
-
-- ``test_habitat_table``: habitat feature table from test scan (CSV/Excel)
-- ``retest_habitat_table``: habitat feature table from retest scan
-- ``input_dir``: retest-group NRRD habitat map directory (for mapping/realignment)
-- ``out_dir``: analysis output directory
-
-**Optional fields**
-
-- ``features``: feature columns for similarity; ``null`` means all
-- ``similarity_method`` (default ``pearson``): ``pearson``, ``spearman``,
-  ``kendall`` (alias of spearman), ``euclidean``, ``cosine``,
-  ``manhattan``, ``chebyshev``. Assignment is **Hungarian** on
-  cohort-z-scored habitat medians (not greedy argmax). See
-  :doc:`../examples/habitat_label_match`.
-- ``processes`` (default ``4``)
-- ``debug`` (default ``false``)
-
-Intermediate NRRD remapping outputs are written under ``out_dir``.
-
 Traditional radiomics CLI configuration (``habit radiomics``)
 -------------------------------------------------------------
 
@@ -124,10 +99,6 @@ by function; copy and modify templates directly:
      - ``habit extract`` habitat feature extraction
    * - ``config/radiomics/``
      - PyRadiomics parameters and ``habit radiomics`` top-level config
-   * - ``config/machine_learning/``
-     - Standard train/predict, K-fold, clinical/radiomics examples
-   * - ``config/model_comparison/``
-     - Multi-model ROC/DCA/DeLong comparison
    * - ``config/auxiliary/``
      - ICC, Test-Retest, and other auxiliary analyses
 

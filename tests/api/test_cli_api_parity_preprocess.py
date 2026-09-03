@@ -24,7 +24,7 @@ from typing import Any, Dict
 import pytest
 import yaml
 
-import habit
+from habit.api.preprocessing import PreprocessingConfig, run_preprocess
 from tests.api.helpers import assert_output_trees_equal
 from habit.utils.subprocess_utils import run_capture_text
 
@@ -35,7 +35,7 @@ def test_preprocess_cli_api_parity(
     project_root: Path,
     tmp_path: Path,
 ) -> None:
-    """``habit preprocess`` CLI and ``habit.run_preprocess`` must produce identical outputs."""
+    """``habit preprocess`` CLI and ``run_preprocess`` must produce identical outputs."""
     _, base_config = synthetic_preprocess_dataset
 
     api_config_dict = deepcopy(base_config)
@@ -54,8 +54,8 @@ def test_preprocess_cli_api_parity(
         encoding="utf-8",
     )
 
-    api_config = habit.PreprocessingConfig.model_validate(api_config_dict)
-    habit.run_preprocess(api_config)
+    api_config = PreprocessingConfig.model_validate(api_config_dict)
+    run_preprocess(api_config)
 
     result = run_capture_text(
         [

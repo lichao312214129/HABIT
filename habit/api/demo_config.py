@@ -17,7 +17,7 @@ Public API for materializing bundled demo YAML configs.
 
 Thin facade over :mod:`habit.utils.demo_config_utils` so third parties can::
 
-    from habit import copy_demo_config
+    from habit.api.demo_config import copy_demo_config
     copy_demo_config(r"D:/my_habit_work")
 
 without depending on CLI or a repository clone. ``demo_data/`` is never part

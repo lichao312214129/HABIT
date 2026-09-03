@@ -28,8 +28,8 @@ from habit.contracts import (
     MulticlassOutcome,
     SurvivalOutcome,
 )
-from habit.domain.feature_selection import FeatureSelectorRegistry
-from habit.domain.split import kfold_indices, stratify_labels, train_test_indices
+from habit.feature_selection import FeatureSelectorRegistry
+from habit.evaluation.split import kfold_indices, stratify_labels, train_test_indices
 
 pytestmark = pytest.mark.unit
 

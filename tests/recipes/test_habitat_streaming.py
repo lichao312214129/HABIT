@@ -265,6 +265,34 @@ def test_streaming_resume_rewrites_maps_from_checkpoint(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_one_step_full_and_slim_checkpoint_payloads_are_isolated(
+    tmp_path: Path,
+) -> None:
+    """Full and streamed payloads use distinct cache entries in one store."""
+    cohort = _cohort(3)
+    store = CheckpointStore(tmp_path / "ckpt")
+
+    full = Study(spec=_one_step_spec(), design="one_step").fit_predict(
+        cohort, checkpoint=store
+    )
+    assert len(store) == len(cohort)
+
+    slim = Study(spec=_one_step_spec(), design="one_step").fit_predict(
+        cohort,
+        checkpoint=store,
+        writer=DirectoryResultWriter(tmp_path / "stream"),
+        retain="tables",
+    )
+
+    # A slim cache hit here would deserialize a full payload with retained
+    # voxel units, violating the streaming memory contract.  Both payload
+    # modes are valid, but their serialized shapes are intentionally distinct.
+    assert len(store) == 2 * len(cohort)
+    assert set(full.subject_models) == set(slim.subject_models)
+    pd.testing.assert_frame_equal(full.features.frame, slim.features.frame)
+
+
+@pytest.mark.unit
 def test_retain_maps_keeps_maps_but_drops_units(tmp_path: Path) -> None:
     """retain='maps': maps stay in memory AND on disk; units do not."""
     out_dir = tmp_path / "out"

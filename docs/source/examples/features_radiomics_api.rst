@@ -79,5 +79,5 @@ Habitat feature tables sit on top of habitat maps from this demo.
 What to read next
 -----------------
 
-* :doc:`tabular_ml_api` — model the resulting tables
+* :doc:`feature_extraction` — extract volume, MSI, ITH, and graph features from habitat maps
 * :doc:`habitat_fit_modes` — produce habitat maps first

@@ -80,7 +80,7 @@ For tutorials, tests, and API exploration, build an in-memory cohort:
 
 .. code-block:: python
 
-   from habit import make_synthetic_cohort
+   from habit.datasets import make_synthetic_cohort
 
    cohort = make_synthetic_cohort(
        n_subjects=4,
@@ -209,12 +209,12 @@ whether to compute AUC or R-squared.
      - Right-censored time-to-event; ``event_value`` carries the coding, so
        ``1``/``0`` and ``"Dead"``/``"Alive"`` tables both work unchanged
 
-Components read the endpoint through :mod:`habit.domain.outcome_access` rather
+Components read the endpoint through :mod:`habit.pipeline.outcome_access` rather
 than indexing the frame themselves:
 
 .. code-block:: python
 
-   from habit.domain.outcome_access import (
+   from habit.pipeline.outcome_access import (
        outcome_series,          # one-column endpoints -> Series
        require_outcome,         # declare which families a component supports
        structured_survival_array,  # scikit-survival (event, time) layout

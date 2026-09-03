@@ -105,7 +105,7 @@ def _dump_subject_features(
     Returns:
         The subject's clustering units (``Supervoxelization``).
     """
-    from habit.domain.pipeline import voxel_units
+    from habit.pipeline import voxel_units
 
     subject_id = subject.subject_id
     field = fit_pipeline.voxel_feature_extractor(subject)
@@ -183,7 +183,7 @@ def _run_cohort_design(
         Process exit code.
     """
     from habit.contracts.subject import Cohort
-    from habit.domain.protocols import Seedable
+    from habit._protocols import Seedable
 
     pooled = pd.concat(
         [units.feature_frame() for units in units_list], ignore_index=True
@@ -305,7 +305,7 @@ def _run_one_step_design(
     Returns:
         Process exit code.
     """
-    from habit.domain.protocols import Seedable
+    from habit._protocols import Seedable
 
     pooled_ids_frames: List[pd.DataFrame] = []
     pooled_feat_frames: List[pd.DataFrame] = []
@@ -406,7 +406,7 @@ def main() -> int:
             "make this leg test the wrong code."
         )
 
-    from habit.domain.assembly import build_habitat_components
+    from habit.pipeline.assembly import build_habitat_components
 
     leg_dir = pio.ensure_leg_dir(args.leg_dir)
     started = time.perf_counter()

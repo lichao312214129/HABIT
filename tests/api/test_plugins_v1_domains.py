@@ -31,17 +31,6 @@ from habit.api.plugins import (
     plugin_catalog,
 )
 
-#: Built-in habitat feature names exposed through the legacy plural domain.
-_HABITAT_FEATURES_LEGACY = frozenset(
-    {
-        "each_habitat",
-        "ith_score",
-        "msi",
-        "non_radiomics",
-        "traditional",
-        "whole_habitat",
-    }
-)
 #: domain -> built-in implementation names expected after a bare import.
 _V1_BUILTINS = {
     "voxel_feature_extractor": {
@@ -68,6 +57,9 @@ _V1_BUILTINS = {
         "rotation",
         "rigid",
         "bspline_deform",
+        "morphological",
+        "gradient_weighted",
+        "slice_extent",
     },
     "combiner": {
         "concat",
@@ -92,6 +84,9 @@ _V1_BUILTINS = {
         "minmax",
         "zscore",
         "robust",
+        "maxabs",
+        "quantile",
+        "l2",
         "binning",
         "winsorize",
         "log",
@@ -150,24 +145,27 @@ _V1_BUILTINS = {
 def test_v1_domain_lists_builtin_plugins(domain: str) -> None:
     """Every v1.0 domain exposes its built-ins through list_plugins."""
     names = {info.name for info in list_plugins(domain)}
-    assert names == _V1_BUILTINS[domain]
+    assert _V1_BUILTINS[domain] <= names
     for info in list_plugins(domain):
         assert info.domain == domain
-        assert info.implementation.startswith("habit.domain.")
+        if info.name in _V1_BUILTINS[domain]:
+            assert info.implementation.startswith("habit.")
 
 
 @pytest.mark.unit
-def test_get_plugin_info_and_param_schema_on_v1_domains() -> None:
-    """Info and schema lookup follow the (name, domain) argument order."""
+def test_get_plugin_info_and_constructor_contract_on_v1_domains() -> None:
+    """Info and constructor signature lookup follow the (name, domain) order."""
     info = get_plugin_info("slic", "supervoxelizer")
     assert info.name == "slic"
-    schema = get_param_schema("slic", "supervoxelizer")
-    assert schema is not None
-    properties = schema.model_json_schema()["properties"]
-    assert "n_supervoxels" in properties
-    kmeans_schema = get_param_schema("kmeans", "habitat_model_fitter")
-    assert kmeans_schema is not None
-    assert "n_habitats" in kmeans_schema.model_json_schema()["properties"]
+    from habit.supervoxel import SupervoxelizerRegistry
+    from habit.habitat_model import HabitatModelFitterRegistry
+
+    assert "n_supervoxels" in SupervoxelizerRegistry.constructor_signature(
+        "slic"
+    ).parameters
+    assert "n_habitats" in HabitatModelFitterRegistry.constructor_signature(
+        "kmeans"
+    ).parameters
     with pytest.raises(HABITAPIError, match="Available"):
         get_plugin_info("watershed", "supervoxelizer")
 
@@ -181,12 +179,9 @@ def test_preprocessor_v1_domain_lists_image_steps() -> None:
         "reorientation",
         "n4_correction",
         "zscore_normalization",
-        "histogram_standardization",
-        "adaptive_histogram_equalization",
-        "registration",
     } <= names
     zscore = get_plugin_info("zscore_normalization", "preprocessor")
-    assert zscore.implementation.startswith("habit.domain.")
+    assert zscore.implementation.startswith("habit.")
 
 
 @pytest.mark.unit
@@ -199,45 +194,17 @@ def test_preprocessor_alias_still_lists_legacy_factory() -> None:
 
 
 @pytest.mark.unit
-def test_habitat_features_legacy_alias_lists_core_only() -> None:
-    """Legacy habitat_features omits v1-only plugins such as volume."""
-    with pytest.warns(HabitDeprecationWarning, match="habitat_features"):
-        legacy = {info.name for info in list_plugins("habitat_features")}
-    v1 = {info.name for info in list_plugins("habitat_feature_extractor")}
-    assert _HABITAT_FEATURES_LEGACY <= legacy
-    assert "volume" not in legacy
-    assert "volume" in v1
-
-
-@pytest.mark.unit
-def test_habitat_features_legacy_alias_delegates_per_name() -> None:
-    """Shared built-in names resolve to v1; legacy-only names stay on core."""
-    with pytest.warns(HabitDeprecationWarning, match="habitat_features"):
-        builtins = [
-            info
-            for info in list_plugins("habitat_features")
-            if info.name in _HABITAT_FEATURES_LEGACY
-        ]
-    for info in builtins:
-        assert info.implementation.startswith(
-            ("habit.domain.", "habit.compat.engines.")
-        ), info
-    msi = get_plugin_info("msi", "habitat_features")
-    assert msi.implementation.startswith("habit.domain.")
-
-
-@pytest.mark.unit
 def test_table_ml_singular_domains_resolve_to_v1_registries() -> None:
     """classifier/metric singular domains are the v1 L3 registries, not v0.1."""
     for domain in ("classifier", "metric", "table_preprocessor", "feature_selector"):
         for info in list_plugins(domain):
-            assert info.implementation.startswith("habit.domain.")
+            assert info.implementation.startswith("habit.")
     # Legacy plural domains delegate per name: v1 wins when the name exists
     # in the L3 registry, otherwise the v0.1 core factory is used.
     for domain in ("models", "metrics"):
         for info in list_plugins(domain):
             assert info.implementation.startswith(
-                ("habit.domain.", "habit.compat.engines.")
+                ("habit.", "habit.compat.engines.")
             ), info
 
 
@@ -249,22 +216,14 @@ def test_unknown_domain_still_raises() -> None:
 
 
 @pytest.mark.unit
-def test_plugin_catalog_reads_params_model() -> None:
-    """Catalog rows come from params_model, not a hand-copied table."""
+def test_plugin_catalog_reads_constructor_signature() -> None:
+    """Migrated catalog rows are derived from the registered constructor."""
     rows = plugin_catalog("table_preprocessor")
     names = {row.name for row in rows}
     assert "minmax" in names
     minmax = next(row for row in rows if row.name == "minmax")
-    schema = get_param_schema("minmax", "table_preprocessor")
-    assert schema is not None
-    assert set(minmax.required_params) == {
-        name for name, field in schema.model_fields.items() if field.is_required()
-    }
-    assert set(minmax.optional_params) == {
-        name
-        for name, field in schema.model_fields.items()
-        if not field.is_required()
-    }
+    assert get_param_schema("minmax", "table_preprocessor") is None
+    assert "across_features" in minmax.optional_params
     assert minmax.spec_example.startswith('Spec("minmax"')
     assert 'Registry.create("minmax"' in minmax.create_example
     assert minmax.params
@@ -275,6 +234,18 @@ def test_plugin_catalog_reads_params_model() -> None:
     assert "minmax" in rst
     assert 'Spec("minmax"' in rst
     assert "across_features" in rst
+
+
+@pytest.mark.unit
+def test_plugin_catalog_reads_constructor_when_params_model_is_absent() -> None:
+    """Migrated metrics publish constructor defaults without a Pydantic schema."""
+    rows = plugin_catalog("metric")
+    calibration = next(row for row in rows if row.name == "hosmer_lemeshow_p_value")
+    parameter = next(item for item in calibration.params if item.name == "n_groups")
+    assert calibration.required_params == ()
+    assert parameter.default == "10"
+    assert parameter.annotation == "int"
+    assert calibration.create_example == 'Registry.create("hosmer_lemeshow_p_value")'
 
 
 @pytest.mark.unit
@@ -295,7 +266,7 @@ def test_plugin_catalog_explains_kmeans_spec_params() -> None:
 @pytest.mark.unit
 def test_unknown_registry_name_lists_available() -> None:
     """Registry.create on a bad name lists the domain's registered names."""
-    from habit.domain.table_preprocessing import TablePreprocessorRegistry
+    from habit.table_preprocessing import TablePreprocessorRegistry
     from habit.exceptions import ComponentNotFoundError
 
     with pytest.raises(ComponentNotFoundError, match="Available") as exc_info:

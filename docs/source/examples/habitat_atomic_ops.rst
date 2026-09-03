@@ -1,7 +1,7 @@
 Atomic habitat operators (no YAML, no recipe)
 =============================================
 
-**Level:** atomic · **Data:** synthetic · **Extras:** none · **Time:** ~10–30 s
+**Level:** atomic · **Data:** official demo pack · **Extras:** none · **Time:** ~30–90 s
 
 Every subject-level step is a single-argument callable. This is the
 **embedding surface**: drop one operator into a notebook, a MONAI
@@ -12,9 +12,15 @@ layout, YAML, a :class:`~habit.contracts.Cohort`, or
 Beginners who just want a first habitat map: copy
 :doc:`../tutorial/quickstart_python` first, then come here.
 
-Concept and strategy choice: :doc:`../tutorial/habitat_analysis`.
-Your own arrays: :doc:`data_from_arrays`. Parallel / fault tolerance
-is an **optional outer layer** (:doc:`../tutorial/execution`).
+When the **shape** of a recipe is right but a slot must change (voxel
+formula, partition, fitter): bind definition + procedure with
+:class:`~habit.pipeline.SubjectPipeline`, or swap ``Spec("name", {params})``
+in a stage — worked on :doc:`habitat_custom_pipeline`.
+
+Strategy choice (two-step / one-step / direct pooling):
+:doc:`../tutorial/habitat_analysis`. Your own arrays:
+:doc:`data_from_arrays`. Parallel / fault tolerance is an **optional
+outer layer** (:doc:`../tutorial/execution`).
 
 Operators (call shapes)
 -----------------------
@@ -67,7 +73,7 @@ Fit-time vs apply-time
 ----------------------
 
 * **Fit-time** pipeline: ``habitat_assigner=None`` —
-  :meth:`~habit.domain.SubjectPipeline.units` works; ``__call__`` does
+  :meth:`~habit.pipeline.SubjectPipeline.units` works; ``__call__`` does
   not.
 * **Apply-time** pipeline: bind ``model.assigner()`` — one callable
   labels any new :class:`~habit.contracts.Subject`.
@@ -81,9 +87,18 @@ Embed patterns
 
 **1. One failing subject** (no ``Cohort``)::
 
-   from habit.domain import RawVoxelFeatures, KMeansSupervoxelizer
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.supervoxel import KMeansSupervoxelizer
+   from habit.voxel_features import RawVoxelFeatures
 
-   voxel = RawVoxelFeatures(modalities=["T1", "T2"])
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP", "PVP")
+   ROI = "LAP"
+   subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+
+   voxel = RawVoxelFeatures(modalities=list(MODALITIES))
    svx = KMeansSupervoxelizer(n_supervoxels=8, n_init=3)
    svx.set_random_state(7)
    field = voxel(subject)
@@ -96,22 +111,59 @@ as :class:`~habit.contracts.Subject`, then call the same operators.
 **3. Only HABIT quantify** (you already have a
 :class:`~habit.contracts.HabitatMap`)::
 
-   from habit.domain import MsiHabitatFeatures, HabitatVolumeFeatures
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.habitat_features import HabitatVolumeFeatures, MsiHabitatFeatures
+   from habit.recipes import one_step_habitat
 
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
+   subject = cohort[0]
+   # If you already hold a HabitatMap, skip the recipe and use that map.
+   habitat_map = one_step_habitat(
+       modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
+   ).fit_predict(cohort).habitat_maps[0]
    table = MsiHabitatFeatures()(subject, habitat_map)
    volume = HabitatVolumeFeatures()(subject, habitat_map)
 
 Array-only graph topology:
-:func:`~habit.extract_graph_features` (same definitions as the
+:func:`~habit.kernels.extract_graph_features` (same definitions as the
 ``graph`` family).
 
-**4. Apply a published model** — load the archive, rebuild the **same**
-extract / partition operators, bind ``model.assigner()``::
+**4. Apply a published model** — rebuild the **same** extract / partition
+operators, bind ``model.assigner()``. First run fits and writes the
+archive; later runs can start at ``HabitatModel.load``::
 
-   from habit import HabitatModel
-   from habit.domain import SubjectPipeline
+   from pathlib import Path
 
-   model = HabitatModel.load("out/demo.habitatmodel")
+   from habit.contracts import HabitatModel, cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.habitat_model import KMeansHabitatModelFitter
+   from habit.pipeline import SubjectPipeline
+   from habit.supervoxel import KMeansSupervoxelizer
+   from habit.voxel_features import RawVoxelFeatures
+
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP", "PVP")
+   ROI = "LAP"
+   subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+   voxel = RawVoxelFeatures(modalities=list(MODALITIES))
+   svx = KMeansSupervoxelizer(n_supervoxels=8, n_init=3)
+   svx.set_random_state(7)
+
+   model_path = Path("out/demo.habitatmodel")
+   if model_path.is_file():
+       model = HabitatModel.load(model_path)
+   else:
+       fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=5)
+       fitter.set_random_state(7)
+       model = fitter.fit([svx(voxel(subject))])
+       model_path.parent.mkdir(exist_ok=True)
+       model.save(model_path)
    pipe = SubjectPipeline(voxel, svx, model.assigner())
    habitat_map = pipe(subject)
 
@@ -126,7 +178,7 @@ cohort is ``cohort.map(pipe)``. Process pool and checkpoints:
 Script
 ------
 
-Classical two-step, operator by operator (synthetic cohort).
+Classical two-step, operator by operator (official demo pack).
 
 .. literalinclude:: scripts/habitat_atomic_ops_demo.py
    :language: python
@@ -151,9 +203,9 @@ Run::
 Output
 ------
 
-Illustrative (synthetic cohort)::
+Illustrative::
 
-   Cohort: 4 subjects -> ['subj001', 'subj002', 'subj003', 'subj004']
+   Cohort: 2 subjects -> ['subj001', 'subj002']
    HabitatMap[subj001]: habitats_present=[1, 2, 3]
    Wrote out/habitat_atomic_overlay.png
 
@@ -172,10 +224,8 @@ Same scientific product as the two-step recipe, built operator-by-operator.
 What to read next
 -----------------
 
-* :doc:`../tutorial/habitat_analysis` — layers and strategy choice
-* :doc:`data_from_arrays` — ``Subject`` from NumPy
+* :doc:`feature_extraction` — quantify the map you just built
 * :doc:`habitat_custom_pipeline` — Registry.create / Spec stages
 * :doc:`habitat_label_match` — remap ids across observers or patients
-* :doc:`../tutorial/execution` — process pool, continue vs fail_fast
 * :doc:`two_step_habitat` — same design via ``Study.fit_predict``
-* :doc:`../api/domain_habitat` — protocols and registries
+* :doc:`../tutorial/execution` — process pool, continue vs fail_fast

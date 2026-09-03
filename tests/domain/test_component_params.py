@@ -37,11 +37,11 @@ import pytest
 from sklearn.base import clone
 
 from habit.exceptions import HABITAPIError
-from habit.domain.classification import ClassifierRegistry
-from habit.domain.feature_selection import FeatureSelectorRegistry
-from habit.domain.regression import RegressorRegistry
-from habit.domain.survival import SurvivalModelRegistry
-from habit.domain.table_preprocessing import TablePreprocessorRegistry
+from habit.classification import ClassifierRegistry
+from habit.feature_selection import FeatureSelectorRegistry
+from habit.regression import RegressorRegistry
+from habit.survival import SurvivalModelRegistry
+from habit.table_preprocessing import TablePreprocessorRegistry
 from habit.utils.estimator_utils import ESTIMATOR_PARAMS_KEY
 
 from .conftest import make_feature_table

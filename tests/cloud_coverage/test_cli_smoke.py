@@ -42,6 +42,7 @@ SUBCOMMANDS = (
     "dice",
     "dicom-info",
     "extract",
+    "fetch-demo",
     "get-habitat",
     "icc",
     "list-components",
@@ -50,7 +51,6 @@ SUBCOMMANDS = (
     "model",
     "preprocess",
     "radiomics",
-    "retest",
     "sort-dicom",
     "view",
 )

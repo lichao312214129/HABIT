@@ -20,13 +20,9 @@ import importlib.util
 
 import numpy as np
 import pytest
-import SimpleITK as sitk
 
 from habit.api.exceptions import OptionalDependencyError
-from habit.compat.engines.preprocessing.registration.ants_backend import (
-    AntsRegistrationBackend,
-)
-from habit.domain.classification import AutogluonTabularClassifier
+from habit.classification import AutogluonTabularClassifier
 from habit.viz.habitat_clustering import plot_habitat_clustering_pca_3d_interactive
 
 
@@ -62,21 +58,3 @@ def test_autogluon_classifier_raises_optional_dependency_error() -> None:
     with pytest.raises(OptionalDependencyError, match="AutoGluon|automl"):
         classifier.fit(_make_binary_feature_table())
 
-
-@pytest.mark.unit
-def test_antspyx_registration_raises_optional_dependency_error() -> None:
-    """Without antspyx, ANTs registration raises OptionalDependencyError."""
-    if importlib.util.find_spec("ants") is not None:
-        pytest.skip("antspyx (ants) is installed in this environment")
-    backend = AntsRegistrationBackend(
-        fixed_image_key="delay2",
-        type_of_transform="Affine",
-        metric="meansquares",
-        optimizer="gradientdescent",
-        reg_params={},
-        sitk_reg_params={},
-    )
-    fixed = sitk.GetImageFromArray(np.zeros((4, 8, 8), dtype=np.float32))
-    moving = sitk.GetImageFromArray(np.ones((4, 8, 8), dtype=np.float32))
-    with pytest.raises(OptionalDependencyError, match="antspyx|registration"):
-        backend.register_image(fixed, moving)

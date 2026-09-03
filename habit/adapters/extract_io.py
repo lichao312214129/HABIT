@@ -181,7 +181,7 @@ def discover_habitat_map_paths(
 
     Subject ids are derived by stripping the non-wildcard portion of
     ``habitat_pattern`` from the filename, matching
-    :class:`~habit.compat.engines.habitat_extraction.habitat_features.habitat_analyzer.HabitatMapAnalyzer`.
+    the former v0.1 directory-discovery convention.
 
     Args:
         habitats_map_folder: Directory containing ``*_habitats.nrrd`` files.
@@ -295,12 +295,11 @@ def resolve_n_habitats(
             f"habitats_map_folder: {str(habitats_map_folder)!r}."
         )
     frame = load_habitats_results(results_path)
-    for column in ("habitats", "habitat", "label"):
-        if column in frame.columns:
+    for column in frame.columns:
+        if str(column).strip().casefold() in {"habitats", "habitat", "label"}:
             unique = int(pd.Series(frame[column]).nunique())
-            if unique < 1:
-                break
-            return unique
+            if unique >= 1:
+                return unique
     raise ValueError(
         f"Could not infer n_habitats from {results_path}; expected a "
         "'habitats' column."

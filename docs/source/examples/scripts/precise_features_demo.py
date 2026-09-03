@@ -33,23 +33,16 @@ from typing import Any, Dict, Tuple
 import numpy as np
 import pandas as pd
 
-from habit import (
-    Cohort,
-    HabitatSpec,
-    Spec,
-    Subject,
-    aggregate_panels,
-    cohort_from_directory,
-    extract_voxel_texture,
-    identify_precise_features,
-    perturb_image,
-    precision_panel,
-)
+from habit.contracts import Cohort, Subject, cohort_from_directory
+from habit.spec import HabitatSpec, Spec
+from habit.precision import aggregate_panels, identify_precise_features, perturb_image, precision_panel
+from habit.voxel_features import extract_voxel_texture
+from habit.datasets import fetch_demo
 from habit.contracts import ArrayImageRef, Geometry
 from habit.recipes import Study
 
-# Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+# fetch_demo() downloads once and prints the tree. Change DATA for your data.
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 
@@ -358,21 +351,10 @@ from typing import Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from habit import (
-    HabitatGraphFeatureOptions,
-    HabitatMap,
-    ImagePerturbationRegistry,
-    align_habitat_map,
-    extract_graph_features,
-    habitat_region_stats,
-    habitat_stability,
-    habitat_volume_fractions,
-    icc3a_1,
-    ith_score,
-    msi_features_from_matrix,
-    one_step_habitat,
-    spatial_interaction_matrix,
-)
+from habit.kernels import HabitatGraphFeatureOptions, extract_graph_features, habitat_region_stats, habitat_volume_fractions, icc3a_1, ith_score, msi_features_from_matrix, spatial_interaction_matrix
+from habit.contracts import HabitatMap
+from habit.precision import ImagePerturbationRegistry, align_habitat_map, habitat_stability
+from habit.recipes import one_step_habitat
 from habit.viz import (
     plot_graph_feature_heatmap,
     plot_habitat_label_compare,

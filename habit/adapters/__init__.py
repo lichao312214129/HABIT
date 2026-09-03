@@ -31,12 +31,14 @@ from habit.adapters.extract_io import (
     write_extract_feature_csvs,
 )
 from habit.adapters.image_refs import FileImageRef
+from habit.adapters.preprocessing_io import PreprocessingIOAdapter
 from habit.adapters.writers import DirectoryResultWriter
 
 __all__ = [
     "DirectoryDataSource",
     "DirectoryResultWriter",
     "FileImageRef",
+    "PreprocessingIOAdapter",
     "discover_habitat_map_paths",
     "load_extract_cohort",
     "read_habitat_map",

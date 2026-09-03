@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Lightweight utilities re-exported from the top-level ``habit`` namespace."""
+"""Lightweight utility functions outside the capability namespaces."""
 
 from __future__ import annotations
 

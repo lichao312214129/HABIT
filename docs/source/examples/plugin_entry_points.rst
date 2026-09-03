@@ -9,7 +9,7 @@ Two registration routes:
    the running interpreter (see :doc:`custom_voxel_features`).
 2. **Entry point** — a separate package declares
    ``habit.<domain>`` in ``pyproject.toml``, users call
-   :func:`~habit.load_plugins` once, then reference the name in
+   :func:`~habit.api.plugins.load_plugins` once, then reference the name in
    ``Spec("name", {...})``.
 
 Domain string = snake_case singular protocol name
@@ -76,4 +76,4 @@ What to read next
 * :doc:`custom_voxel_features` — full DIY extractor + habitat run
 * :doc:`habitat_custom_pipeline` — plug the name into Spec stages
 * :doc:`../customization/index` — all extensible domains
-* :doc:`../api/plugins` — ``list_plugins`` / ``get_param_schema``
+* :doc:`../api/plugins` — ``list_plugins`` / ``Registry.create`` / constructor signatures

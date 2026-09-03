@@ -55,7 +55,6 @@ overwrite CLI golden artefacts.
 | `manual_habitat_apply_model.py` | `recipes.apply_habitat_model` + `HabitatModel` | `DirectoryDataSource` |
 | `manual_preprocess.py` | `recipes.preprocess_images` | config dict in code |
 | `manual_icc_analysis.py` | `domain.evaluation.statistics.icc_analysis` | CSV → `FeatureTable` |
-| `manual_test_retest.py` | `recipes.test_retest_analysis` | config dict in code |
 | `manual_extract_features.py` | `recipes.extract_habitat_features` | config dict in code |
 | `manual_traditional_radiomics.py` | `recipes.traditional_radiomics` | config dict in code |
 | `manual_voxel_texture_gpu.py` | `VoxelRadiomicsFeatures` (domain) | `DirectoryDataSource` |
@@ -79,5 +78,5 @@ without running the full pipeline:
 ## Suggested order for dependent workflows
 
 1. `manual_habitat_two_step.py`
-2. `manual_extract_features.py` or `manual_test_retest.py`
+2. `manual_extract_features.py`
 3. CLI ML runs (for compare inputs) then `manual_compare_models.py`

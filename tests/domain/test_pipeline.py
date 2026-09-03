@@ -21,19 +21,13 @@ import pytest
 
 from habit.api.exceptions import HABITAPIError
 from habit.contracts import Cohort, HabitatMap
-from habit.domain import (
-    CohortPreprocessingChain,
-    HabitatVolumeFeatures,
-    IthHabitatFeatures,
-    KMeansHabitatModelFitter,
-    MsiHabitatFeatures,
-    RawVoxelFeatures,
-    SlicSupervoxelizer,
-    SubjectPipeline,
-    SubjectPreprocessingChain,
-    build_methods,
-)
-from habit.domain.pipeline import voxel_units
+from habit.feature_preprocessing import CohortPreprocessingChain, SubjectPreprocessingChain, build_methods
+from habit.habitat_features import HabitatVolumeFeatures, IthHabitatFeatures, MsiHabitatFeatures
+from habit.habitat_model import KMeansHabitatModelFitter
+from habit.voxel_features import RawVoxelFeatures
+from habit.supervoxel import SlicSupervoxelizer
+from habit.pipeline import SubjectPipeline
+from habit.pipeline import voxel_units
 
 from .conftest import make_field, make_subject
 

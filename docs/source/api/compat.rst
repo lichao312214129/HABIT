@@ -1,94 +1,26 @@
-Ecosystem adapters (``habit.compat``)
-=====================================
+Legacy compat (``habit.compat``)
+=================================
 
-Optional bridges. Core HABIT never imports these backends unless you do.
+v2 removed the third-party interop adapters that used to live under
+``habit.compat.monai``, ``habit.compat.nnunet``, and
+``habit.compat.sklearn``. Those modules are gone and must not be
+imported. Do not expect Sphinx autodoc pages for them.
 
-scikit-learn (``habit.compat.sklearn``)
----------------------------------------
+Core tabular ML still uses :class:`~habit.pipeline.TablePipeline` (a
+scikit-learn ``Pipeline`` subclass) and
+:mod:`habit.pipeline.sklearn_interop` internally; those are not
+third-party interop surfaces.
 
-.. code-block:: python
+``habit.compat`` itself exports nothing (``__all__ = []``). Remaining
+submodules are frozen v0.1 orchestration helpers pending further
+migration or deletion:
 
-   from sklearn.linear_model import LogisticRegression
-   from sklearn.pipeline import Pipeline
+* ``habit.compat.engines`` — legacy habitat / ML / preprocessing runners
+* ``habit.compat.dicom_sort_runner``
+* ``habit.compat.plugin_registries``
+* ``habit.compat.registry_facade``
+* ``habit.compat.legacy_core``
 
-   from habit.compat.sklearn import as_classifier, as_estimator, as_transformer
-   from habit.domain import ZScorePreprocessor
-   from habit.spec import HabitatSpec, Spec
-
-   habitat_spec = HabitatSpec(
-       name="direct",
-       voxel_feature_extractor=Spec("raw", {"modalities": ["T1"]}),
-       supervoxelizer=None,
-       habitat_model_fitter=Spec("kmeans", {"n_habitats": 2}),
-       habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(
-           Spec("volume"),
-           Spec("msi"),
-           Spec("ith_score"),
-           Spec("non_radiomics"),
-           Spec("graph"),
-           # Heavy PyRadiomics families (opt-in; require pyradiomics):
-           # Spec("traditional"),
-           # Spec("whole_habitat"),
-           # Spec("each_habitat"),
-       ),
-       random_seed=0,
-   )
-
-   # HabitatSpec -> sklearn Transformer; fit learns HabitatModel once
-   habitat_est = as_estimator(
-       habitat_spec,
-       n_habitats=2,
-       random_seed=1,
-   )
-   X = habitat_est.fit_transform(list(cohort))  # Sequence[Subject]
-   names = habitat_est.get_feature_names_out()
-   model = habitat_est.model_  # HabitatModel
-
-   table_step = as_transformer(ZScorePreprocessor())
-   clf_step = as_classifier(domain_classifier)
-
-   pipe = Pipeline(
-       [
-           ("habitat", as_estimator(habitat_spec)),
-           ("scale", table_step),
-           ("clf", LogisticRegression()),
-       ]
-   )
-
-Also exported: ``HabitatFeaturesEstimator``, ``TableTransformerEstimator``,
-``TableClassifierEstimator``.
-
-MONAI (``habit.compat.monai``)
-------------------------------
-
-.. code-block:: python
-
-   from habit.compat.monai import (
-       AsDictTransform,
-       AsMonaiDict,
-       FromMonaiDict,
-       from_monai_dict,
-       to_monai_dict,
-   )
-
-   monai_dict = to_monai_dict(subject, channel_first=False)
-   subject2 = from_monai_dict(monai_dict, subject_id="P001")
-
-   as_monai = AsMonaiDict()
-   from_monai = FromMonaiDict(subject_id_key="subject_id")
-   # Wrap a subject-level HABIT operator as a dict transform:
-   # transform = AsDictTransform(habit_operator)
-
-nnU-Net (``habit.compat.nnunet``)
----------------------------------
-
-.. code-block:: python
-
-   from habit.compat.nnunet import NnUNetDataSource
-
-   source = NnUNetDataSource(
-       "Dataset001_Tumor",   # path to nnU-Net raw dataset root
-       roi_label=1,          # int, name, or union of ints
-   )
-   cohort = source.load()    # contracts.Cohort with FileImageRef images
+These are not part of the v2 public API. Prefer
+:mod:`habit.recipes`, :mod:`habit.pipeline`, and
+:func:`habit.precision.align_habitat_map`.

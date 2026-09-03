@@ -308,6 +308,14 @@ class Cohort(Sequence[Subject]):
     def __iter__(self) -> Iterator[Subject]:
         return iter(self._subjects)
 
+    def __repr__(self) -> str:
+        """Return a short English summary (ids and optional name)."""
+        ids = list(self.subject_ids)
+        shown = ", ".join(ids[:8])
+        extra = ", ..." if len(ids) > 8 else ""
+        name = f", name={self.name!r}" if self.name else ""
+        return f"Cohort({len(self)} subjects [{shown}{extra}]{name})"
+
     @property
     def subject_ids(self) -> Tuple[str, ...]:
         """Return the subject identifiers in canonical cohort order."""
@@ -533,10 +541,10 @@ def cohort_from_directory(
     """
     Build a cohort from HABIT's conventional directory layout.
 
-    Top-level convenience wrapper kept alongside the class method per the
-    v1.0 naming decisions: ``habit.cohort_from_directory(...)`` for notebook
-    ergonomics, ``Cohort.from_directory(...)`` for object-style code. This
-    function simply delegates to the class method.
+    Top-level convenience wrapper kept alongside the class method. Import from
+    :mod:`habit.contracts` (``from habit.contracts import cohort_from_directory``)
+    or call :meth:`Cohort.from_directory` for object-style code. This function
+    simply delegates to the class method.
 
     Args:
         root: Directory root holding the images and masks subdirectories.
@@ -560,7 +568,7 @@ def cohort_from_directory(
 
         load the cohort with:
 
-        >>> from habit import cohort_from_directory
+        >>> from habit.contracts import cohort_from_directory
         >>> cohort = cohort_from_directory(  # doctest: +SKIP
         ...     "processed_images",
         ...     modalities=["T1", "T2"],

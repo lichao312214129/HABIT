@@ -25,7 +25,7 @@ import pandas as pd
 
 from habit.contracts.outcome import BinaryOutcome
 from habit.contracts.table import FeatureTable
-from habit.domain.classification import AutogluonTabularClassifier
+from habit.classification import AutogluonTabularClassifier
 
 
 def make_demo_frame(n_subjects: int = 120, seed: int = 7) -> pd.DataFrame:

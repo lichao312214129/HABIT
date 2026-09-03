@@ -8,8 +8,7 @@ Output
 
 ``graph`` is a **built-in** light habitat feature family (registered as
 ``habitat_feature_extractor`` name ``graph``). Prefer the domain / public API
-path; ``habit.compat.graph_plugin`` and related loaders are deprecated
-transitional shims.
+path; the former ``habit.compat.graph_plugin`` shim was removed in v2.0.0.
 
 Numeric definitions live in L0 :mod:`habit.kernels.habitat_graph` and are
 identical for the domain extractor, the kernel helper
@@ -139,12 +138,12 @@ Implemented with a KD-tree (``scipy.spatial.cKDTree.query_pairs`` /
   **inter** edges between a node of :math:`a` and a node of :math:`b`
   with :math:`d\le\tau`. If ``pairwise_include_intra_edges`` is true
   (default), **intra** edges are also added within each label under the
-same :math:`\tau`. Interface metrics below use **inter-class neighbors
-only** (isolated ratio, R21/R12, pair degree family);
-whole-graph metrics (modularity, assortativity, betweenness, components,
-extended efficiency) use this pair's full two-label graph (inter +
-optional intra), not an all-habitat union graph. They are not
-interface-only scores.
+  same :math:`\tau`. Interface metrics below use **inter-class neighbors
+  only** (isolated ratio, R21/R12, pair degree family);
+  whole-graph metrics (modularity, assortativity, betweenness, components,
+  extended efficiency) use this pair's full two-label graph (inter +
+  optional intra), not an all-habitat union graph. They are not
+  interface-only scores.
 
 Edge weight ``w`` from ``edge_weight``:
 
@@ -641,7 +640,7 @@ when ``graph_null_device='auto'`` and the work is large enough).
 
 A paper that needs a *p*-value for :math:`\sigma>1` or
 :math:`\phi_{\mathrm{norm}}>1` should call
-:func:`habit.compare_graph_to_degree_preserving_null` (typically
+:func:`habit.kernels.compare_graph_to_degree_preserving_null` (typically
 **100–1000** graphs [VandenHeuvel2011]_).
 
 Rich-club [Colizza2006]_ [McAuley2007]_: HABIT stores the mean of
@@ -822,7 +821,7 @@ degree-preserving graph (or the opt-in ensemble). Report
 ``graph_null_sampler`` and do not treat these as volume-normalized
 quantities.
 
-:func:`habit.compare_graph_to_degree_preserving_null` is an explicit,
+:func:`habit.kernels.compare_graph_to_degree_preserving_null` is an explicit,
 opt-in API. It preserves every node's degree, node count, and edge count,
 but intentionally does **not** preserve connected components, spatial
 coordinates, edge distances, contact area, or habitat labels. It must not
@@ -851,7 +850,7 @@ Construction options
 
 These fields are shared by the YAML ``graph:`` block
 (:class:`~habit.schemas.workflows.habitat.GraphFeatureBlock`), domain
-params (:class:`~habit.domain.GraphHabitatFeaturesParams`), and kernel
+constructor (:class:`~habit.habitat_features.GraphHabitatFeatures`), and kernel
 options (:class:`~habit.kernels.HabitatGraphFeatureOptions`). Defaults
 below match the kernel dataclass.
 
@@ -957,8 +956,8 @@ What this family does not claim
 Implementation
 --------------
 
-* Domain: ``habit/domain/habitat_features/graph.py``
-  (``GraphHabitatFeatures`` / ``GraphHabitatFeaturesParams``)
+* Capability implementation: ``habit/habitat_features/graph.py``
+  (``GraphHabitatFeatures``)
 * Kernels: ``habit/kernels/habitat_graph/``
   (``nodes.py``, ``edges.py``, ``proximity.py``, ``metrics.py``,
   ``extended_metrics.py``, ``features.py``, ``traversal.py``).
@@ -987,7 +986,7 @@ Implementation
 * Recipe + CSV name: ``habit/recipes/features.py``,
   ``habit/adapters/extract_io.py`` (stem ``habitat_graph_features``)
 * Figures: ``habit/viz/habitat_graph.py`` (optional ``[viz]`` / ``[view]``)
-* Deprecated shims: ``habit/compat/graph_plugin.py`` (prefer domain / API)
+* Removed v2.0.0 shim: ``habit/compat/graph_plugin.py`` (use domain / API)
 
 References
 ----------

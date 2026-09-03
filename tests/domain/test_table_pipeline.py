@@ -30,13 +30,13 @@ from sklearn.pipeline import Pipeline as SkPipeline
 
 from habit.api.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts import BinaryOutcome, FeatureTable
-from habit.domain.assembly import build_table_pipeline
-from habit.domain.classification import LogisticRegressionClassifier, RandomForestClassifier
-from habit.domain.evaluation import AccuracyMetric, AucMetric, HosmerLemeshowPValueMetric
-from habit.domain.feature_selection import FeatureSelectorRegistry, IccSelector, VarianceSelector
-from habit.domain.pipeline import TablePipeline
-from habit.domain.sklearn_interop import FrameToTable, as_transformer
-from habit.domain.table_preprocessing import TablePreprocessorRegistry, ZScorePreprocessor
+from habit.pipeline.assembly import build_table_pipeline
+from habit.classification import LogisticRegressionClassifier, RandomForestClassifier
+from habit.evaluation import AccuracyMetric, AucMetric, HosmerLemeshowPValueMetric
+from habit.feature_selection import FeatureSelectorRegistry, IccSelector, VarianceSelector
+from habit.pipeline import TablePipeline
+from habit.pipeline.sklearn_interop import FrameToTable, as_transformer
+from habit.table_preprocessing import TablePreprocessorRegistry, ZScorePreprocessor
 from habit.exceptions import ComponentNotFoundError
 from habit.spec import MLSpec, Spec
 
@@ -152,7 +152,7 @@ def test_save_load_roundtrip_preserves_predictions(tmp_path) -> None:
     with zipfile.ZipFile(destination, "r") as archive:
         manifest = json.loads(archive.read("manifest.json").decode("utf-8"))
     assert manifest["format"] == "habit.tablepipeline"
-    assert manifest["format_version"] == 2
+    assert manifest["format_version"] == 3
     assert manifest["is_fitted"] is True
     assert [record["spec"]["name"] for record in manifest["steps"]] == [
         "variance",
@@ -618,7 +618,7 @@ def test_predict_returns_arrays_for_frames_and_series_for_tables() -> None:
 def test_selector_report_is_logged_from_the_adapter(caplog) -> None:
     """The per-selector feature-count report survived the move into adapters."""
     table = make_feature_table(seed=30, n_noise=2, constant_column=True)
-    with caplog.at_level("INFO", logger="habit.domain.sklearn_interop"):
+    with caplog.at_level("INFO", logger="habit.pipeline.sklearn_interop"):
         TablePipeline(
             steps=[VarianceSelector(threshold=0.0), ZScorePreprocessor()],
             model=LogisticRegressionClassifier(max_iter=500),
@@ -733,41 +733,31 @@ _LOAD_PROBE = make_feature_table(tuple(f"S{i:02d}" for i in range(20)), seed=33)
 
 
 @pytest.mark.unit
-def test_load_reads_format_version_1_files(tmp_path) -> None:
+def test_load_rejects_format_version_1_files_with_migration_guidance(tmp_path) -> None:
     """
     A ``.habitpipeline`` written before the sklearn refactor still loads.
 
-    Hard requirement: published artefacts must keep opening, and must predict
-    IDENTICALLY -- a loader that produced a plausible-but-different pipeline
-    would be worse than one that refused.
+    V2 removes the module paths embedded in v1 payload pickles. The archive
+    must be rejected before unpickling, with actionable migration guidance.
     """
     pipeline = _pipeline().fit(_LOAD_PROBE)
     expected = pipeline.predict_proba(_LOAD_PROBE).to_numpy()
     legacy = _write_format_version_1_file(
         tmp_path / "v1.habitpipeline", pipeline
     )
-    loaded = TablePipeline.load(legacy)
-    assert [name for name, _ in loaded.steps] == [
-        "frame_to_table",
-        "variance",
-        "zscore",
-        "model",
-    ]
-    assert loaded.spec.fingerprint() == pipeline.spec.fingerprint()
-    np.testing.assert_allclose(
-        loaded.predict_proba(_LOAD_PROBE).to_numpy(), expected
-    )
+    with pytest.raises(CompatibilityError, match="HABIT v1 .habitpipeline"):
+        TablePipeline.load(legacy)
 
 
 @pytest.mark.unit
-def test_saved_pipeline_declares_format_version_2(tmp_path) -> None:
-    """New files announce version 2 and carry the head's frame schema."""
+def test_saved_pipeline_declares_format_version_3(tmp_path) -> None:
+    """New files announce v2 format version 3 and carry the frame schema."""
     table = make_feature_table(seed=34)
     pipeline = _sklearn_ready_pipeline(table).fit(table)
     destination = pipeline.save(tmp_path / "v2.habitpipeline")
     with zipfile.ZipFile(destination, "r") as archive:
         manifest = json.loads(archive.read("manifest.json").decode("utf-8"))
-    assert manifest["format_version"] == 2
+    assert manifest["format_version"] == 3
     assert manifest["declares_frame_schema"] is True
     assert manifest["step_names"] == [
         "frame_to_table",

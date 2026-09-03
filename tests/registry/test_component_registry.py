@@ -16,10 +16,13 @@
 
 from __future__ import annotations
 
+import inspect
+
 import pytest
 from pydantic import BaseModel, Field
 
 from habit.api.exceptions import ComponentNotFoundError, ConfigurationError
+from habit.exceptions import HABITAPIError
 from habit.registry.base import ClassRegistry, _BaseRegistry
 from habit.registry.core import ComponentRegistry
 
@@ -45,7 +48,7 @@ class _OtherRegistry(ComponentRegistry):
     kind = "other component"
 
 
-@_DemoRegistry.register("alpha")
+@_DemoRegistry.register("alpha", params_model=_DummyParams)
 class _AlphaComponent:
     """Minimal component honouring the params constructor convention."""
 
@@ -60,10 +63,6 @@ class _BetaComponent:
 
     def __init__(self, **kwargs) -> None:
         self.kwargs = kwargs
-
-
-_DemoRegistry.register_params_model("alpha", _DummyParams)
-
 
 @pytest.mark.unit
 def test_component_registry_subclasses_shared_base() -> None:
@@ -107,10 +106,21 @@ def test_create_without_params_model_passes_kwargs_through() -> None:
 
 
 @pytest.mark.unit
+def test_constructor_signature_is_registry_parameter_contract() -> None:
+    """Registry inspection and create() share one Python constructor signature."""
+    signature = _DemoRegistry.constructor_signature("alpha")
+    assert isinstance(signature, inspect.Signature)
+    assert tuple(signature.parameters) == ("threshold", "mode")
+    with pytest.raises(ConfigurationError, match="unexpected keyword"):
+        _DemoRegistry.create("alpha", unsupported=True)
+
+
+@pytest.mark.unit
 def test_available_is_sorted_and_params_model_lookup() -> None:
     """Introspection returns deterministic names and the registered schema."""
     assert _DemoRegistry.available() == ("alpha", "beta")
     assert _DemoRegistry.params_model("alpha") is _DummyParams
+    assert _AlphaComponent.__habit_params_model__ is _DummyParams
     assert _DemoRegistry.params_model("beta") is None
     assert _DemoRegistry.params_model("missing") is None
 
@@ -131,11 +141,11 @@ def test_registries_do_not_share_storage() -> None:
 @pytest.mark.unit
 def test_builtin_domains_use_snake_case_protocol_names() -> None:
     """The five domain registries obey the singular snake_case convention."""
-    from habit.domain.assignment import HabitatAssignerRegistry
-    from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
-    from habit.domain.habitat_model import HabitatModelFitterRegistry
-    from habit.domain.supervoxel import SupervoxelizerRegistry
-    from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
+    from habit.habitat_model.assignment import HabitatAssignerRegistry
+    from habit.habitat_features import HabitatFeatureExtractorRegistry
+    from habit.habitat_model import HabitatModelFitterRegistry
+    from habit.supervoxel import SupervoxelizerRegistry
+    from habit.voxel_features import VoxelFeatureExtractorRegistry
 
     assert VoxelFeatureExtractorRegistry.domain == "voxel_feature_extractor"
     assert SupervoxelizerRegistry.domain == "supervoxelizer"
@@ -147,11 +157,13 @@ def test_builtin_domains_use_snake_case_protocol_names() -> None:
 @pytest.mark.unit
 def test_builtin_registries_create_with_validation() -> None:
     """Built-in components construct through their registry with coercion."""
-    from habit.domain.supervoxel import SupervoxelizerRegistry
+    from habit.supervoxel import SupervoxelizerRegistry
 
-    slic = SupervoxelizerRegistry.create("slic", n_supervoxels="8")
+    slic = SupervoxelizerRegistry.create("slic", n_supervoxels=8)
     assert slic.n_supervoxels == 8
-    with pytest.raises(ConfigurationError):
+    with pytest.raises(HABITAPIError, match="n_supervoxels"):
+        SupervoxelizerRegistry.create("slic", n_supervoxels="8")
+    with pytest.raises(HABITAPIError):
         SupervoxelizerRegistry.create("slic", n_supervoxels=-1)
     with pytest.raises(ComponentNotFoundError):
         SupervoxelizerRegistry.create("watershed")

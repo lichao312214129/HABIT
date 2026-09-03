@@ -21,16 +21,14 @@ learn:
 1. Every registry subclasses the shared
    :class:`~habit.registry.base._BaseRegistry` and therefore exposes the
    uniform ``register`` / ``get`` / ``available`` / ``register_params_model`` /
-   ``get_params_model`` surface. Class-based factories additionally subclass
-   :class:`~habit.registry.base.ClassRegistry` (adding ``create``), while
-   callable registries subclass
-   :class:`~habit.registry.base.CallableRegistry` (adding ``get_entry`` /
-   ``entries``).
-2. Every top-level orchestrator exposes its declared terminal method(s)
-   (``run`` or ``fit`` + ``predict``) as listed in
-   :data:`~habit.compat.orchestrator.ORCHESTRATOR_CONTRACT`.
+   ``get_params_model`` surface. Every v2 capability registry is a
+   :class:`~habit.registry.core.ComponentRegistry` and exposes constructor
+   inspection, entry-point discovery, and ``create``.
+2. Every executable public recipe resolves to its actual v2 recipe owner.
+   The stateful habitat recipe exposes the sklearn-style ``fit`` /
+   ``predict`` lifecycle; every other declared recipe is a direct callable.
 
-Registries / orchestrators that depend on optional third-party packages
+Registries / recipes that depend on optional third-party packages
 (``ants``, ``radiomics``, ...) are skipped when those packages are absent, so
 this file runs cleanly in any environment.
 """
@@ -38,65 +36,78 @@ this file runs cleanly in any environment.
 from __future__ import annotations
 
 import importlib
-from typing import Tuple
 
 import pytest
 
 from habit.registry.base import (
-    CallableRegistry,
     ClassRegistry,
     _BaseRegistry,
 )
-from habit.compat.orchestrator import (
-    ORCHESTRATOR_CONTRACT,
-    check_orchestrator_class,
-)
+from habit.registry.core import ComponentRegistry
 
 # ---------------------------------------------------------------------------
 # Registry contract
 # ---------------------------------------------------------------------------
 
-#: Class-based factories (payload is a class; expose ``create``).
+#: v2 capability registries (payload is a class; expose ``create``).
 #: {registry_id: (import_path, attribute_name)}
 CLASS_REGISTRIES = {
-    "preprocessor": (
-        "habit.compat.engines.preprocessing.preprocessor_factory",
-        "PreprocessorFactory",
+    "classifier": ("habit.classification.registry", "ClassifierRegistry"),
+    "combiner": ("habit.combiners.registry", "CombinerRegistry"),
+    "feature_preprocessing_method": (
+        "habit.feature_preprocessing.registry",
+        "FeaturePreprocessingMethodRegistry",
     ),
-    "model": ("habit.compat.engines.machine_learning.models.factory", "ModelFactory"),
-    "clustering": (
-        "habit.compat.engines.habitat_analysis.clustering.base_clustering",
-        "ClusteringAlgorithmFactory",
-    ),
-    "feature_extractor": (
-        "habit.compat.engines.habitat_analysis.clustering_features.base_extractor",
-        "FeatureExtractorRegistry",
-    ),
-    "feature_preprocessing": (
-        "habit.compat.engines.habitat_analysis.feature_preprocessing.base_preprocessing",
-        "PreprocessingMethodFactory",
-    ),
-    "habitat_feature": (
-        "habit.compat.engines.habitat_extraction.feature_registry",
-        "HabitatFeatureFactory",
-    ),
-}
-
-#: Callable registries (payload is a function; expose ``get_entry`` / ``entries``).
-#: {registry_id: (import_path, attribute_name)}
-CALLABLE_REGISTRIES = {
     "feature_selector": (
-        "habit.compat.engines.machine_learning.feature_selectors.selector_registry",
-        "SelectorRegistry",
+        "habit.feature_selection.registry",
+        "FeatureSelectorRegistry",
     ),
-    "metric": (
-        "habit.compat.engines.machine_learning.evaluation.metrics",
-        "MetricRegistry",
+    "habitat_assigner": (
+        "habit.habitat_model.assignment.registry",
+        "HabitatAssignerRegistry",
+    ),
+    "habitat_feature_extractor": (
+        "habit.habitat_features.registry",
+        "HabitatFeatureExtractorRegistry",
+    ),
+    "habitat_model_fitter": (
+        "habit.habitat_model.registry",
+        "HabitatModelFitterRegistry",
+    ),
+    "image_perturbation": ("habit.precision.registry", "ImagePerturbationRegistry"),
+    "metric": ("habit.evaluation.registry", "MetricRegistry"),
+    "pooling_marker": (
+        "habit.pipeline.pooling_marker.registry",
+        "PoolingRegistry",
+    ),
+    "preprocessor": ("habit.image_preprocessing.registry", "PreprocessorRegistry"),
+    "regression_metric": (
+        "habit.evaluation.regression_registry",
+        "RegressionMetricRegistry",
+    ),
+    "regressor": ("habit.regression.registry", "RegressorRegistry"),
+    "survival_metric": (
+        "habit.evaluation.survival_registry",
+        "SurvivalMetricRegistry",
+    ),
+    "survival_model": ("habit.survival.registry", "SurvivalModelRegistry"),
+    "supervoxel_feature_extractor": (
+        "habit.supervoxel.features_registry",
+        "SupervoxelFeatureExtractorRegistry",
+    ),
+    "supervoxelizer": ("habit.supervoxel.registry", "SupervoxelizerRegistry"),
+    "table_preprocessor": (
+        "habit.table_preprocessing.registry",
+        "TablePreprocessorRegistry",
+    ),
+    "voxel_feature_extractor": (
+        "habit.voxel_features.registry",
+        "VoxelFeatureExtractorRegistry",
     ),
 }
 
-#: Every registry, regardless of payload kind.
-ALL_REGISTRIES = {**CLASS_REGISTRIES, **CALLABLE_REGISTRIES}
+#: Every v2 component registry is class-based.
+ALL_REGISTRIES = CLASS_REGISTRIES
 
 #: Contract shared by every registry (class-based and callable).
 BASE_CONTRACT_METHODS = (
@@ -133,18 +144,26 @@ def test_class_registry_subclasses_class_registry(registry_id: str) -> None:
     import_path, attr = CLASS_REGISTRIES[registry_id]
     registry = _import_attr(import_path, attr)
     assert issubclass(registry, ClassRegistry)
+    assert issubclass(registry, ComponentRegistry)
     assert callable(getattr(registry, "create", None))
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("registry_id", sorted(CALLABLE_REGISTRIES))
-def test_callable_registry_subclasses_callable_registry(registry_id: str) -> None:
-    """Each callable registry must subclass ``CallableRegistry`` and add ``entries``."""
-    import_path, attr = CALLABLE_REGISTRIES[registry_id]
+@pytest.mark.parametrize("registry_id", sorted(CLASS_REGISTRIES))
+def test_component_registry_exposes_v2_contract(registry_id: str) -> None:
+    """Each v2 registry exposes construction and plugin-discovery contracts."""
+    import_path, attr = CLASS_REGISTRIES[registry_id]
     registry = _import_attr(import_path, attr)
-    assert issubclass(registry, CallableRegistry)
-    assert callable(getattr(registry, "get_entry", None))
-    assert callable(getattr(registry, "entries", None))
+    for method_name in (
+        "constructor_signature",
+        "entry_point_group",
+        "load_entry_points",
+    ):
+        assert callable(getattr(registry, method_name, None)), (
+            f"{attr!r} is missing v2 component-registry method "
+            f"'{method_name}()'."
+        )
+    assert registry.entry_point_group() == f"habit.{registry.domain}"
 
 
 @pytest.mark.unit
@@ -161,12 +180,13 @@ def test_registry_exposes_uniform_contract(registry_id: str) -> None:
 
 @pytest.mark.unit
 @pytest.mark.parametrize("registry_id", sorted(ALL_REGISTRIES))
-def test_registry_available_returns_list(registry_id: str) -> None:
-    """``available()`` must return a list of registered names."""
+def test_registry_available_returns_sorted_tuple(registry_id: str) -> None:
+    """``available()`` returns the canonical sorted v2 component names."""
     import_path, attr = ALL_REGISTRIES[registry_id]
     registry = _import_attr(import_path, attr)
     names = registry.available()
-    assert isinstance(names, list)
+    assert isinstance(names, tuple)
+    assert list(names) == sorted(names)
 
 
 @pytest.mark.unit
@@ -185,56 +205,68 @@ def test_registries_do_not_share_storage() -> None:
 
 
 @pytest.mark.unit
-def test_habitat_feature_factory_creates_registered_handler() -> None:
-    """Habitat feature handlers use the same named factory lookup as preprocessors."""
-    from typing import Any, Dict
+def test_habitat_feature_registry_creates_registered_component() -> None:
+    """The v2 habitat-feature registry creates its directly registered class."""
 
-    from habit.compat.engines.habitat_extraction.feature_registry import (
-        BaseHabitatFeature,
-        BatchExportContext,
-        HabitatFeatureFactory,
-        SubjectExtractionContext,
-    )
+    from habit.habitat_features.registry import HabitatFeatureExtractorRegistry
 
-    class ContractFeature(BaseHabitatFeature):
-        """Minimal handler used to verify the factory contract."""
+    registry_name = "architecture_contract_feature"
 
-        subject_data_key = "contract"
-        output_csv_name = "contract.csv"
-        progress_desc = "Contract Feature"
+    class ContractFeature:
+        """Minimal in-memory extractor used only for the registry contract."""
 
-        def extract_subject(self, ctx: SubjectExtractionContext) -> Dict[str, Any]:
-            """Return a minimal per-subject feature result."""
-            return {"subject": ctx.subj}
-
-        def export_batch(
-            self,
-            data: Dict[str, Dict[str, Any]],
-            ctx: BatchExportContext,
-        ) -> None:
-            """Implement the required batch-export contract for this test."""
-            return None
-
-    HabitatFeatureFactory.register("contract_feature")(ContractFeature)
-    handler = HabitatFeatureFactory.get_handler("contract_feature")
+    HabitatFeatureExtractorRegistry.register(registry_name)(ContractFeature)
+    handler = HabitatFeatureExtractorRegistry.create(registry_name)
 
     assert isinstance(handler, ContractFeature)
-    assert handler.feature_name() == "contract_feature"
-    assert "contract_feature" in HabitatFeatureFactory.registered_feature_names()
+    assert registry_name in HabitatFeatureExtractorRegistry.available()
 
 
 # ---------------------------------------------------------------------------
-# Orchestrator contract
+# Recipe contract
 # ---------------------------------------------------------------------------
+
+#: Public execution targets owned by v2 recipe modules.
+#: {recipe_id: (import_path, attribute_name, required_methods)}
+#:
+#: A function target has no required methods because it is itself the callable
+#: contract. ``Study`` remains stateful and must retain its estimator lifecycle.
+RECIPE_CONTRACT = {
+    "feature_extraction": (
+        "habit.recipes.features",
+        "extract_habitat_features",
+        (),
+    ),
+    "habitat_study": ("habit.recipes.study", "Study", ("fit", "predict", "fit_predict")),
+    "machine_learning_cross_validation": (
+        "habit.recipes.modeling",
+        "cross_validate",
+        (),
+    ),
+    "machine_learning_prediction": (
+        "habit.recipes.modeling",
+        "predict_model",
+        (),
+    ),
+    "machine_learning_training": ("habit.recipes.modeling", "train_model", ()),
+    "model_comparison": ("habit.recipes.comparison", "compare_models", ()),
+    "preprocessing": ("habit.recipes.preprocess", "preprocess_images", ()),
+    "radiomics": ("habit.recipes.radiomics", "traditional_radiomics", ()),
+}
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("domain_key", sorted(ORCHESTRATOR_CONTRACT))
-def test_orchestrator_exposes_terminal_methods(domain_key: str) -> None:
-    """Each orchestrator must expose its declared terminal method(s)."""
-    import_path, class_name, terminal_methods = ORCHESTRATOR_CONTRACT[domain_key]
-    orchestrator_cls = _import_attr(import_path, class_name)
-    check_orchestrator_class(orchestrator_cls, terminal_methods)
+@pytest.mark.parametrize("recipe_id", sorted(RECIPE_CONTRACT))
+def test_recipe_target_exposes_declared_contract(recipe_id: str) -> None:
+    """Each v2 recipe target remains callable at its canonical owner path."""
+    import_path, target_name, required_methods = RECIPE_CONTRACT[recipe_id]
+    target = _import_attr(import_path, target_name)
+    assert callable(target), f"{target_name!r} must be callable."
+    for method_name in required_methods:
+        assert callable(getattr(target, method_name, None)), (
+            f"{target_name!r} must expose callable '{method_name}()' "
+            f"per the v2 recipe contract."
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -272,7 +304,6 @@ _LAYER_FORBIDDEN_IMPORTS = {
     "habit.kernels": ("habit.",),  # L0 imports no habit module at all
     "habit.datasets": (
         "habit.adapters",
-        "habit.domain",
         "habit.execution",
         "habit.registry",
         "habit.spec",
@@ -287,7 +318,6 @@ _LAYER_FORBIDDEN_IMPORTS = {
     ),
     "habit.contracts": (
         "habit.adapters",
-        "habit.domain",
         "habit.execution",
         "habit.registry",
         "habit.spec",
@@ -302,7 +332,6 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.compat.engines.preprocessing",
     ),
     "habit.adapters": (
-        "habit.domain",
         "habit.execution",
         "habit.registry",
         "habit.spec",
@@ -317,7 +346,6 @@ _LAYER_FORBIDDEN_IMPORTS = {
     ),
     "habit.execution": (
         "habit.adapters",
-        "habit.domain",
         "habit.registry",
         "habit.spec",
         "habit.recipes",
@@ -331,7 +359,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.api.habitat",
         "habit.api.clinical",
     ),
-    "habit.domain": (
+    "habit.voxel_features": (
         "habit.adapters",
         "habit.execution",
         "habit.recipes",
@@ -350,7 +378,6 @@ _LAYER_FORBIDDEN_IMPORTS = {
     # / pandas) but must not reach adapters, recipes, CLI, or compat engines.
     "habit.inspection": (
         "habit.adapters",
-        "habit.domain",
         "habit.execution",
         "habit.registry",
         "habit.spec",
@@ -365,7 +392,6 @@ _LAYER_FORBIDDEN_IMPORTS = {
     ),
     "habit.registry": (
         "habit.adapters",
-        "habit.domain",
         "habit.execution",
         "habit.spec",
         "habit.recipes",
@@ -375,12 +401,11 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.compat",
     ),
     # Specs are pure value objects (plus the YAML isomorphism); they sit at
-    # the foundation of the stack: the domain layer references ``Spec`` as
+    # the foundation of the stack: the L3 capability layer references ``Spec`` as
     # the provenance type of every component, so ``habit.spec`` must never
     # import back into L1-L3 packages.
     "habit.spec": (
         "habit.adapters",
-        "habit.domain",
         "habit.execution",
         "habit.registry",
         "habit.recipes",
@@ -423,7 +448,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.report",
     ),
     # viz is an L3 presentation package: it renders contract objects into
-    # figures and shares the domain layer's dependency rule, plus a hard ban
+    # figures and shares the L3 capability layer's dependency rule, plus a hard ban
     # on anything that would let a figure reach the filesystem itself.
     "habit.viz": (
         "habit.adapters",
@@ -439,16 +464,39 @@ _LAYER_FORBIDDEN_IMPORTS = {
     ),
 }
 
+# All public L3 capability packages share the former domain-layer ceiling.
+# They may collaborate at L3, but none may reach adapters, recipes, CLI, or
+# frozen v0.1 engines.
+_L3_CAPABILITY_PACKAGES = ('habit.voxel_features', 'habit.supervoxel', 'habit.feature_preprocessing', 'habit.habitat_model', 'habit.habitat_features', 'habit.combiners', 'habit.pipeline', 'habit.table_preprocessing', 'habit.feature_selection', 'habit.classification', 'habit.regression', 'habit.survival', 'habit.evaluation', 'habit.image_preprocessing', 'habit.precision')
+for _capability in _L3_CAPABILITY_PACKAGES:
+    _LAYER_FORBIDDEN_IMPORTS.setdefault(
+        _capability, _LAYER_FORBIDDEN_IMPORTS["habit.voxel_features"]
+    )
+
 #: Packages whose ban on the v0.1 engines also covers imports written inside a
 #: function body. Module-level scanning alone is not enough here: a deferred
-#: ``from habit.core... import`` is the exact shape the domain layer used to
+#: ``from habit.core... import`` is the exact shape the L3 capability layer used to
 #: borrow v0.1 algorithms with, and it is invisible to the import-time check.
 _ENGINE_FREE_PACKAGES = (
+    "habit.supervoxel",
+    "habit.feature_preprocessing",
+    "habit.habitat_model",
+    "habit.habitat_features",
+    "habit.combiners",
+    "habit.pipeline",
+    "habit.table_preprocessing",
+    "habit.feature_selection",
+    "habit.classification",
+    "habit.regression",
+    "habit.survival",
+    "habit.evaluation",
+    "habit.image_preprocessing",
+    "habit.precision",
     "habit.kernels",
     "habit.datasets",
     "habit.contracts",
     "habit.adapters",
-    "habit.domain",
+    "habit.voxel_features",
     "habit.registry",
     "habit.spec",
     "habit.viz",
@@ -466,12 +514,26 @@ _ENGINE_PREFIXES = (
 
 #: L0-L3 packages that must stay free of configuration concepts.
 _CONFIG_FREE_PACKAGES = (
+    "habit.supervoxel",
+    "habit.feature_preprocessing",
+    "habit.habitat_model",
+    "habit.habitat_features",
+    "habit.combiners",
+    "habit.pipeline",
+    "habit.table_preprocessing",
+    "habit.feature_selection",
+    "habit.classification",
+    "habit.regression",
+    "habit.survival",
+    "habit.evaluation",
+    "habit.image_preprocessing",
+    "habit.precision",
     "habit.kernels",
     "habit.datasets",
     "habit.contracts",
     "habit.adapters",
     "habit.execution",
-    "habit.domain",
+    "habit.voxel_features",
     "habit.registry",
     "habit.viz",
     "habit.inspection",

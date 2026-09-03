@@ -245,6 +245,9 @@ def test_optional_extra_modules_covers_the_demoted_packages() -> None:
     assert module_to_extra["pyarrow"] == "tables"
     assert module_to_extra["openpyxl"] == "tables"
     assert module_to_extra["skimage"] == "slic"
+    # numba is required, but ``[accel]`` stays an empty alias like
+    # ``[radiomics]`` so the extras matrix still lists it.
+    assert module_to_extra["numba"] == "accel"
     # kneed stays a REQUIRED dependency, so it must not claim an extra.
     assert "kneed" not in module_to_extra
 

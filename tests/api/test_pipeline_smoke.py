@@ -22,17 +22,18 @@ from typing import Any, Dict
 import pytest
 import SimpleITK as sitk
 
-import habit
+from habit.api.habitat import FeatureExtractionConfig, run_feature_extraction
+from habit.api.preprocessing import PreprocessingConfig, run_preprocess
 
 
 @pytest.mark.integration
 def test_preprocess_smoke_via_public_api(
     synthetic_preprocess_dataset: tuple[Path, Dict[str, Any]],
 ) -> None:
-    """Resample-only preprocessing runs end-to-end through ``habit.run_preprocess``."""
+    """Resample-only preprocessing runs end-to-end through ``run_preprocess``."""
     _, config_dict = synthetic_preprocess_dataset
-    config = habit.PreprocessingConfig.model_validate(config_dict)
-    habit.run_preprocess(config)
+    config = PreprocessingConfig.model_validate(config_dict)
+    run_preprocess(config)
 
     output_root = Path(config_dict["out_dir"])
     image_outputs = list(output_root.rglob("delay2.nii.gz"))
@@ -47,11 +48,11 @@ def test_preprocess_smoke_via_public_api(
 def test_feature_extraction_smoke_via_public_api(
     synthetic_feature_extraction_dataset: Dict[str, Any],
 ) -> None:
-    """MSI / ITH / non_radiomics extraction runs through ``habit.run_feature_extraction``."""
-    config = habit.FeatureExtractionConfig.model_validate(
+    """MSI / ITH / non_radiomics extraction runs through ``run_feature_extraction``."""
+    config = FeatureExtractionConfig.model_validate(
         synthetic_feature_extraction_dataset
     )
-    habit.run_feature_extraction(config)
+    run_feature_extraction(config)
 
     out_dir = Path(synthetic_feature_extraction_dataset["out_dir"])
     expected_csvs = {

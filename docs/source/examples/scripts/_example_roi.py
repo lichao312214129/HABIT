@@ -13,12 +13,25 @@ from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
 
-from habit import cohort_from_directory, make_synthetic_cohort
+from habit.contracts import cohort_from_directory
+from habit.datasets import make_synthetic_cohort
 from habit.contracts import ArrayImageRef, Geometry, Subject
 from habit.contracts.subject import Cohort
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DEMO_PREPROCESSED = REPO_ROOT / "demo_data" / "preprocessed"
+
+
+def _resolve_demo_preprocessed() -> Optional[Path]:
+    """Prefer the repo tree, then the :func:`~habit.datasets.fetch_demo` cache."""
+    if DEMO_PREPROCESSED.is_dir():
+        return DEMO_PREPROCESSED
+    from habit.datasets.demo import DEMO_RELEASE_TAG, get_data_home
+
+    cached = get_data_home() / DEMO_RELEASE_TAG / "preprocessed"
+    if cached.is_dir():
+        return cached
+    return None
 EXAMPLES_IMG_DIR = (
     Path(__file__).resolve().parents[2] / "_static" / "images" / "examples"
 )
@@ -77,10 +90,11 @@ def one_subject_cohort(
     Returns:
         ``(cohort, modalities, from_demo)`` where ``cohort`` has length 1.
     """
-    if DEMO_PREPROCESSED.is_dir():
+    demo_root = _resolve_demo_preprocessed()
+    if demo_root is not None:
         modalities = tuple(demo_modalities)
         cohort = cohort_from_directory(
-            DEMO_PREPROCESSED,
+            demo_root,
             modalities=modalities,
             roi=demo_roi,
         )[:1]
@@ -169,7 +183,20 @@ def copy_out_figures_to_gallery(
             missing.append(name)
             continue
         dest = gallery / name
-        shutil.copy2(src, dest)
+        for attempt in range(5):
+            try:
+                if dest.is_file():
+                    try:
+                        dest.unlink()
+                    except OSError:
+                        pass
+                shutil.copy2(src, dest)
+                break
+            except OSError:
+                if attempt == 4:
+                    raise
+                import time
+                time.sleep(0.2)
         written[name] = dest
     if not written:
         raise FileNotFoundError(
@@ -197,7 +224,20 @@ def save_example_figure(fig: object, filename: str, *, dpi: int = 300) -> Path:
     import matplotlib.pyplot as plt
 
     out = examples_image_dir() / filename
-    fig.savefig(out, dpi=dpi, bbox_inches="tight", facecolor="white")
+    import time
+    for attempt in range(5):
+        try:
+            if out.is_file():
+                try:
+                    out.unlink()
+                except OSError:
+                    pass
+            fig.savefig(out, dpi=dpi, bbox_inches="tight", facecolor="white")
+            break
+        except OSError:
+            if attempt == 4:
+                raise
+            time.sleep(0.2)
     plt.close(fig)
     return out
 
@@ -405,8 +445,8 @@ def glcm_field(
     Returns:
         Sparse :class:`~habit.contracts.habitat.VoxelFeatureField`.
     """
-    import habit.domain  # registers built-in extractors
-    from habit.domain import VoxelFeatureExtractorRegistry
+    import habit.voxel_features  # registers built-in extractors
+    from habit.voxel_features import VoxelFeatureExtractorRegistry
 
     return VoxelFeatureExtractorRegistry.create(
         "voxel_radiomics",

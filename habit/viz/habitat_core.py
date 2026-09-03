@@ -468,7 +468,7 @@ def plot_cluster_validation_from_report(
     """
     Draw validation curves from a habitat-model ``selection_report``.
 
-    Expected keys (see :func:`habit.domain.habitat_model._selection.build_selection_report`):
+    Expected keys (see :func:`habit.habitat_model._selection.build_selection_report`):
     ``candidates``, ``scores``, optional ``methods``, ``selected``, ``directions``.
 
     Args:

@@ -19,7 +19,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from habit import preprocess_image, preprocess_subject
+from habit.api.preprocessing import preprocess_image, preprocess_subject
 from habit.datasets import make_synthetic_cohort
 from habit.exceptions import HABITAPIError
 
@@ -107,9 +107,54 @@ def test_preprocess_subject_zscore_keeps_negative_float() -> None:
 
 
 @pytest.mark.unit
+def test_n4_uses_a_mask_only_when_explicitly_named() -> None:
+    """N4 must not silently change its fitted bias field by inferring an ROI."""
+    from habit.contracts.image import ArrayImageRef
+    from habit.contracts.subject import Subject
+    from habit.image_preprocessing.methods import N4Correction
+
+    image_array = np.linspace(1.0, 200.0, num=27**3, dtype=np.float32).reshape(
+        (27, 27, 27)
+    )
+    mask_array = np.zeros_like(image_array, dtype=np.uint8)
+    mask_array[8:19, 8:19, 8:19] = 1
+    geometry = subject_geometry = make_synthetic_cohort(
+        n_subjects=1, modalities=("T1",), rng=5
+    )[0].image("T1").geometry
+    geometry = type(subject_geometry)(
+        shape=image_array.shape,
+        spacing=subject_geometry.spacing,
+        origin=subject_geometry.origin,
+        direction=subject_geometry.direction,
+    )
+    subject = Subject(
+        subject_id="n4-mask-control",
+        images={"T1": ArrayImageRef(array=image_array, geometry=geometry)},
+        masks={"ROI": ArrayImageRef(array=mask_array, geometry=geometry)},
+    )
+
+    no_mask = N4Correction(
+        num_fitting_levels=1,
+        num_iterations=[2],
+        shrink_factor=2,
+    )(subject, images=["T1"], mask_roi="ROI")
+    explicit_mask = N4Correction(
+        num_fitting_levels=1,
+        num_iterations=[2],
+        shrink_factor=2,
+        mask_name="ROI",
+    )(subject, images=["T1"])
+
+    assert not np.array_equal(
+        no_mask.image("T1").data,
+        explicit_mask.image("T1").data,
+    )
+
+
+@pytest.mark.unit
 def test_preprocess_subject_uses_v1_registry() -> None:
     """Atomic preprocess_subject is served by the v1 preprocessor domain."""
-    from habit.domain.image_preprocessing import PreprocessorRegistry
+    from habit.image_preprocessing import PreprocessorRegistry
 
     assert "zscore_normalization" in PreprocessorRegistry.available()
     assert "resample" in PreprocessorRegistry.available()

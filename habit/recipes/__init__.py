@@ -26,7 +26,8 @@ from __future__ import annotations
 
 from habit.recipes.auxiliary import dice, dicom_info, merge_tables
 from habit.recipes.comparison import compare_models, pairwise_delong_test
-from habit.recipes.features import extract_habitat_features, traditional_radiomics
+from habit.recipes.features import extract_habitat_features
+from habit.recipes.radiomics import traditional_radiomics
 from habit.recipes.icc import icc_analysis
 from habit.recipes.precision import (
     identify_precise_voxel_features,
@@ -66,7 +67,6 @@ from habit.report import (
     Report,
     VolumeFractions,
 )
-from habit.recipes.test_retest import test_retest_analysis
 from habit.recipes.yaml_runner import run_from_yaml
 
 __all__ = [
@@ -102,7 +102,6 @@ __all__ = [
     "run_from_yaml",
     "search_hyperparameters",
     "sort_dicom",
-    "test_retest_analysis",
     "traditional_radiomics",
     "train_model",
     "two_step_habitat",

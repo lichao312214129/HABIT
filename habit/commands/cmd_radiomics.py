@@ -31,7 +31,7 @@ from habit.commands.common import (
     load_config_or_exit,
 )
 from habit.schemas import RadiomicsConfig
-from habit.recipes.features import traditional_radiomics
+from habit.recipes.radiomics import traditional_radiomics
 from habit.utils.log_utils import setup_logger
 
 

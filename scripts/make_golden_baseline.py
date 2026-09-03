@@ -208,8 +208,8 @@ GOLDEN_CASES: Tuple[GoldenCase, ...] = (
         command="extract",
         out_dir_key="out_dir",
         description=(
-            "habitat feature families (msi / ith / basic / radiomics) "
-            "extracted from the two-step habitat maps"
+            "habitat feature families (volume / msi / ith / non_radiomics / "
+            "graph) extracted from the two-step habitat maps"
         ),
         depends_on="habitat_two_step",
         overrides=(("habitats_map_folder", "{dependency_out_dir}"),),
@@ -362,11 +362,22 @@ VOLATILE_JSON_LEAF_PATHS: Tuple[str, ...] = (
 )
 
 
+# The distribution version describes the executable that produced a manifest,
+# not the scientific definition or its dataflow.  It therefore changes during
+# ordinary package releases, while every other dependency/version and all Spec
+# fingerprints remain exact golden contracts.
+_HABIT_SOFTWARE_LEAF = "software.habit"
+
+
 def _is_volatile_json_leaf(leaf_path: str) -> bool:
     """Return whether a flattened JSON leaf should be ignored in golden diffs."""
     if leaf_path in VOLATILE_JSON_LEAF_PATHS:
         return True
     if leaf_path.endswith(".resolved_config.out_dir"):
+        return True
+    if leaf_path == _HABIT_SOFTWARE_LEAF or leaf_path.endswith(
+        f".{_HABIT_SOFTWARE_LEAF}"
+    ):
         return True
     last_segment = leaf_path.rsplit(".", 1)[-1]
     return last_segment in VOLATILE_JSON_LEAF_NAMES
@@ -672,18 +683,45 @@ def run_case(case: GoldenCase, out_root: Path) -> Dict[str, Any]:
 
     config_path = _materialise_config(case, out_dir, dependency_out_dir)
     try:
-        completed = subprocess.run(
+        # Merge stderr into stdout and forward each line immediately.  ML
+        # explainability can legitimately take tens of minutes; withholding
+        # its tqdm/log output makes external runners misclassify healthy work
+        # as a hung child process.  Keeping a bounded tail preserves concise
+        # failure diagnostics without buffering the entire child transcript.
+        output_tail: List[str] = []
+        process = subprocess.Popen(
             [sys.executable, "-m", "habit", case.command, "-c", str(config_path)],
             cwd=REPO_ROOT,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
             encoding="utf-8",
             errors="replace",
         )
-        if completed.returncode != 0:
-            tail = (completed.stdout or "")[-2000:] + (completed.stderr or "")[-2000:]
+        assert process.stdout is not None
+        for line in process.stdout:
+            try:
+                sys.stdout.write(line)
+            except UnicodeEncodeError:
+                # Windows consoles may still expose a legacy GBK code page,
+                # while CLI progress output can contain Unicode symbols such
+                # as a check mark.  Preserve progress visibility rather than
+                # turning a successful child run into a parent-side failure.
+                encoding = sys.stdout.encoding or "utf-8"
+                sys.stdout.write(
+                    line.encode(encoding, errors="backslashreplace").decode(
+                        encoding
+                    )
+                )
+            sys.stdout.flush()
+            output_tail.append(line)
+            if len(output_tail) > 200:
+                output_tail.pop(0)
+        returncode = process.wait()
+        if returncode != 0:
+            tail = "".join(output_tail)[-4000:]
             raise RuntimeError(
-                f"Case '{case.name}' failed with exit code {completed.returncode}:\n{tail}"
+                f"Case '{case.name}' failed with exit code {returncode}:\n{tail}"
             )
     finally:
         config_path.unlink(missing_ok=True)

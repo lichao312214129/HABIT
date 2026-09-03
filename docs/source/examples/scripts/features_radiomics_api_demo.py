@@ -14,7 +14,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
+from habit.spec import HabitatSpec, Spec, Stage
+from habit.datasets import make_synthetic_cohort
 import habit.recipes as recipes
 
 REPO_ROOT = Path(__file__).resolve().parents[4]

@@ -14,15 +14,14 @@
 #
 """L4 ICC reliability-analysis recipe (thin assembly).
 
-Stage-5 scope: wire the ``icc`` CLI through a recipe instead of importing
-``habit.core`` directly. The recipe delegates to the public
-:func:`habit.api.analysis.run_icc_analysis` workflow helper (which still
-executes the v0.1 engine internally), keeping ``habit.recipes`` free of
-direct ``habit.core`` imports per the architecture gate.
+The recipe keeps the historical YAML/API entry point while the workflow
+assembly uses :mod:`habit.recipes.icc_runner`, table metrics use
+:mod:`habit.evaluation.reliability`, and CSV/Excel/JSON I/O stays in
+:mod:`habit.adapters.icc_io`.
 
 Callers who already hold aligned measurement sessions as
 :class:`~habit.contracts.table.FeatureTable` objects do not need this
-config-driven path: :func:`habit.domain.evaluation.statistics.icc_analysis`
+config-driven path: :func:`habit.evaluation.statistics.icc_analysis`
 computes the same per-feature ICC(2,1)/ICC(3,1) panel directly on tables via
 the L0 kernels, with no files involved.
 """

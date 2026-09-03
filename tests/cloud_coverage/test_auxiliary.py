@@ -16,16 +16,12 @@
 Coverage matrix: auxiliary statistics workflows.
 
 - ICC analysis through ``habit icc`` on the synthetic paired measurement
-  tables (retest = test + small noise -> ICC must be high);
-- test-retest habitat label mapping through ``habit retest``, chained on a
-  two-step habitat train run of this module (identity mapping smoke test,
-  mirroring the reference demo config).
+  tables (retest = test + small noise -> ICC must be high).
 """
 
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
@@ -67,48 +63,4 @@ def test_icc_analysis_cli(synthetic_tree: SyntheticTree, render_config) -> None:
     assert icc_values, "no ICC values in report"
     assert sum(1 for v in icc_values if v > 0.9) >= len(icc_values) / 2, (
         f"expected mostly-high ICC on test+noise pairs, got {icc_values[:8]}"
-    )
-
-
-@pytest.fixture(scope="module")
-def retest_train_out(synthetic_tree: SyntheticTree, render_config) -> Path:
-    """
-    Run a compact two-step train whose outputs feed the retest mapping.
-
-    Args:
-        synthetic_tree: Session synthetic dataset.
-        render_config: Session config renderer.
-
-    Returns:
-        Habitat train output directory.
-    """
-    rendered: RenderedConfig = render_config(
-        "habitat_two_step_train.yaml", "retest_habitat_train", synthetic_tree
-    )
-    run_cli(CliRunner(), ["get-habitat", "-c", str(rendered.path)])
-    return rendered.out_dir
-
-
-@pytest.mark.integration
-def test_test_retest_mapping_cli(
-    retest_train_out: Path, synthetic_tree: SyntheticTree, render_config
-) -> None:
-    """Label mapping relabels every habitat map (identity mapping demo)."""
-    habitat_table = retest_train_out / "habitats.parquet"
-    if not habitat_table.is_file():
-        habitat_table = next(retest_train_out.glob("habitats.*"))
-    rendered: RenderedConfig = render_config(
-        "test_retest.yaml",
-        "test_retest",
-        synthetic_tree,
-        {
-            "@HABITAT_TABLE@": habitat_table.as_posix(),
-            "@HABITAT_MAP_DIR@": retest_train_out.as_posix(),
-        },
-    )
-    run_cli(CliRunner(), ["retest", "-c", str(rendered.path)])
-    relabelled = list(rendered.out_dir.glob("**/*.nrrd"))
-    assert relabelled, (
-        f"no relabelled maps under {rendered.out_dir}: "
-        f"{[p.name for p in rendered.out_dir.glob('**/*')]}"
     )

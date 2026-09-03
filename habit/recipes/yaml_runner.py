@@ -35,6 +35,7 @@ Known limitations (stage-5 debt, mirrored from the CLI):
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Union
 
@@ -49,14 +50,20 @@ from habit.execution.checkpoint import CheckpointStore
 from habit.execution.selection import backend_from_policy
 from habit.exceptions import HABITAPIError
 from habit.recipes.comparison import compare_models
-from habit.recipes.features import extract_habitat_features, traditional_radiomics
+from habit.recipes.features import extract_habitat_features
+from habit.recipes.radiomics import traditional_radiomics
 from habit.recipes.icc import icc_analysis
-from habit.recipes.modeling import CVResult, ModelResult, cross_validate, train_model
+from habit.recipes.modeling import (
+    CVResult,
+    ModelResult,
+    cross_validate,
+    predict_model,
+    train_model,
+)
 from habit.recipes.preprocess import preprocess_images
 from habit.recipes.result import StudyResult
 from habit.recipes.sort_dicom import sort_dicom
 from habit.recipes.study import Study
-from habit.recipes.test_retest import test_retest_analysis
 from habit.spec.legacy import LegacyConfigAdapter, _guess_workflow_from_path, detect_yaml_version, validate_v1_document
 from habit.spec.policy import RunPolicy
 from habit.spec.specs import HabitatSpec, MLSpec
@@ -73,7 +80,6 @@ _SUPPORTED_WORKFLOWS: Tuple[str, ...] = (
     "compare",
     "preprocess",
     "icc",
-    "retest",
     "extract",
     "radiomics",
     "sort-dicom",
@@ -92,6 +98,157 @@ _LEGACY_PICKLE_MESSAGE = (
     "pipeline_path pointing at that archive or call "
     "habit.recipes.Study.from_model(...).predict(...) in Python."
 )
+
+
+@dataclass(frozen=True)
+class _RecipeWorkflowResult:
+    """Minimal config-workflow result preserved at the public API boundary."""
+
+    metrics: Mapping[str, Any]
+
+
+def run_habitat_config(
+    config: Any,
+    *,
+    logger: Optional[logging.Logger] = None,
+    output_dir: Optional[str] = None,
+) -> Any:
+    """
+    Run a validated v0.1 habitat config through the v1 recipe assembly.
+
+    This config-level L4 helper preserves the public workflow API's historical
+    behaviour: it always saves the v1 result using the v0.1 reporting switches
+    and returns a copied habitat-feature table. It contains no segmentation
+    algorithm; :class:`Study` owns train/predict execution.
+
+    Args:
+        config: Validated habitat analysis configuration.
+        logger: Optional workflow logger.
+        output_dir: Optional override written onto ``config.out_dir``.
+
+    Returns:
+        A copy of the generated habitat feature table.
+
+    Raises:
+        ValueError: If predict mode lacks a v1 habitat-model archive.
+        FileNotFoundError: If the configured pipeline does not exist.
+    """
+    log = logger or _LOG
+    if output_dir is not None:
+        config.out_dir = output_dir
+
+    if str(config.run_mode) == "predict":
+        if not config.pipeline_path:
+            raise ValueError(
+                "In 'predict' mode, pipeline_path is required in the YAML "
+                "or via CLI override."
+            )
+        pipeline_file = Path(config.pipeline_path)
+        if not pipeline_file.is_file():
+            raise FileNotFoundError(f"Pipeline file not found: {pipeline_file}")
+        if not _is_v1_model_archive(pipeline_file):
+            raise ValueError(f"{_LEGACY_PICKLE_MESSAGE} Got: {pipeline_file}")
+
+    if str(config.run_mode) == "predict":
+        log.info(
+            "Running habitat predict through v1 recipes (pipeline=%s)",
+            config.pipeline_path,
+        )
+        result = _habitat_predict(config, logger=log)
+    else:
+        log.info(
+            "Running habitat train through v1 recipes (clustering_mode=%s)",
+            config.habitat_segmentation.clustering_mode,
+        )
+        result = _habitat_train(config, logger=log)
+
+    _save_habitat_result(result, config)
+    if result.habitat_model is not None:
+        log.info(
+            "Saved fitted habitat model to %s",
+            Path(config.out_dir) / _V1_MODEL_NAME,
+        )
+    return result.features.frame.copy()
+
+
+def run_ml_config(
+    config: Any,
+    *,
+    logger: Optional[logging.Logger] = None,
+    output_dir: Optional[str] = None,
+) -> _RecipeWorkflowResult:
+    """
+    Run a validated v0.1 ML config through v1 recipes.
+
+    The helper keeps the config API's single-classifier and output-file
+    semantics intact. ML algorithms remain in :mod:`habit.recipes.modeling`;
+    this layer only translates config, loads tables, and persists reports.
+
+    Args:
+        config: Validated ML configuration.
+        logger: Optional workflow logger.
+        output_dir: Optional override written onto ``config.output``.
+
+    Returns:
+        Metrics-only compatibility result consumed by ``habit.api``.
+    """
+    log = logger or _LOG
+    if output_dir is not None:
+        config.output = output_dir
+
+    pipeline_path = str(getattr(config, "pipeline_path", "") or "")
+    if str(config.run_mode) == "predict" and not pipeline_path.endswith(
+        ".habitpipeline"
+    ):
+        return _reject_legacy_ml_pipeline(config)
+    if str(config.run_mode) == "predict":
+        return _run_v1_ml_predict(config, logger=log)
+    return _run_v1_ml_train(config, logger=log)
+
+
+def run_kfold_config(
+    config: Any,
+    *,
+    logger: Optional[logging.Logger] = None,
+    output_dir: Optional[str] = None,
+) -> _RecipeWorkflowResult:
+    """
+    Run K-fold cross-validation from a validated v0.1 ML config.
+
+    Args:
+        config: Validated train-mode ML configuration.
+        logger: Optional workflow logger.
+        output_dir: Optional override written onto ``config.output``.
+
+    Returns:
+        Mean cross-validation metrics at the public API boundary.
+
+    Raises:
+        ValueError: If ``run_mode`` is not ``"train"``.
+    """
+    if str(config.run_mode) != "train":
+        raise ValueError("K-fold cross-validation requires run_mode='train'.")
+
+    log = logger or _LOG
+    if output_dir is not None:
+        config.output = output_dir
+
+    document = LegacyConfigAdapter().translate(config.model_dump(), "cv").document
+    spec = _ml_spec_from_document(document)
+    table = _load_feature_table(config, logger=log)
+    log.info(
+        "Running v1 recipe cross_validate (classifier=%s, n_splits=%d)",
+        spec.classifier.name,
+        int(config.n_splits),
+    )
+    result = cross_validate(
+        table,
+        spec,
+        n_splits=int(config.n_splits),
+        seed=config.random_state,
+    )
+    _save_cv_result(result, config, logger=log)
+    return _RecipeWorkflowResult(metrics=dict(result.mean_metrics))
 
 
 def run_from_yaml(
@@ -115,14 +272,14 @@ def run_from_yaml(
             paths inside the file resolve against the file's directory; v1
             documents use paths as written (current working directory).
         workflow: Workflow alias (``habitat``, ``model``, ``cv``, ``compare``,
-            ``preprocess``, ``icc``, ``retest``, ``extract``, ``radiomics``,
+            ``preprocess``, ``icc``, ``extract``, ``radiomics``,
             ``sort-dicom``).
             When omitted, guessed from the path/name the same way as
             :func:`~habit.spec.legacy.migrate_yaml`.
         save: When ``True``, persist outputs under the config's ``out_dir`` /
             ``output`` / ``output_dir`` the way the CLI does for habitat and ML
             workflows. Default is ``False`` so callers keep results in memory.
-            Thin-delegation workflows (``preprocess``, ``icc``, ``retest``,
+            Thin-delegation workflows (``preprocess``, ``icc``,
             ``extract``, ``radiomics``, ``compare``) always write through the
             v0.1 engines regardless of this flag.
         logger: Optional logger forwarded to delegated v0.1 API paths.
@@ -198,8 +355,6 @@ def run_from_yaml(
         return _run_preprocess_yaml(path, logger=logger)
     if alias == "icc":
         return _run_icc_yaml(path, logger=logger)
-    if alias == "retest":
-        return _run_retest_yaml(path, logger=logger)
     if alias == "extract":
         return _run_extract_yaml(path, logger=logger)
     if alias == "radiomics":
@@ -294,7 +449,7 @@ def _habitat_train_v1(
         raise ValueError(
             "A train-mode habitat v1 document must carry a non-empty 'spec' section."
         )
-    from habit.domain.stages import ensure_habitat_spec_resolved
+    from habit.pipeline.stages import ensure_habitat_spec_resolved
 
     # Stages-first YAML may omit role= / sugar fields; resolve once before
     # cohort assembly and recipe dispatch read named fields.
@@ -323,9 +478,11 @@ def _habitat_predict_v1(
     spec_payload = document.get("spec")
     if spec_payload is None:
         spec_payload = model.spec_payload
-    from habit.domain.stages import ensure_habitat_spec_resolved
+    from habit.pipeline.stages import ensure_habitat_spec_resolved
+    from habit.recipes.habitat import _with_model_habitat_postprocessing
 
     spec = ensure_habitat_spec_resolved(HabitatSpec.from_dict(spec_payload))
+    spec = _with_model_habitat_postprocessing(spec, model)
     backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
     checkpoint = _checkpoint_store_for(config, spec=spec, predict=True)
@@ -490,7 +647,7 @@ def _v0_selection_methods_from_spec(
         # Lazy import: the L4 recipe layer may read L3 registries, but a
         # module-level import here would pull the whole domain package in
         # just to translate a config document.
-        from habit.domain.table_preprocessing import TablePreprocessorRegistry
+        from habit.table_preprocessing import TablePreprocessorRegistry
 
         preprocessor_names = set(TablePreprocessorRegistry.available())
         methods: List[Dict[str, Any]] = []
@@ -700,11 +857,174 @@ def _habitat_predict(
         # Stub predict YAMLs rely on the embedded spec inside the model archive.
         spec_payload = model.spec_payload
     spec = HabitatSpec.from_dict(spec_payload)
+    from habit.recipes.habitat import _with_model_habitat_postprocessing
+
+    spec = _with_model_habitat_postprocessing(spec, model)
     backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
     checkpoint = _checkpoint_store_for(config, spec=spec, predict=True)
     return Study.from_model(model, spec).predict(
         cohort, backend=backend, checkpoint=checkpoint
+    )
+
+
+def _run_v1_ml_train(
+    config: Any,
+    *,
+    logger: logging.Logger,
+) -> _RecipeWorkflowResult:
+    """Fit one v0.1-configured hold-out pipeline through v1 recipes."""
+    document = LegacyConfigAdapter().translate(config.model_dump(), "model").document
+    spec = _ml_spec_from_document(document)
+    table = _load_feature_table(config, logger=logger)
+    split_kwargs = _resolve_ml_split_kwargs(config, table, logger=logger)
+    logger.info(
+        "Running v1 recipe train_model (classifier=%s, rows=%d, features=%d)",
+        spec.classifier.name,
+        len(table.frame),
+        len(table.feature_columns),
+    )
+    result = train_model(table, spec, seed=config.random_state, **split_kwargs)
+    _save_model_result(result, table, config, logger=logger)
+    metrics: Dict[str, Any] = dict(result.train_metrics)
+    if result.test_metrics is not None:
+        metrics = {
+            "train": dict(result.train_metrics),
+            "test": dict(result.test_metrics),
+        }
+    return _RecipeWorkflowResult(metrics=metrics)
+
+
+def _run_v1_ml_predict(
+    config: Any,
+    *,
+    logger: logging.Logger,
+) -> _RecipeWorkflowResult:
+    """Apply one v1 ``.habitpipeline`` using config-compatible output names."""
+    from habit.pipeline import TablePipeline
+
+    pipeline_path = Path(str(config.pipeline_path or ""))
+    if not pipeline_path.is_file():
+        raise ValueError(f"Saved pipeline not found: {pipeline_path}")
+    pipeline = TablePipeline.load(pipeline_path)
+    table = _load_ml_predict_table(config, logger=logger)
+    logger.info(
+        "Running v1 recipe predict_model (model=%s, rows=%d)",
+        pipeline.model.spec.name,
+        len(table.frame),
+    )
+    result = predict_model(pipeline, table)
+    _save_ml_prediction_result(result, table, config, logger=logger)
+    return _RecipeWorkflowResult(metrics={"predictions": len(result.predictions)})
+
+
+def _load_ml_predict_table(config: Any, *, logger: logging.Logger) -> FeatureTable:
+    """Assemble the historical first-input inference table from an ML config."""
+    import pandas as pd
+
+    from habit.contracts.outcome import BinaryOutcome
+    from habit.contracts.provenance import Provenance
+
+    if not config.input:
+        raise ValueError("ML config 'input' must contain at least one table.")
+    entry = config.input[0]
+    path = Path(entry.path)
+    if not path.is_file():
+        raise ValueError(f"Input table not found: {path}")
+    subject_id_column = entry.subject_id_col
+    frame = pd.read_csv(path, dtype={subject_id_column: str})
+    if subject_id_column not in frame.columns:
+        raise ValueError(
+            f"Input table {path} is missing column {subject_id_column!r}."
+        )
+    frame[subject_id_column] = frame[subject_id_column].astype(str)
+
+    label_column = entry.label_col if entry.label_col in frame.columns else None
+    if label_column is None:
+        logger.info(
+            "Predict input has no label column %r; running unlabelled inference.",
+            entry.label_col,
+        )
+    requested_features = list(entry.features or [])
+    available_features = [
+        column for column in frame.columns
+        if column not in {subject_id_column, label_column}
+    ]
+    selected_features = (
+        requested_features if requested_features else available_features
+    )
+    missing_features = [
+        column for column in selected_features if column not in frame.columns
+    ]
+    if missing_features:
+        raise ValueError(
+            f"Input table {path} is missing feature columns {missing_features}."
+        )
+    if not selected_features:
+        raise ValueError("No feature columns remain in the predict input table.")
+
+    outcome = (
+        BinaryOutcome(column=label_column, positive_label=1)
+        if label_column is not None
+        else None
+    )
+    columns = [subject_id_column, *selected_features] + (
+        [label_column] if label_column else []
+    )
+    return FeatureTable(
+        frame=frame[columns],
+        id_columns=(subject_id_column,),
+        feature_columns=tuple(selected_features),
+        outcome=outcome,
+        # Preserve the API workflow's historical provenance source exactly.
+        provenance=Provenance.source("compat.ml_runner"),
+    )
+
+
+def _save_ml_prediction_result(
+    result: Any,
+    table: FeatureTable,
+    config: Any,
+    *,
+    logger: logging.Logger,
+) -> None:
+    """Write the historical config-API ``predictions.csv`` layout."""
+    out_dir = Path(str(config.output))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    output = table.frame.copy()
+    label_column = getattr(config, "output_label_col", None) or "prediction"
+    probability_column = getattr(config, "output_prob_col", None) or "probability"
+    output[label_column] = result.predictions.to_numpy()
+    if result.probabilities is not None and not result.probabilities.empty:
+        positive_index = int(getattr(config, "binary_positive_class_index", 1))
+        if positive_index < result.probabilities.shape[1]:
+            output[probability_column] = (
+                result.probabilities.iloc[:, positive_index].to_numpy()
+            )
+    destination = out_dir / "predictions.csv"
+    output.to_csv(destination, index=False)
+    logger.info("Saved predictions to %s", destination)
+
+
+def _reject_legacy_ml_pipeline(config: Any) -> _RecipeWorkflowResult:
+    """Retain the public API's legacy-pickle rejection and warning semantics."""
+    import warnings
+
+    from habit.utils.deprecation import HabitDeprecationWarning, build_deprecation_message
+
+    message = build_deprecation_message(
+        "legacy pickle ML pipelines",
+        "1.0.0",
+        alternative=(
+            "re-train and save a v1 `.habitpipeline` archive, then run predict "
+            "with that path"
+        ),
+        removed_in="1.2.0",
+    )
+    warnings.warn(message, HabitDeprecationWarning, stacklevel=2)
+    raise ValueError(
+        f"Legacy pickle pipeline {config.pipeline_path!r} is no longer supported. "
+        "Train a v1 `.habitpipeline` model and point `pipeline_path` to that file."
     )
 
 
@@ -784,18 +1104,6 @@ def _run_icc_yaml(
 
     config = ICCConfig.from_file(str(path))
     return icc_analysis(config)
-
-
-def _run_retest_yaml(
-    path: Path,
-    *,
-    logger: Optional[logging.Logger],
-) -> Any:
-    """Run test-retest label mapping through the L4 recipe."""
-    from habit.api.analysis import TestRetestConfig
-
-    config = TestRetestConfig.from_file(str(path))
-    return test_retest_analysis(config, logger=logger)
 
 
 def _run_extract_yaml(

@@ -16,12 +16,10 @@
 
 from __future__ import annotations
 
-import shutil
 import sys
 
 import pytest
 
-from habit.compat.engines.preprocessing.dcm2niix_runner import Dcm2niixRunner
 from habit.utils.subprocess_utils import decode_subprocess_bytes, run_capture_text
 
 
@@ -57,18 +55,3 @@ class TestRunCaptureText:
         assert result.returncode == 0
         assert "stderr-ok" in (result.stderr or "")
 
-
-@pytest.mark.skipif(
-    shutil.which("dcm2niix") is None and shutil.which("dcm2niix.exe") is None,
-    reason="dcm2niix executable not available on PATH",
-)
-class TestDcm2niixRunnerEncoding:
-    """Verify dcm2niix CLI output is captured without reader-thread decode errors."""
-
-    def test_verify_and_version(self) -> None:
-        runner = Dcm2niixRunner()
-        version = run_capture_text([runner.executable, "--version"], check=False)
-        combined: str = (version.stdout or "") + (version.stderr or "")
-        assert "dcm2nii" in combined.lower()
-        # dcm2niix may use a non-zero exit code for --version; verify() only checks availability.
-        runner.verify()

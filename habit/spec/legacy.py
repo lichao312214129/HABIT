@@ -92,7 +92,6 @@ _KNOWN_WORKFLOWS: Tuple[str, ...] = (
     "cv",
     "compare",
     "icc",
-    "retest",
     "sort-dicom",
 )
 
@@ -1813,8 +1812,6 @@ def _guess_workflow_from_path(config_path: Path) -> Optional[str]:
         if needle in parts:
             if alias == "model" and "kfold" in name:
                 return "cv"
-            if alias == "icc" and ("retest" in name or "test_retest" in name):
-                return "retest"
             return alias
     name_rules = (
         ("preprocess", "preprocess"),
@@ -1825,7 +1822,6 @@ def _guess_workflow_from_path(config_path: Path) -> Optional[str]:
         ("machine_learning", "model"),
         ("model_comparison", "compare"),
         ("icc", "icc"),
-        ("retest", "retest"),
         ("sort_dicom", "sort-dicom"),
     )
     for needle, alias in name_rules:
@@ -2024,7 +2020,7 @@ def _validate_habitat_v1(payload: Mapping[str, Any], mode: Optional[str]) -> Non
         )
     spec = HabitatSpec.from_dict(spec_payload)
     spec.validate_dataflow()
-    from habit.domain.assembly import validate_habitat_spec_registry
+    from habit.pipeline.assembly import validate_habitat_spec_registry
 
     validate_habitat_spec_registry(spec)
 

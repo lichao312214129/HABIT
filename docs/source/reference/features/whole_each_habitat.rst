@@ -100,7 +100,7 @@ Implementation
 
 ``habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py``
 (``EachHabitatPlugin``) → ``habitat_radiomics.py``. v1
-:class:`~habit.domain.habitat_features.each_habitat.EachHabitatRadiomicsFeatures`
+:class:`~habit.habitat_features.each_habitat.EachHabitatRadiomicsFeatures`
 uses one union-bbox crop and the native C multi-label path per modality;
 ``binWidth`` stays per habitat (``union_bin=False``).
 
@@ -129,14 +129,13 @@ Runnable gallery (synthetic stand-in table; swap ``table`` for your
 
 ::
 
-   from habit import (
-       compare_habitat_features,
+   from habit.habitat_features import compare_habitat_features, to_habitat_feature_panel
+   from habit.viz import (
        plot_habitat_feature_bars,
        plot_habitat_feature_components,
        plot_habitat_feature_effect,
        plot_habitat_feature_heatmap,
        plot_habitat_feature_violin,
-       to_habitat_feature_panel,
    )
 
    panel = to_habitat_feature_panel(table)          # wide each_habitat FeatureTable

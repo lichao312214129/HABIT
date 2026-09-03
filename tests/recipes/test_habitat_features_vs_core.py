@@ -81,13 +81,6 @@ def _identity(column: str) -> Optional[str]:
     return column
 
 
-def _ith_column(column: str) -> Optional[str]:
-    """Map the v0.1 ITH summary columns onto their prefixed v1 names."""
-    return {"num_habitats": "ith_num_habitats", "total_area": "ith_total_area"}.get(
-        column, column
-    )
-
-
 def _each_habitat_column(habitat_id: int) -> Callable[[str], Optional[str]]:
     """Return a mapper prefixing v0.1 per-habitat radiomics with the habitat id."""
 
@@ -116,14 +109,15 @@ def _feature_cases() -> List[FamilyCase]:
 
     roi_preset = resolve_params_file(None, preset="roi")
     habitat_preset = resolve_params_file(None, preset="habitat")
-    modalities = ["delay2", "delay3", "delay5"]
+    # This parity fixture fits ``config_habitat_two_step.yaml``. Its
+    # preprocessed cohort defines these four acquisition keys; ``delay2`` /
+    # ``delay3`` / ``delay5`` belong to the separate DCE conversion demo and
+    # cannot be silently aliased to different MRI sequences.
+    modalities = ["pre_contrast", "LAP", "PVP", "delay_3min"]
     return [
         FamilyCase("msi", {}, (("msi_features.csv", _identity),)),
-        FamilyCase(
-            "ith_score",
-            {"include_auxiliary": True},
-            (("ith_scores.csv", _ith_column),),
-        ),
+        # Frozen demo golden pins the default ITH contract (``ith_score`` only).
+        FamilyCase("ith_score", {}, (("ith_scores.csv", _identity),)),
         FamilyCase("non_radiomics", {}, (("habitat_basic_features.csv", _identity),)),
         FamilyCase("volume", {}, (("habitat_basic_features.csv", _volume_column),)),
         FamilyCase(
@@ -227,7 +221,7 @@ def test_v1_family_matches_core_values(case: FamilyCase) -> None:
     if not demo_data_available():
         pytest.skip("demo_data/ is not present; the feature comparison needs imaging data")
 
-    from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
+    from habit.habitat_features import HabitatFeatureExtractorRegistry
 
     fixture = _study()
     extractor = HabitatFeatureExtractorRegistry.create(case.name, **case.params)

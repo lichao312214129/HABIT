@@ -56,6 +56,7 @@ from habit.recipes.habitat import (
     _fit_habitat,
     _one_step,
     _two_step,
+    _with_model_habitat_postprocessing,
 )
 from habit.recipes.result import StudyResult
 from habit.spec.specs import HabitatSpec, Spec
@@ -512,6 +513,7 @@ class Study:
             model = HabitatModel.load(model)
         if spec is None:
             spec = HabitatSpec.from_dict(model.spec_payload)
+        spec = _with_model_habitat_postprocessing(spec, model)
         study = cls(spec=spec, design=_infer_design(spec))
         study.model_ = model
         return study

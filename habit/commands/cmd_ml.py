@@ -52,8 +52,8 @@ from habit.contracts.outcome import BinaryOutcome
 from habit.contracts.provenance import Provenance
 from habit.contracts.table import FeatureTable
 from habit.schemas import MLConfig
-from habit.domain.evaluation import MetricRegistry
-from habit.domain.pipeline import TablePipeline
+from habit.evaluation import MetricRegistry
+from habit.pipeline import TablePipeline
 from habit.recipes.modeling import (
     CVResult,
     ModelResult,

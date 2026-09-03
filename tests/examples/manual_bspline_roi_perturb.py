@@ -44,7 +44,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
 
-from habit import ImagePerturbationRegistry, cohort_from_directory
+from habit.precision import ImagePerturbationRegistry
+from habit.contracts import cohort_from_directory
 from habit.viz import plot_intensity_slice, sanitize_label
 from habit.viz.orientation import direction_matrix, orient_slice_for_display, resolve_display_geometry
 

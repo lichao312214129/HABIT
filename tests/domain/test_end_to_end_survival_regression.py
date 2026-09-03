@@ -30,16 +30,16 @@ from habit.contracts import (
     outcome_from_dict,
     outcome_to_dict,
 )
-from habit.domain.evaluation import (
+from habit.evaluation import (
     RegressionMetricRegistry,
     SurvivalMetricRegistry,
 )
-from habit.domain.feature_selection import FeatureSelectorRegistry
-from habit.domain.pipeline import TablePipeline
-from habit.domain.regression import RegressorRegistry
-from habit.domain.split import stratify_labels, train_test_indices
-from habit.domain.survival import SurvivalModelRegistry
-from habit.domain.table_preprocessing import TablePreprocessorRegistry
+from habit.feature_selection import FeatureSelectorRegistry
+from habit.pipeline import TablePipeline
+from habit.regression import RegressorRegistry
+from habit.evaluation.split import stratify_labels, train_test_indices
+from habit.survival import SurvivalModelRegistry
+from habit.table_preprocessing import TablePreprocessorRegistry
 from habit.viz import (
     plot_kaplan_meier,
     plot_predicted_vs_observed,
@@ -227,7 +227,7 @@ def test_predict_proba_rejected_for_survival_model() -> None:
 
 def test_evaluate_rejects_metric_family_mismatch() -> None:
     """A classification metric on a survival table raises (wrong family)."""
-    from habit.domain.evaluation import MetricRegistry
+    from habit.evaluation import MetricRegistry
 
     train, test = _split(_survival_table())
     pipeline = TablePipeline(

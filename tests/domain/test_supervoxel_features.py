@@ -21,14 +21,14 @@ import pandas as pd
 import pytest
 
 from habit.api.exceptions import HABITAPIError
-from habit.domain.protocols import SupervoxelFeatureExtractor
-from habit.domain.supervoxel import (
+from habit._protocols import SupervoxelFeatureExtractor
+from habit.supervoxel import (
     GmmSupervoxelizer,
     KMeansSupervoxelizer,
     SlicSupervoxelizer,
     SupervoxelizerRegistry,
 )
-from habit.domain.supervoxel_features import (
+from habit.supervoxel import (
     MeanVoxelFeatures,
     SupervoxelFeatureExtractorRegistry,
     SupervoxelRadiomicsFeatures,

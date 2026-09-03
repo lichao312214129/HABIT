@@ -17,9 +17,10 @@ Three equivalent customisation surfaces
    * - Surface
      - How you customise
    * - ``Registry.create(name, **params)``
-     - Build operators by registered name. Params must match
-       ``params_model`` field names (e.g. ``n_supervoxels``, not
-       ``n_clusters``).
+     - Build operators by registered name. Keyword arguments must
+       match the component constructor (e.g. ``n_supervoxels``, not
+       ``n_clusters``). Confirm with
+       ``Registry.constructor_signature("kmeans")``.
    * - Hand ``SubjectPipeline``
      - Swap Python callables; fit with a fitter; bind ``model.assigner()``.
    * - ``HabitatSpec.stages``

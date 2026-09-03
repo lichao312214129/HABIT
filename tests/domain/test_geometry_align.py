@@ -16,19 +16,21 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
 from habit.contracts import ArrayImageRef, Geometry, Subject
-from habit.domain.geometry_align import (
+from habit.image_preprocessing.geometry import (
     GEOMETRY_ALIGN_METADATA_KEY,
     align_mask_to_reference,
     align_subject_masks,
     anatomy_aware_field_geometry,
     geometry_mismatch_fields,
 )
-from habit.domain.pipeline import SubjectPipeline
-from habit.domain.voxel_features import RawVoxelFeatures
+from habit.pipeline import SubjectPipeline
+from habit.voxel_features import RawVoxelFeatures
 from habit.exceptions import GeometryError
 
 from .conftest import make_model, make_subject
@@ -143,7 +145,7 @@ def test_raw_extractor_default_resamples_mismatched_mask() -> None:
 @pytest.mark.unit
 def test_raw_extractor_strict_roi_voxels_still_raises() -> None:
     """Callers can still opt into strict checks at the helper boundary."""
-    from habit.domain.voxel_features._base import roi_voxels
+    from habit.voxel_features._base import roi_voxels
 
     subject = _mismatched_mask_subject()
     with pytest.raises(GeometryError):
@@ -197,10 +199,23 @@ def test_anatomy_aware_geometry_restores_mask_direction_after_adopt() -> None:
 
 
 @pytest.mark.unit
-def test_habitat_map_keeps_mask_direction_for_display() -> None:
-    """One-step HabitatMap must carry the mask SI sign, not the image header."""
-    from habit.domain.assignment.nearest_centroid import NearestCentroidAssigner
-    from habit.domain.pipeline import voxel_units
+def test_habitat_map_keeps_mask_direction_for_display(tmp_path: Path) -> None:
+    """
+    One-step NRRD output keeps its mask SI sign without changing labels.
+
+    The input image's direction is identity while the source mask has
+    ``z=-1``. The pipeline deliberately resolves that header-only conflict in
+    favour of the labelled anatomy, so this regression covers both the
+    in-memory map and the persisted user-facing artefact.
+
+    Args:
+        tmp_path: Isolated directory for the written NRRD file.
+    """
+    import SimpleITK as sitk
+
+    from habit.adapters import DirectoryResultWriter
+    from habit.habitat_model.assignment.nearest_centroid import NearestCentroidAssigner
+    from habit.pipeline import voxel_units
     from habit.viz.orientation import resolve_display_geometry
 
     subject = _mismatched_mask_subject()
@@ -212,6 +227,15 @@ def test_habitat_map_keeps_mask_direction_for_display() -> None:
         make_model(n_habitats=1, feature_names=field.feature_names)
     )(units)
     assert tuple(habitat_map.geometry.direction) == source_direction
+    original_labels = habitat_map.label_array.copy()
+    destination = DirectoryResultWriter(tmp_path).write_habitat_map(habitat_map)
+    assert destination is not None
+    written = sitk.ReadImage(destination)
+    assert tuple(written.GetDirection()) == source_direction
+    np.testing.assert_array_equal(
+        sitk.GetArrayFromImage(written),
+        original_labels,
+    )
     resolved, _spacing = resolve_display_geometry(
         subject.image("T1"), habitat_map
     )

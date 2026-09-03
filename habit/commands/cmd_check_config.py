@@ -60,9 +60,6 @@ _WORKFLOW_LOADERS: Dict[str, Callable[[], Type]] = {
     "icc": lambda: __import__(
         "habit.schemas.workflows.icc", fromlist=["ICCConfig"]
     ).ICCConfig,
-    "retest": lambda: __import__(
-        "habit.schemas.workflows.ml", fromlist=["TestRetestConfig"]
-    ).TestRetestConfig,
     "sort-dicom": lambda: __import__(
         "habit.schemas.workflows.dicom_sort", fromlist=["DicomSortConfig"]
     ).DicomSortConfig,
@@ -102,9 +99,6 @@ def _guess_workflow(config_path: Path) -> Optional[str]:
             # K-fold configs live under machine_learning/ but use habit cv.
             if alias == "model" and "kfold" in name:
                 return "cv"
-            # test-retest templates under auxiliary/
-            if alias == "icc" and ("retest" in name or "test_retest" in name):
-                return "retest"
             return alias
 
     # Filename fallbacks when the file is copied outside config/.
@@ -117,7 +111,6 @@ def _guess_workflow(config_path: Path) -> Optional[str]:
         ("machine_learning", "model"),
         ("model_comparison", "compare"),
         ("icc", "icc"),
-        ("retest", "retest"),
         ("sort_dicom", "sort-dicom"),
     )
     for needle, alias in name_rules:

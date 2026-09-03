@@ -30,12 +30,15 @@ Run with::
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pytest
 
+from habit.exceptions import HABITAPIError
+from habit.spec import Spec
 from tests.recipes.conftest import (
     demo_data_available,
     load_baseline,
@@ -83,7 +86,13 @@ def test_saved_model_relabels_its_training_cohort_identically(tmp_path: Path) ->
         "reloading changed the model identity; the archive is not faithful"
     )
 
-    predicted = Study.from_model(reloaded, spec).predict(cohort)
+    # A predict declaration commonly omits postprocessing. It must inherit the
+    # fitted model's label-definition step rather than silently emitting raw
+    # nearest-centroid labels.
+    predict_spec = replace(spec, postprocess_habitat=None)
+    study = Study.from_model(reloaded, predict_spec)
+    assert study.spec.postprocess_habitat == spec.postprocess_habitat
+    predicted = study.predict(cohort)
     trained_maps = {m.subject_id: m.label_array for m in result.habitat_maps}
     for habitat_map in predicted.habitat_maps:
         expected = trained_maps[habitat_map.subject_id]
@@ -93,6 +102,35 @@ def test_saved_model_relabels_its_training_cohort_identically(tmp_path: Path) ->
             f"{habitat_map.subject_id}: {mismatched} voxels change label when the "
             "saved model relabels the cohort it was fitted on"
         )
+    assert predicted.manifest.spec_payload["postprocess_habitat"] == (
+        result.manifest.spec_payload["postprocess_habitat"]
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.integration
+def test_predict_rejects_a_conflicting_label_postprocessor() -> None:
+    """Prediction must not silently redefine fitted habitat labels."""
+    if not demo_data_available():
+        pytest.skip("demo_data/ is not present; the predict round trip needs imaging data")
+
+    from habit.recipes.study import Study
+
+    result, spec, cohort = _fit_two_step()
+    conflicting = replace(
+        spec,
+        postprocess_habitat=Spec(
+            "connected_components",
+            {
+                "min_component_size": 99,
+                "connectivity": 1,
+                "reassign_method": "neighbor_vote",
+                "max_iterations": 3,
+            },
+        ),
+    )
+    with pytest.raises(HABITAPIError, match="cannot override"):
+        Study.from_model(result.habitat_model, conflicting).predict(cohort[:1])
 
 
 @pytest.mark.slow
@@ -122,11 +160,22 @@ def test_predict_labels_match_the_frozen_cli_baseline(tmp_path: Path) -> None:
     reloaded = HabitatModel.load(
         result.habitat_model.save(tmp_path / "habitat_model.habitatmodel")
     )
-    predicted = Study.from_model(reloaded, spec).predict(cohort)
+    predicted = Study.from_model(
+        reloaded, replace(spec, postprocess_habitat=None)
+    ).predict(cohort)
+    predicted_by_subject = {
+        habitat_map.subject_id: habitat_map for habitat_map in predicted.habitat_maps
+    }
 
-    for habitat_map in predicted.habitat_maps:
-        key = f"{habitat_map.subject_id}_habitats.nrrd"
-        expected = baseline["fingerprints"][key]
+    expected_maps = {
+        key: expected
+        for key, expected in baseline["fingerprints"].items()
+        if key.endswith("_habitats.nrrd")
+    }
+    assert expected_maps
+    for key, expected in expected_maps.items():
+        subject_id = key.removesuffix("_habitats.nrrd")
+        habitat_map = predicted_by_subject[subject_id]
         # Cast to the width v0.1 stored, for the reason documented in
         # tests/recipes/test_recipes_golden_parity.py: v1 unifies the label
         # dtype, and a width change must not read as a label change.

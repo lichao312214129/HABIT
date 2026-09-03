@@ -36,10 +36,6 @@ _LAZY_EXPORTS: Dict[str, Tuple[str, str]] = {
     "HabitatConfigurator": (".configurator", "HabitatConfigurator"),
     "HabitatAnalysisConfig": (".config_schemas", "HabitatAnalysisConfig"),
     "ResultColumns": (".config_schemas", "ResultColumns"),
-    "HabitatMapAnalyzer": (
-        "..habitat_extraction.habitat_features.habitat_analyzer",
-        "HabitatMapAnalyzer",
-    ),
     "BasePipelineStep": (".pipelines", "BasePipelineStep"),
     "HabitatPipeline": (".pipelines", "HabitatPipeline"),
     "GroupClusteringStep": (".pipelines.steps", "GroupClusteringStep"),
@@ -51,8 +47,6 @@ __all__ = [
     "HabitatConfigurator",
     "HabitatAnalysisConfig",
     "ResultColumns",
-    "HabitatMapAnalyzer",
-    "HabitatFeatureExtractor",
     "BasePipelineStep",
     "HabitatPipeline",
     "GroupClusteringStep",
@@ -62,6 +56,4 @@ __all__ = [
 
 def __getattr__(name: str) -> Any:
     """Resolve habitat-analysis exports on first access."""
-    if name == "HabitatFeatureExtractor":
-        return lazy_getattr("HabitatMapAnalyzer", globals(), _LAZY_EXPORTS)
     return lazy_getattr(name, globals(), _LAZY_EXPORTS)

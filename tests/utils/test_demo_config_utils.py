@@ -76,10 +76,11 @@ def test_copy_demo_config_cli(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_public_copy_demo_config_symbol() -> None:
-    """``copy_demo_config`` is importable from the top-level ``habit`` package."""
-    import habit
+    """``copy_demo_config`` is importable from ``habit.api.demo_config``."""
+    from habit.api import demo_config
 
-    assert callable(habit.copy_demo_config)
+    assert callable(demo_config.copy_demo_config)
+    assert "copy_demo_config" in demo_config.__all__
 
 
 @pytest.mark.unit

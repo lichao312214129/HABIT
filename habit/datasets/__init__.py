@@ -12,10 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Synthetic dataset builders for notebooks, tests, and fast golden gates."""
+"""Synthetic builders and the official downloadable demo imaging pack."""
 
 from __future__ import annotations
 
+from habit.datasets.demo import (
+    PreprocessedInventory,
+    fetch_demo,
+    get_data_home,
+    inspect_preprocessed_root,
+)
 from habit.datasets.synthetic import make_synthetic_cohort, make_synthetic_feature_table
 
-__all__ = ["make_synthetic_cohort", "make_synthetic_feature_table"]
+__all__ = [
+    "PreprocessedInventory",
+    "fetch_demo",
+    "get_data_home",
+    "inspect_preprocessed_root",
+    "make_synthetic_cohort",
+    "make_synthetic_feature_table",
+]

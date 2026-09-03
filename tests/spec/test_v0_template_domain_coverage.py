@@ -63,10 +63,6 @@ _KNOWN_GAPS: Dict[Tuple[str, str], str] = {
     ("icc_metric", "cohen"): "no v1 agreement-metric domain yet",
     ("icc_metric", "fleiss"): "no v1 agreement-metric domain yet",
     ("icc_metric", "krippendorff"): "no v1 agreement-metric domain yet",
-    # Test-retest habitat matching correlates unit features between two
-    # tables; there is no v1 similarity domain (habit.kernels carries no
-    # correlation routine either).
-    ("retest_similarity", "pearson"): "no v1 similarity-metric domain yet",
     # Class-imbalance resampling (imblearn in v0.1) has no v1 resampler
     # domain; only templates that ENABLE resampling exercise this gap.
     ("resampler", "smote"): "no v1 resampler domain yet",
@@ -131,12 +127,9 @@ def _workflow_for(path: Path) -> Optional[str]:
     alias = _DIR_WORKFLOWS.get(directory)
     if alias is None:
         return None
-    # K-fold configs live under machine_learning/ but run through habit cv;
-    # test-retest templates live under auxiliary/ (check-config rules).
+    # K-fold configs live under machine_learning/ but run through habit cv.
     if alias == "model" and "kfold" in name:
         return "cv"
-    if alias == "icc" and "retest" in name:
-        return "retest"
     return alias
 
 
@@ -236,10 +229,6 @@ def _generic_components(
     elif workflow == "icc":
         for name in params.get("metrics") or []:
             yield "icc_metric", str(name)
-    elif workflow == "retest":
-        method = params.get("similarity_method")
-        if method:
-            yield "retest_similarity", str(method)
     elif workflow == "compare":
         delong = params.get("delong_test") or {}
         if isinstance(delong, Mapping) and delong.get("enabled"):
@@ -287,7 +276,7 @@ def _is_available(domain: str, name: str) -> bool:
         import habit.kernels
 
         return hasattr(habit.kernels, name)
-    if domain in ("icc_metric", "retest_similarity", "resampler"):
+    if domain in ("icc_metric", "resampler"):
         return False
     return name in _registry_for(domain).available()
 

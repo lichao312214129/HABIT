@@ -18,7 +18,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from habit import FeatureTable, compare_habitat_features
+from habit.contracts import FeatureTable
+from habit.habitat_features import compare_habitat_features
 from habit.viz import (
     plot_habitat_feature_bars,
     plot_habitat_feature_components,

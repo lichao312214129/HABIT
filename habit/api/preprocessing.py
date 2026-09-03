@@ -76,22 +76,12 @@ def run_preprocess(
     Returns:
         A result with the workflow output directory in ``artifacts``.
     """
-    from habit.compat.legacy_core import run_preprocess_from_config
-    from habit.schemas.workflows.preprocessing import PreprocessingConfig
+    from habit.recipes.preprocess import preprocess_images
 
-    validated_config = coerce_config(config, PreprocessingConfig)
-    run_preprocess_from_config(validated_config, logger=logger)
-    manifest = create_run_manifest("preprocess", validated_config)
-    manifest_path = write_run_manifest(manifest, validated_config.out_dir)
-    return WorkflowResult(
-        output_dir=validated_config.out_dir,
-        metadata={
-            "config_hash": manifest.config_hash,
-            "habit_version": manifest.habit_version,
-        },
-        run_id=manifest.run_id,
-        manifest_path=manifest_path,
-    )
+    result = preprocess_images(config, logger=logger)
+    if result is None:
+        raise HABITAPIError("Preprocessing completed with no valid subjects found.")
+    return result
 
 
 def preprocess_subject(
@@ -100,6 +90,7 @@ def preprocess_subject(
     *,
     mask_roi: Optional[str] = None,
     broadcast_mask: bool = True,
+    auto_select_mask: bool = True,
 ) -> "Subject":
     """
     Apply an ordered image-preprocessing chain to one subject in memory.
@@ -130,6 +121,10 @@ def preprocess_subject(
             (the usual multi-modal / single-ROI layout). When ``False``,
             only ``mask_<roi_name>`` is attached when ``roi_name`` equals a
             modality name.
+        auto_select_mask: When ``True`` (default), use the only available
+            ROI when ``mask_roi`` is omitted. Batch recipes set this to
+            ``False`` so legacy YAML only uses a mask when the specific step
+            explicitly requests one.
 
     Returns:
         A new Subject with processed in-memory volumes.
@@ -147,7 +142,7 @@ def preprocess_subject(
         )
 
     # Import registers every built-in v1 image preprocessor.
-    from habit.domain.image_preprocessing import PreprocessorRegistry
+    from habit.image_preprocessing import PreprocessorRegistry
 
     modalities: list[str] = list(subject.images.keys())
     if not modalities:
@@ -155,7 +150,11 @@ def preprocess_subject(
             f"Subject {subject.subject_id!r} has no images to preprocess."
         )
 
-    roi_name = _resolve_mask_roi(subject, mask_roi=mask_roi)
+    roi_name = _resolve_mask_roi(
+        subject,
+        mask_roi=mask_roi,
+        auto_select_mask=auto_select_mask,
+    )
     current = subject
     for step_name, raw_params in steps.items():
         if not isinstance(step_name, str) or not step_name.strip():
@@ -279,6 +278,7 @@ def _resolve_mask_roi(
     subject: "Subject",
     *,
     mask_roi: Optional[str],
+    auto_select_mask: bool,
 ) -> Optional[str]:
     """
     Resolve which ROI key to feed to mask-aware preprocessors.
@@ -308,8 +308,10 @@ def _resolve_mask_roi(
                 f"Available: {sorted(subject.masks)}."
             )
         return mask_roi
-    if len(subject.masks) == 1:
+    if auto_select_mask and len(subject.masks) == 1:
         return next(iter(subject.masks))
+    if not auto_select_mask:
+        return None
     raise HABITAPIError(
         f"Subject {subject.subject_id!r} has {len(subject.masks)} masks "
         f"({sorted(subject.masks)}); pass mask_roi explicitly."

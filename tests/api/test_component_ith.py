@@ -20,11 +20,7 @@ from typing import Any, Dict
 
 import numpy as np
 import pytest
-import SimpleITK as sitk
-
-from habit.compat.engines.habitat_extraction.habitat_features.ith_features import (
-    ITHFeatureExtractor,
-)
+from habit.kernels.habitat_metrics import habitat_region_stats, ith_score
 
 
 @pytest.mark.unit
@@ -33,9 +29,16 @@ def test_ith_features_golden(
     golden_msi_ith_data: Dict[str, Any],
 ) -> None:
     """ITH score and summary fields must match the frozen golden snapshot."""
-    habitat_image = sitk.GetImageFromArray(synthetic_habitat_array.astype(np.uint32))
-    extractor = ITHFeatureExtractor()
-    result: Dict[str, Any] = extractor.extract_ith_features(habitat_image)
+    stats = habitat_region_stats(synthetic_habitat_array)
+    result: Dict[str, Any] = {
+        "ith_score": float(ith_score(synthetic_habitat_array)),
+        "num_habitats": len(stats),
+        "total_area": int(np.count_nonzero(synthetic_habitat_array)),
+    }
+    for habitat_id, (regions, largest) in stats.items():
+        result[f"habitat_{habitat_id}_regions"] = regions
+        result[f"habitat_{habitat_id}_largest_area"] = largest
+        result[f"habitat_{habitat_id}_area_ratio"] = largest / regions
 
     assert "error" not in result
     expected: Dict[str, Any] = golden_msi_ith_data["ith_features"]

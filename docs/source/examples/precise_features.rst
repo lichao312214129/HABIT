@@ -19,7 +19,7 @@ The two atoms
 Neither call needs a :class:`~habit.contracts.subject.Cohort`, YAML, or
 :func:`~habit.recipes.identify_precise_voxel_features`.
 
-1. **Perturb** — :func:`~habit.perturb_image`: one
+1. **Perturb** — :func:`~habit.precision.perturb_image`: one
    :class:`~habit.api.image.ImageVolume`, a registered method name, and
    that method's parameters. Optional ``mask`` is used by methods that
    consult or warp an ROI. The result stays on the original voxel grid.
@@ -30,7 +30,7 @@ Neither call needs a :class:`~habit.contracts.subject.Cohort`, YAML, or
    ``slice_extent``) need the Subject-level registry; see the follow-up
    below.
 
-2. **Extract voxel texture** — :func:`~habit.extract_voxel_texture`: the
+2. **Extract voxel texture** — :func:`~habit.voxel_features.extract_voxel_texture`: the
    same image and mask, with ``kernel_radius`` (the paper's ``R``),
    ``bin_width`` (the paper's ``B``), and optional ``feature_classes``.
    Combinations are repeated calls, not a new API.
@@ -38,11 +38,11 @@ Neither call needs a :class:`~habit.contracts.subject.Cohort`, YAML, or
 Paper combinations
 ------------------
 
-* **Repeatability** — three sequential :func:`~habit.perturb_image`
+* **Repeatability** — three sequential :func:`~habit.precision.perturb_image`
   atoms in Appendix S2 / MIRP 1.2.0 order (Chang noise → 0.5-voxel
   translation → 0.5° rotation), then ``extract(original)`` vs
   ``extract(perturbed)`` at the base setting (paper: R3B12). ICC(3A,1)
-  via :func:`~habit.precision_panel` with ``agreement="absolute"``.
+  via :func:`~habit.precision.precision_panel` with ``agreement="absolute"``.
 * **Reproducibility, kernel** — ``extract(..., kernel_radius=1)`` vs
   ``extract(..., kernel_radius=3)`` at fixed bin width (R1 vs R3).
   ICC(3C,1), ``agreement="consistency"``.
@@ -52,8 +52,8 @@ Paper combinations
 
 A feature is *precise* when its lower confidence limit reaches 0.5
 (the paper's "at least good" boundary) in **every** experiment you
-actually ran. :func:`~habit.identify_precise_features` is that
-intersection. :func:`~habit.aggregate_panels` takes the per-feature
+actually ran. :func:`~habit.precision.identify_precise_features` is that
+intersection. :func:`~habit.precision.aggregate_panels` takes the per-feature
 median when you have more than one subject.
 
 The voxel-texture screen below is **one cropped subject** (median of
@@ -117,7 +117,7 @@ Figures
 
    Sequential atoms of the Appendix S2 chain on one slice: original,
    after Chang noise, after +0.5-voxel translation, after +0.5°
-   rotation. Each panel is one :func:`~habit.perturb_image` call; the
+   rotation. Each panel is one :func:`~habit.precision.perturb_image` call; the
    last panel is the volume used for repeatability ICC.
 
 .. figure:: ../_static/images/examples/precise_features_icc_lcl.png
@@ -164,7 +164,7 @@ Optional ROI-edge follow-up
 ---------------------------
 
 The paper's default chain (noise, translation, rotation) does **not**
-wrinkle the ROI. :class:`~habit.domain.ImagePerturbationRegistry`
+wrinkle the ROI. :class:`~habit.precision.ImagePerturbationRegistry`
 ``bspline_deform`` does: a MONAI ``Rand3DElasticd`` B-spline / elastic
 free-form field warps **image and mask together** so the contour stays
 paired with anatomy. ``control_spacing=16`` builds a coarse cubic
@@ -181,9 +181,9 @@ below). It is **not** Prior Appendix S2. Extra ``monai`` is required.
 
 The same block then extracts **every light habitat-map family** on
 those restricted maps — volume, ``non_radiomics``, ITH, MSI, and
-graph (:func:`~habit.extract_graph_features`; extended efficiency /
+graph (:func:`~habit.kernels.extract_graph_features`; extended efficiency /
 small-world omitted for runtime) — and reports ICC(3A,1) **with a
-95% CI** via :func:`~habit.icc3a_1` plus a paired difference heatmap
+95% CI** via :func:`~habit.kernels.icc3a_1` plus a paired difference heatmap
 (:func:`~habit.viz.plot_graph_feature_heatmap`, ``reference=``).
 Habitats are paired by Hungarian assignment on per-habitat **mean**
 intensity (the same quantity k-means uses as a cluster centre), then
@@ -220,7 +220,7 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    One-step habitats (``n_habitats=3``) on the original vs warped
    subject, both restricted to the intersection. The warped map is
    remapped onto the original ids by mean-intensity Hungarian pairing
-   (:func:`~habit.align_habitat_map`, ``method="centroid"``,
+   (:func:`~habit.precision.align_habitat_map`, ``method="centroid"``,
    ``force=True``) before
    :func:`~habit.viz.plot_habitat_label_compare`
    (``align_labels=False``, ``display_convention="native"`` so the
@@ -230,7 +230,7 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    :alt: Per-habitat Dice on the ROI intersection
    :width: 480
 
-   Per-habitat Dice from :func:`~habit.habitat_stability`
+   Per-habitat Dice from :func:`~habit.precision.habitat_stability`
    (``method="centroid"`` on the **unaligned** intersection pair):
    ordinary :math:`2|A\cap B|/(|A|+|B|)` after the same
    mean-intensity pairing as the compare figure.
@@ -243,7 +243,7 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
    and 95% CI whisker for volume / ITH / MSI / region-count columns
    plus a random graph subset (``random_state=0``), three cropped
    ``demo_data`` subjects, original-core vs mean-aligned warped-core
-   (:func:`~habit.icc3a_1`, :func:`~habit.viz.plot_precision_icc`,
+   (:func:`~habit.kernels.icc3a_1`, :func:`~habit.viz.plot_precision_icc`,
    ``orientation="row"``). Colour is ``LCL >= 0.5`` only — **not** a
    PreciseFeatureSet. Wide intervals at ``n=3`` are honest. The
    script still scores every shared column; only the figure is
@@ -270,8 +270,15 @@ texture table.
 
 .. code-block:: python
 
+   from habit.contracts import cohort_from_directory
+   from habit.datasets import fetch_demo
    from habit.recipes import identify_precise_voxel_features, voxel_radiomics_factory
 
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
    precise = identify_precise_voxel_features(
        cohort,
        extractor_factory=voxel_radiomics_factory,
@@ -281,10 +288,10 @@ texture table.
    )
 
 Pass your own ``extractor_factory`` to keep the small first-order +
-GLCM set, or a custom :func:`~habit.perturb_image` chain via
+GLCM set, or a custom :func:`~habit.precision.perturb_image` chain via
 ``perturbation=`` (Subject-level
-:class:`~habit.domain.precision.PerturbationChain`).
-:func:`~habit.domain.precision.prior2024_retest_perturbation` is the
+:class:`~habit.precision.PerturbationChain`).
+:func:`~habit.precision.prior2024_retest_perturbation` is the
 Appendix S2 default (Chang noise + 0.5-voxel translation + 0.5°
 rotation). Contour operators (``morphological``, ``gradient_weighted``,
 ``slice_extent``) are a separate follow-up below; they are **not** in
@@ -299,7 +306,7 @@ bias, disagreement that concentrates on fuzzy edges, and first/last
 slice disagreement. Those are mask-only operators on a
 :class:`~habit.contracts.subject.Subject` — the image is unchanged.
 ``perturb_image`` returns only the intensity volume, so use
-:class:`~habit.domain.ImagePerturbationRegistry` here.
+:class:`~habit.precision.ImagePerturbationRegistry` here.
 
 Swap ``DATA`` / ``MODALITIES`` / ``ROI``. Operators run on an ROI
 crop (speed); figures use the uncropped ``ImageVolume`` / mask so
@@ -406,5 +413,5 @@ What to read next
 * Tutorial (principle + claims): :doc:`../tutorial/precise_screening`
 * Domain API: :doc:`../api/domain` — the two atoms and ``ImagePerturbation``
 * :doc:`../api/kernels` — the perturbation and voxel-ICC numeric kernels
-* :doc:`habitat_preprocessing` / :doc:`habitat_preprocessing_api` — chains the whitelist
+* :doc:`habitat_preprocessing` — chains the whitelist
   joins

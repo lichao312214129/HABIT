@@ -42,13 +42,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from habit.domain.feature_selection import CorrelationSelector, VarianceSelector
-from habit.domain.feature_selection.registry import FeatureSelectorRegistry
-from habit.domain.table_preprocessing.methods import (
+from habit.feature_selection import CorrelationSelector, VarianceSelector
+from habit.feature_selection.registry import FeatureSelectorRegistry
+from habit.table_preprocessing.methods import (
     CorrelationFilterPreprocessor,
     VarianceFilterPreprocessor,
 )
-from habit.domain.table_preprocessing.registry import TablePreprocessorRegistry
+from habit.table_preprocessing.registry import TablePreprocessorRegistry
 from habit.kernels import feature_transforms as kernel
 
 from .conftest import make_feature_table
@@ -571,20 +571,19 @@ def test_the_new_parameter_round_trips_through_the_registries() -> None:
     """
     A YAML naming the parameter reaches the component, and back again.
 
-    ``extra="forbid"`` on the params model means an un-declared parameter is
-    rejected at config-validation time, so the schema has to know about it
-    too.
+    The registry checks the constructor signature, so an undeclared parameter
+    is rejected at the same public boundary that creates the component.
     """
     selector = FeatureSelectorRegistry.create("variance", keep_at_least_one=True)
     assert selector.spec.params["keep_at_least_one"] is True
-    model = FeatureSelectorRegistry.get_params_model("variance")
-    assert model is not None
-    assert model(keep_at_least_one=True).keep_at_least_one is True
+    assert "keep_at_least_one" in FeatureSelectorRegistry.constructor_signature(
+        "variance"
+    ).parameters
 
     preprocessor = TablePreprocessorRegistry.create(
         "variance_filter", keep_at_least_one=False
     )
     assert preprocessor.spec.params["keep_at_least_one"] is False
-    filter_model = TablePreprocessorRegistry.get_params_model("variance_filter")
-    assert filter_model is not None
-    assert filter_model().keep_at_least_one is True
+    assert "keep_at_least_one" in TablePreprocessorRegistry.constructor_signature(
+        "variance_filter"
+    ).parameters

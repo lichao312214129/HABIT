@@ -21,11 +21,13 @@ from pathlib import Path
 
 import numpy as np
 
-from habit import cohort_from_directory, preprocess_image, preprocess_subject
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
+from habit.api.preprocessing import preprocess_image, preprocess_subject
 from habit.viz import plot_intensity_slice, use_style
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 

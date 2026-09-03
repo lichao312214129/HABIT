@@ -909,7 +909,7 @@ def habitat_dice_from_mapping(
     """
     Per-reference-habitat Dice for a ``{moving_id: reference_id}`` pairing.
 
-    Formula matches :func:`~habit.domain.precision.stability.habitat_stability`:
+    Formula matches :func:`~habit.precision.stability.habitat_stability`:
     ``2 * intersection / (n_reference + n_matched)``. Unmatched reference
     habitats score Dice 0 with ``matched_id`` set to ``None``. Counts are
     taken on the union of non-background voxels (equivalent to a full

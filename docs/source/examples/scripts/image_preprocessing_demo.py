@@ -7,7 +7,7 @@ Two entry points:
 * **Batch (directory pipeline)** — ``preprocess_images(config)`` is the
   programmatic twin of ``habit preprocess``; scans ``data_dir`` and writes
   ``processed_images/``.
-* **Atomic (in-memory)** — :func:`~habit.preprocess_subject` on one
+* **Atomic (in-memory)** — :func:`~habit.api.preprocessing.preprocess_subject` on one
   :class:`~habit.contracts.Subject` (no YAML / directory layout).
 
 Change DATA / MODALITIES / ROI to your preprocessed tree. This script
@@ -25,11 +25,13 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict
 
-from habit import cohort_from_directory, preprocess_subject
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
+from habit.api.preprocessing import preprocess_subject
 from habit.recipes import preprocess_images
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 

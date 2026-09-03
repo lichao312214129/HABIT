@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
 
-    from habit.domain.habitat_features.compare import (
+    from habit.habitat_features.compare import (
         HabitatFeatureComparison,
         HabitatFeaturePanel,
     )

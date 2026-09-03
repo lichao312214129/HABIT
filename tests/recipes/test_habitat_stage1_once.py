@@ -14,10 +14,10 @@
 #
 """Regression: train-path Stage-1 extractors run once per subject.
 
-The historical bug was cohort fit recipes (and the sklearn adapter) computing
-clustering units, then calling ``pipeline(subject)`` / ``extract_features``
-in the label stage -- which re-ran ``voxel_radiomics`` (~2×). These tests
-count extractor calls so the reuse path cannot regress silently.
+The historical bug was cohort fit recipes computing clustering units, then
+calling ``pipeline(subject)`` / ``extract_features`` in the label stage --
+which re-ran ``voxel_radiomics`` (~2×). These tests count extractor calls so
+the reuse path cannot regress silently.
 """
 
 from __future__ import annotations
@@ -25,12 +25,10 @@ from __future__ import annotations
 from typing import Any, List
 
 import pytest
-
-from habit.compat.sklearn import as_estimator
 from habit.contracts.habitat import VoxelFeatureField
 from habit.contracts.subject import Subject
 from habit.datasets import make_synthetic_cohort
-from habit.domain.voxel_features.raw import RawVoxelFeatures
+from habit.voxel_features.raw import RawVoxelFeatures
 from habit.recipes.study import Study
 from habit.spec.specs import HabitatSpec, Spec
 
@@ -60,9 +58,9 @@ def _install_counting_raw(monkeypatch: pytest.MonkeyPatch, call_log: List[str]) 
         return _CountingRaw(call_log=call_log, **params)
 
     # Patch the assembly import site (not trees.py): build_habitat_components
-    # binds ``build_voxel_extractor`` from ``habit.domain.assembly``.
+    # binds ``build_voxel_extractor`` from ``habit.pipeline.assembly``.
     monkeypatch.setattr(
-        "habit.domain.assembly.build_voxel_extractor",
+        "habit.pipeline.assembly.build_voxel_extractor",
         lambda spec: (
             _factory(**spec.params)
             if spec.name == "raw" and "children" not in spec.params
@@ -185,19 +183,4 @@ def test_apply_habitat_model_recomputes_stage1(
     call_log.clear()
     projected = Study.from_model(trained.habitat_model, spec).predict(cohort)
     assert len(projected.habitat_maps) == 2
-    assert call_log == [subject.subject_id for subject in cohort]
-
-
-@pytest.mark.unit
-def test_sklearn_fit_transform_runs_stage1_once_per_subject(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """HabitatFeaturesEstimator.fit_transform must reuse fit-time units."""
-    call_log: List[str] = []
-    _install_counting_raw(monkeypatch, call_log)
-    cohort = make_synthetic_cohort(
-        n_subjects=3, modalities=("T1", "T2"), shape=(12, 12, 12), rng=3
-    )
-    matrix = as_estimator(_direct_pooling_spec()).fit_transform(list(cohort))
-    assert matrix.shape[0] == 3
     assert call_log == [subject.subject_id for subject in cohort]

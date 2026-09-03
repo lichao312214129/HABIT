@@ -84,13 +84,6 @@ def spec_and_data_root(config_rel: str) -> Tuple[Any, Path]:
 
     # v0.1 resolves relative data paths against the config file's directory.
     source = (config_path.parent / translation.document["data"]["source"]).resolve()
-    if source.suffix.lower() in (".yaml", ".yml"):
-        # A YAML manifest lists per-subject file paths; the directory source
-        # used by the recipes wants the cohort root those paths sit under
-        # (<root>/images/<subject>/<modality>).
-        manifest = yaml.safe_load(source.read_text(encoding="utf-8"))
-        first_image = next(iter(next(iter(manifest["images"].values())).values()))
-        source = (source.parent / first_image).resolve().parents[2]
     return spec, source
 
 
@@ -109,4 +102,19 @@ def load_demo_cohort(spec: Any, root: Path) -> Any:
     from habit.adapters import DirectoryDataSource
 
     modalities: List[str] = list(spec.voxel_feature_extractor.params.get("modalities") or [])
+    if root.is_file() and root.suffix.lower() in (".yaml", ".yml"):
+        # The direct-pooling baseline was generated through the v0.1 manifest
+        # loader. Do not infer a directory root from one manifest entry: that
+        # silently includes every complete subject on disk rather than the
+        # exact manifest-selected cohort used for the frozen result.
+        import logging
+
+        from habit.commands.cmd_habitat import _cohort_from_manifest
+
+        return _cohort_from_manifest(
+            root,
+            modalities=tuple(modalities),
+            roi=modalities[0],
+            logger=logging.getLogger(__name__),
+        )
     return DirectoryDataSource(root, modalities=modalities, roi=modalities[0]).load()

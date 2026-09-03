@@ -23,7 +23,7 @@ all clear the LCL threshold for a feature to be called *precise*.
 
 The recipe holds no engine of its own: extraction is the registered voxel
 feature extractor, perturbation is the registered perturbation chain, and
-the statistics live in :mod:`habit.domain.precision`. Everything is
+the statistics live in :mod:`habit.precision`. Everything is
 in-memory; the returned :class:`PreciseFeatureSet` is the serialisable
 artefact a habitat study publishes so others cluster the SAME features.
 """
@@ -36,7 +36,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 
 from habit.contracts.subject import Cohort, Subject
-from habit.domain.precision import (
+from habit.precision import (
     PerturbationChain,
     PreciseFeatureSet,
     aggregate_panels,
@@ -44,8 +44,8 @@ from habit.domain.precision import (
     precision_panel,
     prior2024_retest_perturbation,
 )
-from habit.domain.protocols import ImagePerturbation, VoxelFeatureExtractor
-from habit.domain.voxel_features import VoxelRadiomicsFeatures
+from habit._protocols import ImagePerturbation, VoxelFeatureExtractor
+from habit.voxel_features import VoxelRadiomicsFeatures
 from habit.exceptions import HABITAPIError
 from habit.spec.specs import Spec
 from habit.utils.progress_utils import CustomTqdm

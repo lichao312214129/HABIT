@@ -27,13 +27,11 @@ if TYPE_CHECKING:
     from habit.schemas.workflows.ml import (
         MLConfig,
         ModelComparisonConfig,
-        TestRetestConfig,
     )
 
 __all__ = [
     "MLConfig",
     "ModelComparisonConfig",
-    "TestRetestConfig",
     "apply_ml_mode_override",
     "run_ml",
     "run_kfold",
@@ -42,7 +40,7 @@ __all__ = [
 
 
 def __getattr__(name: str) -> Any:
-    if name in {"MLConfig", "ModelComparisonConfig", "TestRetestConfig"}:
+    if name in {"MLConfig", "ModelComparisonConfig"}:
         from habit.schemas.workflows import ml as ml_schemas
 
         return getattr(ml_schemas, name)
@@ -63,10 +61,14 @@ def apply_ml_mode_override(
     Returns:
         Validated ML configuration with the requested mode.
     """
-    from habit.compat.legacy_core import apply_ml_mode_override_core
     from habit.schemas.workflows.ml import MLConfig
 
-    return apply_ml_mode_override_core(coerce_config(config, MLConfig), mode)
+    validated_config = coerce_config(config, MLConfig)
+    if mode is None or validated_config.run_mode == mode:
+        return validated_config
+    return MLConfig.model_validate(
+        {**validated_config.model_dump(), "run_mode": mode}
+    )
 
 
 def run_ml(
@@ -87,12 +89,12 @@ def run_ml(
         Structured workflow output in ``data`` and its output directory in
         ``artifacts``.
     """
-    from habit.compat.legacy_core import run_ml_from_config
+    from habit.recipes.yaml_runner import run_ml_config
     from habit.schemas.workflows.ml import MLConfig
 
     validated_config = coerce_config(config, MLConfig)
     resolved_output_dir = output_dir or validated_config.output
-    result = run_ml_from_config(
+    result = run_ml_config(
         validated_config,
         logger=logger,
         output_dir=resolved_output_dir,
@@ -137,12 +139,12 @@ def run_kfold(
         Structured K-fold result in ``data`` and its output directory in
         ``artifacts``.
     """
-    from habit.compat.legacy_core import run_kfold_from_config
+    from habit.recipes.yaml_runner import run_kfold_config
     from habit.schemas.workflows.ml import MLConfig
 
     validated_config = coerce_config(config, MLConfig)
     resolved_output_dir = output_dir or validated_config.output
-    result = run_kfold_from_config(
+    result = run_kfold_config(
         validated_config,
         logger=logger,
         output_dir=resolved_output_dir,

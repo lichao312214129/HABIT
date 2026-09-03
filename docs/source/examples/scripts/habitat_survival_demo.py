@@ -20,15 +20,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from habit import (
-    FeatureTable,
-    TablePipeline,
-    make_synthetic_cohort,
-    one_step_habitat,
-)
+from habit.contracts import FeatureTable
+from habit.pipeline import TablePipeline
+from habit.datasets import make_synthetic_cohort
+from habit.recipes import one_step_habitat
 from habit.contracts import SurvivalOutcome
-from habit.domain.survival import SurvivalModelRegistry
-from habit.domain.table_preprocessing import TablePreprocessorRegistry
+from habit.survival import SurvivalModelRegistry
+from habit.table_preprocessing import TablePreprocessorRegistry
 from habit.viz import (
     plot_cox_forest,
     plot_kaplan_meier,

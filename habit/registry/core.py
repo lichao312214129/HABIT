@@ -28,12 +28,13 @@ package metadata -- no HABIT-side change required.
 
 from __future__ import annotations
 
+import inspect
 from importlib import metadata as importlib_metadata
-from typing import Any, ClassVar, Optional, Tuple, Type, TypeVar
+from typing import Any, Callable, ClassVar, Optional, Tuple, Type, TypeVar
 
 from pydantic import BaseModel
 
-from habit.exceptions import ComponentNotFoundError, ConfigurationError
+from habit.exceptions import ComponentNotFoundError, ConfigurationError, HABITAPIError
 from habit.registry.base import ClassRegistry
 
 __all__ = ["ComponentRegistry"]
@@ -58,12 +59,49 @@ class ComponentRegistry(ClassRegistry[Type[T]]):
 
         SupervoxelizerRegistry.create("slic", n_supervoxels=100)
         SupervoxelizerRegistry.available()        # -> tuple of names
-        SupervoxelizerRegistry.params_model("slic")  # -> Pydantic model | None
+        SupervoxelizerRegistry.constructor_signature("slic")
     """
 
     #: Plugin domain name; ``snake_case`` of the protocol class, singular.
     #: The entry point group is ``f"habit.{domain}"``.
     domain: ClassVar[str] = "component"
+
+    @classmethod
+    def register(
+        cls,
+        name: str,
+        *,
+        params_model: Optional[Type[BaseModel]] = None,
+    ) -> Callable[[Type[T]], Type[T]]:
+        """
+        Register one component together with its parameter contract.
+
+        Keeping the implementation and its Pydantic schema in one decorator
+        prevents a component from being temporarily or permanently registered
+        without the validation contract used by YAML, plugin introspection,
+        GUI forms, and Agent-generated specifications. The separate
+        :meth:`register_params_model` method remains supported for third-party
+        plugins and v1.x compatibility.
+
+        Args:
+            name: Stable component name within this registry domain.
+            params_model: Pydantic model for user-configurable constructor
+                parameters. ``None`` preserves the legacy two-step
+                registration path.
+
+        Returns:
+            A decorator that registers the component class unchanged.
+        """
+        register_component = super().register(name)
+
+        def decorator(target: Type[T]) -> Type[T]:
+            registered = register_component(target)
+            if params_model is not None:
+                cls.register_params_model(name, params_model)
+                setattr(registered, "__habit_params_model__", params_model)
+            return registered
+
+        return decorator
 
     @classmethod
     def create(cls, name: str, **params: Any) -> T:
@@ -95,6 +133,12 @@ class ComponentRegistry(ClassRegistry[Type[T]]):
                 f"Inspect with list_plugins({cls.domain!r}) or "
                 f"get_param_schema(name, {cls.domain!r})."
             )
+        try:
+            cls.constructor_signature(name).bind(**params)
+        except TypeError as exc:
+            raise ConfigurationError(
+                f"Invalid constructor parameters for {cls.kind} {name!r}: {exc}"
+            ) from exc
         params_model = cls.get_params_model(name)
         if params_model is not None:
             try:
@@ -111,7 +155,28 @@ class ComponentRegistry(ClassRegistry[Type[T]]):
                 field: getattr(validated, field)
                 for field in type(validated).model_fields
             }
-        return target(**params)
+        try:
+            return target(**params)
+        except (ValueError, HABITAPIError) as exc:
+            raise ConfigurationError(
+                f"Invalid parameters for {cls.kind} {name!r}: {exc}"
+            ) from exc
+
+    @classmethod
+    def constructor_signature(cls, name: str) -> inspect.Signature:
+        """
+        Return the inspectable constructor contract for a registered component.
+
+        The signature is the v2 source of parameter names, defaults and type
+        annotations. It intentionally excludes no public constructor argument.
+        """
+        target = cls.get(name)
+        if target is None:
+            raise ComponentNotFoundError(
+                f"Unknown {cls.kind} {name!r} in domain {cls.domain!r}. "
+                f"Available: {list(cls.available())}."
+            )
+        return inspect.signature(target)
 
     @classmethod
     def available(cls) -> Tuple[str, ...]:

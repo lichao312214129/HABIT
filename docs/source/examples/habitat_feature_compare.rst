@@ -5,7 +5,7 @@ Habitat feature contrast (cohort or one subject)
 ``table``) · **Extras:** ``[tables,viz]`` · **Time:** < 1 min
 
 After an ``each_habitat`` (or any wide ``habitat_{id}_{feature}``) table,
-:func:`~habit.compare_habitat_features` melts the wide block so you can
+:func:`~habit.habitat_features.compare_habitat_features` melts the wide block so you can
 ask: for each feature, do habitats differ, and by how much?
 
 This page builds a **synthetic** stand-in table (three habitats; first-order
@@ -26,7 +26,7 @@ are not forced onto one linear scale.
 ``graph`` columns (``single_h*`` / ``pair_h*_h*``) can live on the same
 joined :class:`~habit.contracts.FeatureTable`. They are subject-level
 topology metrics and do **not** match ``habitat_{id}_{feature}``, so
-:func:`~habit.to_habitat_feature_panel` ignores them. Contrast the wide
+:func:`~habit.habitat_features.to_habitat_feature_panel` ignores them. Contrast the wide
 radiomics / volume block; inspect graph values as a separate table.
 
 This is a software demo, not a clinical claim.

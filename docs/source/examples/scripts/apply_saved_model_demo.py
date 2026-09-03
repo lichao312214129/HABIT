@@ -26,11 +26,13 @@ from pathlib import Path
 
 import numpy as np
 
-from habit import HabitatModel, HabitatSpec, Spec, Stage, cohort_from_directory
+from habit.contracts import HabitatModel, cohort_from_directory
+from habit.spec import HabitatSpec, Spec, Stage
+from habit.datasets import fetch_demo
 import habit.recipes as recipes
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"  # folder with images/ and masks/
+DATA = fetch_demo()
 MODALITIES = ("LAP",)            # series keys under each subject
 ROI = "LAP"                      # mask key (often same as a modality)
 
@@ -112,12 +114,7 @@ print(prediction.features.frame.to_string(index=False))
 # BEGIN figures
 # Paste after the Script block. Uses new_cohort, prediction, train_cohort,
 # train_result, model, spec, and ROI.
-from habit import (
-    habitat_ith_dispersion,
-    habitat_volume_fractions,
-    ith_score,
-    spatial_interaction_matrix,
-)
+from habit.kernels import habitat_ith_dispersion, habitat_volume_fractions, ith_score, spatial_interaction_matrix
 from habit.viz import (
     plot_habitat_label_compare,
     plot_habitat_overlay,

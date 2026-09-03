@@ -51,7 +51,7 @@ def run_dicom_sort(
     Returns:
         A result with the dcm2niix destination in ``artifacts``.
     """
-    from habit.compat.legacy_core import run_dicom_sort as _run_dicom_sort
+    from habit.compat.dicom_sort_runner import run_dicom_sort as _run_dicom_sort
     from habit.schemas.workflows.dicom_sort import DicomSortConfig
 
     validated_config = coerce_config(config, DicomSortConfig)

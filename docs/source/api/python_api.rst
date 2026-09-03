@@ -1,16 +1,18 @@
-Python API guide (v1.0)
+Python API guide (v2.0)
 =======================
 
-This guide is the **canonical** way to use HABIT from Python in v1.0.
-Everything below is implemented on the ``v1.0.0`` branch.
+This guide is the **canonical** way to use HABIT from Python in v2.0.
+``import habit`` exposes only ``__version__``. Import L3 components from
+``habit.<capability>`` and workflow helpers from ``habit.recipes`` or
+``habit.api.<area>``.
 
 .. note::
 
-   ``import habit; print(habit.__version__)`` → ``1.0.0``
+   ``import habit; print(habit.__version__)`` → ``2.0.0``
 
-   Since v1.0.0 the top-level ``habit.Cohort`` **is** the imaging cohort
-   (``habit.contracts.subject.Cohort``). Import it from its canonical home:
-   ``from habit.contracts import Cohort`` (or ``import habit``).
+   Imaging cohorts live at :class:`~habit.contracts.Cohort`
+   (``from habit.contracts import Cohort``). Do not import components from
+   the package root.
 
 Architecture in one diagram
 ---------------------------
@@ -19,13 +21,12 @@ Architecture in one diagram
 
    L4  recipes          Study.fit / fit_predict / predict (+ habitat factories) → StudyResult
    L4  report           Report(persist, retain, figures, writer) — run-scoped, not a Spec
-   L3  domain           stages executor + protocols + SubjectPipeline / TablePipeline
+   L3  capability pkgs  voxel_features / supervoxel / habitat_model / pipeline / ...
    L2  contracts        Subject, Cohort, HabitatModel, FeatureTable, RunManifest
-   L1  adapters         DirectoryDataSource, FileImageRef, NnUNetDataSource
+   L1  adapters         DirectoryDataSource, FileImageRef
    L0  kernels          pure NumPy MSI / ITH / ICC / DeLong / ...
         + spec          HabitatSpec.stages + Stage + RunPolicy  (YAML ↔ Python)
         + execution     SerialBackend / ProcessPoolBackend / CheckpointStore
-        + compat        sklearn / MONAI / nnU-Net
 
 Mental model
 ------------
@@ -60,7 +61,7 @@ written until you ask for it:
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, Stage
+   from habit.spec import HabitatSpec, Spec, Stage
    import habit.recipes as recipes
 
    spec = HabitatSpec(
@@ -100,16 +101,16 @@ One-step (no ``pool``) has no cohort-level definition:
 
 .. code-block:: python
 
-   from habit import (
+   from habit.kernels import HabitatGraphFeatureOptions
+   from habit.recipes import Study
+   from habit.report import (
        ClusterValidation,
        GraphNetwork2D,
        GraphSlice,
-       HabitatGraphFeatureOptions,
        ITH,
        MSI,
        Overlay,
        Report,
-       Study,
        VolumeFractions,
    )
    from habit.adapters import DirectoryResultWriter
@@ -142,17 +143,16 @@ Common workflows
 ----------------
 
 The snippets below use :func:`~habit.datasets.make_synthetic_cohort` so they
-run without ``demo_data`` or any on-disk layout. For real studies, swap in
-:class:`~habit.adapters.DirectoryDataSource` or
-:func:`~habit.contracts.cohort_from_directory` (see :doc:`adapters` and
-:doc:`data_model`).
+run without a download. For the official imaging pack (and to see the
+folder tree your own data must match) call :func:`~habit.datasets.fetch_demo`, then
+:func:`~habit.contracts.cohort_from_directory` (see :doc:`../examples/data_from_arrays`).
 
 Environment fingerprint
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
-   from habit import show_versions
+   from habit.api.utils import show_versions
 
    print(show_versions())  # HABIT, Python, NumPy, …
 
@@ -161,7 +161,8 @@ Synthetic cohort and three strategy shapes
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
+   from habit.datasets import make_synthetic_cohort
+   from habit.spec import HabitatSpec, Spec, Stage
    import habit.recipes as recipes
 
    cohort = make_synthetic_cohort(
@@ -231,13 +232,16 @@ Apply a saved definition to a new cohort
 
 Train (or load) a cohort-level model, then project it onto held-out subjects.
 The upstream ``HabitatSpec`` must match the stages used during fitting.
+Prediction inherits the model's persisted ``postprocess_habitat``; an
+explicit conflicting declaration raises ``HABITAPIError``.
 
 .. code-block:: python
 
    from pathlib import Path
 
-   from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
    from habit.contracts import HabitatModel
+   from habit.datasets import make_synthetic_cohort
+   from habit.spec import HabitatSpec, Spec, Stage
    import habit.recipes as recipes
 
    train_cohort = make_synthetic_cohort(n_subjects=4, rng=42)
@@ -298,8 +302,8 @@ source or run on an in-memory cohort — use ``LegacyConfigAdapter`` and call
    from pathlib import Path
 
    import yaml
-   from habit import LegacyConfigAdapter, make_synthetic_cohort
-   from habit.spec import HabitatSpec
+   from habit.datasets import make_synthetic_cohort
+   from habit.spec import HabitatSpec, LegacyConfigAdapter
    import habit.recipes as recipes
 
    payload = yaml.safe_load(
@@ -323,17 +327,13 @@ Canonical end-to-end example
 
    from pathlib import Path
 
-   from habit import HabitatSpec, Spec, make_synthetic_cohort
-   from habit.domain import (
-       HabitatVolumeFeatures,
-       IthHabitatFeatures,
-       KMeansHabitatModelFitter,
-       MsiHabitatFeatures,
-       NonRadiomicsHabitatFeatures,
-       RawVoxelFeatures,
-       SlicSupervoxelizer,
-       SubjectPipeline,
-   )
+   from habit.datasets import make_synthetic_cohort
+   from habit.spec import HabitatSpec, Spec
+   from habit.habitat_features import HabitatVolumeFeatures, IthHabitatFeatures, MsiHabitatFeatures, NonRadiomicsHabitatFeatures
+   from habit.habitat_model import KMeansHabitatModelFitter
+   from habit.voxel_features import RawVoxelFeatures
+   from habit.supervoxel import SlicSupervoxelizer
+   from habit.pipeline import SubjectPipeline
    from habit.execution import SerialBackend
 
    # 1) In-memory cohort (no files on disk)
@@ -376,7 +376,7 @@ Canonical end-to-end example
    )
 
    # 5) Optional: declare the same design as stages (YAML-isomorphic)
-   from habit import Stage
+   from habit.spec import Stage
 
    spec = HabitatSpec(
        name="two_step_demo",
@@ -440,13 +440,14 @@ The ML recipes are v1-native: :func:`~habit.recipes.train_model`,
 :func:`~habit.recipes.cross_validate`, and
 :func:`~habit.recipes.predict_model` take a :class:`~habit.contracts.FeatureTable`
 plus an :class:`~habit.spec.specs.MLSpec` and run a
-:class:`~habit.domain.TablePipeline` — fitted preprocessing and selection
+:class:`~habit.pipeline.TablePipeline` — fitted preprocessing and selection
 state travels inside the saved pipeline, so prediction never refits on new
 data. Tabular building blocks are documented in :doc:`domain_table`.
 
 .. code-block:: python
 
-   from habit import MLSpec, Spec, make_synthetic_feature_table
+   from habit.datasets import make_synthetic_feature_table
+   from habit.spec import MLSpec, Spec
    import habit.recipes as recipes
 
    table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
@@ -468,8 +469,8 @@ data. Tabular building blocks are documented in :doc:`domain_table`.
    print(result.test_metrics)    # held-out rows
 
 ``make_synthetic_feature_table`` is built for golden tests (one strong
-``signal`` column) and will often print AUC 1.0. For publication-style ROC
-on swappable CSVs see :doc:`../examples/tabular_ml`.
+``signal`` column) and will often print AUC 1.0. For publication-style
+figures see :doc:`../examples/visualization`.
 
 Steps interleave freely, which the three predecessor fields could not
 express. ``zscore`` → ``variance`` → ``minmax`` → ``lasso`` is a plain list:
@@ -524,7 +525,7 @@ names, ``"<step>__component__<parameter>"``. The terminal model's step is
    print(tuned.spec.classifier.params["C"])   # written back into the spec
    fitted = tuned.model.pipeline                # refitted with the tuned spec
 
-The folds come from :func:`habit.domain.split.kfold_indices`, so a search
+The folds come from :func:`habit.evaluation.split.kfold_indices`, so a search
 partitions the rows exactly as :func:`~habit.recipes.cross_validate` does for
 the same ``n_splits`` and seed, and every candidate is fitted on training rows
 only — preprocessing statistics and feature selection included, because they
@@ -575,5 +576,5 @@ Feature extraction (config-driven)
 recommended Python path: no domain-native cohort assembly, no
 ``SubjectPipeline`` / ``TablePipeline``, and no ``StudyResult`` contract.
 For habitat features in library code, prefer
-:class:`~habit.domain.SubjectPipeline` ``.extract_features(...)`` with the
+:class:`~habit.pipeline.SubjectPipeline` ``.extract_features(...)`` with the
 ``habitat_feature_extractor`` registry (:doc:`domain_habitat`).

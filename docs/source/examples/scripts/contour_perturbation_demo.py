@@ -28,12 +28,14 @@ from pathlib import Path
 
 import numpy as np
 
-from habit import ImagePerturbationRegistry, Subject, cohort_from_directory
+from habit.precision import ImagePerturbationRegistry
+from habit.contracts import Subject, cohort_from_directory
+from habit.datasets import fetch_demo
 from habit.contracts import ArrayImageRef, Geometry
 from habit.kernels import boundary_band_mask
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 

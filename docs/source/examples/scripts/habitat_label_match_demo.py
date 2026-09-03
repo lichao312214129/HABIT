@@ -38,58 +38,51 @@ PATIENTS: Dict[str, np.ndarray] = {
 }
 IDS = np.array([1, 2], dtype=np.int64)
 
+print("Unscaled habitat means (Energy, Coarseness)")
+for name, rows in PATIENTS.items():
+    print(f"  {name} id1={rows[0].tolist()}  id2={rows[1].tolist()}")
 
-def main() -> Tuple[Dict[str, Dict[int, int]], np.ndarray, np.ndarray]:
-    """Fit one cohort scaler, then Hungarian-match B and C onto A."""
-    print("Unscaled habitat means (Energy, Coarseness)")
-    for name, rows in PATIENTS.items():
-        print(f"  {name} id1={rows[0].tolist()}  id2={rows[1].tolist()}")
+location, scale = fit_feature_match_scale(list(PATIENTS.values()))
+print(
+    "Cohort z-score fit on all 6 rows:\n"
+    f"  mean={location.tolist()}\n"
+    f"  std ={scale.tolist()}"
+)
 
-    location, scale = fit_feature_match_scale(list(PATIENTS.values()))
-    print(
-        "Cohort z-score fit on all 6 rows:\n"
-        f"  mean={location.tolist()}\n"
-        f"  std ={scale.tolist()}"
+mappings: Dict[str, Dict[int, int]] = {"A": {1: 1, 2: 2}}
+for name in ("B", "C"):
+    mappings[name] = match_labels_by_features(
+        IDS,
+        PATIENTS["A"],
+        IDS,
+        PATIENTS[name],
+        metric="euclidean",
+        standardize="zscore",
+        location=location,
+        scale=scale,
     )
+    print(f"  {name} -> A  {mappings[name]}")
 
-    mappings: Dict[str, Dict[int, int]] = {"A": {1: 1, 2: 2}}
-    for name in ("B", "C"):
-        mappings[name] = match_labels_by_features(
-            IDS,
-            PATIENTS["A"],
-            IDS,
-            PATIENTS[name],
-            metric="euclidean",
-            standardize="zscore",
-            location=location,
-            scale=scale,
-        )
-        print(f"  {name} -> A  {mappings[name]}")
+# Same-tumour observer pair: two 2x2 blocks, ids swapped, no texture.
+reference = np.zeros((4, 4), dtype=np.int32)
+reference[0:2, 0:2] = 1
+reference[2:4, 0:2] = 2
+moving = np.zeros((4, 4), dtype=np.int32)
+moving[0:2, 0:2] = 2
+moving[2:4, 0:2] = 1
+observer_map = match_labels_by_overlap(reference, moving)
+aligned = remap_label_array(moving, observer_map, reserved_ids=(1, 2))
+print(f"Observer overlap mapping (same tumour): {observer_map}")
+assert np.array_equal(aligned, reference)
 
-    # Same-tumour observer pair: two 2x2 blocks, ids swapped, no texture.
-    reference = np.zeros((4, 4), dtype=np.int32)
-    reference[0:2, 0:2] = 1
-    reference[2:4, 0:2] = 2
-    moving = np.zeros((4, 4), dtype=np.int32)
-    moving[0:2, 0:2] = 2
-    moving[2:4, 0:2] = 1
-    observer_map = match_labels_by_overlap(reference, moving)
-    aligned = remap_label_array(moving, observer_map, reserved_ids=(1, 2))
-    print(f"Observer overlap mapping (same tumour): {observer_map}")
-    assert np.array_equal(aligned, reference)
-
-    # Compose: observer ids already sit in physician-2 space, then inherit A.
-    composed = {
-        int(mov): int(mappings["B"][int(phys2)])
-        for mov, phys2 in observer_map.items()
-        if int(phys2) in mappings["B"]
-    }
-    print(f"Observer ids after inheriting B->A: {composed}")
-    return mappings, location, scale
+# Compose: observer ids already sit in physician-2 space, then inherit A.
+composed = {
+    int(mov): int(mappings["B"][int(phys2)])
+    for mov, phys2 in observer_map.items()
+    if int(phys2) in mappings["B"]
+}
+print(f"Observer ids after inheriting B->A: {composed}")
 # END example
-
-
-mappings, location, scale = main()
 
 # BEGIN figures
 # Paste after the Script block. Uses PATIENTS, mappings, location, scale.

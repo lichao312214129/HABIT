@@ -230,7 +230,7 @@ def _split_island_case() -> tuple[sitk.Image, sitk.Image, np.ndarray]:
 @pytest.mark.unit
 def test_glrlm_split_islands_match_execute() -> None:
     """Leaving a label must end the walk; re-entry is a new execute()-style run."""
-    from habit.domain.habitat_features._radiomics import (
+    from habit.radiomics._domain import (
         build_pyradiomics_extractor,
         execute_radiomics,
     )
@@ -283,7 +283,7 @@ def test_glrlm_split_islands_match_execute() -> None:
 @pytest.mark.unit
 def test_default_union_bin_false_matches_execute_gray_level_features() -> None:
     """Default per-label bin must match execute() on i-dependent features."""
-    from habit.domain.habitat_features._radiomics import (
+    from habit.radiomics._domain import (
         build_pyradiomics_extractor,
         execute_radiomics,
     )

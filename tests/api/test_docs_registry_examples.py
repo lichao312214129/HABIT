@@ -22,18 +22,14 @@ from __future__ import annotations
 
 import pytest
 
-from habit import make_synthetic_cohort
-from habit.domain import (
-    HabitatAssignerRegistry,
-    HabitatFeatureExtractorRegistry,
-    HabitatModelFitterRegistry,
-    ImagePerturbationRegistry,
-    RawVoxelFeatures,
-    SupervoxelFeatureExtractorRegistry,
-    SupervoxelizerRegistry,
-    VoxelFeatureExtractorRegistry,
-)
-from habit.domain.protocols import Seedable
+from habit.datasets import make_synthetic_cohort
+from habit.habitat_model.assignment import HabitatAssignerRegistry
+from habit.habitat_features import HabitatFeatureExtractorRegistry
+from habit.habitat_model import HabitatModelFitterRegistry
+from habit.precision import ImagePerturbationRegistry
+from habit.voxel_features import RawVoxelFeatures, VoxelFeatureExtractorRegistry
+from habit.supervoxel import SupervoxelFeatureExtractorRegistry, SupervoxelizerRegistry
+from habit._protocols import Seedable
 from habit.exceptions import ConfigurationError
 
 

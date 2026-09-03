@@ -102,7 +102,7 @@ def list_components(domain: Optional[str], as_json: bool) -> None:
     '--workflow', '-w',
     type=click.Choice([
         'preprocess', 'habitat', 'extract', 'radiomics',
-        'model', 'cv', 'compare', 'icc', 'retest', 'sort-dicom',
+        'model', 'cv', 'compare', 'icc', 'sort-dicom',
     ], case_sensitive=False),
     default=None,
     help='Workflow schema to validate against (optional; guessed from path when omitted)',
@@ -139,7 +139,7 @@ def check_config(
     '--workflow', '-w',
     type=click.Choice([
         'preprocess', 'habitat', 'extract', 'radiomics',
-        'model', 'cv', 'compare', 'icc', 'retest', 'sort-dicom',
+        'model', 'cv', 'compare', 'icc', 'sort-dicom',
     ], case_sensitive=False),
     default=None,
     help='Workflow alias (optional; guessed from path when omitted)',
@@ -172,6 +172,24 @@ def copy_demo_config_cmd(dest: str, overwrite: bool) -> None:
     """Copy bundled demo YAML configs into <dest>/config/ (no demo_data)"""
     from habit.commands.cmd_copy_demo_config import run_copy_demo_config
     run_copy_demo_config(dest, overwrite=overwrite)
+
+
+@cli.command('fetch-demo')
+@click.option(
+    '--force',
+    is_flag=True,
+    help='Re-download even when a cached copy already exists',
+)
+@click.option(
+    '--work-dir',
+    type=click.Path(file_okay=False),
+    default=None,
+    help='Also create <work-dir>/demo_data/preprocessed pointing at the cache',
+)
+def fetch_demo_cmd(force: bool, work_dir: Optional[str]) -> None:
+    """Download the official preprocessed demo pack once and print its layout"""
+    from habit.commands.cmd_fetch_demo import run_fetch_demo
+    run_fetch_demo(force=force, work_dir=work_dir)
 
 
 @cli.command('preprocess')
@@ -433,14 +451,6 @@ def radiomics(config):
     """Extract traditional radiomics features"""
     from habit.commands.cmd_radiomics import run_radiomics
     run_radiomics(config)
-
-
-@cli.command('retest')
-@config_option()
-def retest(config):
-    """Perform test-retest reproducibility analysis"""
-    from habit.commands.cmd_test_retest import run_test_retest
-    run_test_retest(config)
 
 
 @cli.command('dice')

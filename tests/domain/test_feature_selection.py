@@ -16,11 +16,13 @@
 
 from __future__ import annotations
 
+import inspect
+
 import numpy as np
 import pytest
 
 from habit.api.exceptions import HABITAPIError
-from habit.domain.feature_selection import (
+from habit.feature_selection import (
     AnovaSelector,
     Chi2Selector,
     CorrelationSelector,
@@ -35,8 +37,8 @@ from habit.domain.feature_selection import (
     VarianceSelector,
     VifSelector,
 )
-from habit.domain.protocols import Seedable
-from habit.domain.table_protocols import FeatureSelector
+from habit._protocols import Seedable
+from habit._table_protocols import FeatureSelector
 
 from .conftest import make_feature_table
 
@@ -87,7 +89,9 @@ def test_registry_lists_all_fourteen_selectors() -> None:
         )
         assert isinstance(instance, FeatureSelector)
         assert instance.spec.name == name
-        assert FeatureSelectorRegistry.get_params_model(name) is not None
+        assert isinstance(
+            FeatureSelectorRegistry.constructor_signature(name), inspect.Signature
+        )
 
 
 @pytest.mark.unit

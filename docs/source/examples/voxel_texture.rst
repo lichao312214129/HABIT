@@ -4,7 +4,7 @@ Voxel texture maps
 **Level:** atomic · **Data:** ``demo_data`` or synthetic · **Extras:** ``[viz]``;
 PyRadiomics for GLCM · **Time:** ~10–90 s
 
-End-to-end: one subject → :func:`~habit.local_entropy_map` plus a small
+End-to-end: one subject → :func:`~habit.kernels.local_entropy_map` plus a small
 ``voxel_radiomics`` GLCM set → :func:`~habit.viz.plot_voxel_texture_slice`.
 
 Default ``mode="overlay"``: greyscale anatomy, **opaque** feature colours
@@ -74,9 +74,18 @@ Orthogonal local entropy
 
    Three orthogonal planes (opaque overlay + contour) when ``axis`` is omitted.
 
+Which texture columns are stable
+--------------------------------
+
+Morphology-aware screening (which voxel maps survive a simulated
+re-acquisition) is still a **voxel-feature** question, not a new clustering
+algorithm. Runnable atoms: :doc:`precise_features`. Principle:
+:doc:`../tutorial/precise_screening`.
+
 What to read next
 -----------------
 
-* :doc:`../how_to/voxel_texture` — layouts, C vs GPU matrix backends, simulated parity
+* :doc:`habitat_feature_routes` — ``raw`` / ``concat`` intensities
+* :doc:`custom_voxel_features` — formulas and plugins
+* :doc:`../how_to/voxel_texture` — layouts, C vs GPU matrix backends
 * :doc:`graph_features` — graph topology **on habitat maps** (different product)
-* :doc:`habitat_feature_routes` — using voxel textures inside habitat recipes

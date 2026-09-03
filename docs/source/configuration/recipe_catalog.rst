@@ -35,15 +35,9 @@ By workflow
    * - Traditional radiomics
      - ``config/radiomics/``
      - ``habit radiomics -c …``
-   * - Machine learning
-     - ``config/machine_learning/``
-     - ``habit model -c …`` / ``habit cv -c …``
-   * - Model comparison
-     - ``config/model_comparison/``
-     - ``habit compare -c …``
-   * - ICC / test-retest
+   * - ICC
      - ``config/auxiliary/``
-     - ``habit icc -c …`` / ``habit retest -c …``
+     - ``habit icc -c …``
 
 Starter demos
 -------------
@@ -64,12 +58,6 @@ Use these when you want a short path through the demo data:
      - ``config/feature_extraction/config_extract_features_demo.yaml``
    * - Traditional ROI radiomics
      - ``config/radiomics/config_traditional_radiomics.yaml``
-   * - Train a radiomics ML model
-     - ``config/machine_learning/config_machine_learning_radiomics.yaml``
-   * - K-fold CV demo
-     - ``config/machine_learning/config_machine_learning_kfold_demo.yaml``
-   * - Compare models
-     - ``config/model_comparison/config_model_comparison_demo.yaml``
    * - ICC demo
      - ``config/auxiliary/config_icc_demo.yaml``
 
@@ -81,6 +69,4 @@ Field reference pages
 - :doc:`habitat`
 - :doc:`feature_extraction`
 - :doc:`radiomics`
-- :doc:`machine_learning`
-- :doc:`model_comparison`
 - :doc:`auxiliary`

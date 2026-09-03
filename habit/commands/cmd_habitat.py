@@ -421,6 +421,9 @@ def _run_predict(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
         # the v1 model archive rather than duplicating feature_construction.
         spec_payload = model.spec_payload
     spec = HabitatSpec.from_dict(spec_payload)
+    from habit.recipes.habitat import _with_model_habitat_postprocessing
+
+    spec = _with_model_habitat_postprocessing(spec, model)
     backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_cohort(config, spec, logger)
     checkpoint = _checkpoint_store_for(config, spec=spec, predict=True)

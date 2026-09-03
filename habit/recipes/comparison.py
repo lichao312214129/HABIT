@@ -30,12 +30,12 @@ import pandas as pd
 
 from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
-from habit.domain.evaluation.comparison import (
+from habit.evaluation.comparison import (
     PredictionSource,
     evaluate_comparison,
     merge_prediction_frames,
 )
-from habit.domain.evaluation.statistics import DelongResult, delong_test
+from habit.evaluation.statistics import DelongResult, delong_test
 from habit.exceptions import HABITAPIError
 from habit.recipes.comparison_reporting import write_comparison_artifacts
 from habit.schemas.workflows.ml import ModelComparisonConfig
@@ -138,7 +138,7 @@ def pairwise_delong_test(
             to ``scores_a``.
 
     Returns:
-        Frozen :class:`~habit.domain.evaluation.statistics.DelongResult`.
+        Frozen :class:`~habit.evaluation.statistics.DelongResult`.
     """
     return delong_test(y_true, scores_a, scores_b)
 

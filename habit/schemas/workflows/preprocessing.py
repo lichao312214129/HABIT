@@ -20,7 +20,8 @@ are validated against ``habit.core.schemas.steps.preprocessing`` via
 :class:`~habit.core.schemas.validation.validate_step_params`.
 """
 
-from typing import Dict, Any, List, Literal, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 
 from habit.schemas.base import BaseConfig
@@ -105,11 +106,15 @@ class PreprocessingConfig(BaseConfig):
         json_schema_extra={"group": "Advanced", "order": 5},
     )
 
-    @field_validator("data_dir", "out_dir")
-    def path_required(cls, v: str, info) -> str:
+    @field_validator("data_dir", "out_dir", mode="before")
+    @classmethod
+    def _coerce_path(cls, v: Union[str, Path, Any]) -> str:
+        """Accept ``pathlib.Path`` from Python callers; store normalized strings."""
+        if isinstance(v, Path):
+            v = str(v)
         if not v or not str(v).strip():
-            raise ValueError(f"{info.field_name} is required and cannot be empty")
-        return v
+            raise ValueError("path is required and cannot be empty")
+        return str(v)
 
     @field_validator("processes")
     def processes_non_negative(cls, v: Optional[int]) -> int:

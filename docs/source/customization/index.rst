@@ -38,7 +38,7 @@ One of HABIT's design goals is extensibility. Factory patterns and registration 
 
 1. **Registry**: create components with ``Registry.create(name, **params)``
 2. **Registration**: ``@Registry.register("name")`` (in-process) or entry points
-3. **Protocol**: implement the matching ``habit.domain.protocols`` protocol
+3. **Protocol**: implement the matching ``habit._protocols`` protocol
 4. **Plug and play**: reference the name from ``HabitatSpec`` / YAML
 
 v1 custom voxel feature extractors
@@ -54,7 +54,7 @@ logic beyond the built-in ``expression`` DSL.
    import numpy as np
    from habit.contracts import VoxelFeatureField
    from habit.contracts.subject import Subject
-   from habit.domain.voxel_features import (
+   from habit.voxel_features import (
        VoxelFeatureExtractorRegistry,
        aligned_image,
        build_voxel_field,
@@ -94,7 +94,7 @@ logic beyond the built-in ``expression`` DSL.
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, Stage
+   from habit.spec import HabitatSpec, Spec, Stage
    import habit.recipes as recipes
 
    spec = HabitatSpec(
@@ -123,7 +123,7 @@ In the plugin's ``pyproject.toml``::
 where ``register()`` performs the ``@VoxelFeatureExtractorRegistry.register``
 call (or imports the module that does). Users then::
 
-   from habit import load_plugins
+   from habit.api.plugins import load_plugins
    load_plugins()
 
 See :doc:`../examples/custom_voxel_features` for a runnable demo covering both

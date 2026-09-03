@@ -17,9 +17,9 @@
 Shared building block for filesystem ``DataSource`` implementations: a
 reference that carries only a path plus lazily-read header metadata, so a
 cohort of thousands of subjects can cross a process boundary without
-carrying a single voxel. ``DirectoryDataSource`` (HABIT layout) and
-``NnUNetDataSource`` (nnU-Net layout) both build on it, and third-party
-sources may subclass it (e.g. to binarise multi-label files at load time).
+carrying a single voxel. ``DirectoryDataSource`` (HABIT layout) builds on it,
+and third-party sources may subclass it (e.g. to binarise multi-label files
+at load time).
 """
 
 from __future__ import annotations

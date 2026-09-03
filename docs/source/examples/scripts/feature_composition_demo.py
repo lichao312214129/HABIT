@@ -22,9 +22,10 @@ Run from the repository root::
 from __future__ import annotations
 
 # BEGIN example
-from habit import HabitatSpec, Spec, make_synthetic_cohort, parse_feature_expression
-from habit.domain import build_voxel_extractor
-from habit.domain.assembly import build_habitat_components
+from habit.spec import HabitatSpec, Spec, parse_feature_expression
+from habit.datasets import make_synthetic_cohort
+from habit.voxel_features import build_voxel_extractor
+from habit.pipeline.assembly import build_habitat_components
 
 cohort = make_synthetic_cohort(n_subjects=2, shape=(12, 12, 12), rng=7)
 subject = cohort[0]
@@ -173,6 +174,6 @@ if __name__ == "__main__":
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from _example_roi import save_example_figure
+    from _example_roi import copy_out_figures_to_gallery
 
-    save_example_figure(fig, "feature_composition_overlay.png")
+    copy_out_figures_to_gallery(("feature_composition_overlay.png",))

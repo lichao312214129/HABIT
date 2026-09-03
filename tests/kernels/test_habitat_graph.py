@@ -1584,7 +1584,7 @@ def test_crop_offset_maps_centroids_back_to_original_indices() -> None:
 def test_min_voxel_distance_torch_matches_kdtree() -> None:
     """Torch cdist (CPU, and CUDA when present) matches the kd-tree minimum."""
     pytest.importorskip("torch")
-    from habit.utils.torch_graph_utils import (
+    from habit.kernels.habitat_graph.distance import (
         _min_voxel_distance_torch,
         _min_voxel_distance_tree,
         min_voxel_distance,

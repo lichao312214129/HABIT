@@ -4,6 +4,10 @@ Direct-pooling habitat analysis
 **Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** optional
 ``[view]`` · **Time:** ~20–60 s
 
+When to use: **direct_pooling** = ``pool`` only. Shared cohort definition;
+cluster voxels (no supervoxels). Two-step / one-step:
+:doc:`two_step_habitat`, :doc:`one_step_habitat`.
+
 Direct pooling skips supervoxels and clusters **all ROI voxels pooled across
 the cohort**. Declare stages with a ``pool`` marker and **no** ``partition``,
 then call :meth:`~habit.recipes.Study.fit_predict`. Preprocess stages may run
@@ -65,7 +69,7 @@ The script above is **one worked recipe**, not the only recipe. Each
    Stage("preprocess2", Spec("minmax", {"across_features": False}))
 
    # 4) Mixed families — needs two series (raw T1 + entropy T2)
-   from habit import parse_feature_expression
+   from habit.spec import parse_feature_expression
    Stage(
        "extract_voxel_features",
        parse_feature_expression(
@@ -79,10 +83,9 @@ Full list of names, every parameter, allowed values, and the YAML twin:
 
 Discover the same facts in a running interpreter::
 
-   from habit import list_plugins, get_param_schema
+   from habit.api.plugins import list_plugins
 
    print([p.name for p in list_plugins("habitat_model_fitter")])
-   print(get_param_schema("kmeans", "habitat_model_fitter").model_fields.keys())
 
 Output
 ------
@@ -150,9 +153,8 @@ densest habitat slices. Pass ``ImageVolume`` / ``HabitatMap`` (not
 What to read next
 -----------------
 
-* :doc:`../how_to/habitat_components` — which ``Spec`` names exist, and what each parameter means
-* :doc:`habitat_analysis_overview` — recipe / atomic / custom map
-* :doc:`habitat_custom_pipeline` — customise stages for pooling designs
-* :doc:`habitat_preprocessing` — subject vs cohort preprocessing chains
-* :doc:`two_step_habitat` — supervoxel intermediate stage
+* :doc:`feature_extraction` — quantify these maps
 * :doc:`apply_saved_model` — reuse a cohort-level model on new subjects
+* :doc:`two_step_habitat` — supervoxel intermediate stage
+* :doc:`habitat_preprocessing` — subject vs cohort preprocessing chains
+* :doc:`../how_to/habitat_components` — registered ``Spec`` names (Reference)

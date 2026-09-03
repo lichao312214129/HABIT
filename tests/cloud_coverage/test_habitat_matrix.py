@@ -203,9 +203,10 @@ def test_synthetic_tree_layout_and_content(synthetic_tree: SyntheticTree) -> Non
             )
             assert image.GetSize() == (64, 64, 16)
             assert image.GetSpacing() == (1.0, 1.0, 2.0)
-        mask_path = root / "masks" / subject / synthetic_tree.roi / "mask.nrrd"
-        mask = sitk.GetArrayFromImage(sitk.ReadImage(str(mask_path)))
-        assert 500 < int(mask.sum()) < 20000
+        for modality in synthetic_tree.modalities:
+            mask_path = root / "masks" / subject / modality / "mask.nrrd"
+            mask = sitk.GetArrayFromImage(sitk.ReadImage(str(mask_path)))
+            assert 500 < int(mask.sum()) < 20000
     clinical = pd.read_csv(synthetic_tree.clinical_csv)
     assert set(clinical.columns) == {"subject_id", "outcome", "age", "noise_score"}
     assert clinical["outcome"].nunique() == 2

@@ -20,8 +20,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from habit.domain.habitat_model._base import pool_supervoxel_features
-from habit.domain.pooling import PooledUnits, fan_in
+from habit.habitat_model._base import pool_supervoxel_features
+from habit.pipeline.pooling import PooledUnits, fan_in
 from habit.exceptions import CompatibilityError, HABITAPIError
 
 from .conftest import make_supervoxelization, two_cluster_units

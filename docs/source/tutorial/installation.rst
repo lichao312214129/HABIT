@@ -196,6 +196,8 @@ Missing optional packages raise ``OptionalDependencyError`` with the exact
      - ``habit dicom-info`` / ``habit sort-dicom``
    * - ``slic``
      - SLIC supervoxels (default ``kmeans`` / ``gmm`` need nothing)
+   * - ``accel``
+     - No-op alias: numba is in the default install; ``[accel]`` installs nothing extra
    * - ``ml``
      - XGBoost, SMOTE, mRMR / VIF / stepwise (includes ``viz``, ``tables``)
    * - ``analysis``
@@ -237,3 +239,15 @@ Problems?
 
 See :doc:`../troubleshooting/faq`. Then :doc:`quickstart` or
 :doc:`quickstart_python`.
+
+Get the demo images (once)
+--------------------------
+
+::
+
+   habit fetch-demo
+
+This downloads the official 5-subject preprocessed pack the first time,
+prints where it landed, and prints the folder tree your own data must
+match. Later calls reuse the cache. Python equivalent:
+``from habit.datasets import fetch_demo; DATA = fetch_demo()``.

@@ -99,7 +99,7 @@ def build_habitat_document(
     # Resolve stages-first specs before serialising so the written document
     # carries roles on every stage and sugar named fields (modalities, etc.).
     # Lazy import keeps document assembly free of a hard domain edge at import.
-    from habit.domain.stages import ensure_habitat_spec_resolved
+    from habit.pipeline.stages import ensure_habitat_spec_resolved
 
     effective_spec = ensure_habitat_spec_resolved(spec)
 

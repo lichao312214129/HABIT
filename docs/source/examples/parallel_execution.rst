@@ -44,7 +44,8 @@ Script
 Draw the figures
 ----------------
 
-Paste this after the Script block (it uses ``cohort`` and
+Paste this after the Script block, still inside
+``if __name__ == "__main__":`` (it uses ``cohort`` and
 ``parallel_result``). Writes ``out/parallel_execution_overlay.png``.
 
 .. literalinclude:: scripts/parallel_execution_demo.py

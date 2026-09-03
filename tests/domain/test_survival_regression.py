@@ -22,12 +22,12 @@ import pytest
 
 from habit.api.exceptions import HABITAPIError
 from habit.contracts import ContinuousOutcome, FeatureTable, SurvivalOutcome
-from habit.domain.evaluation import (
+from habit.evaluation import (
     RegressionMetricRegistry,
     SurvivalMetricRegistry,
 )
-from habit.domain.regression import RegressorRegistry
-from habit.domain.survival import SurvivalModelRegistry
+from habit.regression import RegressorRegistry
+from habit.survival import SurvivalModelRegistry
 
 pytestmark = pytest.mark.unit
 

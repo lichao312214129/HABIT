@@ -83,7 +83,7 @@ def _reference_msi_matrix(habitat_array: np.ndarray, unique_class: int) -> np.nd
 
 @pytest.mark.unit
 def test_spatial_interaction_matrix_matches_v01_reference() -> None:
-    """The vectorised kernel reproduces the v0.1 triple loop exactly."""
+    """The kernel reproduces the v0.1 triple loop exactly (integer identity)."""
     rng = np.random.RandomState(7)
     labels = rng.randint(0, 4, size=(6, 7, 5))
     expected = _reference_msi_matrix(labels, 4)
@@ -91,6 +91,34 @@ def test_spatial_interaction_matrix_matches_v01_reference() -> None:
     np.testing.assert_array_equal(actual, expected)
     # Symmetry follows from visiting all six directed offsets.
     np.testing.assert_array_equal(actual, actual.T)
+    # Larger random volume: still exact vs the Python triple loop.
+    labels_large = rng.randint(0, 5, size=(12, 13, 11))
+    np.testing.assert_array_equal(
+        spatial_interaction_matrix(labels_large, 5),
+        _reference_msi_matrix(labels_large, 5),
+    )
+
+
+@pytest.mark.unit
+def test_msi_numba_and_numpy_backends_match() -> None:
+    """Numba and numpy counters must agree voxel-for-voxel on the same box."""
+    from habit.kernels.habitat_metrics import (
+        _HAS_NUMBA,
+        _count_directed_face_pairs_numba,
+        _count_directed_face_pairs_numpy,
+    )
+
+    if not _HAS_NUMBA or _count_directed_face_pairs_numba is None:
+        pytest.skip("numba is not installed")
+    rng = np.random.RandomState(21)
+    labels = rng.randint(0, 6, size=(16, 15, 14))
+    box = np.ascontiguousarray(
+        np.pad(labels, 1, mode="constant", constant_values=0),
+        dtype=np.int64,
+    )
+    numpy_matrix = _count_directed_face_pairs_numpy(box, 6)
+    numba_matrix = _count_directed_face_pairs_numba(box, 6)
+    np.testing.assert_array_equal(numba_matrix, numpy_matrix)
 
 
 @pytest.mark.unit

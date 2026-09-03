@@ -24,6 +24,7 @@ from importlib import metadata
 from types import MappingProxyType
 from typing import (
     Any,
+    Annotated,
     Dict,
     Iterable,
     List,
@@ -36,6 +37,7 @@ from typing import (
     Union,
     cast,
     get_args,
+    get_type_hints,
     get_origin,
 )
 
@@ -73,7 +75,6 @@ _ENTRY_POINT_GROUPS: Mapping[str, str] = {
     "preprocessors": "habit.preprocessors",
     "radiomics_backends": "habit.radiomics_backends",
     "feature_extractors": "habit.feature_extractors",
-    "habitat_features": "habit.habitat_features",
     "models": "habit.models",
     "metrics": "habit.metrics",
     # v1.0 domains: snake_case(protocol name), singular.
@@ -101,7 +102,6 @@ _LEGACY_DOMAIN_ALIASES: Mapping[str, str] = {
     "models": "classifier",
     "metrics": "metric",
     "preprocessors": "preprocessor",
-    "habitat_features": "habitat_feature_extractor",
 }
 #: v1.0 domains consulted before the legacy factory when resolving the
 #: one-to-many ``feature_extractors`` domain (see §11.2 in 07 doc).
@@ -112,43 +112,43 @@ _FEATURE_EXTRACTOR_V1_DOMAINS: Tuple[str, ...] = (
 #: v1.0 L3 domains resolved through a lazy import table (keeps ``plugins.py``
 #: free of a long ``if domain == ...`` chain for the registry-backed domains).
 _V1_DOMAIN_REGISTRIES: Mapping[str, Tuple[str, str]] = {
-    "classifier": ("habit.domain.classification", "ClassifierRegistry"),
-    "metric": ("habit.domain.evaluation", "MetricRegistry"),
+    "classifier": ("habit.classification", "ClassifierRegistry"),
+    "metric": ("habit.evaluation", "MetricRegistry"),
     "table_preprocessor": (
-        "habit.domain.table_preprocessing",
+        "habit.table_preprocessing",
         "TablePreprocessorRegistry",
     ),
-    "feature_selector": ("habit.domain.feature_selection", "FeatureSelectorRegistry"),
+    "feature_selector": ("habit.feature_selection", "FeatureSelectorRegistry"),
     "voxel_feature_extractor": (
-        "habit.domain.voxel_features",
+        "habit.voxel_features",
         "VoxelFeatureExtractorRegistry",
     ),
-    "supervoxelizer": ("habit.domain.supervoxel", "SupervoxelizerRegistry"),
+    "supervoxelizer": ("habit.supervoxel", "SupervoxelizerRegistry"),
     "supervoxel_feature_extractor": (
-        "habit.domain.supervoxel_features",
+        "habit.supervoxel",
         "SupervoxelFeatureExtractorRegistry",
     ),
     "feature_preprocessing_method": (
-        "habit.domain.feature_preprocessing",
+        "habit.feature_preprocessing",
         "FeaturePreprocessingMethodRegistry",
     ),
     "habitat_model_fitter": (
-        "habit.domain.habitat_model",
+        "habit.habitat_model",
         "HabitatModelFitterRegistry",
     ),
-    "habitat_assigner": ("habit.domain.assignment", "HabitatAssignerRegistry"),
+    "habitat_assigner": ("habit.habitat_model", "HabitatAssignerRegistry"),
     "habitat_feature_extractor": (
-        "habit.domain.habitat_features",
+        "habit.habitat_features",
         "HabitatFeatureExtractorRegistry",
     ),
-    "combiner": ("habit.domain.combiners", "CombinerRegistry"),
+    "combiner": ("habit.combiners", "CombinerRegistry"),
     "image_perturbation": (
-        "habit.domain.precision",
+        "habit.precision",
         "ImagePerturbationRegistry",
     ),
-    "pooling": ("habit.domain.pooling_marker", "PoolingRegistry"),
+    "pooling": ("habit.pipeline", "PoolingRegistry"),
     "preprocessor": (
-        "habit.domain.image_preprocessing",
+        "habit.image_preprocessing",
         "PreprocessorRegistry",
     ),
 }
@@ -168,7 +168,11 @@ class PluginInfo:
 
 @dataclass(frozen=True)
 class PluginParamInfo:
-    """One ``Spec`` / ``Registry.create`` parameter from ``params_model``.
+    """One ``Spec`` / ``Registry.create`` parameter from the v2 constructor.
+
+    Rows are built from :meth:`~habit.registry.ComponentRegistry.constructor_signature`
+    for built-in components. When a third-party plugin registers a legacy
+    Pydantic ``params_model``, that schema is used instead.
 
     ``description`` prefers the Pydantic ``Field(description=...)``, then the
     registered class ``Args:`` section, then the params-model field docstring.
@@ -185,7 +189,12 @@ class PluginParamInfo:
 
 @dataclass(frozen=True)
 class PluginCatalogEntry:
-    """One catalog row derived from ``params_model`` (not a hand-copied table)."""
+    """One catalog row derived from the constructor contract (not a hand-copied table).
+
+    Built-in components use :meth:`~habit.registry.ComponentRegistry.constructor_signature`.
+    Third-party plugins that register a legacy Pydantic ``params_model`` fall back
+    to that schema for parameter metadata.
+    """
 
     domain: str
     name: str
@@ -242,9 +251,12 @@ def _legacy_registry_for_domain(domain: str) -> Type[Any]:
     if domain == "metrics":
         return cast(Type[Any], plugin_registries.get_legacy_metric_registry())
     if domain == "preprocessors":
-        return cast(Type[Any], plugin_registries.get_legacy_preprocessor_factory())
-    if domain == "habitat_features":
-        return cast(Type[Any], plugin_registries.get_legacy_habitat_feature_factory())
+        # The v0.1 plural alias remains public throughout v1.x, but its
+        # implementation is now the canonical image-preprocessor registry.
+        return _import_registry(
+            "habit.image_preprocessing.registry",
+            "PreprocessorRegistry",
+        )
     if domain == "feature_extractors":
         return cast(
             Type[Any], plugin_registries.get_legacy_feature_extractor_registry()
@@ -388,7 +400,13 @@ def get_plugin_info(name: str, domain: str) -> PluginInfo:
 
 
 def get_param_schema(name: str, domain: str) -> Optional[Type[BaseModel]]:
-    """Return the Pydantic parameter schema associated with a plugin, if any."""
+    """Return a legacy Pydantic ``params_model`` for a plugin, if registered.
+
+    Built-in v2 components do **not** register ``params_model``; for those use
+    :meth:`~habit.registry.ComponentRegistry.constructor_signature` or
+    :func:`plugin_catalog` instead. This helper remains for third-party plugins
+    that still attach a Pydantic schema via ``register_params_model``.
+    """
     if domain in _LEGACY_DOMAIN_ALIASES:
         _warn_legacy_plugin_domain(domain)
     registry = _registry_for_plugin_name(domain, name)
@@ -435,7 +453,7 @@ def _one_line_purpose(payload: Any, schema: Optional[Type[BaseModel]]) -> str:
         first = doc.strip().splitlines()[0].strip()
         if first:
             return first.rstrip(".")
-    return "Registered plugin (see params_model for arguments)"
+    return "Registered plugin (see constructor_signature for arguments)"
 
 
 def _param_names(schema: Optional[Type[BaseModel]]) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
@@ -531,6 +549,8 @@ def _format_annotation(annotation: Any) -> str:
     args = get_args(annotation)
     if origin is Literal:
         return " | ".join(repr(value) for value in args)
+    if origin is Annotated:
+        return _format_annotation(args[0]) if args else ""
     if origin is Union:
         non_none = [item for item in args if item is not type(None)]
         if len(non_none) == 1 and type(None) in args:
@@ -620,16 +640,72 @@ def _param_infos(payload: Any, schema: Optional[Type[BaseModel]]) -> Tuple[Plugi
     return tuple(infos)
 
 
+def _signature_param_infos(payload: Any) -> Tuple[PluginParamInfo, ...]:
+    """Derive v2 catalog fields directly from one component constructor."""
+    signature = inspect.signature(payload)
+    try:
+        hints = get_type_hints(payload.__init__)
+    except Exception:  # Third-party annotations may reference unavailable types.
+        hints = {}
+    docs = _google_args_map(inspect.getdoc(payload))
+    infos: list[PluginParamInfo] = []
+    for parameter in signature.parameters.values():
+        if parameter.name == "self" or parameter.kind in (
+            inspect.Parameter.VAR_POSITIONAL,
+            inspect.Parameter.VAR_KEYWORD,
+        ):
+            continue
+        annotation = hints.get(parameter.name, parameter.annotation)
+        required = parameter.default is inspect.Parameter.empty
+        default = "(required)" if required else repr(parameter.default)
+        infos.append(
+            PluginParamInfo(
+                name=parameter.name,
+                required=required,
+                annotation=_format_annotation(annotation),
+                default=default,
+                allowed=_signature_allowed(annotation),
+                description=docs.get(parameter.name, ""),
+            )
+        )
+    return tuple(infos)
+
+
+def _signature_allowed(annotation: Any) -> str:
+    """Render ``Literal`` choices and ``Annotated`` numeric bounds."""
+    origin = get_origin(annotation)
+    if origin is Literal:
+        return " | ".join(repr(value) for value in get_args(annotation))
+    if origin is Annotated:
+        base, *metadata = get_args(annotation)
+        parts = [_signature_allowed(base)] if _signature_allowed(base) else []
+        for item in metadata:
+            for attr, operator in (("ge", ">="), ("gt", ">"), ("le", "<="), ("lt", "<")):
+                value = getattr(item, attr, None)
+                if value is not None:
+                    parts.append(f"{operator} {value}")
+        return "; ".join(parts)
+    if origin is Union:
+        return " | ".join(
+            item_allowed
+            for item in get_args(annotation)
+            if (item_allowed := _signature_allowed(item))
+        )
+    return ""
+
+
 def plugin_catalog(
     domain: Optional[str] = None,
 ) -> Tuple[PluginCatalogEntry, ...]:
     """
-    Build a live catalog from each plugin's ``params_model``.
+    Build a live catalog from each plugin's constructor contract.
 
     This is the source of truth for ``Spec("name", {{...}})`` and
     ``Registry.create("name", ...)``: names, required/optional parameters,
-    and a one-line purpose come from the registered class and its Pydantic
-    schema, not from a hand-copied table.
+    and a one-line purpose come from the registered class and its
+    :meth:`~habit.registry.ComponentRegistry.constructor_signature`, not from
+    a hand-copied table. Third-party plugins with a legacy ``params_model``
+    still publish rows from that schema when present.
 
     Args:
         domain: Optional v1 domain. Omit to enumerate every catalog domain.
@@ -658,7 +734,13 @@ def plugin_catalog(
             registry = _registry_for_plugin_name(current_domain, info.name)
             payload = registry.get(info.name)
             schema = get_param_schema(info.name, current_domain)
-            required, optional = _param_names(schema)
+            params = (
+                _param_infos(payload, schema)
+                if schema is not None
+                else _signature_param_infos(payload)
+            )
+            required = tuple(item.name for item in params if item.required)
+            optional = tuple(item.name for item in params if not item.required)
             entries.append(
                 PluginCatalogEntry(
                     domain=current_domain,
@@ -668,7 +750,7 @@ def plugin_catalog(
                     optional_params=optional,
                     spec_example=_spec_example(info.name, required),
                     create_example=_create_example(info.name, required),
-                    params=_param_infos(payload, schema),
+                    params=params,
                 )
             )
     return tuple(entries)
@@ -678,8 +760,8 @@ def format_plugin_catalog_rst(domain: Optional[str] = None) -> str:
     """
     Render :func:`plugin_catalog` as reStructuredText for the docs catalog.
 
-    Sphinx calls this at build time so the page cannot drift from
-    ``params_model``.
+    Sphinx calls this at build time so the page cannot drift from the live
+    constructor signatures (or legacy third-party ``params_model`` when set).
     """
     lines: list[str] = []
     current_domain = ""

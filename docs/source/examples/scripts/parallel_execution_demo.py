@@ -17,7 +17,8 @@ Run from the repository root::
 
 from __future__ import annotations
 
-from habit import HabitatSpec, RunPolicy, Spec, Stage, make_synthetic_cohort
+from habit.spec import HabitatSpec, RunPolicy, Spec, Stage
+from habit.datasets import make_synthetic_cohort
 from habit.execution.process_pool import ProcessPoolBackend
 import habit.recipes as recipes
 
@@ -95,23 +96,26 @@ def main() -> tuple:
     return cohort, parallel_result
 
 
-cohort, parallel_result = main()
+# Windows spawn re-imports this script; ProcessPoolBackend must stay here.
+if __name__ == "__main__":
+    cohort, parallel_result = main()
 # END example
 
 # BEGIN figures
-# Paste after the Script block. Uses cohort and parallel_result.
+# Paste after the Script block, still inside ``if __name__ == "__main__":``.
 from pathlib import Path
 
 from habit.viz import plot_habitat_overlay
 
-Path("out").mkdir(exist_ok=True)
-fig = plot_habitat_overlay(
-    cohort[0].image("T1"),
-    parallel_result.habitat_maps[0],
-    title="habitats",
-)
-fig.savefig("out/parallel_execution_overlay.png", dpi=150, bbox_inches="tight")
-print("Wrote out/parallel_execution_overlay.png")
+if __name__ == "__main__":
+    Path("out").mkdir(exist_ok=True)
+    fig = plot_habitat_overlay(
+        cohort[0].image("T1"),
+        parallel_result.habitat_maps[0],
+        title="habitats",
+    )
+    fig.savefig("out/parallel_execution_overlay.png", dpi=150, bbox_inches="tight")
+    print("Wrote out/parallel_execution_overlay.png")
 # END figures
 
 if __name__ == "__main__":

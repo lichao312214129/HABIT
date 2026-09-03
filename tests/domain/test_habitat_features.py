@@ -21,7 +21,7 @@ import pytest
 
 from habit.api.exceptions import HABITAPIError
 from habit.contracts import ArrayImageRef, Geometry, Subject
-from habit.domain.habitat_features import (
+from habit.habitat_features import (
     EachHabitatRadiomicsFeatures,
     HabitatFeatureExtractorRegistry,
     HabitatVolumeFeatures,
@@ -31,7 +31,7 @@ from habit.domain.habitat_features import (
     TraditionalRadiomicsHabitatFeatures,
     WholeHabitatRadiomicsFeatures,
 )
-from habit.domain.protocols import HabitatFeatureExtractor
+from habit._protocols import HabitatFeatureExtractor
 from habit.kernels.habitat_metrics import (
     habitat_region_stats,
     habitat_volume_fractions,
@@ -118,6 +118,19 @@ def test_msi_rejects_maps_without_habitat_ids() -> None:
     object.__setattr__(habitat_map, "habitat_ids", ())
     with pytest.raises(HABITAPIError):
         MsiHabitatFeatures()(subject, habitat_map)
+
+
+@pytest.mark.unit
+def test_ith_default_emits_only_ith_score() -> None:
+    """Default ITH extraction writes a single ``ith_score`` column."""
+    subject = make_subject("P1")
+    habitat_map = make_habitat_map("P1")
+    labels = np.asarray(habitat_map.label_array)
+    table = IthHabitatFeatures()(subject, habitat_map)
+    assert list(table.feature_columns) == ["ith_score"]
+    assert table.frame.iloc[0]["ith_score"] == pytest.approx(ith_score(labels))
+    assert IthHabitatFeatures().include_auxiliary is False
+    assert IthHabitatFeatures().spec.params == {"include_auxiliary": False}
 
 
 @pytest.mark.unit
@@ -313,7 +326,7 @@ def test_each_habitat_radiomics_per_habitat_columns() -> None:
 @pytest.mark.unit
 def test_each_habitat_matches_execute_per_habitat_bin() -> None:
     """each_habitat keeps per-habitat binWidth (execute science), not union bin."""
-    from habit.domain.habitat_features._radiomics import (
+    from habit.radiomics._domain import (
         build_pyradiomics_extractor,
         execute_radiomics,
         harmonize_mask_geometry,

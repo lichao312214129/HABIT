@@ -34,14 +34,8 @@ import pytest
 import SimpleITK as sitk
 import yaml
 
-from habit import (
-    HabitatSpec,
-    RunPolicy,
-    Spec,
-    Stage,
-    cohort_from_directory,
-    save_habitat_config,
-)
+from habit.spec import HabitatSpec, RunPolicy, Spec, Stage, save_habitat_config
+from habit.contracts import cohort_from_directory
 from habit.execution import backend_from_policy
 from habit.recipes import run_from_yaml
 from habit.recipes.result import StudyResult

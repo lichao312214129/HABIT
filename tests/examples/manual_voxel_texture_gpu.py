@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 
 from habit.adapters import DirectoryDataSource
-from habit.domain.voxel_features.voxel_radiomics import VoxelRadiomicsFeatures
+from habit.voxel_features.voxel_radiomics import VoxelRadiomicsFeatures
 
 from tests.examples.demo_paths import REPO_ROOT
 

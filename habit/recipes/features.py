@@ -15,7 +15,7 @@
 """L4 feature-extraction recipes.
 
 ``extract_habitat_features`` is the domain-native path for ``habit extract``:
-per-subject :class:`~habit.domain.protocols.HabitatFeatureExtractor` calls
+per-subject :class:`~habit._protocols.HabitatFeatureExtractor` calls
 over :class:`~habit.contracts.subject.Subject` +
 :class:`~habit.contracts.habitat.HabitatMap`, with optional parallelism via
 :class:`~habit.contracts.ops.ExecutionBackend`. Filesystem discovery and CSV
@@ -24,6 +24,7 @@ layout live in L1 adapters; this module only assembles them.
 
 from __future__ import annotations
 
+import inspect
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -48,35 +49,18 @@ def _domain_feature_type_names() -> FrozenSet[str]:
     Feature family names routable to the domain extract path.
 
     The set is read from the
-    :class:`~habit.domain.habitat_features.HabitatFeatureExtractorRegistry`
+    :class:`~habit.habitat_features.HabitatFeatureExtractorRegistry`
     after loading ``habit.habitat_feature_extractor`` entry points, so
     third-party domain plugins dispatch exactly like the built-in families.
 
     Returns:
         Registered domain extractor names (built-ins plus entry points).
     """
-    import habit.domain.habitat_features  # noqa: F401  (register built-ins)
-    from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
+    import habit.habitat_features  # noqa: F401  (register built-ins)
+    from habit.habitat_features import HabitatFeatureExtractorRegistry
 
     HabitatFeatureExtractorRegistry.load_entry_points()
     return frozenset(HabitatFeatureExtractorRegistry.available())
-
-
-def _legacy_feature_type_names() -> FrozenSet[str]:
-    """
-    Feature family names the v0.1 ``HabitatFeatureFactory`` provides.
-
-    Imported lazily so the domain path never pays for -- or triggers -- a
-    ``habit.compat`` import; only a genuine compat fallback calls this.
-
-    Returns:
-        Registered v0.1 handler names (built-ins plus legacy optional packages).
-    """
-    from habit.compat.engines.habitat_extraction.feature_registry import (
-        HabitatFeatureFactory,
-    )
-
-    return frozenset(HabitatFeatureFactory.registered_feature_names())
 
 
 @dataclass(frozen=True)
@@ -193,8 +177,8 @@ def _build_domain_extractors(
     # Ensure built-in extractors are registered, then read the routable set
     # from the registry so third-party entry-point plugins dispatch like
     # built-ins.
-    import habit.domain.habitat_features  # noqa: F401
-    from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
+    import habit.habitat_features  # noqa: F401
+    from habit.habitat_features import HabitatFeatureExtractorRegistry
     from habit.utils.radiomics_preset_utils import resolve_params_file
 
     HabitatFeatureExtractorRegistry.load_entry_points()
@@ -248,12 +232,11 @@ def _graph_params_from_plugin_configs(
     Extract graph-extraction parameters from the plugin config mapping.
 
     The ``graph`` entry may be a validated
-    :class:`~habit.schemas.workflows.habitat.GraphFeatureBlock` (YAML path), a
-    plain mapping (direct API callers), or the deprecated extraction-only
-    params model (compat shim). Visualization and legacy block keys are
-    steering metadata for the recipe's figure hook, not extractor constructor
-    parameters, so they are filtered out here; every other key reaches the
-    registry, which rejects unknown names with a precise error.
+    :class:`~habit.schemas.workflows.habitat.GraphFeatureBlock` (YAML path) or
+    a plain mapping (direct API callers). Visualization and legacy block keys
+    are steering metadata for the recipe's figure hook, not extractor
+    constructor parameters, so they are filtered out here; every other key
+    reaches the registry, which rejects unknown names with a precise error.
 
     Args:
         plugin_configs: Plugin settings keyed by plugin name.
@@ -272,11 +255,11 @@ def _graph_params_from_plugin_configs(
     else:
         return {}
 
-    from habit.domain.habitat_features.graph import GraphHabitatFeaturesParams
+    from habit.habitat_features.graph import GraphHabitatFeatures
     from habit.schemas.workflows.habitat import GraphFeatureBlock
 
     non_extraction = set(GraphFeatureBlock.model_fields) - set(
-        GraphHabitatFeaturesParams.model_fields
+        inspect.signature(GraphHabitatFeatures).parameters
     )
     return {key: value for key, value in data.items() if key not in non_extraction}
 
@@ -288,9 +271,7 @@ def _graph_block_from_plugin_configs(
     Coerce the graph plugin config into the validated block schema.
 
     Accepts the block model itself (YAML path), a plain mapping (direct API
-    callers, coerced so the same defaults apply), or the deprecated
-    extraction-only params model from the compat shim -- the last carries no
-    visualization fields, so the figure hook stays off on that path.
+    callers, coerced so the same defaults apply).
 
     Args:
         plugin_configs: Plugin settings keyed by plugin name.
@@ -308,11 +289,6 @@ def _graph_block_from_plugin_configs(
         return graph_cfg
     if isinstance(graph_cfg, Mapping):
         return GraphFeatureBlock.model_validate(dict(graph_cfg))
-    if hasattr(graph_cfg, "model_dump"):
-        # The deprecated compat shim passes the extraction-only params model:
-        # keep its extraction values (so the drawn graph still matches the
-        # measured features) and let the visualization fields default.
-        return GraphFeatureBlock.model_validate(graph_cfg.model_dump())
     return GraphFeatureBlock()
 
 
@@ -429,7 +405,7 @@ def _write_graph_visualizations(
         logger.warning("Graph visualization skipped: %s", exc)
         return []
 
-    from habit.domain.habitat_features.graph import GraphHabitatFeaturesParams
+    from habit.habitat_features.graph import GraphHabitatFeatures
     from habit.kernels.habitat_graph import HabitatGraphFeatureOptions
 
     # The drawn graph must match the measured features, so the renderers get
@@ -437,7 +413,7 @@ def _write_graph_visualizations(
     options = HabitatGraphFeatureOptions(
         **{
             field: getattr(block, field)
-            for field in GraphHabitatFeaturesParams.model_fields
+            for field in inspect.signature(GraphHabitatFeatures).parameters
         }
     )
 
@@ -742,55 +718,6 @@ def _run_domain_extract(
     )
 
 
-def _run_compat_extract(
-    config: Any,
-    *,
-    plugin_configs: Optional[Mapping[str, Any]],
-    logger: logging.Logger,
-) -> WorkflowResult[None]:
-    """
-    Compat fallback for legacy-only feature families not in the domain registry.
-
-    Args:
-        config: Validated feature-extraction config.
-        plugin_configs: Optional plugin settings.
-        logger: Run logger.
-
-    Returns:
-        Workflow result with output directory metadata.
-    """
-    from habit.compat.legacy_core import run_feature_extraction_from_config
-
-    logger.info(
-        "Using compat HabitatMapAnalyzer for feature_types requiring plugins: %s",
-        list(config.feature_types),
-    )
-    run_feature_extraction_from_config(
-        config,
-        logger=logger,
-        plugin_configs=dict(plugin_configs) if plugin_configs is not None else None,
-    )
-    manifest = create_run_manifest(
-        "feature_extraction",
-        config,
-        metadata={
-            "engine": "compat",
-            "plugins": sorted((plugin_configs or {}).keys()),
-        },
-    )
-    manifest_path = write_run_manifest(manifest, config.out_dir)
-    return WorkflowResult(
-        output_dir=config.out_dir,
-        metadata={
-            "config_hash": manifest.config_hash,
-            "habit_version": manifest.habit_version,
-            "engine": "compat",
-        },
-        run_id=manifest.run_id,
-        manifest_path=manifest_path,
-    )
-
-
 def extract_habitat_features(
     config: Any,
     *,
@@ -801,15 +728,14 @@ def extract_habitat_features(
     """
     Extract features from pre-computed habitat maps (``habit extract`` recipe).
 
-    Families registered in the domain
-    :class:`~habit.domain.habitat_features.HabitatFeatureExtractorRegistry`
+    Families registered in the capability
+    :class:`~habit.habitat_features.HabitatFeatureExtractorRegistry`
     (built-ins plus ``habit.habitat_feature_extractor`` entry points) run
     through domain
-    :class:`~habit.domain.protocols.HabitatFeatureExtractor` instances and an
-    optional :class:`~habit.contracts.ops.ExecutionBackend`. A name found only
-    in the v0.1 ``HabitatFeatureFactory`` routes the whole request to the
-    compat ``HabitatMapAnalyzer`` so legacy plugin YAML keeps working; a name
-    known to neither registry raises :class:`~habit.exceptions.HABITAPIError`.
+    :class:`~habit._protocols.HabitatFeatureExtractor` instances and an
+    optional :class:`~habit.contracts.ops.ExecutionBackend`. Unknown names
+    fail immediately; third-party families must register through the
+    ``habit.habitat_feature_extractor`` entry-point group.
 
     When the ``graph`` family runs and its settings block has
     ``visualize: true``, per-subject topology figures are rendered under
@@ -851,17 +777,10 @@ def extract_habitat_features(
     domain_names = _domain_feature_type_names()
     unknown = [name for name in feature_types if name not in domain_names]
     if unknown:
-        legacy_names = _legacy_feature_type_names()
-        if all(name in legacy_names for name in unknown):
-            return _run_compat_extract(
-                validated_config,
-                plugin_configs=resolved_plugins,
-                logger=log,
-            )
         raise HABITAPIError(
             f"Unknown feature_types: {unknown}. Available domain families: "
-            f"{sorted(domain_names)}; legacy compat families: "
-            f"{sorted(legacy_names)}."
+            f"{sorted(domain_names)}. Register third-party feature families "
+            "through entry point group 'habit.habitat_feature_extractor'."
         )
     return _run_domain_extract(
         validated_config,
@@ -869,25 +788,3 @@ def extract_habitat_features(
         backend=backend,
         plugin_configs=resolved_plugins,
     )
-
-
-def traditional_radiomics(
-    config: Any,
-    *,
-    logger: Optional[logging.Logger] = None,
-) -> Any:
-    """
-    Run standalone traditional radiomics extraction (``habit radiomics`` recipe).
-
-    Args:
-        config: Validated radiomics configuration (v0.1 schema object or
-            mapping accepted by :class:`~habit.api.habitat.RadiomicsConfig`).
-        logger: Optional run logger forwarded to the workflow helper.
-
-    Returns:
-        :class:`~habit.api.contracts.WorkflowResult` with output directory
-        metadata and a run manifest path.
-    """
-    from habit.api.habitat import run_radiomics
-
-    return run_radiomics(config, logger=logger)

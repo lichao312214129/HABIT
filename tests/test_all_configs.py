@@ -182,8 +182,6 @@ def _infer_spec(path: Path) -> Optional[PipelineConfigSpec]:
     if subdir == "auxiliary":
         if name.startswith("config_icc"):
             return PipelineConfigSpec(rel_path=rel, command="icc")
-        if name.startswith("config_test_retest"):
-            return PipelineConfigSpec(rel_path=rel, command="retest")
         return None
 
     if subdir == "radiomics":
@@ -209,7 +207,7 @@ def _schema_loader(spec: PipelineConfigSpec) -> Callable[[str], Any]:
     """Return the ``from_file`` callable for schema validation of ``spec``."""
     loaders: dict[str, Tuple[str, str]] = {
         "preprocess": (
-            "habit.compat.engines.preprocessing.config_schemas",
+            "habit.schemas.workflows.preprocessing",
             "PreprocessingConfig",
         ),
         "sort-dicom": (
@@ -233,12 +231,8 @@ def _schema_loader(spec: PipelineConfigSpec) -> Callable[[str], Any]:
             "ModelComparisonConfig",
         ),
         "icc": (
-            "habit.compat.engines.machine_learning.feature_selectors.icc.config",
+            "habit.schemas.workflows.icc",
             "ICCConfig",
-        ),
-        "retest": (
-            "habit.compat.engines.machine_learning.config_schemas",
-            "TestRetestConfig",
         ),
         "radiomics": (
             "habit.compat.engines.habitat_analysis.config_schemas",
@@ -329,12 +323,6 @@ def _collect_required_input_paths(config: Any, spec: PipelineConfigSpec) -> list
             elif input_type == "directories":
                 for dir_path in getattr(input_cfg, "dir_list", []) or []:
                     paths.append(Path(str(dir_path)))
-
-    elif command == "retest":
-        for attr in ("test_habitat_table", "retest_habitat_table", "input_dir"):
-            value = getattr(config, attr, None)
-            if value:
-                paths.append(Path(str(value)))
 
     elif command == "radiomics":
         paths_cfg = getattr(config, "paths", None)

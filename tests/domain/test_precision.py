@@ -36,7 +36,7 @@ from habit.contracts import (
     Subject,
     VoxelFeatureField,
 )
-from habit.domain.precision import (
+from habit.precision import (
     BSplineDeformPerturbation,
     GaussianNoisePerturbation,
     GradientWeightedPerturbation,

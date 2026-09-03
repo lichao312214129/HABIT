@@ -19,9 +19,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from habit import make_synthetic_cohort
-from habit.domain import RawVoxelFeatures, SlicSupervoxelizer
-from habit.domain.protocols import Seedable
+from habit.datasets import make_synthetic_cohort
+from habit.voxel_features import RawVoxelFeatures
+from habit.supervoxel import SlicSupervoxelizer
+from habit._protocols import Seedable
 
 pytest.importorskip("skimage")
 

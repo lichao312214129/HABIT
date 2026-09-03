@@ -27,7 +27,7 @@ from habit.kernels.habitat_graph.models import (
     HabitatNodeExtractionResult,
     NodeMethod,
 )
-from habit.utils.union_find_utils import label_painted_components
+from habit.kernels.habitat_graph.union_find import label_painted_components
 
 __all__ = ["extract_habitat_nodes"]
 

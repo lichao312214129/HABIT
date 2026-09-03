@@ -13,13 +13,15 @@ alignment** on :doc:`traditional`. Official digital-phantom numbers:
 Each page: **Output** → **Definition** → **Formula** (if any) → **Output columns** → **Implementation** → **References** (if any).
 
 Light built-in families (``volume``, ``msi``, ``ith_score``, ``graph``) are
-peers in ``feature_types``. Dedicated how-to for topology:
+peers in ``feature_types``. Topology walk-through:
+:doc:`../../examples/graph_features`. CLI / YAML bookmark:
 :doc:`../../how_to/graph_features`.
 
 Voxel-level texture used as **habitat inputs** (``local_entropy``,
 ``voxel_radiomics``) is a different product surface — slice figures live under
-:doc:`../../how_to/voxel_texture` / :doc:`../../examples/voxel_texture`, not
-as a ``feature_types`` CSV family.
+:doc:`../../examples/voxel_texture`, not as a ``feature_types`` CSV family.
+Registered extractor names (input side and map-side):
+:doc:`../../how_to/habitat_components`.
 
 .. list-table:: Feature types
    :header-rows: 1

@@ -21,8 +21,8 @@ import pandas as pd
 import pytest
 
 from habit.api.exceptions import CompatibilityError
-from habit.domain.assignment import HabitatAssignerRegistry, NearestCentroidAssigner
-from habit.domain.protocols import HabitatAssigner
+from habit.habitat_model.assignment import HabitatAssignerRegistry, NearestCentroidAssigner
+from habit._protocols import HabitatAssigner
 
 from .conftest import make_model, make_supervoxelization
 

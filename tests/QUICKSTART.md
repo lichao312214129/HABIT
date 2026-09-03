@@ -47,8 +47,7 @@ HABIT Debug Script Menu
 5. Machine Learning Pipeline
 6. K-Fold Cross Validation
 7. ICC Analysis
-8. Test-Retest Reliability
-9. Model Comparison
+8. Model Comparison
 q. Quit
 
 ================================================================================

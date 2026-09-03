@@ -18,8 +18,8 @@ Everything here operates on a bare ``DataFrame`` whose rows are samples and
 whose columns are features. Rows being anonymous is the entire point: it is
 why one set of functions serves all three places HABIT rescales features --
 voxel matrices and supervoxel matrices on the way to a habitat definition
-(``habit.domain.feature_preprocessing``), and subject-by-feature modelling
-tables on the way to an outcome model (``habit.domain.table_preprocessing``).
+(``habit.feature_preprocessing``), and subject-by-feature modelling
+tables on the way to an outcome model (``habit.table_preprocessing``).
 Winsorising is the same column-wise computation in all three, and a formula
 implemented three times is a formula that will eventually disagree with
 itself.

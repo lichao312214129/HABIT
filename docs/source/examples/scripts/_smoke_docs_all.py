@@ -51,7 +51,7 @@ def main() -> int:
         if p.name not in SKIP and not p.name.startswith("_")
     )
     # Include quickstarts named without _demo suffix.
-    for extra in ("two_step_habitat_quickstart.py", "tabular_ml_quickstart.py"):
+    for extra in ("two_step_habitat_quickstart.py",):
         if (SCRIPTS / extra).is_file() and extra not in scripts:
             scripts.append(extra)
     scripts = sorted(set(scripts))
@@ -83,10 +83,10 @@ def main() -> int:
 
     # Public API import smoke for symbols taught in docs.
     api_smoke = (
-        "from habit import ("
-        "cohort_from_directory, one_step_habitat, two_step_habitat, "
-        "extract_graph_features, local_entropy_map, HabitatSpec, Spec, Stage"
-        "); "
+        "from habit.contracts import cohort_from_directory; "
+        "from habit.kernels import extract_graph_features, local_entropy_map; "
+        "from habit.recipes import one_step_habitat, two_step_habitat; "
+        "from habit.spec import HabitatSpec, Spec, Stage; "
         "from habit.viz import ("
         "plot_habitat_overlay, plot_partition_triptych, "
         "plot_habitat_volume_fractions, plot_msi_matrix, plot_ith_summary, "

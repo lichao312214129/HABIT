@@ -20,9 +20,11 @@ from __future__ import annotations
 from pathlib import Path
 import sys
 
-from habit import HabitatSpec, Spec, StepRecorder, make_synthetic_cohort
+from habit.spec import HabitatSpec, Spec
+from habit.inspection import StepRecorder
+from habit.datasets import make_synthetic_cohort
 from habit.contracts.subject import Cohort, Subject
-from habit.domain.assembly import build_habitat_components, build_subject_chain
+from habit.pipeline.assembly import build_habitat_components, build_subject_chain
 import habit.recipes as recipes
 
 

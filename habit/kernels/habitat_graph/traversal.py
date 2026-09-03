@@ -29,7 +29,7 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 import networkx as nx
 import numpy as np
 
-from habit.utils.graph_brandes_utils import csr_from_undirected_edges, hop_metrics_csr
+from habit.kernels.habitat_graph.brandes import csr_from_undirected_edges, hop_metrics_csr
 
 __all__ = [
     "HopMetricResult",

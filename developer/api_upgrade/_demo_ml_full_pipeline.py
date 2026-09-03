@@ -35,11 +35,11 @@ from sklearn.model_selection import train_test_split
 from habit.adapters.writers import DirectoryResultWriter
 from habit.contracts.outcome import BinaryOutcome
 from habit.contracts.table import FeatureTable
-from habit.domain.classification import AutogluonTabularClassifier
-from habit.domain.evaluation import AccuracyMetric, AucMetric
-from habit.domain.feature_selection import CorrelationSelector, VarianceSelector
-from habit.domain.pipeline import TablePipeline
-from habit.domain.table_preprocessing import ZScorePreprocessor
+from habit.classification import AutogluonTabularClassifier
+from habit.evaluation import AccuracyMetric, AucMetric
+from habit.feature_selection import CorrelationSelector, VarianceSelector
+from habit.pipeline import TablePipeline
+from habit.table_preprocessing import ZScorePreprocessor
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_CSV = REPO_ROOT / "demo_data" / "ml_data" / "breast_cancer_dataset.csv"

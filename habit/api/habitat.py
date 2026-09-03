@@ -78,17 +78,18 @@ def apply_habitat_cli_overrides(
     Returns:
         The validated config instance with the requested overrides.
     """
-    from habit.compat.legacy_core import apply_habitat_cli_overrides_core
     from habit.schemas.workflows.habitat import HabitatAnalysisConfig
 
     validated_config = coerce_config(config, HabitatAnalysisConfig)
-    return apply_habitat_cli_overrides_core(
-        validated_config,
-        mode=mode,
-        pipeline_path=pipeline_path,
-        debug=debug,
-        resume=resume,
-    )
+    if debug:
+        validated_config.debug = True
+    if mode:
+        validated_config.run_mode = mode
+    if pipeline_path:
+        validated_config.pipeline_path = pipeline_path
+    if resume:
+        validated_config.resume = True
+    return validated_config
 
 
 def run_habitat_analysis(
@@ -106,11 +107,11 @@ def run_habitat_analysis(
     Returns:
         Result table in ``data`` and declared output artifacts.
     """
-    from habit.compat.legacy_core import run_habitat_analysis_from_config
+    from habit.recipes.yaml_runner import run_habitat_config
     from habit.schemas.workflows.habitat import HabitatAnalysisConfig
 
     validated_config = coerce_config(config, HabitatAnalysisConfig)
-    results = run_habitat_analysis_from_config(validated_config, logger=logger)
+    results = run_habitat_config(validated_config, logger=logger)
     pipeline_path = Path(validated_config.out_dir) / "habitat_model.habitatmodel"
     artifacts = {"pipeline": pipeline_path} if pipeline_path.is_file() else {}
     manifest = create_run_manifest(
@@ -274,20 +275,8 @@ def run_radiomics(
     Returns:
         A result with the radiomics output directory in ``artifacts``.
     """
-    from habit.compat.legacy_core import run_radiomics_from_config
+    from habit.recipes.radiomics import traditional_radiomics
     from habit.schemas.workflows.habitat import RadiomicsConfig
 
     validated_config = coerce_config(config, RadiomicsConfig)
-    run_radiomics_from_config(validated_config, logger=logger)
-    output_dir = validated_config.out_dir or validated_config.paths.out_dir
-    manifest = create_run_manifest("radiomics", validated_config)
-    manifest_path = write_run_manifest(manifest, output_dir)
-    return WorkflowResult(
-        output_dir=output_dir,
-        metadata={
-            "config_hash": manifest.config_hash,
-            "habit_version": manifest.habit_version,
-        },
-        run_id=manifest.run_id,
-        manifest_path=manifest_path,
-    )
+    return traditional_radiomics(validated_config, logger=logger)

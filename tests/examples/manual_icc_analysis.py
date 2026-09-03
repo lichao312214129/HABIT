@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 """
-Manual example: ICC reliability via ``habit.domain.evaluation.statistics.icc_analysis``.
+Manual example: ICC reliability via ``habit.evaluation.statistics.icc_analysis``.
 
 Pure Python API — FeatureTable loaded from CSV, no YAML config.
 
@@ -31,7 +31,7 @@ from pathlib import Path
 import pandas as pd
 
 from habit.contracts.table import FeatureTable
-from habit.domain.evaluation.statistics import icc_analysis
+from habit.evaluation.statistics import icc_analysis
 
 from tests.examples.demo_paths import EXAMPLE_OUT, ML_DATA
 

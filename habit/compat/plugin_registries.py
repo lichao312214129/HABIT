@@ -12,12 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Legacy v0.1 plugin factory accessors (L1 compat).
-
-v1.0 L3 registries cover classifiers, metrics, habitat features, and
-clustering-feature extractors. Image preprocessors remain on the compat
-preprocessing engine registry until a dedicated L1 adapter registry lands.
-"""
+"""Legacy v0.1 plugin factory accessors (L1 compat)."""
 
 from __future__ import annotations
 
@@ -25,46 +20,23 @@ from typing import Any, Type
 
 __all__ = [
     "get_legacy_feature_extractor_registry",
-    "get_legacy_habitat_feature_factory",
     "get_legacy_metric_registry",
     "get_legacy_model_factory",
-    "get_legacy_preprocessor_factory",
 ]
 
 
 def get_legacy_model_factory() -> Type[Any]:
     """Return the v1 classifier registry (v0.1 ``ModelFactory`` alias surface)."""
-    from habit.domain.classification.registry import ClassifierRegistry
+    from habit.classification.registry import ClassifierRegistry
 
     return ClassifierRegistry
 
 
 def get_legacy_metric_registry() -> Type[Any]:
     """Return the v1 metric registry (v0.1 ``MetricRegistry`` alias surface)."""
-    from habit.domain.evaluation.registry import MetricRegistry
+    from habit.evaluation.registry import MetricRegistry
 
     return MetricRegistry
-
-
-def get_legacy_preprocessor_factory() -> Type[Any]:
-    """Return the image ``PreprocessorFactory`` registry class."""
-    from habit.compat.engines.preprocessing.preprocessor_factory import (
-        PreprocessorFactory,
-    )
-
-    return PreprocessorFactory
-
-
-def get_legacy_habitat_feature_factory() -> Type[Any]:
-    """Return the habitat feature factory after optional bootstrap."""
-    import habit.compat.engines.habitat_extraction.habitat_features.builtin_plugins  # noqa: F401
-    from habit.compat.engines.habitat_extraction.feature_registry import (
-        HabitatFeatureFactory,
-        bootstrap_optional_features,
-    )
-
-    bootstrap_optional_features()
-    return HabitatFeatureFactory
 
 
 def get_legacy_feature_extractor_registry() -> Type[Any]:

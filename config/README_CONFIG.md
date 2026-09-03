@@ -50,7 +50,7 @@ habit check-config -c config/radiomics/parameter.yaml --syntax-only
 | Traditional radiomics | `radiomics/` | `habit radiomics -c …` |
 | Machine learning | `machine_learning/` | `habit model -c …` / `habit cv -c …` |
 | Model comparison | `model_comparison/` | `habit compare -c …` |
-| ICC / test-retest | `auxiliary/` | `habit icc -c …` / `habit retest -c …` |
+| ICC | `auxiliary/` | `habit icc -c …` |
 
 ## Starter demos（完整注释）与 minimal（只改 ★）
 
@@ -65,7 +65,6 @@ habit check-config -c config/radiomics/parameter.yaml --syntax-only
 | ML prediction | `machine_learning/config_machine_learning_predict.yaml` | 使用完整模板，必须替换 `pipeline_path` |
 | Model comparison | `model_comparison/config_model_comparison_demo.yaml` | `…/config_model_comparison_minimal.yaml` |
 | ICC | `auxiliary/config_icc_demo.yaml` | `…/config_icc_minimal.yaml` |
-| Test-retest | `auxiliary/config_test_retest.yaml` | 使用完整模板，必须分别填写 test 与 retest 数据 |
 
 模板按医生完成研究的决策顺序分区：
 

@@ -52,7 +52,8 @@ def run_copy_demo_config(dest: str, overwrite: bool = False) -> Path:
 
     echo_success(f"Demo config written to: {config_dir}")
     click.echo(
-        "Next: download demo_data into the same work directory, then run "
+        "Next: habit fetch-demo --work-dir .   "
+        "(downloads the imaging pack once, prints the folder tree), then "
         "habit get-habitat -c config/habitat/config_habitat_two_step.yaml"
     )
     return config_dir

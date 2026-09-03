@@ -33,7 +33,6 @@ from habit.schemas.workflows.icc import ICCConfig
 from habit.schemas.workflows.ml import (
     MLConfig,
     ModelComparisonConfig,
-    TestRetestConfig,
 )
 from habit.schemas.workflows.preprocessing import PreprocessingConfig
 
@@ -47,5 +46,4 @@ __all__ = [
     "ModelComparisonConfig",
     "PreprocessingConfig",
     "RadiomicsConfig",
-    "TestRetestConfig",
 ]

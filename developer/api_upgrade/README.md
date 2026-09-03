@@ -1,83 +1,22 @@
-# HABIT API 升级计划（子模块）
+# HABIT v2 API upgrade
 
-本目录是 HABIT 从「CLI 科研工具」升级为「可嵌入的优秀开源库」的**执行计划**，与 `docs/` 用户文档、`tests/` 测试代码分离，供维护者与 Agent 按阶段落地。
+This directory contains only the active design record for the v2.0.0 breaking
+migration from `habit.domain` to physical, capability-named public packages.
 
-## 两个阶段
+| File | Role |
+|---|---|
+| [06_v1_api_first_architecture.md](06_v1_api_first_architecture.md) | Retained API-first architecture principles that remain applicable to v2; not an execution plan. |
+| [08_naming_decisions.md](08_naming_decisions.md) | Concise, authoritative naming and constructor-only parameter-contract decisions. |
+| [09_capability_namespaces.md](09_capability_namespaces.md) | The sole detailed v2 execution plan: package moves, public imports, artifacts, plugins, documentation, and test definition of done. |
 
-| 阶段 | 定位 | 状态 |
-|------|------|------|
-| **v0.1.x — API 门面** | API 是 CLI 的稳定门面，不重构业务逻辑 | ✅ 已完成并发布 |
-| **v1.0 — API 优先** | API 是核心，CLI 退化为壳；目标是嵌入影像组学科研生态 | 🔵 设计评审中（分支 `v1.0.0`） |
+Read 08 for decisions, then execute 09. The v2 migration deliberately removes
+`habit.domain`, flat component exports, component `*Params` Pydantic models,
+and Registry `params_model` schemas. Components expose their parameter
+contracts through typed, validated constructors; registries map names to
+classes and create them; `inspect.signature`, annotations, and constructor
+docstrings provide catalog and documentation metadata.
 
-## 文档索引
-
-### v1.0（当前工作）
-
-| 文件 | 内容 |
-|------|------|
-| [06_v1_api_first_architecture.md](06_v1_api_first_architecture.md) | **v1.0 架构设计**：六层结构、五个领域协议、`HabitatModel` 可流通、两级执行契约、YAML↔Python 双向同构、实施路线 |
-| [07_v1_refactor_plan_and_usage.md](07_v1_refactor_plan_and_usage.md) | **v1.0 执行计划 + 重构后使用手册**：许可证迁移记录、阶段 0～7 的任务与验收、CLI 全部 16 个命令、API 各层与 70+ 内置组件、扩展开发与迁移指南 |
-| [prototype/](prototype/) | 关键接口原型（仅签名与契约，不参与打包）：`contracts.py`、`protocols.py`、`spec.py`、`usage_examples.py` |
-
-### v0.1.x（历史记录）
-
-| 文件 | 内容 | 备注 |
-|------|------|------|
-| [01_master_plan.md](01_master_plan.md) | 目标标准、现状审计、三档升级路径 | 其中「API 是 CLI 门面、不重构业务逻辑」的定位已被 `06` 取代 |
-| [02_public_api_design.md](02_public_api_design.md) | 顶层 `import habit` 公开面设计、`__all__` | 同上 |
-| [03_testing_strategy.md](03_testing_strategy.md) | 五层 API 测试策略、golden 测试、契约测试 | 仍适用，v1.0 在此基础上扩展 |
-| [04_ci_quality_governance.md](04_ci_quality_governance.md) | CI 矩阵、类型标注、版本/弃用、文档与治理 | 仍适用 |
-| [05_roadmap_and_estimates.md](05_roadmap_and_estimates.md) | 分 PR 路线图、验收标准、估算 | v1.0 路线见 `06` 第 12 节 |
-
-## 贡献者须读：改动 HABIT 前先看这两份规则
-
-设计文档（`06`/`07`/`08`）说明架构**是什么**；日常改动**该怎么发生**写在仓库根的
-`.cursor/rules/` 下（`.mdc` 是带 YAML 头的 Markdown，可直接阅读，不必使用 Cursor）：
-
-| 文件 | 内容 |
-|------|------|
-| [`.cursor/rules/habit-api-first.mdc`](../../.cursor/rules/habit-api-first.mdc) | **宪法**：三个北极星目标、分层依赖铁律、三条骨架级不变量、四条不可协商的红线、向后兼容优先顺序、打包与依赖纪律 |
-| [`.cursor/rules/habit-change-protocol.mdc`](../../.cursor/rules/habit-change-protocol.mdc) | **程序法**：新代码该落在哪一层、新增领域组件的八条合格清单、反模式清单、"改了什么必须跑什么"门禁矩阵、弃用与破坏性变更的标准动作 |
-
-两份规则与本目录的设计文档冲突时，**以设计文档为准**（命名以 `08` 为准）；发现冲突
-说明规则过期，应同一次提交里改回来。
-
-## 使用方式
-
-1. **设计评审**：读 `06_v1_api_first_architecture.md`，对照 `prototype/usage_examples.py` 看调用形态。
-2. **实施顺序**：按 `07_v1_refactor_plan_and_usage.md` 第一部分推进，阶段 0（golden 基线）必须先完成且只能在本地跑（`demo_data/` 未纳入 git）。
-3. **交付形态**：`07` 第二部分即重构后的用户文档草稿，阶段 7 时并入 `docs/`。
-4. **测试**：`03_testing_strategy.md` 与 `tests/` 同步扩展；架构分层规则由 `tests/test_architecture_contracts.py` 强制。
-
-## 基线数据（2026-07-06 统计）
-
-| 指标 | 数值 |
-|------|------|
-| `habit/` Python 文件 | 281 |
-| `habit/` 源码行数 | ~52,900 |
-| 顶层 `class` / `def` | ~909 |
-| `tests/` 文件 / 行数 | 62 / ~2,743 |
-| `docs/` `.rst` 文件 | 58 |
-| GitHub Actions | 仅 `docs.yml`，无 pytest CI |
-
-## 与现有文档的关系
-
-- 用户向 API 示例：`docs/source/api/python_api.rst`（升级后需与 `02_public_api_design.md` 对齐）。
-- 架构契约：`tests/test_architecture_contracts.py`（registry / orchestrator，已存在 sklearn 风格 `check_*` 思路）。
-- 并行可靠性：历史计划已从 ``docs/`` 移除（实现已并入执行后端；细节见 ``habit/execution/``）。
-
-## 状态
-
-| 阶段 | 状态 |
-|------|------|
-| v0.1.x — 公开 API 门面 | ✅ 已完成 |
-| v0.1.x — golden / smoke / parity 测试 | ✅ 已完成 |
-| v0.1.x — CI 基础门禁 | ✅ 已完成 |
-| v0.1.x — 文档与 CHANGELOG | ✅ 已完成 |
-| **v1.0 — 架构设计与接口原型** | ✅ 已完成（`06` + `prototype/`） |
-| **v1.0 — 执行计划与使用手册** | ✅ 已完成（`07`） |
-| **v1.0 — 许可证迁移至 Apache-2.0** | ✅ 已完成 |
-| v1.0 — 阶段 0：golden 基线固化 | ⬜ 待开始 |
-| v1.0 — 阶段 1：L2 契约层 | ⬜ 待开始 |
-| v1.0 — 阶段 2：生境分割垂直切片 | ⬜ 待开始 |
-| v1.0 — 阶段 3～6 | ⬜ 待开始 |
+The historical v0/v1 facade, CI, roadmap, usage, rearchitecture, and cloud
+status documents were removed after their still-applicable architecture and
+acceptance constraints were consolidated into 06, 08, and 09. This directory
+does not preserve compatibility requirements superseded by v2.

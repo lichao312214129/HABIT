@@ -92,7 +92,7 @@ class StudyResult:
             are derived views of it, assembled by the directory writer.
             Empty when the caller only needs the label maps. A design with
             no supervoxel step stores one-voxel units (see
-            :func:`~habit.domain.pipeline.voxel_units`), so the field has one
+            :func:`~habit.pipeline.voxel_units`), so the field has one
             uniform type regardless of design. Streaming retention modes
             (``retain="maps"`` / ``"tables"``) drop this memory-dominant
             payload and keep ``units_rows`` instead.

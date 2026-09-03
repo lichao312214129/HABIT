@@ -37,7 +37,7 @@ from typing import Any, Dict, List, Type
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from habit.exceptions import HABITAPIError
+from habit.exceptions import ConfigurationError, HABITAPIError
 from habit.registry.core import ComponentRegistry
 from habit.utils.estimator_utils import ESTIMATOR_PARAMS_KEY
 
@@ -51,25 +51,25 @@ from .conftest import make_feature_table, make_field
 
 def _domain_registries() -> List[Type[ComponentRegistry]]:
     """Import every L3 domain registry (importing registers the builtins)."""
-    from habit.domain.assignment.registry import HabitatAssignerRegistry
-    from habit.domain.classification.registry import ClassifierRegistry
-    from habit.domain.evaluation.registry import MetricRegistry
-    from habit.domain.evaluation.regression_registry import RegressionMetricRegistry
-    from habit.domain.evaluation.survival_registry import SurvivalMetricRegistry
-    from habit.domain.feature_preprocessing.registry import (
+    from habit.habitat_model.assignment.registry import HabitatAssignerRegistry
+    from habit.classification.registry import ClassifierRegistry
+    from habit.evaluation.registry import MetricRegistry
+    from habit.evaluation.regression_registry import RegressionMetricRegistry
+    from habit.evaluation.survival_registry import SurvivalMetricRegistry
+    from habit.feature_preprocessing.registry import (
         FeaturePreprocessingMethodRegistry,
     )
-    from habit.domain.feature_selection.registry import FeatureSelectorRegistry
-    from habit.domain.habitat_features.registry import HabitatFeatureExtractorRegistry
-    from habit.domain.habitat_model.registry import HabitatModelFitterRegistry
-    from habit.domain.regression.registry import RegressorRegistry
-    from habit.domain.supervoxel.registry import SupervoxelizerRegistry
-    from habit.domain.supervoxel_features.registry import (
+    from habit.feature_selection.registry import FeatureSelectorRegistry
+    from habit.habitat_features.registry import HabitatFeatureExtractorRegistry
+    from habit.habitat_model.registry import HabitatModelFitterRegistry
+    from habit.regression.registry import RegressorRegistry
+    from habit.supervoxel.registry import SupervoxelizerRegistry
+    from habit.supervoxel.features_registry import (
         SupervoxelFeatureExtractorRegistry,
     )
-    from habit.domain.survival.registry import SurvivalModelRegistry
-    from habit.domain.table_preprocessing.registry import TablePreprocessorRegistry
-    from habit.domain.voxel_features.registry import VoxelFeatureExtractorRegistry
+    from habit.survival.registry import SurvivalModelRegistry
+    from habit.table_preprocessing.registry import TablePreprocessorRegistry
+    from habit.voxel_features.registry import VoxelFeatureExtractorRegistry
 
     return [
         HabitatAssignerRegistry,
@@ -91,24 +91,14 @@ def _domain_registries() -> List[Type[ComponentRegistry]]:
 
 
 @pytest.mark.unit
-def test_every_registered_params_model_forbids_unknown_keys() -> None:
-    """All domain params schemas use ``extra='forbid'`` (no silent drops)."""
-    missing: List[str] = []
-    not_forbidding: List[str] = []
+def test_every_registered_component_exposes_a_constructor_contract() -> None:
+    """Each registry entry is inspectable through its actual constructor."""
     n_checked = 0
     for registry in _domain_registries():
         for name in registry.available():
-            model = registry.get_params_model(name)
-            label = f"{registry.__name__}:{name}"
-            if model is None:
-                missing.append(label)
-                continue
-            assert issubclass(model, BaseModel), label
-            if model.model_config.get("extra") != "forbid":
-                not_forbidding.append(label)
+            signature = registry.constructor_signature(name)
+            assert signature.parameters is not None
             n_checked += 1
-    assert not missing, f"components without a params model: {missing}"
-    assert not not_forbidding, f"params models not forbidding extras: {not_forbidding}"
     assert n_checked > 0
 
 
@@ -118,19 +108,12 @@ def test_every_registered_params_model_forbids_unknown_keys() -> None:
 
 
 @pytest.mark.unit
-def test_pilot_params_models_reject_unknown_keys() -> None:
-    """A typo in a pilot component's params fails as a ValidationError."""
-    from habit.domain.classification.models import LogisticRegressionClassifierParams
-    from habit.domain.feature_selection.selectors import LassoSelectorParams
-    from habit.domain.supervoxel.slic import SlicSupervoxelizerParams
+def test_registry_create_rejects_unknown_constructor_parameters() -> None:
+    """A typo is rejected at the same constructor boundary the catalog exposes."""
+    from habit.classification import ClassifierRegistry
 
-    for model in (
-        SlicSupervoxelizerParams,
-        LogisticRegressionClassifierParams,
-        LassoSelectorParams,
-    ):
-        with pytest.raises(ValidationError):
-            model(**{"n_supervoxel": 10})  # typo of a plausible key
+    with pytest.raises(ConfigurationError, match="unexpected keyword"):
+        ClassifierRegistry.create("LogisticRegression", n_supervoxel=10)
 
 
 # ---------------------------------------------------------------------------
@@ -141,7 +124,7 @@ def test_pilot_params_models_reject_unknown_keys() -> None:
 @pytest.mark.unit
 def test_passthrough_enters_spec_params_and_fingerprint() -> None:
     """Non-empty estimator_params change the fingerprint; empty ones do not."""
-    from habit.domain.supervoxel.slic import SlicSupervoxelizer
+    from habit.supervoxel.slic import SlicSupervoxelizer
 
     plain = SlicSupervoxelizer(n_supervoxels=8)
     empty = SlicSupervoxelizer(n_supervoxels=8, estimator_params={})
@@ -156,7 +139,7 @@ def test_passthrough_enters_spec_params_and_fingerprint() -> None:
 @pytest.mark.unit
 def test_passthrough_conflicts_fail_at_construction() -> None:
     """Declared / fixed / HABIT-injected keys are rejected with ownership."""
-    from habit.domain.supervoxel.slic import SlicSupervoxelizer
+    from habit.supervoxel.slic import SlicSupervoxelizer
 
     with pytest.raises(HABITAPIError, match="compactness"):
         SlicSupervoxelizer(estimator_params={"compactness": 5.0})
@@ -174,7 +157,7 @@ def test_passthrough_conflicts_fail_at_construction() -> None:
 @pytest.mark.unit
 def test_slic_rejects_vendor_unknown_key_at_call_time() -> None:
     """A passthrough typo reaches neither skimage nor the fingerprint silently."""
-    from habit.domain.supervoxel.slic import SlicSupervoxelizer
+    from habit.supervoxel.slic import SlicSupervoxelizer
 
     field = make_field()
     # ``n_segment`` is not the HABIT-fixed ``n_segments``: construction passes,
@@ -187,7 +170,7 @@ def test_slic_rejects_vendor_unknown_key_at_call_time() -> None:
 @pytest.mark.unit
 def test_slic_end_to_end_with_passthrough() -> None:
     """A real vendor kwarg (``max_num_iter``) runs and is fingerprinted."""
-    from habit.domain.supervoxel.slic import SlicSupervoxelizer
+    from habit.supervoxel.slic import SlicSupervoxelizer
 
     field = make_field()
     slicer = SlicSupervoxelizer(n_supervoxels=4, estimator_params={"max_num_iter": 5})
@@ -206,7 +189,7 @@ def test_slic_end_to_end_with_passthrough() -> None:
 @pytest.mark.unit
 def test_classifier_passthrough_reaches_estimator_and_fingerprint() -> None:
     """``fit_intercept=False`` must reach sklearn and appear in the spec."""
-    from habit.domain.classification.models import LogisticRegressionClassifier
+    from habit.classification.models import LogisticRegressionClassifier
 
     table = make_feature_table(tuple(f"S{i}" for i in range(20)), seed=7)
     clf = LogisticRegressionClassifier(estimator_params={"fit_intercept": False})
@@ -223,7 +206,7 @@ def test_classifier_passthrough_reaches_estimator_and_fingerprint() -> None:
 @pytest.mark.unit
 def test_classifier_passthrough_conflicts_fail() -> None:
     """Declared keys and the injected seed cannot hide in the passthrough."""
-    from habit.domain.classification.models import LogisticRegressionClassifier
+    from habit.classification.models import LogisticRegressionClassifier
 
     with pytest.raises(HABITAPIError, match="'C'"):
         LogisticRegressionClassifier(estimator_params={"C": 2.0})
@@ -234,7 +217,7 @@ def test_classifier_passthrough_conflicts_fail() -> None:
 @pytest.mark.unit
 def test_classifier_vendor_unknown_key_fails_at_fit() -> None:
     """sklearn rejects nothing silently: a bogus key fails at fit time."""
-    from habit.domain.classification.models import LogisticRegressionClassifier
+    from habit.classification.models import LogisticRegressionClassifier
 
     table = make_feature_table(tuple(f"S{i}" for i in range(20)), seed=7)
     clf = LogisticRegressionClassifier(estimator_params={"not_a_param": 1})
@@ -250,7 +233,7 @@ def test_classifier_vendor_unknown_key_fails_at_fit() -> None:
 @pytest.mark.unit
 def test_lasso_passthrough_reaches_lassocv_and_fingerprint() -> None:
     """A vendor kwarg (``eps``) runs, is fingerprinted, and keeps the signal."""
-    from habit.domain.feature_selection.selectors import LassoSelector
+    from habit.feature_selection.selectors import LassoSelector
 
     table = make_feature_table(tuple(f"S{i}" for i in range(30)), n_noise=2, seed=12)
     selector = LassoSelector(cv=3, n_jobs=1, estimator_params={"eps": 1e-3})
@@ -264,7 +247,7 @@ def test_lasso_passthrough_reaches_lassocv_and_fingerprint() -> None:
 @pytest.mark.unit
 def test_lasso_passthrough_conflicts_fail() -> None:
     """Declared keys and the injected seed cannot hide in the passthrough."""
-    from habit.domain.feature_selection.selectors import LassoSelector
+    from habit.feature_selection.selectors import LassoSelector
 
     with pytest.raises(HABITAPIError, match="'cv'"):
         LassoSelector(estimator_params={"cv": 3})
@@ -275,7 +258,7 @@ def test_lasso_passthrough_conflicts_fail() -> None:
 @pytest.mark.unit
 def test_lasso_vendor_unknown_key_fails_at_fit() -> None:
     """A bogus passthrough key fails at fit time with ownership context."""
-    from habit.domain.feature_selection.selectors import LassoSelector
+    from habit.feature_selection.selectors import LassoSelector
 
     table = make_feature_table(tuple(f"S{i}" for i in range(30)), n_noise=2, seed=12)
     selector = LassoSelector(cv=3, n_jobs=1, estimator_params={"not_a_param": 1})

@@ -4,11 +4,16 @@ Two-step habitat analysis, end to end
 **Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** optional
 ``[view]`` · **Time:** ~30–90 s
 
+When to use: **two_step** = ``partition`` + ``pool``. Shared cohort
+definition; supervoxels first (typical paper pipeline). One-step and
+direct pooling: :doc:`one_step_habitat`, :doc:`direct_pooling_habitat`.
+Atomic steps: :doc:`habitat_atomic_ops`.
+
 The classical habitat design: each subject's ROI is partitioned into
 supervoxels, every supervoxel is described by its features, and the habitat
 definition is learned from all subjects' supervoxels pooled together.
 
-1. load a cohort (:func:`~habit.cohort_from_directory`),
+1. load a cohort (:func:`~habit.contracts.cohort_from_directory`),
 2. declare ordered :class:`~habit.spec.Stage` entries on
    :class:`~habit.spec.HabitatSpec` (partition + pool ⇒ two_step),
 3. fit with :meth:`~habit.recipes.Study.fit_predict`,
@@ -20,7 +25,7 @@ Script
 ------
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree (same
-layout as :func:`~habit.cohort_from_directory`).
+layout as :func:`~habit.contracts.cohort_from_directory`).
 
 .. literalinclude:: scripts/two_step_habitat_quickstart.py
    :language: python
@@ -68,7 +73,7 @@ The script above is **one worked recipe**, not the only recipe. Each
    Stage("preprocess2", Spec("minmax", {"across_features": False}))
 
    # 4) Mixed voxel families — needs two series
-   from habit import parse_feature_expression
+   from habit.spec import parse_feature_expression
    Stage(
        "extract_voxel_features",
        parse_feature_expression(
@@ -91,10 +96,9 @@ live under ``list_plugins("supervoxelizer")``.
 
 Discover the same facts in a running interpreter::
 
-   from habit import list_plugins, get_param_schema
+   from habit.api.plugins import list_plugins
 
    print([p.name for p in list_plugins("habitat_model_fitter")])
-   print(get_param_schema("kmeans", "habitat_model_fitter").model_fields.keys())
 
 Output
 ------
@@ -179,10 +183,8 @@ that file reproduces the habitat maps voxel-wise. See
 What to read next
 -----------------
 
-* :doc:`../how_to/habitat_components` — which ``Spec`` names exist, and what each parameter means
-* :doc:`habitat_analysis_overview` — recipe / atomic / custom map
-* :doc:`habitat_atomic_ops` — same science as single-argument callables
-* :doc:`habitat_custom_pipeline` — swap components safely
-* :doc:`../tutorial/quickstart_python` — demo_data path + napari screenshots
+* :doc:`feature_extraction` — quantify these maps (volume / MSI / ITH)
 * :doc:`apply_saved_model` — persist the model and project it onto new subjects
-* :class:`~habit.recipes.StudyResult` — what a recipe returns
+* :doc:`one_step_habitat` / :doc:`direct_pooling_habitat` — other designs
+* :doc:`habitat_atomic_ops` — same science as single-argument callables
+* :doc:`../how_to/habitat_components` — registered ``Spec`` names (Reference)

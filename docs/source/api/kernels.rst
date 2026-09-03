@@ -54,7 +54,7 @@ Region graphs + NetworkX metrics (same definitions as the built-in
 
 .. code-block:: python
 
-   from habit import HabitatGraphFeatureOptions, extract_graph_features
+   from habit.kernels import HabitatGraphFeatureOptions, extract_graph_features
 
    options = HabitatGraphFeatureOptions(
        edge_method="min_distance",
@@ -70,11 +70,11 @@ Region graphs + NetworkX metrics (same definitions as the built-in
    )
    # Keys look like single_h1_n_nodes, pair_h1_h2_modularity, ...
 
-Also exported: :func:`~habit.extract_graph_features_for_labels`,
-:func:`~habit.extract_habitat_nodes`,
-:func:`~habit.build_centroid_distance_graph`,
-:func:`~habit.build_min_distance_graph`,
-:func:`~habit.build_adjacency_graph`, :func:`~habit.pair_count`.
+Also exported: :func:`~habit.kernels.extract_graph_features_for_labels`,
+:func:`~habit.kernels.extract_habitat_nodes`,
+:func:`~habit.kernels.build_centroid_distance_graph`,
+:func:`~habit.kernels.build_min_distance_graph`,
+:func:`~habit.kernels.build_adjacency_graph`, :func:`~habit.kernels.pair_count`.
 See :doc:`../reference/features/graph`.
 
 ICC kernels
@@ -136,7 +136,7 @@ composes translation+rotation into one affine (MIRP ≥ 2).
    ends = slice_extent_perturbation(mask, grow_slices=2)
 
 Subject-level wrappers (``morphological``, ``gradient_weighted``,
-``slice_extent``) live on :class:`~habit.domain.ImagePerturbationRegistry`.
+``slice_extent``) live on :class:`~habit.precision.ImagePerturbationRegistry`.
 Copy-ready demo and figures: :doc:`../examples/precise_features`.
 
 .. figure:: ../_static/images/examples/contour_morphological_grow.png
@@ -227,7 +227,7 @@ Copy-ready walkthrough: :doc:`../examples/habitat_label_match`.
        scale=scale,
    )
 
-:func:`~habit.domain.align_habitat_map` accepts ``method="overlap"``,
+:func:`~habit.precision.align_habitat_map` accepts ``method="overlap"``,
 ``"centroid"``, or ``"features"``.
 
 Stability

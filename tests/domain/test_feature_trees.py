@@ -28,14 +28,14 @@ import pandas as pd
 import pytest
 
 from habit.contracts import Subject
-from habit.domain.pipeline import SubjectPipeline
-from habit.domain.supervoxel import SupervoxelizerRegistry
-from habit.domain.supervoxel_features import (
+from habit.pipeline import SubjectPipeline
+from habit.supervoxel import SupervoxelizerRegistry
+from habit.supervoxel import (
     MeanSupervoxelFeatures,
     PercentileSupervoxelFeatures,
     StdSupervoxelFeatures,
 )
-from habit.domain.trees import (
+from habit._feature_trees import (
     build_habitat_extractor,
     build_supervoxel_extractor,
     build_voxel_extractor,

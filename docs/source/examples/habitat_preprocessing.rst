@@ -26,9 +26,9 @@ Design rules
 ------------
 
 Assembled live objects use the same vocabulary on
-:class:`~habit.domain.assembly.HabitatComponents`
+:class:`~habit.pipeline.assembly.HabitatComponents`
 (``voxel_feature_preprocessor``, ``cohort_feature_preprocessor``, …);
-see :doc:`habitat_preprocessing_api` (API deep dive) and :doc:`../api/domain`.
+see :doc:`../api/domain`.
 
 Extractors and preprocessors keep **different** call shapes on purpose:
 ``extractor(subject).feature_frame()`` is subject-level; ``preprocessor(X)``
@@ -45,10 +45,30 @@ is sklearn-like on a feature table. Prefer the assembled components from
   mean something in the training feature space).
 * **Batch** — ``recipes.Study(spec=spec).fit_predict(cohort)`` (strategy from stages /
   sugar: partition+pool, pool only, or neither). Mode-named aliases remain.
-* **Non-batch (atomic)** — :class:`~habit.domain.pipeline.SubjectPipeline`:
+* **Non-batch (atomic)** — :class:`~habit.pipeline.SubjectPipeline`:
 
   * ``pipeline.units(subject)`` — fit-time units with subject-level chains
   * ``pipeline(subject)`` — label one subject when an assigner is attached
+
+Inspect every step
+------------------
+
+For debugging and QA, pass ``inspect=`` a :class:`~habit.inspection.StepRecorder`
+into ``recipes.Study(...).fit_predict`` (or a factory-built Study) and
+``Study.from_model(...).predict``. Default ``inspect=None`` is zero-cost and
+bit-identical.
+
+Captured boundaries are stage-bound names such as
+``extract_voxel_features.output``, ``preprocess1.output``,
+``partition.output``, ``extract_supervoxel_features.output``,
+``pool.output``, ``fit.output``, and ``assign.output``. After ``pool`` / ``fit``,
+cohort-level records use subject id ``__cohort__``. Use ``steps=``, ``subjects=``,
+and ``max_subjects=`` to limit memory.
+
+.. note::
+
+   In-memory inspection is not supported with the multiprocessing backend; use
+   serial execution (``workers=1``) while inspecting steps.
 
 Script
 ------
@@ -123,7 +143,7 @@ chain does not fail — it under-expresses habitats. Cohort ``model_k`` was
 still 4, but per-subject maps used a mean of **2.8** labels (one subject
 only 2). The YAML-style voxel chain ``winsorize`` then ``minmax`` restored
 **4 / 4** habitats on every subject. Image-level
-``zscore_normalization`` via :func:`~habit.preprocess_subject` (ROI
+``zscore_normalization`` via :func:`~habit.recipes.preprocess_subject` (ROI
 masked) before the same empty chain recovered a mean of **3.8**, but
 k-means then warned that distinct intensities were fewer than
 ``n_supervoxels`` — z-scoring a single modality can collapse the
@@ -134,16 +154,25 @@ clustering; use image z-score only when you need intensity harmonization
 *before* extraction::
 
    from dataclasses import replace
-   from habit import Cohort, Spec, preprocess_subject, two_step_habitat
 
+   from habit.contracts import Cohort, cohort_from_directory
+   from habit.datasets import fetch_demo
+   from habit.recipes import preprocess_subject, two_step_habitat
+   from habit.spec import Spec
+
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = fetch_demo()  # or "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
    processed = Cohort([
        preprocess_subject(
-           s, {"zscore_normalization": {"only_inmask": True}}, mask_roi="LAP"
+           s, {"zscore_normalization": {"only_inmask": True}}, mask_roi=ROI
        )
        for s in cohort
    ])
    spec = replace(
-       two_step_habitat(modalities=("LAP",), roi="LAP").spec,
+       two_step_habitat(modalities=MODALITIES, roi=ROI).spec,
        voxel_feature_preprocessors=(
            Spec("winsorize", params={"winsor_limits": (0.05, 0.05)}),
            Spec("minmax"),

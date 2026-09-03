@@ -82,7 +82,7 @@ Stage 6: execution
 ------------------
 
 :func:`habit.recipes.cross_validate` runs the study. For each fold it builds
-a fresh :class:`~habit.domain.TablePipeline` from the spec — table
+a fresh :class:`~habit.pipeline.TablePipeline` from the spec — table
 preprocessors → feature selectors → classifier — fits it on the training
 folds only, and evaluates on the held-out fold:
 
@@ -91,7 +91,7 @@ folds only, and evaluates on the held-out fold:
    flowchart TD
      CV["recipes.cross_validate"] --> SPEC["MLSpec<br/>(immutable, fingerprinted)"]
      CV --> TBL["FeatureTable"]
-     SPEC --> REG["habit.domain registries<br/>resolve Spec('name', params)"]
+     SPEC --> REG["the v2 capability packages registries<br/>resolve Spec('name', params)"]
      TBL --> FOLD["K-fold split<br/>seeded, stratified"]
      REG --> PIPE["TablePipeline per fold<br/>preprocess -> select -> classify"]
      FOLD --> PIPE
@@ -120,7 +120,7 @@ translate if v0.1, call a recipe, write artifacts. Variations worth knowing:
   :mod:`habit.recipes.ml_reporting` writes under ``output/visualizations/``
   with filename prefixes ``train_`` / ``test_`` / ``cv_``.
 * ``habit compare`` calls :func:`~habit.recipes.compare_models`
-  (:mod:`habit.recipes.comparison` + :mod:`habit.domain.evaluation.comparison`
+  (:mod:`habit.recipes.comparison` + :mod:`habit.evaluation.comparison`
   + :mod:`habit.recipes.comparison_reporting` + ``habit.viz`` multi-model
   curves). It does **not** use the v0.1 comparison engine.
 * ``habit extract`` calls :func:`~habit.recipes.extract_habitat_features`

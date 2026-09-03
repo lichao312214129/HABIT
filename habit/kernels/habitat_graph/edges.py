@@ -297,7 +297,7 @@ def _min_voxel_distance(coords_a: np.ndarray, coords_b: np.ndarray) -> float:
     This is the set-separation (minimum pairwise) distance
     ``min_{a in A, b in B} ||a-b||``. It is not the Hausdorff distance,
     which uses a max-of-mins. Default is a CPU kd-tree; pass
-    ``device="cuda"`` on :func:`habit.utils.torch_graph_utils.min_voxel_distance`
+    ``device="cuda"`` on :func:`habit.kernels.habitat_graph.distance.min_voxel_distance`
     only when a single large pair should use ``cdist``.
 
     Args:
@@ -308,7 +308,7 @@ def _min_voxel_distance(coords_a: np.ndarray, coords_b: np.ndarray) -> float:
         float: Minimum Euclidean distance in voxel-index units, or ``inf``
         when either set is empty.
     """
-    from habit.utils.torch_graph_utils import min_voxel_distance
+    from habit.kernels.habitat_graph.distance import min_voxel_distance
 
     return min_voxel_distance(coords_a, coords_b, device="cpu")
 

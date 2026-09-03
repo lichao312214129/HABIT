@@ -656,7 +656,7 @@ class GraphFeatureBlock(BaseModel):
     feature-extraction YAML.
 
     The extraction fields mirror
-    :class:`habit.domain.habitat_features.GraphHabitatFeaturesParams`
+    :class:`habit.habitat_features.GraphHabitatFeaturesParams`
     field-for-field (a regression test guards the correspondence); the schema
     lives here rather than in the domain layer because it is part of the YAML
     configuration surface, not of the extractor contract. The
@@ -997,8 +997,19 @@ class ProcessingConfig(BaseModel):
     process_image_types: Optional[List[str]] = Field(None, description="List of image types to process (None = all)")
     target_labels: List[int] = Field(
         default_factory=lambda: [1],
-        description="Mask labels to extract. Selected labels are merged into binary foreground."
+        description="Positive mask labels to extract independently; multiple labels write distinct tables."
     )
+
+    @field_validator("target_labels")
+    @classmethod
+    def _target_labels_are_positive_and_unique(cls, values: List[int]) -> List[int]:
+        """Require explicit, non-background labels with deterministic ordering."""
+        labels = [int(value) for value in values]
+        if not labels or any(value <= 0 for value in labels):
+            raise ValueError("target_labels must contain one or more positive labels.")
+        if len(set(labels)) != len(labels):
+            raise ValueError("target_labels must not contain duplicates.")
+        return labels
 
 class ExportConfig(BaseModel):
     """Export configuration for radiomics extraction."""

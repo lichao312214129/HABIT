@@ -17,8 +17,8 @@
 Like the habitat designs in :mod:`habit.recipes.habitat`, each function here
 is a WIRING DIAGRAM, not an engine: it reads a
 :class:`~habit.spec.specs.MLSpec`, builds the declared components through the
-domain registries (in :mod:`habit.domain.assembly`, the single construction
-site), runs them through :class:`~habit.domain.pipeline.TablePipeline`, and
+domain registries (in :mod:`habit.pipeline.assembly`, the single construction
+site), runs them through :class:`~habit.pipeline.TablePipeline`, and
 packs the outcome into a minimal result container. Orchestration concerns --
 parallelism, resume, persistence -- stay outside: the fitted pipeline is
 returned in memory and a caller that wants it on disk uses
@@ -68,11 +68,11 @@ from habit.exceptions import HABITAPIError
 from habit.contracts.manifest import RunManifest
 from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.table import FeatureTable
-from habit.domain.assembly import build_ml_metrics, build_table_pipeline
-from habit.domain.pipeline import TablePipeline
-from habit.domain.sklearn_interop import FrameToTable
-from habit.domain.split import kfold_indices, stratify_labels, train_test_indices
-from habit.domain.table_protocols import Classifier
+from habit.pipeline.assembly import build_ml_metrics, build_table_pipeline
+from habit.pipeline import TablePipeline
+from habit.pipeline.sklearn_interop import FrameToTable
+from habit.evaluation.split import kfold_indices, stratify_labels, train_test_indices
+from habit._table_protocols import Classifier
 from habit.spec.specs import MLSpec, Spec
 
 __all__ = [
@@ -262,7 +262,8 @@ def train_model(
             does not have, or the two id lists overlap.
 
     Examples:
-        >>> from habit import MLSpec, Spec, make_synthetic_feature_table
+        >>> from habit.datasets import make_synthetic_feature_table
+        >>> from habit.spec import MLSpec, Spec
         >>> import habit.recipes as recipes
         >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
         >>> spec = MLSpec(
@@ -361,7 +362,8 @@ def predict_model(pipeline: TablePipeline, table: FeatureTable) -> PredictionRes
             feature column seen at fit time.
 
     Examples:
-        >>> from habit import MLSpec, Spec, make_synthetic_feature_table
+        >>> from habit.datasets import make_synthetic_feature_table
+        >>> from habit.spec import MLSpec, Spec
         >>> import habit.recipes as recipes
         >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
         >>> spec = MLSpec(
@@ -452,7 +454,8 @@ def cross_validate(
             count, or exactly one of ``inner_cv`` / ``param_grid`` is given.
 
     Examples:
-        >>> from habit import MLSpec, Spec, make_synthetic_feature_table
+        >>> from habit.datasets import make_synthetic_feature_table
+        >>> from habit.spec import MLSpec, Spec
         >>> import habit.recipes as recipes
         >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
         >>> spec = MLSpec(
@@ -549,7 +552,7 @@ def search_hyperparameters(
     does not provide:
 
     * **The folds are HABIT's own.** They come from
-      :func:`habit.domain.split.kfold_indices` with the spec's seed, so a
+      :func:`habit.evaluation.split.kfold_indices` with the spec's seed, so a
       search over K folds partitions the rows exactly as
       :func:`cross_validate` would with the same ``n_splits`` and seed. Each
       candidate is therefore fitted on training rows only -- preprocessing
@@ -617,7 +620,8 @@ def search_hyperparameters(
             pipeline.
 
     Examples:
-        >>> from habit import MLSpec, Spec, make_synthetic_feature_table
+        >>> from habit.datasets import make_synthetic_feature_table
+        >>> from habit.spec import MLSpec, Spec
         >>> import habit.recipes as recipes
         >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
         >>> spec = MLSpec(
@@ -769,7 +773,7 @@ def _searchable_pipeline(spec: MLSpec, table: FeatureTable) -> TablePipeline:
     A search driver slices ``X`` by row, and a ``FeatureTable`` is a frozen
     dataclass with column semantics rather than a row-indexable container, so
     ``X`` is the plain frame and the pipeline's
-    :class:`~habit.domain.sklearn_interop.FrameToTable` head rebuilds the
+    :class:`~habit.pipeline.sklearn_interop.FrameToTable` head rebuilds the
     table for each slice. The schema is read off ``table``, so it cannot
     disagree with the data being searched.
 
@@ -922,7 +926,7 @@ def _objective_metric(spec: MLSpec, objective: Optional[str]) -> Any:
     Resolved against the classification metric registry, which is the family
     an ``MLSpec`` can declare: its terminal model is a ``classifier`` spec,
     assembled through
-    :class:`~habit.domain.classification.ClassifierRegistry`. Scoring itself
+    :class:`~habit.classification.ClassifierRegistry`. Scoring itself
     goes through :meth:`TablePipeline.evaluate` and so stays family-agnostic;
     when ``MLSpec`` grows regression and survival terminals, this resolution
     is the one place that has to follow.
@@ -943,7 +947,7 @@ def _objective_metric(spec: MLSpec, objective: Optional[str]) -> Any:
     # Lazy import: an L4 recipe may read L3 registries, but importing the
     # evaluation package at module level would pull sklearn and the metric
     # stack into every ``import habit.recipes``.
-    from habit.domain.evaluation import MetricRegistry
+    from habit.evaluation import MetricRegistry
 
     if objective is None and spec.metrics:
         # The panel a paper reports is the panel it tuned on, parameters

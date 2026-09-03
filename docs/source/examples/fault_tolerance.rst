@@ -82,9 +82,9 @@ Key contracts
   (see :doc:`../api/image_io`).
 * **extract_batch(fail_fast=)** — ``True`` (default) raises on first pair
   failure; ``False`` returns successful rows plus
-  :attr:`~habit.FeatureTableResult.failures`.
+  :attr:`~habit.api.radiomics.FeatureTableResult.failures`.
 * **load_plugins(strict=)** — ``False`` (default) fills
-  :class:`~habit.PluginLoadReport`; ``True`` raises the first
+  :class:`~habit.api.plugins.PluginLoadReport`; ``True`` raises the first
   entry-point error (see :doc:`../api/plugins`).
 * **Backend continue vs Cohort.map** — ``SerialBackend`` /
   ``ProcessPoolBackend`` with ``on_subject_failure="continue"`` isolate

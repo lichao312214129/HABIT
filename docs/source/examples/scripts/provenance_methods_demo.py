@@ -17,7 +17,8 @@ Run from the repository root::
 
 from __future__ import annotations
 
-from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
+from habit.spec import HabitatSpec, Spec, Stage
+from habit.datasets import make_synthetic_cohort
 import habit.recipes as recipes
 
 
@@ -48,36 +49,30 @@ def _base_stages(n_supervoxels: int) -> tuple[Stage, ...]:
 
 
 # BEGIN example
-def main() -> tuple:
-    """Compare fingerprints and print a methods paragraph."""
-    cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=3)
+cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=3)
 
-    spec_a = HabitatSpec(
-        name="prov_a",
-        stages=_base_stages(6),
-        random_seed=3,
-    )
-    spec_b = HabitatSpec(
-        name="prov_b",
-        stages=_base_stages(8),  # only n_supervoxels differs
-        random_seed=3,
-    )
-    fp_a = spec_a.fingerprint()
-    fp_b = spec_b.fingerprint()
-    print(f"spec_a fingerprint: {fp_a[:16]}...")
-    print(f"spec_b fingerprint: {fp_b[:16]}...")
-    print(f"fingerprints equal: {fp_a == fp_b}")
+spec_a = HabitatSpec(
+    name="prov_a",
+    stages=_base_stages(6),
+    random_seed=3,
+)
+spec_b = HabitatSpec(
+    name="prov_b",
+    stages=_base_stages(8),  # only n_supervoxels differs
+    random_seed=3,
+)
+fp_a = spec_a.fingerprint()
+fp_b = spec_b.fingerprint()
+print(f"spec_a fingerprint: {fp_a[:16]}...")
+print(f"spec_b fingerprint: {fp_b[:16]}...")
+print(f"fingerprints equal: {fp_a == fp_b}")
 
-    result = recipes.Study(spec=spec_a).fit_predict(cohort)
-    print("\n--- describe_methods (radiology style) ---")
-    print(result.manifest.describe_methods(style="radiology"))
-    versions = dict(result.manifest.software_versions())
-    print("\nsoftware_versions (sample):", {k: versions[k] for k in list(versions)[:4]})
-    print("random_seeds:", dict(result.manifest.random_seeds()))
-    return cohort, result
-
-
-cohort, result = main()
+result = recipes.Study(spec=spec_a).fit_predict(cohort)
+print("\n--- describe_methods (radiology style) ---")
+print(result.manifest.describe_methods(style="radiology"))
+versions = dict(result.manifest.software_versions())
+print("\nsoftware_versions (sample):", {k: versions[k] for k in list(versions)[:4]})
+print("random_seeds:", dict(result.manifest.random_seeds()))
 # END example
 
 # BEGIN figures

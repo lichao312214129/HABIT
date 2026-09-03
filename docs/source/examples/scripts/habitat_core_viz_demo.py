@@ -15,14 +15,10 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-from habit import (
-    cohort_from_directory,
-    habitat_ith_dispersion,
-    habitat_volume_fractions,
-    ith_score,
-    spatial_interaction_matrix,
-    two_step_habitat,
-)
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
+from habit.kernels import habitat_ith_dispersion, habitat_volume_fractions, ith_score, spatial_interaction_matrix
+from habit.recipes import two_step_habitat
 from habit.viz import (
     plot_habitat_label_compare,
     plot_habitat_overlay,
@@ -32,8 +28,8 @@ from habit.viz import (
     plot_partition_triptych,
 )
 
-# Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+# fetch_demo() downloads once and prints the tree. Change DATA for your data.
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 

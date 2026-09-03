@@ -27,16 +27,16 @@ import numpy as np
 import pandas as pd
 
 from habit.contracts import ContinuousOutcome, FeatureTable, SurvivalOutcome
-from habit.domain.evaluation import (
+from habit.evaluation import (
     RegressionMetricRegistry,
     SurvivalMetricRegistry,
 )
-from habit.domain.feature_selection import FeatureSelectorRegistry
-from habit.domain.pipeline import TablePipeline
-from habit.domain.regression import RegressorRegistry
-from habit.domain.split import stratify_labels, train_test_indices
-from habit.domain.survival import SurvivalModelRegistry
-from habit.domain.table_preprocessing import TablePreprocessorRegistry
+from habit.feature_selection import FeatureSelectorRegistry
+from habit.pipeline import TablePipeline
+from habit.regression import RegressorRegistry
+from habit.evaluation.split import stratify_labels, train_test_indices
+from habit.survival import SurvivalModelRegistry
+from habit.table_preprocessing import TablePreprocessorRegistry
 from habit.viz import (
     plot_bland_altman,
     plot_brier_curve,

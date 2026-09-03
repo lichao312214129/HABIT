@@ -15,13 +15,15 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-import habit.domain  # registers built-in voxel extractors
-from habit import cohort_from_directory, local_entropy_map
-from habit.domain import VoxelFeatureExtractorRegistry
+import habit.voxel_features  # registers built-in voxel extractors
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
+from habit.kernels import local_entropy_map
+from habit.voxel_features import VoxelFeatureExtractorRegistry
 from habit.viz import plot_voxel_texture_slice
 
 # Change DATA / MODALITY / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+DATA = fetch_demo()
 MODALITY = "LAP"
 ROI = "LAP"
 

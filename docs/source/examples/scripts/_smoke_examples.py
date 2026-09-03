@@ -20,7 +20,8 @@ from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 
-# Keep this list fast and offline (synthetic / no demo_data).
+# Imaging scripts now call fetch_demo() (cache / local tree / download).
+# Keep this list to the sidebar pages that stay short enough for a smoke.
 LIGHTWEIGHT = (
     "data_from_arrays_demo.py",
     "habitat_atomic_ops_demo.py",
@@ -33,6 +34,7 @@ LIGHTWEIGHT = (
     "one_step_report_demo.py",
     "direct_pooling_habitat_demo.py",
     "fault_tolerance_demo.py",
+    "parallel_execution_demo.py",
     "persistence_demo.py",
     "apply_saved_model_demo.py",
     "feature_composition_demo.py",

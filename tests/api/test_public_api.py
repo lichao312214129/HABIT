@@ -2,359 +2,71 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-"""Contract tests for symbols exposed by ``import habit``."""
+
+"""Contract tests for the v2 capability-package public API."""
 
 from __future__ import annotations
 
-import subprocess
+import importlib
 import sys
 
 import pytest
 
-from habit.api.registry import PUBLIC_API_SYMBOLS
+from habit.api.registry import PUBLIC_API_SYMBOLS, PUBLIC_NAMESPACES
 
 
 @pytest.mark.unit
-def test_public_api_symbols_match_registry() -> None:
-    """``habit.__all__`` must stay aligned with the canonical registry."""
+def test_package_root_exposes_only_version_metadata() -> None:
+    """V2 removes the unstructured root-level component mirror."""
     import habit
 
-    assert habit.__all__[0] == "__version__"
-    assert set(habit.__all__[1:]) == set(PUBLIC_API_SYMBOLS)
-
-
-@pytest.mark.unit
-def test_api_subpackage_exports_the_registered_symbols() -> None:
-    """The documented ``habit.api`` facade must match the top-level API."""
-    import habit.api
-
-    assert set(habit.api.__all__) == set(PUBLIC_API_SYMBOLS)
-    for symbol in PUBLIC_API_SYMBOLS:
-        assert getattr(habit.api, symbol) is getattr(__import__("habit"), symbol)
-
-
-@pytest.mark.unit
-def test_show_versions_returns_software_fingerprint() -> None:
-    """``show_versions`` is callable and mirrors ``software_fingerprint``."""
-    import habit
-    from habit.contracts.provenance import software_fingerprint
-
-    versions = habit.show_versions()
-    assert callable(habit.show_versions)
-    assert isinstance(versions, dict)
-    assert "habit" in versions
-    assert isinstance(versions["habit"], str)
-    assert versions["habit"]
-    assert all(
-        isinstance(key, str) and isinstance(value, str)
-        for key, value in versions.items()
-    )
-    assert versions == dict(software_fingerprint())
-
-
-@pytest.mark.unit
-def test_version_is_string() -> None:
-    """``habit.__version__`` is available without lazy resolution."""
-    import habit
-
+    assert habit.__all__ == ["__version__"]
+    assert PUBLIC_API_SYMBOLS == ()
     assert isinstance(habit.__version__, str)
-    assert habit.__version__
+    assert habit.__version__ == "2.0.0"
+    assert not hasattr(habit, "RawVoxelFeatures")
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("symbol", PUBLIC_API_SYMBOLS)
-def test_public_symbol_importable(symbol: str) -> None:
-    """Every registered public symbol resolves on ``getattr(habit, ...)``."""
-    import habit
-
-    obj = getattr(habit, symbol)
-    assert obj is not None
+def test_capability_namespaces_match_declared_exports() -> None:
+    """Each capability package declares exactly its registered public names."""
+    for namespace, declared in PUBLIC_NAMESPACES.items():
+        package = importlib.import_module(namespace)
+        assert tuple(package.__all__) == declared
 
 
 @pytest.mark.unit
-def test_kernels_and_viz_symbols_are_registered() -> None:
-    """The registry mirrors ``habit.kernels.__all__`` and ``habit.viz.__all__``."""
-    import habit.kernels
-    import habit.viz
-
-    registered = set(PUBLIC_API_SYMBOLS)
-    assert set(habit.kernels.__all__) <= registered
-    assert set(habit.viz.__all__) <= registered
-
-
-@pytest.mark.unit
-def test_compat_interop_symbols_are_registered() -> None:
-    """The sklearn/MONAI/nnU-Net interop entry points are public API."""
-    import habit.compat.monai
-    import habit.compat.nnunet
-
-    registered = set(PUBLIC_API_SYMBOLS)
-    assert {"as_estimator", "as_transformer", "as_classifier"} <= registered
-    assert set(habit.compat.monai.__all__) <= registered
-    assert set(habit.compat.nnunet.__all__) <= registered
+def test_capability_symbols_resolve_from_canonical_package() -> None:
+    """Every declared public symbol is available from its sole namespace."""
+    seen: dict[str, str] = {}
+    for namespace, declared in PUBLIC_NAMESPACES.items():
+        package = importlib.import_module(namespace)
+        for symbol in declared:
+            assert symbol not in seen, (symbol, seen.get(symbol), namespace)
+            object_ = getattr(package, symbol)
+            assert object_ is not None
+            seen[symbol] = namespace
 
 
 @pytest.mark.unit
-def test_import_habit_does_not_load_radiomics() -> None:
-    """Bare ``import habit`` in a fresh interpreter must not import PyRadiomics."""
+def test_removed_domain_package_is_not_importable() -> None:
+    """The v1 aggregate namespace must not survive as a namespace package."""
+    sys.modules.pop("habit.domain", None)
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("habit.domain")
+
+
+@pytest.mark.unit
+def test_import_habit_stays_lightweight() -> None:
+    """Package metadata import must not eagerly load scientific backends."""
     import subprocess
-    import sys
 
     script = (
         "import sys, habit\n"
-        "assert habit.__version__\n"
-        "print('radiomics_loaded', 'radiomics' in sys.modules)\n"
+        "print('loaded', sorted({'radiomics', 'sklearn', 'SimpleITK'} & set(sys.modules)))\n"
     )
     completed = subprocess.run(
-        [sys.executable, "-c", script],
-        capture_output=True,
-        text=True,
-        check=False,
+        [sys.executable, "-c", script], capture_output=True, text=True, check=False
     )
-    assert completed.returncode == 0, (completed.stdout or "") + (
-        completed.stderr or ""
-    )
-    assert "radiomics_loaded False" in completed.stdout
-
-
-@pytest.mark.unit
-def test_public_exceptions_share_one_documented_hierarchy() -> None:
-    """Public callers can catch stable HABIT errors without deep imports."""
-    import habit
-    from habit.exceptions import DataFormatError, HabitError, NotFittedError
-    from sklearn.exceptions import NotFittedError as SklearnNotFittedError
-
-    assert issubclass(habit.HABITAPIError, DataFormatError)
-    assert issubclass(habit.HABITAPIError, HabitError)
-    # NotFittedError has ONE source (habit.exceptions) per the v1.0 plan; it
-    # subclasses sklearn's so sklearn interop isinstance checks keep working.
-    assert issubclass(NotFittedError, SklearnNotFittedError)
-    assert issubclass(NotFittedError, HabitError)
-
-
-@pytest.mark.unit
-def test_run_preprocess_delegates_to_core_runner() -> None:
-    """Public preprocessing accepts a dictionary and validates it before delegation."""
-    from pathlib import Path
-    from unittest.mock import MagicMock, patch
-
-    import habit
-
-    with patch("habit.compat.preprocess_runner.run_preprocess_from_config") as mock_run:
-        logger = MagicMock()
-        result = habit.run_preprocess(
-            {"data_dir": "input", "out_dir": "output"},
-            logger=logger,
-        )
-
-    delegated_config = mock_run.call_args.args[0]
-    assert isinstance(delegated_config, habit.PreprocessingConfig)
-    assert delegated_config.data_dir == "input"
-    mock_run.assert_called_once_with(delegated_config, logger=logger)
-    assert result.artifact("output_dir") == Path("output")
-
-
-@pytest.mark.unit
-def test_public_runner_rejects_invalid_dictionary_before_core_execution() -> None:
-    """Dictionary validation must happen at the public API boundary."""
-    from unittest.mock import patch
-
-    import habit
-
-    with patch("habit.compat.preprocess_runner.run_preprocess_from_config") as mock_run:
-        with pytest.raises(habit.ConfigurationError):
-            habit.run_preprocess({"data_dir": "input"})
-
-    mock_run.assert_not_called()
-
-
-@pytest.mark.unit
-def test_load_feature_extraction_config_preserves_graph_block(tmp_path) -> None:
-    """Public loader validates the ``graph:`` block without the compat layer."""
-    import sys
-
-    import habit
-    from habit.schemas.workflows.habitat import (
-        FeatureExtractionConfig,
-        GraphFeatureBlock,
-    )
-
-    config_path = tmp_path / "feature_config.yaml"
-    config_path.write_text(
-        "raw_img_folder: raw\n"
-        "habitats_map_folder: habitats\n"
-        "out_dir: features\n"
-        "feature_types: [non_radiomics, graph]\n"
-        "graph:\n"
-        "  distance_threshold: 8.0\n"
-        "  visualize: true\n"
-        "  visualization_format: png\n",
-        encoding="utf-8",
-    )
-
-    # Drop any prior imports so this assertion measures the public loader
-    # itself, not leftover modules from other tests in the same process.
-    for _compat_name in (
-        "habit.compat.feature_extraction_loader",
-        "habit.compat.graph_plugin",
-    ):
-        sys.modules.pop(_compat_name, None)
-
-    config, plugins = habit.load_feature_extraction_config(config_path)
-
-    assert isinstance(config, FeatureExtractionConfig)
-    assert list(config.feature_types) == ["non_radiomics", "graph"]
-    block = plugins["graph"]
-    assert isinstance(block, GraphFeatureBlock)
-    assert block.distance_threshold == 8.0
-    # Visualization settings survive the public loader (the deprecated compat
-    # shim dropped them).
-    assert block.visualize is True
-    assert block.visualization_format == "png"
-    assert "habit.compat.feature_extraction_loader" not in sys.modules
-    assert "habit.compat.graph_plugin" not in sys.modules
-
-
-@pytest.mark.unit
-def test_build_feature_extraction_config_reports_graph_field_errors() -> None:
-    """Invalid ``graph:`` fields fail with an error naming the field."""
-    import habit
-    from pydantic import ValidationError
-
-    with pytest.raises(ValidationError) as excinfo:
-        habit.build_feature_extraction_config(
-            {
-                "raw_img_folder": "raw",
-                "habitats_map_folder": "habitats",
-                "out_dir": "features",
-                "feature_types": ["graph"],
-                "graph": {"distance_threshold": -1.0},
-            }
-        )
-    assert "distance_threshold" in str(excinfo.value)
-
-    with pytest.raises(ValidationError) as excinfo_unknown:
-        habit.build_feature_extraction_config(
-            {
-                "raw_img_folder": "raw",
-                "habitats_map_folder": "habitats",
-                "out_dir": "features",
-                "feature_types": ["graph"],
-                "graph": {"typo_field": 1},
-            }
-        )
-    assert "typo_field" in str(excinfo_unknown.value)
-
-    # A validated config object passes through with default plugin configs.
-    from habit.schemas.workflows.habitat import (
-        FeatureExtractionConfig,
-        GraphFeatureBlock,
-    )
-
-    validated = FeatureExtractionConfig.model_validate(
-        {
-            "raw_img_folder": "raw",
-            "habitats_map_folder": "habitats",
-            "out_dir": "features",
-            "feature_types": ["graph"],
-        }
-    )
-    config, plugins = habit.build_feature_extraction_config(validated)
-    assert config is validated
-    assert isinstance(plugins["graph"], GraphFeatureBlock)
-    assert plugins["graph"].visualize is False
-
-
-@pytest.mark.unit
-def test_run_feature_extraction_passes_plugin_configs() -> None:
-    """Public feature runner forwards plugin settings into the L4 recipe."""
-    from unittest.mock import MagicMock, patch
-
-    import habit
-
-    plugins = {"graph": MagicMock()}
-    with patch("habit.recipes.features.extract_habitat_features") as mock_run:
-        mock_run.return_value = MagicMock(run_id="extract-run")
-        habit.run_feature_extraction(
-            {
-                "raw_img_folder": "raw",
-                "habitats_map_folder": "habitats",
-                "out_dir": "features",
-                "feature_types": ["non_radiomics", "graph"],
-            },
-            plugin_configs=plugins,
-        )
-
-    mock_run.assert_called_once()
-    assert mock_run.call_args.kwargs["plugin_configs"] == plugins
-    assert mock_run.call_args.kwargs["logger"] is None
-    config_arg = mock_run.call_args.args[0]
-    assert isinstance(config_arg, dict)
-    assert "graph" in config_arg["feature_types"]
-
-
-@pytest.mark.unit
-def test_run_test_retest_analysis_maps_and_processes_images() -> None:
-    """Public test-retest runner validates mappings before writing images."""
-    from unittest.mock import MagicMock, patch
-
-    import habit
-
-    config = {
-        "test_habitat_table": "test.csv",
-        "retest_habitat_table": "retest.csv",
-        "features": ["feature_a"],
-        "similarity_method": "pearson",
-        "input_dir": "input",
-        "out_dir": "output",
-        "processes": 2,
-    }
-    expected_mapping = {2: 1}
-    logger = MagicMock()
-
-    with (
-        patch(
-            "habit.compat.test_retest_mapper.find_habitat_mapping",
-            return_value=expected_mapping,
-        ) as mock_find,
-        patch("habit.compat.test_retest_mapper.batch_process_files") as mock_batch,
-    ):
-        result = habit.run_test_retest_analysis(config, logger=logger)
-
-    assert result.data == expected_mapping
-    mock_find.assert_called_once_with(
-        "test.csv",
-        "retest.csv",
-        ["feature_a"],
-        "pearson",
-    )
-    mock_batch.assert_called_once_with("input", expected_mapping, "output", 2)
-    logger.info.assert_called_once_with(
-        "Computed test-retest habitat mapping: %s",
-        expected_mapping,
-    )
-
-
-@pytest.mark.unit
-def test_config_from_file_via_public_api(tmp_path, cwd_repo_root: None) -> None:
-    """Config classes exposed at top level retain ``from_file`` factory."""
-    from pathlib import Path
-
-    import habit
-
-    cfg_path = Path("config/preprocessing/config_preprocessing_demo.yaml")
-    if not cfg_path.is_file():
-        pytest.skip(f"Demo config not found: {cfg_path}")
-
-    config = habit.PreprocessingConfig.from_file(str(cfg_path))
-    assert config.out_dir
+    assert completed.returncode == 0, completed.stderr
+    assert "loaded []" in completed.stdout

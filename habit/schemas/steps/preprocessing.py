@@ -94,6 +94,14 @@ class N4CorrectionParams(BaseModel):
         description="Shrink factor to accelerate computation.",
         json_schema_extra={"group": "Parameters", "order": 4},
     )
+    mask_name: Optional[str] = Field(
+        None,
+        description=(
+            "Explicit Subject ROI name used to restrict N4 estimation. "
+            "When omitted, N4 estimates the bias field from the full image."
+        ),
+        json_schema_extra={"group": "Parameters", "order": 5},
+    )
 
 
 class ResampleParams(BaseModel):

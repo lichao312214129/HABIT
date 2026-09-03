@@ -28,7 +28,8 @@ import numpy as np
 import pandas as pd
 from lifelines import CoxPHFitter
 
-from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
+from habit.spec import HabitatSpec, Spec, Stage
+from habit.datasets import make_synthetic_cohort
 import habit.recipes as recipes
 from habit.viz import (
     plot_bland_altman,
@@ -186,7 +187,3 @@ if __name__ == "__main__":
     for src, name in mapping.items():
         (gallery / name).write_bytes(Path(src).read_bytes())
     print("Copied gallery PNGs")
-    print(
-        "Binary ML ROC/calibration: see tabular_ml_quickstart.py and "
-        "ml_advanced_demo.py (compare_models)."
-    )

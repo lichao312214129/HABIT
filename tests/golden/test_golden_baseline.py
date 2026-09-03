@@ -56,6 +56,7 @@ from scripts.make_golden_baseline import (  # noqa: E402
     DEFAULT_OUT_ROOT,
     GOLDEN_CASES,
     GoldenCase,
+    _is_volatile_json_leaf,
     baseline_path,
     compare_records,
     run_case,
@@ -127,6 +128,20 @@ def test_two_step_baseline_covers_the_artefact_contract() -> None:
 
 
 @pytest.mark.unit
+def test_only_habit_distribution_version_is_volatile() -> None:
+    """Package releases may change HABIT's version, not other provenance."""
+    assert _is_volatile_json_leaf("provenance.software.habit")
+    assert _is_volatile_json_leaf(
+        "provenance.inputs[0].software.habit"
+    )
+    assert not _is_volatile_json_leaf("provenance.software.numpy")
+    assert not _is_volatile_json_leaf("provenance.spec_fingerprint")
+    assert not _is_volatile_json_leaf(
+        "provenance.inputs[0].produced_by"
+    )
+
+
+@pytest.mark.unit
 def test_label_maps_are_pinned_voxelwise() -> None:
     """Habitat and supervoxel maps carry a digest plus their geometry."""
     baseline = _load_baseline("habitat_two_step")
@@ -147,7 +162,9 @@ def test_label_maps_are_pinned_voxelwise() -> None:
 @pytest.mark.slow
 @pytest.mark.integration
 @pytest.mark.parametrize("case", GOLDEN_CASES, ids=lambda case: case.name)
-def test_case_reproduces_baseline(case: GoldenCase, tmp_path: Path) -> None:
+def test_case_reproduces_baseline(
+    case: GoldenCase, tmp_path: Path, capfd: pytest.CaptureFixture[str]
+) -> None:
     """
     Re-running a case reproduces the baseline artefact-for-artefact.
 
@@ -160,7 +177,11 @@ def test_case_reproduces_baseline(case: GoldenCase, tmp_path: Path) -> None:
         pytest.skip("demo_data/ is not present; golden reproduction needs local imaging data")
 
     baseline = _load_baseline(case.name)
-    current = run_case(case, tmp_path)
+    # Golden ML may spend tens of minutes in SHAP.  Disable pytest's
+    # file-descriptor capture while the runner forwards child output so a
+    # healthy long-running subprocess remains visible to Windows watchdogs.
+    with capfd.disabled():
+        current = run_case(case, tmp_path)
     problems = compare_records(baseline, current)
     assert not problems, "Golden baseline drift:\n" + "\n".join(problems[:40])
 

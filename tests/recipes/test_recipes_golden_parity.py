@@ -35,7 +35,7 @@ Run with::
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Callable, Dict, List, NamedTuple
+from typing import Any, Dict, List, NamedTuple, Tuple
 
 import pytest
 
@@ -56,45 +56,50 @@ HABITAT_MAP_SUFFIX = "_habitats.nrrd"
 
 
 class RecipeCase(NamedTuple):
-    """One golden habitat case rerun through its v1 recipe."""
+    """One golden habitat case rerun through :class:`~habit.recipes.study.Study`."""
 
     #: Golden baseline / case name.
     name: str
     #: Legacy YAML the baseline was generated from.
     config: str
-    #: Dotted attribute of ``habit.recipes`` implementing the design.
-    recipe: str
-    #: Habitat count the frozen baseline settled on.
-    n_habitats: int
+    #: Study design string (``two_step`` / ``one_step`` / ``direct_pooling``).
+    design: str
+    #: Per-subject habitat counts recorded by the frozen label-map baseline.
+    habitat_counts: Tuple[Tuple[str, int], ...]
 
 
 RECIPE_CASES: List[RecipeCase] = [
     RecipeCase(
         name="habitat_two_step",
         config="config/habitat/config_habitat_two_step.yaml",
-        recipe="two_step",
-        n_habitats=4,
+        design="two_step",
+        habitat_counts=(
+            ("subj001", 5),
+            ("subj002", 5),
+            ("subj003", 5),
+            ("subj004", 5),
+            ("subj005", 5),
+        ),
     ),
     RecipeCase(
         name="habitat_one_step",
         config="config/habitat/config_habitat_one_step_raw_concat_train.yaml",
-        recipe="one_step",
-        n_habitats=4,
+        design="one_step",
+        habitat_counts=(
+            ("subj001", 4),
+            ("subj002", 4),
+            ("subj003", 4),
+            ("subj004", 5),
+            ("subj005", 5),
+        ),
     ),
     RecipeCase(
         name="habitat_direct_pooling",
         config="config/habitat/config_habitat_direct_pooling.yaml",
-        recipe="direct_pooling",
-        n_habitats=4,
+        design="direct_pooling",
+        habitat_counts=(("subj001", 4), ("subj002", 4)),
     ),
 ]
-
-
-def _recipe(name: str) -> Callable[..., Any]:
-    """Resolve a recipe function by name."""
-    import habit.recipes as recipes
-
-    return getattr(recipes, name)
 
 
 #: Study results keyed by case name. A habitat run costs tens of seconds, and
@@ -114,9 +119,13 @@ def _study_result(case: RecipeCase) -> Any:
         The resulting :class:`~habit.recipes.result.StudyResult`.
     """
     if case.name not in _RESULTS:
+        from habit.recipes.study import Study
+
         spec, root = spec_and_data_root(case.config)
         cohort = load_demo_cohort(spec, root)
-        _RESULTS[case.name] = _recipe(case.recipe)(cohort, spec)
+        _RESULTS[case.name] = Study(spec=spec, design=case.design).fit_predict(
+            cohort
+        )
     return _RESULTS[case.name]
 
 
@@ -230,7 +239,11 @@ def test_recipe_settles_on_the_baseline_habitat_count(case: RecipeCase) -> None:
         pytest.skip("demo_data/ is not present; recipe parity needs local imaging data")
 
     result = _study_result(case)
-    counts = {int(habitat_map.label_array.max()) for habitat_map in result.habitat_maps}
-    assert counts == {case.n_habitats}, (
-        f"{case.name}: habitat counts {sorted(counts)} != baseline {case.n_habitats}"
+    counts = {
+        habitat_map.subject_id: int(habitat_map.label_array.max())
+        for habitat_map in result.habitat_maps
+    }
+    expected_counts = dict(case.habitat_counts)
+    assert counts == expected_counts, (
+        f"{case.name}: habitat counts {counts} != baseline {expected_counts}"
     )

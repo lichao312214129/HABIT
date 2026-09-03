@@ -4,9 +4,9 @@ Graph features from habitat maps
 **Level:** atomic · **Data:** ``demo_data`` or synthetic · **Extras:** ``[viz]`` /
 ``[view]`` for figures · **Time:** ~15–30 min
 
-End-to-end: three subjects → :func:`~habit.one_step_habitat` with a **fixed**
+End-to-end: three subjects → :func:`~habit.recipes.one_step_habitat` with a **fixed**
 ``n_habitats=4`` (not ``"auto"``) →
-:func:`~habit.extract_graph_features` on the **full 3D**
+:func:`~habit.kernels.extract_graph_features` on the **full 3D**
 ``HabitatMap.label_array`` (not a 2D slice) →
 :func:`~habit.viz.plot_graph_feature_heatmap` (Subject x graph-feature,
 column z-score; ``single_h*`` and ``pair_h*`` plus the 8-vs-5 3D
@@ -14,7 +14,7 @@ compare) plus overlay +
 :func:`~habit.viz.plot_habitat_graph_network_2d`. The 2D network is
 **display-only**: it draws a representative axial slice so you can see
 the lattice. Heatmaps and stats always use the 3D tables. This example
-uses the library defaults on :class:`~habit.HabitatGraphFeatureOptions`:
+uses the library defaults on :class:`~habit.kernels.HabitatGraphFeatureOptions`:
 ``node_method='uniform_grid'`` (8-voxel cubes, not millimetres; one
 node per in-cell subregion centroid) and
 ``edge_method='min_distance'`` (closest voxels within 5).
@@ -28,7 +28,7 @@ two 3D lattices can be compared. Graph topology is a
 habitat-map feature family (same tier as ``volume`` / ``msi``); columns
 under :doc:`../reference/features/index`. To stream 2D graph PNGs as each
 one-step subject completes, pass the same
-:class:`~habit.HabitatGraphFeatureOptions` to ``Spec("graph")`` and
+:class:`~habit.kernels.HabitatGraphFeatureOptions` to ``Spec("graph")`` and
 :class:`~habit.report.GraphSlice` / :class:`~habit.report.GraphNetwork2D`
 — see :doc:`one_step_habitat` (**Stream per subject**).
 
@@ -42,7 +42,7 @@ Script
 ------
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
-(:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
+(:doc:`data_from_arrays`). The recipe **fixes K=4** and
 uses the library node/edge defaults (uniform 8-voxel cubes, one node
 per in-cell subregion centroid + min-distance edges). The library
 turns extended metrics on; this gallery pins
@@ -244,7 +244,7 @@ see the how-to for the one-line 3D calls).
 What to read next
 -----------------
 
-* :doc:`../how_to/graph_features` — YAML / CLI / domain registry
-* :doc:`../reference/features/graph` — column definitions
 * :doc:`feature_extraction` — other habitat-map feature families
-* :doc:`voxel_texture` — voxel-level texture maps (inputs to habitats)
+* :doc:`visualization` — publication figures from the same maps
+* :doc:`../reference/features/graph` — column definitions (Reference)
+* :doc:`../how_to/graph_features` — CLI / YAML bookmark only

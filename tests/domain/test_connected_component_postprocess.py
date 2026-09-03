@@ -20,11 +20,12 @@ import numpy as np
 import pytest
 
 from habit.contracts import Cohort, Geometry, HabitatMap, Supervoxelization
-from habit.domain import ConnectedComponentPostprocess, SubjectPipeline
-from habit.domain.habitat_model import KMeansHabitatModelFitter
-from habit.domain.pipeline import voxel_units
-from habit.domain.supervoxel_features import aggregate_voxel_means
-from habit.domain.voxel_features import RawVoxelFeatures
+from habit.habitat_model import ConnectedComponentPostprocess
+from habit.pipeline import SubjectPipeline
+from habit.habitat_model import KMeansHabitatModelFitter
+from habit.pipeline import voxel_units
+from habit.supervoxel import aggregate_voxel_means
+from habit.voxel_features import RawVoxelFeatures
 from habit.spec.specs import Spec
 
 from .conftest import make_field, make_subject, provenance

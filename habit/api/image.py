@@ -57,6 +57,7 @@ class GeometryPolicy(str, Enum):
     RESAMPLE_MASK = "resample_mask"
     RESAMPLE_IMAGE = "resample_image"
     WARN = "warn"
+    HARMONIZE = "harmonize"
 
 
 @dataclass(frozen=True)
@@ -464,6 +465,31 @@ def align_image_mask(
         )
 
     sitk = _require_simpleitk()
+    if policy is GeometryPolicy.HARMONIZE:
+        if pair.image.data.shape == pair.mask.data.shape:
+            corrected_mask = MaskVolume(
+                pair.mask.data,
+                spacing=pair.image.spacing,
+                origin=pair.image.origin,
+                direction=pair.image.direction,
+                labels=pair.mask.labels,
+                label_names=pair.mask.label_names,
+                subject_id=pair.mask.subject_id,
+                source=pair.mask.source,
+                metadata=pair.mask.metadata,
+            )
+            return ImageMaskPair(
+                pair.image,
+                corrected_mask,
+                GeometryReport(
+                    compatible=True,
+                    mismatches=report.mismatches,
+                    action=GeometryPolicy.HARMONIZE.value,
+                    tolerance=tolerance,
+                ),
+            )
+        policy = GeometryPolicy.RESAMPLE_MASK
+
     if policy is GeometryPolicy.RESAMPLE_MASK:
         resampled = sitk.Resample(
             pair.mask.to_sitk(),

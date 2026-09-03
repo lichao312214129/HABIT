@@ -553,7 +553,7 @@ class HabitatModel:
         Models are produced by the habitat recipes and round-trip through a
         self-describing ``.habitatmodel`` archive:
 
-        >>> from habit import HabitatModel
+        >>> from habit.contracts import HabitatModel
         >>> model = HabitatModel.load("out/habitat_model.habitatmodel")  # doctest: +SKIP
         >>> model.n_habitats, model.feature_names  # doctest: +SKIP
         (3, ('T1', 'T2'))
@@ -561,7 +561,9 @@ class HabitatModel:
         >>> assigner = model.assigner()  # doctest: +SKIP
 
         See :meth:`habit.recipes.Study.predict` (via ``Study.from_model``)
-        for projecting a reloaded model onto new subjects.
+        for projecting a reloaded model onto new subjects. Prediction
+        inherits the model's persisted ``postprocess_habitat``; an explicit
+        conflicting declaration raises ``HABITAPIError``.
     """
 
     model_id: str
@@ -713,7 +715,7 @@ class HabitatModel:
         Returns:
             A one-argument callable from a supervoxel map to a habitat map.
         """
-        from habit.domain.assignment import HabitatAssignerRegistry
+        from habit.habitat_model.assignment import HabitatAssignerRegistry
 
         return HabitatAssignerRegistry.create(name, model=self, **params)
 

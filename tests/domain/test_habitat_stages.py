@@ -23,8 +23,8 @@ import numpy as np
 import pytest
 
 from habit.contracts.habitat import HabitatModel
-from habit.domain.pooling_marker import PoolMarker, PoolingRegistry
-from habit.domain.stages import (
+from habit.pipeline.pooling_marker import PoolMarker, PoolingRegistry
+from habit.pipeline.stages import (
     design_from_stages,
     normalize_spec_for_execution,
     resolve_habitat_stages,
@@ -34,7 +34,8 @@ from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.inspection import StepRecorder
 from habit.recipes.study import Study
 from habit.spec import HabitatSpec, Spec, Stage
-from habit import make_synthetic_cohort
+from habit.spec.specs import ROLE_POSTPROCESS_HABITAT
+from habit.datasets import make_synthetic_cohort
 
 
 #: Shared kmeans fitter params for lightweight stage fixtures.
@@ -360,6 +361,67 @@ def test_role_inferred_without_explicit_role() -> None:
     assert list(one_result.subject_models) == [
         s.subject_id for s in cohort
     ]
+
+
+@pytest.mark.unit
+def test_stages_first_prediction_inherits_model_postprocessing(
+    tmp_path: Path,
+) -> None:
+    """
+    A stages-first archive retains fitted cleanup when predict omits that stage.
+
+    Stages-first serialisation deliberately writes only ``stages``. This
+    protects the model-card decoder from consulting only the named-field
+    ``postprocess_habitat`` key and then emitting raw assignment labels.
+    """
+    cohort = make_synthetic_cohort(n_subjects=2, shape=(16, 16, 16), rng=8)
+    base_stages = _name_only_stages_with_post_pool_preprocess("direct_pooling")
+    assign_index = next(
+        index for index, stage in enumerate(base_stages) if stage.name == "assign"
+    )
+    train_stages = (
+        *base_stages[: assign_index + 1],
+        Stage(
+            "cleanup",
+            Spec(
+                "connected_components",
+                {
+                    "min_component_size": 30,
+                    "connectivity": 1,
+                    "reassign_method": "neighbor_vote",
+                    "max_iterations": 3,
+                },
+            ),
+            role=ROLE_POSTPROCESS_HABITAT,
+        ),
+        *base_stages[assign_index + 1 :],
+    )
+    trained = Study(
+        spec=HabitatSpec(name="stages_train", stages=train_stages, random_seed=11)
+    ).fit_predict(cohort)
+    model = trained.habitat_model
+    assert model is not None
+    assert "postprocess_habitat" not in model.spec_payload
+
+    loaded = HabitatModel.load(model.save(tmp_path / "stages.habitatmodel"))
+    predicted = Study.from_model(
+        loaded,
+        HabitatSpec(
+            name="stages_predict",
+            stages=base_stages,
+            random_seed=11,
+        ),
+    ).predict(cohort)
+
+    for train_map, predicted_map in zip(trained.habitat_maps, predicted.habitat_maps):
+        np.testing.assert_array_equal(train_map.label_array, predicted_map.label_array)
+        assert predicted_map.provenance.produced_by == (
+            "postprocess.connected_components"
+        )
+    assert any(
+        stage["role"] == "postprocess_habitat"
+        for stage in predicted.manifest.spec_payload["stages"]
+    )
 
 
 @pytest.mark.unit

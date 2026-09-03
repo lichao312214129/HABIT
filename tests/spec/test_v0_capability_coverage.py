@@ -226,7 +226,7 @@ def test_translated_preprocessing_chains_are_constructible(
     if spec is None:
         pytest.skip(f"{config_path.name} declares no spec section.")
 
-    from habit.domain.feature_preprocessing import (
+    from habit.feature_preprocessing import (
         CohortPreprocessingChain,
         SubjectPreprocessingChain,
         build_methods,
@@ -289,7 +289,7 @@ def test_subject_pipeline_exposes_a_slot_for_every_preprocessing_chain() -> None
     """
     import inspect
 
-    from habit.domain.pipeline import SubjectPipeline
+    from habit.pipeline import SubjectPipeline
 
     parameters = set(inspect.signature(SubjectPipeline.__init__).parameters)
     for spec_field, pipeline_slot in (

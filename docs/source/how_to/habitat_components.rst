@@ -1,7 +1,9 @@
-Choosing habitat Spec components
-================================
+Habitat Spec component catalog
+==============================
 
-**You copied an example and want a different method — start here.**
+**Reference** chooser for registered ``Spec`` names. Walk-throughs stay in
+the Habitat Guide (:doc:`../examples/index`). This page lists every built-in
+name, constructor parameter, and the Python / YAML twin.
 
 Concept and embedding: :doc:`../tutorial/habitat_analysis` ·
 :doc:`../examples/habitat_atomic_ops`.
@@ -13,16 +15,17 @@ each parameter means, and how to write the same choice in Python and YAML.
 
 When a recipe shows ``Spec("raw")`` or ``Spec("kmeans")``, look up that
 stage below. Parameter tables are generated at Sphinx build time from each
-component's ``params_model`` (plus the class ``Args:`` text). Do not copy
-them into notebooks — look them up::
+component constructor. Do not copy them into notebooks — look names and
+constructor signatures up at runtime::
 
-   from habit import get_param_schema, list_plugins, plugin_catalog, parse_feature_expression
+   from habit.api.plugins import list_plugins
+   from habit.spec import parse_feature_expression
+   from habit.voxel_features import RawVoxelFeatures, VoxelFeatureExtractorRegistry
 
    print([info.name for info in list_plugins("voxel_feature_extractor")])
-   print(get_param_schema("raw", "voxel_feature_extractor").model_fields)
-   for row in plugin_catalog("habitat_model_fitter"):
-       for param in row.params:
-           print(row.name, param.name, param.default, param.allowed, param.description)
+   print(VoxelFeatureExtractorRegistry.constructor_signature("raw"))
+   voxel = VoxelFeatureExtractorRegistry.create("raw", modality="T1")
+   voxel = RawVoxelFeatures(modality="T1")
 
 Full live catalog (every domain): :doc:`../api/plugins`.
 
@@ -92,7 +95,7 @@ stores the same mapping under ``spec:``.
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, Stage
+   from habit.spec import HabitatSpec, Spec, Stage
 
    spec = HabitatSpec(
        name="habitat_one_step",
@@ -154,7 +157,7 @@ One method, one series, one column (or one block of columns). No
 ``concat``. The expression form quotes the modality; the ``Spec`` form
 uses ``modality=``::
 
-   from habit import parse_feature_expression
+   from habit.spec import parse_feature_expression
 
    Stage("extract_voxel_features", Spec("raw", {"modality": "T1"}))
    Stage(
@@ -537,23 +540,23 @@ Python::
    )
 
 One-step streaming figures (not stages — do not enter the fingerprint).
-Pass the same :class:`~habit.HabitatGraphFeatureOptions` to
+Pass the same :class:`~habit.kernels.HabitatGraphFeatureOptions` to
 ``Spec("graph")`` and the graph atoms. Catalog: :doc:`../examples/visualization`.
 
 Python::
 
-   from habit import (
+   from habit.adapters import DirectoryResultWriter
+   from habit.kernels import HabitatGraphFeatureOptions
+   from habit.report import (
        ClusterValidation,
        GraphNetwork2D,
        GraphSlice,
-       HabitatGraphFeatureOptions,
        ITH,
        MSI,
        Overlay,
        Report,
        VolumeFractions,
    )
-   from habit.adapters import DirectoryResultWriter
 
    graph = HabitatGraphFeatureOptions(edge_method="min_distance", block_size=8)
    writer = DirectoryResultWriter("out/study")
@@ -587,11 +590,9 @@ YAML::
 What to read next
 -----------------
 
-* :doc:`segment_habitat` — CLI / YAML operator path
-* :doc:`../examples/one_step_habitat` — the example that prompted this page
-  (``Report`` streams maps / figures; it is not a ``Stage``)
-* :doc:`../examples/two_step_habitat` — partition + pool
+* :doc:`../examples/two_step_habitat` — typical paper pipeline
+* :doc:`../examples/one_step_habitat` — per-subject habitats
 * :doc:`../examples/feature_composition` — worked concat / ratio / ``as_`` trees
-* :doc:`../examples/habitat_analysis_overview` — recipe / atomic / custom
 * :doc:`../api/spec` — fingerprints, sugar, ``RunPolicy``
 * :doc:`../api/plugins` — every domain, including table-ML
+* :doc:`segment_habitat` — CLI / YAML bookmark only

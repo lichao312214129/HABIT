@@ -16,11 +16,13 @@
 
 from __future__ import annotations
 
+import inspect
+
 import numpy as np
 import pytest
 
 from habit.api.exceptions import HABITAPIError
-from habit.domain.evaluation import (
+from habit.evaluation import (
     AccuracyMetric,
     AucMetric,
     F1ScoreMetric,
@@ -37,7 +39,7 @@ from habit.domain.evaluation import (
     icc_analysis,
     repeat_measurement_matrix,
 )
-from habit.domain.table_protocols import Metric
+from habit._table_protocols import Metric
 from habit.kernels.statistics import hosmer_lemeshow_test, spiegelhalter_z_test
 
 from .conftest import make_feature_table
@@ -61,7 +63,8 @@ def test_registry_lists_all_nine_metrics() -> None:
         instance = MetricRegistry.create(name)
         assert isinstance(instance, Metric)
         assert instance.spec.name == name
-        assert MetricRegistry.get_params_model(name) is not None
+        signature = inspect.signature(type(instance))
+        assert "self" not in signature.parameters
 
 
 @pytest.mark.unit

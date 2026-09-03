@@ -160,7 +160,8 @@ def test_visualization_enabled_respects_flags() -> None:
 
 def test_write_ml_figures_from_config_disabled(tmp_path: Path) -> None:
     """Config with is_visualize=false writes no figures."""
-    from habit import MLSpec, Spec, make_synthetic_feature_table
+    from habit.spec import MLSpec, Spec
+    from habit.datasets import make_synthetic_feature_table
     from habit.recipes.modeling import train_model
 
     table = make_synthetic_feature_table(n_rows=60, n_features=6, rng=0)
@@ -194,7 +195,8 @@ def test_write_ml_figures_from_config_disabled(tmp_path: Path) -> None:
 
 def test_write_ml_figures_from_config_holdout(tmp_path: Path) -> None:
     """Hold-out train result produces train_ and test_ curve suites."""
-    from habit import MLSpec, Spec, make_synthetic_feature_table
+    from habit.spec import MLSpec, Spec
+    from habit.datasets import make_synthetic_feature_table
     from habit.recipes.modeling import train_model
 
     table = make_synthetic_feature_table(n_rows=60, n_features=6, rng=1)

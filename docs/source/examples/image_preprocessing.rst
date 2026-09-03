@@ -20,10 +20,9 @@ Entry points
 
 * **Batch (directory pipeline)** — ``preprocess_images(config)`` scans
   ``data_dir`` and writes ``processed_images/`` under ``out_dir``.
-* **Atomic (in-memory)** — :func:`~habit.preprocess_subject` on one
-  :class:`~habit.contracts.Subject`, or operate on
-  :class:`~habit.ImageVolume` and pass the result to
-  :func:`~habit.cohort_from_directory`.
+* **Atomic (in-memory)** — :func:`~habit.api.preprocessing.preprocess_subject` on one
+  :class:`~habit.contracts.Subject`, or :func:`~habit.api.preprocessing.preprocess_image`
+  on a single :class:`~habit.api.image.ImageVolume`.
 
 This example runs **resample + z-score** on ``demo_data/preprocessed``
 (LAP) and an atomic z-score of ``subj001``.

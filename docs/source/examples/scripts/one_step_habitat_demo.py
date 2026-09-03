@@ -11,11 +11,13 @@ Run from the repository root::
 from __future__ import annotations
 
 # BEGIN example
-from habit import HabitatSpec, Spec, Stage, cohort_from_directory
+from habit.spec import HabitatSpec, Spec, Stage
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
 import habit.recipes as recipes
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 
@@ -23,7 +25,7 @@ cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(f"Cohort: {len(cohort)} subjects")
 
 # What can go in Spec("...")? See docs/source/how_to/habitat_components.rst
-# or: list_plugins("voxel_feature_extractor") / get_param_schema("kmeans", "habitat_model_fitter")
+# or: list_plugins("voxel_feature_extractor") / HabitatModelFitterRegistry.constructor_signature("kmeans")
 spec = HabitatSpec(
     name="habitat_one_step",
     stages=(
@@ -63,12 +65,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-from habit import (
-    habitat_ith_dispersion,
-    habitat_volume_fractions,
-    ith_score,
-    spatial_interaction_matrix,
-)
+from habit.kernels import habitat_ith_dispersion, habitat_volume_fractions, ith_score, spatial_interaction_matrix
 from habit.viz import (
     plot_cluster_validation_from_report,
     plot_habitat_overlay,

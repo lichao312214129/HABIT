@@ -35,15 +35,13 @@ class LegacyFeatureExtractorRegistryFacade:
 
     @classmethod
     def _voxel_registry(cls) -> Type[Any]:
-        from habit.domain.voxel_features.registry import VoxelFeatureExtractorRegistry
+        from habit.voxel_features import VoxelFeatureExtractorRegistry
 
         return VoxelFeatureExtractorRegistry
 
     @classmethod
     def _supervoxel_registry(cls) -> Type[Any]:
-        from habit.domain.supervoxel_features.registry import (
-            SupervoxelFeatureExtractorRegistry,
-        )
+        from habit.supervoxel import SupervoxelFeatureExtractorRegistry
 
         return SupervoxelFeatureExtractorRegistry
 

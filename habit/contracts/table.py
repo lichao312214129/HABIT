@@ -105,7 +105,7 @@ class FeatureTable:
                 "FeatureTable.outcome_column is undefined for the "
                 f"{self.outcome.task!r} endpoint, which spans {list(columns)}. "
                 "Use FeatureTable.outcome, or the accessors in "
-                "habit.domain.outcome_access."
+                "habit.pipeline.outcome_access."
             )
         return columns[0]
 

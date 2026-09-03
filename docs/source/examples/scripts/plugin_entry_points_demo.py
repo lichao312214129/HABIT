@@ -3,8 +3,8 @@
 Discover plugins and document the third-party entry-point pattern.
 
 In-process registration is shown in ``custom_voxel_feature_demo.py``.
-This script focuses on discovery (:func:`habit.list_plugins`) and loading
-(:func:`habit.load_plugins`) so a separate package can expose components via::
+This script focuses on discovery (:func:`habit.api.plugins.list_plugins`) and loading
+(:func:`habit.api.plugins.load_plugins`) so a separate package can expose components via::
 
     [project.entry-points."habit.voxel_feature_extractor"]
     my_feature = "my_pkg.features:register"
@@ -20,44 +20,40 @@ Run from the repository root::
 
 from __future__ import annotations
 
-from habit import list_plugins, load_plugins
-from habit.domain import VoxelFeatureExtractorRegistry
+from habit.api.plugins import list_plugins, load_plugins
+from habit.voxel_features import VoxelFeatureExtractorRegistry
 
 
 # BEGIN example
-def main() -> None:
-    """Load entry points (if any) and print registered voxel extractors."""
-    report = load_plugins(strict=False)
-    print(
-        f"load_plugins: loaded={len(report.loaded)}, "
-        f"failures={len(report.failures)}"
-    )
-    if report.failures:
-        for name, err in list(report.failures.items())[:5]:
-            print(f"  failed: {name}: {err}")
+report = load_plugins(strict=False)
+print(
+    f"load_plugins: loaded={len(report.loaded)}, "
+    f"failures={len(report.failures)}"
+)
+if report.failures:
+    for name, err in list(report.failures.items())[:5]:
+        print(f"  failed: {name}: {err}")
 
-    infos = list_plugins("voxel_feature_extractor")
-    print(f"list_plugins('voxel_feature_extractor'): {len(infos)} entries")
-    for info in infos[:12]:
-        print(f"  - {info.name}")
+infos = list_plugins("voxel_feature_extractor")
+print(f"list_plugins('voxel_feature_extractor'): {len(infos)} entries")
+for info in infos[:12]:
+    print(f"  - {info.name}")
 
-    # Registry names after load (built-ins always present).
-    names = sorted(VoxelFeatureExtractorRegistry.available())
-    print(f"VoxelFeatureExtractorRegistry.available(): {names}")
-    print(
-        "Third-party packages: declare habit.<domain> entry points, "
-        "call load_plugins(), then Spec('your_name', {...}) in HabitatSpec."
-    )
-
-
-main()
+# Registry names after load (built-ins always present).
+names = sorted(VoxelFeatureExtractorRegistry.available())
+print(f"VoxelFeatureExtractorRegistry.available(): {names}")
+print(
+    "Third-party packages: declare habit.<domain> entry points, "
+    "call load_plugins(), then Spec('your_name', {...}) in HabitatSpec."
+)
 # END example
 
 # BEGIN figures
 # Paste after the Script block. After load_plugins, a one-step run is a normal overlay.
 from pathlib import Path
 
-from habit import make_synthetic_cohort, one_step_habitat
+from habit.datasets import make_synthetic_cohort
+from habit.recipes import one_step_habitat
 from habit.viz import plot_habitat_overlay
 
 cohort = make_synthetic_cohort(n_subjects=2, modalities=("T1", "T2"), rng=0)
@@ -65,8 +61,8 @@ result = one_step_habitat(
     modalities=("T1", "T2"), n_habitats=3, random_seed=0
 ).fit_predict(cohort)
 fig = plot_habitat_overlay(
-    cohort[0].image("T1").data,
-    result.habitat_maps[0].label_array,
+    cohort[0].image("T1"),
+    result.habitat_maps[0],
     axis=0,
     title="After load_plugins: one-step habitats",
 )

@@ -125,7 +125,7 @@ components. Fitted state is persisted as a self-describing
 
 **Machine learning**: the v1 recipes (:func:`~habit.recipes.train_model`,
 :func:`~habit.recipes.cross_validate`, :func:`~habit.recipes.predict_model`)
-run a :class:`~habit.domain.TablePipeline`, which keeps preprocessing,
+run a :class:`~habit.pipeline.TablePipeline`, which keeps preprocessing,
 feature selection, and the classifier inside one fitted object to prevent
 data leakage. Figures go through :mod:`habit.recipes.ml_reporting` and
 ``habit.viz``. Multi-model comparison is

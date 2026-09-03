@@ -6,13 +6,8 @@ Discover built-in and entry-point components. Parameter order is always
 
 .. code-block:: python
 
-   from habit import (
-       get_param_schema,
-       get_plugin_info,
-       list_plugins,
-       load_plugins,
-       plugin_catalog,
-   )
+   from habit.api.plugins import get_plugin_info, list_plugins, load_plugins
+   from habit.supervoxel import SlicSupervoxelizer, SupervoxelizerRegistry
 
    report = load_plugins(strict=False)
    print(report.loaded, report.failures)
@@ -23,9 +18,11 @@ Discover built-in and entry-point components. Parameter order is always
    info = get_plugin_info("slic", "supervoxelizer")
    print(info.name, info.domain, info.implementation, info.provider)
 
-   schema = get_param_schema("slic", "supervoxelizer")
-   if schema is not None:
-       json_schema = schema.model_json_schema()
+   # Parameters live on the component constructor, not a Params model.
+   print(SupervoxelizerRegistry.available())
+   print(SupervoxelizerRegistry.constructor_signature("slic"))
+   slic = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
+   slic = SlicSupervoxelizer(n_supervoxels=50)
 
 ``load_plugins`` resilience
 ---------------------------
@@ -50,8 +47,7 @@ but emit ``HabitDeprecationWarning``; prefer the v1 singular domains below.
 v1 protocol domains
 -------------------
 
-Use these domain strings with ``list_plugins`` / ``get_plugin_info`` /
-``get_param_schema``:
+Use these domain strings with ``list_plugins`` / ``get_plugin_info``:
 
 .. code-block:: python
 
@@ -73,30 +69,30 @@ Use these domain strings with ``list_plugins`` / ``get_plugin_info`` /
    for domain in V1_DOMAINS:
        print(domain, [p.name for p in list_plugins(domain)])
 
-Enumerate every component and fetch its schema::
+Enumerate registered names::
 
    for plugin in list_plugins():
-       schema = get_param_schema(plugin.name, plugin.domain)
-       print(plugin.domain, plugin.name, schema)
+       print(plugin.domain, plugin.name)
 
 Which ``Spec`` / ``create`` names exist
 ---------------------------------------
 
-``params_model`` is the only source of truth. Do not copy parameter tables
-into YAML or notebooks — they rot. Look names up at runtime, or read the
-live catalog below (regenerated every Sphinx build from the same schemas).
+The component ``__init__`` is the only parameter contract: types, defaults,
+allowed values or ranges, validation, and same-named public attributes.
+``Registry.create("name", **kwargs)`` forwards those constructor
+arguments. Do not copy parameter tables into YAML or notebooks — they
+rot. Look names up with ``list_plugins`` / ``Registry.available()``, and
+read the constructor (or ``Registry.constructor_signature``) for
+parameters.
 
 .. code-block:: python
 
-   from habit import plugin_catalog, get_param_schema
+   from habit.api.plugins import list_plugins
+   from habit.table_preprocessing import TablePreprocessorRegistry
 
-   for row in plugin_catalog("table_preprocessor"):
-       print(row.name, row.required_params, row.spec_example)
-       for param in row.params:
-           print(" ", param.name, param.default, param.allowed, param.description)
-
-   schema = get_param_schema("minmax", "table_preprocessor")
-   print(schema.model_fields)
+   print([info.name for info in list_plugins("table_preprocessor")])
+   print(TablePreprocessorRegistry.constructor_signature("minmax"))
+   scaler = TablePreprocessorRegistry.create("minmax")
 
 A bad name on ``Registry.create`` / ``get_plugin_info`` lists the names
 that *are* registered in that domain.
@@ -104,10 +100,10 @@ that *are* registered in that domain.
 Live catalog
 ~~~~~~~~~~~~
 
-Each entry is one line of purpose, required vs optional parameters from
-``params_model``, one ``Spec`` / ``Registry.create`` example, and a
+Each entry is one line of purpose, required vs optional constructor
+parameters, one ``Spec`` / ``Registry.create`` example, and a
 parameter table (default, allowed values / type, meaning). YAML
-``name:`` / ``params:`` blocks use the same names.
+``name:`` / ``params:`` blocks use the same constructor names.
 
 Habitat stages organised by scientific module:
 :doc:`../how_to/habitat_components`.
@@ -117,9 +113,7 @@ Habitat stages organised by scientific module:
 Types
 -----
 
-* ``PluginInfo`` — name, domain, implementation, params_schema, provider
-* ``PluginParamInfo`` — one ``Spec`` parameter (default, allowed values, meaning)
-* ``PluginCatalogEntry`` — one live catalog row from ``params_model``
+* ``PluginInfo`` — name, domain, implementation, provider
 * ``PluginLoadReport`` — result of ``load_plugins``
 
 Registering a third-party plugin
@@ -143,8 +137,10 @@ In the plugin's ``pyproject.toml``:
    [project.entry-points."habit.voxel_feature_extractor"]
    t1_t2_contrast = "my_package.features:register"
 
-The registered object must implement the matching protocol from
-``habit.domain.protocols`` and expose a ``spec`` (see :doc:`spec`). For
+The registered object must implement the matching protocol from the
+capability package (for example
+:class:`~habit.supervoxel.Supervoxelizer`) and expose a ``spec``
+(see :doc:`spec`). For
 ``voxel_feature_extractor``, the entry point commonly points at a callable
 that performs ``@VoxelFeatureExtractorRegistry.register(...)`` (same pattern
 as other domains). After ``pip install`` of the plugin package,

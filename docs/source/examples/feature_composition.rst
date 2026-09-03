@@ -18,7 +18,7 @@ form** (nested ``name`` / ``params`` mappings). Both produce the identical
 
 .. code-block:: python
 
-   from habit import Spec, parse_feature_expression
+   from habit.spec import Spec, parse_feature_expression
 
    expression = 'concat(raw("T1"), local_entropy("T2", kernel_size=3))'
    parsed = parse_feature_expression(expression)

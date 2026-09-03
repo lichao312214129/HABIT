@@ -20,7 +20,8 @@ import numpy as np
 import pytest
 
 from habit.contracts import VoxelFeatureField
-from habit.domain import extract_voxel_texture, perturb_image, precision_panel
+from habit.voxel_features import extract_voxel_texture
+from habit.precision import perturb_image, precision_panel
 from habit.exceptions import ComponentNotFoundError, HABITAPIError
 
 from .conftest import make_subject

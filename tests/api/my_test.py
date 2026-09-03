@@ -21,15 +21,11 @@ from habit.contracts import (
     MaskVolume,
     Subject,
 )
-from habit.domain import (
-    HabitatVolumeFeatures,
-    IthHabitatFeatures,
-    KMeansHabitatModelFitter,
-    MsiHabitatFeatures,
-    RawVoxelFeatures,
-    SlicSupervoxelizer,
-    SubjectPipeline,
-)
+from habit.habitat_features import HabitatVolumeFeatures, IthHabitatFeatures, MsiHabitatFeatures
+from habit.habitat_model import KMeansHabitatModelFitter
+from habit.voxel_features import RawVoxelFeatures
+from habit.supervoxel import SlicSupervoxelizer
+from habit.pipeline import SubjectPipeline
 
 # Small enough to run in a couple of seconds, large enough for SLIC to split.
 SHAPE: Tuple[int, int, int] = (12, 24, 24)

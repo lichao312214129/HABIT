@@ -172,7 +172,7 @@ HABIT 的核心科学优势是天然多模态（T1/T2/CT/PET 任意组合）。�
 
 `pooling` / `PoolingMarker`：有序 stage 列表里的 **subject→cohort 分水岭标记**
 （内置名 ``pool``）。它不是聚类算法；executor 识别该角色后调用
-``habit.domain.pooling.fan_in``。见 `07` §F（2026-08-09 stages 定稿）。
+``habit.pipeline.pooling.fan_in``。见 `07` §F（2026-08-09 stages 定稿）。
 
 要点：
 - **单数、协议名**，不是复数域名（推翻此前的 `habit.preprocessors` 复数方案——那是 v0.1 的偶然，不是该继承的约定；v1.0 允许破坏性重构，统一为协议名更自洽）。
@@ -201,6 +201,22 @@ HABIT 的核心科学优势是天然多模态（T1/T2/CT/PET 任意组合）。�
 | `habit.compat` | 保持（不改 `habit.integrations`） | `compat.sklearn`/`compat.monai`/`compat.nnunet` 第三方互操作。 |
 
 > 说明：命名审查建议改 `habit.data`/`habit.io`/`habit.components`/`habit.workflows`/`habit.integrations`。这些在纯美学上各有道理，但都属于"可改可不改"，而 v1.0 已有大量文档与原型引用现名。**只有当现名造成真实歧义时才改**（如 `Outcome`、`ArtifactSink`、`HabitatMapper`），否则保持稳定、降低实现与审查成本。
+>
+> **2026-09-02 增补**：API 参考页上同一族对象一半写 `habit.X`、一半写
+> `habit.domain.X`，即"真实歧义"。因此 `habit.domain` 不再作为 L3 实现层的物理
+> 名字：按能力命名的 `habit.voxel_features` / `habit.supervoxel` /
+> `habit.habitat_model` / … 同时是**规范用户路径和真实代码位置**。v2.0.0 删除
+> `habit.domain.*` 与旧的扁平组件导入，不保留 compatibility re-export。命名表、分层门禁
+> 与分阶段迁移计划见
+> [`09_capability_namespaces.md`](09_capability_namespaces.md)。
+>
+> **2026-09-02 v2 参数契约增补**：组件的 `__init__` 是唯一参数真相来源。
+> 删除所有组件 `*Params` Pydantic 配套模型与 Registry `params_model`；Registry
+> 只保留名称到类的映射及 `create(name, **kwargs)`。构造器以 sklearn 风格的类型标注、
+> 默认值、允许值/数值边界、运行期校验和同名实例属性表达契约；参数自省与自动文档直接
+> 读取 `inspect.signature`、注解和 `Parameters` docstring。`Spec.params` 仍是传给
+> 构造器的无类型 kwargs/溯源字典，不再承担 Pydantic schema。此项为 v2 破坏性迁移，
+> 不保留旧 Params 或 `get_params_model()` compatibility。
 
 ---
 
@@ -274,7 +290,7 @@ v1.1 起 `MLSpec.steps: Tuple[Spec, ...]` 是**唯一**的表步骤表达：**�
 
 ### 9.1 名字跨注册表解析，不加 kind 标签
 
-`steps` 里每一项只有 `name`。解析发生在 L3 的 `habit.domain.assembly.build_table_step`：先查 `TablePreprocessorRegistry`，再查 `FeatureSelectorRegistry`。
+`steps` 里每一项只有 `name`。解析发生在 L3 的 `habit.pipeline.assembly.build_table_step`：先查 `TablePreprocessorRegistry`，再查 `FeatureSelectorRegistry`。
 
 **为什么不给每项加 `kind: preprocessor|selector`**：那会成为注册表已经知道的事情的第二份事实源，两份就会漂移。两个词表当前无重名（`variance` / `variance_filter`、`correlation` / `correlation_filter`，见 §10），因此名字足以唯一确定组件；万一将来重名，`build_table_step` **报错而不是猜**，并由 `tests/domain/test_table_pipeline.py::test_the_two_step_registries_share_no_names` 提前拦住。
 
@@ -344,7 +360,7 @@ v1.1 起 `MLSpec.steps: Tuple[Spec, ...]` 是**唯一**的表步骤表达：**�
 
 ### 11.4 折的来源是 HABIT 而不是 sklearn 的 splitter
 
-搜索的 cv 传的是 `habit.domain.split.kfold_indices` 生成的显式 `(train, val)` 索引对，不是 `cv=5`。这样同 `n_splits` + 同 seed 下，搜索与 `cross_validate` 的划分**逐行一致**，划分逻辑只有一个源头。
+搜索的 cv 传的是 `habit.evaluation.split.kfold_indices` 生成的显式 `(train, val)` 索引对，不是 `cv=5`。这样同 `n_splits` + 同 seed 下，搜索与 `cross_validate` 的划分**逐行一致**，划分逻辑只有一个源头。
 
 ### 11.5 `inner_cv` 与 `param_grid` 必须成对出现
 

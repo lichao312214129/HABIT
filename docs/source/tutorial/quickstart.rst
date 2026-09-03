@@ -20,40 +20,32 @@ Pick a folder you own (``<work_dir>``). In a conda terminal::
    mkdir -p ~/my_habit_work && cd ~/my_habit_work
    habit copy-demo-config --dest .
 
-This writes ``<work_dir>/config/``. ``demo_data/`` is **not** in the wheel;
-download it next.
+This writes ``<work_dir>/config/``. Imaging data is **not** in the wheel;
+fetch it next (once).
 
 2. Get demo data
 ----------------
 
-Packs are **split**. Habitat / view / extract need only the imaging pack.
-Download the ML pack only if you run ``habit model``.
+From ``<work_dir>``::
 
-**Imaging** — |download_demo_data| — extract code: |demo_data_code|
+   habit fetch-demo --work-dir .
 
-Download ``preprocessed.zip`` and extract inside ``<work_dir>`` so you have::
+The first call downloads the official 5-subject preprocessed pack (about
+473 MB) into ``%USERPROFILE%\.habit_data\demo-data-v1\preprocessed``
+(or ``$HOME/.habit_data/...``). Later calls reuse that cache. The command
+prints the absolute path and the folder tree — that tree is what **your**
+data must look like (same ``images/<id>/<series>/`` +
+``masks/<id>/<roi>/`` layout; change IDs and series names).
 
-   <work_dir>/
-   ├── config/                 # from habit copy-demo-config
-   └── demo_data/
-       └── preprocessed/
-           ├── images/
-           └── masks/
-
-There is **no** nested ``processed_images`` layer under ``preprocessed/``.
-
-* Zip top level is ``preprocessed/`` → extract into ``demo_data/``.
-* Zip top level is ``images/`` and ``masks/`` → put them under
-  ``demo_data/preprocessed/``.
+``--work-dir .`` also creates ``<work_dir>/demo_data/preprocessed`` pointing
+at the cache so the shipped YAML ``../../demo_data/preprocessed`` paths keep
+working.
 
 Preprocessed images are already included — skip preprocess on the first run.
 
-**Tabular ML** (only for ``habit model``) — |download_ml_data| — extract
-code: |ml_data_code|
-
-Download ``ml_data.zip`` and extract so ``demo_data/ml_data/`` sits next to
-``demo_data/preprocessed/``. If the zip top level is ``ml_data/``, extract
-into ``demo_data/``.
+If GitHub is unreachable, the imaging zip is also on the backup share
+(|download_demo_data|, code |demo_data_code|). Extract so you have
+``demo_data/preprocessed/images/`` and ``masks/``.
 
 3. Activate and check
 ---------------------
@@ -85,10 +77,7 @@ If ``get-habitat`` complains about parquet or plots, install
 
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
-``habit extract`` uses the habitat maps from ``get-habitat`` (imaging pack).
-``habit model`` needs ``demo_data/ml_data/`` from step 2::
-
-   habit model --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml --mode train
+``habit extract`` uses the habitat maps from ``get-habitat`` to extract volume, MSI, ITH, and graph features.
 
 ``habit view`` opens napari if installed; otherwise it writes a PNG. In
 napari, select the habitats Labels layer (Contour ``0`` = filled regions).
@@ -115,7 +104,7 @@ Next
 ----
 
 * Habitat analysis (what / which strategy): :doc:`habitat_analysis`
-* Your own data: :doc:`../how_to/prepare_data` then :doc:`../how_to/index`
+* Your own data: :doc:`../examples/data_from_arrays`
 * Python API (beginner ``Study``): :doc:`quickstart_python`
 * Embed one operator: :doc:`../examples/habitat_atomic_ops`
 * Parallel / fault tolerance: :doc:`execution`

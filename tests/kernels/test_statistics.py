@@ -12,12 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for the L0 evaluation-statistics kernels.
-
-The strongest equivalence evidence available: the kernels claim numerical
-identity with the established v0.1 routines, so several tests compare the
-two implementations directly on the same random inputs.
-"""
+"""Tests for the L0 evaluation-statistics kernels."""
 
 from __future__ import annotations
 
@@ -65,28 +60,34 @@ def test_delong_auc_matches_sklearn() -> None:
 
 
 @pytest.mark.unit
-def test_delong_auc_matches_v0_1_implementation() -> None:
-    """Kernel and v0.1 agree on AUC, variance, p-value and CI."""
-    from habit.compat.engines.machine_learning.statistics.delong_test import (
-        delong_roc_ci as v01_ci,
-    )
-    from habit.compat.engines.machine_learning.statistics.delong_test import (
-        delong_roc_test as v01_test,
-    )
-    from habit.compat.engines.machine_learning.statistics.delong_test import (
-        delong_roc_variance as v01_variance,
-    )
+def test_statistics_match_frozen_legacy_reference_values() -> None:
+    """
+    Preserve the v0.1 DeLong and calibration statistics after compat removal.
 
-    y, scores_a = _binary_problem(seed=1)
-    _, scores_b = _binary_problem(seed=2, separation=0.8)
-    assert delong_roc_variance(y, scores_a) == pytest.approx(v01_variance(y, scores_a))
-    assert delong_roc_test(y, scores_a, scores_b) == pytest.approx(
-        v01_test(y, scores_a, scores_b)
-    )
-    auc, ci = delong_roc_ci(y, scores_a)
-    v01_auc, v01_ci_value = v01_ci(y, scores_a)
-    assert auc == pytest.approx(v01_auc)
-    np.testing.assert_allclose(ci, v01_ci_value)
+    The constants were recorded from the former implementations on this
+    deterministic fixture before their source modules were deleted. Keeping
+    the reference values in this kernel-only test prevents a deleted compat
+    module from becoming the test oracle again.
+    """
+    y = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1])
+    scores_a = np.array([0.05, 0.91, 0.20, 0.80, 0.42, 0.77, 0.31, 0.65, 0.73, 0.56])
+    scores_b = np.array([0.12, 0.74, 0.11, 0.62, 0.38, 0.69, 0.47, 0.54, 0.66, 0.51])
+
+    auc, variance = delong_roc_variance(y, scores_a)
+    p_value = delong_roc_test(y, scores_a, scores_b)
+    ci_auc, ci = delong_roc_ci(y, scores_a)
+    hl_statistic, hl_p_value = hosmer_lemeshow_test(y, scores_a, n_groups=10)
+    z_statistic, z_p_value = spiegelhalter_z_test(y, scores_a)
+
+    assert auc == pytest.approx(0.91999996)
+    assert variance == pytest.approx(0.008799998950958282)
+    assert p_value == pytest.approx(0.47950066)
+    assert ci_auc == pytest.approx(0.91999996)
+    np.testing.assert_allclose(ci, [0.73613905, 1.0], rtol=1e-7, atol=1e-8)
+    assert hl_statistic == pytest.approx(6.151526797782616)
+    assert hl_p_value == pytest.approx(0.6302630640589141)
+    assert z_statistic == pytest.approx(-0.30194054243855895)
+    assert z_p_value == pytest.approx(0.7626973888423847)
 
 
 @pytest.mark.unit
@@ -119,21 +120,6 @@ def test_delong_ci_brackets_auc_and_clips_at_one() -> None:
 
 
 @pytest.mark.unit
-def test_hosmer_lemeshow_matches_v0_1_implementation() -> None:
-    """The kernel reproduces the v0.1 qcut-based statistic and p-value."""
-    from habit.compat.engines.machine_learning.statistics.hosmer_lemeshow_test import (
-        hosmer_lemeshow_test as v01_hl,
-    )
-
-    y, probabilities = _binary_problem(n=100, seed=3, separation=1.0)
-    statistic, p_value = hosmer_lemeshow_test(y, probabilities, n_groups=10)
-    data = pd.DataFrame({"y_true": y, "y_pred_proba": probabilities})
-    v01_statistic, v01_p = v01_hl(data, Q=10)
-    assert statistic == pytest.approx(v01_statistic)
-    assert p_value == pytest.approx(v01_p)
-
-
-@pytest.mark.unit
 def test_hosmer_lemeshow_well_calibrated_model_passes() -> None:
     """Outcomes sampled from the predicted probabilities give a high p."""
     rng = np.random.RandomState(7)
@@ -158,20 +144,6 @@ def test_hosmer_lemeshow_input_validation() -> None:
     with pytest.raises(ValueError):
         # Too many tied probabilities to form ten groups.
         hosmer_lemeshow_test(y, np.full_like(probabilities, 0.5))
-
-
-@pytest.mark.unit
-def test_spiegelhalter_matches_v0_1_implementation() -> None:
-    """The kernel reproduces the v0.1 z statistic and p-value."""
-    from habit.compat.engines.machine_learning.statistics.spiegelhalter_z_test import (
-        spiegelhalter_z_test as v01_spiegelhalter,
-    )
-
-    y, probabilities = _binary_problem(seed=5, separation=1.0)
-    z, p_value = spiegelhalter_z_test(y, probabilities)
-    v01_z, v01_p = v01_spiegelhalter(y, probabilities)
-    assert z == pytest.approx(v01_z)
-    assert p_value == pytest.approx(v01_p)
 
 
 @pytest.mark.unit

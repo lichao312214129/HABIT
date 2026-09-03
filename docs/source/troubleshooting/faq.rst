@@ -49,6 +49,6 @@ Data
 ----
 
 ROI: NIfTI aligned with images. Layout / path-list YAML:
-:doc:`../how_to/prepare_data`.
+:doc:`../examples/data_from_arrays`.
 
 Support: |link_github_issues| · lichao19870617@163.com

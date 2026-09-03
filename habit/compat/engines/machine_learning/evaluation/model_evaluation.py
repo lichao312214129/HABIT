@@ -23,9 +23,9 @@ from typing import Dict, List, Tuple, Union, Any, Optional, Literal
 import numpy as np
 import pandas as pd
 
-from .metrics import calculate_metrics, calculate_metrics_youden, delong_roc_ci
+from .metrics import calculate_metrics, calculate_metrics_youden
 from ..visualization.plotting import Plotter
-from ..statistics.delong_test import delong_roc_test, delong_roc_ci
+from habit.kernels.statistics import delong_roc_ci, delong_roc_test
 from habit.utils.log_utils import get_module_logger
 
 class ModelEvaluator:
@@ -188,7 +188,6 @@ class ModelEvaluator:
                 
                 # Perform DeLong test
                 p_value = delong_roc_test(y_true, y_pred1, y_pred2)
-                p_value = p_value[0][0]
                 
                 # Calculate AUC and confidence interval for each model
                 auc1, ci1 = delong_roc_ci(y_true, y_pred1)

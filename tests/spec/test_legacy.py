@@ -670,9 +670,7 @@ def _discover_cli_configs() -> list:
         workflow = _CROSS_WORKFLOW_DIR_RULES[subdir]
         name = path.name.lower()
         if subdir == "auxiliary":
-            workflow = (
-                "retest" if ("retest" in name or "test_retest" in name) else "icc"
-            )
+            workflow = "icc"
         if subdir == "radiomics" and not path.name.startswith("config_traditional"):
             continue  # radiomics parameter presets, not CLI configs
         if workflow == "model" and "kfold" in name:
@@ -1038,7 +1036,7 @@ def test_bundled_ml_config_translates_into_constructible_spec() -> None:
     assert spec.random_seed == 42
 
     # The translated spec is not merely parseable: it builds real components.
-    from habit.domain.assembly import build_table_pipeline
+    from habit.pipeline.assembly import build_table_pipeline
 
     pipeline = build_table_pipeline(spec)
     assert pipeline is not None

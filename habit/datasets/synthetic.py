@@ -564,7 +564,7 @@ def make_synthetic_cohort(
         ``subj002``, ...
 
     Examples:
-        >>> from habit import make_synthetic_cohort
+        >>> from habit.datasets import make_synthetic_cohort
         >>> cohort = make_synthetic_cohort(n_subjects=3, rng=42)
         >>> len(cohort)
         3
@@ -622,7 +622,7 @@ def make_synthetic_feature_table(
         semantics.
 
     Examples:
-        >>> from habit import make_synthetic_feature_table
+        >>> from habit.datasets import make_synthetic_feature_table
         >>> table = make_synthetic_feature_table(n_rows=10, n_features=4, rng=42)
         >>> table.frame.shape
         (10, 6)

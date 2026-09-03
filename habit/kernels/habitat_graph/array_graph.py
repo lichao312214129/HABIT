@@ -29,8 +29,8 @@ from habit.kernels.habitat_graph.models import (
     MinDistanceEdgeTable,
 )
 from habit.kernels.habitat_graph.traversal import HopMetricResult
-from habit.utils.graph_brandes_utils import csr_from_edge_arrays, hop_metrics_csr
-from habit.utils.graph_csr_utils import connected_components_csr, induce_csr
+from habit.kernels.habitat_graph.brandes import csr_from_edge_arrays, hop_metrics_csr
+from habit.kernels.habitat_graph.csr import connected_components_csr, induce_csr
 
 __all__ = [
     "habitat_graph_to_arrays",

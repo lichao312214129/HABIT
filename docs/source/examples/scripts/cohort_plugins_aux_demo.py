@@ -4,12 +4,12 @@ Cohort assembly, plugins, auxiliary workflows, and config tooling.
 
 Covers:
 
-* :func:`~habit.cohort_from_directory` (batch) and single-subject slice
-* :func:`~habit.list_plugins`
+* :func:`~habit.contracts.cohort_from_directory` (batch) and single-subject slice
+* :func:`~habit.api.plugins.list_plugins`
 * :func:`~habit.recipes.dice`, :func:`~habit.recipes.dicom_info`,
   :func:`~habit.recipes.merge_tables`
-* :func:`~habit.recipes.icc_analysis`, :func:`~habit.recipes.test_retest_analysis`
-  when ``demo_data/ml_data`` is present
+* :func:`~habit.recipes.icc_analysis`, :func:`~habit.recipes.dice`,
+  :func:`~habit.recipes.merge_tables` when ``demo_data/ml_data`` is present
 * programmatic :func:`~habit.commands.cmd_check_config.run_check_config` and
   :func:`~habit.commands.cmd_migrate_config.run_migrate_config`
 
@@ -31,7 +31,9 @@ import pandas as pd
 import SimpleITK as sitk
 
 # BEGIN example
-from habit import cohort_from_directory, list_plugins, make_synthetic_cohort
+from habit.contracts import cohort_from_directory
+from habit.api.plugins import list_plugins
+from habit.datasets import make_synthetic_cohort
 from habit.commands.cmd_check_config import run_check_config
 from habit.commands.cmd_migrate_config import run_migrate_config
 import habit.recipes as recipes
@@ -117,22 +119,6 @@ if RADIOMICS_CSV.is_file() and RETEST_CSV.is_file():
         print(f"\nicc_analysis: {exc}")
 else:
     print("\nicc_analysis: skipped (need demo_data/ml_data/*.csv)")
-
-# --- test_retest_analysis (habitat maps from API coverage when present) -------
-if HABITAT_MAPS.is_dir() and list(HABITAT_MAPS.glob("*_habitats.nrrd")):
-    retest_config: Dict[str, Any] = {
-        "habitats_map_folder": str(HABITAT_MAPS),
-        "out_dir": str(work_dir / "test_retest"),
-        "habitat_pattern": "*_habitats.nrrd",
-        "feature_columns": ["count", "LAP", "PVP"],
-    }
-    try:
-        retest_result = recipes.test_retest_analysis(retest_config)
-        print(f"test_retest_analysis: {retest_result.output_dir}")
-    except Exception as exc:  # noqa: BLE001 - report and continue in demo
-        print(f"test_retest_analysis: {exc}")
-else:
-    print("test_retest_analysis: skipped (run demo_data/results/api/02_habitat_two_step first)")
 
 # --- check-config / migrate-config --------------------------------------------
 if V0_HABITAT_YAML.is_file():

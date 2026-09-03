@@ -16,7 +16,7 @@
 
 Each function here is a WIRING DIAGRAM, not an engine: it reads a
 :class:`~habit.spec.specs.HabitatSpec`, builds the declared components, runs
-them through :class:`~habit.domain.pipeline.SubjectPipeline` and
+them through :class:`~habit.pipeline.SubjectPipeline` and
 :meth:`~habit.contracts.subject.Cohort.map`, and packs the outcome into a
 :class:`~habit.recipes.result.StudyResult`. Everything that looks like
 orchestration -- parallelism, resume, per-subject failure policy, progress
@@ -83,17 +83,23 @@ from habit.contracts.ops import ExecutionBackend, ResultWriter, SubjectResult
 from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.subject import Cohort, Subject
 from habit.contracts.table import FeatureTable
-from habit.domain.assembly import HabitatComponents, build_habitat_components
-from habit.domain.pooling import fan_in
-from habit.domain.protocols import Seedable
-from habit.domain.stages import (
+from habit.pipeline.assembly import HabitatComponents, build_habitat_components
+from habit.pipeline.pooling import fan_in
+from habit._protocols import Seedable
+from habit.pipeline.stages import (
     design_from_stages,
     execute_habitat_dataflow,
     normalize_spec_for_execution,
     resolve_habitat_stages,
 )
 from habit.recipes.result import StudyResult
-from habit.spec.specs import HabitatSpec
+from habit.spec.specs import (
+    ROLE_ASSIGN,
+    ROLE_POSTPROCESS_HABITAT,
+    HabitatSpec,
+    Spec,
+    Stage,
+)
 
 if TYPE_CHECKING:
     # Typing-only reference: the store is an execution-layer concern and is
@@ -103,7 +109,7 @@ if TYPE_CHECKING:
 _LOG = logging.getLogger(__name__)
 
 #: Identifier column of the cohort feature table, matching the habitat
-#: feature families (``habit.domain.habitat_features._base``).
+#: feature families (``habit.habitat_features._base``).
 _SUBJECT_ID_COLUMN = "subject"
 
 
@@ -190,6 +196,102 @@ def _effective_spec(spec: HabitatSpec, seed: Optional[int]) -> HabitatSpec:
     if seed is None:
         return spec
     return dataclasses.replace(spec, random_seed=int(seed))
+
+
+def _with_model_habitat_postprocessing(
+    spec: HabitatSpec, model: HabitatModel
+) -> HabitatSpec:
+    """
+    Bind the habitat-label cleanup declared by the fitted model.
+
+    Connected-component cleanup changes labels after assignment, so it is part
+    of a habitat definition rather than a presentation option. Prediction
+    therefore inherits the training declaration when its supplied spec omits
+    it. A conflicting supplied declaration is rejected instead of silently
+    overriding the model and producing plausible but non-reproducible labels.
+
+    Args:
+        spec: Prediction-time upstream analysis declaration.
+        model: Fitted habitat definition carrying its training spec payload.
+
+    Returns:
+        ``spec`` with the model's habitat postprocessor bound when omitted.
+
+    Raises:
+        HABITAPIError: If the model payload is malformed or the prediction
+            declaration attempts to change habitat-label postprocessing.
+    """
+    model_payload = model.spec_payload
+    if "postprocess_habitat" in model_payload:
+        payload = model_payload["postprocess_habitat"]
+    elif "stages" in model_payload:
+        # A stages-first spec records postprocessing inside its ordered stage
+        # list rather than under the named-field sugar. Reconstruct it through
+        # HabitatSpec so archive loading and in-memory models use one decoder.
+        try:
+            payload = HabitatSpec.from_dict(model_payload).postprocess_habitat
+        except HABITAPIError as exc:
+            raise HABITAPIError(
+                "HabitatModel.spec_payload contains invalid habitat stages; "
+                "cannot determine its postprocess_habitat declaration."
+            ) from exc
+    else:
+        payload = None
+
+    if payload is None:
+        model_postprocess = None
+    elif isinstance(payload, Spec):
+        model_postprocess = payload
+    elif isinstance(payload, Mapping):
+        model_postprocess = Spec.from_dict(payload)
+    else:
+        raise HABITAPIError(
+            "HabitatModel.spec_payload['postprocess_habitat'] must be a "
+            f"Spec or mapping; got {type(payload).__name__}."
+        )
+
+    requested = spec.postprocess_habitat
+    if requested == model_postprocess:
+        return spec
+    if requested is not None:
+        raise HABITAPIError(
+            "Prediction cannot override HabitatModel.postprocess_habitat. "
+            "Habitat label postprocessing is part of the fitted model "
+            "definition; rebuild the model to use a different declaration."
+        )
+    if not spec._stages_explicit:
+        return dataclasses.replace(spec, postprocess_habitat=model_postprocess)
+
+    # Stages-first specs serialise their ordered stages as the source of
+    # truth. Merely replacing the named field would execute cleanup but omit
+    # it from the manifest and the prediction checkpoint fingerprint.
+    resolved = resolve_habitat_stages(spec)
+    stages = [
+        Stage(
+            name=stage.name,
+            component=stage.component.component,
+            role=stage.role,
+        )
+        for stage in resolved
+    ]
+    assign_index = next(
+        index
+        for index, stage in enumerate(stages)
+        if stage.role == ROLE_ASSIGN
+    )
+    stages.insert(
+        assign_index + 1,
+        Stage(
+            name=ROLE_POSTPROCESS_HABITAT,
+            component=model_postprocess,
+            role=ROLE_POSTPROCESS_HABITAT,
+        ),
+    )
+    return dataclasses.replace(
+        spec,
+        stages=tuple(stages),
+        postprocess_habitat=model_postprocess,
+    )
 
 
 @dataclass(frozen=True)
@@ -957,8 +1059,9 @@ def _fit_habitat(
             (see :meth:`~habit.spec.specs.HabitatSpec.validate_dataflow`).
 
     Examples:
-        >>> from habit import HabitatSpec, Spec, make_synthetic_cohort
+        >>> from habit.datasets import make_synthetic_cohort
         >>> from habit.recipes import Study
+        >>> from habit.spec import HabitatSpec, Spec
         >>> cohort = make_synthetic_cohort(n_subjects=4, shape=(20, 20, 20), rng=0)
         >>> spec = HabitatSpec(
         ...     name="demo",
@@ -1146,8 +1249,9 @@ def _two_step(
             cohort-level definition this design fits).
 
     Examples:
-        >>> from habit import HabitatSpec, Spec, make_synthetic_cohort
+        >>> from habit.datasets import make_synthetic_cohort
         >>> from habit.recipes import Study
+        >>> from habit.spec import HabitatSpec, Spec
         >>> cohort = make_synthetic_cohort(n_subjects=6, shape=(24, 24, 24), rng=42)
         >>> spec = HabitatSpec(
         ...     name="demo",
@@ -1408,8 +1512,10 @@ def _apply_habitat_model(
         subjects (here the same synthetic cohort doubles as the held-out
         data, which also verifies the save/load/apply round-trip):
 
-        >>> from habit import HabitatModel, HabitatSpec, Spec, make_synthetic_cohort
+        >>> from habit.contracts import HabitatModel
+        >>> from habit.datasets import make_synthetic_cohort
         >>> from habit.recipes import Study
+        >>> from habit.spec import HabitatSpec, Spec
         >>> cohort = make_synthetic_cohort(n_subjects=5, shape=(20, 20, 20), rng=7)
         >>> spec = HabitatSpec(
         ...     name="demo",
@@ -1433,6 +1539,7 @@ def _apply_habitat_model(
     _reject_process_inspect(inspect, backend)
     started_at = _now()
     effective = _effective_spec(spec, seed)
+    effective = _with_model_habitat_postprocessing(effective, model)
     effective.validate_dataflow()
     # Name-only stages leave named fields empty until roles are inferred;
     # normalize so assembly (and subject pipelines) see the same components
@@ -1500,7 +1607,7 @@ def _with_model_preprocessing(
         The components with the model's fitted chain attached, or unchanged
         when the model carries none.
     """
-    from habit.domain.feature_preprocessing import CohortPreprocessingChain
+    from habit.feature_preprocessing import CohortPreprocessingChain
 
     state = (model.preprocessing_state or {}).get("cohort_feature_preprocessor")
     if state is None:

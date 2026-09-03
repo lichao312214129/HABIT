@@ -3,14 +3,14 @@ Preprocessing
 
 .. note::
 
-   Supporting tool, not the habitat core. Habitat analysis:
-   :doc:`../tutorial/habitat_analysis`. Demo pack is already preprocessed
-   — go to :doc:`segment_habitat`.
+   Supporting integration, not the habitat core. Guide walk-through:
+   :doc:`../examples/image_preprocessing`. Demo pack is already
+   preprocessed — habitat maps: :doc:`../examples/two_step_habitat`.
 
 Goal: turn images (or DICOM) into a preprocessed ``images/`` + ``masks/`` tree.
 
 **First demo run:** skip this page — the demo pack already has
-``demo_data/preprocessed/``. Go to :doc:`segment_habitat`.
+``demo_data/preprocessed/``. Go to :doc:`../examples/two_step_habitat`.
 
 Run
 ---
@@ -37,13 +37,26 @@ and modality names. Then ``habit check-config`` + ``habit preprocess``.
 
 Success: ``out_dir/processed_images/images/<subject>/<modality>/`` has NIfTI.
 
-Anatomy | processed intensity (Python)::
+Anatomy | processed intensity. The figure is written by the image
+preprocessing gallery (:doc:`../examples/image_preprocessing`).
+Reproduce it::
+
+   python docs/source/examples/scripts/image_preprocessing_demo.py
+
+The plot call in that script::
 
    from habit.viz import plot_intensity_slice
 
    fig = plot_intensity_slice(
-       processed, before=original, axis=0, cmap="gray",
-       image_label="Z-scored LAP", colorbar_label="Z-score",
+       processed.image(modality),
+       before=subject.image(modality),
+       axis=0,
+       cmap="gray",
+       image_label="Z-scored LAP",
+       before_label="Original LAP",
+       title="Image preprocess: original | z-scored",
+       colorbar_label="Z-score",
+       before_colorbar_label="Intensity",
    )
 
 .. figure:: ../_static/images/examples/image_preprocess_slice.png
@@ -62,8 +75,8 @@ chain on two-step runs under-expresses habitats — see
 Atomic Python (same steps, no YAML)
 -----------------------------------
 
-:func:`~habit.preprocess_subject` / :func:`~habit.preprocess_image` take a
-``Subject`` or one volume. Copy from :doc:`../examples/image_preprocessing_api`
+:func:`~habit.api.preprocessing.preprocess_subject` / :func:`~habit.api.preprocessing.preprocess_image` take a
+``Subject`` or one volume. Copy from :doc:`../examples/image_preprocessing`
 and swap ``DATA``. Per-step figures:
 
 .. figure:: ../_static/images/examples/preprocess_resample.png

@@ -22,20 +22,10 @@ from unittest.mock import patch
 
 import numpy as np
 
-from habit import (
-    CompatibilityError,
-    FeatureResult,
-    GeometryError,
-    GeometryPolicy,
-    GeometryReport,
-    ImageMaskPair,
-    ImageVolume,
-    MaskVolume,
-    ProcessingError,
-    align_image_mask,
-    extract_batch,
-    load_plugins,
-)
+from habit.exceptions import CompatibilityError, GeometryError, ProcessingError
+from habit.api.radiomics import FeatureResult, extract_batch
+from habit.api.image import GeometryPolicy, GeometryReport, ImageMaskPair, ImageVolume, MaskVolume, align_image_mask
+from habit.api.plugins import load_plugins
 from habit.contracts import Cohort, Subject
 from habit.execution import SerialBackend
 

@@ -22,7 +22,7 @@ import numpy as np
 import pytest
 
 from habit.contracts.habitat import VoxelFeatureField
-from habit.domain.voxel_features.cache import (
+from habit.voxel_features.cache import (
     load_cached_voxel_field,
     save_cached_voxel_field,
     voxel_radiomics_cache_key,

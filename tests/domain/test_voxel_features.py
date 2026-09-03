@@ -21,8 +21,8 @@ import pytest
 
 from habit.api.exceptions import GeometryError, HABITAPIError
 from habit.contracts import ArrayImageRef, Geometry, Subject, VoxelFeatureField
-from habit.domain.protocols import VoxelFeatureExtractor
-from habit.domain.voxel_features import RawVoxelFeatures, VoxelFeatureExtractorRegistry
+from habit._protocols import VoxelFeatureExtractor
+from habit.voxel_features import RawVoxelFeatures, VoxelFeatureExtractorRegistry
 
 from .conftest import make_subject
 
@@ -85,7 +85,7 @@ def test_raw_features_geometry_mismatch_raises_on_shape() -> None:
 @pytest.mark.unit
 def test_raw_features_geometry_mismatch_strict_raises() -> None:
     """Strict alignment at the roi_voxels boundary still raises GeometryError."""
-    from habit.domain.voxel_features._base import roi_voxels
+    from habit.voxel_features._base import roi_voxels
 
     subject = make_subject("P1")
     mismatched = Geometry.from_array((4, 4, 4))

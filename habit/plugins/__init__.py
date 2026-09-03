@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Stable HABIT plugin discovery and inspection API."""
+"""Stable HABIT plugin discovery and inspection API.
+
+Re-exports :mod:`habit.api.plugins`. For v2 built-in components, prefer
+:func:`~habit.api.plugins.plugin_catalog` or
+:meth:`~habit.registry.ComponentRegistry.constructor_signature`; ``get_param_schema``
+returns a legacy third-party Pydantic schema only when one was registered.
+"""
 
 from habit.api.plugins import (
     PluginCatalogEntry,

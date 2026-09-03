@@ -296,7 +296,6 @@ def test_public_recipe_surface() -> None:
         "preprocess_images",
         "preprocess_subject",
         "icc_analysis",
-        "test_retest_analysis",
         "sort_dicom",
         "run_from_yaml",
         "Study",
@@ -324,5 +323,6 @@ def test_public_recipe_surface() -> None:
         "dicom_info",
         "merge_tables",
         "identify_precise_voxel_features",
+        "prior2024_voxel_extract_params",
         "voxel_radiomics_factory",
     }

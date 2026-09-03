@@ -13,11 +13,13 @@ from __future__ import annotations
 # BEGIN example
 from pathlib import Path
 
-from habit import HabitatSpec, Spec, Stage, cohort_from_directory
+from habit.spec import HabitatSpec, Spec, Stage
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
 import habit.recipes as recipes
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
-DATA = "demo_data/preprocessed"
+DATA = fetch_demo()
 MODALITIES = ("LAP",)
 ROI = "LAP"
 
@@ -58,7 +60,7 @@ print(f"Trained: {train_result.habitat_model.n_habitats} habitats -> {maps_dir}"
 feature_types = ["volume", "msi", "ith_score", "non_radiomics", "graph"]
 extract_result = recipes.extract_habitat_features(
     {
-        "raw_img_folder": DATA,
+        "raw_img_folder": str(DATA),
         "habitats_map_folder": str(maps_dir),
         "out_dir": "out/features",
         "n_processes": 1,
@@ -72,12 +74,7 @@ print(f"Extracted {feature_types} -> {extract_result.output_dir}")
 
 # BEGIN figures
 # Paste after the Script block. Uses cohort and train_result.
-from habit import (
-    habitat_ith_dispersion,
-    habitat_volume_fractions,
-    ith_score,
-    spatial_interaction_matrix,
-)
+from habit.kernels import habitat_ith_dispersion, habitat_volume_fractions, ith_score, spatial_interaction_matrix
 from habit.viz import (
     plot_cluster_validation_from_report,
     plot_habitat_overlay,

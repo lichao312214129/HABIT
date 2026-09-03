@@ -98,6 +98,9 @@ spec:
 data:
   source: {data_root}
 
+policy:
+  backend: serial
+
 output:
   out_dir: {work_dir / 'out'}
   habitats_results_format: csv
@@ -142,8 +145,8 @@ if __name__ == "__main__":
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from _example_roi import save_example_figure
+    from _example_roi import copy_out_figures_to_gallery
     from _habitat_eye_check import eye_check_study
 
-    save_example_figure(fig, "run_from_yaml_overlay.png")
+    copy_out_figures_to_gallery(("run_from_yaml_overlay.png",))
     eye_check_study(cohort, result)

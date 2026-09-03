@@ -16,13 +16,15 @@
 
 from __future__ import annotations
 
+import inspect
+
 import importlib.util
 
 import numpy as np
 import pytest
 
 from habit.api.exceptions import HABITAPIError, OptionalDependencyError
-from habit.domain.classification import (
+from habit.classification import (
     AdaboostClassifier,
     AutogluonTabularClassifier,
     BernoulliNbClassifier,
@@ -39,8 +41,8 @@ from habit.domain.classification import (
     SvmClassifier,
     XgboostClassifier,
 )
-from habit.domain.protocols import Seedable
-from habit.domain.table_protocols import Classifier
+from habit._protocols import Seedable
+from habit._table_protocols import Classifier
 
 from .conftest import make_feature_table
 
@@ -86,7 +88,7 @@ def test_registry_lists_all_fourteen_classifiers() -> None:
         instance = ClassifierRegistry.create(name)
         assert isinstance(instance, Classifier)
         assert instance.spec.name == name
-        assert ClassifierRegistry.get_params_model(name) is not None
+        assert isinstance(ClassifierRegistry.constructor_signature(name), inspect.Signature)
 
 
 @pytest.mark.unit

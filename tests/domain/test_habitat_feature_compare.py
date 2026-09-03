@@ -21,7 +21,7 @@ import pandas as pd
 import pytest
 
 from habit.contracts.table import FeatureTable
-from habit.domain.habitat_features.compare import (
+from habit.habitat_features.compare import (
     HabitatFeaturePanel,
     compare_habitat_features,
     to_habitat_feature_panel,
