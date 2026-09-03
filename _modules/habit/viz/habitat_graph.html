@@ -1032,8 +1032,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -1944,12 +1945,45 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">display_size</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_plot_graph_options</span><span class="p">(</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatGraphFeatureOptions</span><span class="p">],</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge optional graph options with flat keyword overrides (sklearn style).</span>
+
+<span class="sd">    Resolution mirrors :func:`habit.kernels.habitat_graph.features._resolve_graph_feature_options`:</span>
+
+<span class="sd">    * ``options is None`` and no kwargs → default ``HabitatGraphFeatureOptions()``</span>
+<span class="sd">    * ``options is None`` and kwargs → ``HabitatGraphFeatureOptions(**kwargs)``</span>
+<span class="sd">    * ``options`` given and kwargs → ``dataclasses.replace(options, **kwargs)``</span>
+<span class="sd">    * ``options`` given and no kwargs → ``options`` unchanged</span>
+
+<span class="sd">    Only keys that are fields of :class:`HabitatGraphFeatureOptions` are valid</span>
+<span class="sd">    in ``kwargs``; unknown names raise ``TypeError`` from the dataclass.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        options: Optional base options dataclass (or ``None``).</span>
+<span class="sd">        kwargs: Field overrides matching ``HabitatGraphFeatureOptions``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        HabitatGraphFeatureOptions: Resolved frozen options instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">options</span>
+    <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="plot_habitat_graph_slice">
 <a class="viewcode-back" href="../../../api/generated/habit.viz.plot_habitat_graph_slice.html#habit.viz.plot_habitat_graph_slice">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_habitat_graph_slice</span><span class="p">(</span>
     <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(),</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatGraphFeatureOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">slice_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show_grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">block_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1960,6 +1994,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">panel_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.2</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_HABITAT_CBAR_LABEL</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw the colored habitat map at the largest cross-section (2D).</span>
@@ -1969,9 +2004,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ``options``. Default lattice: ``block_size=None`` →</span>
 <span class="sd">    ``options.block_size`` (library default 8 voxels), dashed lines.</span>
 
+<span class="sd">    Graph-construction fields may be passed as flat ``**kwargs`` (same names</span>
+<span class="sd">    as :class:`~habit.kernels.HabitatGraphFeatureOptions`), so callers do not</span>
+<span class="sd">    need a separate options object::</span>
+
+<span class="sd">        plot_habitat_graph_slice(labels, block_size=8, show_grid=True)</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: 2D or 3D habitat label map (background encoded as 0).</span>
 <span class="sd">        options: Graph construction options shared with the extractor.</span>
+<span class="sd">            ``None`` (default) builds defaults, optionally from ``kwargs``.</span>
 <span class="sd">        slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the</span>
 <span class="sd">            largest cross-section. Ignored for 2D input.</span>
 <span class="sd">        show_grid: Draw the node lattice (default ``True``).</span>
@@ -1985,6 +2027,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        colorbar: Discrete habitat-ID colorbar (default ``True``). Background</span>
 <span class="sd">            ``0`` is omitted from the bar. Pass ``False`` to hide it.</span>
 <span class="sd">        colorbar_label: Colorbar label (English default ``\&quot;Habitat\&quot;``).</span>
+<span class="sd">        **kwargs: Optional field overrides for</span>
+<span class="sd">            :class:`~habit.kernels.HabitatGraphFeatureOptions` (merged into</span>
+<span class="sd">            ``options`` as described above).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The matplotlib ``Figure``; the caller decides where it goes.</span>
@@ -1992,6 +2037,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Raises:</span>
 <span class="sd">        OptionalDependencyError: When matplotlib is not installed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">_resolve_plot_graph_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListedColormap</span>
 
@@ -2054,7 +2100,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_habitat_graph_network_2d</span><span class="p">(</span>
     <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(),</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatGraphFeatureOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">slice_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show_background</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">show_grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -2068,6 +2114,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">node_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_DEFAULT_NODE_SIZE</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_HABITAT_CBAR_LABEL</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;Figure&quot;</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw the intra/inter habitat graphs built from the 2D slice habitat map.</span>
@@ -2076,6 +2123,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    as the feature extractor, but the input is the representative cross-section</span>
 <span class="sd">    rather than the full 3D volume. Display knobs override ``options`` for</span>
 <span class="sd">    drawing only (extraction still uses ``options``).</span>
+
+<span class="sd">    Graph-construction fields may be passed as flat ``**kwargs`` (same names</span>
+<span class="sd">    as :class:`~habit.kernels.HabitatGraphFeatureOptions`), so callers do not</span>
+<span class="sd">    need a separate options object::</span>
+
+<span class="sd">        plot_habitat_graph_network_2d(labels, block_size=8, show_grid=True)</span>
 
 <span class="sd">    Each H1--Hk panel fills only that habitat in its palette colour and</span>
 <span class="sd">    overlays white intra-edges plus white nodes (solid dots, thin dark</span>
@@ -2094,6 +2147,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: 2D or 3D habitat label map (background encoded as 0).</span>
 <span class="sd">        options: Graph construction options shared with the feature extractor.</span>
+<span class="sd">            ``None`` (default) builds defaults, optionally from ``kwargs``.</span>
 <span class="sd">        slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the</span>
 <span class="sd">            largest cross-section. Ignored for 2D input.</span>
 <span class="sd">        show_background: Whether to draw habitat partitions behind the</span>
@@ -2121,6 +2175,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            it does not shrink any H or pair panel (default ``True``).</span>
 <span class="sd">            Pass ``False`` to hide it.</span>
 <span class="sd">        colorbar_label: Colorbar label (English default ``\&quot;Habitat\&quot;``).</span>
+<span class="sd">        **kwargs: Optional field overrides for</span>
+<span class="sd">            :class:`~habit.kernels.HabitatGraphFeatureOptions` (merged into</span>
+<span class="sd">            ``options`` as described above).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The matplotlib ``Figure``, or ``None`` when the slice holds no habitat</span>
@@ -2129,6 +2186,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Raises:</span>
 <span class="sd">        OptionalDependencyError: When matplotlib is not installed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">_resolve_plot_graph_options</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
 

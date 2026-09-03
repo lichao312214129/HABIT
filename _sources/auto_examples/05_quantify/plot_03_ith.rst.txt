@@ -43,12 +43,11 @@ Atomic ITH metrics from a habitat label map:
 
 One-step habitats, then ITH scalar plus per-habitat dispersion.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-50
+.. GENERATED FROM PYTHON SOURCE LINES 14-48
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
     import pandas as pd
@@ -81,8 +80,7 @@ One-step habitats, then ITH scalar plus per-habitat dispersion.
     Path("out").mkdir(exist_ok=True)
     fig_ith = plot_ith_summary(ith, dispersion=dispersion)
     fig_ith.savefig("out/ith_summary.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -118,7 +116,7 @@ One-step habitats, then ITH scalar plus per-habitat dispersion.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.85s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.85s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]
     ITH scores:
     habitat    score
         ITH 0.958465
@@ -132,7 +130,7 @@ One-step habitats, then ITH scalar plus per-habitat dispersion.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.707 seconds)
+   **Total running time of the script:** (0 minutes 2.018 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_03_ith.py:

@@ -14,7 +14,6 @@ cohort-level preprocessing state, but upstream stages are re-declared.
 # Demo pack has ``subj001`` … ``subj005``. Train on the first three;
 # apply on the last two.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 
@@ -73,8 +72,7 @@ fig = plot_habitat_overlay(
     title="train habitats",
 )
 fig.savefig("out/apply_saved_train_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # Reload and label held-out subjects. No fitting after the reload.
@@ -91,5 +89,4 @@ if prediction.habitat_maps:
         title="applied habitats",
     )
     fig_new.savefig("out/apply_saved_new_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()

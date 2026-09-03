@@ -183,7 +183,7 @@ Habitat map from HABIT, synthetic 64-channel feature volume from a DL model.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.89s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.89s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.55s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.55s/it]
     Embedding shape: (3, 64) (habitats x 64-D)
                 emb_0  emb_1  emb_2  emb_3  emb_4  emb_5
     habitat_id                                          
@@ -269,7 +269,7 @@ Habitat map from HABIT, synthetic 64-channel feature volume from a DL model.
 
 Heatmap of the first 16 embedding dimensions per habitat (English labels only).
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-137
+.. GENERATED FROM PYTHON SOURCE LINES 122-134
 
 .. code-block:: Python
 
@@ -284,10 +284,7 @@ Heatmap of the first 16 embedding dimensions per habitat (English labels only).
     ax.set_title("Masked spatial average pooling (64-D, first 16 shown)")
     fig.colorbar(im, ax=ax, label="Pooled activation")
     fig.savefig("out/dl_habitat_embeddings.png", dpi=150, bbox_inches="tight")
-    import os
-
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -303,7 +300,7 @@ Heatmap of the first 16 embedding dimensions per habitat (English labels only).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 36.226 seconds)
+   **Total running time of the script:** (0 minutes 19.076 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_07_deep_learning_embeddings.py:

@@ -756,10 +756,13 @@ so the geometry never has to be unpacked by hand.</p>
 
 <section id="examples-using-habit-contracts-imagevolume">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.ImageVolume</span></code><a class="headerlink" href="#examples-using-habit-contracts-imagevolume" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Goal: decide which voxel features are allowed to define habitats, then cluster only those features. This is not a new clustering algorithm. It is the precision screen of Prior et al. (Radiol Artif Intell 2024;6(2):e230118; DOI), taught as the same combinatorial experiments the paper ran."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/03_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is Spec(&quot;graph&quot;) on a study."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Texture maps are inputs to clustering, not post-label tables. GPU is a faster implementation of the same IBSI / PyRadiomics definition — the numbers do not change because of GPU."><img alt="" src="../../_images/sphx_glr_plot_03_voxel_texture_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Voxel texture and GPU</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Independent fits permute integer ids: habitat 1 of subject B need not be habitat 1 of subject A. habit.kernels.habitat_label_match recovers a {moving_id: reference_id} map."><img alt="" src="../../_images/sphx_glr_plot_05_match_labels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html"><span class="doc">Match habitat labels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Match habitat labels</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/05_quantify/plot_04_graph_features.html"><span class="doc">Graph features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Graph features</div>
 </div></div><div style="clear:both"></div></section>

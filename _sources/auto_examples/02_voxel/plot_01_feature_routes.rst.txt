@@ -33,12 +33,11 @@ that. This page is only ``raw`` vs ``concat``.
 Load two demo subjects. ``raw`` concatenates LAP and PVP intensities
 inside the ROI.
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-35
+.. GENERATED FROM PYTHON SOURCE LINES 16-34
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
 
@@ -91,13 +90,13 @@ inside the ROI.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-39
+.. GENERATED FROM PYTHON SOURCE LINES 35-38
 
 ``raw(modalities)``: one column per series. Print the first voxel rows
 so you can see the intensities clustering will use (before any
 feature preprocessor).
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-60
+.. GENERATED FROM PYTHON SOURCE LINES 38-59
 
 .. code-block:: Python
 
@@ -197,11 +196,11 @@ feature preprocessor).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-62
+.. GENERATED FROM PYTHON SOURCE LINES 60-61
 
 Fit the ``raw`` route and overlay habitats.
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-74
+.. GENERATED FROM PYTHON SOURCE LINES 61-72
 
 .. code-block:: Python
 
@@ -214,8 +213,7 @@ Fit the ``raw`` route and overlay habitats.
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/habitat_feature_routes_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -230,8 +228,8 @@ Fit the ``raw`` route and overlay habitats.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.17s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.16s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.07it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.18it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.18it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:05<00:05,  5.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.07s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.07s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.33it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.33it/s]
     HabitatModel kmeans-eb51fe90351b084b
       habitats           : 3
       features (2)    : LAP, PVP
@@ -248,12 +246,12 @@ Fit the ``raw`` route and overlay habitats.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-77
+.. GENERATED FROM PYTHON SOURCE LINES 73-75
 
 ``concat`` joins two ``raw`` extractors column-wise. The head() table
 should show the same number of rows and more columns.
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-108
+.. GENERATED FROM PYTHON SOURCE LINES 75-106
 
 .. code-block:: Python
 
@@ -303,8 +301,8 @@ should show the same number of rows and more columns.
     2  1077.0  1088.0
     3  1073.0  1072.0
     4  1033.0  1132.0
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.47s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.47s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.53it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.54it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.54it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.34s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.33s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.33s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.71it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.68it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.68it/s]
     concat habitats: 3
 
 
@@ -313,7 +311,7 @@ should show the same number of rows and more columns.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 15.160 seconds)
+   **Total running time of the script:** (0 minutes 16.786 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_01_feature_routes.py:

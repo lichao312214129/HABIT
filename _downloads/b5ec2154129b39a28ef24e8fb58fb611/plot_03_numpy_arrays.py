@@ -12,11 +12,13 @@ mask arrays must be **integer labels** (``0`` = background).
 # Read the same demo files, then build a Subject from arrays.
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import SimpleITK as sitk
 
 from habit.contracts import ArrayImageRef, Geometry, Subject
 from habit.datasets import fetch_demo
+from habit.viz import plot_intensity_slice
 from habit.voxel_features import RawVoxelFeatures
 
 DATA = fetch_demo()
@@ -51,3 +53,15 @@ print(
 )
 print(field.feature_frame().head())
 field.feature_frame().head()
+
+# %%
+# Anatomy slice with ROI contour — confirms the array-built Subject is plottable.
+Path("out").mkdir(exist_ok=True)
+fig = plot_intensity_slice(
+    np_subject.image("LAP"),
+    roi_mask=np_subject.mask("LAP"),
+    roi_contour=True,
+    title="NumPy-constructed Subject: LAP with ROI",
+)
+fig.savefig("out/numpy_subject_slice.png", dpi=150, bbox_inches="tight")
+plt.show()

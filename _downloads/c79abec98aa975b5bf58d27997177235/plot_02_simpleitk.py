@@ -10,7 +10,6 @@ Spacing, origin, and direction cosines are preserved.
 # %%
 # Read demo NRRD files and assemble a :class:`~habit.contracts.Subject`.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 import SimpleITK as sitk
@@ -56,5 +55,4 @@ fig_sitk = plot_habitat_overlay(
     title="Habitats from SimpleITK",
 )
 fig_sitk.savefig("out/data_from_sitk_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()

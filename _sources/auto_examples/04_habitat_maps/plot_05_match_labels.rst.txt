@@ -55,12 +55,11 @@ Same grid, so we can overlay before/after alignment. A second subject
 would use the same feature matcher; overlap matching would not apply
 across patients.
 
-.. GENERATED FROM PYTHON SOURCE LINES 26-61
+.. GENERATED FROM PYTHON SOURCE LINES 26-60
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -125,19 +124,19 @@ across patients.
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Subjects: ['subj001', 'subj002']; matching demo uses subj001
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02<00:00,  2.21s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02<00:00,  2.21s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02<00:00,  2.28s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02<00:00,  2.28s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.44s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.45s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-65
+.. GENERATED FROM PYTHON SOURCE LINES 61-64
 
 Feature matcher: unscaled intensity means per habitat, then Hungarian
 assignment after a column z-score. Do not pass per-tumour MinMax
 centres — those axes are not comparable across fits.
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-86
+.. GENERATED FROM PYTHON SOURCE LINES 64-85
 
 .. code-block:: Python
 
@@ -179,13 +178,13 @@ centres — those axes are not comparable across fits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-90
+.. GENERATED FROM PYTHON SOURCE LINES 86-89
 
 Before: raw integer ids (``align_labels=False``). After: remapped B.
 Independent one-step maps can share a model_id digest; force no extra
 overlap alignment so the figure shows *this* mapping only.
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-113
+.. GENERATED FROM PYTHON SOURCE LINES 89-110
 
 .. code-block:: Python
 
@@ -198,8 +197,7 @@ overlap alignment so the figure shows *this* mapping only.
         align_labels=False,
     )
     fig_before.savefig("out/match_labels_before.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
     fig_after = plot_habitat_label_compare(
         image,
@@ -209,8 +207,7 @@ overlap alignment so the figure shows *this* mapping only.
         align_labels=False,
     )
     fig_after.savefig("out/match_labels_after.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -236,13 +233,13 @@ overlap alignment so the figure shows *this* mapping only.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-117
+.. GENERATED FROM PYTHON SOURCE LINES 111-114
 
 Same-tumour two observers: permute ids on one map and recover them
 with overlap (Hungarian on voxel counts). Feature matching is the
 cross-patient operator; overlap cannot name habitats across grids.
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-140
+.. GENERATED FROM PYTHON SOURCE LINES 114-136
 
 .. code-block:: Python
 
@@ -267,8 +264,7 @@ cross-patient operator; overlap cannot name habitats across grids.
 
     fig_ref = plot_habitat_overlay(image, map_a, title="reference (fit A)")
     fig_ref.savefig("out/match_labels_reference.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -296,7 +292,7 @@ cross-patient operator; overlap cannot name habitats across grids.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.903 seconds)
+   **Total running time of the script:** (0 minutes 8.366 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_05_match_labels.py:

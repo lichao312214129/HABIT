@@ -43,12 +43,14 @@ The habitat label image plays both intensity and mask roles.
 
 One-step habitats, then whole-map PyRadiomics on the label field.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-46
+.. GENERATED FROM PYTHON SOURCE LINES 14-49
 
 .. code-block:: Python
 
-    from typing import Any, Dict
+    from pathlib import Path
+    from typing import Any, Dict, List, Tuple
 
+    import matplotlib.pyplot as plt
     import pandas as pd
 
     from habit.contracts import cohort_from_directory
@@ -83,6 +85,7 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
 
 
+
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
@@ -109,7 +112,7 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02<00:00,  2.20s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02<00:00,  2.21s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.56s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.56s/it]
     Whole-habitat radiomics:
     subject                            subj001
     original_shape_Sphericity         0.719657
@@ -126,10 +129,47 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 50-51
+
+Horizontal bar chart of shape and first-order features on the label map.
+
+.. GENERATED FROM PYTHON SOURCE LINES 51-68
+
+.. code-block:: Python
+
+    Path("out").mkdir(exist_ok=True)
+    plot_items: List[Tuple[str, str]] = [
+        ("Sphericity", "original_shape_Sphericity"),
+        ("SurfaceArea", "original_shape_SurfaceArea"),
+        ("Mean", "original_firstorder_Mean"),
+        ("Entropy", "original_firstorder_Entropy"),
+    ]
+    labels = [name for name, _ in plot_items]
+    values = [float(row[col]) for _, col in plot_items]
+
+    fig, ax = plt.subplots(figsize=(7, 3.5))
+    ax.barh(labels, values, color="#4C72B0")
+    ax.set_xlabel("Feature value")
+    ax.set_title("Whole-habitat radiomics (shape + first-order)")
+    fig.tight_layout()
+    fig.savefig("out/whole_habitat_radiomics_bar.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+.. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_001.png
+   :alt: Whole-habitat radiomics (shape + first-order)
+   :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.659 seconds)
+   **Total running time of the script:** (0 minutes 4.915 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_06_whole_habitat_radiomics.py:

@@ -43,12 +43,11 @@ Atomic volume metrics from a habitat label map:
 
 One-step habitats give a map to quantify.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-36
+.. GENERATED FROM PYTHON SOURCE LINES 14-35
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
     import pandas as pd
@@ -99,26 +98,16 @@ One-step habitats give a map to quantify.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]E:\conda\mconda\envs\py310\lib\site-packages\threadpoolctl.py:1226: RuntimeWarning: 
-    Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded at
-    the same time. Both libraries are known to be incompatible and this
-    can cause random crashes or deadlocks on Linux when loaded in the
-    same Python program.
-    Using threadpoolctl may cause crashes or deadlocks. For more
-    information and possible workarounds, please see
-        https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
-
-      warnings.warn(msg, RuntimeWarning)
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:06<00:00,  6.37s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:06<00:00,  6.37s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.76s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.76s/it]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-38
+.. GENERATED FROM PYTHON SOURCE LINES 36-37
 
 Volume fractions and connected-component stats per habitat id.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-66
+.. GENERATED FROM PYTHON SOURCE LINES 37-64
 
 .. code-block:: Python
 
@@ -148,8 +137,7 @@ Volume fractions and connected-component stats per habitat id.
     fig.savefig("out/volume_fractions_overlay.png", dpi=150, bbox_inches="tight")
     fig_frac = plot_habitat_volume_fractions(frac)
     fig_frac.savefig("out/volume_fractions_bar.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -188,7 +176,7 @@ Volume fractions and connected-component stats per habitat id.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 14.559 seconds)
+   **Total running time of the script:** (0 minutes 7.457 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_01_volume_fractions.py:

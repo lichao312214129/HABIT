@@ -22,7 +22,6 @@ Quickstart.
 # %%
 # Load two demo subjects.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 
@@ -83,8 +82,7 @@ fig = plot_habitat_overlay(
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/two_step_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # ImageVolume + supervoxelization + HabitatMap (not ``.data``).
 fig_tri = plot_partition_triptych(
@@ -94,8 +92,7 @@ fig_tri = plot_partition_triptych(
     axis=0,
 )
 fig_tri.savefig("out/two_step_triptych.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # One-step: neither ``partition`` nor ``pool``. Cluster voxels inside
@@ -137,8 +134,7 @@ fig_one = plot_habitat_overlay(
     title="habitats (one-step)",
 )
 fig_one.savefig("out/one_step_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # Direct-pooling: ``pool`` only. Skip the cluster partition and pool
@@ -176,5 +172,4 @@ fig_direct = plot_habitat_overlay(
     title="habitats (direct-pooling)",
 )
 fig_direct.savefig("out/direct_pooling_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()

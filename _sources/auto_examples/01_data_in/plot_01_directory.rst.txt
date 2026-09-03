@@ -32,12 +32,11 @@ Directory layout
 :func:`~habit.datasets.fetch_demo` prints the absolute path and an
 inventory. That printed tree is what your own ``DATA`` must match.
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-33
+.. GENERATED FROM PYTHON SOURCE LINES 15-32
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
 
@@ -110,12 +109,12 @@ inventory. That printed tree is what your own ``DATA`` must match.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-36
+.. GENERATED FROM PYTHON SOURCE LINES 33-35
 
 Anatomy check: greyscale LAP slice of the first subject, with the ROI
 contour. Pass the :class:`~habit.api.image.ImageVolume` (not ``.data``).
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-47
+.. GENERATED FROM PYTHON SOURCE LINES 35-45
 
 .. code-block:: Python
 
@@ -128,8 +127,7 @@ contour. Pass the :class:`~habit.api.image.ImageVolume` (not ``.data``).
         roi_contour=True,
     )
     fig_anatomy.savefig("out/data_in_anatomy.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -148,11 +146,6 @@ contour. Pass the :class:`~habit.api.image.ImageVolume` (not ``.data``).
 
 
 
-
-
-.. rst-class:: sphx-glr-timing
-
-   **Total running time of the script:** (0 minutes 1.175 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_01_directory.py:

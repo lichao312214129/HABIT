@@ -12,7 +12,6 @@ Atomic volume metrics from a habitat label map:
 # %%
 # One-step habitats give a map to quantify.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -61,5 +60,4 @@ fig = plot_habitat_overlay(
 fig.savefig("out/volume_fractions_overlay.png", dpi=150, bbox_inches="tight")
 fig_frac = plot_habitat_volume_fractions(frac)
 fig_frac.savefig("out/volume_fractions_bar.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()

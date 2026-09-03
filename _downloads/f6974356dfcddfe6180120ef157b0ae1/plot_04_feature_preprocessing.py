@@ -19,7 +19,6 @@ This is clustering-feature preprocessing, not image resampling.
 # Load two demo subjects. Change ``DATA`` / ``MODALITIES`` / ``ROI`` for
 # your tree.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 
@@ -140,5 +139,4 @@ fig = plot_habitat_overlay(
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/habitat_preprocessing_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()

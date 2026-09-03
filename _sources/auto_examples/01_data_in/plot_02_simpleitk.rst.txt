@@ -29,12 +29,11 @@ Spacing, origin, and direction cosines are preserved.
 
 Read demo NRRD files and assemble a :class:`~habit.contracts.Subject`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-47
+.. GENERATED FROM PYTHON SOURCE LINES 12-46
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
     import SimpleITK as sitk
@@ -103,11 +102,11 @@ Read demo NRRD files and assemble a :class:`~habit.contracts.Subject`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-49
+.. GENERATED FROM PYTHON SOURCE LINES 47-48
 
 One-step habitats on the SimpleITK-backed subject, then overlay.
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-61
+.. GENERATED FROM PYTHON SOURCE LINES 48-59
 
 .. code-block:: Python
 
@@ -121,8 +120,7 @@ One-step habitats on the SimpleITK-backed subject, then overlay.
         title="Habitats from SimpleITK",
     )
     fig_sitk.savefig("out/data_from_sitk_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -136,7 +134,7 @@ One-step habitats on the SimpleITK-backed subject, then overlay.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:05<00:00,  5.19s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:05<00:00,  5.19s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.38s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.38s/it]
     F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
@@ -146,7 +144,7 @@ One-step habitats on the SimpleITK-backed subject, then overlay.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.987 seconds)
+   **Total running time of the script:** (0 minutes 5.991 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_02_simpleitk.py:

@@ -15,7 +15,6 @@ This page uses the official demo pack. Change ``DATA`` / ``MODALITIES`` /
 # Load the official imaging pack (downloads once) and take two subjects
 # so the run stays short. Drop the slice to use the full pack.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 
@@ -100,8 +99,7 @@ fig = plot_habitat_overlay(
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/quickstart_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 fig_tri = plot_partition_triptych(
     subject.image(ROI),
@@ -110,8 +108,7 @@ fig_tri = plot_partition_triptych(
     axis=0,
 )
 fig_tri.savefig("out/quickstart_triptych.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # Reload the ``.habitatmodel`` and label the same cohort. Optional napari

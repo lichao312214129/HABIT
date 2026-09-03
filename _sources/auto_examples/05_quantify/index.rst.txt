@@ -75,7 +75,7 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is Spec(&quot;graph&quot;) on a study.">
+    <div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study.">
 
 .. only:: html
 

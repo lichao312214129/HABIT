@@ -18,7 +18,6 @@ Each subject-level step is a single-argument callable. Call
 # Load two demo subjects and build the voxel extractor + supervoxelizer
 # as plain callables.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -96,8 +95,7 @@ fig = plot_habitat_overlay(
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/habitat_atomic_overlay.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # Population-level PCA of clustering units (supervoxel rows). Colour is
@@ -122,8 +120,7 @@ fig_pca = plot_habitat_clustering_pca_2d(
     title="Habitat clustering (PCA)",
 )
 fig_pca.savefig("out/habitat_atomic_pca_2d.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 maps = cohort.map(apply_pipe, backend=SerialBackend())
 print(f"cohort.map -> {len(maps)} habitat maps")

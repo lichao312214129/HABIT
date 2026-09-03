@@ -4,7 +4,9 @@ Graph features
 
 After a habitat map exists, :func:`~habit.kernels.extract_graph_features`
 summarises region topology (lattice nodes, closest-voxel edges).
-The same family is ``Spec("graph")`` on a study.
+The same family is available as the scikit-learn-style component
+:class:`~habit.habitat_features.GraphHabitatFeatures`, or as
+``Spec("graph")`` on a study.
 
 **Cross-tumour id alignment.** With ``one_step`` clustering each subject
 is clustered independently, so integer habitat ids are permuted across
@@ -24,18 +26,17 @@ use the full 3-D :class:`~habit.contracts.HabitatMap`.
 
 # %%
 # One-step habitats with a known K so the graph has a fixed number of
-# labels. Pass graph-option fields directly to
-# :func:`~habit.kernels.extract_graph_features` (no separate
-# ``HabitatGraphFeatureOptions`` required for the table).
+# labels. Graph option fields are passed as flat kwargs — no separate
+# options object is required.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
-from habit.kernels import HabitatGraphFeatureOptions, extract_graph_features
+from habit.habitat_features import GraphHabitatFeatures
+from habit.kernels import extract_graph_features
 from habit.precision import align_habitat_map
 from habit.recipes import one_step_habitat
 from habit.spec import Spec
@@ -89,27 +90,44 @@ for subject, habitat_map in zip(cohort[1:], result.habitat_maps[1:]):
         f"ids {list(habitat_map.habitat_ids)} -> {list(aligned.habitat_ids)}"
     )
 
-# Kernel extract on the **aligned** full 3-D label arrays. Do not extract
-# from a 2-D slice — the network figure is display-only.
+# %%
+# Two idiomatic extraction paths on the **aligned** full 3-D label arrays.
+# Do not extract from a 2-D slice — the network figure is display-only.
+#
+# 1) Direct kernel function with flat kwargs (sklearn-style keyword API):
 rows = []
 for subject, habitat_map in zip(cohort, aligned_maps):
     feats = extract_graph_features(
         habitat_map.label_array,
         expected_labels=habitat_map.habitat_ids,
+        block_size=8,
         include_extended_metrics=False,
     )
     rows.append({"subject_id": subject.subject_id, **feats})
 table = pd.DataFrame(rows)
-print("Graph features after cross-tumour alignment (single_h1 shared phenotype):")
+print("Kernel extract_graph_features (flat kwargs) after alignment:")
 print(table.head())
 table.head()
 
 # %%
-# Overlay, lattice slice, and 2-D network. ``block_size=8`` is the
-# library default (same as :class:`~habit.kernels.HabitatGraphFeatureOptions`).
-# Viz helpers still take an options object; the feature table above used kwargs.
+# 2) Scikit-learn style component — construct once, call per subject:
+graph_extractor = GraphHabitatFeatures(
+    block_size=8,
+    include_extended_metrics=False,
+)
+component_rows = []
+for subject, habitat_map in zip(cohort, aligned_maps):
+    feature_table = graph_extractor(subject, habitat_map)
+    component_rows.append(feature_table.frame)
+component_table = pd.concat(component_rows, ignore_index=True)
+print("GraphHabitatFeatures component (same options as constructor):")
+print(component_table.head())
+component_table.head()
+
+# %%
+# Overlay, lattice slice, and 2-D network — also flat kwargs, no options object.
+# ``block_size=8`` is the library default for both extraction and display.
 Path("out").mkdir(exist_ok=True)
-options = HabitatGraphFeatureOptions(include_extended_metrics=False)
 labels = aligned_maps[0].label_array
 fig = plot_habitat_overlay(
     cohort[0].image(MODALITIES[0]),
@@ -117,24 +135,23 @@ fig = plot_habitat_overlay(
     title="One-step habitats (K=3, reference subject)",
 )
 fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 fig_slice = plot_habitat_graph_slice(
-    labels, options=options, show_grid=True, block_size=8, grid_linestyle="--"
+    labels,
+    block_size=8,
+    show_grid=True,
+    grid_linestyle="--",
 )
 fig_slice.savefig("out/graph_habitat_lattice_2d.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 fig_net = plot_habitat_graph_network_2d(
     labels,
-    options=options,
-    show_grid=True,
     block_size=8,
+    show_grid=True,
     grid_linestyle="--",
 )
 if fig_net is not None:
     fig_net.savefig("out/graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()

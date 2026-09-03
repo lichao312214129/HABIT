@@ -24,7 +24,6 @@ for two independent clusterings that must be named after the fact.
 # would use the same feature matcher; overlap matching would not apply
 # across patients.
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -96,8 +95,7 @@ fig_before = plot_habitat_label_compare(
     align_labels=False,
 )
 fig_before.savefig("out/match_labels_before.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 fig_after = plot_habitat_label_compare(
     image,
@@ -107,8 +105,7 @@ fig_after = plot_habitat_label_compare(
     align_labels=False,
 )
 fig_after.savefig("out/match_labels_after.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()
 
 # %%
 # Same-tumour two observers: permute ids on one map and recover them
@@ -135,5 +132,4 @@ overlap_table
 
 fig_ref = plot_habitat_overlay(image, map_a, title="reference (fit A)")
 fig_ref.savefig("out/match_labels_reference.png", dpi=150, bbox_inches="tight")
-if os.environ.get("HABIT_NO_VIEW") != "1":
-    plt.show()
+plt.show()

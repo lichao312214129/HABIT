@@ -38,12 +38,11 @@ This is clustering-feature preprocessing, not image resampling.
 Load two demo subjects. Change ``DATA`` / ``MODALITIES`` / ``ROI`` for
 your tree.
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-41
+.. GENERATED FROM PYTHON SOURCE LINES 21-40
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
 
@@ -97,12 +96,12 @@ your tree.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-44
+.. GENERATED FROM PYTHON SOURCE LINES 41-43
 
 Declare the three chains. Voxel: winsorize + minmax. Supervoxel:
 z-score. Cohort: uniform binning (fitted on pooled training units).
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-75
+.. GENERATED FROM PYTHON SOURCE LINES 43-74
 
 .. code-block:: Python
 
@@ -144,13 +143,13 @@ z-score. Cohort: uniform binning (fitted on pooled training units).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 76-79
+.. GENERATED FROM PYTHON SOURCE LINES 75-78
 
 Voxel-feature table **before** the subject-level chain. Each row is one
 ROI voxel; columns are the raw modality intensities clustering would
 otherwise see.
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-84
+.. GENERATED FROM PYTHON SOURCE LINES 78-83
 
 .. code-block:: Python
 
@@ -234,12 +233,12 @@ otherwise see.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-87
+.. GENERATED FROM PYTHON SOURCE LINES 84-86
 
 Same rows after winsorize + minmax. Compare a few cells with the table
 above — the values must change if the chain ran.
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-92
+.. GENERATED FROM PYTHON SOURCE LINES 86-91
 
 .. code-block:: Python
 
@@ -323,13 +322,13 @@ above — the values must change if the chain ran.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-96
+.. GENERATED FROM PYTHON SOURCE LINES 92-95
 
 Supervoxel feature table **before** z-score. ``SubjectPipeline.units``
 applies ``supervoxel_feature_preprocessors`` last, so omit that slot to
 stop after the supervoxelizer (same parcels clustering will use).
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-108
+.. GENERATED FROM PYTHON SOURCE LINES 95-107
 
 .. code-block:: Python
 
@@ -420,12 +419,12 @@ stop after the supervoxelizer (same parcels clustering will use).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-111
+.. GENERATED FROM PYTHON SOURCE LINES 108-110
 
 Same supervoxel rows **after** z-score. One row per parcel; columns are
 scaled before the cohort chain sees them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-116
+.. GENERATED FROM PYTHON SOURCE LINES 110-115
 
 .. code-block:: Python
 
@@ -509,13 +508,13 @@ scaled before the cohort chain sees them.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-120
+.. GENERATED FROM PYTHON SOURCE LINES 116-119
 
 Two-step study: the cohort chain is fitted on pooled training units and
 stored on :class:`~habit.contracts.HabitatModel`. ``result.pipeline``
 replays that fitted chain at assign (one subject shown here).
 
-.. GENERATED FROM PYTHON SOURCE LINES 120-134
+.. GENERATED FROM PYTHON SOURCE LINES 119-133
 
 .. code-block:: Python
 
@@ -541,8 +540,8 @@ replays that fitted chain at assign (one subject shown here).
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.60s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.46s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.46s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.33it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.32it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.32it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.26s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.18s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.63it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]
     HabitatModel kmeans-ffce5e56f4bce59d
       habitats           : 3
       features (2)    : LAP, PVP
@@ -627,11 +626,11 @@ replays that fitted chain at assign (one subject shown here).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-136
+.. GENERATED FROM PYTHON SOURCE LINES 134-135
 
 Overlay the first subject's habitats after all three chains.
 
-.. GENERATED FROM PYTHON SOURCE LINES 136-145
+.. GENERATED FROM PYTHON SOURCE LINES 135-143
 
 .. code-block:: Python
 
@@ -642,8 +641,7 @@ Overlay the first subject's habitats after all three chains.
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/habitat_preprocessing_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -666,7 +664,7 @@ Overlay the first subject's habitats after all three chains.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 11.757 seconds)
+   **Total running time of the script:** (0 minutes 8.585 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_04_feature_preprocessing.py:

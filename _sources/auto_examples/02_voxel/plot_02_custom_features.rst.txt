@@ -32,12 +32,11 @@ Both plug into ``HabitatSpec.voxel_feature_extractor`` and the same recipes.
 Register an in-process plugin. A third-party package would instead
 declare an entry point under ``habit.voxel_feature_extractor``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-86
+.. GENERATED FROM PYTHON SOURCE LINES 15-85
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
     from typing import Optional, Sequence, Tuple
 
     import matplotlib.pyplot as plt
@@ -142,12 +141,12 @@ declare an entry point under ``habit.voxel_feature_extractor``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-89
+.. GENERATED FROM PYTHON SOURCE LINES 86-88
 
 Built-in ``expression`` DSL: restricted arithmetic, no arbitrary Python.
 Print the voxel-feature head so the formula is a visible column.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-117
+.. GENERATED FROM PYTHON SOURCE LINES 88-116
 
 .. code-block:: Python
 
@@ -248,11 +247,11 @@ Print the voxel-feature head so the formula is a visible column.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-119
+.. GENERATED FROM PYTHON SOURCE LINES 117-118
 
 Fit habitats from the expression field and overlay.
 
-.. GENERATED FROM PYTHON SOURCE LINES 119-130
+.. GENERATED FROM PYTHON SOURCE LINES 118-128
 
 .. code-block:: Python
 
@@ -264,8 +263,7 @@ Fit habitats from the expression field and overlay.
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/custom_voxel_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -280,19 +278,19 @@ Fit habitats from the expression field and overlay.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.12s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.13s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.13s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.63it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.12s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.64it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]
     F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-132
+.. GENERATED FROM PYTHON SOURCE LINES 129-130
 
 The registered ``t1_t2_contrast`` plugin, called as a ``Spec`` name.
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-155
+.. GENERATED FROM PYTHON SOURCE LINES 130-153
 
 .. code-block:: Python
 
@@ -391,7 +389,7 @@ The registered ``t1_t2_contrast`` plugin, called as a ``Spec`` name.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.969 seconds)
+   **Total running time of the script:** (0 minutes 6.732 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_02_custom_features.py:

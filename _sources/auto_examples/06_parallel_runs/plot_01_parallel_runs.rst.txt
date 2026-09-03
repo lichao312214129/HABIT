@@ -48,12 +48,11 @@ Knob-by-knob: :doc:`/api/execution`.
 Compare serial, persistent process-pool, and isolated process-pool on
 the same two-step spec. Label maps must match when the seed is fixed.
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-283
+.. GENERATED FROM PYTHON SOURCE LINES 31-282
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
     import time
     from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -311,13 +310,13 @@ the same two-step spec. Label maps must match when the seed is fixed.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 284-287
+.. GENERATED FROM PYTHON SOURCE LINES 283-286
 
 Checkpoints: attach a :class:`~habit.execution.CheckpointStore` so a
 second run skips subjects already recorded as success. Recorded
 failures stay skipped unless ``retry_failed_subjects=True``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 287-304
+.. GENERATED FROM PYTHON SOURCE LINES 286-302
 
 .. code-block:: Python
 
@@ -330,8 +329,7 @@ failures stay skipped unless ``retry_failed_subjects=True``.
         )
         Path("out").mkdir(exist_ok=True)
         fig.savefig("out/parallel_execution_overlay.png", dpi=150, bbox_inches="tight")
-        if os.environ.get("HABIT_NO_VIEW") != "1":
-            plt.show()
+        plt.show()
         print(serial_result.features.frame.head())
         serial_result.features.frame.head()
         texture_table = run_texture_timing()
@@ -373,16 +371,16 @@ failures stay skipped unless ``retry_failed_subjects=True``.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:01<00:05,  1.43s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:02<00:04,  1.42s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:04<00:02,  1.38s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:05<00:01,  1.38s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:06<00:00,  1.38s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:06<00:00,  1.39s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.11it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.10it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.16it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.18it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.16it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.16it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:13<00:52, 13.15s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:13<00:20,  6.68s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:15<00:10,  5.09s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:15<00:03,  3.87s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:17<00:00,  3.41s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:17<00:00,  3.41s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.13it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.23it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.30it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.38it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.37it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.37it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:11<00:46, 11.56s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:12<00:18,  6.21s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:22<00:14,  7.47s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:23<00:05,  5.78s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:31<00:00,  6.24s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:31<00:00,  6.24s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.24it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.34it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.44it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.48it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.47it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.47it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:01<00:05,  1.31s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:02<00:03,  1.23s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:03<00:02,  1.20s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:04<00:01,  1.17s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:05<00:00,  1.17s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:05<00:00,  1.17s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.99it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.97it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00<00:00,  3.04it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  3.04it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.99it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.99it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:09<00:38,  9.71s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:09<00:14,  4.91s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:11<00:07,  3.73s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:11<00:02,  2.83s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.53s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.53s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  3.04it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:00,  3.06it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.93it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.94it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.85it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.85it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:10<00:40, 10.14s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:10<00:16,  5.48s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:23<00:15,  7.86s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:24<00:06,  6.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:34<00:00,  6.84s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:34<00:00,  6.84s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.10it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.16it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.21it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.24it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.22it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.22it/s]
                                config  wall_time_s  n_maps  label_mismatches_vs_serial
-                               serial     9.446412       5                           0
-    process_pool_persistent_workers=2    20.759637       5                           0
-      process_pool_isolated_workers=2    33.316728       5                           0
+                               serial     7.614438       5                           0
+    process_pool_persistent_workers=2    15.814108       5                           0
+      process_pool_isolated_workers=2    36.553993       5                           0
        subject  ...  habitat_3_volume_fraction
     0  subj001  ...                   0.306739
     1  subj002  ...                   0.392879
@@ -423,17 +421,17 @@ failures stay skipped unless ``retry_failed_subjects=True``.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:36<00:00, 96.52s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:36<00:00, 96.52s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.96it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.95it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:45<00:00, 105.58s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:45<00:00, 105.58s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.52it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.52it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:38<00:00, 98.68s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:38<00:00, 98.68s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.36it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.36it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:56<00:00, 116.37s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:56<00:00, 116.37s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.61it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.61it/s]
     Texture-input timing (not a different habitat definition):
                                        config  wall_time_s  n_maps
-                               texture_serial    97.132354       1
-    texture_process_pool_persistent_workers=2   106.830106       1
+                               texture_serial    99.202235       1
+    texture_process_pool_persistent_workers=2   117.532206       1
                                           config  wall_time_s  n_maps
-    0                             texture_serial    97.132354       1
-    1  texture_process_pool_persistent_workers=2   106.830106       1
+    0                             texture_serial    99.202235       1
+    1  texture_process_pool_persistent_workers=2   117.532206       1
 
 
 
@@ -441,7 +439,7 @@ failures stay skipped unless ``retry_failed_subjects=True``.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 29.630 seconds)
+   **Total running time of the script:** (4 minutes 39.200 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_01_parallel_runs.py:

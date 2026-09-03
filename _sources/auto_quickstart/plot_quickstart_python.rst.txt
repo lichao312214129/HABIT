@@ -46,12 +46,11 @@ This page uses the official demo pack. Change ``DATA`` / ``MODALITIES`` /
 Load the official imaging pack (downloads once) and take two subjects
 so the run stays short. Drop the slice to use the full pack.
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-36
+.. GENERATED FROM PYTHON SOURCE LINES 17-35
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
 
@@ -105,13 +104,13 @@ so the run stays short. Drop the slice to use the full pack.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-40
+.. GENERATED FROM PYTHON SOURCE LINES 36-39
 
 Two-step spec: voxel features, clustering-feature preprocessors,
 supervoxels, cohort binning, then fit / assign.
 ``supervoxelizer`` + default pooling selects the two-step design.
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-67
+.. GENERATED FROM PYTHON SOURCE LINES 39-66
 
 .. code-block:: Python
 
@@ -155,12 +154,12 @@ supervoxels, cohort binning, then fit / assign.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 68-70
+.. GENERATED FROM PYTHON SOURCE LINES 67-69
 
 Clustering-feature tables **before** the voxel preprocessor chain.
 Same rows after winsorize + minmax. This is not image resampling.
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-77
+.. GENERATED FROM PYTHON SOURCE LINES 69-76
 
 .. code-block:: Python
 
@@ -258,12 +257,12 @@ Same rows after winsorize + minmax. This is not image resampling.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-80
+.. GENERATED FROM PYTHON SOURCE LINES 77-79
 
 Same voxel rows after the subject-level chain
 (:attr:`~habit.spec.HabitatSpec.voxel_feature_preprocessors`).
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-85
+.. GENERATED FROM PYTHON SOURCE LINES 79-84
 
 .. code-block:: Python
 
@@ -359,12 +358,12 @@ Same voxel rows after the subject-level chain
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-88
+.. GENERATED FROM PYTHON SOURCE LINES 85-87
 
 Fit habitats on the cohort and write maps. Overlay uses
 :func:`~habit.viz.plot_habitat_overlay` with volume objects, not ``.data``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 88-116
+.. GENERATED FROM PYTHON SOURCE LINES 87-113
 
 .. code-block:: Python
 
@@ -383,8 +382,7 @@ Fit habitats on the cohort and write maps. Overlay uses
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/quickstart_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
     fig_tri = plot_partition_triptych(
         subject.image(ROI),
@@ -393,8 +391,7 @@ Fit habitats on the cohort and write maps. Overlay uses
         axis=0,
     )
     fig_tri.savefig("out/quickstart_triptych.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -421,8 +418,8 @@ Fit habitats on the cohort and write maps. Overlay uses
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.37s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.33s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.33s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.58it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.55it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.20s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.05s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.04s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.02s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.02s/it]
     HabitatModel kmeans-871f02bb99ee0af6
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -447,7 +444,7 @@ Fit habitats on the cohort and write maps. Overlay uses
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-122
+.. GENERATED FROM PYTHON SOURCE LINES 114-119
 
 Reload the ``.habitatmodel`` and label the same cohort. Optional napari
 view (needs the ``view`` extra)::
@@ -455,7 +452,7 @@ view (needs the ``view`` extra)::
    from habit.viz import view_habitat_napari
    view_habitat_napari(subject.image("LAP"), result.habitat_maps[0])
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-125
+.. GENERATED FROM PYTHON SOURCE LINES 119-122
 
 .. code-block:: Python
 
@@ -470,7 +467,7 @@ view (needs the ``view`` extra)::
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:02<00:02,  2.19s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.99s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.99s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:02<00:02,  2.99s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:05<00:00,  2.67s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:05<00:00,  2.67s/it]
     2 subjects labelled
 
 
@@ -479,7 +476,7 @@ view (needs the ``view`` extra)::
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 13.040 seconds)
+   **Total running time of the script:** (0 minutes 18.739 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_python.py:

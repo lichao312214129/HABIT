@@ -33,12 +33,11 @@ Pass :class:`~habit.api.image.ImageVolume` /
 Local entropy on one demo subject. :func:`~habit.kernels.local_entropy_map`
 returns a volume; :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-49
+.. GENERATED FROM PYTHON SOURCE LINES 16-47
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
     import time
     from typing import Any, Dict, Optional
 
@@ -67,8 +66,7 @@ returns a volume; :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/voxel_texture_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -111,13 +109,13 @@ returns a volume; :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-53
+.. GENERATED FROM PYTHON SOURCE LINES 48-51
 
 Same ``voxel_radiomics`` Spec on CPU and (when CUDA is present) GPU.
 ``binWidth`` and the GLCM name are identical; GPU is not a different
 IBSI feature. Time each path and compare the feature tables numerically.
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-100
+.. GENERATED FROM PYTHON SOURCE LINES 51-97
 
 .. code-block:: Python
 
@@ -165,8 +163,7 @@ IBSI feature. Time each path and compare the feature tables numerically.
         cpu_field, feature=0, anatomy=image_vol, roi_mask=mask_vol
     )
     fig_glcm.savefig("out/voxel_texture_glcm_contrast.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -194,7 +191,7 @@ IBSI feature. Time each path and compare the feature tables numerically.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 101-118
+.. GENERATED FROM PYTHON SOURCE LINES 98-115
 
 GPU radiomics
 -------------
@@ -214,7 +211,7 @@ Speedup (RTX 3070 Laptop, 4096-voxel ROI), end-to-end vs PyRadiomics CPU:
 * Integer count matrices are bit-identical; see
   :doc:`/reference/features/traditional` for IBSI Phase 1.
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-164
+.. GENERATED FROM PYTHON SOURCE LINES 115-161
 
 .. code-block:: Python
 
@@ -280,8 +277,8 @@ Speedup (RTX 3070 Laptop, 4096-voxel ROI), end-to-end vs PyRadiomics CPU:
     3                    7.955128
     4                    6.945513
     device   seconds  n_voxels  n_features
-       cpu 26.530080     34694           1
-      cuda  3.252647     34694           1
+       cpu 17.992130     34694           1
+      cuda  2.541835     34694           1
 
 
 .. raw:: html
@@ -315,14 +312,14 @@ Speedup (RTX 3070 Laptop, 4096-voxel ROI), end-to-end vs PyRadiomics CPU:
         <tr>
           <th>0</th>
           <td>cpu</td>
-          <td>26.530080</td>
+          <td>17.992130</td>
           <td>34694</td>
           <td>1</td>
         </tr>
         <tr>
           <th>1</th>
           <td>cuda</td>
-          <td>3.252647</td>
+          <td>2.541835</td>
           <td>34694</td>
           <td>1</td>
         </tr>
@@ -333,13 +330,13 @@ Speedup (RTX 3070 Laptop, 4096-voxel ROI), end-to-end vs PyRadiomics CPU:
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-168
+.. GENERATED FROM PYTHON SOURCE LINES 162-165
 
 Numerical parity: GPU must match CPU up to floating-point noise. Report
 max absolute difference and ``numpy.allclose``. A speedup does not
 change the IBSI / PyRadiomics definition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-190
+.. GENERATED FROM PYTHON SOURCE LINES 165-187
 
 .. code-block:: Python
 
@@ -382,7 +379,7 @@ change the IBSI / PyRadiomics definition.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 23.394 seconds)
+   **Total running time of the script:** (3 minutes 7.440 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_03_voxel_texture.py:

@@ -49,12 +49,11 @@ Each subject-level step is a single-argument callable. Call
 Load two demo subjects and build the voxel extractor + supervoxelizer
 as plain callables.
 
-.. GENERATED FROM PYTHON SOURCE LINES 20-50
+.. GENERATED FROM PYTHON SOURCE LINES 20-49
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -118,11 +117,11 @@ as plain callables.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-52
+.. GENERATED FROM PYTHON SOURCE LINES 50-51
 
 Voxel-feature table for the first subject. Each row is one ROI voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-57
+.. GENERATED FROM PYTHON SOURCE LINES 51-56
 
 .. code-block:: Python
 
@@ -205,12 +204,12 @@ Voxel-feature table for the first subject. Each row is one ROI voxel.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-60
+.. GENERATED FROM PYTHON SOURCE LINES 57-59
 
 Supervoxels, then a cohort-level k-means fit. Print unit counts so the
 partition is visible before assignment.
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-77
+.. GENERATED FROM PYTHON SOURCE LINES 59-76
 
 .. code-block:: Python
 
@@ -260,12 +259,12 @@ partition is visible before assignment.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-80
+.. GENERATED FROM PYTHON SOURCE LINES 77-79
 
 Bind extract + partition + assigner as a
 :class:`~habit.pipeline.SubjectPipeline` and overlay the labels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-102
+.. GENERATED FROM PYTHON SOURCE LINES 79-100
 
 .. code-block:: Python
 
@@ -288,8 +287,7 @@ Bind extract + partition + assigner as a
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/habitat_atomic_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -315,12 +313,12 @@ Bind extract + partition + assigner as a
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-105
+.. GENERATED FROM PYTHON SOURCE LINES 101-103
 
 Population-level PCA of clustering units (supervoxel rows). Colour is
 nearest-centroid habitat id; crosses are the fitted cohort centres.
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-130
+.. GENERATED FROM PYTHON SOURCE LINES 103-127
 
 .. code-block:: Python
 
@@ -344,8 +342,7 @@ nearest-centroid habitat id; crosses are the fitted cohort centres.
         title="Habitat clustering (PCA)",
     )
     fig_pca.savefig("out/habitat_atomic_pca_2d.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
     maps = cohort.map(apply_pipe, backend=SerialBackend())
     print(f"cohort.map -> {len(maps)} habitat maps")
@@ -362,7 +359,7 @@ nearest-centroid habitat id; crosses are the fitted cohort centres.
 
  .. code-block:: none
 
-    Cohort.map[SubjectPipeline]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[SubjectPipeline]:  50%|█████     | 1/2 [00:01<00:01,  1.82s/it]    Cohort.map[SubjectPipeline]: 100%|██████████| 2/2 [00:03<00:00,  1.87s/it]    Cohort.map[SubjectPipeline]: 100%|██████████| 2/2 [00:03<00:00,  1.87s/it]
+    Cohort.map[SubjectPipeline]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[SubjectPipeline]:  50%|█████     | 1/2 [00:01<00:01,  1.41s/it]    Cohort.map[SubjectPipeline]: 100%|██████████| 2/2 [00:02<00:00,  1.49s/it]    Cohort.map[SubjectPipeline]: 100%|██████████| 2/2 [00:02<00:00,  1.49s/it]
     cohort.map -> 2 habitat maps
 
 
@@ -371,7 +368,7 @@ nearest-centroid habitat id; crosses are the fitted cohort centres.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 14.800 seconds)
+   **Total running time of the script:** (0 minutes 13.217 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_02_atomic_ops.py:

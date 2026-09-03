@@ -30,17 +30,19 @@ mask arrays must be **integer labels** (``0`` = background).
 
 Read the same demo files, then build a Subject from arrays.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-54
+.. GENERATED FROM PYTHON SOURCE LINES 13-57
 
 .. code-block:: Python
 
     from pathlib import Path
 
+    import matplotlib.pyplot as plt
     import numpy as np
     import SimpleITK as sitk
 
     from habit.contracts import ArrayImageRef, Geometry, Subject
     from habit.datasets import fetch_demo
+    from habit.viz import plot_intensity_slice
     from habit.voxel_features import RawVoxelFeatures
 
     DATA = fetch_demo()
@@ -75,6 +77,7 @@ Read the same demo files, then build a Subject from arrays.
     )
     print(field.feature_frame().head())
     field.feature_frame().head()
+
 
 
 
@@ -165,6 +168,40 @@ Read the same demo files, then build a Subject from arrays.
     </div>
     <br />
     <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 58-59
+
+Anatomy slice with ROI contour — confirms the array-built Subject is plottable.
+
+.. GENERATED FROM PYTHON SOURCE LINES 59-68
+
+.. code-block:: Python
+
+    Path("out").mkdir(exist_ok=True)
+    fig = plot_intensity_slice(
+        np_subject.image("LAP"),
+        roi_mask=np_subject.mask("LAP"),
+        roi_contour=True,
+        title="NumPy-constructed Subject: LAP with ROI",
+    )
+    fig.savefig("out/numpy_subject_slice.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+.. image-sg:: /auto_examples/01_data_in/images/sphx_glr_plot_03_numpy_arrays_001.png
+   :alt: NumPy-constructed Subject: LAP with ROI, Processed
+   :srcset: /auto_examples/01_data_in/images/sphx_glr_plot_03_numpy_arrays_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** (0 minutes 1.460 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_03_numpy_arrays.py:

@@ -53,12 +53,11 @@ Quickstart.
 
 Load two demo subjects.
 
-.. GENERATED FROM PYTHON SOURCE LINES 24-41
+.. GENERATED FROM PYTHON SOURCE LINES 24-40
 
 .. code-block:: Python
 
     from pathlib import Path
-    import os
 
     import matplotlib.pyplot as plt
 
@@ -109,12 +108,12 @@ Load two demo subjects.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-44
+.. GENERATED FROM PYTHON SOURCE LINES 41-43
 
 Two-step: ``partition`` + ``pool``. Supervoxels first, then a shared
 cohort definition. Voxel winsorize + minmax run before parcels form.
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-100
+.. GENERATED FROM PYTHON SOURCE LINES 43-97
 
 .. code-block:: Python
 
@@ -160,8 +159,7 @@ cohort definition. Voxel winsorize + minmax run before parcels form.
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/two_step_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
     # ImageVolume + supervoxelization + HabitatMap (not ``.data``).
     fig_tri = plot_partition_triptych(
@@ -171,8 +169,7 @@ cohort definition. Voxel winsorize + minmax run before parcels form.
         axis=0,
     )
     fig_tri.savefig("out/two_step_triptych.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -199,8 +196,8 @@ cohort definition. Voxel winsorize + minmax run before parcels form.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.45s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.44s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.44s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.33it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.38it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.38it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.25s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.22s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.22s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.45it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.51it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.50it/s]
     HabitatModel kmeans-3dc01b676bbed095
       habitats           : 3
       features (1)    : LAP
@@ -224,12 +221,12 @@ cohort definition. Voxel winsorize + minmax run before parcels form.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 101-103
+.. GENERATED FROM PYTHON SOURCE LINES 98-100
 
 One-step: neither ``partition`` nor ``pool``. Cluster voxels inside
 each subject (no supervoxels). Integer ids are per-subject.
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-143
+.. GENERATED FROM PYTHON SOURCE LINES 100-139
 
 .. code-block:: Python
 
@@ -270,8 +267,7 @@ each subject (no supervoxels). Integer ids are per-subject.
         title="habitats (one-step)",
     )
     fig_one.savefig("out/one_step_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -286,7 +282,7 @@ each subject (no supervoxels). Integer ids are per-subject.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02<00:00,  2.17s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:02<00:00,  2.17s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.72s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.72s/it]
     Per-subject models: ['subj001']
        subject  ...  habitat_3_volume_fraction
     0  subj001  ...                   0.381536
@@ -298,12 +294,12 @@ each subject (no supervoxels). Integer ids are per-subject.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-146
+.. GENERATED FROM PYTHON SOURCE LINES 140-142
 
 Direct-pooling: ``pool`` only. Skip the cluster partition and pool
 existing voxel units across the cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-181
+.. GENERATED FROM PYTHON SOURCE LINES 142-176
 
 .. code-block:: Python
 
@@ -340,8 +336,7 @@ existing voxel units across the cohort.
         title="habitats (direct-pooling)",
     )
     fig_direct.savefig("out/direct_pooling_overlay.png", dpi=150, bbox_inches="tight")
-    if os.environ.get("HABIT_NO_VIEW") != "1":
-        plt.show()
+    plt.show()
 
 
 
@@ -355,8 +350,8 @@ existing voxel units across the cohort.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.94it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.94it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.01it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.01it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.11it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.11it/s]
     HabitatModel kmeans-bd97684aacf278ac
       habitats           : 3
       features (1)    : LAP
@@ -380,7 +375,7 @@ existing voxel units across the cohort.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 15.736 seconds)
+   **Total running time of the script:** (0 minutes 12.860 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_01_recipes.py:
