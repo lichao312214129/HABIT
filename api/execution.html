@@ -684,19 +684,20 @@ actually wanted.</p>
 <section id="backend-selection-from-cli-and-run-from-yaml">
 <h2>Backend selection from CLI and run_from_yaml<a class="headerlink" href="#backend-selection-from-cli-and-run-from-yaml" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">habit.execution.backend_from_policy</span></code> (shared by <code class="docutils literal notranslate"><span class="pre">cmd_habitat</span></code> and
-<code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code>) mirrors v0.1 <code class="docutils literal notranslate"><span class="pre">_should_use_spawn_workers</span></code>:</p>
+<code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code>) selects:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">policy.backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code> →
 <a class="reference internal" href="generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.from_policy" title="habit.execution.ProcessPoolBackend.from_policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">from_policy</span></code></a></p></li>
-<li><p><strong>or</strong> <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> is a positive number → ProcessPoolBackend
-even when <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">==</span> <span class="pre">1</span></code> (timeout isolation needs a child process)</p></li>
+<li><p><strong>or</strong> <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> → ProcessPoolBackend</p></li>
+<li><p><strong>or</strong> <code class="docutils literal notranslate"><span class="pre">parallel_mode</span> <span class="pre">==</span> <span class="pre">&quot;isolated&quot;</span></code> → ProcessPoolBackend (even when
+<code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">==</span> <span class="pre">1</span></code>)</p></li>
 <li><p>otherwise → <a class="reference internal" href="generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SerialBackend</span></code></a> with the policy’s
 checkpoint / failure flags only</p></li>
 </ul>
-<p>Therefore timeouts, spawn / graceful shutdown, OOM backoff, GPU capping,
-<code class="docutils literal notranslate"><span class="pre">parallel_mode</span></code>, and <code class="docutils literal notranslate"><span class="pre">auto_retry_rounds</span></code> apply under ProcessPoolBackend.
-True in-process serial requires <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec:</span> <span class="pre">null</span></code> (and usually
-<code class="docutils literal notranslate"><span class="pre">backend:</span> <span class="pre">serial</span></code>).</p>
+<p>A positive <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> alone does <strong>not</strong> force the process
+pool (library default is <code class="docutils literal notranslate"><span class="pre">900.0</span></code>). Timeouts, spawn / graceful shutdown,
+OOM backoff, GPU capping, <code class="docutils literal notranslate"><span class="pre">parallel_mode</span></code>, and <code class="docutils literal notranslate"><span class="pre">auto_retry_rounds</span></code>
+apply under ProcessPoolBackend only.</p>
 <p><code class="docutils literal notranslate"><span class="pre">ProcessPoolBackend.from_policy</span></code> does <strong>not</strong> copy
 <code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash</span></code> or <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code> onto the backend object.
 The CLI / recipe resolve <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code> (default under <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>),
@@ -791,8 +792,8 @@ See <a class="reference internal" href="../examples/fault_tolerance.html"><span 
 <p class="admonition-title">Important</p>
 <p><strong>Windows + process pool:</strong> spawning workers re-imports your script.
 Put any call that starts <a class="reference internal" href="generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a>
-(<code class="docutils literal notranslate"><span class="pre">RunPolicy(backend=&quot;process&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, or a positive
-<code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> that forces a child process) inside:</p>
+(<code class="docutils literal notranslate"><span class="pre">RunPolicy(backend=&quot;process&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code>) inside:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="o">...</span>
 </pre></div>
@@ -802,8 +803,8 @@ file without this guard) raises
 <code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">...</span> <span class="pre">bootstrapping</span> <span class="pre">phase</span></code> on Windows.
 The <code class="docutils literal notranslate"><span class="pre">habit</span></code> CLI entry point is already safe; this applies to <strong>scripts /
 notebooks converted to scripts / pure-Python recipes</strong>.
-For a quick serial check, use <code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=1,</span> <span class="pre">backend=&quot;serial&quot;,</span>
-<span class="pre">subject_timeout_sec=None)</span></code> (no spawn).</p>
+For a quick serial check, use <code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=1,</span> <span class="pre">backend=&quot;serial&quot;)</span></code>
+(no spawn).</p>
 </div>
 <p>Multiprocess backend. Constructor surface mirrors <a class="reference internal" href="generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a>
 field-by-field (except <code class="docutils literal notranslate"><span class="pre">backend</span></code>, <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code>, and

@@ -459,6 +459,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -937,19 +938,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -1104,6 +1093,25 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_worker_thread_cap</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve the per-worker BLAS/OpenMP thread budget.</span>
+
+<span class="sd">    Honours ``HABIT_WORKER_THREADS`` when set to a positive integer;</span>
+<span class="sd">    otherwise forces ``1`` so ``workers × parent_OMP`` cannot oversubscribe</span>
+<span class="sd">    the host (``setdefault`` would inherit a large parent value).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Decimal string used for every ``*_NUM_THREADS`` env var.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HABIT_WORKER_THREADS&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="s2">&quot;1&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">n_threads</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">n_threads</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_threads</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_configure_worker_runtime</span><span class="p">(</span><span class="n">worker_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cap nested threading and publish the GPU slot for one child process.</span>
@@ -1112,16 +1120,21 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        worker_index: Zero-based slot index for this worker (also written to</span>
 <span class="sd">            ``HABIT_GPU_SLOT_INDEX`` for TorchRadiomics device selection).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Force (do not setdefault): parent shells often export OMP_NUM_THREADS</span>
+    <span class="c1"># equal to the host core count; inheriting that makes every child</span>
+    <span class="c1"># oversubscribe and can make parallel runs slower than serial.</span>
+    <span class="n">thread_cap</span> <span class="o">=</span> <span class="n">_worker_thread_cap</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_WORKER_THREAD_ENV</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">thread_cap</span>
     <span class="c1"># Hide every GPU except this slot *before* importing torch. Otherwise</span>
     <span class="c1"># both workers see cuda:0 and cuda:1, initialize both, and kernels</span>
-    <span class="c1"># pile onto GPU 0 while GPU 1 stays idle.</span>
+    <span class="c1"># pile onto GPU 0 while GPU 1 stays idle. On a single-GPU host,</span>
+    <span class="c1"># workers beyond slot 0 fall back to CPU (see parallel_gpu_utils).</span>
     <span class="n">pin_worker_visible_cuda_device</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">worker_index</span><span class="p">))</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
-        <span class="n">torch</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">thread_cap</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - torch optional / broken is fine</span>
         <span class="k">pass</span>
 

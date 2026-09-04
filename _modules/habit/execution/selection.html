@@ -459,6 +459,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -937,19 +938,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -1006,8 +995,10 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Map a :class:`~habit.spec.RunPolicy` onto a concrete execution backend.</span>
 
-<span class="sd">Shared by the habitat CLI and ``run_from_yaml`` so the v0.1 spawn rule —</span>
-<span class="sd">workers &gt; 1 **or** a positive per-subject timeout — stays in one place.</span>
+<span class="sd">Shared by the habitat CLI and ``run_from_yaml`` so backend selection stays</span>
+<span class="sd">in one place. Timeout is **not** coupled to spawn: the library default</span>
+<span class="sd">``subject_timeout_sec=900`` must not force a process pool when the user</span>
+<span class="sd">asked for serial ``workers=1``.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -1029,9 +1020,17 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return whether the policy requires a spawn process-pool backend.</span>
 
-<span class="sd">    Mirrors v0.1 ``_should_use_spawn_workers`` at the policy gate: a positive</span>
-<span class="sd">    ``subject_timeout_sec`` needs a child process even when ``workers == 1``,</span>
-<span class="sd">    otherwise hung subjects cannot be terminated from the parent.</span>
+<span class="sd">    Process pool is selected when any of the following hold:</span>
+
+<span class="sd">    * ``backend == &quot;process&quot;`` (explicit request)</span>
+<span class="sd">    * ``workers &gt; 1`` (subject-level parallelism)</span>
+<span class="sd">    * ``parallel_mode == &quot;isolated&quot;`` (fresh child per subject)</span>
+
+<span class="sd">    A positive ``subject_timeout_sec`` alone does **not** force the process</span>
+<span class="sd">    pool. The typed default is ``900.0``; coupling timeout to spawn would</span>
+<span class="sd">    turn every ``workers=1`` / ``backend=&quot;serial&quot;`` run into a child</span>
+<span class="sd">    process and erase the serial path. Per-subject timeout isolation still</span>
+<span class="sd">    requires ``backend=&quot;process&quot;`` or ``parallel_mode=&quot;isolated&quot;``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        policy: Declarative execution policy.</span>
@@ -1041,8 +1040,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">policy</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;process&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
-    <span class="n">timeout</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">subject_timeout_sec</span>
-    <span class="k">return</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">timeout</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
+    <span class="k">if</span> <span class="n">policy</span><span class="o">.</span><span class="n">parallel_mode</span> <span class="o">==</span> <span class="s2">&quot;isolated&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">policy</span><span class="o">.</span><span class="n">workers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
 
 
 
@@ -1056,13 +1058,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        policy: Translated run policy.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A process-pool backend when the policy requires spawn isolation</span>
-<span class="sd">        (``backend == &quot;process&quot;`` or a positive subject timeout); otherwise</span>
-<span class="sd">        a serial backend carrying the policy&#39;s checkpoint / failure flags.</span>
+<span class="sd">        A process-pool backend when the policy requires spawn</span>
+<span class="sd">        (``backend == &quot;process&quot;``, ``workers &gt; 1``, or</span>
+<span class="sd">        ``parallel_mode == &quot;isolated&quot;``); otherwise a serial backend</span>
+<span class="sd">        carrying the policy&#39;s checkpoint / failure flags. Timeout knobs</span>
+<span class="sd">        apply only under the process-pool backend.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">should_use_process_pool</span><span class="p">(</span><span class="n">policy</span><span class="p">):</span>
-        <span class="c1"># Ensure the backend snapshot records process semantics even when the</span>
-        <span class="c1"># YAML left ``backend: serial`` but armed a per-subject timeout.</span>
+        <span class="c1"># Ensure the backend snapshot records process semantics even when</span>
+        <span class="c1"># YAML left ``backend: serial`` but requested workers &gt; 1 or</span>
+        <span class="c1"># isolated mode.</span>
         <span class="k">if</span> <span class="n">policy</span><span class="o">.</span><span class="n">backend</span> <span class="o">!=</span> <span class="s2">&quot;process&quot;</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">replace</span>
 

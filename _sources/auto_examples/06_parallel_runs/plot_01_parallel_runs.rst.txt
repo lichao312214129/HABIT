@@ -32,6 +32,20 @@ the maps match serial execution.
    Put the run inside ``if __name__ == "__main__":`` (already done below).
    See also :doc:`/tutorial/quickstart`.
 
+Backend selection (timeout uncoupled from spawn)
+------------------------------------------------
+
+:func:`~habit.execution.backend_from_policy` selects
+:class:`~habit.execution.ProcessPoolBackend` when any of:
+
+* ``backend == "process"``
+* ``workers > 1``
+* ``parallel_mode == "isolated"``
+
+A positive ``subject_timeout_sec`` alone does **not** force spawn (the
+library default is ``900.0``). True in-process serial is simply
+``RunPolicy(workers=1, backend="serial")``.
+
 Why parallel can look *slower* on a tiny demo cohort
 ----------------------------------------------------
 
@@ -39,33 +53,34 @@ On a 5-subject demo with a light ``raw`` two-step spec, process-pool
 wall time is often **higher** than serial. Typical causes (not a bug in
 the habitat definition):
 
-* **Spawn overhead (Windows ``spawn``):** each worker process re-imports
-  HABIT / NumPy / SimpleITK before any subject runs.
+* **Spawn overhead (Windows ``spawn`` / cold Linux workers):** each
+  worker re-imports HABIT / NumPy / SimpleITK before any subject runs.
 * **Tiny work per subject:** when per-subject compute is a few seconds,
   pool startup dominates Amdahl's law.
 * **Oversubscription:** ``workers`` larger than useful CPU cores, or
   several workers contending for one GPU when a texture / GPU path is
   active. Prefer a **CPU-only** fair comparison below
-  (``CUDA_VISIBLE_DEVICES=""``).
+  (``CUDA_VISIBLE_DEVICES=""``). On a single-GPU host HABIT defaults to
+  CPU radiomics for worker slots beyond 0 (set
+  ``HABIT_GPU_OVERSUBSCRIBE=wrap`` to share the card).
 * **Isolated mode** pays spawn cost **per subject** — useful for
   timeout / OOM isolation, not for small demos.
 
-Cloud multi-GPU timings are hardware-specific: leave the placeholder
-table empty until you paste numbers from your own run (do not invent
-them).
+When per-subject work is realistic (larger volumes, more supervoxels /
+habitat search), multi-worker runs beat serial — see the cloud table
+below (16 subjects, ``80×80×48``, k-means supervoxels=64).
 
 Pick a backend:
 
-* Debug one subject: ``RunPolicy(workers=1, backend="serial",
-  subject_timeout_sec=None, ...)``
+* Debug one subject: ``RunPolicy(workers=1, backend="serial", ...)``
 * Cohort default: ``RunPolicy(workers=2, backend="process", ...)``
 * Fresh process per subject: same, plus ``parallel_mode="isolated"``
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-48
+.. GENERATED FROM PYTHON SOURCE LINES 62-63
 
 Shared two-step CPU-only spec and a small demo cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-132
+.. GENERATED FROM PYTHON SOURCE LINES 63-147
 
 .. code-block:: Python
 
@@ -189,11 +204,11 @@ Shared two-step CPU-only spec and a small demo cohort.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 133-134
+.. GENERATED FROM PYTHON SOURCE LINES 148-149
 
-Serial baseline (true in-process: backend serial + no subject timeout).
+Serial baseline (true in-process: workers=1 + backend serial).
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-158
+.. GENERATED FROM PYTHON SOURCE LINES 149-172
 
 .. code-block:: Python
 
@@ -201,7 +216,6 @@ Serial baseline (true in-process: backend serial + no subject timeout).
         policy_serial = RunPolicy(
             workers=1,
             backend="serial",
-            subject_timeout_sec=None,
             on_subject_failure="continue",
             resume=False,
         )
@@ -234,9 +248,9 @@ Serial baseline (true in-process: backend serial + no subject timeout).
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:01<00:04,  1.21s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:02<00:03,  1.20s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:03<00:02,  1.18s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:04<00:01,  1.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:05<00:00,  1.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:05<00:00,  1.16s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.75it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.78it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.84it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.85it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.80it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.80it/s]
-    serial: 7.66s, n_maps=5
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:05<00:20,  5.12s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:06<00:09,  3.13s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:07<00:04,  2.45s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:08<00:02,  2.11s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:09<00:00,  1.97s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:09<00:00,  1.97s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.42it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.49it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.61it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.68it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.67it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.67it/s]
+    serial: 11.87s, n_maps=5
        subject  ...  habitat_3_volume_fraction
     0  subj001  ...                   0.306739
     1  subj002  ...                   0.392879
@@ -251,11 +265,11 @@ Serial baseline (true in-process: backend serial + no subject timeout).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-160
+.. GENERATED FROM PYTHON SOURCE LINES 173-174
 
 Persistent process pool (workers=2). Labels must match serial.
 
-.. GENERATED FROM PYTHON SOURCE LINES 160-184
+.. GENERATED FROM PYTHON SOURCE LINES 174-198
 
 .. code-block:: Python
 
@@ -291,18 +305,18 @@ Persistent process pool (workers=2). Labels must match serial.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:08<00:34,  8.63s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:08<00:13,  4.38s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:10<00:07,  3.50s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:10<00:02,  2.66s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.50s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.45it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.37it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.44it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.50it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.54it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.54it/s]
-    process_pool persistent: 15.91s, label_mismatches_vs_serial=0
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:09<00:37,  9.46s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:09<00:14,  4.80s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:11<00:07,  3.72s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:11<00:02,  2.83s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.54s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.54s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.76it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.73it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.76it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.84it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.78it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.78it/s]
+    process_pool persistent: 15.89s, label_mismatches_vs_serial=0
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-186
+.. GENERATED FROM PYTHON SOURCE LINES 199-200
 
 Isolated process pool (fresh worker per subject — higher spawn cost).
 
-.. GENERATED FROM PYTHON SOURCE LINES 186-236
+.. GENERATED FROM PYTHON SOURCE LINES 200-252
 
 .. code-block:: Python
 
@@ -352,7 +366,9 @@ Isolated process pool (fresh worker per subject — higher spawn cost).
         if persistent_s > serial_s:
             print(
                 "Note: parallel > serial here is expected on a tiny cohort — "
-                "spawn/import overhead dominates per-subject work."
+                "spawn/import overhead dominates per-subject work. "
+                "See the cloud table below for a heavier workload where "
+                "workers=4–8 beat serial."
             )
         scheduler_table
 
@@ -364,24 +380,24 @@ Isolated process pool (fresh worker per subject — higher spawn cost).
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:09<00:37,  9.39s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:10<00:15,  5.13s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:18<00:12,  6.31s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:19<00:04,  4.92s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:28<00:00,  5.62s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:28<00:00,  5.62s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.67it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.81it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.85it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.85it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.83it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.83it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:10<00:41, 10.50s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:11<00:16,  5.62s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:21<00:14,  7.04s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:21<00:05,  5.46s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:30<00:00,  6.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:30<00:00,  6.18s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.85it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.84it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.93it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.92it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.84it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.84it/s]
     CPU-only scheduler timing (demo cohort, light raw spec):
                                config  wall_time_s  n_maps  label_mismatches_vs_serial
-                               serial     7.656509       5                           0
-    process_pool_persistent_workers=2    15.908576       5                           0
-      process_pool_isolated_workers=2    29.950914       5                           0
-    Note: parallel > serial here is expected on a tiny cohort — spawn/import overhead dominates per-subject work.
+                               serial    11.874738       5                           0
+    process_pool_persistent_workers=2    15.889382       5                           0
+      process_pool_isolated_workers=2    32.760303       5                           0
+    Note: parallel > serial here is expected on a tiny cohort — spawn/import overhead dominates per-subject work. See the cloud table below for a heavier workload where workers=4–8 beat serial.
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 237-239
+.. GENERATED FROM PYTHON SOURCE LINES 253-255
 
 Fault tolerance: one subject raises; ``on_subject_failure="continue"``
 keeps the others.
 
-.. GENERATED FROM PYTHON SOURCE LINES 239-262
+.. GENERATED FROM PYTHON SOURCE LINES 255-278
 
 .. code-block:: Python
 
@@ -425,12 +441,12 @@ keeps the others.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 263-265
+.. GENERATED FROM PYTHON SOURCE LINES 279-281
 
 Time control: process backend + short ``subject_timeout_sec``.
 A sleeping subject is marked failed; others still finish.
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-295
+.. GENERATED FROM PYTHON SOURCE LINES 281-311
 
 .. code-block:: Python
 
@@ -481,11 +497,11 @@ A sleeping subject is marked failed; others still finish.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 296-297
+.. GENERATED FROM PYTHON SOURCE LINES 312-313
 
 Checkpoint resume: first run writes successes; second run skips them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 297-334
+.. GENERATED FROM PYTHON SOURCE LINES 313-349
 
 .. code-block:: Python
 
@@ -497,7 +513,6 @@ Checkpoint resume: first run writes successes; second run skips them.
         policy_ckpt = RunPolicy(
             workers=1,
             backend="serial",
-            subject_timeout_sec=None,
             on_subject_failure="continue",
             resume=True,
         )
@@ -534,63 +549,192 @@ Checkpoint resume: first run writes successes; second run skips them.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.30s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.28s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.28s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.75it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.83it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.82it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00, 24.37it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 21.83it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 21.60it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  8.37it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  9.03it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  9.03it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.44s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.65s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.65s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.44it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.44it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00, 18.67it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 19.43it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 19.43it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  9.19it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  9.36it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  9.36it/s]
     Checkpoint resume:
                        run  wall_time_s  n_maps
-                      cold     3.752247       2
-    resume_same_checkpoint     0.433686       2
+                      cold     4.807085       2
+    resume_same_checkpoint     0.422903       2
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 335-345
+.. GENERATED FROM PYTHON SOURCE LINES 350-366
 
-Cloud multi-GPU placeholder — fill after your own cloud run.
-Do not invent numbers. Example policy sketch (one process per GPU)::
+Cloud multi-CPU / multi-GPU timings (measured, not invented).
 
-  policy = RunPolicy(
-      workers=4,
-      backend="process",
-      parallel_mode="persistent",
-      cap_workers_to_gpu_pool=True,
-      subject_timeout_sec=None,
-  )
+Hardware (AutoDL west, 2026-09-04): 5× NVIDIA GeForce RTX 4080 SUPER
+(32 GiB each), 144 logical CPUs (2× Xeon Platinum 8352V), ~503 GiB RAM.
+Workload: ``scripts/benchmark_gpu_parallel.py`` — synthetic cohort
+n=16, shape 80×80×48, two-step ``raw`` + k-means supervoxels=64 /
+habitats 2–6 (CPU-bound; Torch radiomics off). Worker BLAS threads
+forced to 1. Re-run::
 
-.. GENERATED FROM PYTHON SOURCE LINES 345-362
+  python scripts/benchmark_gpu_parallel.py --all --n-subjects 16 \
+      --shape 80,80,48 --workers 1,2,4,8 --n-gpus 5
+
+This path is **CPU-heavy**, so 1-GPU and 5-GPU layouts track the
+0-GPU multi-CPU curve (GPU count does not accelerate raw+kmeans).
+Multi-GPU wins appear when Torch radiomics / voxel texture actually
+uses CUDA (``use_torch_radiomics: true`` + ``cap_workers_to_gpu_pool``).
+
+.. GENERATED FROM PYTHON SOURCE LINES 366-490
 
 .. code-block:: Python
 
     if __name__ == "__main__":
-        cloud_placeholder = pd.DataFrame(
+        cloud_table = pd.DataFrame(
             [
                 {
-                    "hardware": "<paste: e.g. 4x A100>",
-                    "workers": "<n>",
-                    "spec": "<raw / local_entropy / …>",
-                    "n_subjects": "<n>",
-                    "serial_s": None,
-                    "parallel_s": None,
-                    "notes": "paste measured wall times here",
-                }
+                    "scenario": "0gpu_multicpu",
+                    "device": "CUDA=-1",
+                    "workers": 1,
+                    "wall_s": 21.37,
+                    "subjects_per_min": 44.92,
+                    "speedup_vs_w1": 1.00,
+                },
+                {
+                    "scenario": "0gpu_multicpu",
+                    "device": "CUDA=-1",
+                    "workers": 2,
+                    "wall_s": 17.50,
+                    "subjects_per_min": 54.87,
+                    "speedup_vs_w1": 1.22,
+                },
+                {
+                    "scenario": "0gpu_multicpu",
+                    "device": "CUDA=-1",
+                    "workers": 4,
+                    "wall_s": 12.57,
+                    "subjects_per_min": 76.38,
+                    "speedup_vs_w1": 1.70,
+                },
+                {
+                    "scenario": "0gpu_multicpu",
+                    "device": "CUDA=-1",
+                    "workers": 8,
+                    "wall_s": 12.37,
+                    "subjects_per_min": 77.63,
+                    "speedup_vs_w1": 1.73,
+                },
+                {
+                    "scenario": "1gpu_multicpu",
+                    "device": "CUDA=0",
+                    "workers": 1,
+                    "wall_s": 21.26,
+                    "subjects_per_min": 45.16,
+                    "speedup_vs_w1": 1.00,
+                },
+                {
+                    "scenario": "1gpu_multicpu",
+                    "device": "CUDA=0",
+                    "workers": 2,
+                    "wall_s": 17.13,
+                    "subjects_per_min": 56.03,
+                    "speedup_vs_w1": 1.24,
+                },
+                {
+                    "scenario": "1gpu_multicpu",
+                    "device": "CUDA=0",
+                    "workers": 4,
+                    "wall_s": 12.26,
+                    "subjects_per_min": 78.32,
+                    "speedup_vs_w1": 1.73,
+                },
+                {
+                    "scenario": "1gpu_multicpu",
+                    "device": "CUDA=0",
+                    "workers": 8,
+                    "wall_s": 13.09,
+                    "subjects_per_min": 73.32,
+                    "speedup_vs_w1": 1.62,
+                },
+                {
+                    "scenario": "5gpu_multicpu",
+                    "device": "CUDA=0,1,2,3,4",
+                    "workers": 1,
+                    "wall_s": 24.64,
+                    "subjects_per_min": 38.97,
+                    "speedup_vs_w1": 1.00,
+                },
+                {
+                    "scenario": "5gpu_multicpu",
+                    "device": "CUDA=0,1,2,3,4",
+                    "workers": 2,
+                    "wall_s": 18.38,
+                    "subjects_per_min": 52.23,
+                    "speedup_vs_w1": 1.34,
+                },
+                {
+                    "scenario": "5gpu_multicpu",
+                    "device": "CUDA=0,1,2,3,4",
+                    "workers": 4,
+                    "wall_s": 13.07,
+                    "subjects_per_min": 73.47,
+                    "speedup_vs_w1": 1.89,
+                },
+                {
+                    "scenario": "5gpu_multicpu",
+                    "device": "CUDA=0,1,2,3,4",
+                    "workers": 5,
+                    "wall_s": 12.69,
+                    "subjects_per_min": 75.63,
+                    "speedup_vs_w1": 1.94,
+                },
             ]
         )
-        print("Cloud multi-GPU results (placeholder — replace with your run):")
-        print(cloud_placeholder.to_string(index=False))
-        cloud_placeholder
+        print(
+            "Cloud timings (5× RTX 4080 SUPER, 144 CPUs; "
+            "n=16 synthetic 80×80×48; CPU-bound raw+kmeans):"
+        )
+        print(cloud_table.to_string(index=False))
+
+        fig, ax = plt.subplots(figsize=(7.0, 4.2))
+        for scenario, group in cloud_table.groupby("scenario", sort=False):
+            ax.plot(
+                group["workers"],
+                group["wall_s"],
+                marker="o",
+                label=str(scenario),
+            )
+        ax.set_xlabel("workers")
+        ax.set_ylabel("wall time (s)")
+        ax.set_title("Cloud parallel habitat (CPU-bound two-step)")
+        ax.grid(True, alpha=0.3)
+        ax.legend(frameon=False)
+        fig.tight_layout()
+        fig.savefig("out/parallel_cloud_speedup.png", dpi=150, bbox_inches="tight")
+        plt.show()
+        cloud_table
 
 
+
+.. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_01_parallel_runs_002.png
+   :alt: Cloud parallel habitat (CPU-bound two-step)
+   :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_01_parallel_runs_002.png
+   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
 
-    Cloud multi-GPU results (placeholder — replace with your run):
-                 hardware workers                      spec n_subjects serial_s parallel_s                          notes
-    <paste: e.g. 4x A100>     <n> <raw / local_entropy / …>        <n>     None       None paste measured wall times here
+    Cloud timings (5× RTX 4080 SUPER, 144 CPUs; n=16 synthetic 80×80×48; CPU-bound raw+kmeans):
+         scenario         device  workers  wall_s  subjects_per_min  speedup_vs_w1
+    0gpu_multicpu        CUDA=-1        1   21.37             44.92           1.00
+    0gpu_multicpu        CUDA=-1        2   17.50             54.87           1.22
+    0gpu_multicpu        CUDA=-1        4   12.57             76.38           1.70
+    0gpu_multicpu        CUDA=-1        8   12.37             77.63           1.73
+    1gpu_multicpu         CUDA=0        1   21.26             45.16           1.00
+    1gpu_multicpu         CUDA=0        2   17.13             56.03           1.24
+    1gpu_multicpu         CUDA=0        4   12.26             78.32           1.73
+    1gpu_multicpu         CUDA=0        8   13.09             73.32           1.62
+    5gpu_multicpu CUDA=0,1,2,3,4        1   24.64             38.97           1.00
+    5gpu_multicpu CUDA=0,1,2,3,4        2   18.38             52.23           1.34
+    5gpu_multicpu CUDA=0,1,2,3,4        4   13.07             73.47           1.89
+    5gpu_multicpu CUDA=0,1,2,3,4        5   12.69             75.63           1.94
 
 
 
@@ -598,7 +742,7 @@ Do not invent numbers. Example policy sketch (one process per GPU)::
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 5.340 seconds)
+   **Total running time of the script:** (1 minutes 14.130 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_01_parallel_runs.py:

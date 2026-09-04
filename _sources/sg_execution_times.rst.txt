@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**01:59.116** total execution time for 23 files **from all galleries**:
+**01:14.130** total execution time for 23 files **from all galleries**:
 
 .. container::
 
@@ -33,19 +33,7 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_parallel_runs.py` (``..\..\examples\guide\06_parallel_runs\plot_01_parallel_runs.py``)
-     - 01:05.340
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_00_supervoxels.py` (``..\..\examples\guide\04_habitat_maps\plot_00_supervoxels.py``)
-     - 00:32.723
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_choose_algorithm.py` (``..\..\examples\guide\04_habitat_maps\plot_03_choose_algorithm.py``)
-     - 00:09.441
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py` (``..\..\examples\guide\04_habitat_maps\plot_05_match_labels.py``)
-     - 00:08.664
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_05_each_habitat_radiomics.py` (``..\..\examples\guide\05_quantify\plot_05_each_habitat_radiomics.py``)
-     - 00:02.948
+     - 01:14.130
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_01_directory.py` (``..\..\examples\guide\01_data_in\plot_01_directory.py``)
      - 00:00.000
@@ -71,13 +59,22 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_03_precision_plot_01_precise_features.py` (``..\..\examples\guide\03_precision\plot_01_precise_features.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_00_supervoxels.py` (``..\..\examples\guide\04_habitat_maps\plot_00_supervoxels.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_01_recipes.py` (``..\..\examples\guide\04_habitat_maps\plot_01_recipes.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_02_atomic_ops.py` (``..\..\examples\guide\04_habitat_maps\plot_02_atomic_ops.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_choose_algorithm.py` (``..\..\examples\guide\04_habitat_maps\plot_03_choose_algorithm.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py` (``..\..\examples\guide\04_habitat_maps\plot_04_apply_saved_model.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py` (``..\..\examples\guide\04_habitat_maps\plot_05_match_labels.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_01_volume_fractions.py` (``..\..\examples\guide\05_quantify\plot_01_volume_fractions.py``)
@@ -90,6 +87,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_04_graph_features.py` (``..\..\examples\guide\05_quantify\plot_04_graph_features.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_05_each_habitat_radiomics.py` (``..\..\examples\guide\05_quantify\plot_05_each_habitat_radiomics.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_06_whole_habitat_radiomics.py` (``..\..\examples\guide\05_quantify\plot_06_whole_habitat_radiomics.py``)

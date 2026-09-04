@@ -459,6 +459,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -937,19 +938,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -2107,10 +2096,12 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Translate v0 habitat execution keys into a ``RunPolicy`` payload.</span>
 
-<span class="sd">        Keys are renamed onto the v1 surface. ``workers &gt; 1`` **or** a</span>
-<span class="sd">        positive ``subject_timeout_sec`` selects the ``process`` backend,</span>
-<span class="sd">        matching v0.1 ``_should_use_spawn_workers`` (timeout isolation needs</span>
-<span class="sd">        a child even when ``workers == 1``).</span>
+<span class="sd">        Keys are renamed onto the v1 surface. ``workers &gt; 1`` **or**</span>
+<span class="sd">        ``parallel_mode == &quot;isolated&quot;`` selects the ``process`` backend.</span>
+<span class="sd">        A positive ``subject_timeout_sec`` alone does **not** force spawn:</span>
+<span class="sd">        the typed default (900s) would otherwise turn every single-worker</span>
+<span class="sd">        run into a process pool. Timeout isolation still requires an</span>
+<span class="sd">        explicit ``backend: process`` or ``parallel_mode: isolated``.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            payload: Full v0 payload.</span>
@@ -2126,16 +2117,10 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="n">v0_key</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
                 <span class="n">policy</span><span class="p">[</span><span class="n">v1_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="n">v0_key</span><span class="p">]</span>
         <span class="n">workers</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;workers&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="c1"># Prefer an explicit timeout from the payload; when the key is absent</span>
-        <span class="c1"># the typed RunPolicy default (900s) still applies after from_dict, so</span>
-        <span class="c1"># treat &quot;absent&quot; like the v0.1 schema default of 900.</span>
-        <span class="k">if</span> <span class="s2">&quot;subject_timeout_sec&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="p">:</span>
-            <span class="n">timeout</span> <span class="o">=</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;subject_timeout_sec&quot;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">timeout</span> <span class="o">=</span> <span class="mf">900.0</span>
-        <span class="n">timeout_armed</span> <span class="o">=</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">parallel_mode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parallel_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;persistent&quot;</span><span class="p">))</span>
         <span class="n">workers_parallel</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">workers</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">workers</span> <span class="o">&gt;</span> <span class="mi">1</span>
-        <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;backend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;process&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">workers_parallel</span> <span class="ow">or</span> <span class="n">timeout_armed</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;serial&quot;</span>
+        <span class="n">isolated</span> <span class="o">=</span> <span class="n">parallel_mode</span> <span class="o">==</span> <span class="s2">&quot;isolated&quot;</span>
+        <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;backend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;process&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">workers_parallel</span> <span class="ow">or</span> <span class="n">isolated</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;serial&quot;</span>
         <span class="k">return</span> <span class="n">policy</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_translate_habitat_output</span><span class="p">(</span>

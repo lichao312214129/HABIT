@@ -106,6 +106,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -584,19 +585,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -651,9 +640,17 @@ function signature, and not how to use it. Please refer to the
 <dt class="sig sig-object py" id="habit.execution.should_use_process_pool">
 <span class="sig-name descname"><span class="pre">should_use_process_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><span class="pre">RunPolicy</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../_modules/habit/execution/selection.html#should_use_process_pool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.execution.should_use_process_pool" title="Link to this definition"></a></dt>
 <dd><p>Return whether the policy requires a spawn process-pool backend.</p>
-<p>Mirrors v0.1 <code class="docutils literal notranslate"><span class="pre">_should_use_spawn_workers</span></code> at the policy gate: a positive
-<code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> needs a child process even when <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">==</span> <span class="pre">1</span></code>,
-otherwise hung subjects cannot be terminated from the parent.</p>
+<p>Process pool is selected when any of the following hold:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code> (explicit request)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> (subject-level parallelism)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parallel_mode</span> <span class="pre">==</span> <span class="pre">&quot;isolated&quot;</span></code> (fresh child per subject)</p></li>
+</ul>
+<p>A positive <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> alone does <strong>not</strong> force the process
+pool. The typed default is <code class="docutils literal notranslate"><span class="pre">900.0</span></code>; coupling timeout to spawn would
+turn every <code class="docutils literal notranslate"><span class="pre">workers=1</span></code> / <code class="docutils literal notranslate"><span class="pre">backend=&quot;serial&quot;</span></code> run into a child
+process and erase the serial path. Per-subject timeout isolation still
+requires <code class="docutils literal notranslate"><span class="pre">backend=&quot;process&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>policy</strong> – Declarative execution policy.</p>

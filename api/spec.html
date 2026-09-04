@@ -966,8 +966,8 @@ YAML <code class="docutils literal notranslate"><span class="pre">policy:</span>
 <p class="admonition-title">Important</p>
 <p><strong>Windows + process pool:</strong> spawning workers re-imports your script.
 Put any call that starts <a class="reference internal" href="generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a>
-(<code class="docutils literal notranslate"><span class="pre">RunPolicy(backend=&quot;process&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, or a positive
-<code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> that forces a child process) inside:</p>
+(<code class="docutils literal notranslate"><span class="pre">RunPolicy(backend=&quot;process&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code>) inside:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="o">...</span>
 </pre></div>
@@ -977,8 +977,8 @@ file without this guard) raises
 <code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">...</span> <span class="pre">bootstrapping</span> <span class="pre">phase</span></code> on Windows.
 The <code class="docutils literal notranslate"><span class="pre">habit</span></code> CLI entry point is already safe; this applies to <strong>scripts /
 notebooks converted to scripts / pure-Python recipes</strong>.
-For a quick serial check, use <code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=1,</span> <span class="pre">backend=&quot;serial&quot;,</span>
-<span class="pre">subject_timeout_sec=None)</span></code> (no spawn).</p>
+For a quick serial check, use <code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=1,</span> <span class="pre">backend=&quot;serial&quot;)</span></code>
+(no spawn).</p>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span><span class="p">,</span> <span class="n">load_run_policy</span><span class="p">,</span> <span class="n">save_run_policy</span>
 
@@ -1016,15 +1016,15 @@ CLI) to proceed with successes — see <a class="reference internal" href="execu
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">workers</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
-<td><p>Parallel worker processes; with a positive timeout, <code class="docutils literal notranslate"><span class="pre">1</span></code> still uses ProcessPool</p></td>
+<td><p>Parallel worker processes; <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">1</span></code> selects ProcessPool</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">backend</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">&quot;serial&quot;</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;serial&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;process&quot;</span></code> (timeout also forces process at the CLI gate)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;serial&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;process&quot;</span></code> (also forced when <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">parallel_mode=isolated</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">900.0</span></code></p></td>
-<td><p>Per-subject wall-clock seconds; <code class="docutils literal notranslate"><span class="pre">None</span></code> disables (ProcessPool when armed)</p></td>
+<td><p>Per-subject wall-clock seconds; <code class="docutils literal notranslate"><span class="pre">None</span></code> disables (ProcessPool only; does not select backend)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subject_spawn_timeout_sec</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">120.0</span></code></p></td>
@@ -1094,8 +1094,9 @@ checkpoint fingerprint / legacy v0.1 layout (v0.1 parity)</p></td>
 </tbody>
 </table>
 <p>CLI / <code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code> select ProcessPoolBackend when
-<code class="docutils literal notranslate"><span class="pre">backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code> <strong>or</strong> <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> is positive
-(even for <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">==</span> <span class="pre">1</span></code>). Details: <a class="reference internal" href="execution.html"><span class="doc">Execution backends</span></a>.</p>
+<code class="docutils literal notranslate"><span class="pre">backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">parallel_mode</span> <span class="pre">==</span> <span class="pre">&quot;isolated&quot;</span></code>. A positive <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> alone
+does not force spawn. Details: <a class="reference internal" href="execution.html"><span class="doc">Execution backends</span></a>.</p>
 </section>
 <section id="v0-1-yaml-top-level-keys-vs-runpolicy">
 <h3>v0.1 YAML top-level keys vs <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code><a class="headerlink" href="#v0-1-yaml-top-level-keys-vs-runpolicy" title="Link to this heading"></a></h3>
@@ -1220,8 +1221,9 @@ Habitat field reference: <a class="reference internal" href="../configuration/ha
 <p>Note the default gap on <code class="docutils literal notranslate"><span class="pre">processes</span></code> / <code class="docutils literal notranslate"><span class="pre">workers</span></code>: a bare v0.1 habitat
 YAML defaults to <code class="docutils literal notranslate"><span class="pre">processes:</span> <span class="pre">2</span></code> (process backend after translation), while
 a bare <code class="docutils literal notranslate"><span class="pre">RunPolicy()</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">workers=1</span></code>, <code class="docutils literal notranslate"><span class="pre">backend=&quot;serial&quot;</span></code>.
-CLI / <code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code> still select ProcessPool when the default
-<code class="docutils literal notranslate"><span class="pre">subject_timeout_sec=900</span></code> is armed.</p>
+CLI / <code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code> select ProcessPool when <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">backend=&quot;process&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code> — not merely
+because the default <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec=900</span></code> is set.</p>
 </section>
 </section>
 <section id="detect-validate-migrate-yaml">

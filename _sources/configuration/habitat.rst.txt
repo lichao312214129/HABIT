@@ -939,21 +939,27 @@ mapping) and :doc:`../api/execution`. Annotated v1 example:
 
 **v1 backend selection (CLI / recipe reality).** After translation,
 ``cmd_habitat`` / ``yaml_runner`` call
-:func:`~habit.execution.backend_from_policy` (v0.1 spawn-rule parity):
+:func:`~habit.execution.backend_from_policy`:
 
 * ``backend == "process"`` →
   :class:`~habit.execution.ProcessPoolBackend`
-* **or** ``subject_timeout_sec`` / ``individual_subject_timeout_sec`` is
-  positive → ProcessPoolBackend even when ``workers == 1`` / ``processes: 1``
+* **or** ``workers > 1`` / ``processes > 1`` → ProcessPoolBackend
+* **or** ``parallel_mode == "isolated"`` → ProcessPoolBackend (even when
+  ``workers == 1``)
 * otherwise → :class:`~habit.execution.SerialBackend`
+
+A positive ``subject_timeout_sec`` alone does **not** force spawn (the
+library default is ``900``; coupling it would erase the serial path).
+Timeout / OOM / ``auto_retry_rounds`` apply only under ProcessPoolBackend.
 
 .. include:: ../_includes/windows_multiprocessing.rst
 
 On :class:`~habit.execution.SerialBackend`, timeout / OOM / ``parallel_mode``
 / ``auto_retry_rounds`` knobs do not apply. Serial still honours
 ``on_subject_failure``, ``resume``, ``retry_failed_subjects``,
-``force_rerun_subjects``, and ``clear_checkpoint_on_success``. To force
-true in-process serial, set the per-subject timeout to ``null``.
+``force_rerun_subjects``, and ``clear_checkpoint_on_success``. For
+per-subject timeout isolation set ``backend: process`` (or
+``parallel_mode: isolated``).
 
 .. list-table::
    :header-rows: 1
@@ -968,7 +974,7 @@ true in-process serial, set the per-subject timeout to ``null``.
      - int
      - ``2``
      - no
-     - Stage 1 max parallel workers (→ ``RunPolicy.workers``); peak memory ≈ ``processes × per-subject memory``. With a positive timeout, ``processes: 1`` still uses ProcessPoolBackend
+     - Stage 1 max parallel workers (→ ``RunPolicy.workers``); peak memory ≈ ``processes × per-subject memory``. ``processes: 1`` stays serial unless ``backend: process`` / ``parallel_mode: isolated``
    * - ``cap_processes_to_gpu_pool``
      - bool
      - ``false``
@@ -1168,10 +1174,11 @@ Python API twin: :class:`~habit.spec.RunPolicy` /
 
   .. important::
 
-     On the **v1** CLI/recipe path, a positive
-     ``individual_subject_timeout_sec`` selects ProcessPoolBackend even when
-     ``processes: 1`` (v0.1 spawn-rule parity). True in-process serial requires
-     ``individual_subject_timeout_sec: null``.
+     On the **v1** CLI/recipe path, ``workers == 1`` with
+     ``backend: serial`` stays in-process even when
+     ``subject_timeout_sec`` / ``individual_subject_timeout_sec`` is the
+     default ``900``. Per-subject timeout isolation requires
+     ``backend: process`` or ``parallel_mode: isolated``.
 
 **persistent_worker_max_consecutive_failures** (habitat analysis top level): Persistent worker restart threshold
 

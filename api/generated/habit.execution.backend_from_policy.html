@@ -645,9 +645,11 @@ function signature, and not how to use it. Please refer to the
 <dd class="field-odd"><p><strong>policy</strong> – Translated run policy.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A process-pool backend when the policy requires spawn isolation
-(<code class="docutils literal notranslate"><span class="pre">backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code> or a positive subject timeout); otherwise
-a serial backend carrying the policy’s checkpoint / failure flags.</p>
+<dd class="field-even"><p>A process-pool backend when the policy requires spawn
+(<code class="docutils literal notranslate"><span class="pre">backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">parallel_mode</span> <span class="pre">==</span> <span class="pre">&quot;isolated&quot;</span></code>); otherwise a serial backend
+carrying the policy’s checkpoint / failure flags. Timeout knobs
+apply only under the process-pool backend.</p>
 </dd>
 </dl>
 </dd></dl>
