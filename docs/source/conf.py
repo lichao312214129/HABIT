@@ -105,6 +105,7 @@ extensions.append("sphinxcontrib.mermaid")
 # Headless matplotlib + skip napari windows while the gallery executes.
 os.environ.setdefault("HABIT_NO_VIEW", "1")
 os.environ.setdefault("MPLBACKEND", "Agg")
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
 sphinx_gallery_conf = {
     "examples_dirs": [

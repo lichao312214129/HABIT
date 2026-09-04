@@ -132,12 +132,7 @@ plt.show()
 
 # %%
 # Step 5: Quantify volume fractions of the discovered habitats across the cohort.
-volume_frames: List[pd.DataFrame] = []
-for ft in study_result.features:
-    volume_frames.append(ft.frame)
-
-if volume_frames:
-    cohort_volumes = pd.concat(volume_frames, ignore_index=True)
-    print("\nCohort habitat volume quantification:")
-    print(cohort_volumes.to_string(index=False))
-    cohort_volumes
+cohort_volumes = study_result.features.frame
+print("\nCohort habitat volume quantification:")
+print(cohort_volumes.to_string(index=False))
+cohort_volumes

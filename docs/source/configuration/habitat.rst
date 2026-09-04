@@ -118,7 +118,8 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
 - ``feature_construction.*.method`` (singular): one **functional expression** string (``concat(voxel_radiomics(T2))``).
 - ``preprocessing_for_* .methods`` (plural): an **ordered list** of preprocessing steps; each item has its own ``method: winsorize`` step type.
-- ``habitat_segmentation.*.algorithm``: **clustering backend** (``kmeans``, ``gmm``, ``slic``), not a feature extractor.
+- ``habitat_segmentation.supervoxel.algorithm``: supervoxel partition algorithm (``slic``, ``kmeans``, ``gmm``).
+- ``habitat_segmentation.habitat.algorithm``: cohort habitat model fitter (``kmeans``, ``gmm``).
 - ``habitat_cluster_selection_method`` / ``selection_method``: cluster-count validation metric (``elbow``, ``silhouette``, …).
 
 **voxel_level**: Voxel-level feature extraction
@@ -638,8 +639,8 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 
 **Use cases**
 
-- Recommended for ``two_step`` stage 1: supervoxels are more spatially compact than pure K-Means supervoxels.
-- ``one_step`` may also use ``slic`` with ``one_step_settings`` for per-subject auto k.
+- Recommended for ``two_step`` stage 1: supervoxels are spatially coherent and local, unlike pure feature-space K-Means supervoxels.
+- SLIC partitions local anatomical subregions; cohort habitats are subsequently discovered by clustering pooled supervoxel feature vectors.
 - High-dimensional ``voxel_radiomics`` features incur much higher compute and memory than ``raw`` / ``mean_voxel_features`` (builds ``[Z, Y, X, n_features]`` feature volume in ROI bbox).
 
 **YAML path**: keys under ``habitat_segmentation.supervoxel``; repo template
