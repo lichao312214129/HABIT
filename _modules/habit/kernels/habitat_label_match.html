@@ -459,6 +459,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -937,19 +938,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -1012,13 +1001,16 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">Matching is one of:</span>
 
-<span class="sd">* **features** -- Hungarian assignment on habitat-level texture</span>
-<span class="sd">  summaries. Pass **unscaled** means or medians (original voxel</span>
-<span class="sd">  textures, not per-tumour MinMax / z-score cluster centres). The</span>
-<span class="sd">  operator then column-z-scores the stacked rows (or applies a locked</span>
-<span class="sd">  cohort ``location`` / ``scale``) so Energy and Coarseness share one</span>
-<span class="sd">  ruler, then minimises Euclidean or ``1 - correlation`` cost.</span>
-<span class="sd">  Volume fraction is an optional tie-break only.</span>
+<span class="sd">* **features** -- Hungarian assignment on habitat-level **summary</span>
+<span class="sd">  feature vectors** (any finite ``(n_habitats, n_features)`` matrix).</span>
+<span class="sd">  Typical rows are unscaled means / medians of the same voxel field used</span>
+<span class="sd">  to define habitats: raw multimodality intensities, constructed maps,</span>
+<span class="sd">  or texture channels. Do **not** pass per-tumour MinMax / z-score</span>
+<span class="sd">  cluster centres. The operator then column-z-scores the stacked rows</span>
+<span class="sd">  (or applies a locked cohort ``location`` / ``scale``) so features with</span>
+<span class="sd">  different units share one ruler, then minimises Euclidean or</span>
+<span class="sd">  ``1 - correlation`` cost. Volume fraction is an optional tie-break</span>
+<span class="sd">  only.</span>
 <span class="sd">* **centroid** -- same Hungarian path with ``standardize=&quot;none&quot;`` and</span>
 <span class="sd">  Euclidean cost. Kept for same-image intensity / spatial means and</span>
 <span class="sd">  for callers that already live in one commensurate space.</span>
@@ -1115,21 +1107,23 @@ window.runMermaid = runMermaid;</script>
     <span class="n">reduction</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Per-habitat image / texture summary of every non-background habitat.</span>
+<span class="sd">    Per-habitat summary of every non-background habitat.</span>
 
-<span class="sd">    A scalar image yields a centroid of shape ``(n_habitats, 1)``. An image</span>
-<span class="sd">    with a trailing feature axis ``(..., n_features)`` yields</span>
-<span class="sd">    ``(n_habitats, n_features)``. Default reduction is the **mean** of</span>
-<span class="sd">    voxels in that habitat (same quantity k-means stores as a centre).</span>
+<span class="sd">    A scalar volume yields a centroid of shape ``(n_habitats, 1)``. A</span>
+<span class="sd">    volume with a trailing feature axis ``(..., n_features)`` yields</span>
+<span class="sd">    ``(n_habitats, n_features)`` — multimodal intensities, constructed</span>
+<span class="sd">    maps, or texture channels are all valid as long as the spatial grid</span>
+<span class="sd">    matches ``label_array``. Default reduction is the **mean** of voxels</span>
+<span class="sd">    in that habitat (same quantity k-means stores as a centre).</span>
 <span class="sd">    ``reduction=&quot;median&quot;`` is the test-retest table convention.</span>
 
-<span class="sd">    For cross-patient naming pass the **unscaled** texture volume here,</span>
+<span class="sd">    For cross-patient naming pass the **unscaled** feature volume here,</span>
 <span class="sd">    then :func:`match_labels_by_features` (cohort z-score). Do not pass</span>
 <span class="sd">    a per-tumour MinMax / z-score copy: those axes are not comparable</span>
 <span class="sd">    across subjects.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        image: Intensity volume aligned with ``label_array``, or the same</span>
+<span class="sd">        image: Feature volume aligned with ``label_array``, or the same</span>
 <span class="sd">            shape plus a trailing feature axis.</span>
 <span class="sd">        label_array: Integer habitat labels; ``0`` is background.</span>
 <span class="sd">        reduction: ``&quot;mean&quot;`` (default) or ``&quot;median&quot;``.</span>
@@ -1434,7 +1428,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Default is raw Euclidean Hungarian (same-image intensity / spatial</span>
 <span class="sd">    means, or any already-commensurate space). For cross-patient</span>
-<span class="sd">    texture naming prefer :func:`match_labels_by_features`.</span>
+<span class="sd">    habitat-summary naming prefer :func:`match_labels_by_features`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        reference_ids: Habitat ids aligned with ``reference_centroids`` rows.</span>
@@ -1491,19 +1485,23 @@ window.runMermaid = runMermaid;</script>
     <span class="n">scale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Pair habitats by cohort-standardised texture summaries.</span>
+<span class="sd">    Pair habitats by cohort-standardised **habitat summary features**.</span>
 
 <span class="sd">    Intended Stage-B naming operator:</span>
 
-<span class="sd">    1. Rows are **unscaled** habitat means / medians (original textures).</span>
+<span class="sd">    1. Rows are **unscaled** habitat means / medians (or any caller-built</span>
+<span class="sd">       summary vectors with a shared feature width).</span>
 <span class="sd">    2. Columns are z-scored on the stacked reference+moving rows, or</span>
 <span class="sd">       with a locked ``location`` / ``scale`` from</span>
 <span class="sd">       :func:`fit_feature_match_scale` (full cohort).</span>
 <span class="sd">    3. Hungarian assignment minimises Euclidean or ``1 - r`` cost.</span>
 <span class="sd">    4. Volume fraction, if given, is a small additive tie-break.</span>
 
-<span class="sd">    Do not pass per-tumour MinMax / z-score cluster centres: those</span>
-<span class="sd">    axes change when one tumour&#39;s own min/max change.</span>
+<span class="sd">    Feature content is not restricted to texture: multimodality raw</span>
+<span class="sd">    intensities, engineered maps, and mixed channels work when both sides</span>
+<span class="sd">    use the same definition. Do not pass per-tumour MinMax / z-score</span>
+<span class="sd">    cluster centres: those axes change when one tumour&#39;s own min/max</span>
+<span class="sd">    change.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        reference_ids: Habitat ids aligned with ``reference_features`` rows.</span>
@@ -2094,7 +2092,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        image: Optional intensity / feature volume for the reference map.</span>
 <span class="sd">            Also used for the moving map when ``moving_image`` is omitted.</span>
 <span class="sd">            For ``method=&quot;features&quot;`` this must be the **unscaled**</span>
-<span class="sd">            texture volume.</span>
+<span class="sd">            feature volume (multimodal / constructed / texture).</span>
 <span class="sd">        moving_image: Optional intensity / feature volume for the moving map.</span>
 <span class="sd">        method: ``&quot;centroid&quot;`` (default), ``&quot;features&quot;``, or ``&quot;overlap&quot;``.</span>
 <span class="sd">        reference_centroids: Optional explicit reference summaries.</span>

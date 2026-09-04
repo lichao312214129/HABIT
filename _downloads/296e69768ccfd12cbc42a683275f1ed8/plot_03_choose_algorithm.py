@@ -16,6 +16,7 @@ integers: Dice needs Hungarian overlap; ARI is permutation-invariant.
 # %%
 # Load two demo subjects and list registered components.
 from pathlib import Path
+from typing import Any, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,7 +32,7 @@ from habit.kernels.habitat_label_match import (
     present_habitat_ids,
     remap_label_array,
 )
-from habit.recipes import Study
+from habit.recipes import Study, StudyResult
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.supervoxel import SupervoxelizerRegistry
 from habit.viz import plot_cluster_validation_from_report, plot_habitat_label_compare
@@ -100,13 +101,13 @@ kmeans_result = Study(spec=kmeans_spec).fit_predict(cohort)
 gmm_result = Study(spec=gmm_spec).fit_predict(cohort)
 
 
-def _selection_row(name: str, fitter: str, result) -> dict:
+def _selection_row(name: str, fitter: str, result: StudyResult) -> Dict[str, Any]:
     """One row: selected K and scores at that K from ``selection_report``."""
     model = result.habitat_model
     report = (model.preprocessing_state or {}).get("selection_report") or {}
     selected = int(report.get("selected", model.n_habitats if model else 0))
     candidates = [int(v) for v in report.get("candidates", [])]
-    row = {
+    row: Dict[str, Any] = {
         "spec_name": name,
         "fitter": fitter,
         "n_habitats": selected,

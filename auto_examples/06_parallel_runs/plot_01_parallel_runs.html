@@ -106,6 +106,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -584,19 +585,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -647,7 +636,7 @@ to download the full example code.</p>
 <span id="sphx-glr-auto-examples-06-parallel-runs-plot-01-parallel-runs-py"></span><h1>Parallel and checkpoints<a class="headerlink" href="#parallel-and-checkpoints" title="Link to this heading"></a></h1>
 <p><a class="reference internal" href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> declares what to compute;
 <a class="reference internal" href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> declares how to schedule it. Pass a
-<a class="reference internal" href="../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.process_pool.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a> into
+backend from <a class="reference internal" href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy"><code class="xref py py-func docutils literal notranslate"><span class="pre">backend_from_policy()</span></code></a> into
 <a class="reference internal" href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a>. With a fixed <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>
 the maps match serial execution.</p>
 <div class="admonition important">
@@ -656,33 +645,88 @@ the maps match serial execution.</p>
 Put the run inside <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code> (already done below).
 See also <a class="reference internal" href="../../tutorial/quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>.</p>
 </div>
-<p>Pick a backend with <a class="reference internal" href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy"><code class="xref py py-func docutils literal notranslate"><span class="pre">backend_from_policy()</span></code></a>:</p>
+<section id="why-parallel-can-look-slower-on-a-tiny-demo-cohort">
+<h2>Why parallel can look <em>slower</em> on a tiny demo cohort<a class="headerlink" href="#why-parallel-can-look-slower-on-a-tiny-demo-cohort" title="Link to this heading"></a></h2>
+<p>On a 5-subject demo with a light <code class="docutils literal notranslate"><span class="pre">raw</span></code> two-step spec, process-pool
+wall time is often <strong>higher</strong> than serial. Typical causes (not a bug in
+the habitat definition):</p>
 <ul class="simple">
-<li><p>Debug one subject: <code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=1,</span> <span class="pre">backend=&quot;serial&quot;,</span> <span class="pre">...)</span></code></p></li>
+<li><p><strong>Spawn overhead (Windows ``spawn``):</strong> each worker process re-imports
+HABIT / NumPy / SimpleITK before any subject runs.</p></li>
+<li><p><strong>Tiny work per subject:</strong> when per-subject compute is a few seconds,
+pool startup dominates Amdahl’s law.</p></li>
+<li><p><strong>Oversubscription:</strong> <code class="docutils literal notranslate"><span class="pre">workers</span></code> larger than useful CPU cores, or
+several workers contending for one GPU when a texture / GPU path is
+active. Prefer a <strong>CPU-only</strong> fair comparison below
+(<code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=&quot;&quot;</span></code>).</p></li>
+<li><p><strong>Isolated mode</strong> pays spawn cost <strong>per subject</strong> — useful for
+timeout / OOM isolation, not for small demos.</p></li>
+</ul>
+<p>Cloud multi-GPU timings are hardware-specific: leave the placeholder
+table empty until you paste numbers from your own run (do not invent
+them).</p>
+<p>Pick a backend:</p>
+<ul class="simple">
+<li><p>Debug one subject: <code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=1,</span> <span class="pre">backend=&quot;serial&quot;,</span>
+<span class="pre">subject_timeout_sec=None,</span> <span class="pre">...)</span></code></p></li>
 <li><p>Cohort default: <code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=2,</span> <span class="pre">backend=&quot;process&quot;,</span> <span class="pre">...)</span></code></p></li>
 <li><p>Fresh process per subject: same, plus <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code></p></li>
 </ul>
-<p>Shared two-step spec and a small demo cohort.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<p>Shared two-step CPU-only spec and a small demo cohort.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
+<span class="c1"># Fair CPU comparison: hide GPUs from this process and its children.</span>
+<a href="https://docs.python.org/3/library/os.html#os.environ" title="os.environ" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-data"><span class="n">os</span><span class="o">.</span><span class="n">environ</span></a><span class="p">[</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution.process_pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class"><span class="n">CheckpointStore</span></a><span class="p">,</span> <a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">habit.voxel_features</span>  <span class="c1"># registers local_entropy for the texture timing block</span>
 
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">()</span>
 <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
 <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cohort: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort.subject_ids" title="habit.contracts.Cohort.subject_ids" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-property"><span class="n">cohort</span><span class="o">.</span><span class="n">subject_ids</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES=</span><span class="si">{</span><a href="https://docs.python.org/3/library/os.html#os.environ" title="os.environ" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-data"><span class="n">os</span><span class="o">.</span><span class="n">environ</span></a><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">)</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Module-level operators so ProcessPoolBackend can pickle them under</span>
+<span class="c1"># Windows ``spawn`` (nested classes inside ``__main__`` fail to unpickle).</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_BoomOnSubject</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fail only for ``fail_subject_id`` (fault-tolerance demo).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fail_subject_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fail_subject_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fail_subject_id</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">):</span>  <span class="c1"># type: ignore[no-untyped-def]</span>
+        <span class="k">if</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail_subject_id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;demo intentional failure&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_SlowSubject</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sleep only for ``slow_subject_id`` (timeout demo).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slow_subject_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slow_subject_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">slow_subject_id</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">):</span>  <span class="c1"># type: ignore[no-untyped-def]</span>
+        <span class="k">if</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">slow_subject_id</span><span class="p">:</span>
+            <a href="https://docs.python.org/3/library/time.html#time.sleep" title="time.sleep" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">sleep</span></a><span class="p">(</span><span class="mf">30.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span>
 
 <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;parallel_demo&quot;</span><span class="p">,</span>
@@ -737,12 +781,22 @@ Then load it with the same call the demos use:
 Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 Cohort: [&#39;subj001&#39;, &#39;subj002&#39;, &#39;subj003&#39;, &#39;subj004&#39;, &#39;subj005&#39;]
+CUDA_VISIBLE_DEVICES=&#39;&#39;
 </pre></div>
 </div>
-<p>Serial baseline (no process pool).</p>
+<p>Serial baseline (true in-process: backend serial + no subject timeout).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_serial</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">(</span>
+        <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;serial&quot;</span><span class="p">,</span>
+        <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span>
+        <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
     <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span>
-    <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">serial_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">)</span>
+    <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">serial_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
+        <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_serial</span></a><span class="p">)</span>
+    <span class="p">)</span>
     <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">serial_s</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;serial: </span><span class="si">{</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">serial_s</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, n_maps=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">serial_result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">serial_result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span></a><span class="p">())</span>
@@ -757,21 +811,21 @@ Cohort: [&#39;subj001&#39;, &#39;subj002&#39;, &#39;subj003&#39;, &#39;subj004&#
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_01_parallel_runs_001.png" srcset="../../_images/sphx_glr_plot_01_parallel_runs_001.png" alt="habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:01&lt;00:06,  1.63s/it]
-Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:03&lt;00:04,  1.61s/it]
-Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:04&lt;00:03,  1.57s/it]
-Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:06&lt;00:01,  1.53s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:07&lt;00:00,  1.52s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:07&lt;00:00,  1.52s/it]
+Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:01&lt;00:04,  1.21s/it]
+Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:02&lt;00:03,  1.20s/it]
+Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:03&lt;00:02,  1.18s/it]
+Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:04&lt;00:01,  1.15s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:05&lt;00:00,  1.16s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:05&lt;00:00,  1.16s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:01,  2.34it/s]
-Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:01,  2.42it/s]
-Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01&lt;00:00,  2.49it/s]
-Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01&lt;00:00,  2.52it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02&lt;00:00,  2.44it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02&lt;00:00,  2.44it/s]
-serial: 9.77s, n_maps=5
+Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:01,  2.75it/s]
+Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:01,  2.78it/s]
+Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01&lt;00:00,  2.84it/s]
+Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01&lt;00:00,  2.85it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  2.80it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  2.80it/s]
+serial: 7.66s, n_maps=5
    subject  ...  habitat_3_volume_fraction
 0  subj001  ...                   0.306739
 1  subj002  ...                   0.392879
@@ -789,12 +843,14 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geo
     <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_persistent</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">(</span>
         <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
+        <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span>
         <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span><span class="p">,</span>
+        <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span>
     <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">persistent_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
-        <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.from_policy" title="habit.execution.ProcessPoolBackend.from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-method"><span class="n">ProcessPoolBackend</span><span class="o">.</span><span class="n">from_policy</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_persistent</span></a><span class="p">)</span>
+        <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_persistent</span></a><span class="p">)</span>
     <span class="p">)</span>
     <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">persistent_s</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a>
     <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mismatches_persistent</span></a> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
@@ -809,34 +865,36 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geo
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:11&lt;00:47, 11.98s/it]
-Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:12&lt;00:18,  6.05s/it]
-Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:13&lt;00:09,  4.62s/it]
-Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:14&lt;00:03,  3.51s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:15&lt;00:00,  3.15s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:15&lt;00:00,  3.15s/it]
+Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:08&lt;00:34,  8.63s/it]
+Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:08&lt;00:13,  4.38s/it]
+Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:10&lt;00:07,  3.50s/it]
+Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:10&lt;00:02,  2.66s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12&lt;00:00,  2.50s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12&lt;00:00,  2.50s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:01,  2.40it/s]
-Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:01,  2.44it/s]
-Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01&lt;00:00,  2.54it/s]
-Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01&lt;00:00,  2.56it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02&lt;00:00,  2.41it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02&lt;00:00,  2.41it/s]
-process_pool persistent: 19.36s, label_mismatches_vs_serial=0
+Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:01,  2.45it/s]
+Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:01,  2.37it/s]
+Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01&lt;00:00,  2.44it/s]
+Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01&lt;00:00,  2.50it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  2.54it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  2.54it/s]
+process_pool persistent: 15.91s, label_mismatches_vs_serial=0
 </pre></div>
 </div>
-<p>Isolated process pool (fresh worker per subject).</p>
+<p>Isolated process pool (fresh worker per subject — higher spawn cost).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_isolated</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">(</span>
         <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
+        <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span>
         <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;isolated&quot;</span><span class="p">,</span>
+        <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span>
     <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">isolated_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
-        <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.from_policy" title="habit.execution.ProcessPoolBackend.from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-method"><span class="n">ProcessPoolBackend</span><span class="o">.</span><span class="n">from_policy</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_isolated</span></a><span class="p">)</span>
+        <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_isolated</span></a><span class="p">)</span>
     <span class="p">)</span>
     <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">isolated_s</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a>
     <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mismatches_isolated</span></a> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
@@ -866,120 +924,212 @@ process_pool persistent: 19.36s, label_mismatches_vs_serial=0
             <span class="p">},</span>
         <span class="p">]</span>
     <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU-only scheduler timing (demo cohort, light raw spec):&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">scheduler_table</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">persistent_s</span></a> <span class="o">&gt;</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">serial_s</span></a><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Note: parallel &gt; serial here is expected on a tiny cohort — &quot;</span>
+            <span class="s2">&quot;spawn/import overhead dominates per-subject work.&quot;</span>
+        <span class="p">)</span>
     <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">scheduler_table</span></a>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:11&lt;00:44, 11.20s/it]
-Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:12&lt;00:18,  6.03s/it]
-Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:22&lt;00:14,  7.39s/it]
-Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:22&lt;00:05,  5.74s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:32&lt;00:00,  6.48s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:32&lt;00:00,  6.48s/it]
+Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:09&lt;00:37,  9.39s/it]
+Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:10&lt;00:15,  5.13s/it]
+Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:18&lt;00:12,  6.31s/it]
+Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:19&lt;00:04,  4.92s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:28&lt;00:00,  5.62s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:28&lt;00:00,  5.62s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:01,  2.32it/s]
-Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:01,  2.47it/s]
-Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01&lt;00:00,  2.59it/s]
-Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01&lt;00:00,  2.63it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  2.62it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  2.62it/s]
+Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:01,  2.67it/s]
+Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:01,  2.81it/s]
+Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01&lt;00:00,  2.85it/s]
+Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01&lt;00:00,  2.85it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  2.83it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  2.83it/s]
+CPU-only scheduler timing (demo cohort, light raw spec):
                            config  wall_time_s  n_maps  label_mismatches_vs_serial
-                           serial     9.774377       5                           0
-process_pool_persistent_workers=2    19.364301       5                           0
-  process_pool_isolated_workers=2    34.429491       5                           0
+                           serial     7.656509       5                           0
+process_pool_persistent_workers=2    15.908576       5                           0
+  process_pool_isolated_workers=2    29.950914       5                           0
+Note: parallel &gt; serial here is expected on a tiny cohort — spawn/import overhead dominates per-subject work.
 </pre></div>
 </div>
-<p>Heavier voxel field (local entropy): timing only, not a new definition.</p>
+<p>Fault tolerance: one subject raises; <code class="docutils literal notranslate"><span class="pre">on_subject_failure=&quot;continue&quot;</span></code>
+keeps the others.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_spec</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;parallel_texture_input&quot;</span><span class="p">,</span>
-        <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
-            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
-                <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
-                <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span>
-                    <span class="s2">&quot;local_entropy&quot;</span><span class="p">,</span>
-                    <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;LAP&quot;</span><span class="p">],</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">},</span>
-                <span class="p">),</span>
-            <span class="p">),</span>
-            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
-                <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
-                <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span>
-                    <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
-                    <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-                <span class="p">),</span>
-            <span class="p">),</span>
-            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
-            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})),</span>
-            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
-            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
-                <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
-                <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span>
-                    <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-                        <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-                        <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-                    <span class="p">},</span>
-                <span class="p">),</span>
-            <span class="p">),</span>
-            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
-            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
-        <span class="p">),</span>
-        <span class="n">random_seed</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.ops</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.contracts.SubjectResult.html#habit.contracts.SubjectResult" title="habit.contracts.SubjectResult" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">SubjectResult</span></a>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution.backends</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class"><span class="n">SerialBackend</span></a>
+
+    <a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">backend_ft</span></a> <span class="o">=</span> <a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class"><span class="n">SerialBackend</span></a><span class="p">(</span><span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">outcomes</span></a><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><a href="../../api/generated/habit.contracts.SubjectResult.html#habit.contracts.SubjectResult" title="habit.contracts.SubjectResult" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">SubjectResult</span></a><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend.map" title="habit.execution.SerialBackend.map" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-method"><span class="n">backend_ft</span><span class="o">.</span><span class="n">map</span></a><span class="p">(</span><span class="n">_BoomOnSubject</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">subject_id</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[:</span><span class="mi">3</span><span class="p">]))</span>
     <span class="p">)</span>
-    <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_cohort</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
-    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span>
-    <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_serial</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_cohort</span></a><span class="p">)</span>
-    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_serial_s</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a>
-    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span>
-    <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_parallel</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
-        <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_cohort</span></a><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.from_policy" title="habit.execution.ProcessPoolBackend.from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-method"><span class="n">ProcessPoolBackend</span><span class="o">.</span><span class="n">from_policy</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_persistent</span></a><span class="p">)</span>
-    <span class="p">)</span>
-    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_parallel_s</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a>
-    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fault_table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
         <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="s2">&quot;texture_serial&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;wall_time_s&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_serial_s</span></a><span class="p">,</span>
-                <span class="s2">&quot;n_maps&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_serial</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">),</span>
-            <span class="p">},</span>
+                <span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">type</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">outcomes</span></a>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fault isolation (continue):&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">fault_table</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fault_table</span></a>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Fault isolation (continue):
+subject_id    ok   value        error
+   subj001  True subj001         None
+   subj002 False    None RuntimeError
+   subj003  True subj003         None
+</pre></div>
+</div>
+<p>Time control: process backend + short <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code>.
+A sleeping subject is marked failed; others still finish.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_SLOW_SUBJECT_ID</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">subject_id</span>
+    <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_timeout</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">(</span>
+        <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
+        <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">subject_spawn_timeout_sec</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span>
+        <span class="n">graceful_shutdown_sec</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span>
+        <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;isolated&quot;</span><span class="p">,</span>
+        <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">timeout_backend</span></a> <span class="o">=</span> <a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_timeout</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">timeout_outcomes</span></a><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><a href="../../api/generated/habit.contracts.SubjectResult.html#habit.contracts.SubjectResult" title="habit.contracts.SubjectResult" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">SubjectResult</span></a><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <a href="../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.map" title="habit.execution.ProcessPoolBackend.map" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-method"><span class="n">timeout_backend</span><span class="o">.</span><span class="n">map</span></a><span class="p">(</span><span class="n">_SlowSubject</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_SLOW_SUBJECT_ID</span></a><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[:</span><span class="mi">3</span><span class="p">]))</span>
+    <span class="p">)</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">timeout_table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+        <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="s2">&quot;texture_process_pool_persistent_workers=2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;wall_time_s&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_parallel_s</span></a><span class="p">,</span>
-                <span class="s2">&quot;n_maps&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_parallel</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">),</span>
+                <span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">error</span><span class="p">)[:</span><span class="mi">80</span><span class="p">],</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">timeout_outcomes</span></a>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Per-subject timeout (2s):&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">timeout_table</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">timeout_table</span></a>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Per-subject timeout (2s):
+subject_id    ok                                                            error
+   subj001 False Isolated worker exited with code 1 without reporting an outcome.
+   subj002 False Isolated worker exited with code 1 without reporting an outcome.
+   subj003 False Isolated worker exited with code 1 without reporting an outcome.
+</pre></div>
+</div>
+<p>Checkpoint resume: first run writes successes; second run skips them.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ckpt_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;parallel_guide_ckpt&quot;</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.exists" title="pathlib.Path.exists" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">ckpt_dir</span><span class="o">.</span><span class="n">exists</span></a><span class="p">():</span>
+        <a href="https://docs.python.org/3/library/shutil.html#shutil.rmtree" title="shutil.rmtree" class="sphx-glr-backref-module-shutil sphx-glr-backref-type-py-function"><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ckpt_dir</span></a><span class="p">)</span>
+    <a href="../../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">store</span></a> <span class="o">=</span> <a href="../../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class"><span class="n">CheckpointStore</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ckpt_dir</span></a><span class="p">)</span>
+    <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_ckpt</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">(</span>
+        <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;serial&quot;</span><span class="p">,</span>
+        <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span>
+        <span class="n">resume</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">backend_ckpt</span></a> <span class="o">=</span> <a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">policy_ckpt</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span>
+    <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">first</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
+        <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">backend_ckpt</span></a><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><a href="../../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">store</span></a>
+    <span class="p">)</span>
+    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">first_s</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a>
+    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span>
+    <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">second</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
+        <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">backend_ckpt</span></a><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><a href="../../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">store</span></a>
+    <span class="p">)</span>
+    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">second_s</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.perf_counter" title="time.perf_counter" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t0</span></a>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">resume_table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span> <span class="s2">&quot;wall_time_s&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">first_s</span></a><span class="p">,</span> <span class="s2">&quot;n_maps&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">first</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">)},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="s2">&quot;resume_same_checkpoint&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;wall_time_s&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">second_s</span></a><span class="p">,</span>
+                <span class="s2">&quot;n_maps&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">second</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">),</span>
             <span class="p">},</span>
         <span class="p">]</span>
     <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Texture-input timing (scheduler cost only):&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">texture_table</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_table</span></a>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint resume:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">resume_table</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">resume_table</span></a>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:38&lt;00:00, 98.58s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:38&lt;00:00, 98.58s/it]
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.30s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.28s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.28s/it]
 
-Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00&lt;00:00,  2.32it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00&lt;00:00,  2.32it/s]
+Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.75it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.83it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.82it/s]
 
-Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:41&lt;00:00, 101.89s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [01:41&lt;00:00, 101.89s/it]
+Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00&lt;00:00, 24.37it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 21.83it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 21.60it/s]
 
-Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00&lt;00:00,  2.50it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00&lt;00:00,  2.50it/s]
-Texture-input timing (scheduler cost only):
-                                   config  wall_time_s  n_maps
-                           texture_serial    99.130783       1
-texture_process_pool_persistent_workers=2   103.032780       1
+Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  8.37it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  9.03it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  9.03it/s]
+Checkpoint resume:
+                   run  wall_time_s  n_maps
+                  cold     3.752247       2
+resume_same_checkpoint     0.433686       2
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 27.682 seconds)</p>
+<p>Cloud multi-GPU placeholder — fill after your own cloud run.
+Do not invent numbers. Example policy sketch (one process per GPU):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">policy</span> <span class="o">=</span> <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">(</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
+    <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span><span class="p">,</span>
+    <span class="n">cap_workers_to_gpu_pool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_placeholder</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;hardware&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;paste: e.g. 4x A100&gt;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;n&gt;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;raw / local_entropy / …&gt;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;n_subjects&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;n&gt;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;serial_s&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;parallel_s&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;paste measured wall times here&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cloud multi-GPU results (placeholder — replace with your run):&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">cloud_placeholder</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_placeholder</span></a>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cloud multi-GPU results (placeholder — replace with your run):
+             hardware workers                      spec n_subjects serial_s parallel_s                          notes
+&lt;paste: e.g. 4x A100&gt;     &lt;n&gt; &lt;raw / local_entropy / …&gt;        &lt;n&gt;     None       None paste measured wall times here
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 5.340 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-parallel-runs-plot-01-parallel-runs-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/ee88ab9a660a831119d2d60175d3a865/plot_01_parallel_runs.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_parallel_runs.ipynb</span></code></a></p>
@@ -992,6 +1142,7 @@ texture_process_pool_persistent_workers=2   103.032780       1
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
 </section>
 
 

@@ -47,11 +47,12 @@ integers: Dice needs Hungarian overlap; ARI is permutation-invariant.
 
 Load two demo subjects and list registered components.
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-50
+.. GENERATED FROM PYTHON SOURCE LINES 18-51
 
 .. code-block:: Python
 
     from pathlib import Path
+    from typing import Any, Dict
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -67,7 +68,7 @@ Load two demo subjects and list registered components.
         present_habitat_ids,
         remap_label_array,
     )
-    from habit.recipes import Study
+    from habit.recipes import Study, StudyResult
     from habit.spec import HabitatSpec, Spec, Stage
     from habit.supervoxel import SupervoxelizerRegistry
     from habit.viz import plot_cluster_validation_from_report, plot_habitat_label_compare
@@ -121,11 +122,11 @@ Load two demo subjects and list registered components.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-52
+.. GENERATED FROM PYTHON SOURCE LINES 52-53
 
 Shared two-step stages; only the ``fit`` stage differs.
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-133
+.. GENERATED FROM PYTHON SOURCE LINES 53-134
 
 .. code-block:: Python
 
@@ -180,13 +181,13 @@ Shared two-step stages; only the ``fit`` stage differs.
     gmm_result = Study(spec=gmm_spec).fit_predict(cohort)
 
 
-    def _selection_row(name: str, fitter: str, result) -> dict:
+    def _selection_row(name: str, fitter: str, result: StudyResult) -> Dict[str, Any]:
         """One row: selected K and scores at that K from ``selection_report``."""
         model = result.habitat_model
         report = (model.preprocessing_state or {}).get("selection_report") or {}
         selected = int(report.get("selected", model.n_habitats if model else 0))
         candidates = [int(v) for v in report.get("candidates", [])]
-        row = {
+        row: Dict[str, Any] = {
             "spec_name": name,
             "fitter": fitter,
             "n_habitats": selected,
@@ -218,10 +219,10 @@ Shared two-step stages; only the ``fit`` stage differs.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.87s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.81s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.81s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.29it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.29it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.40s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.44s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.44s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.14it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.14it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.22s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.29s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.30s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.76it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.76it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.52it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.56it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]
                       spec_name fitter  n_habitats  n_units  elbow_at_k  silhouette_at_k  bic_at_k
     fit_kmeans_elbow_silhouette kmeans           3        6    0.104712          0.55833       NaN
                     fit_gmm_bic    gmm           4        6         NaN              NaN  1.899594
@@ -285,11 +286,11 @@ Shared two-step stages; only the ``fit`` stage differs.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-135
+.. GENERATED FROM PYTHON SOURCE LINES 135-136
 
 Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-172
+.. GENERATED FROM PYTHON SOURCE LINES 136-173
 
 .. code-block:: Python
 
@@ -394,7 +395,7 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 173-183
+.. GENERATED FROM PYTHON SOURCE LINES 174-184
 
 .. code-block:: Python
 
@@ -427,11 +428,11 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 184-185
+.. GENERATED FROM PYTHON SOURCE LINES 185-186
 
 Validation curves from each ``selection_report``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-201
+.. GENERATED FROM PYTHON SOURCE LINES 186-202
 
 .. code-block:: Python
 
@@ -485,7 +486,7 @@ Validation curves from each ``selection_report``.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.195 seconds)
+   **Total running time of the script:** (0 minutes 9.441 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_03_choose_algorithm.py:

@@ -106,6 +106,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -584,19 +585,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -638,203 +627,540 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
-<section id="version-2-0-2026-01-25">
-<h2>Version 2.0 (2026-01-25)<a class="headerlink" href="#version-2-0-2026-01-25" title="Link to this heading"></a></h2>
-<section id="metrics-module-major-optimization">
-<h3>Metrics Module Major Optimization<a class="headerlink" href="#metrics-module-major-optimization" title="Link to this heading"></a></h3>
-<p><strong>Performance Improvements</strong></p>
-<ul class="simple">
-<li><p>🚀 <strong>8x Speed Boost</strong>: Introduced confusion matrix caching via <code class="docutils literal notranslate"><span class="pre">MetricsCache</span></code> class</p>
-<ul>
-<li><p>Previously: 8 redundant confusion matrix calculations</p></li>
-<li><p>Now: Single cached calculation shared across all metrics</p></li>
-<li><p>Impact: ~800% faster for basic metrics computation</p></li>
-</ul>
-</li>
-</ul>
-<p><strong>Feature Enhancements</strong></p>
-<ul class="simple">
-<li><p>💡 <strong>Extended Target Metrics Support</strong>: Beyond sensitivity/specificity</p>
-<ul>
-<li><p>Added: PPV (Precision), NPV, F1-score, Accuracy</p></li>
-<li><p>Enables more comprehensive threshold selection criteria</p></li>
-<li><p>Example: <code class="docutils literal notranslate"><span class="pre">targets={'sensitivity':</span> <span class="pre">0.91,</span> <span class="pre">'specificity':</span> <span class="pre">0.91,</span> <span class="pre">'ppv':</span> <span class="pre">0.85}</span></code></p></li>
-</ul>
-</li>
-<li><p>🎯 <strong>Fallback Mechanism</strong>: Closest threshold finder</p>
-<ul>
-<li><p>Problem solved: No thresholds meet all targets (e.g., targets too high)</p></li>
-<li><p>Solution: Automatically finds “closest” threshold using distance metrics</p></li>
-<li><p>Supports: Euclidean, Manhattan, and Max distance</p></li>
-<li><p>Prevents data leakage: Training set finds threshold, test set applies it</p></li>
-</ul>
-</li>
-<li><p>🧠 <strong>Intelligent Threshold Selection</strong>: Three strategies</p>
-<ul>
-<li><p><strong>First</strong>: Fast, returns first qualifying threshold</p></li>
-<li><p><strong>Youden</strong>: Classic, maximizes Sensitivity + Specificity - 1</p></li>
-<li><p><strong>Pareto+Youden</strong> (Recommended): Finds Pareto-optimal thresholds, selects max Youden</p></li>
-<li><p>Handles multi-objective optimization gracefully</p></li>
-</ul>
-</li>
-<li><p>📋 <strong>Category-Based Filtering</strong>: Compute only needed metrics</p>
-<ul>
-<li><p>Categories: ‘basic’, ‘statistical’</p></li>
-<li><p>Enables faster computation when full metric suite unnecessary</p></li>
-<li><p>Example: <code class="docutils literal notranslate"><span class="pre">calculate_metrics(y_true,</span> <span class="pre">y_pred,</span> <span class="pre">y_prob,</span> <span class="pre">categories=['basic'])</span></code></p></li>
-</ul>
-</li>
-<li><p>🔮 <strong>Multi-class Preparation</strong>: Foundation for multi-class classification</p>
-<ul>
-<li><p>AUC: Already supports multi-class (One-vs-Rest)</p></li>
-<li><p>Basic metrics: Added macro averaging for multi-class</p></li>
-<li><p>Future: Per-class and weighted strategies</p></li>
-</ul>
-</li>
-</ul>
-<p><strong>API Changes</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">calculate_metrics_at_target</span></code></p>
-<ul>
-<li><p>New parameters: <code class="docutils literal notranslate"><span class="pre">threshold_selection</span></code>, <code class="docutils literal notranslate"><span class="pre">fallback_to_closest</span></code>, <code class="docutils literal notranslate"><span class="pre">distance_metric</span></code></p></li>
-<li><p>New return fields: <code class="docutils literal notranslate"><span class="pre">best_threshold</span></code>, <code class="docutils literal notranslate"><span class="pre">closest_threshold</span></code>, <code class="docutils literal notranslate"><span class="pre">combined_results</span></code></p></li>
-<li><p>Enhanced logging for threshold selection strategy</p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">calculate_metrics</span></code></p>
-<ul>
-<li><p>New parameters: <code class="docutils literal notranslate"><span class="pre">use_cache</span></code> (default: True), <code class="docutils literal notranslate"><span class="pre">categories</span></code></p></li>
-<li><p>Backward compatible: All existing calls work unchanged</p></li>
-</ul>
-</li>
-</ul>
-<p><strong>Technical Debt Resolved</strong></p>
-<ul class="simple">
-<li><p>✅ Eliminated redundant confusion matrix calculations (8x performance hit)</p></li>
-<li><p>✅ Removed hardcoded sensitivity/specificity limitation</p></li>
-<li><p>✅ Implemented previously unused <code class="docutils literal notranslate"><span class="pre">category</span></code> parameter</p></li>
-<li><p>✅ Fixed inefficient F1-score calculation (3 CM calculations → 1)</p></li>
-</ul>
-<p><strong>Testing</strong></p>
-<ul class="simple">
-<li><p>Added comprehensive test suite: <code class="docutils literal notranslate"><span class="pre">tests/test_metrics_optimization.py</span></code></p></li>
-<li><p>Coverage: Caching, extended targets, fallback, Pareto selection, categories</p></li>
-<li><p>All tests passing ✓</p></li>
-</ul>
-<p><strong>Documentation</strong></p>
-<ul class="simple">
-<li><p>Added detailed guide in <a class="reference internal" href="development/index.html"><span class="doc">Developer Guide</span></a></p></li>
-<li><p>Includes: API reference, usage examples, performance comparison</p></li>
-<li><p>Best practices for training/test threshold management</p></li>
-</ul>
-<p><strong>Backward Compatibility</strong></p>
-<ul class="simple">
-<li><p>✅ 100% backward compatible</p></li>
-<li><p>All existing code works without modification</p></li>
-<li><p>New features accessible via optional parameters</p></li>
-</ul>
-<p><strong>Known Limitations</strong></p>
-<ul class="simple">
-<li><p>PPV/NPV computation: O(n) complexity, slower than sensitivity/specificity</p></li>
-<li><p>Pareto algorithm: O(n²) worst case (negligible for typical threshold counts)</p></li>
-<li><p>Multi-class: Basic support, further validation needed</p></li>
-</ul>
-<p><strong>Migration Guide</strong></p>
-<p>No migration needed! Existing code continues to work. To use new features:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old (still works)</span>
-<span class="n">metrics</span> <span class="o">=</span> <span class="n">calculate_metrics</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">y_prob</span><span class="p">)</span>
+<p>Release notes for the public HABIT / <code class="docutils literal notranslate"><span class="pre">habitat-analysis</span></code> Python API live in
+the repository root file <code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code> (Keep a Changelog format).</p>
+<p>The Sphinx pages below mirror that file so the docs site sidebar has a
+Changelog entry. For the authoritative history, open
+<a class="reference external" href="https://github.com/lichao312214129/HABIT/blob/main/CHANGELOG.md">CHANGELOG.md</a>
+on GitHub.</p>
+<div class="highlight-md notranslate"><div class="highlight"><pre><span></span><span class="gh"># Changelog</span>
 
-<span class="c1"># New (enhanced)</span>
-<span class="n">metrics</span> <span class="o">=</span> <span class="n">calculate_metrics</span><span class="p">(</span>
-    <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">y_prob</span><span class="p">,</span>
-    <span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>           <span class="c1"># Enable caching</span>
-    <span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;basic&#39;</span><span class="p">]</span>       <span class="c1"># Faster computation</span>
-<span class="p">)</span>
+All notable changes to the HABIT public Python API are documented in this file.
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">calculate_metrics_at_target</span><span class="p">(</span>
-    <span class="n">y_true</span><span class="p">,</span> <span class="n">y_prob</span><span class="p">,</span>
-    <span class="n">targets</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;sensitivity&#39;</span><span class="p">:</span> <span class="mf">0.91</span><span class="p">,</span> <span class="s1">&#39;specificity&#39;</span><span class="p">:</span> <span class="mf">0.91</span><span class="p">,</span> <span class="s1">&#39;ppv&#39;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">},</span>
-    <span class="n">threshold_selection</span><span class="o">=</span><span class="s1">&#39;pareto+youden&#39;</span><span class="p">,</span>  <span class="c1"># Intelligent selection</span>
-    <span class="n">fallback_to_closest</span><span class="o">=</span><span class="kc">True</span>              <span class="c1"># Fallback mechanism</span>
-<span class="p">)</span>
+The format is based on [<span class="nt">Keep a Changelog</span>](<span class="na">https://keepachangelog.com/en/1.1.0/</span>).
+
+<span class="gu">## [Unreleased]</span>
+
+<span class="gu">## [2.0.0] - 2026-09-03</span>
+
+Capability-named packages are now the public import path
+(``habit.voxel_features``, ``habit.supervoxel``, ``habit.habitat_features``,
+``habit.habitat_model``, ``habit.precision``, …). ``habit.domain`` is removed.
+``habit.compat.engines`` remains a frozen legacy layer (not a public API).
+Package version bumped from 1.2.0.
+
+<span class="gu">## [1.2.0] - 2026-09-02</span>
+
+<span class="gs">**vs 1.1.3:**</span> habitat-first docs and embeddable atomic API; graph-topology
+defaults and several public feature / viz APIs. Upgrade with
+``pip install -U &quot;habitat-analysis[tables,viz]&quot;``.
+
+<span class="gu">### Added</span>
+
+<span class="k">-</span><span class="w"> </span>Contour perturbation gallery (``morphological`` / ``gradient_weighted``
+  / ``slice_extent``) with one figure per operator, plus public L0
+  exports ``morphological_grow_shrink``, ``boundary_band_mask``,
+  ``boundary_weighted_perturbation``, ``slice_extent_perturbation``.
+<span class="k">-</span><span class="w"> </span>Graph topology opt-in edge method ``min_distance``: an edge exists when
+  the closest-voxel Euclidean distance between two regions is within
+  ``distance_threshold`` (voxel-index units). This is not centroid
+  distance. Library default remains ``adjacency`` + corner +
+  ``adjacency_min_voxels=10``.
+<span class="k">-</span><span class="w"> </span>``habitat_ith_dispersion``: per-habitat ITH
+  ``d_i = 1 - (S_{i,max} / n<span class="ge">_i) / S_</span>i``. The global ITH score is the
+  volume-weighted mean of these values.
+<span class="k">-</span><span class="w"> </span>Habitat feature contrast API: ``to_habitat_feature_panel`` /
+  ``compare_habitat_features`` melt an ``each_habitat`` table and run
+  paired habitat-vs-habitat tests (Cliff&#39;s delta or Cohen&#39;s d, BH-FDR).
+  Publication figures: heatmap, effect-size forest, violin, grouped bars
+  (cohort mean or one subject). High-dimensional texture tables use the
+  heatmap + top-k effect plot, not one violin per feature.
+<span class="k">-</span><span class="w"> </span>SHAP figure family on ``habit.viz``: ``plot_shap_bar``,
+  ``plot_shap_violin``, ``plot_shap_heatmap``, ``plot_shap_decision``,
+  ``plot_shap_force`` (static matplotlib). YAML ``plot_types`` accepts
+  the new names; they stay opt-in (default still includes ``shap``
+  beeswarm only). ML gallery documents the full set.
+<span class="k">-</span><span class="w"> </span>Clustering feature-chain scalers: MaxAbs, quantile, and L2
+  (``feature_preprocessing_method``).
+<span class="k">-</span><span class="w"> </span>One-step ``Report`` streaming with ``figure_layout=&quot;by_subject&quot;`` and
+  graph figure atoms.
+<span class="k">-</span><span class="w"> </span>GPU texture-matrix path and native OpenMP C supervoxel matrix extract
+  (opt-in / auto).
+
+<span class="gu">### Changed</span>
+
+<span class="k">-</span><span class="w"> </span>``plot_habitat_graph_network_2d`` H1–Hk panels keep the featured
+  habitat opaque and fade other habitat fills to alpha 0.2 (background 0
+  unchanged). The All-habitats panel stays fully opaque. Panel titles,
+  colorbar text, and the edge figlegend use larger publication-readable
+  sizes.
+<span class="k">-</span><span class="w"> </span>``plot_ith_summary`` is a single-panel bar chart: a global ``ITH`` bar
+  (Okabe–Ito reddish purple) then, when ``dispersion`` is given, a gap
+  and H1/H2/... bars (bluish green) on a shared 0–1 axis (ylabel
+  ``ITH``). Pass ``dispersion=habitat_ith_dispersion(labels)``. The old
+  ``per_habitat`` region-count mapping is rejected; the name remains a
+  deprecated alias for ``dispersion`` through v1.x.
+<span class="k">-</span><span class="w"> </span>Graph topology defaults now use corner connectivity: components
+  ``connectivity=&#39;full&#39;`` and edges ``adjacency_connectivity=&#39;corner&#39;``
+  (8-connected in 2D / 26-connected in 3D). Previously both defaulted to
+  ``face`` (4-connected / 6-connected). Pass ``connectivity=&#39;face&#39;`` and
+  ``adjacency_connectivity=&#39;face&#39;`` to keep the old neighborhood.
+<span class="k">-</span><span class="w"> </span>Graph topology default edge rule is now voxel adjacency with a minimum
+  contact of 10 voxels (``edge_method=&#39;adjacency&#39;``,
+  ``adjacency_min_voxels=10``). Previously the default was centroid
+  proximity (``edge_method=&#39;centroid_distance&#39;``, ``distance_threshold=5.0``)
+  and adjacency edges used ``adjacency_min_voxels=1``. An edge now exists
+  when two regions are adjacent and the shared-boundary voxel count is
+  &gt;= 10. Pass ``edge_method=&#39;centroid_distance&#39;`` to keep the old rule.
+<span class="k">-</span><span class="w"> </span>Graph topology default ``erosion_radius`` is now ``0`` (off). Adjacency
+  and the contact &gt;= 10 rule are measured on the habitat labels as drawn.
+  Previously the default was one binary-erosion iteration before labeling,
+  which could drop thin contacts. Pass ``erosion_radius=1`` (or higher) to
+  shrink habitats before edges.
+<span class="k">-</span><span class="w"> </span>Docs: habitat analysis is the product spine (concept, atomic embed,
+  ``SubjectPipeline``, ``Study``). Image preprocessing and tabular ML
+  are supporting. CLI and Python quickstarts no longer show each
+  other&#39;s twins. New tutorial: parallel backends and fault tolerance.
+  Precise screening lives under How-to, not the Tutorial start list.
+<span class="k">-</span><span class="w"> </span>Docs: habitat Spec chooser splits voxel / supervoxel stages into
+  single-modality leaves and multi-modality combiners; nested trees stay
+  on the feature-composition example.
+<span class="k">-</span><span class="w"> </span>Default habitat feature extraction now includes the built-in ``graph``
+  family with the other light types (``volume``, ``msi``, ``ith_score``,
+  ``non_radiomics``). Shipped extract YAMLs and the documented default
+  ``feature_types`` / ``HabitatSpec.habitat_features`` light set are
+  additive; heavy radiomics stay opt-in. Tests that pin an explicit
+  family list are unchanged.
+<span class="k">-</span><span class="w"> </span>Docs: real-data gallery for habitat-feature contrast
+  (``to_habitat_feature_panel`` / ``compare_habitat_features``) on
+  ``demo_data/`` maps with ``each_habitat`` + ``graph``.
+<span class="k">-</span><span class="w"> </span>ITH auxiliary columns are opt-in; connected-component cleanup crops
+  maps before labeling.
+
+<span class="gu">## [1.1.3] - 2026-08-09</span>
+
+<span class="gs">**vs 1.1.2:**</span> same demo-config packaging (``copy-demo-config``); this release
+fixes habitat <span class="gs">**display orientation**</span> in viewers / ``habit view``. Upgrade with
+``pip install -U &quot;habitat-analysis[tables,viz]&quot;`` (install docs stay unpinned).
+
+<span class="gu">### Fixed</span>
+
+<span class="k">-</span><span class="w"> </span>Habitat display orientation aligned across backends: omit-direction default is
+  LPS identity (was RAS); napari no longer flips the axial (z) axis so slice
+  indices match file / ITK-SNAP order; default display convention is
+  radiological, with ``habit view --convention`` /
+  ``view_habitat_napari(..., convention=...)`` for radiological / neurological /
+  native.
+
+<span class="gu">### Changed</span>
+
+<span class="k">-</span><span class="w"> </span>Docs: beginner Miniconda-to-PyPI install flow; recommend
+  ``habitat-analysis[tables,viz]`` for quickstart; note extras for demo
+  ``get-habitat``.
+
+<span class="gu">## [1.1.2] - 2026-08-08</span>
+
+<span class="gu">### Added</span>
+
+<span class="k">-</span><span class="w"> </span>Ship demo YAML templates with the wheel (baked at build time from
+  repository ``config/``). Users materialize them without a git clone via
+  ``habit copy-demo-config --dest &lt;work_dir&gt;`` or
+  ``habit.copy_demo_config(work_dir)``. ``demo_data/`` remains a separate
+  download and is never packaged.
+<span class="k">-</span><span class="w"> </span>Docs (installation / before_you_start / quickstart) walk through a user
+  ``work_dir``: conda terminal → copy demo config → download ``demo_data``
+  beside it → run CLI demos.
+
+<span class="gu">### Changed</span>
+
+<span class="k">-</span><span class="w"> </span>Single source of truth for demo YAML is repo-root ``config/``. Editable
+  installs read that tree live; ``setup.py`` ``build_py`` / ``sdist`` sync
+  into ``habit/resources/demo_config/`` for wheels (generated files are
+  gitignored).
+
+<span class="gu">## [1.1.1] - 2026-08-08</span>
+
+<span class="gu">### Added</span>
+
+<span class="k">-</span><span class="w"> </span>``habit view`` CLI and ``habit.viz.view_habitat_napari`` / overlay helpers:
+  open habitat label maps on anatomy in napari (optional ``[view]`` extra),
+  with a PNG fallback when napari is unavailable. Replaces the old GUI entry.
+<span class="k">-</span><span class="w"> </span>Connected-component habitat/supervoxel cleanup on the v1 path:
+  ``HabitatSpec.postprocess_habitat`` / ``postprocess_supervoxel``,
+  ``ConnectedComponentPostprocess``, L0 kernel
+  ``remove_small_connected_components``, wired through ``SubjectPipeline``
+  (in-memory cleanup before features; writers do not re-run it). YAML
+  ``enabled: true`` maps into Spec slots (default remains off).
+<span class="k">-</span><span class="w"> </span>Image/mask geometry alignment policy on ``HabitatSpec`` /
+  ``SubjectPipeline`` (``on_geometry_mismatch``).
+<span class="k">-</span><span class="w"> </span>Quickstart napari screenshots refreshed for the demo ``subj001`` view
+  path.
+
+<span class="gu">### Changed</span>
+
+<span class="k">-</span><span class="w"> </span>Docs and example scripts updated for the view / napari eye-check flow and
+  habitat configuration notes for v1 postprocess ownership (B5 closed).
+
+<span class="gu">## [1.1.0] - 2026-08-07</span>
+
+<span class="gu">### Changed</span>
+
+<span class="k">-</span><span class="w"> </span>**BREAKING (behaviour): ``TablePipeline`` now inherits
+  ``sklearn.pipeline.Pipeline``.** The constructor signature is unchanged
+  (``TablePipeline(steps=[...HABIT components...], model=...)``) and every
+  HABIT verb — ``fit(table)``, ``transform(table)``, ``predict(table)``,
+  ``predict_proba(table)``, ``predict_survival_function``, ``evaluate``,
+  ``set_random_state``, ``spec``, ``save`` / ``load`` — behaves exactly as
+  before. Two attributes changed meaning:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>``pipeline.steps`` is now scikit-learn&#39;s ``List[Tuple[str, estimator]]``.
+    It is not overridden, because ``sklearn.pipeline.Pipeline`` reads *and
+    writes* it directly.
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>**``pipeline.components`` is the new home of the HABIT transformation
+    components** (the tuple ``pipeline.steps`` used to return).
+    ``pipeline.model`` / ``pipeline.classifier`` are unchanged.
+
+  In exchange, a ``TablePipeline`` works directly with ``sklearn.base.clone``,
+  ``get_params`` / ``set_params``, ``cross_val_score``, ``GridSearchCV`` and
+  ``RandomizedSearchCV``, and nested parameter grids such as
+  ``{&quot;model__component__C&quot;: [0.1, 1, 10]}`` address a HABIT component&#39;s own
+  parameters. Rationale and the full contract are recorded in
+  ``developer/api_upgrade/08_naming_decisions.md`` §8.
+<span class="k">-</span><span class="w"> </span>``TableClassifierEstimator.classes_`` now reports the endpoint&#39;s own dtype
+  (e.g. ``[0, 1]``) instead of the probability frame&#39;s string column labels,
+  matching ``predict()`` and letting label-aware scikit-learn scorers work.
+  The frame column labels moved to the new ``proba_columns_`` attribute.
+<span class="k">-</span><span class="w"> </span>``.habitpipeline`` files are now written at ``format_version = 2`` (the
+  added field is the ``FrameToTable`` head&#39;s column schema). Version 1 files
+  written by earlier releases still load and predict identically.
+<span class="k">-</span><span class="w"> </span><span class="gs">**DEPRECATED: ``MLSpec``&#39;s three fixed table chains.**</span>
+  ``pre_preprocessing_feature_selectors``, ``table_preprocessors`` and
+  ``feature_selectors`` expressed step order through three slots, which
+  offered a selector exactly two positions — before all preprocessing or
+  after all of it — so an order such as ``zscore → variance → minmax →
+  lasso`` had no representation. They are superseded by the single ordered
+  ``MLSpec.steps`` list (below) and remain accepted, with a
+  ``DeprecationWarning``, for all of v1.x. A spec that declares both layouts
+  with different content is rejected rather than resolved by precedence.
+  ``MLSpec.to_dict()`` keeps emitting the three deprecated keys (and no
+  ``steps`` key) for a spec declared with them, so **every fingerprint
+  written before this release is unchanged**; a spec declared with ``steps``
+  serialises as ``steps``.
+<span class="k">-</span><span class="w"> </span>``variance`` / ``variance_filter`` and ``correlation`` /
+  ``correlation_filter`` are now one implementation each, in
+  ``habit.kernels.feature_transforms``, reached through all four registry
+  names. Defaults, parameter spellings and numbers are unchanged; the
+  behavioural difference the two variance names always had — the filter keeps
+  the highest-variance column when nothing clears the threshold, the selector
+  keeps nothing — is now the explicit ``keep_at_least_one`` parameter,
+  defaulting per name to what that name always did. It is recorded in
+  ``spec.params`` only when it deviates from that default, so no existing
+  fingerprint moves.
+
+<span class="gu">### Added</span>
+
+<span class="k">-</span><span class="w"> </span>``habit.recipes.search_hyperparameters`` and ``habit.recipes.SearchResult``:
+  hyperparameter tuning as a recipe. It drives scikit-learn&#39;s
+  ``GridSearchCV`` / ``RandomizedSearchCV`` (``strategy=&quot;grid&quot;`` /
+  ``&quot;random&quot;``) over a ``TablePipeline``, on folds produced by
+  ``habit.domain.split.kfold_indices`` so a search partitions the rows exactly
+  as ``cross_validate`` does for the same ``n_splits`` and seed, and **writes
+  the winning parameters back into the ``MLSpec``** — the tuned definition
+  fingerprints, serialises to YAML and re-runs, so tuning does not end the
+  provenance chain. Grid keys read ``&quot;&lt;step&gt;__component__&lt;parameter&gt;&quot;``
+  (``&quot;model__component__C&quot;``, ``&quot;variance__component__threshold&quot;``); a key
+  that cannot be written back into the spec is rejected before the search
+  starts. The objective is a registered HABIT metric name whose own
+  ``greater_is_better`` sets the direction, defaulting to the spec&#39;s first
+  declared metric and then to ``auc``. No new dependency: there is
+  deliberately no Bayesian/Optuna backend.
+<span class="k">-</span><span class="w"> </span>``cross_validate(..., inner_cv=..., param_grid=...)``: nested
+  cross-validation. The hyperparameters are re-tuned inside every outer fold&#39;s
+  training rows and scored on the untouched validation rows, so the reported
+  panel estimates the whole tuning procedure. Each fold&#39;s winner is returned
+  in the new ``CVResult.fold_best_params``. Passing only one of the two
+  arguments is an error, because a grid without ``inner_cv`` would tune on the
+  rows it scores. Plain ``cross_validate`` calls are unaffected.
+<span class="k">-</span><span class="w"> </span>``MLSpec.steps``: ONE ordered list of table steps (preprocessors and
+  feature selectors, freely interleaved) whose list order is the execution
+  order. Step names resolve across both registries; the two vocabularies are
+  disjoint, and an ambiguous or unknown name is an explicit error rather than
+  a skipped step. See
+  ``config/machine_learning/config_machine_learning_steps_v1.yaml`` for a
+  runnable native-v1 document.
+<span class="k">-</span><span class="w"> </span>``habit.domain.assembly.build_table_step``: builds one ``MLSpec.steps``
+  entry by resolving its name across the table-preprocessor and
+  feature-selector registries.
+<span class="k">-</span><span class="w"> </span>``keep_at_least_one`` on the ``variance`` selector and the
+  ``variance_filter`` preprocessor, making the historical
+  &quot;never empty the feature block&quot; fallback selectable from either name.
+
+<span class="k">-</span><span class="w"> </span>``habit.domain.sklearn_interop``: the table-level scikit-learn interop
+  adapters, lifted out of the frozen ``habit.compat`` layer into L3.
+  ``habit.compat.sklearn`` keeps deprecated aliases of
+  ``TableTransformerEstimator`` / ``TableClassifierEstimator`` /
+  ``as_transformer`` / ``as_classifier`` for all of v1.x.
+<span class="k">-</span><span class="w"> </span>``habit.domain.sklearn_interop.FrameToTable``: rebuilds a ``FeatureTable``
+  from a plain frame plus a static column schema, which is what lets
+  scikit-learn&#39;s cross-validation drivers slice ``X`` by row. Every
+  ``TablePipeline`` carries one as its head step (named ``&quot;frame_to_table&quot;``);
+  it passes ``FeatureTable`` input straight through unchanged.
+<span class="k">-</span><span class="w"> </span>``as_regressor`` / ``as_survival_model`` / ``as_outcome_model`` factories for
+  the two terminal-model families the v1.0 interop surface did not cover.
+<span class="k">-</span><span class="w"> </span>Every built-in tabular component (classifiers, regressors, survival models,
+  preprocessors, feature selectors) now implements scikit-learn&#39;s
+  ``get_params`` / ``set_params`` / ``clone`` protocol, sourced from the same
+  single mapping ``spec.params`` is built from, so a searched value cannot
+  disagree with the recorded fingerprint.
+
+<span class="gu">### Changed — BREAKING (packaging only; the public Python API is unchanged)</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Seven packages moved out of the required dependency set.**</span> A bare
+  ``pip install habitat-analysis`` now installs 11 packages instead of 20:
+  ``numpy``, ``scipy``, ``pandas``, ``scikit-learn``, ``SimpleITK``,
+  ``pydantic``, ``PyYAML``, ``click``, ``tqdm``, ``joblib``, ``kneed``. Measured
+  on CPython 3.10 / Linux, that is <span class="gs">**212 MB → 129 MB of wheel downloads**</span>
+  (39 wheels → 20) and <span class="gs">**931 MB → 635 MB of installed ``site-packages``**</span>,
+  i.e. 43 → 23 distributions on disk.
+
+  No public symbol was added, removed or resigned. What changed is what
+  ``pip install`` gives you:
+
+  | Package | New extra | Why it could move |
+  | --- | --- | --- |
+  | ``pyarrow`` | ``tables`` | 83 MB wheel, <span class="gs">**zero**</span> direct imports in ``habit/**`` — only the pandas parquet engine |
+  | ``scikit-image`` | ``slic`` | 44 MB for one function, ``skimage.segmentation.slic``. The kernel contract is the ``Supervoxelizer`` <span class="ge">*protocol*</span>; the default ``kmeans`` / ``gmm`` backends need nothing extra |
+  | ``matplotlib`` | ``viz`` | 58 MB incl. its transitive tail. ``habit.viz`` already imported it lazily per function |
+  | ``pydicom`` | ``dicom`` | 21 MB used by exactly one module; NIfTI / NRRD input needs only SimpleITK |
+  | ``seaborn`` | ``viz`` | Plotting only |
+  | ``openpyxl`` | ``tables`` | <span class="gs">**Zero**</span> direct imports — the pandas ``.xlsx`` engine |
+  | ``chardet`` | <span class="ge">*removed*</span> | One encoding-probe call site whose caller already retries a fixed candidate list |
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Migration is one command**</span>: ``pip install -U &quot;habitat-analysis[full]&quot;``
+  reproduces everything a pre-1.1.0 bare install plus ``[all]`` provided.
+  ``[all]`` now also aggregates the four new groups, so existing ``[all]``
+  users lose nothing. Both meta-extras are written as self-referencing extras
+  so they cannot drift from the groups they aggregate.
+<span class="k">-</span><span class="w"> </span>``ml`` and ``analysis`` now pull ``viz`` and ``tables``: their selectors draw
+  diagnostic figures and read feature tables from ``.xlsx`` / ``.parquet``.
+<span class="k">-</span><span class="w"> </span>``chardet`` is no longer declared anywhere.
+  ``habit.compat.test_retest_mapper.detect_file_encoding`` still consults
+  chardet when it happens to be installed, and otherwise returns no guess so
+  that the caller&#39;s existing candidate list (utf-8 → gbk → gb2312 → gb18030 →
+  big5) decides, with a new UTF-8 BOM shortcut in front. A locale-derived guess
+  was measured and rejected: on a Chinese Windows install
+  ``locale.getpreferredencoding()`` reports ``cp936``, which decodes most UTF-8
+  byte sequences without raising and would therefore turn the commonest case
+  into silent mojibake instead of a ``UnicodeDecodeError`` the retry loop can
+  act on.
+
+<span class="gu">### Fixed</span>
+
+<span class="k">-</span><span class="w"> </span>Test-retest config files written in GBK were decoded into mojibake. chardet
+  guessed ``Windows-1250`` from the 1000-byte sample, and single-byte codecs
+  decode any byte sequence without raising, so the reader&#39;s fallback loop never
+  got a chance to reach the correct codec. Dropping the statistical guess makes
+  the deterministic candidate list authoritative and the result correct;
+  ``tests/commands/test_cmd_test_retest_recipes.py`` now covers ascii / utf-8 /
+  utf-8-sig / gbk under both a UTF-8 and a ``cp936`` locale.
+<span class="k">-</span><span class="w"> </span>``habit/compat/engines/habitat_analysis/clustering/base_clustering.py``
+  imported ``matplotlib.pyplot`` twice and never used it. Removing the dead
+  imports frees the whole compat clustering factory from the ``viz`` extra.
+<span class="k">-</span><span class="w"> </span>``vif_selector.py`` imported ``seaborn`` without using it.
+
+<span class="gu">### Unchanged on purpose</span>
+
+<span class="k">-</span><span class="w"> </span>``habitats_results_format`` still defaults to ``parquet``. Missing pyarrow
+  raises ``OptionalDependencyError`` listing <span class="gs">**both**</span> exits — install
+  ``[tables]``, or set ``habitats_results_format: csv`` — and never silently
+  writes ``habitats.csv`` where ``habitats.parquet`` was expected. No optional
+  dependency anywhere in HABIT degrades silently.
+
+<span class="gu">### Added</span>
+
+<span class="k">-</span><span class="w"> </span>``habit.utils.optional_deps.require(module, *, extra, purpose)``: the generic
+  import gate every optional backend now goes through. It raises
+  ``OptionalDependencyError`` carrying a copy-pasteable
+  ``pip install &quot;habitat-analysis[&lt;extra&gt;]&quot;`` and a one-line statement of what
+  the package was needed for, instead of a bare ``ModuleNotFoundError``.
+  Companions: ``install_command``, ``optional_dependency_hint``,
+  ``require_excel_backend``, ``require_parquet_backend``, and
+  ``OPTIONAL_EXTRA_MODULES`` (the machine-readable extras matrix).
+  ``require_pyradiomics()`` is kept as the documented specialization — its
+  platform-dependent Windows Release-wheel hint cannot be templated from an
+  extra name.
+<span class="k">-</span><span class="w"> </span>``habit.utils.dicom_utils.is_pydicom_available()``. The legacy
+  ``PYDICOM_AVAILABLE`` module attribute still resolves, but lazily (PEP 562),
+  so importing the module no longer imports pydicom or warns when it is absent.
+<span class="k">-</span><span class="w"> </span>Two packaging gates in ``tests/test_packaging_contracts.py``: an equality
+  assertion on an explicit required-dependency whitelist (so adding a required
+  dependency turns the suite red and forces a decision), and a bare-install
+  smoke contract that trains a habitat model with all seven optional packages
+  hidden behind a ``sys.meta_path`` blocker.
+<span class="k">-</span><span class="w"> </span>A ``bare-install`` job in ``.github/workflows/tests.yml`` that installs the
+  built distribution with <span class="gs">**no**</span> extras (a real resolve, not ``-e .`` and not
+  ``--no-deps``) and runs that smoke contract.
+
+<span class="gu">## [1.0.4] - 2026-08-07</span>
+
+<span class="gu">### Changed</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**PyRadiomics is installed separately**</span>: removed
+  ``python -m habit.install_radiomics`` and the Windows auto-install path in
+  ``require_pyradiomics()``. HABIT extras no longer declare ``pyradiomics``
+  (the empty ``radiomics`` extra remains as a documented alias). On Windows,
+  install the matching prebuilt wheel from GitHub Release ``v1.0.2``; on
+  macOS / Linux use PyPI (``pyradiomics&gt;=3.0.1,&lt;3.2``) or conda-forge. See
+  the Installation tutorial for the wheel URL table.
+
+<span class="gu">### Added</span>
+
+
+<span class="k">-</span><span class="w"> </span>Stable top-level namespace: ``import habit`` exposes pipeline runners, config
+  classes, and utilities via lazy loading (see ``habit.api.registry``).
+<span class="k">-</span><span class="w"> </span>v1.0 layered public API registered at top level: all ``habit.kernels``
+  numerical functions, the ``habit.compat`` interop entry points
+  (``as_estimator`` / ``as_transformer`` / ``as_classifier``, MONAI dict
+  converters, ``NnUNetDataSource``), and the ``habit.viz`` figure functions.
+<span class="k">-</span><span class="w"> </span>``habit.utils.deprecation``: ``HabitDeprecationWarning``,
+  ``HabitPendingDeprecationWarning``, and the ``deprecated`` decorator.
+<span class="k">-</span><span class="w"> </span>``habit.kernels.cluster_selection``, ``habit.kernels.voxel_texture`` and
+  ``habit.kernels.radiomics.voxel_maps``: the cluster-count, local-entropy and
+  voxel-feature-map numerics, now shared by both engines.
+<span class="k">-</span><span class="w"> </span>Domain voxel feature families reaching v0.1 parity: ``voxel_radiomics``,
+  ``kinetic``, ``local_entropy`` and ``concat``.
+<span class="k">-</span><span class="w"> </span>``gap`` / ``inertia`` criteria for the K-means habitat fitter and
+  ``silhouette`` / ``calinski_harabasz`` / ``davies_bouldin`` / ``gap`` for the
+  GMM fitter, each recording an auditable selection report.
+<span class="k">-</span><span class="w"> </span>``habit.recipes``: assembly functions for the three habitat designs —
+  ``two_step``, ``one_step``, ``direct_pooling`` — plus ``apply_habitat_model``
+  for projecting a published ``HabitatModel`` onto a new cohort. Each takes a
+  cohort and a ``HabitatSpec``, runs in memory, and returns a ``StudyResult``;
+  no file path, YAML or run mode is involved.
+<span class="k">-</span><span class="w"> </span>``habit.adapters.DirectoryResultWriter``: the write-side counterpart of
+  ``DirectoryDataSource``, implementing the ``ResultWriter`` protocol with the
+  v0.1 directory layout (habitat NRRDs with geometry, ``.habitatmodel``,
+  feature CSV, run manifest).
+<span class="k">-</span><span class="w"> </span>``ResultWriter.write_manifest``, so a run manifest can be persisted through
+  the same protocol as every other artefact.
+<span class="k">-</span><span class="w"> </span>Golden coverage for predict mode (``habitat_two_step_predict``) and for the
+  habitat feature families (``habitat_features``), including MSI, ITH and
+  basic feature tables.
+<span class="k">-</span><span class="w"> </span>``habit.datasets``: ``make_synthetic_cohort`` and ``make_synthetic_feature_table``
+  for deterministic in-memory test cohorts and feature tables (no files, no
+  network).
+<span class="k">-</span><span class="w"> </span>Synthetic fast golden gate (``tests/golden/fast/``, ``baseline/fast/``)
+  covering two_step, one_step, direct_pooling, predict, habitat_features, and
+  ml_kfold with fixed ``n_habitats=3``; CI runs under ``-m &quot;not slow&quot;`` in
+  about 20 seconds.
+<span class="k">-</span><span class="w"> </span>``scripts/make_fast_golden_baseline.py`` to regenerate fast baselines.
+<span class="k">-</span><span class="w"> </span>``tests/recipes/test_recipes_fast_parity.py`` synthetic recipe parity tests.
+
+<span class="gu">### Changed</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**BREAKING — automatic habitat-count selection**</span>: the ``elbow``
+  cluster-validation method is now an alias of ``kneedle``. Up to v0.1.x,
+  ``elbow`` selected the cluster count with a second-difference (discrete
+  curvature) criterion while ``kneedle`` used the normalised maximum-deviation
+  (Kneedle) criterion, and the two could disagree on the same inertia curve.
+  Both keys, and ``inertia``, now resolve to the single implementation in
+  ``habit.kernels.cluster_selection.knee_index``, shared by the v0.1 engines
+  and the v1.0 domain fitters so they can no longer drift apart.
+
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>Configurations stay valid: ``selection_method: elbow`` and
+    ``habitat_cluster_selection_method: [elbow]`` are still accepted.
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>Results may change: re-running a study with automatic selection can yield
+    a different habitat count than v0.1.x did. On the bundled demo cohort the
+    one-step and direct-pooling configurations move from 3 to 4 habitats; the
+    two-step configuration is unchanged at 4.
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>To reproduce a published habitat count, set ``fixed_n_clusters``
+    (per-subject: ``supervoxel.one_step_settings.fixed_n_clusters``;
+    cohort-level: ``habitat.fixed_n_clusters``).
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>``get_optimization_direction()`` now reports ``&quot;knee&quot;`` for ``elbow``,
+    ``kneedle`` and ``inertia``.
+<span class="k">-</span><span class="w"> </span><span class="gs">**BREAKING — internal module moves**</span> (deep imports only; the public API is
+  unaffected): the supervoxel radiomics numerics moved out of the v0.1 engine
+  into the kernel layer.
+  ``habit.compat.engines.habitat_analysis.clustering_features.supervoxel_cext`` →
+  ``habit.kernels.radiomics.cext``; ``...clustering_features.torchradiomics``
+  → ``habit.kernels.radiomics.torchradiomics``;
+  ``...clustering_features.batched_supervoxel_radiomics`` →
+  ``habit.kernels.radiomics.supervoxel_batch``;
+  ``...clustering_features.supervoxel_radiomics_settings`` →
+  ``habit.kernels.radiomics.settings``.
+
+<span class="k">-</span><span class="w"> </span>Top-level ``habit.Cohort`` now binds to the v1.0 imaging cohort contract
+  (``habit.contracts.subject.Cohort``). The v0.1 clinical cohort was renamed
+  ``habit.ClinicalCohort``; the old name remains importable from
+  ``habit.api.clinical`` as a deprecated alias (removal planned for v1.2.0).
+<span class="k">-</span><span class="w"> </span>``import habit`` no longer imports sklearn/pandas/scipy at package import
+  time; ``habit.exceptions.NotFittedError`` is constructed lazily on first
+  access while remaining a subclass of ``sklearn.exceptions.NotFittedError``.
+<span class="k">-</span><span class="w"> </span>Removed the empty leftover package ``habit/cli_commands/`` (source modules
+  were deleted earlier; only stale ``__pycache__`` directories remained).
+<span class="k">-</span><span class="w"> </span>Public runners: ``run_preprocess``, ``run_dicom_sort``, ``run_habitat_analysis``,
+  ``run_feature_extraction``, ``run_radiomics``, ``run_ml``, ``run_kfold``,
+  ``run_model_comparison``, ``run_icc_analysis``.
+<span class="k">-</span><span class="w"> </span>Public config classes: ``PreprocessingConfig``, ``DicomSortConfig``,
+  ``HabitatAnalysisConfig``, ``FeatureExtractionConfig``, ``RadiomicsConfig``,
+  ``MLConfig``, ``ModelComparisonConfig``, ``TestRetestConfig``, ``ICCConfig``.
+<span class="k">-</span><span class="w"> </span>Helpers: ``apply_habitat_cli_overrides``, ``apply_ml_mode_override``,
+  ``setup_logger``, ``is_available``.
+<span class="k">-</span><span class="w"> </span>``habit.__version__`` sourced from ``habit._version``.
+<span class="k">-</span><span class="w"> </span>API contract tests under ``tests/api/`` (golden MSI/ITH, pipeline smoke,
+  CLI–API parity) and CI workflow ``.github/workflows/tests.yml``.
+<span class="k">-</span><span class="w"> </span>``StudyResult`` moved from ``habit.contracts`` to ``habit.recipes``. It is
+  the recipe layer&#39;s return type; no lower layer produces or consumes one.
+  ``StudyResult.habitat_model`` is now optional (``one_step`` defines habitats
+  per subject, exposed in the new ``subject_models``).
+<span class="k">-</span><span class="w"> </span>``LegacyConfigAdapter`` no longer translates
+  ``preprocessing_for_group_level`` into a cohort preprocessing chain for
+  ``clustering_mode: one_step``; v0.1 silently ignored that block, and the
+  adapter now reproduces that behaviour explicitly, with a warning.
+<span class="k">-</span><span class="w"> </span>Habitat label maps written by the v1 writer use a single integer type
+  (``int32``) instead of v0.1&#39;s per-code-path mix of ``uint16`` and
+  ``int32``; label values are unchanged.
+<span class="k">-</span><span class="w"> </span><span class="gs">**BREAKING — v0.1 pickle pipelines removed**</span>: legacy
+  ``habitat_pipeline.pkl`` raw pickles and ``*_final_pipeline.pkl`` ML
+  artefacts are no longer loaded or remapped. Predict/train must use v1
+  ``habitat_model.habitatmodel`` (habitat) or ``.habitpipeline`` (ML).
+  Attempts to load v0.1 pickles fail with a migration message pointing at
+  ``apply_habitat_model`` / re-train. The ``pickle_compat`` module and
+  ``habitat_pipeline.pkl`` output shim are removed; train writes
+  ``habitat_model.habitatmodel`` and ``run_manifest.json`` only. Slow golden
+  baseline ``tests/golden/baseline/`` regenerated for v1 artefact layout.
+
+<span class="gu">### Notes</span>
+
+<span class="k">-</span><span class="w"> </span>v0.1 YAML/CLI engines now live under ``habit.compat.engines.*``; the
+  ``habit.core`` package has been removed. Prefer the top-level ``habit``
+  imports and ``habit.recipes`` for new integrations.
+<span class="k">-</span><span class="w"> </span>Deep paths such as ``habit.compat.engines.preprocessing.run.run_preprocess_from_config``
+  continue to work for YAML-driven workflows via ``habit.compat.legacy_core``.
+
+<span class="gu">## [1.0.2] - 2026-08-06</span>
+
+<span class="gu">### Changed</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Python support widened to 3.10–3.14**</span> (``requires-python``
+  ``&gt;=3.10,&lt;3.15``). Verified on Windows x64: full install-check suite passes
+  on 3.10, 3.13 and 3.14. Windows wheels are now published for every
+  supported CPython (cp310–cp314); the sdist builds on all of them.
+<span class="k">-</span><span class="w"> </span><span class="gs">**numpy 2.x supported**</span>: the base dependency is now ``numpy&gt;=1.26,&lt;3``.
+  Verified: full check suite, fast golden tests (no numeric drift) and all
+  packaging/API/architecture gates pass under numpy 2.2.6, and the published
+  C extension (built against numpy 2 headers) also runs under numpy 1.26.
+  Installing HABIT no longer forces a numpy 2.x environment to downgrade.
+<span class="k">-</span><span class="w"> </span>``pyarrow`` on CPython 3.14 requires ``&gt;=22`` (first release with cp314
+  wheels); 3.10–3.13 keep the previous ``&gt;=15,&lt;22`` range via environment
+  markers.
+<span class="k">-</span><span class="w"> </span>``radiomics`` extra widened to ``pyradiomics&gt;=3.0.1,&lt;3.2``. PyPI ships no
+  usable PyRadiomics Windows binaries (the 3.1.0 sdist is broken; 3.0.1 has
+  no Windows wheels), so HABIT publishes self-built PyRadiomics 3.1.0 Windows
+  wheels (cp310–cp314, numpy-2 compiled, verified on numpy 1.26 and 2.x) as
+  GitHub Release assets. PyRadiomics remains an optional extra, never a hard
+  dependency.
 </pre></div>
 </div>
-<p><strong>Contributors</strong></p>
-<ul class="simple">
-<li><p>HABIT Development Team</p></li>
-</ul>
-<p>—</p>
-</section>
-<section id="bug-fixes">
-<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Fixed indentation error in <code class="docutils literal notranslate"><span class="pre">comparison_workflow.py</span></code> (duplicate code block removal)</p></li>
-<li><p>Fixed tuple unpacking in <code class="docutils literal notranslate"><span class="pre">_calculate_target_metrics_by_split</span></code> (L736, L756)</p></li>
-<li><p>Corrected threshold application logic for test sets</p></li>
-</ul>
-</section>
-<section id="configuration-improvements">
-<h3>Configuration Improvements<a class="headerlink" href="#configuration-improvements" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Enhanced model name resolution in <code class="docutils literal notranslate"><span class="pre">ComparisonFileConfig</span></code></p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">_ensure_unique_model_name</span></code> safeguard in <code class="docutils literal notranslate"><span class="pre">MultifileEvaluator</span></code></p></li>
-<li><p>Improved Pydantic validation for model comparison configurations</p></li>
-</ul>
-</section>
-<section id="workflow-enhancements">
-<h3>Workflow Enhancements<a class="headerlink" href="#workflow-enhancements" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Test sets now always receive target metrics (no longer empty)</p></li>
-<li><p>Enhanced logging for threshold selection and fallback mechanisms</p></li>
-<li><p>Proper train→test threshold application (data leakage prevention)</p></li>
-</ul>
-<p>—</p>
-</section>
-</section>
-<section id="version-1-x">
-<h2>Version 1.x<a class="headerlink" href="#version-1-x" title="Link to this heading"></a></h2>
-<p>(Previous versions documented elsewhere)</p>
-</section>
-<section id="future-roadmap">
-<h2>Future Roadmap<a class="headerlink" href="#future-roadmap" title="Link to this heading"></a></h2>
-<p><strong>Planned for v2.1</strong></p>
-<ul class="simple">
-<li><p>GPU acceleration for confusion matrix computation</p></li>
-<li><p>Parallel Pareto optimization (multi-threading)</p></li>
-<li><p>Adaptive threshold selection (auto-strategy)</p></li>
-<li><p>Pareto frontier visualization</p></li>
-</ul>
-<p><strong>Planned for v3.0</strong></p>
-<ul class="simple">
-<li><p>Full multi-class classification support</p>
-<ul>
-<li><p>Weighted averaging strategies</p></li>
-<li><p>Per-class metrics</p></li>
-<li><p>Multi-label support</p></li>
-</ul>
-</li>
-<li><p>Advanced optimization</p>
-<ul>
-<li><p>Bayesian threshold optimization</p></li>
-<li><p>Cost-sensitive learning integration</p></li>
-</ul>
-</li>
-<li><p>Enhanced visualization</p>
-<ul>
-<li><p>Interactive threshold explorer</p></li>
-<li><p>Real-time metrics dashboard</p></li>
-</ul>
-</li>
-</ul>
-<p>—</p>
-</section>
-<section id="see-also">
-<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="development/index.html"><span class="doc">Developer Guide</span></a> — Developer documentation</p></li>
-<li><p><a class="reference internal" href="api/index.html"><span class="doc">API Reference</span></a> — Python API reference</p></li>
-</ul>
-</section>
 </section>
 
 

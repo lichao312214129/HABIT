@@ -23,7 +23,7 @@ second run skip subjects already recorded as success.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a ProcessPoolBackend into fit_predict. With a fixed random_seed the maps match serial execution.">
+    <div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a backend from backend_from_policy into fit_predict. With a fixed random_seed the maps match serial execution.">
 
 .. only:: html
 

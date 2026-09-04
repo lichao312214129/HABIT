@@ -32,7 +32,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Recipes" href="plot_01_recipes.html" />
+    <link rel="next" title="Supervoxels (SLIC vs k-means)" href="plot_00_supervoxels.html" />
     <link rel="prev" title="Precise voxel features" href="../03_precision/plot_01_precise_features.html" /> 
 </head>
 
@@ -106,6 +106,7 @@
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -584,19 +585,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -639,10 +628,14 @@
              
   <section id="habitat-mapping">
 <span id="sphx-glr-auto-examples-04-habitat-maps"></span><h1>4. Habitat Mapping<a class="headerlink" href="#habitat-mapping" title="Link to this heading"></a></h1>
-<p>From voxel features to habitat label maps: recipes, atomic operators,
-choosing a partition/fitter (k-means vs GMM with label matching and
-Dice/ARI), applying a saved model, and matching independently clustered ids.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Three Study designs. Same scaffolding: load a cohort, declare HabitatSpec stages, call fit_predict."><img alt="" src="../../_images/sphx_glr_plot_01_recipes_thumb.png" />
+<p>From voxel features to habitat label maps: supervoxels (SLIC vs k-means),
+recipes, atomic operators, choosing a partition/fitter (k-means vs GMM
+with label matching and Dice/ARI), applying a saved model, and matching
+independently clustered ids.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Two-step habitats first partition the ROI into supervoxels, then fit habitats on supervoxel summaries. Partition choice is not the habitat definition — the cohort fitter is — but SLIC vs feature-space k-means change the units that get pooled."><img alt="" src="../../_images/sphx_glr_plot_00_supervoxels_thumb.png" />
+<p><a class="reference internal" href="plot_00_supervoxels.html"><span class="doc">Supervoxels (SLIC vs k-means)</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Supervoxels (SLIC vs k-means)</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Three Study designs. Same scaffolding: load a cohort, declare HabitatSpec stages, call fit_predict."><img alt="" src="../../_images/sphx_glr_plot_01_recipes_thumb.png" />
 <p><a class="reference internal" href="plot_01_recipes.html"><span class="doc">Recipes</span></a></p>
   <div class="sphx-glr-thumbnail-title">Recipes</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Each subject-level step is a single-argument callable. Call op(subject) (or op(field)) with no Study."><img alt="" src="../../_images/sphx_glr_plot_02_atomic_ops_thumb.png" />
@@ -666,7 +659,7 @@ Dice/ARI), applying a saved model, and matching independently clustered ids.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../03_precision/plot_01_precise_features.html" class="btn btn-neutral float-left" title="Precise voxel features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="plot_01_recipes.html" class="btn btn-neutral float-right" title="Recipes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="plot_00_supervoxels.html" class="btn btn-neutral float-right" title="Supervoxels (SLIC vs k-means)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

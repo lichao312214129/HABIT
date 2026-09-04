@@ -11,7 +11,9 @@ cohort model (the Apply page) already uses one id space. Matching is
 for two independent clusterings that must be named after the fact.
 
 * :func:`~habit.kernels.habitat_label_match.match_labels_by_features` —
-  cross-patient (or two seeds) using unscaled habitat means.
+  cross-patient (or two seeds) using unscaled **habitat summary
+  features** (means / medians of any shared voxel field: raw
+  multimodality, constructed maps, or texture channels).
 * :func:`~habit.kernels.habitat_label_match.match_labels_by_overlap` —
   same tumour, two masks on one grid (two observers).
 """
@@ -58,9 +60,12 @@ map_b = result_b.habitat_maps[0]
 image = subject.image(ROI)
 
 # %%
-# Feature matcher: unscaled intensity means per habitat, then Hungarian
-# assignment after a column z-score. Do not pass per-tumour MinMax
-# centres — those axes are not comparable across fits.
+# Feature matcher: unscaled habitat summary means (here: LAP intensity),
+# then Hungarian assignment after a column z-score. Multimodal / texture
+# fields work the same way — pass a volume with a trailing feature axis
+# into :func:`~habit.kernels.habitat_label_match.habitat_intensity_centroids`,
+# or build your own ``(n_habitats, n_features)`` matrix. Do not pass
+# per-tumour MinMax centres — those axes are not comparable across fits.
 ids_a, feat_a = habitat_intensity_centroids(image.data, map_a.label_array)
 ids_b, feat_b = habitat_intensity_centroids(image.data, map_b.label_array)
 mapping = match_labels_by_features(

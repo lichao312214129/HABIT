@@ -30,11 +30,13 @@ cohort model (the Apply page) already uses one id space. Matching is
 for two independent clusterings that must be named after the fact.
 
 * :func:`~habit.kernels.habitat_label_match.match_labels_by_features` —
-  cross-patient (or two seeds) using unscaled habitat means.
+  cross-patient (or two seeds) using unscaled **habitat summary
+  features** (means / medians of any shared voxel field: raw
+  multimodality, constructed maps, or texture channels).
 * :func:`~habit.kernels.habitat_label_match.match_labels_by_overlap` —
   same tumour, two masks on one grid (two observers).
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-20
+.. GENERATED FROM PYTHON SOURCE LINES 20-22
 
 .. code-block:: Python
    :dedent: 1
@@ -48,14 +50,14 @@ for two independent clusterings that must be named after the fact.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 22-26
+.. GENERATED FROM PYTHON SOURCE LINES 24-28
 
 Two independent one-step fits on the same subject (different seeds).
 Same grid, so we can overlay before/after alignment. A second subject
 would use the same feature matcher; overlap matching would not apply
 across patients.
 
-.. GENERATED FROM PYTHON SOURCE LINES 26-60
+.. GENERATED FROM PYTHON SOURCE LINES 28-62
 
 .. code-block:: Python
 
@@ -124,19 +126,22 @@ across patients.
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Subjects: ['subj001', 'subj002']; matching demo uses subj001
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.44s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.45s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.51s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.51s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.54s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.54s/it]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-64
+.. GENERATED FROM PYTHON SOURCE LINES 63-69
 
-Feature matcher: unscaled intensity means per habitat, then Hungarian
-assignment after a column z-score. Do not pass per-tumour MinMax
-centres — those axes are not comparable across fits.
+Feature matcher: unscaled habitat summary means (here: LAP intensity),
+then Hungarian assignment after a column z-score. Multimodal / texture
+fields work the same way — pass a volume with a trailing feature axis
+into :func:`~habit.kernels.habitat_label_match.habitat_intensity_centroids`,
+or build your own ``(n_habitats, n_features)`` matrix. Do not pass
+per-tumour MinMax centres — those axes are not comparable across fits.
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-85
+.. GENERATED FROM PYTHON SOURCE LINES 69-90
 
 .. code-block:: Python
 
@@ -178,13 +183,13 @@ centres — those axes are not comparable across fits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-89
+.. GENERATED FROM PYTHON SOURCE LINES 91-94
 
 Before: raw integer ids (``align_labels=False``). After: remapped B.
 Independent one-step maps can share a model_id digest; force no extra
 overlap alignment so the figure shows *this* mapping only.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-110
+.. GENERATED FROM PYTHON SOURCE LINES 94-115
 
 .. code-block:: Python
 
@@ -233,13 +238,13 @@ overlap alignment so the figure shows *this* mapping only.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-114
+.. GENERATED FROM PYTHON SOURCE LINES 116-119
 
 Same-tumour two observers: permute ids on one map and recover them
 with overlap (Hungarian on voxel counts). Feature matching is the
 cross-patient operator; overlap cannot name habitats across grids.
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-136
+.. GENERATED FROM PYTHON SOURCE LINES 119-141
 
 .. code-block:: Python
 
@@ -292,7 +297,7 @@ cross-patient operator; overlap cannot name habitats across grids.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 8.366 seconds)
+   **Total running time of the script:** (0 minutes 8.664 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_05_match_labels.py:

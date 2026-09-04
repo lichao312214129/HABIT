@@ -243,9 +243,10 @@ widths with multi-panel ICC forest plots.
 4. Habitat Mapping
 ==================
 
-From voxel features to habitat label maps: recipes, atomic operators,
-choosing a partition/fitter (k-means vs GMM with label matching and
-Dice/ARI), applying a saved model, and matching independently clustered ids.
+From voxel features to habitat label maps: supervoxels (SLIC vs k-means),
+recipes, atomic operators, choosing a partition/fitter (k-means vs GMM
+with label matching and Dice/ARI), applying a saved model, and matching
+independently clustered ids.
 
 
 .. raw:: html
@@ -258,6 +259,23 @@ Dice/ARI), applying a saved model, and matching independently clustered ids.
     <div class="sphx-glr-thumbnails">
 
 .. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Two-step habitats first partition the ROI into supervoxels, then fit habitats on supervoxel summaries. Partition choice is not the habitat definition — the cohort fitter is — but SLIC vs feature-space k-means change the units that get pooled.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_00_supervoxels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_habitat_maps/plot_00_supervoxels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Supervoxels (SLIC vs k-means)</div>
+    </div>
+
 
 .. raw:: html
 
@@ -516,7 +534,7 @@ second run skip subjects already recorded as success.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a ProcessPoolBackend into fit_predict. With a fixed random_seed the maps match serial execution.">
+    <div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a backend from backend_from_policy into fit_predict. With a fixed random_seed the maps match serial execution.">
 
 .. only:: html
 

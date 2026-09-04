@@ -106,6 +106,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -584,19 +585,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -744,10 +733,13 @@ mapping with optional <code class="docutils literal notranslate"><span class="pr
 
 <section id="examples-using-habit-spec-stage">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.spec.Stage</span></code><a class="headerlink" href="#examples-using-habit-spec-stage" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter."><img alt="" src="../../_images/sphx_glr_plot_03_choose_algorithm_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Two-step habitats first partition the ROI into supervoxels, then fit habitats on supervoxel summaries. Partition choice is not the habitat definition — the cohort fitter is — but SLIC vs feature-space k-means change the units that get pooled."><img alt="" src="../../_images/sphx_glr_plot_00_supervoxels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_00_supervoxels.html"><span class="doc">Supervoxels (SLIC vs k-means)</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Supervoxels (SLIC vs k-means)</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter."><img alt="" src="../../_images/sphx_glr_plot_03_choose_algorithm_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html"><span class="doc">Choose a habitat algorithm</span></a></p>
   <div class="sphx-glr-thumbnail-title">Choose a habitat algorithm</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a ProcessPoolBackend into fit_predict. With a fixed random_seed the maps match serial execution."><img alt="" src="../../_images/sphx_glr_plot_01_parallel_runs_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a backend from backend_from_policy into fit_predict. With a fixed random_seed the maps match serial execution."><img alt="" src="../../_images/sphx_glr_plot_01_parallel_runs_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html"><span class="doc">Parallel and checkpoints</span></a></p>
   <div class="sphx-glr-thumbnail-title">Parallel and checkpoints</div>
 </div></div><div style="clear:both"></div></section>

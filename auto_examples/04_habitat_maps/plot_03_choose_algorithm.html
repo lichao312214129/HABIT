@@ -106,6 +106,7 @@
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">4. Habitat Mapping</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Choose a habitat algorithm</a></li>
@@ -584,19 +585,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -656,6 +645,7 @@ integers: Dice needs Hungarian overlap; ARI is permutation-invariant.</p>
 </div>
 <p>Load two demo subjects and list registered components.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Any</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -671,7 +661,7 @@ integers: Dice needs Hungarian overlap; ARI is permutation-invariant.</p>
     <span class="n">present_habitat_ids</span><span class="p">,</span>
     <span class="n">remap_label_array</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">,</span> <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">StudyResult</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.supervoxel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SupervoxelizerRegistry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.viz.plot_cluster_validation_from_report.html#habit.viz.plot_cluster_validation_from_report" title="habit.viz.plot_cluster_validation_from_report" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_cluster_validation_from_report</span></a><span class="p">,</span> <a href="../../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_label_compare</span></a>
@@ -768,13 +758,13 @@ supervoxelizer: (&#39;gmm&#39;, &#39;kmeans&#39;, &#39;slic&#39;)
 <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">gmm_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">gmm_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_selection_row</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fitter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_selection_row</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fitter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">StudyResult</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Any</span></a><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;One row: selected K and scores at that K from ``selection_report``.&quot;&quot;&quot;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span>
     <span class="n">report</span> <span class="o">=</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">preprocessing_state</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;selection_report&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">selected</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;selected&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">n_habitats</span> <span class="k">if</span> <span class="n">model</span> <span class="k">else</span> <span class="mi">0</span><span class="p">))</span>
     <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;candidates&quot;</span><span class="p">,</span> <span class="p">[])]</span>
-    <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">row</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Any</span></a><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;spec_name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
         <span class="s2">&quot;fitter&quot;</span><span class="p">:</span> <span class="n">fitter</span><span class="p">,</span>
         <span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="n">selected</span><span class="p">,</span>
@@ -800,24 +790,24 @@ supervoxelizer: (&#39;gmm&#39;, &#39;kmeans&#39;, &#39;slic&#39;)
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.87s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.81s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.81s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.22s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.29s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.30s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.15it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.29it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.29it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.62it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.76it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.76it/s]
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.40s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.44s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.44s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.15s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.10s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.10s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.10it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.14it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.14it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.52it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.56it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.55it/s]
                   spec_name fitter  n_habitats  n_units  elbow_at_k  silhouette_at_k  bic_at_k
 fit_kmeans_elbow_silhouette kmeans           3        6    0.104712          0.55833       NaN
                 fit_gmm_bic    gmm           4        6         NaN              NaN  1.899594
@@ -1010,7 +1000,7 @@ subject_id  mean_dice      ari  n_kmeans  n_gmm
 GMM methods: [&#39;bic&#39;]
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 12.195 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 9.441 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-habitat-maps-plot-03-choose-algorithm-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/08ab34f3b53a6c6725195e0a1534d4f3/plot_03_choose_algorithm.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_03_choose_algorithm.ipynb</span></code></a></p>
