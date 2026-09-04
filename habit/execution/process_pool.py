@@ -112,6 +112,25 @@ _WORKER_THREAD_ENV = (
 )
 
 
+def _worker_thread_cap() -> str:
+    """
+    Resolve the per-worker BLAS/OpenMP thread budget.
+
+    Honours ``HABIT_WORKER_THREADS`` when set to a positive integer;
+    otherwise forces ``1`` so ``workers × parent_OMP`` cannot oversubscribe
+    the host (``setdefault`` would inherit a large parent value).
+
+    Returns:
+        Decimal string used for every ``*_NUM_THREADS`` env var.
+    """
+    raw = os.environ.get("HABIT_WORKER_THREADS", "1").strip() or "1"
+    try:
+        n_threads = max(1, int(raw))
+    except ValueError:
+        n_threads = 1
+    return str(n_threads)
+
+
 def _configure_worker_runtime(worker_index: int) -> None:
     """
     Cap nested threading and publish the GPU slot for one child process.
@@ -120,16 +139,21 @@ def _configure_worker_runtime(worker_index: int) -> None:
         worker_index: Zero-based slot index for this worker (also written to
             ``HABIT_GPU_SLOT_INDEX`` for TorchRadiomics device selection).
     """
+    # Force (do not setdefault): parent shells often export OMP_NUM_THREADS
+    # equal to the host core count; inheriting that makes every child
+    # oversubscribe and can make parallel runs slower than serial.
+    thread_cap = _worker_thread_cap()
     for key in _WORKER_THREAD_ENV:
-        os.environ.setdefault(key, "1")
+        os.environ[key] = thread_cap
     # Hide every GPU except this slot *before* importing torch. Otherwise
     # both workers see cuda:0 and cuda:1, initialize both, and kernels
-    # pile onto GPU 0 while GPU 1 stays idle.
+    # pile onto GPU 0 while GPU 1 stays idle. On a single-GPU host,
+    # workers beyond slot 0 fall back to CPU (see parallel_gpu_utils).
     pin_worker_visible_cuda_device(int(worker_index))
     try:
         import torch
 
-        torch.set_num_threads(1)
+        torch.set_num_threads(int(thread_cap))
     except Exception:  # noqa: BLE001 - torch optional / broken is fine
         pass
 

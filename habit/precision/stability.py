@@ -103,8 +103,10 @@ def align_habitat_map(
     otherwise mean image intensity, then spatial means.
 
     ``method="features"`` is the cross-patient naming path: unscaled
-    habitat summaries, cohort z-score, then Hungarian. Pass the original
-    texture volume (or unscaled means), not per-tumour MinMax centres.
+    habitat summaries, cohort z-score, then Hungarian. Pass an unscaled
+    feature volume (multimodal intensities, constructed maps,
+    radiomic/texture channels, or any shared voxel field) or unscaled
+    habitat means/medians, not per-tumour MinMax centres.
     ``method="overlap"`` uses maximal voxel overlap. Use the same
     ``method`` in :func:`habitat_stability` so Dice is scored on the
     same pairing. Do not feed an already-aligned map back into

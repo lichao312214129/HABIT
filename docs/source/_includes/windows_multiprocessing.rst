@@ -1,8 +1,8 @@
 .. important::
    **Windows + process pool:** spawning workers re-imports your script.
    Put any call that starts :class:`~habit.execution.ProcessPoolBackend`
-   (``RunPolicy(backend="process")``, ``workers > 1``, or a positive
-   ``subject_timeout_sec`` that forces a child process) inside::
+   (``RunPolicy(backend="process")``, ``workers > 1``, or
+   ``parallel_mode="isolated"``) inside::
 
       if __name__ == "__main__":
           ...
@@ -12,5 +12,5 @@
    ``RuntimeError: ... bootstrapping phase`` on Windows.
    The ``habit`` CLI entry point is already safe; this applies to **scripts /
    notebooks converted to scripts / pure-Python recipes**.
-   For a quick serial check, use ``RunPolicy(workers=1, backend="serial",
-   subject_timeout_sec=None)`` (no spawn).
+   For a quick serial check, use ``RunPolicy(workers=1, backend="serial")``
+   (no spawn).

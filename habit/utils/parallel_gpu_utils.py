@@ -35,6 +35,15 @@ from habit.utils.torch_radiomics_utils import (
 
 HABIT_GPU_SLOT_INDEX_ENV: str = "HABIT_GPU_SLOT_INDEX"
 
+#: When set to ``"1"`` in a worker, radiomics ``auto`` mode prefers CPU
+#: PyRadiomics so extra workers on a single-GPU host do not thrash CUDA.
+HABIT_FORCE_CPU_RADIOMICS_ENV: str = "HABIT_FORCE_CPU_RADIOMICS"
+
+#: ``wrap`` keeps modulo assignment when workers > GPUs; anything else
+#: (default) forces CPU for worker indices beyond the visible GPU pool
+#: when only one GPU is visible.
+HABIT_GPU_OVERSUBSCRIBE_ENV: str = "HABIT_GPU_OVERSUBSCRIBE"
+
 logger = logging.getLogger(__name__)
 
 
@@ -76,24 +85,59 @@ def pin_worker_visible_cuda_device(worker_index: int) -> str:
     while GPU 1 stays idle. Masking ``CUDA_VISIBLE_DEVICES`` to a single
     id makes that GPU appear as ``cuda:0``; the slot index is then 0.
 
+    On a **single-GPU** host with many CPU workers, workers beyond slot 0
+    default to ``CUDA_VISIBLE_DEVICES=-1`` (CPU-preferred radiomics) so
+    subject-level parallelism is not killed by CUDA context thrashing.
+    Set ``HABIT_GPU_OVERSUBSCRIBE=wrap`` to restore modulo wrapping onto
+    the same card. Multi-GPU pools still wrap across the visible list.
+
     Must run before ``import torch`` in the child.
 
     Args:
         worker_index: Zero-based worker slot.
 
     Returns:
-        str: The single ``CUDA_VISIBLE_DEVICES`` value assigned.
+        str: The single ``CUDA_VISIBLE_DEVICES`` value assigned (``"-1"``
+        when the worker is forced onto CPU).
     """
     raw = os.environ.get("CUDA_VISIBLE_DEVICES", "").strip()
-    if raw and raw != "-1":
+    if raw == "-1":
+        os.environ.pop(HABIT_GPU_SLOT_INDEX_ENV, None)
+        os.environ[HABIT_FORCE_CPU_RADIOMICS_ENV] = "1"
+        logger.info(
+            "Worker %s already has CUDA_VISIBLE_DEVICES=-1; forcing CPU radiomics",
+            worker_index,
+        )
+        return "-1"
+    if raw:
         pool = [part.strip() for part in raw.split(",") if part.strip() != ""]
     else:
         n_host = _unmasked_host_gpu_count()
         pool = [str(i) for i in range(n_host)] if n_host > 0 else ["0"]
-    chosen = pool[int(worker_index) % len(pool)]
+    if not pool:
+        pool = ["0"]
+
+    slot = int(worker_index)
+    oversubscribe = os.environ.get(HABIT_GPU_OVERSUBSCRIBE_ENV, "").strip().lower()
+    # Single visible GPU + extra workers: prefer CPU unless the user asks
+    # to wrap every worker onto that one card.
+    if len(pool) == 1 and slot > 0 and oversubscribe != "wrap":
+        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+        os.environ.pop(HABIT_GPU_SLOT_INDEX_ENV, None)
+        os.environ[HABIT_FORCE_CPU_RADIOMICS_ENV] = "1"
+        logger.info(
+            "Pinned worker %s to CPU (CUDA_VISIBLE_DEVICES=-1); "
+            "single-GPU host avoids CUDA thrashing "
+            "(set HABIT_GPU_OVERSUBSCRIBE=wrap to share the card)",
+            worker_index,
+        )
+        return "-1"
+
+    chosen = pool[slot % len(pool)]
     os.environ["CUDA_VISIBLE_DEVICES"] = chosen
     # Only one device is visible now; extractors must use cuda:0.
     os.environ[HABIT_GPU_SLOT_INDEX_ENV] = "0"
+    os.environ.pop(HABIT_FORCE_CPU_RADIOMICS_ENV, None)
     logger.info(
         "Pinned worker %s to CUDA_VISIBLE_DEVICES=%s (HABIT_GPU_SLOT_INDEX=0)",
         worker_index,

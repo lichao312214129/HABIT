@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Backend selection from RunPolicy (v0.1 spawn-rule parity)."""
+"""Backend selection from RunPolicy (timeout uncoupled from spawn)."""
 
 from __future__ import annotations
 
@@ -32,18 +32,15 @@ from habit.spec import RunPolicy
 
 
 @pytest.mark.unit
-def test_workers_one_with_timeout_selects_process_pool() -> None:
-    """v0.1: timeout isolation needs spawn even when workers == 1."""
+def test_workers_one_with_default_timeout_stays_serial() -> None:
+    """Default timeout must not force spawn when workers==1 and serial."""
     policy = RunPolicy(
         workers=1,
         backend="serial",
         subject_timeout_sec=900.0,
     )
-    assert should_use_process_pool(policy) is True
-    backend = backend_from_policy(policy)
-    assert isinstance(backend, ProcessPoolBackend)
-    assert backend.workers == 1
-    assert backend.policy.backend == "process"
+    assert should_use_process_pool(policy) is False
+    assert isinstance(backend_from_policy(policy), SerialBackend)
 
 
 @pytest.mark.unit
@@ -62,11 +59,42 @@ def test_workers_one_without_timeout_stays_serial() -> None:
 def test_explicit_process_backend_always_process_pool() -> None:
     """backend=process selects ProcessPool regardless of timeout."""
     policy = RunPolicy(
-        workers=2,
+        workers=1,
         backend="process",
         subject_timeout_sec=None,
     )
+    assert should_use_process_pool(policy) is True
     assert isinstance(backend_from_policy(policy), ProcessPoolBackend)
+
+
+@pytest.mark.unit
+def test_isolated_mode_selects_process_pool() -> None:
+    """parallel_mode=isolated needs a child even when workers==1."""
+    policy = RunPolicy(
+        workers=1,
+        backend="serial",
+        parallel_mode="isolated",
+        subject_timeout_sec=900.0,
+    )
+    assert should_use_process_pool(policy) is True
+    backend = backend_from_policy(policy)
+    assert isinstance(backend, ProcessPoolBackend)
+    assert backend.policy.backend == "process"
+
+
+@pytest.mark.unit
+def test_workers_gt_one_selects_process_pool() -> None:
+    """workers>1 forces process even if YAML left backend=serial."""
+    policy = RunPolicy(
+        workers=2,
+        backend="serial",
+        subject_timeout_sec=None,
+    )
+    assert should_use_process_pool(policy) is True
+    backend = backend_from_policy(policy)
+    assert isinstance(backend, ProcessPoolBackend)
+    assert backend.workers == 2
+    assert backend.policy.backend == "process"
 
 
 @pytest.mark.unit

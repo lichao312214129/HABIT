@@ -1101,10 +1101,12 @@ class LegacyConfigAdapter:
         """
         Translate v0 habitat execution keys into a ``RunPolicy`` payload.
 
-        Keys are renamed onto the v1 surface. ``workers > 1`` **or** a
-        positive ``subject_timeout_sec`` selects the ``process`` backend,
-        matching v0.1 ``_should_use_spawn_workers`` (timeout isolation needs
-        a child even when ``workers == 1``).
+        Keys are renamed onto the v1 surface. ``workers > 1`` **or**
+        ``parallel_mode == "isolated"`` selects the ``process`` backend.
+        A positive ``subject_timeout_sec`` alone does **not** force spawn:
+        the typed default (900s) would otherwise turn every single-worker
+        run into a process pool. Timeout isolation still requires an
+        explicit ``backend: process`` or ``parallel_mode: isolated``.
 
         Args:
             payload: Full v0 payload.
@@ -1120,16 +1122,10 @@ class LegacyConfigAdapter:
             if v0_key in payload:
                 policy[v1_key] = payload[v0_key]
         workers = policy.get("workers", 1)
-        # Prefer an explicit timeout from the payload; when the key is absent
-        # the typed RunPolicy default (900s) still applies after from_dict, so
-        # treat "absent" like the v0.1 schema default of 900.
-        if "subject_timeout_sec" in policy:
-            timeout = policy["subject_timeout_sec"]
-        else:
-            timeout = 900.0
-        timeout_armed = timeout is not None and float(timeout) > 0
+        parallel_mode = str(policy.get("parallel_mode", "persistent"))
         workers_parallel = isinstance(workers, int) and workers > 1
-        policy["backend"] = "process" if (workers_parallel or timeout_armed) else "serial"
+        isolated = parallel_mode == "isolated"
+        policy["backend"] = "process" if (workers_parallel or isolated) else "serial"
         return policy
 
     def _translate_habitat_output(

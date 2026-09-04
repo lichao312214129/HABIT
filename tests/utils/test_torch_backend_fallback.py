@@ -172,8 +172,37 @@ def test_pin_worker_uses_parent_visible_list(
 def test_pin_worker_wraps_when_more_workers_than_gpus(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Extra workers wrap the parent-visible pool instead of inventing GPU 3."""
-    from habit.utils.parallel_gpu_utils import pin_worker_visible_cuda_device
+    """Multi-GPU pools still wrap; single-GPU oversubscription prefers CPU."""
+    from habit.utils.parallel_gpu_utils import (
+        HABIT_FORCE_CPU_RADIOMICS_ENV,
+        HABIT_GPU_SLOT_INDEX_ENV,
+        pin_worker_visible_cuda_device,
+    )
 
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0,1")
+    monkeypatch.delenv(HABIT_FORCE_CPU_RADIOMICS_ENV, raising=False)
     assert pin_worker_visible_cuda_device(3) == "1"
+    assert os.environ[HABIT_GPU_SLOT_INDEX_ENV] == "0"
+
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0")
+    monkeypatch.delenv("HABIT_GPU_OVERSUBSCRIBE", raising=False)
+    assert pin_worker_visible_cuda_device(1) == "-1"
+    assert os.environ.get(HABIT_FORCE_CPU_RADIOMICS_ENV) == "1"
+    assert HABIT_GPU_SLOT_INDEX_ENV not in os.environ
+
+
+def test_pin_worker_single_gpu_wrap_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """HABIT_GPU_OVERSUBSCRIBE=wrap shares the only GPU across workers."""
+    from habit.utils.parallel_gpu_utils import (
+        HABIT_FORCE_CPU_RADIOMICS_ENV,
+        HABIT_GPU_SLOT_INDEX_ENV,
+        pin_worker_visible_cuda_device,
+    )
+
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0")
+    monkeypatch.setenv("HABIT_GPU_OVERSUBSCRIBE", "wrap")
+    assert pin_worker_visible_cuda_device(2) == "0"
+    assert os.environ[HABIT_GPU_SLOT_INDEX_ENV] == "0"
+    assert HABIT_FORCE_CPU_RADIOMICS_ENV not in os.environ

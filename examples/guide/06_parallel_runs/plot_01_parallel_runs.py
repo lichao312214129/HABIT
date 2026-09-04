@@ -13,6 +13,20 @@ the maps match serial execution.
    Put the run inside ``if __name__ == "__main__":`` (already done below).
    See also :doc:`/tutorial/quickstart`.
 
+Backend selection (timeout uncoupled from spawn)
+------------------------------------------------
+
+:func:`~habit.execution.backend_from_policy` selects
+:class:`~habit.execution.ProcessPoolBackend` when any of:
+
+* ``backend == "process"``
+* ``workers > 1``
+* ``parallel_mode == "isolated"``
+
+A positive ``subject_timeout_sec`` alone does **not** force spawn (the
+library default is ``900.0``). True in-process serial is simply
+``RunPolicy(workers=1, backend="serial")``.
+
 Why parallel can look *slower* on a tiny demo cohort
 ----------------------------------------------------
 
@@ -20,25 +34,26 @@ On a 5-subject demo with a light ``raw`` two-step spec, process-pool
 wall time is often **higher** than serial. Typical causes (not a bug in
 the habitat definition):
 
-* **Spawn overhead (Windows ``spawn``):** each worker process re-imports
-  HABIT / NumPy / SimpleITK before any subject runs.
+* **Spawn overhead (Windows ``spawn`` / cold Linux workers):** each
+  worker re-imports HABIT / NumPy / SimpleITK before any subject runs.
 * **Tiny work per subject:** when per-subject compute is a few seconds,
   pool startup dominates Amdahl's law.
 * **Oversubscription:** ``workers`` larger than useful CPU cores, or
   several workers contending for one GPU when a texture / GPU path is
   active. Prefer a **CPU-only** fair comparison below
-  (``CUDA_VISIBLE_DEVICES=""``).
+  (``CUDA_VISIBLE_DEVICES=""``). On a single-GPU host HABIT defaults to
+  CPU radiomics for worker slots beyond 0 (set
+  ``HABIT_GPU_OVERSUBSCRIBE=wrap`` to share the card).
 * **Isolated mode** pays spawn cost **per subject** — useful for
   timeout / OOM isolation, not for small demos.
 
-Cloud multi-GPU timings are hardware-specific: leave the placeholder
-table empty until you paste numbers from your own run (do not invent
-them).
+When per-subject work is realistic (larger volumes, more supervoxels /
+habitat search), multi-worker runs beat serial — see the cloud table
+below (16 subjects, ``80×80×48``, k-means supervoxels=64).
 
 Pick a backend:
 
-* Debug one subject: ``RunPolicy(workers=1, backend="serial",
-  subject_timeout_sec=None, ...)``
+* Debug one subject: ``RunPolicy(workers=1, backend="serial", ...)``
 * Cohort default: ``RunPolicy(workers=2, backend="process", ...)``
 * Fresh process per subject: same, plus ``parallel_mode="isolated"``
 """
@@ -130,12 +145,11 @@ raw_spec = HabitatSpec(
 )
 
 # %%
-# Serial baseline (true in-process: backend serial + no subject timeout).
+# Serial baseline (true in-process: workers=1 + backend serial).
 if __name__ == "__main__":
     policy_serial = RunPolicy(
         workers=1,
         backend="serial",
-        subject_timeout_sec=None,
         on_subject_failure="continue",
         resume=False,
     )
@@ -229,7 +243,9 @@ if __name__ == "__main__":
     if persistent_s > serial_s:
         print(
             "Note: parallel > serial here is expected on a tiny cohort — "
-            "spawn/import overhead dominates per-subject work."
+            "spawn/import overhead dominates per-subject work. "
+            "See the cloud table below for a heavier workload where "
+            "workers=4–8 beat serial."
         )
     scheduler_table
 
@@ -302,7 +318,6 @@ if __name__ == "__main__":
     policy_ckpt = RunPolicy(
         workers=1,
         backend="serial",
-        subject_timeout_sec=None,
         on_subject_failure="continue",
         resume=True,
     )
@@ -332,30 +347,143 @@ if __name__ == "__main__":
     resume_table
 
 # %%
-# Cloud multi-GPU placeholder — fill after your own cloud run.
-# Do not invent numbers. Example policy sketch (one process per GPU)::
+# Cloud multi-CPU / multi-GPU timings (measured, not invented).
 #
-#   policy = RunPolicy(
-#       workers=4,
-#       backend="process",
-#       parallel_mode="persistent",
-#       cap_workers_to_gpu_pool=True,
-#       subject_timeout_sec=None,
-#   )
+# Hardware (AutoDL west, 2026-09-04): 5× NVIDIA GeForce RTX 4080 SUPER
+# (32 GiB each), 144 logical CPUs (2× Xeon Platinum 8352V), ~503 GiB RAM.
+# Workload: ``scripts/benchmark_gpu_parallel.py`` — synthetic cohort
+# n=16, shape 80×80×48, two-step ``raw`` + k-means supervoxels=64 /
+# habitats 2–6 (CPU-bound; Torch radiomics off). Worker BLAS threads
+# forced to 1. Re-run::
+#
+#   python scripts/benchmark_gpu_parallel.py --all --n-subjects 16 \
+#       --shape 80,80,48 --workers 1,2,4,8 --n-gpus 5
+#
+# This path is **CPU-heavy**, so 1-GPU and 5-GPU layouts track the
+# 0-GPU multi-CPU curve (GPU count does not accelerate raw+kmeans).
+# Multi-GPU wins appear when Torch radiomics / voxel texture actually
+# uses CUDA (``use_torch_radiomics: true`` + ``cap_workers_to_gpu_pool``).
 if __name__ == "__main__":
-    cloud_placeholder = pd.DataFrame(
+    cloud_table = pd.DataFrame(
         [
             {
-                "hardware": "<paste: e.g. 4x A100>",
-                "workers": "<n>",
-                "spec": "<raw / local_entropy / …>",
-                "n_subjects": "<n>",
-                "serial_s": None,
-                "parallel_s": None,
-                "notes": "paste measured wall times here",
-            }
+                "scenario": "0gpu_multicpu",
+                "device": "CUDA=-1",
+                "workers": 1,
+                "wall_s": 21.37,
+                "subjects_per_min": 44.92,
+                "speedup_vs_w1": 1.00,
+            },
+            {
+                "scenario": "0gpu_multicpu",
+                "device": "CUDA=-1",
+                "workers": 2,
+                "wall_s": 17.50,
+                "subjects_per_min": 54.87,
+                "speedup_vs_w1": 1.22,
+            },
+            {
+                "scenario": "0gpu_multicpu",
+                "device": "CUDA=-1",
+                "workers": 4,
+                "wall_s": 12.57,
+                "subjects_per_min": 76.38,
+                "speedup_vs_w1": 1.70,
+            },
+            {
+                "scenario": "0gpu_multicpu",
+                "device": "CUDA=-1",
+                "workers": 8,
+                "wall_s": 12.37,
+                "subjects_per_min": 77.63,
+                "speedup_vs_w1": 1.73,
+            },
+            {
+                "scenario": "1gpu_multicpu",
+                "device": "CUDA=0",
+                "workers": 1,
+                "wall_s": 21.26,
+                "subjects_per_min": 45.16,
+                "speedup_vs_w1": 1.00,
+            },
+            {
+                "scenario": "1gpu_multicpu",
+                "device": "CUDA=0",
+                "workers": 2,
+                "wall_s": 17.13,
+                "subjects_per_min": 56.03,
+                "speedup_vs_w1": 1.24,
+            },
+            {
+                "scenario": "1gpu_multicpu",
+                "device": "CUDA=0",
+                "workers": 4,
+                "wall_s": 12.26,
+                "subjects_per_min": 78.32,
+                "speedup_vs_w1": 1.73,
+            },
+            {
+                "scenario": "1gpu_multicpu",
+                "device": "CUDA=0",
+                "workers": 8,
+                "wall_s": 13.09,
+                "subjects_per_min": 73.32,
+                "speedup_vs_w1": 1.62,
+            },
+            {
+                "scenario": "5gpu_multicpu",
+                "device": "CUDA=0,1,2,3,4",
+                "workers": 1,
+                "wall_s": 24.64,
+                "subjects_per_min": 38.97,
+                "speedup_vs_w1": 1.00,
+            },
+            {
+                "scenario": "5gpu_multicpu",
+                "device": "CUDA=0,1,2,3,4",
+                "workers": 2,
+                "wall_s": 18.38,
+                "subjects_per_min": 52.23,
+                "speedup_vs_w1": 1.34,
+            },
+            {
+                "scenario": "5gpu_multicpu",
+                "device": "CUDA=0,1,2,3,4",
+                "workers": 4,
+                "wall_s": 13.07,
+                "subjects_per_min": 73.47,
+                "speedup_vs_w1": 1.89,
+            },
+            {
+                "scenario": "5gpu_multicpu",
+                "device": "CUDA=0,1,2,3,4",
+                "workers": 5,
+                "wall_s": 12.69,
+                "subjects_per_min": 75.63,
+                "speedup_vs_w1": 1.94,
+            },
         ]
     )
-    print("Cloud multi-GPU results (placeholder — replace with your run):")
-    print(cloud_placeholder.to_string(index=False))
-    cloud_placeholder
+    print(
+        "Cloud timings (5× RTX 4080 SUPER, 144 CPUs; "
+        "n=16 synthetic 80×80×48; CPU-bound raw+kmeans):"
+    )
+    print(cloud_table.to_string(index=False))
+
+    fig, ax = plt.subplots(figsize=(7.0, 4.2))
+    for scenario, group in cloud_table.groupby("scenario", sort=False):
+        ax.plot(
+            group["workers"],
+            group["wall_s"],
+            marker="o",
+            label=str(scenario),
+        )
+    ax.set_xlabel("workers")
+    ax.set_ylabel("wall time (s)")
+    ax.set_title("Cloud parallel habitat (CPU-bound two-step)")
+    ax.grid(True, alpha=0.3)
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    fig.savefig("out/parallel_cloud_speedup.png", dpi=150, bbox_inches="tight")
+    plt.show()
+    cloud_table

@@ -46,19 +46,20 @@ Backend selection from CLI and run_from_yaml
 --------------------------------------------
 
 ``habit.execution.backend_from_policy`` (shared by ``cmd_habitat`` and
-``run_from_yaml``) mirrors v0.1 ``_should_use_spawn_workers``:
+``run_from_yaml``) selects:
 
 * ``policy.backend == "process"`` →
   :class:`~habit.execution.ProcessPoolBackend.from_policy`
-* **or** ``subject_timeout_sec`` is a positive number → ProcessPoolBackend
-  even when ``workers == 1`` (timeout isolation needs a child process)
+* **or** ``workers > 1`` → ProcessPoolBackend
+* **or** ``parallel_mode == "isolated"`` → ProcessPoolBackend (even when
+  ``workers == 1``)
 * otherwise → :class:`~habit.execution.SerialBackend` with the policy's
   checkpoint / failure flags only
 
-Therefore timeouts, spawn / graceful shutdown, OOM backoff, GPU capping,
-``parallel_mode``, and ``auto_retry_rounds`` apply under ProcessPoolBackend.
-True in-process serial requires ``subject_timeout_sec: null`` (and usually
-``backend: serial``).
+A positive ``subject_timeout_sec`` alone does **not** force the process
+pool (library default is ``900.0``). Timeouts, spawn / graceful shutdown,
+OOM backoff, GPU capping, ``parallel_mode``, and ``auto_retry_rounds``
+apply under ProcessPoolBackend only.
 
 ``ProcessPoolBackend.from_policy`` does **not** copy
 ``strict_checkpoint_hash`` or ``checkpoint_dir`` onto the backend object.

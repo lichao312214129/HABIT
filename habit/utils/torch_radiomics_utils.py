@@ -463,6 +463,19 @@ def resolve_voxel_radiomics_backend(
     if mode == "false":
         return "pyradiomics", None
 
+    # Single-GPU process-pool oversubscription: extra workers pin
+    # CUDA_VISIBLE_DEVICES=-1 and set HABIT_FORCE_CPU_RADIOMICS so auto
+    # (and soft true) paths stay on CPU PyRadiomics instead of thrashing.
+    from habit.utils.parallel_gpu_utils import HABIT_FORCE_CPU_RADIOMICS_ENV
+
+    force_cpu = os.environ.get(HABIT_FORCE_CPU_RADIOMICS_ENV, "").strip() == "1"
+    if force_cpu and mode == "auto":
+        logger.info(
+            "use_torch_radiomics=auto: HABIT_FORCE_CPU_RADIOMICS=1; "
+            "using CPU PyRadiomics (single-GPU worker oversubscription)"
+        )
+        return "pyradiomics", None
+
     torch_ok = is_torch_available()
 
     def _resolve_torch_device_string() -> str:

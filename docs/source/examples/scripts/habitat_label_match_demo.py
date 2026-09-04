@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
-Match habitat ids: same-tumour overlap vs cross-patient texture.
+Match habitat ids: same-tumour overlap vs habitat summary features
+(multimodal intensities or radiomics).
 
-Three synthetic patients, two habitats, two unscaled textures
+Three synthetic patients, two habitats, two unscaled summary features
 (Energy, Coarseness). Shows why a cohort z-score must be fit on
 **all** habitat rows before Hungarian assignment.
 

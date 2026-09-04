@@ -343,13 +343,13 @@ Full field set (defaults from ``habit/spec/policy.py``)
      - Role
    * - ``workers``
      - ``1``
-     - Parallel worker processes; with a positive timeout, ``1`` still uses ProcessPool
+     - Parallel worker processes; ``> 1`` selects ProcessPool
    * - ``backend``
      - ``"serial"``
-     - ``"serial"`` or ``"process"`` (timeout also forces process at the CLI gate)
+     - ``"serial"`` or ``"process"`` (also forced when ``workers > 1`` or ``parallel_mode=isolated``)
    * - ``subject_timeout_sec``
      - ``900.0``
-     - Per-subject wall-clock seconds; ``None`` disables (ProcessPool when armed)
+     - Per-subject wall-clock seconds; ``None`` disables (ProcessPool only; does not select backend)
    * - ``subject_spawn_timeout_sec``
      - ``120.0``
      - Spawn-startup seconds; ``None`` disables (ProcessPool / isolated)
@@ -401,8 +401,9 @@ Full field set (defaults from ``habit/spec/policy.py``)
      - Restart a persistent worker after this many successes (``0`` disables)
 
 CLI / ``run_from_yaml`` select ProcessPoolBackend when
-``backend == "process"`` **or** ``subject_timeout_sec`` is positive
-(even for ``workers == 1``). Details: :doc:`execution`.
+``backend == "process"``, ``workers > 1``, or
+``parallel_mode == "isolated"``. A positive ``subject_timeout_sec`` alone
+does not force spawn. Details: :doc:`execution`.
 
 v0.1 YAML top-level keys vs ``RunPolicy``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -502,8 +503,9 @@ Habitat field reference: :doc:`../configuration/habitat`.
 Note the default gap on ``processes`` / ``workers``: a bare v0.1 habitat
 YAML defaults to ``processes: 2`` (process backend after translation), while
 a bare ``RunPolicy()`` defaults to ``workers=1``, ``backend="serial"``.
-CLI / ``run_from_yaml`` still select ProcessPool when the default
-``subject_timeout_sec=900`` is armed.
+CLI / ``run_from_yaml`` select ProcessPool when ``workers > 1``,
+``backend="process"``, or ``parallel_mode="isolated"`` — not merely
+because the default ``subject_timeout_sec=900`` is set.
 
 Detect, validate, migrate YAML
 ------------------------------

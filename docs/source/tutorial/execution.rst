@@ -23,13 +23,13 @@ Pick a backend
 :func:`~habit.execution.backend_from_policy` chooses:
 
 * :class:`~habit.execution.ProcessPoolBackend` when
-  ``policy.backend == "process"``, **or** when
-  ``subject_timeout_sec`` is a positive number (timeout isolation needs
-  a child process)
+  ``policy.backend == "process"``, **or** ``workers > 1``, **or**
+  ``parallel_mode == "isolated"``
 * :class:`~habit.execution.SerialBackend` otherwise
 
-True in-process serial needs ``backend="serial"`` **and**
-``subject_timeout_sec=None``.
+A positive ``subject_timeout_sec`` alone does **not** force spawn (the
+default is ``900.0``). Timeout isolation still needs ``backend="process"``
+or ``parallel_mode="isolated"``.
 
 .. list-table::
    :header-rows: 1
@@ -38,7 +38,7 @@ True in-process serial needs ``backend="serial"`` **and**
    * - Use
      - Policy
    * - Debug one subject / notebook
-     - ``RunPolicy(workers=1, backend="serial", subject_timeout_sec=None)``
+     - ``RunPolicy(workers=1, backend="serial")``
    * - Cohort, default isolation
      - ``RunPolicy(workers=2, backend="process", subject_timeout_sec=900.0)``
    * - Fresh process per subject

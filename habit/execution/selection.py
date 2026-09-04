@@ -14,8 +14,10 @@
 #
 """Map a :class:`~habit.spec.RunPolicy` onto a concrete execution backend.
 
-Shared by the habitat CLI and ``run_from_yaml`` so the v0.1 spawn rule —
-workers > 1 **or** a positive per-subject timeout — stays in one place.
+Shared by the habitat CLI and ``run_from_yaml`` so backend selection stays
+in one place. Timeout is **not** coupled to spawn: the library default
+``subject_timeout_sec=900`` must not force a process pool when the user
+asked for serial ``workers=1``.
 """
 
 from __future__ import annotations
@@ -35,9 +37,17 @@ def should_use_process_pool(policy: "RunPolicy") -> bool:
     """
     Return whether the policy requires a spawn process-pool backend.
 
-    Mirrors v0.1 ``_should_use_spawn_workers`` at the policy gate: a positive
-    ``subject_timeout_sec`` needs a child process even when ``workers == 1``,
-    otherwise hung subjects cannot be terminated from the parent.
+    Process pool is selected when any of the following hold:
+
+    * ``backend == "process"`` (explicit request)
+    * ``workers > 1`` (subject-level parallelism)
+    * ``parallel_mode == "isolated"`` (fresh child per subject)
+
+    A positive ``subject_timeout_sec`` alone does **not** force the process
+    pool. The typed default is ``900.0``; coupling timeout to spawn would
+    turn every ``workers=1`` / ``backend="serial"`` run into a child
+    process and erase the serial path. Per-subject timeout isolation still
+    requires ``backend="process"`` or ``parallel_mode="isolated"``.
 
     Args:
         policy: Declarative execution policy.
@@ -47,8 +57,11 @@ def should_use_process_pool(policy: "RunPolicy") -> bool:
     """
     if policy.backend == "process":
         return True
-    timeout = policy.subject_timeout_sec
-    return timeout is not None and timeout > 0
+    if policy.parallel_mode == "isolated":
+        return True
+    if policy.workers > 1:
+        return True
+    return False
 
 
 def backend_from_policy(policy: "RunPolicy") -> Union[ProcessPoolBackend, SerialBackend]:
@@ -59,13 +72,16 @@ def backend_from_policy(policy: "RunPolicy") -> Union[ProcessPoolBackend, Serial
         policy: Translated run policy.
 
     Returns:
-        A process-pool backend when the policy requires spawn isolation
-        (``backend == "process"`` or a positive subject timeout); otherwise
-        a serial backend carrying the policy's checkpoint / failure flags.
+        A process-pool backend when the policy requires spawn
+        (``backend == "process"``, ``workers > 1``, or
+        ``parallel_mode == "isolated"``); otherwise a serial backend
+        carrying the policy's checkpoint / failure flags. Timeout knobs
+        apply only under the process-pool backend.
     """
     if should_use_process_pool(policy):
-        # Ensure the backend snapshot records process semantics even when the
-        # YAML left ``backend: serial`` but armed a per-subject timeout.
+        # Ensure the backend snapshot records process semantics even when
+        # YAML left ``backend: serial`` but requested workers > 1 or
+        # isolated mode.
         if policy.backend != "process":
             from dataclasses import replace
 
