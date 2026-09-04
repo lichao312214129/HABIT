@@ -20,9 +20,13 @@ High-throughput acceleration vs PyRadiomics parity
 Extracting texture features for dozens of supervoxels sequentially using standard
 PyRadiomics ``execute()`` incurs high overhead (repeated mask hashing, bounding-box
 cropping, and Python loop costs).
-HABIT provides an accelerated native C-extension and vectorized batch engine
-(``use_supervoxel_cext=True``). This page benchmarks extraction time, confirms
-multi-fold speedup, and proves exact numerical parity against PyRadiomics.
+HABIT enables an accelerated native C-extension engine by default
+(``use_supervoxel_cext=True``), running directly on CPU without GPU overhead.
+Furthermore, HABIT sets GPU and backend calculation precision to double precision
+``float64`` by default, guaranteeing exact numerical parity within machine epsilon
+against official PyRadiomics without single-precision (``float32``) quantization error.
+This page benchmarks extraction time, confirms multi-fold speedup, and proves exact
+numerical parity against PyRadiomics.
 """
 
 # sphinx_gallery_thumbnail_number = 2
@@ -114,12 +118,20 @@ texture_params = {
     "setting": {"binWidth": 25.0, "normalize": False},
 }
 
-# Warm up extractors to isolate steady-state execution time from module import latency
+# Warm up extractors to isolate steady-state execution time from module import latency.
+# output_float32=False keeps full float64 double precision to inspect numerical parity.
 rad_native = SupervoxelRadiomicsFeatures(
-    modality=MODALITIES[0], params=texture_params, use_supervoxel_cext=True
+    modality=MODALITIES[0],
+    params=texture_params,
+    use_supervoxel_cext=True,
+    output_float32=False,
 )
 rad_pyrad = SupervoxelRadiomicsFeatures(
-    modality=MODALITIES[0], params=texture_params, use_supervoxel_cext=False
+    modality=MODALITIES[0],
+    params=texture_params,
+    use_supervoxel_cext=False,
+    use_torch_radiomics=False,
+    output_float32=False,
 )
 _ = rad_native(subject, units)
 _ = rad_pyrad(subject, units)

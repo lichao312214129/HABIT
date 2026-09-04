@@ -226,7 +226,7 @@ def execute_radiomics(
     *,
     use_torch_radiomics: Union[str, bool] = DEFAULT_USE_TORCH_RADIOMICS,
     torch_device: str = "auto",
-    torch_dtype: str = "float32",
+    torch_dtype: str = "float64",
     subject_id: str = "",
 ) -> Dict[str, float]:
     """

@@ -73,7 +73,7 @@ class TraditionalRadiomicsHabitatFeatures:
         as_: Optional[str] = None,
         use_torch_radiomics: Union[str, bool] = DEFAULT_USE_TORCH_RADIOMICS,
         torch_device: str = "auto",
-        torch_dtype: str = "float32",
+        torch_dtype: str = "float64",
     ) -> None:
         if modality is not None and modalities is not None:
             raise HABITAPIError(

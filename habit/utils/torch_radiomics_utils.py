@@ -43,7 +43,7 @@ TorchGpuSetting = Union[int, str, Sequence[Union[int, str]], None]
 
 DEFAULT_USE_TORCH_RADIOMICS = "auto"
 DEFAULT_TORCH_DEVICE = "auto"
-DEFAULT_TORCH_DTYPE = "float32"
+DEFAULT_TORCH_DTYPE = "float64"
 
 # Shown once only when users explicitly select a GPU-oriented configuration.
 _TORCH_GPU_INSTALL_HINT_LOGGED = False

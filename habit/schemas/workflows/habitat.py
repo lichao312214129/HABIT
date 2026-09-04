@@ -967,7 +967,7 @@ class FeatureExtractionConfig(BaseConfig):
         description="Torch device for habitat radiomics when use_torch_radiomics is enabled.",
     )
     torch_dtype: str = Field(
-        "float32",
+        "float64",
         description="Torch dtype for habitat radiomics when use_torch_radiomics is enabled.",
     )
 

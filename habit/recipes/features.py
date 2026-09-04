@@ -153,7 +153,7 @@ def _build_domain_extractors(
     params_file_of_habitat: Optional[str],
     use_torch_radiomics: Any = "auto",
     torch_device: str = "auto",
-    torch_dtype: str = "float32",
+    torch_dtype: str = "float64",
     plugin_configs: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
@@ -640,7 +640,7 @@ def _run_domain_extract(
 
     use_torch = getattr(config, "use_torch_radiomics", False)
     torch_device = getattr(config, "torch_device", "auto")
-    torch_dtype = getattr(config, "torch_dtype", "float32")
+    torch_dtype = getattr(config, "torch_dtype", "float64")
     extractors = _build_domain_extractors(
         config.feature_types,
         params_file_of_non_habitat=config.params_file_of_non_habitat,

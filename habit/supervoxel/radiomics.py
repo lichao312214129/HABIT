@@ -86,7 +86,7 @@ class SupervoxelRadiomicsFeatures:
             of the union of all supervoxels before extraction.
         supervoxel_pad_distance: Padding around that bounding box; ``None``
             keeps the PyRadiomics ``padDistance`` setting.
-        use_supervoxel_cext: ``"auto"``, ``True`` or ``False`` -- whether to
+        use_supervoxel_cext: ``True`` (default), ``"auto"``, or ``False`` -- whether to
             use the habit native C extension for texture matrices.
         union_bin: When False (default) each supervoxel is discretized
             with its own ``binWidth`` edges, matching PyRadiomics
@@ -94,7 +94,7 @@ class SupervoxelRadiomicsFeatures:
         use_torch_radiomics: ``"auto"``, ``True`` or ``False`` -- whether to
             use the TorchRadiomics GPU path when torch and CUDA are present.
         torch_device: Torch device string, or ``"auto"`` to select one.
-        torch_dtype: ``"float32"`` or ``"float64"`` for the torch path.
+        torch_dtype: ``"float64"`` (default) or ``"float32"`` for the torch path.
         output_float32: Downcast the resulting feature columns to float32,
             the v0.1 default that keeps large supervoxel tables manageable.
     """
@@ -109,11 +109,11 @@ class SupervoxelRadiomicsFeatures:
         supervoxel_batch: int = 64,
         supervoxel_union_bbox_crop: bool = True,
         supervoxel_pad_distance: Optional[int] = None,
-        use_supervoxel_cext: Union[str, bool] = "auto",
+        use_supervoxel_cext: Union[str, bool] = True,
         union_bin: bool = False,
         use_torch_radiomics: Union[str, bool] = "auto",
         torch_device: str = "auto",
-        torch_dtype: str = "float32",
+        torch_dtype: str = "float64",
         output_float32: bool = True,
     ) -> None:
         if modality is not None and modalities:
@@ -270,44 +270,67 @@ class SupervoxelRadiomicsFeatures:
         extractor = build_pyradiomics_extractor(
             self._resolved_params_file(), self.params, owner="supervoxel_radiomics"
         )
-        from habit.utils.parallel_gpu_utils import read_worker_gpu_slot_index
-
-        backend, device = resolve_voxel_radiomics_backend(
-            use_torch_radiomics=self.use_torch_radiomics,
-            torch_device=self.torch_device,
-            subject=partition.subject_id,
-            gpu_slot_index=read_worker_gpu_slot_index(),
-        )
         extractor.settings.update({"geometryTolerance": 1e-3})
-        if backend == "torch" and device is not None:
-            extractor.settings["device"] = device
-            extractor.settings["dtype"] = resolve_torch_dtype(self.torch_dtype)
         settings = self._radiomics_settings(extractor.settings)
         suffix = column_label if column_label is not None else modality
 
-        with injected_torch_radiomics(enabled=(backend == "torch")):
-            if backend == "torch":
-                frame = extract_batched_supervoxel_features(
-                    image_sitk,
-                    supervoxel_sitk,
-                    labels,
-                    enabled_features=extractor.enabledFeatures,
-                    image_name=suffix,
-                    settings=settings,
-                    device=str(device),
-                    dtype_name=self.torch_dtype,
-                    batch_size=self.supervoxel_batch,
-                )
-            else:
-                frame = extract_supervoxel_features_pyradiomics(
-                    image_sitk,
-                    supervoxel_sitk,
-                    labels,
-                    enabled_features=extractor.enabledFeatures,
-                    image_name=suffix,
-                    settings=settings,
-                    batch_size=self.supervoxel_batch,
-                )
+        from habit.kernels.radiomics.cext import is_cext_available
+
+        use_cext = (
+            self.use_supervoxel_cext is True
+            or (self.use_supervoxel_cext == "auto" and is_cext_available())
+        )
+        if use_cext:
+            from habit.kernels.radiomics.native_batch import (
+                extract_native_supervoxel_features,
+            )
+
+            frame = extract_native_supervoxel_features(
+                image_sitk,
+                supervoxel_sitk,
+                labels,
+                enabled_features=extractor.enabledFeatures,
+                settings=settings,
+                image_name=suffix,
+                union_bin=self.union_bin,
+            )
+        else:
+            from habit.utils.parallel_gpu_utils import read_worker_gpu_slot_index
+
+            backend, device = resolve_voxel_radiomics_backend(
+                use_torch_radiomics=self.use_torch_radiomics,
+                torch_device=self.torch_device,
+                subject=partition.subject_id,
+                gpu_slot_index=read_worker_gpu_slot_index(),
+            )
+            if backend == "torch" and device is not None:
+                extractor.settings["device"] = device
+                extractor.settings["dtype"] = resolve_torch_dtype(self.torch_dtype)
+            settings = self._radiomics_settings(extractor.settings)
+
+            with injected_torch_radiomics(enabled=(backend == "torch")):
+                if backend == "torch":
+                    frame = extract_batched_supervoxel_features(
+                        image_sitk,
+                        supervoxel_sitk,
+                        labels,
+                        enabled_features=extractor.enabledFeatures,
+                        image_name=suffix,
+                        settings=settings,
+                        device=str(device),
+                        dtype_name=self.torch_dtype,
+                        batch_size=self.supervoxel_batch,
+                    )
+                else:
+                    frame = extract_supervoxel_features_pyradiomics(
+                        image_sitk,
+                        supervoxel_sitk,
+                        labels,
+                        enabled_features=extractor.enabledFeatures,
+                        image_name=suffix,
+                        settings=settings,
+                        batch_size=self.supervoxel_batch,
+                    )
         if _V01_LABEL_COLUMN not in frame.columns:
             raise HABITAPIError(
                 "supervoxel_radiomics: extraction returned no "

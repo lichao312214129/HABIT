@@ -83,7 +83,7 @@ class VoxelRadiomicsFeatures:
         use_torch_radiomics: ``"auto"``, ``True`` or ``False`` -- whether to
             use the TorchRadiomics path when torch and CUDA are present.
         torch_device: Torch device string, or ``"auto"`` to select one.
-        torch_dtype: ``"float32"`` or ``"float64"`` for the torch path.
+        torch_dtype: ``"float64"`` (default) or ``"float32"`` for the torch path.
         use_gpu_matrices: ``"auto"``, ``True`` or ``False`` -- whether the
             TorchRadiomics texture matrices (GLCM, ...) are built on GPU by
             ``habit.kernels.radiomics.gpumatrices`` instead of the
@@ -121,7 +121,7 @@ class VoxelRadiomicsFeatures:
         voxel_batch: Union[int, str] = DEFAULT_VOXEL_BATCH,
         use_torch_radiomics: Union[str, bool] = "auto",
         torch_device: str = "auto",
-        torch_dtype: str = "float32",
+        torch_dtype: str = "float64",
         use_gpu_matrices: Union[str, bool] = "auto",
         output_float32: bool = True,
         class_progress: bool = False,

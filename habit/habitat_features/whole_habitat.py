@@ -58,7 +58,7 @@ class WholeHabitatRadiomicsFeatures:
         params: Optional[Dict[str, Any]] = None,
         use_torch_radiomics: Union[str, bool] = DEFAULT_USE_TORCH_RADIOMICS,
         torch_device: str = "auto",
-        torch_dtype: str = "float32",
+        torch_dtype: str = "float64",
     ) -> None:
         self.params_file = params_file
         self.params = dict(params) if params is not None else None
