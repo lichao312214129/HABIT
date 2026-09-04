@@ -18,22 +18,29 @@
 .. _sphx_glr_auto_examples_04_habitat_maps_plot_00_supervoxels.py:
 
 
-Supervoxels (SLIC vs k-means)
-=============================
+Two-step habitats with SLIC supervoxels
+=======================================
 
-Two-step habitats first **partition** the ROI into supervoxels, then fit
-habitats on supervoxel summaries. Partition choice is not the habitat
-definition — the cohort fitter is — but SLIC vs feature-space k-means
-change the units that get pooled.
+Two-step habitat analysis decouples **local spatial partitioning**
+from **cohort-level habitat definition**:
 
-* :class:`~habit.supervoxel.SlicSupervoxelizer` — spatially coherent
-  parcels (skimage SLIC).
-* :class:`~habit.supervoxel.KMeansSupervoxelizer` — parcels in voxel
-  feature space (no spatial compactness term).
+1. **Step 1 (Supervoxelization)**: The tumor ROI is partitioned into spatially
+   compact, contiguous supervoxels using SLIC (Simple Linear Iterative Clustering).
+   SLIC clusters voxels based jointly on multi-channel feature intensities and 3D
+   spatial coordinates, effectively smoothing voxel-level noise while adhering to
+   anatomical borders.
+2. **Step 2 (Cohort clustering)**: Aggregated feature vectors from all supervoxels
+   across all subjects are pooled into a shared population matrix. A cohort-level
+   clustering model (such as k-means or GMM) identifies the overarching habitat centroids.
+3. **Step 3 (Habitat assignment)**: Each subject's supervoxels are mapped to the
+   nearest population centroid (:class:`~habit.habitat_model.NearestCentroidAssigner`),
+   yielding the final discrete habitat label maps.
 
-Both feed the same ``pool`` → ``fit`` → ``assign`` two-step chain.
+SLIC functions strictly as a spatial partitioner (oversegmentation), not a habitat
+clustering algorithm. The biological habitat phenotypes emerge from cohort-wide
+clustering of these pooled supervoxel units.
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-19
+.. GENERATED FROM PYTHON SOURCE LINES 24-26
 
 .. code-block:: Python
    :dedent: 1
@@ -47,16 +54,16 @@ Both feed the same ``pool`` → ``fit`` → ``assign`` two-step chain.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-22
+.. GENERATED FROM PYTHON SOURCE LINES 28-29
 
-Load one demo subject and build a small raw voxel field (LAP intensity).
+Load two demo subjects to demonstrate cohort-level two-step analysis.
 
-.. GENERATED FROM PYTHON SOURCE LINES 22-50
+.. GENERATED FROM PYTHON SOURCE LINES 29-53
 
 .. code-block:: Python
 
     from pathlib import Path
-    from typing import Dict
+    from typing import Dict, List
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -66,22 +73,18 @@ Load one demo subject and build a small raw voxel field (LAP intensity).
     from habit.datasets import fetch_demo
     from habit.recipes import Study
     from habit.spec import HabitatSpec, Spec, Stage
-    from habit.supervoxel import KMeansSupervoxelizer, SlicSupervoxelizer
+    from habit.supervoxel import SlicSupervoxelizer
     from habit.viz import plot_habitat_overlay
     from habit.voxel_features import RawVoxelFeatures
 
     DATA = fetch_demo()
     MODALITIES = ("LAP",)
     ROI = "LAP"
-    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
-    subject = cohort[0]
+    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+    subject0 = cohort[0]
+    image0 = subject0.image(ROI)
     Path("out").mkdir(exist_ok=True)
-    print(f"Subject: {subject.subject_id}")
-
-    voxel = RawVoxelFeatures(modalities=list(MODALITIES))
-    field = voxel(subject)
-    print(field.feature_frame().head())
-    field.feature_frame().head()
+    print(f"Cohort subjects ({len(cohort)}): {list(cohort.subject_ids)}")
 
 
 
@@ -113,13 +116,220 @@ Load one demo subject and build a small raw voxel field (LAP intensity).
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Subject: subj001
-          LAP
-    0  1020.0
-    1  1018.0
-    2  1077.0
-    3  1073.0
-    4  1033.0
+    Cohort subjects (2): ['subj001', 'subj002']
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 54-56
+
+Step 1: Inspect SLIC supervoxelization on the first subject.
+Raw LAP intensity features are extracted and partitioned into 24 supervoxels.
+
+.. GENERATED FROM PYTHON SOURCE LINES 56-85
+
+.. code-block:: Python
+
+    voxel = RawVoxelFeatures(modalities=list(MODALITIES))
+    field0 = voxel(subject0)
+    slic = SlicSupervoxelizer(n_supervoxels=24, compactness=10.0)
+    slic_units0 = slic(field0)
+
+    unit_summary = pd.DataFrame(
+        [
+            {
+                "subject_id": subject0.subject_id,
+                "supervoxelizer": "slic",
+                "n_supervoxels": int(len(slic_units0.features)),
+                "label_min": int(slic_units0.label_array[slic_units0.label_array > 0].min()),
+                "label_max": int(slic_units0.label_array.max()),
+            }
+        ]
+    )
+    print("SLIC supervoxel summary:")
+    print(unit_summary.to_string(index=False))
+    print("\nFirst 5 supervoxel mean feature vectors:")
+    print(slic_units0.features.head(5))
+
+    fig_slic = plot_habitat_overlay(
+        image0,
+        slic_units0,
+        title="SLIC supervoxels (n=24)",
+    )
+    fig_slic.savefig("out/supervoxels_slic.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_001.png
+   :alt: SLIC supervoxels (n=24), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_001.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    SLIC supervoxel summary:
+    subject_id supervoxelizer  n_supervoxels  label_min  label_max
+       subj001           slic             24          1         24
+
+    First 5 supervoxel mean feature vectors:
+                       LAP
+    supervoxel            
+    1           908.217786
+    2           944.903515
+    3           871.323963
+    4           896.928330
+    5           944.081194
+    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 86-89
+
+Step 2 & 3: Configure and run the complete two-step HabitatSpec.
+Notice how the stages chain together:
+extract_voxel_features -> preprocess -> partition (SLIC) -> pool -> fit (k-means) -> assign -> quantify.
+
+.. GENERATED FROM PYTHON SOURCE LINES 89-120
+
+.. code-block:: Python
+
+    two_step_spec = HabitatSpec(
+        name="two_step_slic_kmeans",
+        stages=(
+            Stage(
+                "extract_voxel_features",
+                Spec("raw", {"modalities": list(MODALITIES)}),
+            ),
+            Stage(
+                "preprocess1",
+                Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
+            ),
+            Stage("preprocess2", Spec("minmax", {"across_features": False})),
+            Stage(
+                "partition",
+                Spec("slic", {"n_supervoxels": 24, "compactness": 10.0}),
+            ),
+            Stage("pool", Spec("pool")),
+            Stage(
+                "fit",
+                Spec("kmeans", {"n_habitats": 3, "n_init": 10}),
+            ),
+            Stage("assign", Spec("nearest_centroid")),
+            Stage("quantify", Spec("volume")),
+        ),
+        random_seed=42,
+    )
+
+    study_result = Study(spec=two_step_spec).fit_predict(cohort)
+    print("\nLearned Habitat Model:")
+    print(study_result.habitat_model.summary())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:12<00:12, 12.64s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:24<00:00, 12.24s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:24<00:00, 12.24s/it]
+    E:\conda\mconda\envs\py310\lib\site-packages\threadpoolctl.py:1226: RuntimeWarning: 
+    Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded at
+    the same time. Both libraries are known to be incompatible and this
+    can cause random crashes or deadlocks on Linux when loaded in the
+    same Python program.
+    Using threadpoolctl may cause crashes or deadlocks. For more
+    information and possible workarounds, please see
+        https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
+
+      warnings.warn(msg, RuntimeWarning)
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.71it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.89it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.88it/s]
+
+    Learned Habitat Model:
+    HabitatModel kmeans-3fb1a8736ca6964a
+      habitats           : 3
+      features (1)    : LAP
+      defining cohort    : n=2
+      modalities         : LAP
+      cohort digest      : cc1b16a34cc7478d...
+      produced by        : habitat_model_fitter.kmeans
+      habit version      : 2.0.0
+      random seed        : 42
+      preprocessing state: inertia, validation
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 121-122
+
+Step 4: Visualize the final habitat label map on Subject 0.
+
+.. GENERATED FROM PYTHON SOURCE LINES 122-133
+
+.. code-block:: Python
+
+    hab_map0 = study_result.habitat_maps[0]
+    fig_hab = plot_habitat_overlay(
+        image0,
+        hab_map0,
+        title="Habitats (SLIC partition + cohort k-means)",
+    )
+    fig_hab.savefig(
+        "out/supervoxels_habitats_slic.png", dpi=150, bbox_inches="tight"
+    )
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_002.png
+   :alt: Habitats (SLIC partition + cohort k-means), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_002.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 134-135
+
+Step 5: Quantify volume fractions of the discovered habitats across the cohort.
+
+.. GENERATED FROM PYTHON SOURCE LINES 135-139
+
+.. code-block:: Python
+
+    cohort_volumes = study_result.features.frame
+    print("\nCohort habitat volume quantification:")
+    print(cohort_volumes.to_string(index=False))
+    cohort_volumes
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    Cohort habitat volume quantification:
+    subject  habitat_1_voxel_count  habitat_1_volume_fraction  habitat_2_voxel_count  habitat_2_volume_fraction  habitat_3_voxel_count  habitat_3_volume_fraction
+    subj001                17519.0                   0.504958                11145.0                   0.321237                 6030.0                   0.173805
+    subj002                 3921.0                   0.397748                 2154.0                   0.218503                 3783.0                   0.383749
 
 
 .. raw:: html
@@ -143,29 +353,35 @@ Load one demo subject and build a small raw voxel field (LAP intensity).
       <thead>
         <tr style="text-align: right;">
           <th></th>
-          <th>LAP</th>
+          <th>subject</th>
+          <th>habitat_1_voxel_count</th>
+          <th>habitat_1_volume_fraction</th>
+          <th>habitat_2_voxel_count</th>
+          <th>habitat_2_volume_fraction</th>
+          <th>habitat_3_voxel_count</th>
+          <th>habitat_3_volume_fraction</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <th>0</th>
-          <td>1020.0</td>
+          <td>subj001</td>
+          <td>17519.0</td>
+          <td>0.504958</td>
+          <td>11145.0</td>
+          <td>0.321237</td>
+          <td>6030.0</td>
+          <td>0.173805</td>
         </tr>
         <tr>
           <th>1</th>
-          <td>1018.0</td>
-        </tr>
-        <tr>
-          <th>2</th>
-          <td>1077.0</td>
-        </tr>
-        <tr>
-          <th>3</th>
-          <td>1073.0</td>
-        </tr>
-        <tr>
-          <th>4</th>
-          <td>1033.0</td>
+          <td>subj002</td>
+          <td>3921.0</td>
+          <td>0.397748</td>
+          <td>2154.0</td>
+          <td>0.218503</td>
+          <td>3783.0</td>
+          <td>0.383749</td>
         </tr>
       </tbody>
     </table>
@@ -174,235 +390,10 @@ Load one demo subject and build a small raw voxel field (LAP intensity).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-53
-
-SLIC vs k-means partitions on the same field (small ``n_supervoxels``
-keeps the gallery fast). Print unit counts; overlays show parcel ids.
-
-.. GENERATED FROM PYTHON SOURCE LINES 53-94
-
-.. code-block:: Python
-
-    n_supervoxels = 24
-    slic = SlicSupervoxelizer(n_supervoxels=n_supervoxels, compactness=10.0)
-    kmeans = KMeansSupervoxelizer(n_supervoxels=n_supervoxels, n_init=3)
-    kmeans.set_random_state(0)
-
-    slic_units = slic(field)
-    kmeans_units = kmeans(field)
-    partition_table = pd.DataFrame(
-        [
-            {
-                "partition": "slic",
-                "n_units": int(len(slic_units.features)),
-                "label_max": int(slic_units.label_array.max()),
-            },
-            {
-                "partition": "kmeans",
-                "n_units": int(len(kmeans_units.features)),
-                "label_max": int(kmeans_units.label_array.max()),
-            },
-        ]
-    )
-    print(partition_table.to_string(index=False))
-    partition_table
-
-    image = subject.image(ROI)
-    fig_slic = plot_habitat_overlay(
-        image,
-        slic_units,
-        title="supervoxels (SLIC)",
-    )
-    fig_slic.savefig("out/supervoxels_slic.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-    fig_kmeans = plot_habitat_overlay(
-        image,
-        kmeans_units,
-        title="supervoxels (k-means)",
-    )
-    fig_kmeans.savefig("out/supervoxels_kmeans.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-
-
-
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_001.png
-         :alt: supervoxels (SLIC), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_001.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_002.png
-         :alt: supervoxels (k-means), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_002.png
-         :class: sphx-glr-multi-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    partition  n_units  label_max
-         slic       24         24
-       kmeans       24         24
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 95-97
-
-Same two-step habitat recipe; only the ``partition`` Spec name changes.
-Habitats are the scientific labels; supervoxels are the intermediate units.
-
-.. GENERATED FROM PYTHON SOURCE LINES 97-168
-
-.. code-block:: Python
-
-
-
-    def _two_step_spec(partition_name: str, seed: int) -> HabitatSpec:
-        """Build a minimal two-step HabitatSpec for the given partition."""
-        partition_params: Dict[str, object]
-        if partition_name == "slic":
-            partition_params = {"n_supervoxels": 12, "compactness": 10.0}
-        else:
-            partition_params = {"n_supervoxels": 12, "n_init": 3}
-        return HabitatSpec(
-            name=f"two_step_{partition_name}",
-            stages=(
-                Stage(
-                    "extract_voxel_features",
-                    Spec("raw", {"modalities": list(MODALITIES)}),
-                ),
-                Stage(
-                    "preprocess1",
-                    Spec(
-                        "winsorize",
-                        {"winsor_limits": (0.05, 0.05), "across_features": False},
-                    ),
-                ),
-                Stage("preprocess2", Spec("minmax", {"across_features": False})),
-                Stage("partition", Spec(partition_name, partition_params)),
-                Stage("pool", Spec("pool")),
-                Stage(
-                    "fit",
-                    Spec(
-                        "kmeans",
-                        {
-                            "min_habitats": 2,
-                            "max_habitats": 3,
-                            "validation": "elbow",
-                            "n_init": 3,
-                        },
-                    ),
-                ),
-                Stage("assign", Spec("nearest_centroid")),
-                Stage("quantify", Spec("volume")),
-            ),
-            random_seed=seed,
-        )
-
-
-    slic_result = Study(spec=_two_step_spec("slic", seed=11)).fit_predict(cohort)
-    kmeans_result = Study(spec=_two_step_spec("kmeans", seed=11)).fit_predict(cohort)
-    print("SLIC partition -> habitats:")
-    print(slic_result.habitat_model.summary())
-    print("k-means partition -> habitats:")
-    print(kmeans_result.habitat_model.summary())
-
-    fig_hab_slic = plot_habitat_overlay(
-        image,
-        slic_result.habitat_maps[0],
-        title="habitats (partition=slic)",
-    )
-    fig_hab_slic.savefig(
-        "out/supervoxels_habitats_slic.png", dpi=150, bbox_inches="tight"
-    )
-    plt.show()
-
-    fig_hab_kmeans = plot_habitat_overlay(
-        image,
-        kmeans_result.habitat_maps[0],
-        title="habitats (partition=kmeans)",
-    )
-    fig_hab_kmeans.savefig(
-        "out/supervoxels_habitats_kmeans.png", dpi=150, bbox_inches="tight"
-    )
-    plt.show()
-
-
-
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_003.png
-         :alt: habitats (partition=slic), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_003.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_004.png
-         :alt: habitats (partition=kmeans), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_004.png
-         :class: sphx-glr-multi-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:08<00:00,  8.24s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:08<00:00,  8.24s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  3.03it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  3.03it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:01<00:00,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:01<00:00,  1.14s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.79it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.79it/s]
-    SLIC partition -> habitats:
-    HabitatModel kmeans-b32bdf828436d021
-      habitats           : 3
-      features (1)    : LAP
-      defining cohort    : n=1
-      modalities         : LAP
-      cohort digest      : bbf1d587b6155a53...
-      produced by        : habitat_model_fitter.kmeans
-      habit version      : 2.0.0
-      random seed        : 11
-      preprocessing state: inertia, selection_report, validation
-    k-means partition -> habitats:
-    HabitatModel kmeans-b32bdf828436d021
-      habitats           : 3
-      features (1)    : LAP
-      defining cohort    : n=1
-      modalities         : LAP
-      cohort digest      : bbf1d587b6155a53...
-      produced by        : habitat_model_fitter.kmeans
-      habit version      : 2.0.0
-      random seed        : 11
-      preprocessing state: inertia, selection_report, validation
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-
-
-
-
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 32.723 seconds)
+   **Total running time of the script:** (0 minutes 46.167 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_00_supervoxels.py:

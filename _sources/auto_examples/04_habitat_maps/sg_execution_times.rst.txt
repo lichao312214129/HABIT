@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:50.828** total execution time for 6 files **from auto_examples\04_habitat_maps**:
+**01:15.614** total execution time for 6 files **from auto_examples\04_habitat_maps**:
 
 .. container::
 
@@ -33,13 +33,10 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_00_supervoxels.py` (``plot_00_supervoxels.py``)
-     - 00:32.723
+     - 00:46.167
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_choose_algorithm.py` (``plot_03_choose_algorithm.py``)
-     - 00:09.441
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py` (``plot_05_match_labels.py``)
-     - 00:08.664
+     - 00:29.448
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_01_recipes.py` (``plot_01_recipes.py``)
      - 00:00.000
@@ -48,5 +45,8 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py` (``plot_04_apply_saved_model.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py` (``plot_05_match_labels.py``)
      - 00:00.000
      - 0.0

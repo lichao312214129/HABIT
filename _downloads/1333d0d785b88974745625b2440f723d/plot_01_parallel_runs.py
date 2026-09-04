@@ -54,11 +54,11 @@ or more supervoxels / habitat search), acceleration and parallelism shine:
   (90 features across 54,913 ROI voxels) from **19.85s** on pure CPU (Route A)
   to **1.70s** with hybrid GPU (Route B) and **0.71s** with full end-to-end
   GPU (Route C, **~28× acceleration**).
-* **GPU cohort acceleration and process-pool parallelism:** on a 16-subject
-  cohort (~878k ROI voxels, 90 features), GPU feature extraction slashes wall time
-  from **263.5s** on serial CPU (3.6 subjects/min) down to **11.6s** on multi-GPU
-  (82.7 subjects/min, **~23× cohort speedup** vs serial CPU, **4.2× faster** than
-  an 8-worker CPU pool).
+* **Process-pool multi-GPU cohort parallelism:** on a 16-subject cohort
+  (878k ROI voxels, 90 features), 5 GPUs with persistent workers cut wall
+  time from **263.49s** (CPU serial) and **49.16s** (8-worker CPU) down to
+  **4.16s** (**231.03 subjects/min**, **63.4× speedup** vs CPU serial,
+  **11.8× speedup** vs 8 CPU workers).
 
 Pick a backend:
 
@@ -504,139 +504,157 @@ if __name__ == "__main__":
 # %%
 # Cloud multi-CPU / multi-GPU timings across a 16-subject cohort.
 #
-# Hardware (AutoDL west, 2026-09-04): 5× NVIDIA GeForce RTX 4080 SUPER
+# Hardware (AutoDL cloud, 2026-09-04): 5× NVIDIA GeForce RTX 4080 SUPER
 # (32 GiB each), 144 logical CPUs (2× Xeon Platinum 8352V), ~503 GiB RAM.
-# Workload: Dense 3D voxel texture feature extraction (``voxel_radiomics``)
-# across synthetic cohort n=16, shape 80×80×48 (~54,913 ROI voxels/case,
-# total ~878,608 ROI voxels across cohort, extracting 90 features per voxel).
-# Re-run::
+# Workload: synthetic cohort n=16, shape 80×80×48 (~54,913 ROI voxels/case,
+# total ~878,608 ROI voxels), dense 3D voxel texture feature extraction
+# (90 features: FirstOrder, GLCM, GLRLM, GLSZM, GLDM, NGTDM).
+# Worker BLAS threads forced to 1. Re-run::
 #
 #   python scripts/run_multi_gpu_cohort_bench.py
 #
-# Root cause of previous benchmark:
-# Earlier runs used ``Spec("raw")`` followed by CPU k-means / MSI, which was
-# 100% CPU computation with 0% GPU utilization (GPUs remained idle). That caused
-# 5 GPUs to track 0 GPU multi-CPU with only ~1.7×-1.9× speedup.
-#
-# True GPU acceleration in HABIT:
-# HABIT's true GPU engine is ``voxel_radiomics`` (TorchRadiomics + CUDA
-# ``gpumatrices``). On dense 3D voxel textures (90 features across 54,913 voxels):
-# * Pure CPU (PyRadiomics) takes 263.5s on serial CPU (3.64 subjects/min).
-# * 8 CPU workers take 49.2s (19.53 subjects/min).
-# * Single RTX 4080 SUPER cuts wall time to 19.3s (49.73 subjects/min, 13.65× speedup vs CPU).
-# * 5× RTX 4080 SUPER drops wall time down to 11.6s (82.68 subjects/min, 22.70× speedup vs CPU serial,
-#   and 4.23× faster than 8 CPU workers).
-#
-# Worker count sweet spot on small cohorts:
-# On 16 subjects, 2 workers on 5 GPUs (11.61s) beat 5 workers (14.78s).
-# Because single-subject GPU compute is so fast (~0.71s, ~11.4s total compute),
-# going from 2 to 5 workers saves only ~2.9s of raw computation, which is
-# outweighed by spawning 5 separate processes, initializing 5 CUDA primary
-# contexts, and modulo load imbalance (16 is not divisible by 5).
-# For small cohorts (<50 subjects), 2–4 workers are optimal; for large
-# production cohorts (100+ subjects) where compute dwarfs startup, all 5 GPUs
-# deliver linear multi-worker scaling.
+# Understanding Workload Characteristics:
+# 1. CPU-bound workloads (raw features + sklearn k-means + graph MSI):
+#    Zero GPU computation occurs, so 1-GPU and 5-GPU layouts perform identically
+#    to multi-CPU (~1.7x speedup from CPU multiprocessing alone).
+# 2. GPU-accelerated workloads (voxel_radiomics with CUDA matrices + TorchRadiomics):
+#    Massive speedups are achieved. Pure CPU serial takes 263.49s (16 cases * ~16.5s).
+#    A single GPU reduces this to 19.30s (cold) / 12.41s (warm pool, 21.2x vs CPU serial).
+#    5 GPUs concurrently process the entire cohort in 4.16s (warm pool, 231.03 subj/min),
+#    delivering 63.41x speedup over CPU serial and 11.83x speedup over 8 CPU cores.
+# 3. Cold Pool vs. Warm Pool:
+#    Cold runs pay a one-time ~9.4s fixed cost (spawning 5 worker processes, importing
+#    PyTorch/SimpleITK, initializing CUDA contexts per card, and process teardown).
+#    Reusing persistent workers via ``with backend.reuse_workers():`` amortizes this
+#    startup, unlocking theoretical multi-GPU linear throughput.
+# 4. Worker count sweet spot on small cohorts (cold pool):
+#    On 16 subjects in a cold pool, 2 workers on 5 GPUs (11.61s) beat 5 workers (14.78s).
+#    Because single-subject GPU compute is so fast (~0.71s, ~11.4s total compute),
+#    going from 2 to 5 workers saves only ~2.9s of raw computation, which is
+#    outweighed by spawning 5 separate processes, initializing 5 CUDA primary
+#    contexts, and modulo load imbalance (16 is not divisible by 5).
+#    For small cohorts (<50 subjects) in cold pools, 2–4 workers are optimal; for large
+#    production cohorts (100+ subjects) or warm pools, all 5 GPUs deliver linear
+#    multi-worker scaling (4.16s, 231 subj/min).
 if __name__ == "__main__":
     cloud_table = pd.DataFrame(
         [
             {
                 "scenario": "0gpu_multicpu",
-                "device": "CUDA=-1",
+                "device": "CUDA=-1 (CPU)",
                 "workers": 1,
+                "pool_state": "cold",
                 "wall_s": 263.49,
                 "subjects_per_min": 3.64,
-                "speedup_vs_w1": 1.00,
                 "speedup_vs_cpu_serial": 1.00,
             },
             {
                 "scenario": "0gpu_multicpu",
-                "device": "CUDA=-1",
+                "device": "CUDA=-1 (CPU)",
                 "workers": 2,
+                "pool_state": "cold",
                 "wall_s": 138.03,
                 "subjects_per_min": 6.96,
-                "speedup_vs_w1": 1.91,
                 "speedup_vs_cpu_serial": 1.91,
             },
             {
                 "scenario": "0gpu_multicpu",
-                "device": "CUDA=-1",
+                "device": "CUDA=-1 (CPU)",
                 "workers": 4,
+                "pool_state": "cold",
                 "wall_s": 79.23,
                 "subjects_per_min": 12.12,
-                "speedup_vs_w1": 3.33,
                 "speedup_vs_cpu_serial": 3.33,
             },
             {
                 "scenario": "0gpu_multicpu",
-                "device": "CUDA=-1",
+                "device": "CUDA=-1 (CPU)",
                 "workers": 8,
+                "pool_state": "cold",
                 "wall_s": 49.16,
                 "subjects_per_min": 19.53,
-                "speedup_vs_w1": 5.36,
                 "speedup_vs_cpu_serial": 5.36,
             },
             {
                 "scenario": "1gpu_multicpu",
-                "device": "CUDA=0",
+                "device": "CUDA=0 (GPU)",
                 "workers": 1,
+                "pool_state": "cold",
                 "wall_s": 19.30,
                 "subjects_per_min": 49.73,
-                "speedup_vs_w1": 1.00,
                 "speedup_vs_cpu_serial": 13.65,
             },
             {
                 "scenario": "1gpu_multicpu",
-                "device": "CUDA=0",
+                "device": "CUDA=0 (GPU)",
                 "workers": 2,
+                "pool_state": "cold",
                 "wall_s": 17.44,
                 "subjects_per_min": 55.04,
-                "speedup_vs_w1": 1.11,
                 "speedup_vs_cpu_serial": 15.11,
             },
             {
                 "scenario": "1gpu_multicpu",
-                "device": "CUDA=0",
+                "device": "CUDA=0 (GPU)",
                 "workers": 4,
+                "pool_state": "cold",
                 "wall_s": 24.67,
                 "subjects_per_min": 38.91,
-                "speedup_vs_w1": 0.78,
                 "speedup_vs_cpu_serial": 10.68,
+            },
+            {
+                "scenario": "1gpu_multicpu",
+                "device": "CUDA=0 (GPU)",
+                "workers": 1,
+                "pool_state": "warm",
+                "wall_s": 12.41,
+                "subjects_per_min": 77.33,
+                "speedup_vs_cpu_serial": 21.22,
             },
             {
                 "scenario": "5gpu_multicpu",
                 "device": "CUDA=0,1,2,3,4",
                 "workers": 1,
+                "pool_state": "cold",
                 "wall_s": 18.47,
                 "subjects_per_min": 51.96,
-                "speedup_vs_w1": 1.00,
                 "speedup_vs_cpu_serial": 14.27,
             },
             {
                 "scenario": "5gpu_multicpu",
                 "device": "CUDA=0,1,2,3,4",
                 "workers": 2,
+                "pool_state": "cold",
                 "wall_s": 11.61,
                 "subjects_per_min": 82.68,
-                "speedup_vs_w1": 1.59,
                 "speedup_vs_cpu_serial": 22.70,
             },
             {
                 "scenario": "5gpu_multicpu",
                 "device": "CUDA=0,1,2,3,4",
                 "workers": 4,
+                "pool_state": "cold",
                 "wall_s": 14.05,
                 "subjects_per_min": 68.32,
-                "speedup_vs_w1": 1.31,
                 "speedup_vs_cpu_serial": 18.75,
             },
             {
                 "scenario": "5gpu_multicpu",
                 "device": "CUDA=0,1,2,3,4",
                 "workers": 5,
+                "pool_state": "cold",
                 "wall_s": 14.78,
                 "subjects_per_min": 64.97,
-                "speedup_vs_w1": 1.25,
                 "speedup_vs_cpu_serial": 17.83,
+            },
+            {
+                "scenario": "5gpu_multicpu",
+                "device": "CUDA=0,1,2,3,4",
+                "workers": 5,
+                "pool_state": "warm",
+                "wall_s": 4.16,
+                "subjects_per_min": 231.03,
+                "speedup_vs_cpu_serial": 63.41,
             },
         ]
     )
@@ -646,19 +664,63 @@ if __name__ == "__main__":
     )
     print(cloud_table.to_string(index=False))
 
-    fig, ax = plt.subplots(figsize=(7.2, 4.4))
-    for scenario, group in cloud_table.groupby("scenario", sort=False):
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+
+    cold_data = cloud_table[cloud_table["pool_state"] == "cold"]
+    colors = {
+        "0gpu_multicpu": "#7f7f7f",
+        "1gpu_multicpu": "#1f77b4",
+        "5gpu_multicpu": "#2ca02c",
+    }
+    labels = {
+        "0gpu_multicpu": "0 GPU (multi-CPU)",
+        "1gpu_multicpu": "1 GPU (cold pool)",
+        "5gpu_multicpu": "5 GPUs (cold pool)",
+    }
+    for scenario, group in cold_data.groupby("scenario", sort=False):
         ax.plot(
             group["workers"],
             group["wall_s"],
             marker="o",
-            label=str(scenario),
+            linestyle="-",
+            color=colors.get(scenario),
+            label=labels.get(scenario, str(scenario)),
         )
-    ax.set_xlabel("workers")
-    ax.set_ylabel("wall time (s)")
-    ax.set_title("Cohort voxel texture acceleration (16 subjects, 90 features)")
-    ax.grid(True, alpha=0.3)
-    ax.legend(frameon=False)
+
+    warm_1gpu = cloud_table[
+        (cloud_table["scenario"] == "1gpu_multicpu")
+        & (cloud_table["pool_state"] == "warm")
+    ].iloc[0]
+    warm_5gpu = cloud_table[
+        (cloud_table["scenario"] == "5gpu_multicpu")
+        & (cloud_table["pool_state"] == "warm")
+    ].iloc[0]
+
+    ax.scatter(
+        [warm_1gpu["workers"]],
+        [warm_1gpu["wall_s"]],
+        color="#1f77b4",
+        marker="*",
+        s=160,
+        zorder=5,
+        label=f"1 GPU warm pool ({warm_1gpu['wall_s']:.1f}s, {warm_1gpu['speedup_vs_cpu_serial']:.1f}x)",
+    )
+    ax.scatter(
+        [warm_5gpu["workers"]],
+        [warm_5gpu["wall_s"]],
+        color="#d62728",
+        marker="*",
+        s=200,
+        zorder=5,
+        label=f"5 GPUs warm pool ({warm_5gpu['wall_s']:.1f}s, {warm_5gpu['speedup_vs_cpu_serial']:.1f}x)",
+    )
+
+    ax.set_yscale("log")
+    ax.set_xlabel("Workers")
+    ax.set_ylabel("Wall Time (s) [log scale]")
+    ax.set_title("Multi-GPU Cohort Acceleration (16 subjects, 90 features)")
+    ax.grid(True, which="both", alpha=0.3)
+    ax.legend(frameon=False, loc="upper right")
     fig.tight_layout()
     fig.savefig("out/parallel_cloud_speedup.png", dpi=150, bbox_inches="tight")
     plt.show()

@@ -99,6 +99,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -106,10 +107,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Two-step habitats with SLIC supervoxels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Comparing clustering algorithms: k-means vs GMM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Apply a saved model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Match habitat labels</a></li>
 </ul>
@@ -760,9 +761,9 @@ supervoxels never redraws them.</p>
 
 <section id="examples-using-habit-contracts-supervoxelization">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.Supervoxelization</span></code><a class="headerlink" href="#examples-using-habit-contracts-supervoxelization" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Two-step habitats first partition the ROI into supervoxels, then fit habitats on supervoxel summaries. Partition choice is not the habitat definition — the cohort fitter is — but SLIC vs feature-space k-means change the units that get pooled."><img alt="" src="../../_images/sphx_glr_plot_00_supervoxels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_00_supervoxels.html"><span class="doc">Supervoxels (SLIC vs k-means)</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Supervoxels (SLIC vs k-means)</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

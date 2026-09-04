@@ -5,8 +5,8 @@
 4. Habitat Mapping
 ==================
 
-From voxel features to habitat label maps: supervoxels (SLIC vs k-means),
-recipes, atomic operators, choosing a partition/fitter (k-means vs GMM
+From voxel features to habitat label maps: two-step habitats with SLIC supervoxels,
+recipes, atomic operators, comparing clustering algorithms (k-means vs GMM
 with label matching and Dice/ARI), applying a saved model, and matching
 independently clustered ids.
 
@@ -24,7 +24,7 @@ independently clustered ids.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Two-step habitats first partition the ROI into supervoxels, then fit habitats on supervoxel summaries. Partition choice is not the habitat definition — the cohort fitter is — but SLIC vs feature-space k-means change the units that get pooled.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Two-step habitat analysis decouples local spatial partitioning from cohort-level habitat definition:">
 
 .. only:: html
 
@@ -35,7 +35,7 @@ independently clustered ids.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Supervoxels (SLIC vs k-means)</div>
+      <div class="sphx-glr-thumbnail-title">Two-step habitats with SLIC supervoxels</div>
     </div>
 
 
@@ -75,7 +75,7 @@ independently clustered ids.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter.">
+    <div class="sphx-glr-thumbcontainer" tooltip="In habitat analysis, the habitat definition is established by the cohort model fitter. The two standard feature-space clustering algorithms are:">
 
 .. only:: html
 
@@ -86,7 +86,7 @@ independently clustered ids.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Choose a habitat algorithm</div>
+      <div class="sphx-glr-thumbnail-title">Comparing clustering algorithms: k-means vs GMM</div>
     </div>
 
 

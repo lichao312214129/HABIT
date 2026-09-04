@@ -18,18 +18,26 @@
 .. _sphx_glr_auto_examples_04_habitat_maps_plot_03_choose_algorithm.py:
 
 
-Choose a habitat algorithm
-==========================
+Comparing clustering algorithms: k-means vs GMM
+================================================
 
-The habitat **definition** is the cohort fitter: ``kmeans`` vs ``gmm``.
-The assigner in this build is ``nearest_centroid`` only. ``slic`` is a
-partition name (oversegmentation), not a fitter — parcels stay
-``kmeans`` so the overlay compares only the fitter.
+In habitat analysis, the habitat **definition** is established by the
+cohort model fitter. The two standard feature-space clustering algorithms are:
 
-Compare maps **after** habitat-id matching. Independent fitters permute
-integers: Dice needs Hungarian overlap; ARI is permutation-invariant.
+* **k-means**: hard spherical partitions minimizing within-cluster inertia.
+* **Gaussian Mixture Model (GMM)**: probabilistic ellipsoidal components
+  accounting for feature covariances.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-15
+Fair comparison via Hungarian overlap matching
+----------------------------------------------
+To compare spatial partitions directly without confounding by different cluster
+counts, both algorithms are evaluated at the same number of habitats (e.g. :math:`k=3`).
+Because unsupervised clustering algorithms assign integer labels arbitrarily,
+labels are aligned via Hungarian maximum-overlap matching
+(:func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`) before
+computing per-habitat Dice and the Adjusted Rand Index (ARI).
+
+.. GENERATED FROM PYTHON SOURCE LINES 21-23
 
 .. code-block:: Python
    :dedent: 1
@@ -43,11 +51,11 @@ integers: Dice needs Hungarian overlap; ARI is permutation-invariant.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-18
+.. GENERATED FROM PYTHON SOURCE LINES 25-26
 
-Load two demo subjects and list registered components.
+Load one demo subject and inspect available model fitters.
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-51
+.. GENERATED FROM PYTHON SOURCE LINES 26-57
 
 .. code-block:: Python
 
@@ -60,7 +68,7 @@ Load two demo subjects and list registered components.
 
     from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo
-    from habit.habitat_model import HabitatAssignerRegistry, HabitatModelFitterRegistry
+    from habit.habitat_model import HabitatModelFitterRegistry
     from habit.kernels.habitat_label_match import (
         adjusted_rand_index,
         habitat_dice_from_mapping,
@@ -68,21 +76,19 @@ Load two demo subjects and list registered components.
         present_habitat_ids,
         remap_label_array,
     )
-    from habit.recipes import Study, StudyResult
+    from habit.recipes import Study
     from habit.spec import HabitatSpec, Spec, Stage
-    from habit.supervoxel import SupervoxelizerRegistry
-    from habit.viz import plot_cluster_validation_from_report, plot_habitat_label_compare
+    from habit.viz import plot_habitat_label_compare, use_style
+    from habit.viz.labels import sanitize_label
 
     DATA = fetch_demo()
     MODALITIES = ("LAP",)
     ROI = "LAP"
     RANDOM_SEED = 42
-    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
     Path("out").mkdir(exist_ok=True)
     print(f"Cohort: {list(cohort.subject_ids)}")
-    print("fitter:", HabitatModelFitterRegistry.available())
-    print("assigner:", HabitatAssignerRegistry.available())
-    print("supervoxelizer:", SupervoxelizerRegistry.available())
+    print("Available fitters:", HabitatModelFitterRegistry.available())
 
 
 
@@ -114,21 +120,21 @@ Load two demo subjects and list registered components.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort: ['subj001', 'subj002']
-    fitter: ('gmm', 'kmeans')
-    assigner: ('nearest_centroid',)
-    supervoxelizer: ('gmm', 'kmeans', 'slic')
+    Cohort: ['subj001']
+    Available fitters: ('gmm', 'kmeans')
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-53
+.. GENERATED FROM PYTHON SOURCE LINES 58-59
 
-Shared two-step stages; only the ``fit`` stage differs.
+Build two-step pipelines: shared SLIC partition stage, differing only in the fitter.
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-134
+.. GENERATED FROM PYTHON SOURCE LINES 59-103
 
 .. code-block:: Python
+
+    N_HABITATS = 3
 
     shared_stages = (
         Stage("extract_voxel_features", Spec("raw", {"modalities": list(MODALITIES)})),
@@ -137,79 +143,40 @@ Shared two-step stages; only the ``fit`` stage differs.
             Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
         ),
         Stage("preprocess2", Spec("minmax", {"across_features": False})),
-        Stage("partition", Spec("kmeans", {"n_supervoxels": 6, "n_init": 3})),
+        Stage("partition", Spec("slic", {"n_supervoxels": 24, "compactness": 10.0})),
         Stage("pool", Spec("pool")),
     )
+
     kmeans_spec = HabitatSpec(
-        name="fit_kmeans_elbow_silhouette",
+        name="fit_kmeans",
         stages=shared_stages
         + (
             Stage(
                 "fit",
-                Spec(
-                    "kmeans",
-                    {
-                        "min_habitats": 2,
-                        "max_habitats": 4,
-                        "validation": ["elbow", "silhouette"],
-                        "n_init": 3,
-                    },
-                ),
+                Spec("kmeans", {"n_habitats": N_HABITATS, "n_init": 10}),
             ),
             Stage("assign", Spec("nearest_centroid")),
             Stage("quantify", Spec("volume")),
         ),
         random_seed=RANDOM_SEED,
     )
+
     gmm_spec = HabitatSpec(
-        name="fit_gmm_bic",
+        name="fit_gmm",
         stages=shared_stages
         + (
             Stage(
                 "fit",
-                Spec(
-                    "gmm",
-                    {"min_habitats": 2, "max_habitats": 4, "validation": "bic", "n_init": 3},
-                ),
+                Spec("gmm", {"n_habitats": N_HABITATS, "n_init": 10}),
             ),
             Stage("assign", Spec("nearest_centroid")),
             Stage("quantify", Spec("volume")),
         ),
         random_seed=RANDOM_SEED,
     )
+
     kmeans_result = Study(spec=kmeans_spec).fit_predict(cohort)
     gmm_result = Study(spec=gmm_spec).fit_predict(cohort)
-
-
-    def _selection_row(name: str, fitter: str, result: StudyResult) -> Dict[str, Any]:
-        """One row: selected K and scores at that K from ``selection_report``."""
-        model = result.habitat_model
-        report = (model.preprocessing_state or {}).get("selection_report") or {}
-        selected = int(report.get("selected", model.n_habitats if model else 0))
-        candidates = [int(v) for v in report.get("candidates", [])]
-        row: Dict[str, Any] = {
-            "spec_name": name,
-            "fitter": fitter,
-            "n_habitats": selected,
-            "n_units": int(len(result.units[0].features)) if result.units else 0,
-        }
-        scores = report.get("scores") or {}
-        if candidates and selected in candidates:
-            idx = candidates.index(selected)
-            for method, values in scores.items():
-                if idx < len(values):
-                    row[f"{method}_at_k"] = float(values[idx])
-        return row
-
-
-    fit_table = pd.DataFrame(
-        [
-            _selection_row(kmeans_spec.name, "kmeans", kmeans_result),
-            _selection_row(gmm_spec.name, "gmm", gmm_result),
-        ]
-    )
-    print(fit_table.to_string(index=False))
-    fit_table
 
 
 
@@ -219,78 +186,19 @@ Shared two-step stages; only the ``fit`` stage differs.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.22s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.29s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.30s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.76it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.76it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.52it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.56it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]
-                      spec_name fitter  n_habitats  n_units  elbow_at_k  silhouette_at_k  bic_at_k
-    fit_kmeans_elbow_silhouette kmeans           3        6    0.104712          0.55833       NaN
-                    fit_gmm_bic    gmm           4        6         NaN              NaN  1.899594
+    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:13<00:00, 13.57s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:13<00:00, 13.57s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.82it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.82it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:12<00:00, 12.46s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:12<00:00, 12.47s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.71it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.70it/s]
 
 
-.. raw:: html
 
-    <div class="output_subarea output_html rendered_html output_result">
-    <div>
-    <style scoped>
-        .dataframe tbody tr th:only-of-type {
-            vertical-align: middle;
-        }
 
-        .dataframe tbody tr th {
-            vertical-align: top;
-        }
+.. GENERATED FROM PYTHON SOURCE LINES 104-105
 
-        .dataframe thead th {
-            text-align: right;
-        }
-    </style>
-    <table border="1" class="dataframe">
-      <thead>
-        <tr style="text-align: right;">
-          <th></th>
-          <th>spec_name</th>
-          <th>fitter</th>
-          <th>n_habitats</th>
-          <th>n_units</th>
-          <th>elbow_at_k</th>
-          <th>silhouette_at_k</th>
-          <th>bic_at_k</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>0</th>
-          <td>fit_kmeans_elbow_silhouette</td>
-          <td>kmeans</td>
-          <td>3</td>
-          <td>6</td>
-          <td>0.104712</td>
-          <td>0.55833</td>
-          <td>NaN</td>
-        </tr>
-        <tr>
-          <th>1</th>
-          <td>fit_gmm_bic</td>
-          <td>gmm</td>
-          <td>4</td>
-          <td>6</td>
-          <td>NaN</td>
-          <td>NaN</td>
-          <td>1.899594</td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    </div>
-    <br />
-    <br />
+Match GMM habitat IDs onto k-means IDs via Hungarian maximum overlap.
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-136
-
-Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
-
-.. GENERATED FROM PYTHON SOURCE LINES 136-173
+.. GENERATED FROM PYTHON SOURCE LINES 105-150
 
 .. code-block:: Python
 
@@ -300,36 +208,44 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
     aligned = remap_label_array(
         mov, mapping, reserved_ids=[int(v) for v in present_habitat_ids(ref)]
     )
+
     mapping_table = pd.DataFrame(
-        [{"gmm_id": int(s), "kmeans_id": int(d)} for s, d in sorted(mapping.items(), key=lambda x: x[1])]
+        [{"gmm_id": int(s), "matched_kmeans_id": int(d)} for s, d in sorted(mapping.items(), key=lambda x: x[1])]
     )
-    dice_table = pd.DataFrame(
-        [
+    dice_records = []
+    for hid, mid, dice, n_ref, n_mov in habitat_dice_from_mapping(ref, mov, mapping):
+        dice_records.append(
             {
-                "kmeans_id": int(hid),
-                "gmm_id": None if mid is None else int(mid),
+                "habitat_id": int(hid),
+                "matched_gmm_id": None if mid is None else int(mid),
                 "dice": float(dice),
-                "n_kmeans": int(n_ref),
-                "n_gmm": int(n_mov),
+                "kmeans_voxels": int(n_ref),
+                "gmm_voxels": int(n_mov),
             }
-            for hid, mid, dice, n_ref, n_mov in habitat_dice_from_mapping(ref, mov, mapping)
-        ]
-    )
+        )
+    dice_table = pd.DataFrame(dice_records)
+
+    mean_dice = float(dice_table["dice"].mean()) if len(dice_table) else float("nan")
+    ari = float(adjusted_rand_index(ref, mov))
+
     summary = pd.DataFrame(
         [
             {
                 "subject_id": cohort[0].subject_id,
-                "mean_dice": float(dice_table["dice"].mean()) if len(dice_table) else float("nan"),
-                "ari": float(adjusted_rand_index(ref, mov)),
-                "n_kmeans": int(len(present_habitat_ids(ref))),
-                "n_gmm": int(len(present_habitat_ids(mov))),
+                "n_habitats": N_HABITATS,
+                "mean_dice": mean_dice,
+                "adjusted_rand_index": ari,
             }
         ]
     )
+
+    print("Label alignment mapping:")
     print(mapping_table.to_string(index=False))
+    print("\nPer-habitat agreement:")
     print(dice_table.to_string(index=False))
+    print("\nOverall agreement summary:")
     print(summary.to_string(index=False))
-    summary
+    dice_table
 
 
 
@@ -339,16 +255,21 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
 
  .. code-block:: none
 
-     gmm_id  kmeans_id
-          1          1
-          2          2
-          4          3
-     kmeans_id  gmm_id     dice  n_kmeans  n_gmm
-             1       1 0.512823     10145  12003
-             2       2 0.626217     11434   5212
-             3       4 0.519825     13115  13013
-    subject_id  mean_dice      ari  n_kmeans  n_gmm
-       subj001   0.552955 0.316038         3      4
+    Label alignment mapping:
+     gmm_id  matched_kmeans_id
+          3                  1
+          2                  2
+          1                  3
+
+    Per-habitat agreement:
+     habitat_id  matched_gmm_id     dice  kmeans_voxels  gmm_voxels
+              1               3 0.599893          10435        4471
+              2               2 1.000000          11145       11145
+              3               1 0.814737          13114       19078
+
+    Overall agreement summary:
+    subject_id  n_habitats  mean_dice  adjusted_rand_index
+       subj001           3   0.804876             0.632776
 
 
 .. raw:: html
@@ -372,21 +293,37 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
       <thead>
         <tr style="text-align: right;">
           <th></th>
-          <th>subject_id</th>
-          <th>mean_dice</th>
-          <th>ari</th>
-          <th>n_kmeans</th>
-          <th>n_gmm</th>
+          <th>habitat_id</th>
+          <th>matched_gmm_id</th>
+          <th>dice</th>
+          <th>kmeans_voxels</th>
+          <th>gmm_voxels</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <th>0</th>
-          <td>subj001</td>
-          <td>0.552955</td>
-          <td>0.316038</td>
+          <td>1</td>
           <td>3</td>
-          <td>4</td>
+          <td>0.599893</td>
+          <td>10435</td>
+          <td>4471</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>2</td>
+          <td>2</td>
+          <td>1.000000</td>
+          <td>11145</td>
+          <td>11145</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>3</td>
+          <td>1</td>
+          <td>0.814737</td>
+          <td>13114</td>
+          <td>19078</td>
         </tr>
       </tbody>
     </table>
@@ -395,7 +332,11 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-184
+.. GENERATED FROM PYTHON SOURCE LINES 151-152
+
+Visual comparison: k-means habitats vs matched GMM habitats.
+
+.. GENERATED FROM PYTHON SOURCE LINES 152-162
 
 .. code-block:: Python
 
@@ -403,7 +344,7 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
         cohort[0].image(ROI),
         kmeans_result.habitat_maps[0],
         aligned,
-        titles=("k-means habitats", "GMM habitats (matched)"),
+        titles=("k-means habitats", f"GMM habitats (matched, ARI={ari:.3f})"),
         align_labels=False,
     )
     fig_fit.savefig("out/choose_kmeans_vs_gmm.png", dpi=150, bbox_inches="tight")
@@ -413,7 +354,7 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
 
 
 .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_choose_algorithm_001.png
-   :alt: Habitat label compare, k-means habitats, GMM habitats (matched), Disagreement
+   :alt: Habitat label compare, k-means habitats, GMM habitats (matched, ARI=0.633), Disagreement
    :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_choose_algorithm_001.png
    :class: sphx-glr-single-img
 
@@ -428,57 +369,34 @@ Match GMM ids onto k-means (subject 0), then Dice / ARI + overlay.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-186
+.. GENERATED FROM PYTHON SOURCE LINES 163-164
 
-Validation curves from each ``selection_report``.
+Per-habitat Dice agreement bar plot.
 
-.. GENERATED FROM PYTHON SOURCE LINES 186-202
+.. GENERATED FROM PYTHON SOURCE LINES 164-176
 
 .. code-block:: Python
 
-    kmeans_report = (kmeans_result.habitat_model.preprocessing_state or {}).get(
-        "selection_report"
-    )
-    gmm_report = (gmm_result.habitat_model.preprocessing_state or {}).get("selection_report")
-    if kmeans_report:
-        fig_k = plot_cluster_validation_from_report(
-            kmeans_report, title="k-means: elbow vs silhouette"
-        )
-        fig_k.savefig("out/choose_kmeans_validation.png", dpi=150, bbox_inches="tight")
-        plt.show()
-    if gmm_report:
-        fig_g = plot_cluster_validation_from_report(gmm_report, title="GMM: BIC")
-        fig_g.savefig("out/choose_gmm_validation.png", dpi=150, bbox_inches="tight")
-        plt.show()
-    print("k-means methods:", (kmeans_report or {}).get("methods"))
-    print("GMM methods:", (gmm_report or {}).get("methods"))
+    with use_style("radiology"):
+        fig_bar, ax = plt.subplots(figsize=(5.5, 3.6), constrained_layout=True)
+        habitat_labels = [f"Habitat {row['habitat_id']}" for _, row in dice_table.iterrows()]
+        dice_values = dice_table["dice"].to_numpy(dtype=float)
+        bars = ax.bar(habitat_labels, dice_values, color="#0072B2", width=0.5)
+        ax.axhline(mean_dice, color="#D55E00", linestyle="--", linewidth=1.5, label=f"Mean Dice = {mean_dice:.3f}")
+        ax.set_ylim(0.0, 1.05)
+        ax.set_ylabel("Dice coefficient")
+        ax.set_title(sanitize_label(f"k-means vs GMM spatial agreement (k={N_HABITATS})"))
+        ax.legend(loc="lower right", frameon=True)
+    fig_bar.savefig("out/choose_algorithm_dice_bar.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
 
 
-.. rst-class:: sphx-glr-horizontal
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_choose_algorithm_002.png
+   :alt: k-means vs GMM spatial agreement (k=3)
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_choose_algorithm_002.png
+   :class: sphx-glr-single-img
 
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_choose_algorithm_002.png
-         :alt: k-means: elbow vs silhouette, elbow (selected k=3), silhouette (selected k=3)
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_choose_algorithm_002.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_choose_algorithm_003.png
-         :alt: GMM: BIC, bic (selected k=4)
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_choose_algorithm_003.png
-         :class: sphx-glr-multi-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    k-means methods: ['elbow', 'silhouette']
-    GMM methods: ['bic']
 
 
 
@@ -486,7 +404,7 @@ Validation curves from each ``selection_report``.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 9.441 seconds)
+   **Total running time of the script:** (0 minutes 29.448 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_03_choose_algorithm.py:

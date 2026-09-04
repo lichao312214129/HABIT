@@ -29,6 +29,7 @@
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../_static/copybutton.js?v=30646c52"></script>
         <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -99,6 +100,7 @@
 <li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -106,10 +108,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_00_supervoxels.html">Two-step habitats with SLIC supervoxels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_03_choose_algorithm.html">Comparing clustering algorithms: k-means vs GMM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_04_apply_saved_model.html">Apply a saved model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_05_match_labels.html">Match habitat labels</a></li>
 </ul>
@@ -652,8 +654,8 @@ SimpleITK image objects, or NumPy arrays and deep-learning tensors.</p>
 <section id="voxel-representation">
 <h2>2. Voxel Representation<a class="headerlink" href="#voxel-representation" title="Link to this heading"></a></h2>
 <p>Define the voxel field that clustering sees: raw intensities, custom
-formulas, texture maps (CPU vs GPU), and clustering-feature preprocessor
-chains.</p>
+formulas, texture maps (CPU vs GPU), clustering-feature preprocessor
+chains, and supervoxel feature extraction and acceleration.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Clustering uses the voxel field you define — not a fixed T1 image. This page is the intensity pair: raw (concatenate modality intensities inside the ROI) and concat (join families column-wise)."><img alt="" src="../_images/sphx_glr_plot_01_feature_routes_thumb.png" />
 <p><a class="reference internal" href="02_voxel/plot_01_feature_routes.html"><span class="doc">Voxel features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Voxel features</div>
@@ -666,6 +668,9 @@ chains.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Clustering operates on preprocessed feature matrices, not raw intensities. HabitatSpec exposes three ordered chains:"><img alt="" src="../_images/sphx_glr_plot_04_feature_preprocessing_thumb.png" />
 <p><a class="reference internal" href="02_voxel/plot_04_feature_preprocessing.html"><span class="doc">Feature chains</span></a></p>
   <div class="sphx-glr-thumbnail-title">Feature chains</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
+<p><a class="reference internal" href="02_voxel/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
 </div></div></section>
 <section id="precise-feature-screening">
 <h2>3. Precise Feature Screening<a class="headerlink" href="#precise-feature-screening" title="Link to this heading"></a></h2>
@@ -679,22 +684,22 @@ widths with multi-panel ICC forest plots.</p>
 </div></div></section>
 <section id="habitat-mapping">
 <h2>4. Habitat Mapping<a class="headerlink" href="#habitat-mapping" title="Link to this heading"></a></h2>
-<p>From voxel features to habitat label maps: supervoxels (SLIC vs k-means),
-recipes, atomic operators, choosing a partition/fitter (k-means vs GMM
+<p>From voxel features to habitat label maps: two-step habitats with SLIC supervoxels,
+recipes, atomic operators, comparing clustering algorithms (k-means vs GMM
 with label matching and Dice/ARI), applying a saved model, and matching
 independently clustered ids.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Two-step habitats first partition the ROI into supervoxels, then fit habitats on supervoxel summaries. Partition choice is not the habitat definition — the cohort fitter is — but SLIC vs feature-space k-means change the units that get pooled."><img alt="" src="../_images/sphx_glr_plot_00_supervoxels_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_00_supervoxels.html"><span class="doc">Supervoxels (SLIC vs k-means)</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Supervoxels (SLIC vs k-means)</div>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Two-step habitat analysis decouples local spatial partitioning from cohort-level habitat definition:"><img alt="" src="../_images/sphx_glr_plot_00_supervoxels_thumb.png" />
+<p><a class="reference internal" href="04_habitat_maps/plot_00_supervoxels.html"><span class="doc">Two-step habitats with SLIC supervoxels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Two-step habitats with SLIC supervoxels</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Three Study designs. Same scaffolding: load a cohort, declare HabitatSpec stages, call fit_predict."><img alt="" src="../_images/sphx_glr_plot_01_recipes_thumb.png" />
 <p><a class="reference internal" href="04_habitat_maps/plot_01_recipes.html"><span class="doc">Recipes</span></a></p>
   <div class="sphx-glr-thumbnail-title">Recipes</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Each subject-level step is a single-argument callable. Call op(subject) (or op(field)) with no Study."><img alt="" src="../_images/sphx_glr_plot_02_atomic_ops_thumb.png" />
 <p><a class="reference internal" href="04_habitat_maps/plot_02_atomic_ops.html"><span class="doc">Atomic operators</span></a></p>
   <div class="sphx-glr-thumbnail-title">Atomic operators</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The habitat definition is the cohort fitter: kmeans vs gmm. The assigner in this build is nearest_centroid only. slic is a partition name (oversegmentation), not a fitter — parcels stay kmeans so the overlay compares only the fitter."><img alt="" src="../_images/sphx_glr_plot_03_choose_algorithm_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_03_choose_algorithm.html"><span class="doc">Choose a habitat algorithm</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Choose a habitat algorithm</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In habitat analysis, the habitat definition is established by the cohort model fitter. The two standard feature-space clustering algorithms are:"><img alt="" src="../_images/sphx_glr_plot_03_choose_algorithm_thumb.png" />
+<p><a class="reference internal" href="04_habitat_maps/plot_03_choose_algorithm.html"><span class="doc">Comparing clustering algorithms: k-means vs GMM</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Comparing clustering algorithms: k-means vs GMM</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
 <p><a class="reference internal" href="04_habitat_maps/plot_04_apply_saved_model.html"><span class="doc">Apply a saved model</span></a></p>
   <div class="sphx-glr-thumbnail-title">Apply a saved model</div>

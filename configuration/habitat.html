@@ -99,6 +99,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -106,10 +107,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Two-step habitats with SLIC supervoxels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Comparing clustering algorithms: k-means vs GMM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Apply a saved model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_05_match_labels.html">Match habitat labels</a></li>
 </ul>
@@ -741,7 +742,8 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">feature_construction.*.method</span></code> (singular): one <strong>functional expression</strong> string (<code class="docutils literal notranslate"><span class="pre">concat(voxel_radiomics(T2))</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">preprocessing_for_*</span> <span class="pre">.methods</span></code> (plural): an <strong>ordered list</strong> of preprocessing steps; each item has its own <code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">winsorize</span></code> step type.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">habitat_segmentation.*.algorithm</span></code>: <strong>clustering backend</strong> (<code class="docutils literal notranslate"><span class="pre">kmeans</span></code>, <code class="docutils literal notranslate"><span class="pre">gmm</span></code>, <code class="docutils literal notranslate"><span class="pre">slic</span></code>), not a feature extractor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habitat_segmentation.supervoxel.algorithm</span></code>: supervoxel partition algorithm (<code class="docutils literal notranslate"><span class="pre">slic</span></code>, <code class="docutils literal notranslate"><span class="pre">kmeans</span></code>, <code class="docutils literal notranslate"><span class="pre">gmm</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habitat_segmentation.habitat.algorithm</span></code>: cohort habitat model fitter (<code class="docutils literal notranslate"><span class="pre">kmeans</span></code>, <code class="docutils literal notranslate"><span class="pre">gmm</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">habitat_cluster_selection_method</span></code> / <code class="docutils literal notranslate"><span class="pre">selection_method</span></code>: cluster-count validation metric (<code class="docutils literal notranslate"><span class="pre">elbow</span></code>, <code class="docutils literal notranslate"><span class="pre">silhouette</span></code>, …).</p></li>
 </ul>
 <p><strong>voxel_level</strong>: Voxel-level feature extraction</p>
@@ -1349,8 +1351,8 @@ See <a class="reference internal" href="../api/spec.html"><span class="doc">Spec
 is <strong>read automatically</strong> from the mask NIfTI header—<strong>no</strong> YAML entry required.</p>
 <p><strong>Use cases</strong></p>
 <ul class="simple">
-<li><p>Recommended for <code class="docutils literal notranslate"><span class="pre">two_step</span></code> stage 1: supervoxels are more spatially compact than pure K-Means supervoxels.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">one_step</span></code> may also use <code class="docutils literal notranslate"><span class="pre">slic</span></code> with <code class="docutils literal notranslate"><span class="pre">one_step_settings</span></code> for per-subject auto k.</p></li>
+<li><p>Recommended for <code class="docutils literal notranslate"><span class="pre">two_step</span></code> stage 1: supervoxels are spatially coherent and local, unlike pure feature-space K-Means supervoxels.</p></li>
+<li><p>SLIC partitions local anatomical subregions; cohort habitats are subsequently discovered by clustering pooled supervoxel feature vectors.</p></li>
 <li><p>High-dimensional <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> features incur much higher compute and memory than <code class="docutils literal notranslate"><span class="pre">raw</span></code> / <code class="docutils literal notranslate"><span class="pre">mean_voxel_features</span></code> (builds <code class="docutils literal notranslate"><span class="pre">[Z,</span> <span class="pre">Y,</span> <span class="pre">X,</span> <span class="pre">n_features]</span></code> feature volume in ROI bbox).</p></li>
 </ul>
 <p><strong>YAML path</strong>: keys under <code class="docutils literal notranslate"><span class="pre">habitat_segmentation.supervoxel</span></code>; repo template
