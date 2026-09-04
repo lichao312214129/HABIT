@@ -33,12 +33,11 @@ from typing import Any, Dict, Tuple
 import numpy as np
 import pandas as pd
 
-from habit.contracts import Cohort, Subject, cohort_from_directory
+from habit.contracts import Cohort, cohort_from_directory
 from habit.spec import HabitatSpec, Spec
 from habit.precision import aggregate_panels, identify_precise_features, perturb_image, precision_panel
 from habit.voxel_features import extract_voxel_texture
 from habit.datasets import fetch_demo
-from habit.contracts import ArrayImageRef, Geometry
 from habit.recipes import Study
 
 # fetch_demo() downloads once and prints the tree. Change DATA for your data.
@@ -48,28 +47,6 @@ ROI = "LAP"
 
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
 subject = cohort[0]
-
-
-def _crop_to_roi(item: Subject, modality: str, roi: str, pad: int = 8) -> Subject:
-    """Crop one subject to the ROI bounding box plus pad (demo speed)."""
-    mask_arr = np.asarray(item.mask(roi).data)
-    image_arr = np.asarray(item.image(modality).data)
-    nz = np.argwhere(mask_arr > 0)
-    lo = np.maximum(nz.min(axis=0) - pad, 0)
-    hi = np.minimum(nz.max(axis=0) + pad + 1, mask_arr.shape)
-    sl = tuple(slice(int(a), int(b)) for a, b in zip(lo, hi))
-    src = item.image(modality).geometry
-    geom = Geometry.from_array(
-        image_arr[sl].shape, spacing=src.spacing, direction=src.direction
-    )
-    return Subject(
-        subject_id=item.subject_id,
-        images={modality: ArrayImageRef(array=image_arr[sl], geometry=geom)},
-        masks={roi: ArrayImageRef(array=mask_arr[sl], geometry=geom)},
-    )
-
-
-subject = _crop_to_roi(subject, MODALITIES[0], ROI)
 image = subject.image(MODALITIES[0])
 mask = subject.mask(ROI)
 
@@ -98,7 +75,7 @@ print("perturbed methods:", "gaussian_noise -> translation -> rotation")
 print(f"  grid unchanged: {perturbed.data.shape == image.data.shape}")
 
 # --- Atom 2: extract texture (same image, different paper knobs) ---
-# Small first-order + GLCM set so R1 vs R3 stays interactive on a crop.
+# Small first-order + GLCM set so R1 vs R3 stays interactive on one subject.
 # Pass feature_classes=None to use the bundled voxel (paper CT) preset.
 FEATURE_CLASSES: Dict[str, Tuple[str, ...]] = {
     "firstorder": ("Entropy", "Mean", "Variance", "Skewness", "Kurtosis"),
@@ -160,7 +137,7 @@ print(f"  unstable: {unstable}")
 print(evidence.to_string(index=False))
 
 # --- Habitat use: all-texture vs precise-texture (same k search) ---
-cropped = Cohort(subjects=(subject,))
+demo_cohort = cohort
 texture_params: Dict[str, Any] = {
     "imageType": {"Original": {}},
     "featureClass": {key: list(values) for key, values in FEATURE_CLASSES.items()},
@@ -189,7 +166,7 @@ spec_all = HabitatSpec(
     random_seed=11,
     pooling="none",
 )
-result_all = Study(spec_all).fit_predict(cropped)
+result_all = Study(spec_all).fit_predict(demo_cohort)
 result_precise = None
 if screened:
     whitelist = precise.preprocessor()
@@ -202,7 +179,7 @@ if screened:
         random_seed=11,
         pooling="none",
     )
-    result_precise = Study(spec_precise).fit_predict(cropped)
+    result_precise = Study(spec_precise).fit_predict(demo_cohort)
     print(f"  habitat maps: all={len(result_all.habitat_maps)} precise={len(result_precise.habitat_maps)}")
 else:
     print("  no feature passed every experiment; skip precise habitats")
@@ -344,7 +321,7 @@ print("Wrote " + ", ".join(f"out/{name}" for name in written))
 # elastic FFD (bspline_deform) warps image and mask together, then
 # score habitats and every light habitat-map family on the
 # intersection of the two ROIs. Paste after the Script block.
-# Uses _crop_to_roi, DATA, MODALITIES, ROI.
+# Uses DATA, MODALITIES, ROI.
 from dataclasses import replace
 from typing import Dict, List, Optional, Tuple
 
@@ -446,10 +423,10 @@ subject_ids: List[str] = []
 first_bundle: Optional[tuple] = None
 icc_source = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
 for item in icc_source:
-    cropped = _crop_to_roi(item, MODALITIES[0], ROI)
-    print(f"B-spline warp + intersection habitats: {cropped.subject_id}", flush=True)
-    edge_item = edge(cropped, rng=np.random.default_rng(7))
-    orig_mask = np.asarray(cropped.mask(ROI).data) > 0
+    demo_subject = item
+    print(f"B-spline warp + intersection habitats: {demo_subject.subject_id}", flush=True)
+    edge_item = edge(demo_subject, rng=np.random.default_rng(7))
+    orig_mask = np.asarray(demo_subject.mask(ROI).data) > 0
     edge_mask = np.asarray(edge_item.mask(ROI).data) > 0
     intersection = orig_mask & edge_mask
     n_orig = int(orig_mask.sum())
@@ -461,11 +438,11 @@ for item in icc_source:
     )
     orig_fit = one_step_habitat(
         modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
-    ).fit_predict(Cohort(subjects=(cropped,)))
+    ).fit_predict(Cohort(subjects=(demo_subject,)))
     edge_fit = one_step_habitat(
         modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
     ).fit_predict(Cohort(subjects=(edge_item,)))
-    orig_image = cropped.image(MODALITIES[0])
+    orig_image = demo_subject.image(MODALITIES[0])
     edge_image = edge_item.image(MODALITIES[0])
     # Restrict both maps to the agreed core before pairing / features.
     ref_core = _restrict_to_intersection(orig_fit.habitat_maps[0], intersection)
@@ -481,13 +458,13 @@ for item in icc_source:
         moving_image=edge_image,
         force=True,
     )
-    print(f"  light habitat-map features on intersection: {cropped.subject_id}", flush=True)
+    print(f"  light habitat-map features on intersection: {demo_subject.subject_id}", flush=True)
     orig_rows.append(_all_habitat_features(ref_core))
     edge_rows.append(_all_habitat_features(aligned_core))
-    subject_ids.append(cropped.subject_id)
+    subject_ids.append(demo_subject.subject_id)
     if first_bundle is None:
         first_bundle = (
-            cropped,
+            demo_subject,
             edge_item,
             intersection,
             ref_core,
@@ -501,16 +478,16 @@ for item in icc_source:
             ),
         )
 
-cropped, edge_item, intersection, ref_core, aligned_core, dice_frame = first_bundle
+demo_subject, edge_item, intersection, ref_core, aligned_core, dice_frame = first_bundle
 print("Habitat Dice on ROI intersection (mean-intensity match)")
 print(dice_frame.to_string(index=False))
 
 # Shared axial index: densest original ROI (same crop, same slice).
-orig_mask = np.asarray(cropped.mask(ROI).data)
+orig_mask = np.asarray(demo_subject.mask(ROI).data)
 edge_mask = np.asarray(edge_item.mask(ROI).data)
 counts = np.sum(orig_mask > 0, axis=(1, 2))
 index = int(np.argmax(counts)) if int(np.max(counts)) > 0 else int(orig_mask.shape[0] // 2)
-grey = np.take(np.asarray(cropped.image(MODALITIES[0]).data), index, axis=0)
+grey = np.take(np.asarray(demo_subject.image(MODALITIES[0]).data), index, axis=0)
 mask_orig = np.take(orig_mask > 0, index, axis=0).astype(np.uint8)
 mask_edge = np.take(edge_mask > 0, index, axis=0).astype(np.uint8)
 mask_inter = np.take(intersection, index, axis=0).astype(np.uint8)
@@ -570,7 +547,7 @@ with use_style("radiology"):
 fig_edge.savefig("out/precise_perturb_mask_edge.png", dpi=150, bbox_inches="tight")
 
 fig_cmp = plot_habitat_label_compare(
-    cropped.image(MODALITIES[0]),
+    demo_subject.image(MODALITIES[0]),
     ref_core,
     aligned_core,
     titles=("Original habitats in intersection", "Warped habitats in intersection"),

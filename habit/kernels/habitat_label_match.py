@@ -20,13 +20,16 @@ the second fit may be cluster 3 of the first. This kernel recovers a
 
 Matching is one of:
 
-* **features** -- Hungarian assignment on habitat-level texture
-  summaries. Pass **unscaled** means or medians (original voxel
-  textures, not per-tumour MinMax / z-score cluster centres). The
-  operator then column-z-scores the stacked rows (or applies a locked
-  cohort ``location`` / ``scale``) so Energy and Coarseness share one
-  ruler, then minimises Euclidean or ``1 - correlation`` cost.
-  Volume fraction is an optional tie-break only.
+* **features** -- Hungarian assignment on habitat-level **summary
+  feature vectors** (any finite ``(n_habitats, n_features)`` matrix).
+  Typical rows are unscaled means / medians of the same voxel field used
+  to define habitats: raw multimodality intensities, constructed maps,
+  or texture channels. Do **not** pass per-tumour MinMax / z-score
+  cluster centres. The operator then column-z-scores the stacked rows
+  (or applies a locked cohort ``location`` / ``scale``) so features with
+  different units share one ruler, then minimises Euclidean or
+  ``1 - correlation`` cost. Volume fraction is an optional tie-break
+  only.
 * **centroid** -- same Hungarian path with ``standardize="none"`` and
   Euclidean cost. Kept for same-image intensity / spatial means and
   for callers that already live in one commensurate space.
@@ -123,21 +126,23 @@ def habitat_intensity_centroids(
     reduction: Literal["mean", "median"] = "mean",
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Per-habitat image / texture summary of every non-background habitat.
+    Per-habitat summary of every non-background habitat.
 
-    A scalar image yields a centroid of shape ``(n_habitats, 1)``. An image
-    with a trailing feature axis ``(..., n_features)`` yields
-    ``(n_habitats, n_features)``. Default reduction is the **mean** of
-    voxels in that habitat (same quantity k-means stores as a centre).
+    A scalar volume yields a centroid of shape ``(n_habitats, 1)``. A
+    volume with a trailing feature axis ``(..., n_features)`` yields
+    ``(n_habitats, n_features)`` — multimodal intensities, constructed
+    maps, or texture channels are all valid as long as the spatial grid
+    matches ``label_array``. Default reduction is the **mean** of voxels
+    in that habitat (same quantity k-means stores as a centre).
     ``reduction="median"`` is the test-retest table convention.
 
-    For cross-patient naming pass the **unscaled** texture volume here,
+    For cross-patient naming pass the **unscaled** feature volume here,
     then :func:`match_labels_by_features` (cohort z-score). Do not pass
     a per-tumour MinMax / z-score copy: those axes are not comparable
     across subjects.
 
     Args:
-        image: Intensity volume aligned with ``label_array``, or the same
+        image: Feature volume aligned with ``label_array``, or the same
             shape plus a trailing feature axis.
         label_array: Integer habitat labels; ``0`` is background.
         reduction: ``"mean"`` (default) or ``"median"``.
@@ -442,7 +447,7 @@ def match_labels_by_centroid(
 
     Default is raw Euclidean Hungarian (same-image intensity / spatial
     means, or any already-commensurate space). For cross-patient
-    texture naming prefer :func:`match_labels_by_features`.
+    habitat-summary naming prefer :func:`match_labels_by_features`.
 
     Args:
         reference_ids: Habitat ids aligned with ``reference_centroids`` rows.
@@ -499,19 +504,23 @@ def match_labels_by_features(
     scale: Optional[np.ndarray] = None,
 ) -> Dict[int, int]:
     """
-    Pair habitats by cohort-standardised texture summaries.
+    Pair habitats by cohort-standardised **habitat summary features**.
 
     Intended Stage-B naming operator:
 
-    1. Rows are **unscaled** habitat means / medians (original textures).
+    1. Rows are **unscaled** habitat means / medians (or any caller-built
+       summary vectors with a shared feature width).
     2. Columns are z-scored on the stacked reference+moving rows, or
        with a locked ``location`` / ``scale`` from
        :func:`fit_feature_match_scale` (full cohort).
     3. Hungarian assignment minimises Euclidean or ``1 - r`` cost.
     4. Volume fraction, if given, is a small additive tie-break.
 
-    Do not pass per-tumour MinMax / z-score cluster centres: those
-    axes change when one tumour's own min/max change.
+    Feature content is not restricted to texture: multimodality raw
+    intensities, engineered maps, and mixed channels work when both sides
+    use the same definition. Do not pass per-tumour MinMax / z-score
+    cluster centres: those axes change when one tumour's own min/max
+    change.
 
     Args:
         reference_ids: Habitat ids aligned with ``reference_features`` rows.
@@ -1099,7 +1108,7 @@ def match_label_ids(
         image: Optional intensity / feature volume for the reference map.
             Also used for the moving map when ``moving_image`` is omitted.
             For ``method="features"`` this must be the **unscaled**
-            texture volume.
+            feature volume (multimodal / constructed / texture).
         moving_image: Optional intensity / feature volume for the moving map.
         method: ``"centroid"`` (default), ``"features"``, or ``"overlap"``.
         reference_centroids: Optional explicit reference summaries.

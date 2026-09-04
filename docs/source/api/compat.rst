@@ -1,3 +1,7 @@
+:orphan:
+
+.. _api-compat:
+
 Legacy compat (``habit.compat``)
 =================================
 

@@ -8,6 +8,8 @@ roman>=3.3
 sphinx-autobuild>=2021.3.14
 sphinx-autodoc-typehints>=1.24.0
 sphinxcontrib-mermaid>=0.9.2
+sphinx-copybutton>=0.5.2
+sphinx-gallery>=0.17.0
 
 # 文档构建所需基础科学计算库
 numpy

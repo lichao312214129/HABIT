@@ -282,6 +282,13 @@ class Study:
             cohort-level model to publish).
         fit_result_: The :class:`~habit.recipes.result.StudyResult` produced
             by the latest :meth:`fit`; ``None`` until fitted.
+
+    See Also
+    --------
+    habit.spec.HabitatSpec : Frozen analysis declaration used by this study.
+    habit.contracts.HabitatModel : Fitted cohort habitat definition.
+    habit.recipes.StudyResult : In-memory artefacts from ``fit_predict``.
+    habit.recipes.two_step_habitat : Factory for the classical two-step design.
     """
 
     spec: HabitatSpec
@@ -545,6 +552,13 @@ def two_step_habitat(
 
     Returns:
         A :class:`Study` ready for :meth:`Study.fit`.
+
+    See Also
+    --------
+    habit.recipes.Study : Sklearn-style fit / fit_predict / predict entry.
+    habit.spec.HabitatSpec : Frozen analysis declaration the factory builds.
+    habit.recipes.one_step_habitat : Per-subject habitat definition.
+    habit.recipes.direct_pooling_habitat : Cohort clustering on voxel features.
     """
     return Study(
         spec=_build_habitat_spec(

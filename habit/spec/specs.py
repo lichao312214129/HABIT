@@ -688,6 +688,12 @@ class HabitatSpec:
             from :meth:`to_dict`.
         version: Specification schema version.
 
+    See Also
+    --------
+    habit.recipes.Study : Runs this spec via ``fit`` / ``fit_predict``.
+    habit.contracts.HabitatModel : Fitted definition produced from this spec.
+    habit.recipes.two_step_habitat : Factory that builds a two-step spec.
+
     Examples:
         A two-step design (supervoxels per subject, habitats across the
         cohort) declared as data:

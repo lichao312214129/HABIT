@@ -197,6 +197,11 @@ def extract_voxel_texture(
     Raises:
         HABITAPIError: When ``feature_classes`` and ``params`` are both
             set, or ``kernel_radius`` is not positive.
+
+    See Also
+    --------
+    habit.voxel_features.VoxelRadiomicsFeatures : Subject-level extractor
+        this function constructs for one image/mask pair.
     """
     if kernel_radius < 1:
         raise HABITAPIError(

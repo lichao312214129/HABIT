@@ -7,6 +7,12 @@ as six layers, L0 at the bottom to L5 at the top. A layer may only import
 from the layers below it, which keeps the numeric core free of I/O and keeps
 configuration parsing out of the algorithms.
 
+Read the public Developer docs in this order:
+
+1. **This page** — layers, public API boundary, invariants.
+2. :doc:`contributing` — environment, tests, and pull requests.
+3. :doc:`../customization/index` — registry and entry-point plugins.
+
 Design principles
 -----------------
 
@@ -53,6 +59,11 @@ checkpoints), ``habit/datasets/`` (synthetic data), ``habit/plugins/``
 (component discovery), ``habit/schemas/`` (v0.1 YAML schemas), and
 ``habit/compat/`` (the v0.1 engines, kept for YAML parity and legacy files).
 
+Public Python symbols are listed under :doc:`../api/index`. A third party
+should be able to call ``op(subject)`` or ``Study(spec).fit_predict(cohort)``
+without HABIT's directory layout. If ``habit/cli.py`` and ``habit/commands/``
+were deleted, the scientific capability would still be callable.
+
 Two execution paths
 -------------------
 
@@ -89,6 +100,11 @@ through:
      SC -.->|"extract / radiomics /<br/>legacy pickles"| CF["compat configurators<br/>MLConfigurator etc."]
      CF --> ORC["compat orchestrators<br/>BatchProcessor · HabitatAnalysis<br/>KFoldWorkflow"]
 
+Maintainer notes for the YAML loader, PathResolver, and compat engine
+tours live in the repository at ``developer/sphinx_archive/``
+(``configuration_system.rst``, ``request_lifecycle.rst``,
+``subsystems.rst``).
+
 Key components
 --------------
 
@@ -112,26 +128,18 @@ Key components
 Subsystems
 ----------
 
-**Preprocessing**: the CLI command ``habit preprocess`` calls the v1 recipe
-:func:`habit.recipes.preprocess_images`. The v0.1 engine
-(``BatchProcessor`` + ``PreprocessorFactory`` under
-``habit/compat/engines/preprocessing/``) remains available through
-``habit.api.preprocessing``.
-
 **Habitat analysis** supports three strategies — ``two_step``, ``one_step``,
 and ``direct_pooling`` — implemented as v1 recipes over the same domain
 components. Fitted state is persisted as a self-describing
 ``.habitatmodel`` archive for reproducible prediction.
 
-**Machine learning**: the v1 recipes (:func:`~habit.recipes.train_model`,
-:func:`~habit.recipes.cross_validate`, :func:`~habit.recipes.predict_model`)
-run a :class:`~habit.pipeline.TablePipeline`, which keeps preprocessing,
-feature selection, and the classifier inside one fitted object to prevent
-data leakage. Figures go through :mod:`habit.recipes.ml_reporting` and
-``habit.viz``. Multi-model comparison is
-:func:`~habit.recipes.compare_models`. The v0.1 engine (``workflows/`` +
-``runners/`` under ``habit/compat/engines/machine_learning/``) remains for
-legacy configuration-object callers and opaque pickle pipeline loads.
+**Preprocessing** and **tabular machine learning** are supporting shells:
+``habit preprocess`` calls :func:`habit.recipes.preprocess_images`;
+:func:`~habit.recipes.train_model` / :func:`~habit.recipes.cross_validate` /
+:func:`~habit.recipes.predict_model` run a
+:class:`~habit.pipeline.TablePipeline`. Compat engines under
+``habit/compat/engines/`` remain for YAML parity. Those trees are frozen
+for product work; habitat analysis is the extension surface.
 
 CLI-to-core mapping
 -------------------
@@ -172,4 +180,229 @@ layer.
      - :func:`habit.recipes.compare_models` (domain evaluation +
        ``comparison_reporting`` / ``habit.viz``)
 
-See :doc:`invariants` for the contracts enforced by architecture tests.
+Design philosophy
+-----------------
+
+Imaging papers need **repeatable** and **reproducible** habitat maps.
+Voxel intensities depend on scanner and preprocessing; clustering depends
+on :math:`k` and the feature vector; a one-voxel mask shift can rewrite a
+radiomic map. HABIT does not remove that physics. It makes the choices that
+change the map **explicit, typed, and carried with the result**
+(:class:`~habit.contracts.habitat.HabitatModel`,
+:class:`~habit.spec.specs.Spec`,
+:meth:`~habit.contracts.RunManifest.describe_methods`). A green unit test
+is not a multi-centre replication.
+
+The product answer is a **library API** that can be copied into a notebook
+or another pipeline. CLI and YAML are shells over that API, not a second
+science stack. Defaults (for k-means habitat count: inertia **elbow**,
+:math:`k\in[2,10]`) are a starting protocol, not a claim that the default
+is optimal for every tumour.
+
+Five engineering pillars follow from that:
+
+1. **Configuration is an interface**, not a layer — YAML and Python share
+   one meaning via :class:`~habit.spec.specs.Spec`.
+2. **Schemas fail fast** — Pydantic validates before computation;
+   ``extra='forbid'`` where strict.
+3. **Registries decouple algorithms** — swap an implementation by name.
+4. **Train and predict share a contract** — inference reuses fitted state,
+   including cohort-level preprocessing on
+   :class:`~habit.contracts.habitat.HabitatModel`.
+5. **Commands stay thin** — L5 delegates to ``habit.recipes`` /
+   ``habit.api``.
+
+Habitat and API glossary
+------------------------
+
+Task-level habitat walkthroughs live in the Habitat Guide
+(:doc:`../auto_examples/index`). The table below is the **developer**
+vocabulary used in this chapter.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Term
+     - Meaning
+   * - **Voxel feature**
+     - A per-voxel vector (intensity, kinetics, local radiomics, …)
+       that clustering reads.
+   * - **Supervoxel**
+     - A local group of similar voxels in one subject; intermediate
+       product of the ``two_step`` strategy.
+   * - **Habitat**
+     - An image-phenotype region inside a tumor, stored as an integer
+       label image.
+   * - **Habitat feature**
+     - A downstream quantity after habitat maps exist (volume, MSI, ITH,
+       radiomics, graph metrics, …).
+   * - **Clustering mode**
+     - ``two_step``, ``one_step``, or ``direct_pooling``.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 45 30
+
+   * - Role
+     - Responsibility
+     - Representative symbol
+   * - **Spec**
+     - Declares an analysis as immutable, fingerprinted data.
+     - ``HabitatSpec``, ``MLSpec``, ``Spec``
+   * - **Recipe**
+     - Assembles domain components, executes, returns a typed result.
+     - ``recipes.Study(...).fit_predict``, ``recipes.train_model``
+   * - **Contract**
+     - Typed objects that travel between layers.
+     - ``Subject``, ``Cohort``, ``FeatureTable``, ``HabitatModel``
+   * - **Pipeline**
+     - Executable object a recipe builds; fitted state lives here.
+     - ``SubjectPipeline``, ``TablePipeline``
+   * - **DataSource / Sink**
+     - L1 adapters; the only place files are read.
+     - ``DirectoryDataSource``
+   * - **Component registry**
+     - Maps ``Spec("name", params)`` to implementations.
+     - ``VoxelFeatureExtractorRegistry``, ``ComponentRegistry``
+
+On the v0.1 YAML path, a **Configurator** assembles and an **Orchestrator**
+executes; a **Factory** resolves names. Those roles still describe
+``habit/compat/engines/``. On the v1 path the recipe plays all three,
+driven by a spec.
+
+Invariants
+----------
+
+These rules must not be broken. Most are checked by
+``tests/test_architecture_contracts.py``.
+
+.. important::
+
+   Run the architecture contract tests before submitting changes::
+
+      pytest tests/test_architecture_contracts.py -m unit
+
+**Scientific correctness**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Invariant
+     - Rationale
+   * - **Prevent data leakage**
+     - Feature selection, scaling, and resampling must be inside one sklearn
+       Pipeline and fitted only on training folds.
+   * - **Train/predict symmetry**
+     - Predict must reuse the clustering centers, scaler parameters, selected
+       features, and other state learned by fit.
+   * - **Controlled randomness**
+     - Every stochastic step must accept and propagate a random seed so the
+       same configuration can be reproduced.
+
+**Configuration**
+
+* Root configuration models use ``extra='forbid'`` where strict validation is
+  required. New fields must be declared in the schema.
+* ``habit/schemas/`` is the source of truth for schema definitions.
+  Compatibility modules may re-export schemas but must not define duplicates.
+* A component with configurable ``params`` must define and register a Pydantic
+  parameter model (v0.1 YAML) or expose them on the component constructor
+  (v1 ``Registry.create``).
+* v1 spec objects (``habit/spec/``) are immutable and fingerprinted; a fitted
+  model must always be traceable to the exact spec that produced it.
+
+**Registry contracts**
+
+All registries must:
+
+* inherit from the appropriate ``_BaseRegistry`` subclass;
+* expose ``register``, ``get``, ``available``,
+  ``register_params_model``, and ``get_params_model``;
+* keep an independent ``_registry`` dictionary;
+* return a list from ``available()``.
+
+Class factories additionally provide ``create()``. Callable registries provide
+their callable-entry accessors.
+
+**Orchestrator contracts**
+
+Every top-level orchestrator must expose the terminal methods declared in
+``ORCHESTRATOR_CONTRACT``. Batch processors and workflows normally expose
+``run()``; habitat analysis exposes ``fit()`` and ``predict()``.
+
+**Engineering conventions**
+
+* Use ``habit/utils/progress_utils.py`` for all progress bars.
+* Put reusable cross-subsystem utilities in ``habit/utils/``.
+* Text generated inside plots must be English.
+* Import heavy optional dependencies lazily inside command or factory methods.
+* Keep business logic out of the command layer: commands are L5 wiring that
+  delegate to ``habit/recipes/``; v0.1 engine logic lives in
+  ``compat/engines/*/run.py``.
+* Respect the layer direction: L0 kernels stay pure (no I/O, state, or
+  logging) and no layer imports from a layer above it.
+* Annotate function inputs and outputs explicitly, and write code comments in
+  English.
+
+Where to look in the repo
+-------------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 72
+
+   * - Path
+     - Responsibility
+   * - ``habit/kernels/``
+     - **L0** numeric kernels. No I/O, no state, no logging.
+   * - ``habit/adapters/``
+     - **L1** data sources and sinks.
+   * - ``habit/contracts/``
+     - **L2** ``Subject``, ``Cohort``, ``FeatureTable``, ``HabitatModel``.
+   * - ``habit/domain/``
+     - **L3** protocols, registries, ``SubjectPipeline``.
+   * - ``habit/recipes/``
+     - **L4** ``Study`` and habitat / extract / ML recipes.
+   * - ``habit/cli.py``, ``habit/commands/``
+     - **L5** Click wiring only.
+   * - ``habit/spec/``
+     - ``HabitatSpec`` / ``MLSpec`` / ``LegacyConfigAdapter``.
+   * - ``habit/execution/``
+     - Parallel backends and checkpoints.
+   * - ``habit/plugins/``
+     - Entry-point discovery (``list_plugins``).
+   * - ``habit/compat/``
+     - Frozen v0.1 engines (YAML parity).
+   * - ``tests/``
+     - Pytest; architecture contracts in
+       ``tests/test_architecture_contracts.py``.
+
+Start here when changing habitat analysis:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Goal
+     - Starting point
+   * - Add a voxel / supervoxel / habitat plugin
+     - :doc:`../customization/index` and the matching L3 registry
+   * - Change the three habitat strategies
+     - ``habit/recipes/habitat.py``
+   * - Change CLI wiring
+     - ``habit/cli.py`` + ``habit/commands/cmd_*.py`` (keep commands thin)
+   * - Change a numeric kernel
+     - ``habit/kernels/`` (definition unchanged unless the Spec changes)
+
+The longer package map (utils inventory, compat engine directories, ML
+starting points) is archived at ``developer/sphinx_archive/repo_layout.rst``.
+
+See also
+--------
+
+* :doc:`contributing` — environment, tests, pull requests.
+* :doc:`../customization/index` — habitat registry plugins.
+* :doc:`../how_to/habitat_components` — built-in ``Spec`` names.
+* :doc:`../reference/upstream_libraries` — third-party library notes.

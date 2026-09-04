@@ -106,6 +106,12 @@ class StudyResult:
         inspection: Optional step observer / recorder passed as ``inspect=``
             to a recipe. Default ``None``. Writers ignore this field; it is
             for in-memory debugging only and is never part of fingerprints.
+
+    See Also
+    --------
+    habit.recipes.Study : Produces this result via ``fit_predict``.
+    habit.contracts.HabitatModel : Cohort-level definition on ``habitat_model``.
+    habit.spec.HabitatSpec : Analysis declaration recorded in the manifest.
     """
 
     habitat_model: Optional[HabitatModel]

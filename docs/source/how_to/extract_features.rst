@@ -1,3 +1,5 @@
+:orphan:
+
 Feature extraction (CLI / YAML)
 ===============================
 

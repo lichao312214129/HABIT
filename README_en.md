@@ -1,56 +1,31 @@
 # Habitat Analysis: Biomedical Imaging Toolkit (HABIT)
 
-**Tumor habitat analysis and intratumoral heterogeneity quantification** for clinical and radiomics research. Workflows are driven by YAML configs: preprocessing, habitat segmentation, feature extraction, and optional machine learning.
+**Tumor habitat analysis toolkit** — build habitat label maps from images + ROI, then quantify habitats (volume, heterogeneity, graph metrics, radiomics, …). The product focus is **habitat analysis**.
 
 **Language / 语言**：[English](https://github.com/lichao312214129/HABIT/blob/main/README_en.md) | [简体中文](https://github.com/lichao312214129/HABIT/blob/main/README.md)
 
 ---
 
-## Documentation
+## Documentation (learn here — this README is not a tutorial)
 
-**Online docs**: [https://lichao312214129.github.io/HABIT](https://lichao312214129.github.io/HABIT)
+**Online docs**: [https://lichao312214129.github.io/HABIT/](https://lichao312214129.github.io/HABIT/)
 
-Local build: `cd docs && make html` → `docs/build/html/index.html`
-
-### Suggested learning path
-
-| Step | Topic | Link |
-|------|--------|------|
-| 1 | Install HABIT | [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html) |
-| 2 | Demo workflow | [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html) |
-| 3 | Step-by-step how-to | [How-to index](https://lichao312214129.github.io/HABIT/how_to/index.html) |
-| 4 | YAML parameters | [Configuration](https://lichao312214129.github.io/HABIT/configuration/index.html) |
-
-### Workflow chapters
-
-| Step | Link |
+| Entry | Link |
 |------|------|
-| Prepare data | [Prepare data](https://lichao312214129.github.io/HABIT/how_to/prepare_data.html) |
-| Preprocessing | [Preprocess](https://lichao312214129.github.io/HABIT/how_to/preprocess.html) |
-| Habitat segmentation | [Segment habitat](https://lichao312214129.github.io/HABIT/how_to/segment_habitat.html) |
-| Feature extraction | [Extract features](https://lichao312214129.github.io/HABIT/how_to/extract_features.html) |
-| Machine learning | [Train model](https://lichao312214129.github.io/HABIT/how_to/train_model.html) |
-| Model comparison | [Compare models](https://lichao312214129.github.io/HABIT/how_to/compare_models.html) |
-| FAQ | [FAQ](https://lichao312214129.github.io/HABIT/troubleshooting/faq.html) |
+| Install | [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html) |
+| First habitat map (Python) | [Quickstart (Python)](https://lichao312214129.github.io/HABIT/auto_quickstart/plot_quickstart_python.html) |
+| First habitat map (CLI / YAML) | [Quickstart (CLI)](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html) |
+| **Habitat Guide** (one scientific task per page) | [Habitat Guide](https://lichao312214129.github.io/HABIT/auto_examples/index.html) |
+| API / Spec / feature formulas | [Reference](https://lichao312214129.github.io/HABIT/api/index.html) |
 
-### Tools & more
-
-| Topic | Link |
-|--------|------|
-| CLI overview | [CLI reference](https://lichao312214129.github.io/HABIT/reference/cli.html) |
-| Contributing | [Contributing](https://lichao312214129.github.io/HABIT/development/contributing.html) |
+Local Sphinx build: see [`docs/README.md`](docs/README.md) (use the py310 Sphinx; do not use the base-env `sphinx-build` on PATH).
 
 ---
 
-## Bundled config templates
+## Install
 
-After cloning or unpacking the repo, use the **`config/`** folder at the **project root** (sibling to the `habit/` Python package). See [`config/README_CONFIG.md`](https://github.com/lichao312214129/HABIT/blob/main/config/README_CONFIG.md) and [Configuration reference](https://lichao312214129.github.io/HABIT/configuration/index.html).
-
----
-
-## Install & demo data
-
-Python **3.10–3.14**. Full steps: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html).
+Python **3.10–3.14**. Full steps and optional extras:
+[Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html).
 
 ```bash
 conda create -n habit python=3.10 -y
@@ -61,25 +36,26 @@ habit --version
 # import name: import habit
 ```
 
-Optional: napari for `habit view` (see Installation). PyRadiomics is separate
-when you need radiomics. Other capabilities are extras — missing ones raise
-`OptionalDependencyError` with the exact `pip install` command, e.g.:
+Common extras (install as needed; missing ones raise `OptionalDependencyError`
+with the exact `pip install` line):
 
 ```bash
-pip install "habitat-analysis[ml,analysis]"
+pip install "habitat-analysis[tables,viz]"
 ```
 
 - **Source**: [GitHub](https://github.com/lichao312214129/HABIT) (dev: `pip install -e .`)
-- **Demo data (two packs)**:
-  1. **Imaging** (habitat / preprocess / feature extract): [`preprocessed.zip`](https://pan.baidu.com/s/1w8r0IUJ8YXVDrkFYCAOQWw?pwd=9bi3) (code **9bi3**). After extract you must have `demo_data/preprocessed/images/` and `demo_data/preprocessed/masks/` next to `config/` (no nested `processed_images`). If zip top level is `preprocessed/`, extract into `demo_data/`; if `images/`+`masks/`, put under `demo_data/preprocessed/`.
-  2. **Tabular ML** (`habit model` / `habit cv`): [`ml_data.zip`](https://pan.baidu.com/s/1qOmZJ3uDgkDKHpHGVRpcEA?pwd=atnp) (code **atnp**). Extract at project root to get `demo_data/ml_data/` (e.g. `breast_cancer_dataset.csv`). If zip top level is `ml_data/`, extract into `demo_data/`.
+- **Demo data**: see [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html) and
+  `habit.datasets.fetch_demo` (Guide scripts download once into a cache)
 
-  Habitat-only demos need pack 1; add pack 2 only for ML demos. See [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
+Root [`config/`](config/) ships example habitat YAML templates; see
+[`config/README_CONFIG.md`](config/README_CONFIG.md).
 
 ---
 
 ## Support & citation
 
 - **Issues**: [GitHub Issues](https://github.com/lichao312214129/HABIT/issues)
-- **Citation**: see [CITATION.cff](https://github.com/lichao312214129/HABIT/blob/main/CITATION.cff)
-- **License**: [Apache License 2.0](https://github.com/lichao312214129/HABIT/blob/main/LICENSE). Free for academic and commercial use; the only obligation is to retain the copyright and license notices and to ship [NOTICE](https://github.com/lichao312214129/HABIT/blob/main/NOTICE) with redistributions. When HABIT supports scientific work, the authors request -- but do not require as a license condition -- that you cite it
+- **Citation**: [CITATION.cff](CITATION.cff) and [Acknowledgments](https://lichao312214129.github.io/HABIT/acknowledgments.html)
+- **License**: [Apache License 2.0](LICENSE). Free for academic and commercial use; retain copyright and license notices and ship [NOTICE](NOTICE) with redistributions. When HABIT supports scientific work, the authors request — but do not require as a license condition — that you cite it
+
+**Team**: HABIT development team (see [Acknowledgments](https://lichao312214129.github.io/HABIT/acknowledgments.html))

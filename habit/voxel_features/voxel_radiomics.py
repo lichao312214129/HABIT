@@ -104,6 +104,11 @@ class VoxelRadiomicsFeatures:
         cache_dir: Optional directory for extracted fields. A hit skips
             PyRadiomics. The cache key ignores ``voxel_batch`` and device
             knobs so a later run with a larger batch can reuse the file.
+
+    See Also
+    --------
+    habit.voxel_features.extract_voxel_texture : One image + mask call
+        that constructs this extractor.
     """
 
     def __init__(

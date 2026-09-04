@@ -1,8 +1,44 @@
+.. _api-adapters:
+
 Adapters (``habit.adapters``)
 =============================
 
+.. automodule:: habit.adapters
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.adapters
+
+**User guide:** :doc:`data_model` · :doc:`python_api`.
+
 L1 adapters turn external layouts into contracts objects without pulling
 YAML or domain logic into the data layer.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   DirectoryDataSource
+   DirectoryResultWriter
+   FileImageRef
+   PreprocessingIOAdapter
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   discover_habitat_map_paths
+   load_extract_cohort
+   read_habitat_map
+   resolve_n_habitats
+   write_extract_feature_csvs
 
 DirectoryDataSource
 -------------------

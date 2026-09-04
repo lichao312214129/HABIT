@@ -68,9 +68,10 @@ We extend our sincere respect and gratitude to the developers and maintainers of
 How to contribute
 -----------------
 
-To contribute code, docs, or extensions, start with the
-:doc:`development/index` (environment, architecture, and pull-request
-conventions). Bug reports and feature requests belong on GitHub Issues:
+To contribute code, docs, or extensions, start with
+:doc:`development/architecture`, then :doc:`development/contributing`
+(environment, tests, and pull-request conventions), then
+:doc:`customization/index`. Bug reports and feature requests belong on GitHub Issues:
 |link_github_issues|.
 
 Contact

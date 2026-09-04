@@ -1,3 +1,5 @@
+.. _api-domain:
+
 Domain protocols and registries
 ================================
 

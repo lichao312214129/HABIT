@@ -1,5 +1,63 @@
+.. _api-image-io:
+
 Low-level image I/O helpers
 ===========================
+
+.. automodule:: habit.api.image
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.api.image
+
+**User guide:** :doc:`data_model`. Prefer contracts volumes inside
+pipelines; use these when you need SimpleITK-backed read / geometry
+checks outside a ``Subject``.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   GeometryPolicy
+   GeometryReport
+   ImageVolume
+   MaskVolume
+   ImageMaskPair
+
+.. currentmodule:: habit.api.radiomics
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   FeatureResult
+   FeatureTableResult
+
+Functions
+---------
+
+.. currentmodule:: habit.api.image
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   read_image
+   read_mask
+   validate_geometry
+   align_image_mask
+
+.. currentmodule:: habit.api.radiomics
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   extract_features
+   extract_batch
 
 File I/O helpers (``read_image`` / ``read_mask`` / geometry checks). Prefer
 contracts volumes inside pipelines (:doc:`data_model`); use these when you

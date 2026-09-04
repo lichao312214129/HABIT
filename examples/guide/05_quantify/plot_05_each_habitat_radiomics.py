@@ -11,10 +11,11 @@ using :class:`~habit.habitat_features.EachHabitatRadiomicsFeatures`.
 # %%
 # One-step habitats, then per-habitat PyRadiomics on the intensity image.
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
@@ -52,40 +53,57 @@ print(row[display_cols].to_string())
 row[display_cols]
 
 # %%
-# Grouped bar chart: Mean, Energy, and GLCM Id across H1 / H2 / H3.
+# One panel per feature so scales stay honest (Mean / Energy / GLCM Id
+# must not share a single y-axis — Energy dominates and hides the rest).
 Path("out").mkdir(exist_ok=True)
 habitat_ids: List[int] = list(habitat_map.habitat_ids)
-# Column pattern: habitat_{id}_original_{class}_{name}_of_{modality}
-feature_specs = [
+feature_specs: List[Tuple[str, str]] = [
     ("Mean", "firstorder_Mean"),
     ("Energy", "firstorder_Energy"),
     ("GLCM Id", "glcm_Id"),
 ]
-values_by_feature: Dict[str, List[float]] = {}
-for label, suffix in feature_specs:
-    series: List[float] = []
-    for hid in habitat_ids:
-        col = next(
-            (
-                c
-                for c in table.feature_columns
-                if c.startswith(f"habitat_{hid}_") and suffix in c
-            ),
-            None,
-        )
-        series.append(float(row[col]) if col is not None else float("nan"))
-    values_by_feature[label] = series
 
-fig, ax = plt.subplots(figsize=(7, 3.5))
+
+def _column_for(habitat_id: int, suffix: str) -> Optional[str]:
+    """Return the first feature column matching habitat id + suffix."""
+    prefix = f"habitat_{habitat_id}_"
+    for col in table.feature_columns:
+        if col.startswith(prefix) and suffix in col:
+            return col
+    return None
+
+
+panel_rows: List[Dict[str, Any]] = []
+for hid in habitat_ids:
+    for label, suffix in feature_specs:
+        col = _column_for(hid, suffix)
+        panel_rows.append(
+            {
+                "habitat": f"H{hid}",
+                "feature": label,
+                "value": float(row[col]) if col is not None else float("nan"),
+            }
+        )
+panel = pd.DataFrame(panel_rows)
+print(panel.to_string(index=False))
+panel
+
+fig, axes = plt.subplots(1, len(feature_specs), figsize=(9.5, 3.2), sharey=False)
+if len(feature_specs) == 1:
+    axes = [axes]
 x = np.arange(len(habitat_ids))
-width = 0.25
-for offset, (label, _) in enumerate(feature_specs):
-    ax.bar(x + (offset - 1) * width, values_by_feature[label], width, label=label)
-ax.set_xticks(x)
-ax.set_xticklabels([f"H{hid}" for hid in habitat_ids])
-ax.set_ylabel("Feature value")
-ax.set_title("Per-habitat radiomics (Mean, Energy, GLCM Id)")
-ax.legend(frameon=False)
+xticklabels = [f"H{hid}" for hid in habitat_ids]
+for ax, (label, suffix) in zip(axes, feature_specs):
+    values: List[float] = []
+    for hid in habitat_ids:
+        col = _column_for(hid, suffix)
+        values.append(float(row[col]) if col is not None else float("nan"))
+    ax.bar(x, values, color="#0072B2", width=0.65)
+    ax.set_xticks(x)
+    ax.set_xticklabels(xticklabels)
+    ax.set_ylabel(label)
+    ax.set_title(label)
+fig.suptitle("Per-habitat radiomics (one scale per feature)", y=1.02)
 fig.tight_layout()
 fig.savefig("out/each_habitat_radiomics_bar.png", dpi=150, bbox_inches="tight")
 plt.show()

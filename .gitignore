@@ -232,3 +232,9 @@ habit/resources/demo_config/**
 # Sphinx writes these from live params_model during every docs build.
 docs/source/api/_generated_plugin_catalog.rst
 docs/source/how_to/_generated_catalog_*.rst
+
+# Sphinx-Gallery generated RST/HTML inputs (rebuild with sphinx-build).
+docs/source/auto_examples/
+docs/source/auto_quickstart/
+docs/_gallery_preview/
+docs/_api_preview/

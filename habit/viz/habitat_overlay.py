@@ -612,6 +612,10 @@ def plot_habitat_overlay(
     Raises:
         HABITAPIError: On shape / parameter errors.
         OptionalDependencyError: When matplotlib is not installed.
+
+    See Also
+    --------
+    habit.contracts.HabitatMap : Label image this function overlays.
     """
     if not (0.0 < float(alpha) <= 1.0):
         raise HABITAPIError(

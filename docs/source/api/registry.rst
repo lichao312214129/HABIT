@@ -1,8 +1,29 @@
+.. _api-registry:
+
 Component registry
 ==================
 
-``ComponentRegistry`` is the base for every capability registry. Built-in domains
-subclass it; plugins register via entry points ``habit.<domain>``.
+.. automodule:: habit.registry
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.registry
+
+**User guide:** :doc:`plugins` · :doc:`domain_habitat` ·
+:doc:`domain_table`.
+
+``ComponentRegistry`` is the base for every capability registry. Built-in
+domains subclass it; plugins register via entry points ``habit.<domain>``.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   ComponentRegistry
 
 .. code-block:: python
 

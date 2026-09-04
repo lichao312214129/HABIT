@@ -8,31 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [2.0.0] - 2026-09-03
 
-**Major Release (Breaking Migration):** Complete architectural alignment with capability-based namespaces and scikit-learn style parameter contracts.
+Capability-named packages are now the public import path
+(``habit.voxel_features``, ``habit.supervoxel``, ``habit.habitat_features``,
+``habit.habitat_model``, ``habit.precision``, …). ``habit.domain`` is removed.
+``habit.compat.engines`` remains a frozen legacy layer (not a public API).
+Package version bumped from 1.2.0.
 
-### Breaking Changes
-
-- **Physical capability packages**: Migrated all domain implementations to explicit, capability-named subpackages:
-  - `habit.voxel_features` (e.g., `RawVoxelFeatures`, `GaborVoxelFeatures`)
-  - `habit.supervoxel` (e.g., `SLICSupervoxelizer`, `KMeansSupervoxelizer`)
-  - `habit.habitat_features` (e.g., `GraphFeatureExtractor`, `VolumeFeatureExtractor`, `MSIFeatureExtractor`)
-  - `habit.image_preprocessing` (e.g., `Resampling`, `ZScoreIntensityNormalisation`, `N4Correction`)
-  - `habit.classification` (e.g., `AutoGluonClassifier`)
-  - `habit.combiners` (e.g., `ConcatenateCombiner`, `ExpressionCombiner`)
-  - `habit.precision` (e.g., `BilinearInterp`, `BSplineInterp`)
-- **Removal of legacy packages**:
-  - `habit.domain` is completely removed.
-  - Legacy `habit.compat.engines` and monolithic batch engines are removed.
-- **Scikit-learn style parameter contracts**:
-  - Eliminated separate `*Params` Pydantic classes; `__init__` constructors are now the single source of truth for parameters, types, defaults, and validation.
-- **Package root exports**:
-  - `import habit` exposes only `__version__`. All classes and operators must be imported from their respective canonical capability packages or `habit.api.*`.
-
-### Added
-
-- Lightweight workflow recipes for preprocessing and radiomics (`habit.recipes.preprocess`, `habit.recipes.radiomics`) decoupled from legacy code.
-- Dedicated I/O adapters in `habit.adapters` (`preprocessing_io`, `radiomics_io`).
-- Strict packaging and architecture contract tests enforcing zero upward dependencies and clean wheel distribution.
+## [1.2.0] - 2026-09-02
 
 **vs 1.1.3:** habitat-first docs and embeddable atomic API; graph-topology
 defaults and several public feature / viz APIs. Upgrade with

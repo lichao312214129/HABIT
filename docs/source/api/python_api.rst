@@ -1,3 +1,5 @@
+.. _api-guides:
+
 Python API guide (v2.0)
 =======================
 
@@ -48,7 +50,7 @@ Mental model
    subject's volumes, pass ``report=Report(...)`` so each subject is
    persisted (and optionally drawn) as it completes.
 
-Beginners: copy :doc:`../tutorial/quickstart_python` (a ``Study``
+Beginners: copy :doc:`../auto_quickstart/plot_quickstart_python` (a ``Study``
 recipe). Integrators: atoms first, then this page. Concept:
 :doc:`../tutorial/habitat_analysis`. Parallel / fault tolerance:
 :doc:`../tutorial/execution`.
@@ -137,7 +139,7 @@ One-step (no ``pool``) has no cohort-level definition:
    result.save("out/study")   # tables + manifest; maps already on disk
 
 To open habitat labels on anatomy right after the recipe (napari screenshots
-included), see **View the habitat maps** in :doc:`../tutorial/quickstart_python`.
+included), see :doc:`../auto_quickstart/plot_quickstart_python`.
 
 Common workflows
 ----------------

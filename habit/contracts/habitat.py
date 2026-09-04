@@ -426,6 +426,11 @@ class HabitatMap:
         habitat_ids: Habitat ids the model can assign, in canonical order.
             Note that a given subject need not contain all of them.
         provenance: How this map was produced.
+
+    See Also
+    --------
+    habit.viz.plot_habitat_overlay : Publication overlay of this map on anatomy.
+    habit.contracts.HabitatModel : Definition that assigned these labels.
     """
 
     subject_id: str
@@ -548,6 +553,12 @@ class HabitatModel:
         cohort_fingerprint: Non-identifiable description of the defining
             cohort.
         provenance: Software, dependency, and seed fingerprint.
+
+    See Also
+    --------
+    habit.recipes.Study : Fits and applies this model.
+    habit.spec.HabitatSpec : Analysis declaration this model encodes.
+    habit.contracts.HabitatMap : Per-subject label image assigned by this model.
 
     Examples:
         Models are produced by the habitat recipes and round-trip through a

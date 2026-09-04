@@ -1,5 +1,36 @@
+.. _api-exceptions:
+
 Errors and optional dependencies
 ================================
+
+.. automodule:: habit.exceptions
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.exceptions
+
+**User guide:** this page. The canonical import home is
+``habit.exceptions``.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+   :template: exception.rst
+
+   HabitError
+   HABITAPIError
+   ConfigurationError
+   DataFormatError
+   GeometryError
+   OptionalDependencyError
+   ComponentNotFoundError
+   CompatibilityError
+   ProcessingError
+   NotFittedError
 
 Public exception types (stable):
 

@@ -1,6 +1,8 @@
 Data model (``habit.contracts``)
 ================================
 
+Reference tables for these types: :doc:`contracts`.
+
 Every volumetric and tabular object in the v1 core lives here. Import explicitly::
 
    from habit.contracts import Geometry, Subject, Cohort, HabitatModel, FeatureTable
