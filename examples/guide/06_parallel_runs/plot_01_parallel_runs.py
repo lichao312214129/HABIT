@@ -526,6 +526,16 @@ if __name__ == "__main__":
 # * Single RTX 4080 SUPER cuts wall time to 19.3s (49.73 subjects/min, 13.65× speedup vs CPU).
 # * 5× RTX 4080 SUPER drops wall time down to 11.6s (82.68 subjects/min, 22.70× speedup vs CPU serial,
 #   and 4.23× faster than 8 CPU workers).
+#
+# Worker count sweet spot on small cohorts:
+# On 16 subjects, 2 workers on 5 GPUs (11.61s) beat 5 workers (14.78s).
+# Because single-subject GPU compute is so fast (~0.71s, ~11.4s total compute),
+# going from 2 to 5 workers saves only ~2.9s of raw computation, which is
+# outweighed by spawning 5 separate processes, initializing 5 CUDA primary
+# contexts, and modulo load imbalance (16 is not divisible by 5).
+# For small cohorts (<50 subjects), 2–4 workers are optimal; for large
+# production cohorts (100+ subjects) where compute dwarfs startup, all 5 GPUs
+# deliver linear multi-worker scaling.
 if __name__ == "__main__":
     cloud_table = pd.DataFrame(
         [

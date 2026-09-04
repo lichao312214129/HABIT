@@ -386,6 +386,18 @@ Key architectural insights:
   each parallel worker to a distinct physical GPU. Multi-worker GPU execution drops cohort wall time
   to **11.61 s** (**82.7 subjects/min**, **22.7× faster** than serial CPU, and **4.23× faster**
   than 8 CPU cores).
+* **Worker count sweet spot on small cohorts (why 2 workers beat 5 workers on 16 cases):**
+  Single-subject GPU computation is exceptionally fast (~0.71 s), meaning total raw compute
+  across all 16 subjects is only ~11.4 s.
+  With 2 workers (8 cases/worker), raw compute takes ~5.7 s plus ~5.9 s for process spawning
+  and CUDA primary context initialization.
+  With 5 workers (3–4 cases/worker), raw compute drops to ~2.8 s, but spawning 5 independent
+  child processes, initializing 5 CUDA contexts, and managing 5 IPC queues introduces ~11.9 s
+  of fixed runtime overhead (plus minor load imbalance as 16 is not divisible by 5).
+  The ~2.9 s compute reduction is outweighed by the startup overhead.
+  For small cohorts (<50 subjects), **2–4 workers** represent the optimal throughput sweet spot.
+  For large clinical cohorts (100–1000+ subjects) or multi-sequence volumes where compute dwarfs
+  startup, all 5 GPUs deliver linear multi-worker scaling.
 
 Python API (sklearn-short)
 --------------------------
