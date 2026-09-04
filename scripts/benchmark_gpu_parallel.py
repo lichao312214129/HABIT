@@ -382,6 +382,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         shape=args.shape,
         rng=int(args.seed),
     )
+    import numpy as np
+    roi_voxels_per_subj = int(np.sum(cohort[0].mask("tumor").data > 0))
+    total_roi_voxels = roi_voxels_per_subj * len(cohort)
+    print(
+        f"Workload scale: ~{roi_voxels_per_subj:,} tumor ROI voxels/subject, "
+        f"total {total_roi_voxels:,} ROI voxels across cohort, extracting 29 habitat features.",
+        flush=True,
+    )
     spec = _build_spec(seed=int(args.seed))
 
     rows: List[BenchRow] = []
