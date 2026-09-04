@@ -246,6 +246,44 @@ cases from the HABIT demo cohort (hardware: NVIDIA GeForce RTX 3070 Laptop GPU,
 *On an 80k-voxel volume, HABIT collapses a 7-minute CPU bottleneck down to 7.6 seconds,
 and outperforms upstream TorchRadiomics by 5.2× by eliminating the CPU matrix construction.*
 
+**Cloud RTX 4080 SUPER Benchmark (54,913 ROI voxels — full 90-feature extraction)**
+
+Measured on an NVIDIA GeForce RTX 4080 SUPER (32 GiB) with Intel Xeon Platinum 8352V CPU:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 22 22 18 14
+
+   * - Runtime Architecture
+     - Matrix Construction
+     - Feature Formula
+     - Time (s)
+     - Speedup
+   * - **Pure PyRadiomics (CPU)**
+     - Single-threaded C (CPU)
+     - NumPy (CPU)
+     - 19.48 s
+     - 1.0×
+   * - **C + TorchRadiomics (GPU)**
+     - Single-threaded C (CPU)
+     - PyTorch (GPU)
+     - 1.64 s
+     - 11.9×
+   * - **HABIT Built-in GPU**
+     - Parallel CUDA (GPU)
+     - PyTorch (GPU)
+     - **0.70 s**
+     - **27.7×**
+
+Numerical parity across all 54,913 voxels × 90 features (~4.94M values):
+
+* **C + TorchRadiomics vs HABIT Built-in GPU**: Max absolute difference = **0.0**
+  (100% bit-identical matrix construction).
+* **Pure CPU vs HABIT Built-in GPU**: Mean absolute difference across all values =
+  **0.00137** (Energy/TotalEnergy max difference = 0.5 on values ~2.45M,
+  relative error ~2e-7 due to float32 vs float64 summation). All mathematical
+  definitions remain identical.
+
 Python API (sklearn-short)
 --------------------------
 

@@ -51,8 +51,9 @@ When per-subject work is realistic (larger volumes, dense voxel texture
 or more supervoxels / habitat search), acceleration and parallelism shine:
 
 * **GPU dense voxel texture extraction:** cuts 3D texture computation
-  (90 features across 54,913 ROI voxels) from **18.84s** on CPU to **0.87s**
-  on GPU (**>20× acceleration**).
+  (90 features across 54,913 ROI voxels) from **19.48s** on pure CPU (Route A)
+  to **1.64s** with hybrid GPU (Route B) and **0.70s** with full end-to-end
+  GPU (Route C, **>27× acceleration**).
 * **Process-pool cohort parallelism:** on a 16-subject cohort, multi-worker
   runs beat serial with **1.7×–1.9× throughput gains** (from 24.6s down to 12.6s).
 
@@ -352,7 +353,7 @@ if __name__ == "__main__":
     resume_table
 
 # %%
-# Heavy voxel texture extraction: GPU (TorchRadiomics) vs CPU (PyRadiomics).
+# Three tiers of voxel texture acceleration and numerical parity.
 #
 # Hardware (AutoDL west, 2026-09-04): NVIDIA GeForce RTX 4080 SUPER
 # (32 GiB), Intel Xeon Platinum 8352V CPU.
@@ -360,74 +361,123 @@ if __name__ == "__main__":
 # on a large lesion (54,913 ROI tumor voxels, 3D volume shape 80×80×48),
 # extracting 90 three-dimensional radiomic texture features (GLCM, firstorder).
 #
-# When extracting dense 3D voxel texture features across tens of thousands of
-# voxels, GPU acceleration via PyTorch tensors achieves a >20× speedup over
-# single-threaded CPU loops.
+# HABIT supports three distinct execution tiers:
+#
+# 1. **Route A (Pure CPU PyRadiomics):** Single-threaded C matrix construction +
+#    CPU NumPy feature quantification.
+# 2. **Route B (Hybrid GPU):** PyRadiomics C matrix construction on CPU +
+#    batch tensor evaluation via TorchRadiomics on GPU.
+# 3. **Route C (Full End-to-End GPU):** HABIT built-in GPU matrix construction
+#    (``gpumatrices``) + GPU TorchRadiomics tensor evaluation (zero H2D transfer).
+#
+# **Scientific parity:**
+# * Route B vs Route C: **0.0 bit-identical** (max absolute difference = 0.0).
+#   HABIT's built-in GPU matrix kernel matches PyRadiomics C extension exactly.
+# * Route A vs Route C: mean absolute difference across all 54,913 voxels × 90
+#   features is 0.00137 (max abs diff 0.5 on Energy/TotalEnergy ~2.45M,
+#   relative difference ~2e-7 due to standard float32 vs float64 summation).
 if __name__ == "__main__":
-    voxel_texture_bench = pd.DataFrame(
+    three_route_bench = pd.DataFrame(
         [
             {
-                "task": "3D voxel texture (r=1, 3×3×3 kernel)",
+                "route": "Route A: Pure CPU (PyRadiomics)",
+                "matrix_construction": "CPU (PyRadiomics C)",
+                "feature_quantification": "CPU (PyRadiomics)",
                 "roi_voxels": 54913,
                 "n_features": 90,
-                "backend": "CPU (PyRadiomics)",
-                "wall_s": 18.84,
-                "speedup": 1.00,
+                "wall_s": 19.48,
+                "speedup_vs_cpu": 1.00,
+                "speedup_vs_hybrid": 0.08,
             },
             {
-                "task": "3D voxel texture (r=1, 3×3×3 kernel)",
+                "route": "Route B: Hybrid GPU",
+                "matrix_construction": "CPU (PyRadiomics C)",
+                "feature_quantification": "GPU (TorchRadiomics)",
                 "roi_voxels": 54913,
                 "n_features": 90,
-                "backend": "GPU (TorchRadiomics)",
-                "wall_s": 0.87,
-                "speedup": 21.66,
+                "wall_s": 1.64,
+                "speedup_vs_cpu": 11.86,
+                "speedup_vs_hybrid": 1.00,
             },
             {
-                "task": "3D voxel texture (r=2, 5×5×5 kernel)",
+                "route": "Route C: Full End-to-End GPU",
+                "matrix_construction": "GPU (gpumatrices)",
+                "feature_quantification": "GPU (TorchRadiomics)",
                 "roi_voxels": 54913,
                 "n_features": 90,
-                "backend": "CPU (PyRadiomics)",
-                "wall_s": 24.18,
-                "speedup": 1.00,
-            },
-            {
-                "task": "3D voxel texture (r=2, 5×5×5 kernel)",
-                "roi_voxels": 54913,
-                "n_features": 90,
-                "backend": "GPU (TorchRadiomics)",
-                "wall_s": 1.36,
-                "speedup": 17.78,
+                "wall_s": 0.70,
+                "speedup_vs_cpu": 27.69,
+                "speedup_vs_hybrid": 2.34,
             },
         ]
     )
-    print("Voxel texture extraction benchmark (54,913 ROI voxels, 90 features):")
-    print(voxel_texture_bench.to_string(index=False))
+    print("Three-tier voxel texture acceleration (54,913 ROI voxels, 90 features):")
+    print(three_route_bench[["route", "matrix_construction", "feature_quantification", "wall_s", "speedup_vs_cpu", "speedup_vs_hybrid"]].to_string(index=False))
 
-    fig, ax = plt.subplots(figsize=(7.0, 3.6))
-    bars = ax.bar(
-        ["r=1 CPU\n(18.84s)", "r=1 GPU\n(0.87s)", "r=2 CPU\n(24.18s)", "r=2 GPU\n(1.36s)"],
-        voxel_texture_bench["wall_s"],
-        color=["#7f7f7f", "#2ca02c", "#7f7f7f", "#1f77b4"],
-        width=0.55,
+    parity_table = pd.DataFrame(
+        [
+            {
+                "comparison": "Route B vs Route C (Hybrid vs Full GPU)",
+                "max_abs_diff": 0.0,
+                "mean_abs_diff": 0.0,
+                "verdict": "Bit-identical (100% exact match)",
+            },
+            {
+                "comparison": "Route A vs Route C (Pure CPU vs Full GPU)",
+                "max_abs_diff": 0.5,
+                "mean_abs_diff": 0.00137,
+                "verdict": "Mathematically equivalent (float32 rounding)",
+            },
+        ]
     )
-    ax.set_ylabel("wall time (s)")
-    ax.set_title("Voxel texture extraction (54,913 ROI voxels, 90 features)")
-    for bar in bars:
+    print("\nNumerical parity verification (54,913 voxels × 90 features = ~4.94M values):")
+    print(parity_table.to_string(index=False))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.0))
+
+    routes = ["Route A\nPure CPU", "Route B\nHybrid GPU", "Route C\nFull GPU"]
+    times = [19.48, 1.64, 0.70]
+    colors = ["#7f7f7f", "#1f77b4", "#2ca02c"]
+
+    bars1 = ax1.bar(routes, times, color=colors, width=0.55)
+    ax1.set_ylabel("wall time (s)")
+    ax1.set_title("Voxel texture extraction wall time\n(54,913 ROI voxels, 90 features)")
+    ax1.set_ylim(0, 24)
+    ax1.grid(axis="y", alpha=0.3)
+    for bar in bars1:
         h = bar.get_height()
-        ax.text(
+        ax1.text(
             bar.get_x() + bar.get_width() / 2.0,
             h + 0.4,
             f"{h:.2f}s",
             ha="center",
             va="bottom",
             fontsize=9,
+            fontweight="bold",
         )
-    ax.set_ylim(0, 28)
-    ax.grid(axis="y", alpha=0.3)
+
+    speedups = [1.0, 11.86, 27.69]
+    bars2 = ax2.bar(routes, speedups, color=colors, width=0.55)
+    ax2.set_ylabel("speedup vs CPU (x)")
+    ax2.set_title("Acceleration factor vs Pure CPU\n(higher is faster)")
+    ax2.set_ylim(0, 33)
+    ax2.grid(axis="y", alpha=0.3)
+    for bar in bars2:
+        h = bar.get_height()
+        ax2.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            h + 0.6,
+            f"{h:.1f}x",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+            fontweight="bold",
+        )
+
     fig.tight_layout()
     fig.savefig("out/parallel_voxel_radiomics_speedup.png", dpi=150, bbox_inches="tight")
     plt.show()
-    voxel_texture_bench
+    three_route_bench
 
 # %%
 # Cloud multi-CPU / multi-GPU timings across a 16-subject cohort.

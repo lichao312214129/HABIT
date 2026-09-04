@@ -916,6 +916,54 @@ cases from the HABIT demo cohort (hardware: NVIDIA GeForce RTX 3070 Laptop GPU,
 </table>
 <p><em>On an 80k-voxel volume, HABIT collapses a 7-minute CPU bottleneck down to 7.6 seconds,
 and outperforms upstream TorchRadiomics by 5.2× by eliminating the CPU matrix construction.</em></p>
+<p><strong>Cloud RTX 4080 SUPER Benchmark (54,913 ROI voxels — full 90-feature extraction)</strong></p>
+<p>Measured on an NVIDIA GeForce RTX 4080 SUPER (32 GiB) with Intel Xeon Platinum 8352V CPU:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 22.0%" />
+<col style="width: 22.0%" />
+<col style="width: 18.0%" />
+<col style="width: 14.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Runtime Architecture</p></th>
+<th class="head"><p>Matrix Construction</p></th>
+<th class="head"><p>Feature Formula</p></th>
+<th class="head"><p>Time (s)</p></th>
+<th class="head"><p>Speedup</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Pure PyRadiomics (CPU)</strong></p></td>
+<td><p>Single-threaded C (CPU)</p></td>
+<td><p>NumPy (CPU)</p></td>
+<td><p>19.48 s</p></td>
+<td><p>1.0×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>C + TorchRadiomics (GPU)</strong></p></td>
+<td><p>Single-threaded C (CPU)</p></td>
+<td><p>PyTorch (GPU)</p></td>
+<td><p>1.64 s</p></td>
+<td><p>11.9×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>HABIT Built-in GPU</strong></p></td>
+<td><p>Parallel CUDA (GPU)</p></td>
+<td><p>PyTorch (GPU)</p></td>
+<td><p><strong>0.70 s</strong></p></td>
+<td><p><strong>27.7×</strong></p></td>
+</tr>
+</tbody>
+</table>
+<p>Numerical parity across all 54,913 voxels × 90 features (~4.94M values):</p>
+<ul class="simple">
+<li><p><strong>C + TorchRadiomics vs HABIT Built-in GPU</strong>: Max absolute difference = <strong>0.0</strong>
+(100% bit-identical matrix construction).</p></li>
+<li><p><strong>Pure CPU vs HABIT Built-in GPU</strong>: Mean absolute difference across all values =
+<strong>0.00137</strong> (Energy/TotalEnergy max difference = 0.5 on values ~2.45M,
+relative error ~2e-7 due to float32 vs float64 summation). All mathematical
+definitions remain identical.</p></li>
+</ul>
 </section>
 </section>
 <section id="python-api-sklearn-short">
