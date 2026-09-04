@@ -887,9 +887,9 @@ and the host-to-device intermediate array transfers.</p>
 
 --- Live Runtime Comparison on subj001 (34,694 voxels) ---
                           runtime  seconds speedup_vs_cpu speedup_vs_c_torch  n_voxels  n_features
-           Pure PyRadiomics (CPU)   58.505           1.0x                  -     34694           1
-C matrices + TorchRadiomics (GPU)    6.642           8.8x               1.0x     34694           1
-               HABIT Built-in GPU    2.061          28.4x               3.2x     34694           1
+           Pure PyRadiomics (CPU)   51.667           1.0x                  -     34694           1
+C matrices + TorchRadiomics (GPU)    6.451           8.0x               1.0x     34694           1
+               HABIT Built-in GPU    2.135          24.2x               3.0x     34694           1
 </pre></div>
 </div>
 <div class="output_subarea output_html rendered_html output_result">
@@ -923,7 +923,7 @@ C matrices + TorchRadiomics (GPU)    6.642           8.8x               1.0x    
     <tr>
       <th>0</th>
       <td>Pure PyRadiomics (CPU)</td>
-      <td>58.505</td>
+      <td>51.667</td>
       <td>1.0x</td>
       <td>-</td>
       <td>34694</td>
@@ -932,8 +932,8 @@ C matrices + TorchRadiomics (GPU)    6.642           8.8x               1.0x    
     <tr>
       <th>1</th>
       <td>C matrices + TorchRadiomics (GPU)</td>
-      <td>6.642</td>
-      <td>8.8x</td>
+      <td>6.451</td>
+      <td>8.0x</td>
       <td>1.0x</td>
       <td>34694</td>
       <td>1</td>
@@ -941,9 +941,9 @@ C matrices + TorchRadiomics (GPU)    6.642           8.8x               1.0x    
     <tr>
       <th>2</th>
       <td>HABIT Built-in GPU</td>
-      <td>2.061</td>
-      <td>28.4x</td>
-      <td>3.2x</td>
+      <td>2.135</td>
+      <td>24.2x</td>
+      <td>3.0x</td>
       <td>34694</td>
       <td>1</td>
     </tr>
@@ -984,75 +984,167 @@ change the IBSI / PyRadiomics definition.</p>
 </pre></div>
 </div>
 </section>
-<section id="large-clinical-tumor-benchmark-summary-up-to-80-000-voxels">
-<h2>Large clinical tumor benchmark summary (up to 80,000+ voxels)<a class="headerlink" href="#large-clinical-tumor-benchmark-summary-up-to-80-000-voxels" title="Link to this heading"></a></h2>
+<section id="three-tiers-of-voxel-texture-acceleration-and-scientific-parity">
+<h2>Three tiers of voxel texture acceleration and scientific parity<a class="headerlink" href="#three-tiers-of-voxel-texture-acceleration-and-scientific-parity" title="Link to this heading"></a></h2>
 <p>In real-world clinical imaging, tumor volumes can exceed tens of thousands
 of voxels. As the ROI expands, the single-threaded C loop in PyRadiomics
 becomes a critical bottleneck.</p>
-<p>Below is the benchmark comparing all three runtimes on clinical liver lesions
-(NVIDIA GeForce RTX 3070 Laptop GPU, <code class="docutils literal notranslate"><span class="pre">binWidth=25</span></code>, <code class="docutils literal notranslate"><span class="pre">kernelRadius=1</span></code>):</p>
+<p>Hardware (AutoDL cloud benchmark): NVIDIA GeForce RTX 4080 SUPER (32 GiB),
+Intel Xeon Platinum 8352V CPU.
+Workload: <a class="reference internal" href="../../api/generated/habit.voxel_features.VoxelRadiomicsFeatures.html#habit.voxel_features.VoxelRadiomicsFeatures" title="habit.voxel_features.voxel_radiomics.VoxelRadiomicsFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelRadiomicsFeatures</span></code></a>
+on a large lesion (54,913 ROI tumor voxels, 3D volume shape 80×80×48),
+extracting 90 three-dimensional radiomic texture features (FirstOrder, GLCM,
+GLRLM, GLSZM, GLDM, NGTDM).</p>
+<p>HABIT supports three distinct execution tiers:</p>
+<ol class="arabic simple">
+<li><p><strong>Route A (Pure CPU PyRadiomics):</strong> Single-threaded C matrix construction +
+CPU NumPy feature quantification.</p></li>
+<li><p><strong>Route B (Hybrid GPU):</strong> PyRadiomics C matrix construction on CPU +
+batch tensor evaluation via TorchRadiomics on GPU.</p></li>
+<li><p><strong>Route C (Full End-to-End GPU):</strong> HABIT built-in GPU matrix construction
+(<code class="docutils literal notranslate"><span class="pre">gpumatrices</span></code>) + GPU TorchRadiomics tensor evaluation (zero H2D transfer).</p></li>
+</ol>
+<p>Scientific parity (54,913 voxels × 90 features, ~4.94M values):</p>
 <ul class="simple">
-<li><p><strong>subj001 (34,694 voxels)</strong>:
-- GLCM Contrast: CPU 68.71 s -&gt; C+Torch 7.54 s -&gt; HABIT GPU 2.68 s (25.6x vs CPU, 2.8x vs C+Torch)
-- GLCM 4 features: CPU 85.33 s -&gt; C+Torch 7.04 s -&gt; HABIT GPU 3.02 s (28.3x vs CPU, 2.3x vs C+Torch)
-- GLRLM (2 features): CPU 13.25 s -&gt; C+Torch 8.02 s -&gt; HABIT GPU 2.61 s (5.1x vs CPU, 3.1x vs C+Torch)</p></li>
-<li><p><strong>subj005 (80,084 voxels, massive tumor benchmark)</strong>:
-- Pure PyRadiomics CPU: 414.58 s (~7 minutes)
-- C matrices + TorchRadiomics GPU: 39.62 s
-- HABIT Built-in GPU: 7.59 s (<strong>54.6x vs CPU, 5.2x vs C+Torch</strong>)</p></li>
+<li><p><strong>Route B vs Route C</strong>: <strong>Bit-identical</strong> (<code class="docutils literal notranslate"><span class="pre">max_abs_diff</span> <span class="pre">=</span> <span class="pre">0.0</span></code>, <code class="docutils literal notranslate"><span class="pre">max_rel_diff</span> <span class="pre">=</span> <span class="pre">0.0</span></code>).
+HABIT built-in <code class="docutils literal notranslate"><span class="pre">gpumatrices</span></code> matches PyRadiomics C matrix construction exactly.</p></li>
+<li><p><strong>Route A vs Route C</strong>: <code class="docutils literal notranslate"><span class="pre">max_abs_diff</span> <span class="pre">=</span> <span class="pre">0.5</span></code> on Energy / TotalEnergy
+(~2.45e6 -&gt; relative ~2e-7). For <code class="docutils literal notranslate"><span class="pre">|value|</span> <span class="pre">&gt;=</span> <span class="pre">1e-3</span></code>, worst relative difference
+is ~1.26e-2 on Skewness near zero. Mean absolute error over all 4.94M values is
+~0.00137. <code class="docutils literal notranslate"><span class="pre">np.allclose(rtol=1e-4,</span> <span class="pre">atol=1e-4)</span></code> holds across all features.
+This is purely float32 summation rounding, not a mathematical definition change.</p></li>
 </ul>
-<p>On an 80k-voxel volume, HABIT collapses a 7-minute CPU bottleneck down to 7.6 seconds!</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_summary</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">three_route_bench</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
     <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s2">&quot;Case / Volume&quot;</span><span class="p">:</span> <span class="s2">&quot;subj001 (34,694 voxels)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Task&quot;</span><span class="p">:</span> <span class="s2">&quot;GLCM Contrast&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Pure PyRadiomics (CPU)&quot;</span><span class="p">:</span> <span class="s2">&quot;68.71 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;C + TorchRadiomics (GPU)&quot;</span><span class="p">:</span> <span class="s2">&quot;7.54 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;HABIT Built-in GPU&quot;</span><span class="p">:</span> <span class="s2">&quot;2.68 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speedup vs CPU&quot;</span><span class="p">:</span> <span class="s2">&quot;25.6x&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speedup vs C+Torch&quot;</span><span class="p">:</span> <span class="s2">&quot;2.8x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="s2">&quot;Route A: Pure CPU (PyRadiomics)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matrix_construction&quot;</span><span class="p">:</span> <span class="s2">&quot;CPU (PyRadiomics C)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;feature_quantification&quot;</span><span class="p">:</span> <span class="s2">&quot;CPU (PyRadiomics)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;roi_voxels&quot;</span><span class="p">:</span> <span class="mi">54913</span><span class="p">,</span>
+            <span class="s2">&quot;n_features&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">19.85</span><span class="p">,</span>
+            <span class="s2">&quot;speedup_vs_A&quot;</span><span class="p">:</span> <span class="mf">1.00</span><span class="p">,</span>
+            <span class="s2">&quot;speedup_vs_B&quot;</span><span class="p">:</span> <span class="mf">0.09</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
-            <span class="s2">&quot;Case / Volume&quot;</span><span class="p">:</span> <span class="s2">&quot;subj001 (34,694 voxels)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Task&quot;</span><span class="p">:</span> <span class="s2">&quot;GLCM 4 features&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Pure PyRadiomics (CPU)&quot;</span><span class="p">:</span> <span class="s2">&quot;85.33 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;C + TorchRadiomics (GPU)&quot;</span><span class="p">:</span> <span class="s2">&quot;7.04 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;HABIT Built-in GPU&quot;</span><span class="p">:</span> <span class="s2">&quot;3.02 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speedup vs CPU&quot;</span><span class="p">:</span> <span class="s2">&quot;28.3x&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speedup vs C+Torch&quot;</span><span class="p">:</span> <span class="s2">&quot;2.3x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="s2">&quot;Route B: Hybrid GPU&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matrix_construction&quot;</span><span class="p">:</span> <span class="s2">&quot;CPU (PyRadiomics C)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;feature_quantification&quot;</span><span class="p">:</span> <span class="s2">&quot;GPU (TorchRadiomics)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;roi_voxels&quot;</span><span class="p">:</span> <span class="mi">54913</span><span class="p">,</span>
+            <span class="s2">&quot;n_features&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">1.70</span><span class="p">,</span>
+            <span class="s2">&quot;speedup_vs_A&quot;</span><span class="p">:</span> <span class="mf">11.66</span><span class="p">,</span>
+            <span class="s2">&quot;speedup_vs_B&quot;</span><span class="p">:</span> <span class="mf">1.00</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
-            <span class="s2">&quot;Case / Volume&quot;</span><span class="p">:</span> <span class="s2">&quot;subj001 (34,694 voxels)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Task&quot;</span><span class="p">:</span> <span class="s2">&quot;GLRLM (2 features)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Pure PyRadiomics (CPU)&quot;</span><span class="p">:</span> <span class="s2">&quot;13.25 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;C + TorchRadiomics (GPU)&quot;</span><span class="p">:</span> <span class="s2">&quot;8.02 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;HABIT Built-in GPU&quot;</span><span class="p">:</span> <span class="s2">&quot;2.61 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speedup vs CPU&quot;</span><span class="p">:</span> <span class="s2">&quot;5.1x&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speedup vs C+Torch&quot;</span><span class="p">:</span> <span class="s2">&quot;3.1x&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;Case / Volume&quot;</span><span class="p">:</span> <span class="s2">&quot;subj005 (80,084 voxels)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Task&quot;</span><span class="p">:</span> <span class="s2">&quot;GLCM Contrast&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Pure PyRadiomics (CPU)&quot;</span><span class="p">:</span> <span class="s2">&quot;414.58 s (~7 min)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;C + TorchRadiomics (GPU)&quot;</span><span class="p">:</span> <span class="s2">&quot;39.62 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;HABIT Built-in GPU&quot;</span><span class="p">:</span> <span class="s2">&quot;7.59 s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speedup vs CPU&quot;</span><span class="p">:</span> <span class="s2">&quot;54.6x&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speedup vs C+Torch&quot;</span><span class="p">:</span> <span class="s2">&quot;5.2x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="s2">&quot;Route C: Full End-to-End GPU&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matrix_construction&quot;</span><span class="p">:</span> <span class="s2">&quot;GPU (gpumatrices)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;feature_quantification&quot;</span><span class="p">:</span> <span class="s2">&quot;GPU (TorchRadiomics)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;roi_voxels&quot;</span><span class="p">:</span> <span class="mi">54913</span><span class="p">,</span>
+            <span class="s2">&quot;n_features&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">0.71</span><span class="p">,</span>
+            <span class="s2">&quot;speedup_vs_A&quot;</span><span class="p">:</span> <span class="mf">28.06</span><span class="p">,</span>
+            <span class="s2">&quot;speedup_vs_B&quot;</span><span class="p">:</span> <span class="mf">2.41</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">]</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Clinical Large-Tumor Comprehensive Benchmark ---&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">benchmark_summary</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">benchmark_summary</span></a>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Three-tier voxel texture acceleration (54,913 ROI voxels, 90 features):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">three_route_bench</span></a><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;route&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matrix_construction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;feature_quantification&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;wall_s&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;speedup_vs_A&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;speedup_vs_B&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">)</span>
+
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">parity_table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;comparison&quot;</span><span class="p">:</span> <span class="s2">&quot;A vs B (CPU vs hybrid GPU)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_abs_diff&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">&quot;max_rel_diff&quot;</span><span class="p">:</span> <span class="mf">1.26e-2</span><span class="p">,</span>
+            <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;Abs peak Energy; rel peak Skewness (|v|&gt;=1e-3)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;comparison&quot;</span><span class="p">:</span> <span class="s2">&quot;A vs C (CPU vs full GPU)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_abs_diff&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">&quot;max_rel_diff&quot;</span><span class="p">:</span> <span class="mf">1.26e-2</span><span class="p">,</span>
+            <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;Same float32 rounding as A vs B (B==C)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;comparison&quot;</span><span class="p">:</span> <span class="s2">&quot;B vs C (hybrid vs full GPU)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_abs_diff&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">&quot;max_rel_diff&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;Bit-identical after name alignment&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Numerical parity (54,913 voxels x 90 features; columns name-aligned):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">parity_table</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax1</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax2</span></a><span class="p">)</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">9.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">))</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">routes</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Route A</span><span class="se">\n</span><span class="s2">Pure CPU&quot;</span><span class="p">,</span> <span class="s2">&quot;Route B</span><span class="se">\n</span><span class="s2">Hybrid GPU&quot;</span><span class="p">,</span> <span class="s2">&quot;Route C</span><span class="se">\n</span><span class="s2">Full GPU&quot;</span><span class="p">]</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">times</span></a> <span class="o">=</span> <span class="p">[</span><span class="mf">19.85</span><span class="p">,</span> <span class="mf">1.70</span><span class="p">,</span> <span class="mf">0.71</span><span class="p">]</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">colors</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;#7f7f7f&quot;</span><span class="p">,</span> <span class="s2">&quot;#1f77b4&quot;</span><span class="p">,</span> <span class="s2">&quot;#2ca02c&quot;</span><span class="p">]</span>
+
+<a href="https://matplotlib.org/stable/api/container_api.html#matplotlib.container.BarContainer" title="matplotlib.container.BarContainer" class="sphx-glr-backref-module-matplotlib-container sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bars1</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html#matplotlib.axes.Axes.bar" title="matplotlib.axes.Axes.bar" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax1</span><span class="o">.</span><span class="n">bar</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">routes</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">times</span></a><span class="p">,</span> <span class="n">color</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">colors</span></a><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.55</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;wall time (s)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Voxel texture extraction wall time</span><span class="se">\n</span><span class="s2">(54,913 ROI voxels, 90 features)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylim.html#matplotlib.axes.Axes.set_ylim" title="matplotlib.axes.Axes.set_ylim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax1</span><span class="o">.</span><span class="n">set_ylim</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.grid.html#matplotlib.axes.Axes.grid" title="matplotlib.axes.Axes.grid" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax1</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle" title="matplotlib.patches.Rectangle" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bar</span></a> <span class="ow">in</span> <a href="https://matplotlib.org/stable/api/container_api.html#matplotlib.container.BarContainer" title="matplotlib.container.BarContainer" class="sphx-glr-backref-module-matplotlib-container sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bars1</span></a><span class="p">:</span>
+    <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">h</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle.get_height" title="matplotlib.patches.Rectangle.get_height" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-method"><span class="n">bar</span><span class="o">.</span><span class="n">get_height</span></a><span class="p">()</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.text.html#matplotlib.axes.Axes.text" title="matplotlib.axes.Axes.text" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax1</span><span class="o">.</span><span class="n">text</span></a><span class="p">(</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle.get_x" title="matplotlib.patches.Rectangle.get_x" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-method"><span class="n">bar</span><span class="o">.</span><span class="n">get_x</span></a><span class="p">()</span> <span class="o">+</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle.get_width" title="matplotlib.patches.Rectangle.get_width" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-method"><span class="n">bar</span><span class="o">.</span><span class="n">get_width</span></a><span class="p">()</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span>
+        <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">h</span></a> <span class="o">+</span> <span class="mf">0.4</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">h</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">speedups</span></a> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">11.66</span><span class="p">,</span> <span class="mf">28.06</span><span class="p">]</span>
+<a href="https://matplotlib.org/stable/api/container_api.html#matplotlib.container.BarContainer" title="matplotlib.container.BarContainer" class="sphx-glr-backref-module-matplotlib-container sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bars2</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html#matplotlib.axes.Axes.bar" title="matplotlib.axes.Axes.bar" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax2</span><span class="o">.</span><span class="n">bar</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">routes</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">speedups</span></a><span class="p">,</span> <span class="n">color</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">colors</span></a><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.55</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;speedup vs CPU (x)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Acceleration factor vs Pure CPU</span><span class="se">\n</span><span class="s2">(higher is faster)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylim.html#matplotlib.axes.Axes.set_ylim" title="matplotlib.axes.Axes.set_ylim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">34</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.grid.html#matplotlib.axes.Axes.grid" title="matplotlib.axes.Axes.grid" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax2</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle" title="matplotlib.patches.Rectangle" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bar</span></a> <span class="ow">in</span> <a href="https://matplotlib.org/stable/api/container_api.html#matplotlib.container.BarContainer" title="matplotlib.container.BarContainer" class="sphx-glr-backref-module-matplotlib-container sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bars2</span></a><span class="p">:</span>
+    <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">h</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle.get_height" title="matplotlib.patches.Rectangle.get_height" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-method"><span class="n">bar</span><span class="o">.</span><span class="n">get_height</span></a><span class="p">()</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.text.html#matplotlib.axes.Axes.text" title="matplotlib.axes.Axes.text" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax2</span><span class="o">.</span><span class="n">text</span></a><span class="p">(</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle.get_x" title="matplotlib.patches.Rectangle.get_x" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-method"><span class="n">bar</span><span class="o">.</span><span class="n">get_x</span></a><span class="p">()</span> <span class="o">+</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Rectangle.html#matplotlib.patches.Rectangle.get_width" title="matplotlib.patches.Rectangle.get_width" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-method"><span class="n">bar</span><span class="o">.</span><span class="n">get_width</span></a><span class="p">()</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span>
+        <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">h</span></a> <span class="o">+</span> <span class="mf">0.6</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">h</span></a><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/voxel_texture_acceleration_speedup.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">three_route_bench</span></a>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>--- Clinical Large-Tumor Comprehensive Benchmark ---
-          Case / Volume               Task Pure PyRadiomics (CPU) C + TorchRadiomics (GPU) HABIT Built-in GPU Speedup vs CPU Speedup vs C+Torch
-subj001 (34,694 voxels)      GLCM Contrast                68.71 s                   7.54 s             2.68 s          25.6x               2.8x
-subj001 (34,694 voxels)    GLCM 4 features                85.33 s                   7.04 s             3.02 s          28.3x               2.3x
-subj001 (34,694 voxels) GLRLM (2 features)                13.25 s                   8.02 s             2.61 s           5.1x               3.1x
-subj005 (80,084 voxels)      GLCM Contrast      414.58 s (~7 min)                  39.62 s             7.59 s          54.6x               5.2x
+<img src="../../_images/sphx_glr_plot_03_voxel_texture_003.png" srcset="../../_images/sphx_glr_plot_03_voxel_texture_003.png" alt="Voxel texture extraction wall time (54,913 ROI voxels, 90 features), Acceleration factor vs Pure CPU (higher is faster)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Three-tier voxel texture acceleration (54,913 ROI voxels, 90 features):
+                          route matrix_construction feature_quantification  wall_s  speedup_vs_A  speedup_vs_B
+Route A: Pure CPU (PyRadiomics) CPU (PyRadiomics C)      CPU (PyRadiomics)   19.85          1.00          0.09
+            Route B: Hybrid GPU CPU (PyRadiomics C)   GPU (TorchRadiomics)    1.70         11.66          1.00
+   Route C: Full End-to-End GPU   GPU (gpumatrices)   GPU (TorchRadiomics)    0.71         28.06          2.41
+
+Numerical parity (54,913 voxels x 90 features; columns name-aligned):
+                 comparison  max_abs_diff  max_rel_diff                                           note
+ A vs B (CPU vs hybrid GPU)           0.5        0.0126 Abs peak Energy; rel peak Skewness (|v|&gt;=1e-3)
+   A vs C (CPU vs full GPU)           0.5        0.0126         Same float32 rounding as A vs B (B==C)
+B vs C (hybrid vs full GPU)           0.0        0.0000             Bit-identical after name alignment
 </pre></div>
 </div>
 <div class="output_subarea output_html rendered_html output_result">
@@ -1074,62 +1166,56 @@ subj005 (80,084 voxels)      GLCM Contrast      414.58 s (~7 min)               
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>Case / Volume</th>
-      <th>Task</th>
-      <th>Pure PyRadiomics (CPU)</th>
-      <th>C + TorchRadiomics (GPU)</th>
-      <th>HABIT Built-in GPU</th>
-      <th>Speedup vs CPU</th>
-      <th>Speedup vs C+Torch</th>
+      <th>route</th>
+      <th>matrix_construction</th>
+      <th>feature_quantification</th>
+      <th>roi_voxels</th>
+      <th>n_features</th>
+      <th>wall_s</th>
+      <th>speedup_vs_A</th>
+      <th>speedup_vs_B</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>subj001 (34,694 voxels)</td>
-      <td>GLCM Contrast</td>
-      <td>68.71 s</td>
-      <td>7.54 s</td>
-      <td>2.68 s</td>
-      <td>25.6x</td>
-      <td>2.8x</td>
+      <td>Route A: Pure CPU (PyRadiomics)</td>
+      <td>CPU (PyRadiomics C)</td>
+      <td>CPU (PyRadiomics)</td>
+      <td>54913</td>
+      <td>90</td>
+      <td>19.85</td>
+      <td>1.00</td>
+      <td>0.09</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>subj001 (34,694 voxels)</td>
-      <td>GLCM 4 features</td>
-      <td>85.33 s</td>
-      <td>7.04 s</td>
-      <td>3.02 s</td>
-      <td>28.3x</td>
-      <td>2.3x</td>
+      <td>Route B: Hybrid GPU</td>
+      <td>CPU (PyRadiomics C)</td>
+      <td>GPU (TorchRadiomics)</td>
+      <td>54913</td>
+      <td>90</td>
+      <td>1.70</td>
+      <td>11.66</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>subj001 (34,694 voxels)</td>
-      <td>GLRLM (2 features)</td>
-      <td>13.25 s</td>
-      <td>8.02 s</td>
-      <td>2.61 s</td>
-      <td>5.1x</td>
-      <td>3.1x</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>subj005 (80,084 voxels)</td>
-      <td>GLCM Contrast</td>
-      <td>414.58 s (~7 min)</td>
-      <td>39.62 s</td>
-      <td>7.59 s</td>
-      <td>54.6x</td>
-      <td>5.2x</td>
+      <td>Route C: Full End-to-End GPU</td>
+      <td>GPU (gpumatrices)</td>
+      <td>GPU (TorchRadiomics)</td>
+      <td>54913</td>
+      <td>90</td>
+      <td>0.71</td>
+      <td>28.06</td>
+      <td>2.41</td>
     </tr>
   </tbody>
 </table>
 </div>
 </div>
 <br />
-<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 25.222 seconds)</p>
+<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (3 minutes 49.547 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-voxel-plot-03-voxel-texture-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/ee661afd49eade747ace487917bf7233/plot_03_voxel_texture.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_03_voxel_texture.ipynb</span></code></a></p>

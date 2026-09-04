@@ -330,9 +330,9 @@ and the host-to-device intermediate array transfers.
 
     --- Live Runtime Comparison on subj001 (34,694 voxels) ---
                               runtime  seconds speedup_vs_cpu speedup_vs_c_torch  n_voxels  n_features
-               Pure PyRadiomics (CPU)   58.505           1.0x                  -     34694           1
-    C matrices + TorchRadiomics (GPU)    6.642           8.8x               1.0x     34694           1
-                   HABIT Built-in GPU    2.061          28.4x               3.2x     34694           1
+               Pure PyRadiomics (CPU)   51.667           1.0x                  -     34694           1
+    C matrices + TorchRadiomics (GPU)    6.451           8.0x               1.0x     34694           1
+                   HABIT Built-in GPU    2.135          24.2x               3.0x     34694           1
 
 
 .. raw:: html
@@ -368,7 +368,7 @@ and the host-to-device intermediate array transfers.
         <tr>
           <th>0</th>
           <td>Pure PyRadiomics (CPU)</td>
-          <td>58.505</td>
+          <td>51.667</td>
           <td>1.0x</td>
           <td>-</td>
           <td>34694</td>
@@ -377,8 +377,8 @@ and the host-to-device intermediate array transfers.
         <tr>
           <th>1</th>
           <td>C matrices + TorchRadiomics (GPU)</td>
-          <td>6.642</td>
-          <td>8.8x</td>
+          <td>6.451</td>
+          <td>8.0x</td>
           <td>1.0x</td>
           <td>34694</td>
           <td>1</td>
@@ -386,9 +386,9 @@ and the host-to-device intermediate array transfers.
         <tr>
           <th>2</th>
           <td>HABIT Built-in GPU</td>
-          <td>2.061</td>
-          <td>28.4x</td>
-          <td>3.2x</td>
+          <td>2.135</td>
+          <td>24.2x</td>
+          <td>3.0x</td>
           <td>34694</td>
           <td>1</td>
         </tr>
@@ -446,90 +446,186 @@ change the IBSI / PyRadiomics definition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 240-259
+.. GENERATED FROM PYTHON SOURCE LINES 240-271
 
-Large clinical tumor benchmark summary (up to 80,000+ voxels)
-------------------------------------------------------------
+Three tiers of voxel texture acceleration and scientific parity
+---------------------------------------------------------------
 In real-world clinical imaging, tumor volumes can exceed tens of thousands
 of voxels. As the ROI expands, the single-threaded C loop in PyRadiomics
 becomes a critical bottleneck.
 
-Below is the benchmark comparing all three runtimes on clinical liver lesions
-(NVIDIA GeForce RTX 3070 Laptop GPU, ``binWidth=25``, ``kernelRadius=1``):
+Hardware (AutoDL cloud benchmark): NVIDIA GeForce RTX 4080 SUPER (32 GiB),
+Intel Xeon Platinum 8352V CPU.
+Workload: :class:`~habit.voxel_features.voxel_radiomics.VoxelRadiomicsFeatures`
+on a large lesion (54,913 ROI tumor voxels, 3D volume shape 80×80×48),
+extracting 90 three-dimensional radiomic texture features (FirstOrder, GLCM,
+GLRLM, GLSZM, GLDM, NGTDM).
 
-* **subj001 (34,694 voxels)**:
-  - GLCM Contrast: CPU 68.71 s -> C+Torch 7.54 s -> HABIT GPU 2.68 s (25.6x vs CPU, 2.8x vs C+Torch)
-  - GLCM 4 features: CPU 85.33 s -> C+Torch 7.04 s -> HABIT GPU 3.02 s (28.3x vs CPU, 2.3x vs C+Torch)
-  - GLRLM (2 features): CPU 13.25 s -> C+Torch 8.02 s -> HABIT GPU 2.61 s (5.1x vs CPU, 3.1x vs C+Torch)
-* **subj005 (80,084 voxels, massive tumor benchmark)**:
-  - Pure PyRadiomics CPU: 414.58 s (~7 minutes)
-  - C matrices + TorchRadiomics GPU: 39.62 s
-  - HABIT Built-in GPU: 7.59 s (**54.6x vs CPU, 5.2x vs C+Torch**)
+HABIT supports three distinct execution tiers:
 
-On an 80k-voxel volume, HABIT collapses a 7-minute CPU bottleneck down to 7.6 seconds!
+1. **Route A (Pure CPU PyRadiomics):** Single-threaded C matrix construction +
+   CPU NumPy feature quantification.
+2. **Route B (Hybrid GPU):** PyRadiomics C matrix construction on CPU +
+   batch tensor evaluation via TorchRadiomics on GPU.
+3. **Route C (Full End-to-End GPU):** HABIT built-in GPU matrix construction
+   (``gpumatrices``) + GPU TorchRadiomics tensor evaluation (zero H2D transfer).
 
-.. GENERATED FROM PYTHON SOURCE LINES 259-302
+Scientific parity (54,913 voxels × 90 features, ~4.94M values):
+
+* **Route B vs Route C**: **Bit-identical** (``max_abs_diff = 0.0``, ``max_rel_diff = 0.0``).
+  HABIT built-in ``gpumatrices`` matches PyRadiomics C matrix construction exactly.
+* **Route A vs Route C**: ``max_abs_diff = 0.5`` on Energy / TotalEnergy
+  (~2.45e6 -> relative ~2e-7). For ``|value| >= 1e-3``, worst relative difference
+  is ~1.26e-2 on Skewness near zero. Mean absolute error over all 4.94M values is
+  ~0.00137. ``np.allclose(rtol=1e-4, atol=1e-4)`` holds across all features.
+  This is purely float32 summation rounding, not a mathematical definition change.
+
+.. GENERATED FROM PYTHON SOURCE LINES 271-389
 
 .. code-block:: Python
 
-    benchmark_summary = pd.DataFrame(
+    three_route_bench = pd.DataFrame(
         [
             {
-                "Case / Volume": "subj001 (34,694 voxels)",
-                "Task": "GLCM Contrast",
-                "Pure PyRadiomics (CPU)": "68.71 s",
-                "C + TorchRadiomics (GPU)": "7.54 s",
-                "HABIT Built-in GPU": "2.68 s",
-                "Speedup vs CPU": "25.6x",
-                "Speedup vs C+Torch": "2.8x",
+                "route": "Route A: Pure CPU (PyRadiomics)",
+                "matrix_construction": "CPU (PyRadiomics C)",
+                "feature_quantification": "CPU (PyRadiomics)",
+                "roi_voxels": 54913,
+                "n_features": 90,
+                "wall_s": 19.85,
+                "speedup_vs_A": 1.00,
+                "speedup_vs_B": 0.09,
             },
             {
-                "Case / Volume": "subj001 (34,694 voxels)",
-                "Task": "GLCM 4 features",
-                "Pure PyRadiomics (CPU)": "85.33 s",
-                "C + TorchRadiomics (GPU)": "7.04 s",
-                "HABIT Built-in GPU": "3.02 s",
-                "Speedup vs CPU": "28.3x",
-                "Speedup vs C+Torch": "2.3x",
+                "route": "Route B: Hybrid GPU",
+                "matrix_construction": "CPU (PyRadiomics C)",
+                "feature_quantification": "GPU (TorchRadiomics)",
+                "roi_voxels": 54913,
+                "n_features": 90,
+                "wall_s": 1.70,
+                "speedup_vs_A": 11.66,
+                "speedup_vs_B": 1.00,
             },
             {
-                "Case / Volume": "subj001 (34,694 voxels)",
-                "Task": "GLRLM (2 features)",
-                "Pure PyRadiomics (CPU)": "13.25 s",
-                "C + TorchRadiomics (GPU)": "8.02 s",
-                "HABIT Built-in GPU": "2.61 s",
-                "Speedup vs CPU": "5.1x",
-                "Speedup vs C+Torch": "3.1x",
-            },
-            {
-                "Case / Volume": "subj005 (80,084 voxels)",
-                "Task": "GLCM Contrast",
-                "Pure PyRadiomics (CPU)": "414.58 s (~7 min)",
-                "C + TorchRadiomics (GPU)": "39.62 s",
-                "HABIT Built-in GPU": "7.59 s",
-                "Speedup vs CPU": "54.6x",
-                "Speedup vs C+Torch": "5.2x",
+                "route": "Route C: Full End-to-End GPU",
+                "matrix_construction": "GPU (gpumatrices)",
+                "feature_quantification": "GPU (TorchRadiomics)",
+                "roi_voxels": 54913,
+                "n_features": 90,
+                "wall_s": 0.71,
+                "speedup_vs_A": 28.06,
+                "speedup_vs_B": 2.41,
             },
         ]
     )
-    print("\n--- Clinical Large-Tumor Comprehensive Benchmark ---")
-    print(benchmark_summary.to_string(index=False))
-    benchmark_summary
+    print("Three-tier voxel texture acceleration (54,913 ROI voxels, 90 features):")
+    print(
+        three_route_bench[
+            [
+                "route",
+                "matrix_construction",
+                "feature_quantification",
+                "wall_s",
+                "speedup_vs_A",
+                "speedup_vs_B",
+            ]
+        ].to_string(index=False)
+    )
+
+    parity_table = pd.DataFrame(
+        [
+            {
+                "comparison": "A vs B (CPU vs hybrid GPU)",
+                "max_abs_diff": 0.5,
+                "max_rel_diff": 1.26e-2,
+                "note": "Abs peak Energy; rel peak Skewness (|v|>=1e-3)",
+            },
+            {
+                "comparison": "A vs C (CPU vs full GPU)",
+                "max_abs_diff": 0.5,
+                "max_rel_diff": 1.26e-2,
+                "note": "Same float32 rounding as A vs B (B==C)",
+            },
+            {
+                "comparison": "B vs C (hybrid vs full GPU)",
+                "max_abs_diff": 0.0,
+                "max_rel_diff": 0.0,
+                "note": "Bit-identical after name alignment",
+            },
+        ]
+    )
+    print("\nNumerical parity (54,913 voxels x 90 features; columns name-aligned):")
+    print(parity_table.to_string(index=False))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.0))
+
+    routes = ["Route A\nPure CPU", "Route B\nHybrid GPU", "Route C\nFull GPU"]
+    times = [19.85, 1.70, 0.71]
+    colors = ["#7f7f7f", "#1f77b4", "#2ca02c"]
+
+    bars1 = ax1.bar(routes, times, color=colors, width=0.55)
+    ax1.set_ylabel("wall time (s)")
+    ax1.set_title("Voxel texture extraction wall time\n(54,913 ROI voxels, 90 features)")
+    ax1.set_ylim(0, 24)
+    ax1.grid(axis="y", alpha=0.3)
+    for bar in bars1:
+        h = bar.get_height()
+        ax1.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            h + 0.4,
+            f"{h:.2f}s",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+            fontweight="bold",
+        )
+
+    speedups = [1.0, 11.66, 28.06]
+    bars2 = ax2.bar(routes, speedups, color=colors, width=0.55)
+    ax2.set_ylabel("speedup vs CPU (x)")
+    ax2.set_title("Acceleration factor vs Pure CPU\n(higher is faster)")
+    ax2.set_ylim(0, 34)
+    ax2.grid(axis="y", alpha=0.3)
+    for bar in bars2:
+        h = bar.get_height()
+        ax2.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            h + 0.6,
+            f"{h:.1f}x",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+            fontweight="bold",
+        )
+
+    fig.tight_layout()
+    fig.savefig("out/voxel_texture_acceleration_speedup.png", dpi=150, bbox_inches="tight")
+    plt.show()
+    three_route_bench
 
 
+
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_003.png
+   :alt: Voxel texture extraction wall time (54,913 ROI voxels, 90 features), Acceleration factor vs Pure CPU (higher is faster)
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_003.png
+   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
 
+    Three-tier voxel texture acceleration (54,913 ROI voxels, 90 features):
+                              route matrix_construction feature_quantification  wall_s  speedup_vs_A  speedup_vs_B
+    Route A: Pure CPU (PyRadiomics) CPU (PyRadiomics C)      CPU (PyRadiomics)   19.85          1.00          0.09
+                Route B: Hybrid GPU CPU (PyRadiomics C)   GPU (TorchRadiomics)    1.70         11.66          1.00
+       Route C: Full End-to-End GPU   GPU (gpumatrices)   GPU (TorchRadiomics)    0.71         28.06          2.41
 
-    --- Clinical Large-Tumor Comprehensive Benchmark ---
-              Case / Volume               Task Pure PyRadiomics (CPU) C + TorchRadiomics (GPU) HABIT Built-in GPU Speedup vs CPU Speedup vs C+Torch
-    subj001 (34,694 voxels)      GLCM Contrast                68.71 s                   7.54 s             2.68 s          25.6x               2.8x
-    subj001 (34,694 voxels)    GLCM 4 features                85.33 s                   7.04 s             3.02 s          28.3x               2.3x
-    subj001 (34,694 voxels) GLRLM (2 features)                13.25 s                   8.02 s             2.61 s           5.1x               3.1x
-    subj005 (80,084 voxels)      GLCM Contrast      414.58 s (~7 min)                  39.62 s             7.59 s          54.6x               5.2x
+    Numerical parity (54,913 voxels x 90 features; columns name-aligned):
+                     comparison  max_abs_diff  max_rel_diff                                           note
+     A vs B (CPU vs hybrid GPU)           0.5        0.0126 Abs peak Energy; rel peak Skewness (|v|>=1e-3)
+       A vs C (CPU vs full GPU)           0.5        0.0126         Same float32 rounding as A vs B (B==C)
+    B vs C (hybrid vs full GPU)           0.0        0.0000             Bit-identical after name alignment
 
 
 .. raw:: html
@@ -553,55 +649,49 @@ On an 80k-voxel volume, HABIT collapses a 7-minute CPU bottleneck down to 7.6 se
       <thead>
         <tr style="text-align: right;">
           <th></th>
-          <th>Case / Volume</th>
-          <th>Task</th>
-          <th>Pure PyRadiomics (CPU)</th>
-          <th>C + TorchRadiomics (GPU)</th>
-          <th>HABIT Built-in GPU</th>
-          <th>Speedup vs CPU</th>
-          <th>Speedup vs C+Torch</th>
+          <th>route</th>
+          <th>matrix_construction</th>
+          <th>feature_quantification</th>
+          <th>roi_voxels</th>
+          <th>n_features</th>
+          <th>wall_s</th>
+          <th>speedup_vs_A</th>
+          <th>speedup_vs_B</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <th>0</th>
-          <td>subj001 (34,694 voxels)</td>
-          <td>GLCM Contrast</td>
-          <td>68.71 s</td>
-          <td>7.54 s</td>
-          <td>2.68 s</td>
-          <td>25.6x</td>
-          <td>2.8x</td>
+          <td>Route A: Pure CPU (PyRadiomics)</td>
+          <td>CPU (PyRadiomics C)</td>
+          <td>CPU (PyRadiomics)</td>
+          <td>54913</td>
+          <td>90</td>
+          <td>19.85</td>
+          <td>1.00</td>
+          <td>0.09</td>
         </tr>
         <tr>
           <th>1</th>
-          <td>subj001 (34,694 voxels)</td>
-          <td>GLCM 4 features</td>
-          <td>85.33 s</td>
-          <td>7.04 s</td>
-          <td>3.02 s</td>
-          <td>28.3x</td>
-          <td>2.3x</td>
+          <td>Route B: Hybrid GPU</td>
+          <td>CPU (PyRadiomics C)</td>
+          <td>GPU (TorchRadiomics)</td>
+          <td>54913</td>
+          <td>90</td>
+          <td>1.70</td>
+          <td>11.66</td>
+          <td>1.00</td>
         </tr>
         <tr>
           <th>2</th>
-          <td>subj001 (34,694 voxels)</td>
-          <td>GLRLM (2 features)</td>
-          <td>13.25 s</td>
-          <td>8.02 s</td>
-          <td>2.61 s</td>
-          <td>5.1x</td>
-          <td>3.1x</td>
-        </tr>
-        <tr>
-          <th>3</th>
-          <td>subj005 (80,084 voxels)</td>
-          <td>GLCM Contrast</td>
-          <td>414.58 s (~7 min)</td>
-          <td>39.62 s</td>
-          <td>7.59 s</td>
-          <td>54.6x</td>
-          <td>5.2x</td>
+          <td>Route C: Full End-to-End GPU</td>
+          <td>GPU (gpumatrices)</td>
+          <td>GPU (TorchRadiomics)</td>
+          <td>54913</td>
+          <td>90</td>
+          <td>0.71</td>
+          <td>28.06</td>
+          <td>2.41</td>
         </tr>
       </tbody>
     </table>
@@ -613,7 +703,7 @@ On an 80k-voxel volume, HABIT collapses a 7-minute CPU bottleneck down to 7.6 se
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 25.222 seconds)
+   **Total running time of the script:** (3 minutes 49.547 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_03_voxel_texture.py:
