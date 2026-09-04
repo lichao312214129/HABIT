@@ -284,6 +284,93 @@ Numerical parity across all 54,913 voxels × 90 features (~4.94M values):
   relative error ~2e-7 due to float32 vs float64 summation). All mathematical
   definitions remain identical.
 
+**Multi-GPU Cohort Scaling Benchmark (16 subjects — 878,608 ROI voxels, 90 features)**
+
+Scaling dense 3D texture feature extraction across multiple GPUs on an AutoDL cloud host (5× NVIDIA GeForce RTX 4080 SUPER 32 GiB each, 2× Intel Xeon Platinum 8352V 144 logical CPUs, 503 GiB RAM). Each subject contains 54,913 ROI tumor voxels (total 878,608 ROI voxels across the cohort), extracting full 90 radiomics features:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 18 12 16 16 16
+
+   * - Scenario
+     - Execution Device
+     - Workers
+     - Wall Time (s)
+     - Throughput (subj/min)
+     - Speedup vs CPU Serial
+   * - **0 GPU (CPU Serial)**
+     - CUDA=-1 (CPU)
+     - 1
+     - 263.49 s
+     - 3.64
+     - 1.0×
+   * - **0 GPU (CPU Parallel)**
+     - CUDA=-1 (CPU)
+     - 2
+     - 138.03 s
+     - 6.96
+     - 1.9×
+   * - **0 GPU (CPU Parallel)**
+     - CUDA=-1 (CPU)
+     - 4
+     - 79.23 s
+     - 12.12
+     - 3.3×
+   * - **0 GPU (CPU Parallel)**
+     - CUDA=-1 (CPU)
+     - 8
+     - 49.16 s
+     - 19.53
+     - 5.4×
+   * - **1 GPU (Cold Pool)**
+     - CUDA=0 (GPU)
+     - 1
+     - 19.30 s
+     - 49.73
+     - 13.7×
+   * - **1 GPU (Cold Pool)**
+     - CUDA=0 (GPU)
+     - 2
+     - 17.44 s
+     - 55.04
+     - 15.1×
+   * - **1 GPU (Warm Pool)**
+     - CUDA=0 (GPU)
+     - 1
+     - 12.41 s
+     - 77.33
+     - 21.2×
+   * - **5 GPUs (Cold Pool)**
+     - CUDA=0,1,2,3,4
+     - 2
+     - 11.61 s
+     - 82.68
+     - 22.7×
+   * - **5 GPUs (Cold Pool)**
+     - CUDA=0,1,2,3,4
+     - 4
+     - 14.05 s
+     - 68.32
+     - 18.8×
+   * - **5 GPUs (Cold Pool)**
+     - CUDA=0,1,2,3,4
+     - 5
+     - 14.78 s
+     - 64.97
+     - 17.8×
+   * - **5 GPUs (Warm Pool)**
+     - CUDA=0,1,2,3,4
+     - 5
+     - **4.16 s**
+     - **231.03**
+     - **63.4×**
+
+Architectural Highlights:
+
+* **Why GPU Accelerates Voxel Radiomics:** In purely CPU-bound habitat workloads (such as ``raw`` features followed by sklearn k-means clustering), computation is bounded by CPU single-core operations, so multi-GPU provides zero benefit over multi-CPU. In contrast, ``voxel_radiomics`` performs dense neighborhood tensor operations; HABIT's parallel CUDA matrix generator and TorchRadiomics offload these computations onto GPU CUDA cores, unlocking drastic speedups (**63.4× vs CPU serial**, **11.8× vs 8 CPU cores**).
+* **Per-Worker GPU Isolation:** When ``cap_workers_to_gpu_pool=True`` is configured on :class:`~habit.spec.RunPolicy`, HABIT invokes :func:`~habit.utils.parallel_gpu_utils.pin_worker_visible_cuda_device` inside each child worker initializer. This exposes a single dedicated GPU per worker process (slot 0 sees card 0, slot 1 sees card 1, etc.), eliminating inter-process CUDA memory collisions and context switching overhead.
+* **Cold Pool vs Warm Pool Overhead:** In cold one-shot execution, worker processes must be spawned fresh, import PyTorch and CUDA runtime libraries (~4s), initialize GPU contexts on their first subject (~2.4s), and gracefully join on termination (~3s). When using persistent worker pools (e.g. inside :meth:`~habit.recipes.Study.fit_predict` or via ``with backend.reuse_workers():``), workers and CUDA contexts remain resident in memory. This eliminates process startup/teardown friction and allows the 5-GPU cluster to process the entire 16-subject cohort in **4.16 seconds** (over **230 subjects/minute**).
+
 Python API (sklearn-short)
 --------------------------
 

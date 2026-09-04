@@ -23,8 +23,7 @@ Scenarios covered (pass ``--scenario`` or run ``--all``):
 
 Example (cloud, 5x RTX)::
 
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4 python scripts/benchmark_gpu_parallel.py --all \\
-        --n-subjects 10 --shape 40,40,32 --workers 1,2,4,5,8
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4 python scripts/benchmark_gpu_parallel.py --all --n-subjects 16 --shape 80,80,48 --workers 1,2,4,5,8
 
 Prints a Markdown table (wall time, subjects/min, peak RSS).
 """
@@ -42,6 +41,12 @@ try:
     import resource  # Unix peak RSS; optional on Windows
 except ImportError:  # pragma: no cover - Windows
     resource = None  # type: ignore[assignment]
+
+# Limit child process BLAS/OpenMP threads to 1 to prevent thread oversubscription
+# and memory contention on high-core hosts (e.g. 144 logical cores).
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
 
 # Ensure repo root is importable when run as a script.
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -104,21 +109,49 @@ def _peak_rss_mb() -> float:
         return float("nan")
 
 
-def _build_spec(*, seed: int = 21):
-    """CPU-heavy two-step habitat spec (no Torch radiomics).
+def _build_spec(
+    *,
+    workload: str = "voxel_radiomics",
+    use_gpu: bool = True,
+    seed: int = 21,
+):
+    """Build HabitatSpec declaring what to compute.
 
-    Per-subject work must dominate spawn/import cost on multi-core hosts,
-    otherwise process-pool timings look slower than serial on tiny volumes.
+    Args:
+        workload: 'voxel_radiomics' (dense 3D texture features via CUDA matrices
+            and TorchRadiomics) or 'raw' (CPU-bound baseline).
+        use_gpu: When True and workload is 'voxel_radiomics', enables CUDA
+            matrix construction and TorchRadiomics GPU kernels.
+        seed: Random seed for partition and k-means clustering.
     """
     from habit.spec import HabitatSpec, Spec, Stage
+
+    if workload == "voxel_radiomics":
+        extract_stage = Stage(
+            "extract_voxel_features",
+            Spec(
+                "voxel_radiomics",
+                {
+                    "modalities": ["T1"],
+                    "roi": "tumor",
+                    "kernel_radius": 1,
+                    "voxel_batch": 10000,
+                    "use_torch_radiomics": use_gpu,
+                    "use_gpu_matrices": use_gpu,
+                    "torch_device": "auto" if use_gpu else "cpu",
+                },
+            ),
+        )
+    else:
+        extract_stage = Stage(
+            "extract_voxel_features",
+            Spec("raw", {"modalities": ["T1", "T2"]}),
+        )
 
     return HabitatSpec(
         name="gpu_parallel_bench",
         stages=(
-            Stage(
-                "extract_voxel_features",
-                Spec("raw", {"modalities": ["T1", "T2"]}),
-            ),
+            extract_stage,
             Stage(
                 "preprocess1",
                 Spec(
@@ -127,7 +160,7 @@ def _build_spec(*, seed: int = 21):
                 ),
             ),
             Stage("preprocess2", Spec("minmax", {"across_features": False})),
-            # Larger supervoxel search = more sklearn k-means work per subject.
+            # Supervoxel search and k-means clustering.
             Stage(
                 "partition",
                 Spec("kmeans", {"n_supervoxels": 64, "n_init": 10}),
@@ -364,6 +397,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         default=0,
         help="GPUs to expose for gpuN (0 = use all detected).",
     )
+    parser.add_argument(
+        "--workload",
+        choices=("voxel_radiomics", "raw"),
+        default="voxel_radiomics",
+        help="Feature workload: voxel_radiomics (GPU-accelerated) or raw (CPU-bound baseline).",
+    )
     parser.add_argument("--seed", type=int, default=21)
     args = parser.parse_args(list(argv) if argv is not None else None)
     scenario = "all" if args.all else args.scenario
@@ -371,7 +410,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     n_detected = _detect_gpus()
     print(f"Detected torch CUDA devices (before masking): {n_detected}", flush=True)
     print(
-        f"Cohort: n_subjects={args.n_subjects}, shape={args.shape}, seed={args.seed}",
+        f"Cohort: n_subjects={args.n_subjects}, shape={args.shape}, seed={args.seed}, workload={args.workload}",
         flush=True,
     )
 
@@ -387,22 +426,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     total_roi_voxels = roi_voxels_per_subj * len(cohort)
     print(
         f"Workload scale: ~{roi_voxels_per_subj:,} tumor ROI voxels/subject, "
-        f"total {total_roi_voxels:,} ROI voxels across cohort, extracting 29 habitat features.",
+        f"total {total_roi_voxels:,} ROI voxels across cohort ({args.workload}).",
         flush=True,
     )
-    spec = _build_spec(seed=int(args.seed))
+    spec_cpu = _build_spec(workload=args.workload, use_gpu=False, seed=int(args.seed))
+    spec_gpu = _build_spec(workload=args.workload, use_gpu=True, seed=int(args.seed))
 
     rows: List[BenchRow] = []
     if scenario in ("cpu0", "all"):
         rows.extend(
             run_scenario_cpu0(
-                cohort=cohort, spec=spec, worker_counts=args.workers
+                cohort=cohort, spec=spec_cpu, worker_counts=args.workers
             )
         )
     if scenario in ("gpu1", "all"):
         rows.extend(
             run_scenario_gpu1(
-                cohort=cohort, spec=spec, worker_counts=args.workers
+                cohort=cohort, spec=spec_gpu, worker_counts=args.workers
             )
         )
     if scenario in ("gpuN", "all"):
@@ -414,7 +454,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             n_gpus = _detect_gpus()
         rows.extend(
             run_scenario_gpu_multi(
-                cohort=cohort, spec=spec, n_gpus=n_gpus
+                cohort=cohort, spec=spec_gpu, n_gpus=n_gpus
             )
         )
 
