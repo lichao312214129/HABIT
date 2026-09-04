@@ -51,9 +51,9 @@ When per-subject work is realistic (larger volumes, dense voxel texture
 or more supervoxels / habitat search), acceleration and parallelism shine:
 
 * **GPU dense voxel texture extraction:** cuts 3D texture computation
-  (90 features across 54,913 ROI voxels) from **19.48s** on pure CPU (Route A)
-  to **1.64s** with hybrid GPU (Route B) and **0.70s** with full end-to-end
-  GPU (Route C, **>27× acceleration**).
+  (90 features across 54,913 ROI voxels) from **19.85s** on pure CPU (Route A)
+  to **1.70s** with hybrid GPU (Route B) and **0.71s** with full end-to-end
+  GPU (Route C, **~28× acceleration**).
 * **Process-pool cohort parallelism:** on a 16-subject cohort, multi-worker
   runs beat serial with **1.7×–1.9× throughput gains** (from 24.6s down to 12.6s).
 
@@ -370,12 +370,14 @@ if __name__ == "__main__":
 # 3. **Route C (Full End-to-End GPU):** HABIT built-in GPU matrix construction
 #    (``gpumatrices``) + GPU TorchRadiomics tensor evaluation (zero H2D transfer).
 #
-# **Scientific parity:**
-# * Route B vs Route C: **0.0 bit-identical** (max absolute difference = 0.0).
-#   HABIT's built-in GPU matrix kernel matches PyRadiomics C extension exactly.
-# * Route A vs Route C: mean absolute difference across all 54,913 voxels × 90
-#   features is 0.00137 (max abs diff 0.5 on Energy/TotalEnergy ~2.45M,
-#   relative difference ~2e-7 due to standard float32 vs float64 summation).
+# **Scientific parity** (feature columns name-aligned; shape ``(54913, 90)``):
+# * Route B vs Route C: **bit-identical** (``max_abs_diff = 0``, ``max_rel_diff = 0``).
+#   Built-in ``gpumatrices`` matches PyRadiomics C matrix construction exactly.
+# * Route A vs B / A vs C: ``max_abs_diff = 0.5`` on Energy / TotalEnergy
+#   (~2.45e6 → relative ~2e-7). For ``|value| >= 1e-3``, worst relative is
+#   ~1.3e-2 (Skewness near small mid-ROI values). Mean abs over all cells is
+#   ~0.00137. ``np.allclose(..., rtol=1e-4, atol=1e-4)`` holds. Float32
+#   radiomics rounding, not a definition change.
 if __name__ == "__main__":
     three_route_bench = pd.DataFrame(
         [
@@ -385,9 +387,9 @@ if __name__ == "__main__":
                 "feature_quantification": "CPU (PyRadiomics)",
                 "roi_voxels": 54913,
                 "n_features": 90,
-                "wall_s": 19.48,
-                "speedup_vs_cpu": 1.00,
-                "speedup_vs_hybrid": 0.08,
+                "wall_s": 19.85,
+                "speedup_vs_A": 1.00,
+                "speedup_vs_B": 0.09,
             },
             {
                 "route": "Route B: Hybrid GPU",
@@ -395,9 +397,9 @@ if __name__ == "__main__":
                 "feature_quantification": "GPU (TorchRadiomics)",
                 "roi_voxels": 54913,
                 "n_features": 90,
-                "wall_s": 1.64,
-                "speedup_vs_cpu": 11.86,
-                "speedup_vs_hybrid": 1.00,
+                "wall_s": 1.70,
+                "speedup_vs_A": 11.66,
+                "speedup_vs_B": 1.00,
             },
             {
                 "route": "Route C: Full End-to-End GPU",
@@ -405,38 +407,55 @@ if __name__ == "__main__":
                 "feature_quantification": "GPU (TorchRadiomics)",
                 "roi_voxels": 54913,
                 "n_features": 90,
-                "wall_s": 0.70,
-                "speedup_vs_cpu": 27.69,
-                "speedup_vs_hybrid": 2.34,
+                "wall_s": 0.71,
+                "speedup_vs_A": 28.06,
+                "speedup_vs_B": 2.41,
             },
         ]
     )
     print("Three-tier voxel texture acceleration (54,913 ROI voxels, 90 features):")
-    print(three_route_bench[["route", "matrix_construction", "feature_quantification", "wall_s", "speedup_vs_cpu", "speedup_vs_hybrid"]].to_string(index=False))
+    print(
+        three_route_bench[
+            [
+                "route",
+                "matrix_construction",
+                "feature_quantification",
+                "wall_s",
+                "speedup_vs_A",
+                "speedup_vs_B",
+            ]
+        ].to_string(index=False)
+    )
 
     parity_table = pd.DataFrame(
         [
             {
-                "comparison": "Route B vs Route C (Hybrid vs Full GPU)",
-                "max_abs_diff": 0.0,
-                "mean_abs_diff": 0.0,
-                "verdict": "Bit-identical (100% exact match)",
+                "comparison": "A vs B (CPU vs hybrid GPU)",
+                "max_abs_diff": 0.5,
+                "max_rel_diff": 1.26e-2,
+                "note": "Abs peak Energy; rel peak Skewness (|v|>=1e-3)",
             },
             {
-                "comparison": "Route A vs Route C (Pure CPU vs Full GPU)",
+                "comparison": "A vs C (CPU vs full GPU)",
                 "max_abs_diff": 0.5,
-                "mean_abs_diff": 0.00137,
-                "verdict": "Mathematically equivalent (float32 rounding)",
+                "max_rel_diff": 1.26e-2,
+                "note": "Same float32 rounding as A vs B (B==C)",
+            },
+            {
+                "comparison": "B vs C (hybrid vs full GPU)",
+                "max_abs_diff": 0.0,
+                "max_rel_diff": 0.0,
+                "note": "Bit-identical after name alignment",
             },
         ]
     )
-    print("\nNumerical parity verification (54,913 voxels × 90 features = ~4.94M values):")
+    print("\nNumerical parity (54,913 voxels x 90 features; columns name-aligned):")
     print(parity_table.to_string(index=False))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.0))
 
     routes = ["Route A\nPure CPU", "Route B\nHybrid GPU", "Route C\nFull GPU"]
-    times = [19.48, 1.64, 0.70]
+    times = [19.85, 1.70, 0.71]
     colors = ["#7f7f7f", "#1f77b4", "#2ca02c"]
 
     bars1 = ax1.bar(routes, times, color=colors, width=0.55)
@@ -456,11 +475,11 @@ if __name__ == "__main__":
             fontweight="bold",
         )
 
-    speedups = [1.0, 11.86, 27.69]
+    speedups = [1.0, 11.66, 28.06]
     bars2 = ax2.bar(routes, speedups, color=colors, width=0.55)
     ax2.set_ylabel("speedup vs CPU (x)")
     ax2.set_title("Acceleration factor vs Pure CPU\n(higher is faster)")
-    ax2.set_ylim(0, 33)
+    ax2.set_ylim(0, 34)
     ax2.grid(axis="y", alpha=0.3)
     for bar in bars2:
         h = bar.get_height()
