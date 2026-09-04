@@ -161,6 +161,91 @@ looser (:math:`10^{-8}`) because percentiles use different quantile
 algorithms. Force the matrix backend with ``use_gpu_matrices: true`` /
 ``false`` on the ``voxel_radiomics`` Spec.
 
+Clinical large-tumor three-way benchmark
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On small synthetic toys (e.g. 4,096 voxels above), kernel launch overhead and
+CUDA driver latency dilute the full power of GPU acceleration. In realistic
+clinical imaging, however, tumors often comprise tens of thousands of voxels.
+Under these large workloads, the performance bottleneck shifts completely:
+
+1. **Pure PyRadiomics (CPU)**: The single-threaded C extension (``cMatrices``)
+   must iterate voxel-by-voxel across millions of potential neighbor pairs.
+   On large volumes, calculation times skyrocket into several minutes per subject.
+2. **C matrices + TorchRadiomics (GPU)**: Offloading feature formulas to PyTorch
+   helps, but the texture matrix construction remains pinned to the single-threaded CPU
+   loop. Furthermore, large matrices must undergo costly host-to-device (H2D)
+   memory transfer.
+3. **HABIT Built-in GPU**: Both matrix construction (``gpumatrices``) and feature
+   evaluations execute entirely within GPU VRAM with zero host-to-device intermediate
+   copy, yielding dramatic speedups on large clinical lesions.
+
+The benchmark below evaluates these three runtimes on clinical liver lesion
+cases from the HABIT demo cohort (hardware: NVIDIA GeForce RTX 3070 Laptop GPU,
+``binWidth=25``, ``kernelRadius=1``):
+
+**Subj001 (34,694 ROI voxels)**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 20 22 20 16
+
+   * - Feature Task
+     - Pure PyRadiomics (CPU)
+     - C + TorchRadiomics (GPU)
+     - HABIT Built-in GPU
+     - Speedup (vs CPU / vs C+Torch)
+   * - GLCM Contrast
+     - 68.71 s
+     - 7.54 s
+     - **2.68 s**
+     - **25.6×** / **2.8×**
+   * - GLCM 4 features
+     - 85.33 s
+     - 7.04 s
+     - **3.02 s**
+     - **28.3×** / **2.3×**
+   * - GLRLM (2 features)
+     - 13.25 s
+     - 8.02 s
+     - **2.61 s**
+     - **5.1×** / **3.1×**
+   * - First-order (4 features)
+     - 5.30 s
+     - n/a
+     - **1.99 s**
+     - **2.7×** / n/a
+
+**Subj005 (80,084 ROI voxels — massive tumor benchmark)**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 22 22 18 14
+
+   * - Runtime Architecture
+     - Matrix Construction
+     - Feature Formula
+     - Time (s)
+     - Speedup
+   * - **Pure PyRadiomics (CPU)**
+     - Single-threaded C (CPU)
+     - NumPy (CPU)
+     - 414.58 s (~7 min)
+     - 1.0×
+   * - **C + TorchRadiomics (GPU)**
+     - Single-threaded C (CPU)
+     - PyTorch (GPU)
+     - 39.62 s
+     - 10.5×
+   * - **HABIT Built-in GPU**
+     - Parallel CUDA (GPU)
+     - PyTorch (GPU)
+     - **7.59 s**
+     - **54.6×**
+
+*On an 80k-voxel volume, HABIT collapses a 7-minute CPU bottleneck down to 7.6 seconds,
+and outperforms upstream TorchRadiomics by 5.2× by eliminating the CPU matrix construction.*
+
 Python API (sklearn-short)
 --------------------------
 
