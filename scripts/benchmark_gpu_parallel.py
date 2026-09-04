@@ -23,8 +23,7 @@ Scenarios covered (pass ``--scenario`` or run ``--all``):
 
 Example (cloud, 5x RTX)::
 
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4 python scripts/benchmark_gpu_parallel.py --all \\
-        --n-subjects 10 --shape 40,40,32 --workers 1,2,4,5,8
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4 python scripts/benchmark_gpu_parallel.py --all --n-subjects 16 --shape 80,80,48 --workers 1,2,4,5,8
 
 Prints a Markdown table (wall time, subjects/min, peak RSS).
 """
@@ -36,7 +35,10 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple
+
+if TYPE_CHECKING:
+    from habit.spec import HabitatSpec
 
 try:
     import resource  # Unix peak RSS; optional on Windows
@@ -104,21 +106,41 @@ def _peak_rss_mb() -> float:
         return float("nan")
 
 
-def _build_spec(*, seed: int = 21):
-    """CPU-heavy two-step habitat spec (no Torch radiomics).
+def _build_spec(*, seed: int = 21, extractor: str = "voxel_radiomics") -> HabitatSpec:
+    """Build habitat spec for parallel benchmarking.
 
-    Per-subject work must dominate spawn/import cost on multi-core hosts,
-    otherwise process-pool timings look slower than serial on tiny volumes.
+    When ``extractor == 'voxel_radiomics'``, uses TorchRadiomics and CUDA
+    gpumatrices on GPU, falling back to CPU PyRadiomics when CUDA is hidden.
+    When ``extractor == 'raw'``, extracts image intensity (CPU-only).
     """
     from habit.spec import HabitatSpec, Spec, Stage
+
+    if extractor == "voxel_radiomics":
+        extract_stage = Stage(
+            "extract_voxel_features",
+            Spec(
+                "voxel_radiomics",
+                {
+                    "modalities": ["T1"],
+                    "roi": "tumor",
+                    "kernel_radius": 1,
+                    "voxel_batch": 10000,
+                    "use_torch_radiomics": "auto",
+                    "use_gpu_matrices": "auto",
+                    "torch_device": "auto",
+                },
+            ),
+        )
+    else:
+        extract_stage = Stage(
+            "extract_voxel_features",
+            Spec("raw", {"modalities": ["T1", "T2"]}),
+        )
 
     return HabitatSpec(
         name="gpu_parallel_bench",
         stages=(
-            Stage(
-                "extract_voxel_features",
-                Spec("raw", {"modalities": ["T1", "T2"]}),
-            ),
+            extract_stage,
             Stage(
                 "preprocess1",
                 Spec(
@@ -359,6 +381,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="Worker counts for cpu0/gpu1 (default: 1,2,4,8).",
     )
     parser.add_argument(
+        "--extractor",
+        choices=("voxel_radiomics", "raw"),
+        default="voxel_radiomics",
+        help="Feature extractor: 'voxel_radiomics' (GPU-accelerated) or 'raw' (default: voxel_radiomics).",
+    )
+    parser.add_argument(
         "--n-gpus",
         type=int,
         default=0,
@@ -371,7 +399,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     n_detected = _detect_gpus()
     print(f"Detected torch CUDA devices (before masking): {n_detected}", flush=True)
     print(
-        f"Cohort: n_subjects={args.n_subjects}, shape={args.shape}, seed={args.seed}",
+        f"Cohort: n_subjects={args.n_subjects}, shape={args.shape}, seed={args.seed}, extractor={args.extractor}",
         flush=True,
     )
 
@@ -385,12 +413,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     import numpy as np
     roi_voxels_per_subj = int(np.sum(cohort[0].mask("tumor").data > 0))
     total_roi_voxels = roi_voxels_per_subj * len(cohort)
+    n_features = 90 if args.extractor == "voxel_radiomics" else 2
     print(
         f"Workload scale: ~{roi_voxels_per_subj:,} tumor ROI voxels/subject, "
-        f"total {total_roi_voxels:,} ROI voxels across cohort, extracting 29 habitat features.",
+        f"total {total_roi_voxels:,} ROI voxels across cohort, {n_features} features/voxel.",
         flush=True,
     )
-    spec = _build_spec(seed=int(args.seed))
+    spec = _build_spec(seed=int(args.seed), extractor=args.extractor)
 
     rows: List[BenchRow] = []
     if scenario in ("cpu0", "all"):

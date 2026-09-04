@@ -284,6 +284,109 @@ Numerical parity across all 54,913 voxels × 90 features (~4.94M values):
   relative error ~2e-7 due to float32 vs float64 summation). All mathematical
   definitions remain identical.
 
+Cloud Multi-GPU Cohort Acceleration (16 Subjects, 90 Features)
+--------------------------------------------------------------
+
+Scaling dense voxel texture extraction across a cohort reveals the full power of
+GPU acceleration. While single-subject acceleration cuts feature calculation
+from ~20 s down to ~0.7 s, parallel cohort scheduling across multiple GPUs
+eliminates the multi-subject compute bottleneck entirely.
+
+Measured on an AutoDL cloud host with 5× NVIDIA GeForce RTX 4080 SUPER (32 GiB each)
+and 144 logical CPUs (2× Intel Xeon Platinum 8352V, ~503 GiB RAM), extracting 90 features
+across 16 synthetic subjects (shape 80×80×48, ~54,913 tumor ROI voxels/case, total ~878k ROI voxels):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 22 10 16 18 16
+
+   * - Scenario
+     - Device Layout
+     - Workers
+     - Wall Time (s)
+     - Throughput (subj/min)
+     - Speedup vs CPU
+   * - **0 GPU (Pure CPU)**
+     - ``CUDA_VISIBLE_DEVICES=-1``
+     - 1
+     - 263.49 s
+     - 3.64
+     - 1.00×
+   * - **0 GPU (Multi-CPU)**
+     - ``CUDA_VISIBLE_DEVICES=-1``
+     - 2
+     - 138.03 s
+     - 6.96
+     - 1.91×
+   * - **0 GPU (Multi-CPU)**
+     - ``CUDA_VISIBLE_DEVICES=-1``
+     - 4
+     - 79.23 s
+     - 12.12
+     - 3.33×
+   * - **0 GPU (Multi-CPU)**
+     - ``CUDA_VISIBLE_DEVICES=-1``
+     - 8
+     - 49.16 s
+     - 19.53
+     - 5.36×
+   * - **1 GPU (TorchRadiomics)**
+     - ``CUDA_VISIBLE_DEVICES=0``
+     - 1
+     - 19.30 s
+     - 49.73
+     - 13.65×
+   * - **1 GPU (TorchRadiomics)**
+     - ``CUDA_VISIBLE_DEVICES=0``
+     - 2
+     - 17.44 s
+     - 55.04
+     - 15.11×
+   * - **5 GPUs (1 worker/GPU)**
+     - ``CUDA_VISIBLE_DEVICES=0,1,2,3,4``
+     - 1
+     - 18.47 s
+     - 51.96
+     - 14.27×
+   * - **5 GPUs (1 worker/GPU)**
+     - ``CUDA_VISIBLE_DEVICES=0,1,2,3,4``
+     - 2
+     - 11.61 s
+     - 82.68
+     - **22.70×**
+   * - **5 GPUs (1 worker/GPU)**
+     - ``CUDA_VISIBLE_DEVICES=0,1,2,3,4``
+     - 4
+     - 14.05 s
+     - 68.32
+     - 18.75×
+   * - **5 GPUs (1 worker/GPU)**
+     - ``CUDA_VISIBLE_DEVICES=0,1,2,3,4``
+     - 5
+     - 14.78 s
+     - 64.97
+     - 17.83×
+
+Key architectural insights:
+
+* **Why previous benchmarks showed only ~1.7× speedup:**
+  Earlier pipeline benchmarks used ``Spec("raw")`` image intensity features followed by
+  CPU sklearn k-means and graph MSI. That workload was 100% CPU computation with 0% GPU
+  utilization (GPUs remained idle). Because no GPU kernels were dispatched, 5 GPUs performed
+  identically to 0 GPU multi-CPU.
+* **True GPU acceleration via voxel_radiomics:**
+  ``voxel_radiomics`` with ``use_torch_radiomics: true`` and ``use_gpu_matrices: true``
+  moves dense 3D matrix construction and feature formulas to CUDA.
+* **1 GPU vs 8 CPU cores:**
+  A single RTX 4080 SUPER processes the entire 16-subject cohort in **19.3 s** (49.7 subjects/min),
+  beating 8 CPU worker cores (**49.2 s**, 19.5 subjects/min) by **2.55×**, and beating
+  serial CPU (**263.5 s**) by **13.65×**.
+* **5-GPU parallel scaling:**
+  With ``cap_workers_to_gpu_pool: true`` and ``pin_worker_visible_cuda_device``, HABIT pins
+  each parallel worker to a distinct physical GPU. Multi-worker GPU execution drops cohort wall time
+  to **11.61 s** (**82.7 subjects/min**, **22.7× faster** than serial CPU, and **4.23× faster**
+  than 8 CPU cores).
+
 Python API (sklearn-short)
 --------------------------
 
