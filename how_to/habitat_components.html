@@ -1218,9 +1218,9 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>Torch device string, or <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> to select one.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">'float32'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
 <td><p>str</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code> for the torch path.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> for the torch path.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
@@ -2111,9 +2111,9 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>Padding around that bounding box; <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the PyRadiomics <code class="docutils literal notranslate"><span class="pre">padDistance</span></code> setting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>str | bool</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code> – whether to use the habit native C extension for texture matrices.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> (default), <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">False</span></code> – whether to use the habit native C extension for texture matrices.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">union_bin</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
@@ -2131,9 +2131,9 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>Torch device string, or <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> to select one.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">'float32'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
 <td><p>str</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code> for the torch path.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> for the torch path.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">output_float32</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
@@ -2501,7 +2501,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>See the component docstring.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">'float32'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
 <td><p>str</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
@@ -2732,7 +2732,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>See the component docstring.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">'float32'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
 <td><p>str</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
@@ -2784,7 +2784,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>See the component docstring.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">'float32'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
 <td><p>str</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>

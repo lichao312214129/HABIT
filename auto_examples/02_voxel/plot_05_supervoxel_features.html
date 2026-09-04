@@ -652,9 +652,13 @@ features for every individual supervoxel (<a class="reference internal" href="..
 <p>Extracting texture features for dozens of supervoxels sequentially using standard
 PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute()</span></code> incurs high overhead (repeated mask hashing, bounding-box
 cropping, and Python loop costs).
-HABIT provides an accelerated native C-extension and vectorized batch engine
-(<code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext=True</span></code>). This page benchmarks extraction time, confirms
-multi-fold speedup, and proves exact numerical parity against PyRadiomics.</p>
+HABIT enables an accelerated native C-extension engine by default
+(<code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext=True</span></code>), running directly on CPU without GPU overhead.
+Furthermore, HABIT sets GPU and backend calculation precision to double precision
+<code class="docutils literal notranslate"><span class="pre">float64</span></code> by default, guaranteeing exact numerical parity within machine epsilon
+against official PyRadiomics without single-precision (<code class="docutils literal notranslate"><span class="pre">float32</span></code>) quantization error.
+This page benchmarks extraction time, confirms multi-fold speedup, and proves exact
+numerical parity against PyRadiomics.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
@@ -847,12 +851,20 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
     <span class="s2">&quot;setting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;binWidth&quot;</span><span class="p">:</span> <span class="mf">25.0</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
 <span class="p">}</span>
 
-<span class="c1"># Warm up extractors to isolate steady-state execution time from module import latency</span>
+<span class="c1"># Warm up extractors to isolate steady-state execution time from module import latency.</span>
+<span class="c1"># output_float32=False keeps full float64 double precision to inspect numerical parity.</span>
 <a href="../../api/generated/habit.supervoxel.SupervoxelRadiomicsFeatures.html#habit.supervoxel.SupervoxelRadiomicsFeatures" title="habit.supervoxel.SupervoxelRadiomicsFeatures" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rad_native</span></a> <span class="o">=</span> <a href="../../api/generated/habit.supervoxel.SupervoxelRadiomicsFeatures.html#habit.supervoxel.SupervoxelRadiomicsFeatures" title="habit.supervoxel.SupervoxelRadiomicsFeatures" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class"><span class="n">SupervoxelRadiomicsFeatures</span></a><span class="p">(</span>
-    <span class="n">modality</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_params</span></a><span class="p">,</span> <span class="n">use_supervoxel_cext</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">modality</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">params</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_params</span></a><span class="p">,</span>
+    <span class="n">use_supervoxel_cext</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">output_float32</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 <a href="../../api/generated/habit.supervoxel.SupervoxelRadiomicsFeatures.html#habit.supervoxel.SupervoxelRadiomicsFeatures" title="habit.supervoxel.SupervoxelRadiomicsFeatures" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rad_pyrad</span></a> <span class="o">=</span> <a href="../../api/generated/habit.supervoxel.SupervoxelRadiomicsFeatures.html#habit.supervoxel.SupervoxelRadiomicsFeatures" title="habit.supervoxel.SupervoxelRadiomicsFeatures" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class"><span class="n">SupervoxelRadiomicsFeatures</span></a><span class="p">(</span>
-    <span class="n">modality</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_params</span></a><span class="p">,</span> <span class="n">use_supervoxel_cext</span><span class="o">=</span><span class="kc">False</span>
+    <span class="n">modality</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">params</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_params</span></a><span class="p">,</span>
+    <span class="n">use_supervoxel_cext</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">output_float32</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 <a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <a href="../../api/generated/habit.supervoxel.SupervoxelRadiomicsFeatures.html#habit.supervoxel.SupervoxelRadiomicsFeatures" title="habit.supervoxel.SupervoxelRadiomicsFeatures" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rad_native</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">)</span>
 <a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <a href="../../api/generated/habit.supervoxel.SupervoxelRadiomicsFeatures.html#habit.supervoxel.SupervoxelRadiomicsFeatures" title="habit.supervoxel.SupervoxelRadiomicsFeatures" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rad_pyrad</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">)</span>
@@ -896,20 +908,20 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Extraction time for 24 supervoxels:
-  HABIT Native C-extension : 0.615 s
-  Reference PyRadiomics    : 1.278 s
-  Speedup factor           : 2.08x faster
+  HABIT Native C-extension : 0.975 s
+  Reference PyRadiomics    : 1.810 s
+  Speedup factor           : 1.86x faster
 
-Maximum absolute difference across all features: 3.91e-03
+Maximum absolute difference across all features: 1.44e-10
 
 Feature-level parity table:
                          feature  max_abs_diff  mean_abs_diff
     original_firstorder_Mean-LAP  0.000000e+00   0.000000e+00
-original_firstorder_Variance-LAP  3.906250e-03   4.272461e-04
-original_firstorder_Skewness-LAP  2.019107e-06   4.965502e-07
-      original_glcm_Contrast-LAP  9.536743e-07   2.781550e-07
-   original_glcm_Correlation-LAP  5.960464e-08   2.731880e-08
-  original_glcm_JointEntropy-LAP  8.583069e-05   4.569689e-05
+original_firstorder_Variance-LAP  1.437002e-10   5.555497e-11
+original_firstorder_Skewness-LAP  1.076916e-14   3.681372e-15
+      original_glcm_Contrast-LAP  7.105427e-15   1.036208e-15
+   original_glcm_Correlation-LAP  3.330669e-16   1.110223e-16
+  original_glcm_JointEntropy-LAP  2.664535e-15   7.401487e-16
 </pre></div>
 </div>
 <p>Visual comparison: execution time and numerical parity correlation.</p>
@@ -951,7 +963,7 @@ original_firstorder_Skewness-LAP  2.019107e-06   4.965502e-07
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" srcset="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" alt="Supervoxel texture benchmark (2.1x speedup), Numerical parity: JointEntropy-LAP" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 21.448 seconds)</p>
+<img src="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" srcset="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" alt="Supervoxel texture benchmark (1.9x speedup), Numerical parity: JointEntropy-LAP" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 26.778 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-voxel-plot-05-supervoxel-features-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0c54ef8764daccd55355b78f6c38e3d0/plot_05_supervoxel_features.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_05_supervoxel_features.ipynb</span></code></a></p>

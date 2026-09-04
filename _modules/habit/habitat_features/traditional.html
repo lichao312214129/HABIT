@@ -452,6 +452,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -459,9 +460,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Two-step habitats with SLIC supervoxels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Comparing clustering algorithms: k-means vs GMM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Apply a saved model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Match habitat labels</a></li>
 </ul>
@@ -937,19 +939,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -1069,7 +1059,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">as_</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">use_torch_radiomics</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_USE_TORCH_RADIOMICS</span><span class="p">,</span>
         <span class="n">torch_device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
-        <span class="n">torch_dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+        <span class="n">torch_dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">modality</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">modalities</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>

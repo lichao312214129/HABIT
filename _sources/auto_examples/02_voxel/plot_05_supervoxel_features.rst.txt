@@ -39,11 +39,15 @@ High-throughput acceleration vs PyRadiomics parity
 Extracting texture features for dozens of supervoxels sequentially using standard
 PyRadiomics ``execute()`` incurs high overhead (repeated mask hashing, bounding-box
 cropping, and Python loop costs).
-HABIT provides an accelerated native C-extension and vectorized batch engine
-(``use_supervoxel_cext=True``). This page benchmarks extraction time, confirms
-multi-fold speedup, and proves exact numerical parity against PyRadiomics.
+HABIT enables an accelerated native C-extension engine by default
+(``use_supervoxel_cext=True``), running directly on CPU without GPU overhead.
+Furthermore, HABIT sets GPU and backend calculation precision to double precision
+``float64`` by default, guaranteeing exact numerical parity within machine epsilon
+against official PyRadiomics without single-precision (``float32``) quantization error.
+This page benchmarks extraction time, confirms multi-fold speedup, and proves exact
+numerical parity against PyRadiomics.
 
-.. GENERATED FROM PYTHON SOURCE LINES 27-29
+.. GENERATED FROM PYTHON SOURCE LINES 31-33
 
 .. code-block:: Python
    :dedent: 1
@@ -57,11 +61,11 @@ multi-fold speedup, and proves exact numerical parity against PyRadiomics.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-32
+.. GENERATED FROM PYTHON SOURCE LINES 35-36
 
 Load one demo subject and generate SLIC supervoxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 32-78
+.. GENERATED FROM PYTHON SOURCE LINES 36-82
 
 .. code-block:: Python
 
@@ -154,12 +158,12 @@ Load one demo subject and generate SLIC supervoxels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-81
+.. GENERATED FROM PYTHON SOURCE LINES 83-85
 
 Approach 1: Statistical feature extraction (Mean, Median, Std).
 Each extractor binds the voxel field and aggregates voxel intensities within each parcel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-105
+.. GENERATED FROM PYTHON SOURCE LINES 85-109
 
 .. code-block:: Python
 
@@ -274,12 +278,12 @@ Each extractor binds the voxel field and aggregates voxel intensities within eac
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-108
+.. GENERATED FROM PYTHON SOURCE LINES 110-112
 
 Approach 2: Supervoxel Radiomics texture and high-throughput acceleration.
 Compare HABIT native C-extension against PyRadiomics for time and numerical parity.
 
-.. GENERATED FROM PYTHON SOURCE LINES 108-164
+.. GENERATED FROM PYTHON SOURCE LINES 112-176
 
 .. code-block:: Python
 
@@ -292,12 +296,20 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
         "setting": {"binWidth": 25.0, "normalize": False},
     }
 
-    # Warm up extractors to isolate steady-state execution time from module import latency
+    # Warm up extractors to isolate steady-state execution time from module import latency.
+    # output_float32=False keeps full float64 double precision to inspect numerical parity.
     rad_native = SupervoxelRadiomicsFeatures(
-        modality=MODALITIES[0], params=texture_params, use_supervoxel_cext=True
+        modality=MODALITIES[0],
+        params=texture_params,
+        use_supervoxel_cext=True,
+        output_float32=False,
     )
     rad_pyrad = SupervoxelRadiomicsFeatures(
-        modality=MODALITIES[0], params=texture_params, use_supervoxel_cext=False
+        modality=MODALITIES[0],
+        params=texture_params,
+        use_supervoxel_cext=False,
+        use_torch_radiomics=False,
+        output_float32=False,
     )
     _ = rad_native(subject, units)
     _ = rad_pyrad(subject, units)
@@ -349,29 +361,29 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
 
 
     Extraction time for 24 supervoxels:
-      HABIT Native C-extension : 0.615 s
-      Reference PyRadiomics    : 1.278 s
-      Speedup factor           : 2.08x faster
+      HABIT Native C-extension : 0.975 s
+      Reference PyRadiomics    : 1.810 s
+      Speedup factor           : 1.86x faster
 
-    Maximum absolute difference across all features: 3.91e-03
+    Maximum absolute difference across all features: 1.44e-10
 
     Feature-level parity table:
                              feature  max_abs_diff  mean_abs_diff
         original_firstorder_Mean-LAP  0.000000e+00   0.000000e+00
-    original_firstorder_Variance-LAP  3.906250e-03   4.272461e-04
-    original_firstorder_Skewness-LAP  2.019107e-06   4.965502e-07
-          original_glcm_Contrast-LAP  9.536743e-07   2.781550e-07
-       original_glcm_Correlation-LAP  5.960464e-08   2.731880e-08
-      original_glcm_JointEntropy-LAP  8.583069e-05   4.569689e-05
+    original_firstorder_Variance-LAP  1.437002e-10   5.555497e-11
+    original_firstorder_Skewness-LAP  1.076916e-14   3.681372e-15
+          original_glcm_Contrast-LAP  7.105427e-15   1.036208e-15
+       original_glcm_Correlation-LAP  3.330669e-16   1.110223e-16
+      original_glcm_JointEntropy-LAP  2.664535e-15   7.401487e-16
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-166
+.. GENERATED FROM PYTHON SOURCE LINES 177-178
 
 Visual comparison: execution time and numerical parity correlation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 166-202
+.. GENERATED FROM PYTHON SOURCE LINES 178-214
 
 .. code-block:: Python
 
@@ -415,7 +427,7 @@ Visual comparison: execution time and numerical parity correlation.
 
 
 .. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_05_supervoxel_features_002.png
-   :alt: Supervoxel texture benchmark (2.1x speedup), Numerical parity: JointEntropy-LAP
+   :alt: Supervoxel texture benchmark (1.9x speedup), Numerical parity: JointEntropy-LAP
    :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_05_supervoxel_features_002.png
    :class: sphx-glr-single-img
 
@@ -426,7 +438,7 @@ Visual comparison: execution time and numerical parity correlation.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 21.448 seconds)
+   **Total running time of the script:** (0 minutes 26.778 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_05_supervoxel_features.py:
