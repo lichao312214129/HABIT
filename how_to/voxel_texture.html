@@ -105,6 +105,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Supervoxels (SLIC vs k-means)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
@@ -583,19 +584,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -821,6 +810,112 @@ epsilon because integer count matrices are bit-identical
 looser (<span class="math notranslate nohighlight">\(10^{-8}\)</span>) because percentiles use different quantile
 algorithms. Force the matrix backend with <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices:</span> <span class="pre">true</span></code> /
 <code class="docutils literal notranslate"><span class="pre">false</span></code> on the <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> Spec.</p>
+</section>
+<section id="clinical-large-tumor-three-way-benchmark">
+<h3>Clinical large-tumor three-way benchmark<a class="headerlink" href="#clinical-large-tumor-three-way-benchmark" title="Link to this heading"></a></h3>
+<p>On small synthetic toys (e.g. 4,096 voxels above), kernel launch overhead and
+CUDA driver latency dilute the full power of GPU acceleration. In realistic
+clinical imaging, however, tumors often comprise tens of thousands of voxels.
+Under these large workloads, the performance bottleneck shifts completely:</p>
+<ol class="arabic simple">
+<li><p><strong>Pure PyRadiomics (CPU)</strong>: The single-threaded C extension (<code class="docutils literal notranslate"><span class="pre">cMatrices</span></code>)
+must iterate voxel-by-voxel across millions of potential neighbor pairs.
+On large volumes, calculation times skyrocket into several minutes per subject.</p></li>
+<li><p><strong>C matrices + TorchRadiomics (GPU)</strong>: Offloading feature formulas to PyTorch
+helps, but the texture matrix construction remains pinned to the single-threaded CPU
+loop. Furthermore, large matrices must undergo costly host-to-device (H2D)
+memory transfer.</p></li>
+<li><p><strong>HABIT Built-in GPU</strong>: Both matrix construction (<code class="docutils literal notranslate"><span class="pre">gpumatrices</span></code>) and feature
+evaluations execute entirely within GPU VRAM with zero host-to-device intermediate
+copy, yielding dramatic speedups on large clinical lesions.</p></li>
+</ol>
+<p>The benchmark below evaluates these three runtimes on clinical liver lesion
+cases from the HABIT demo cohort (hardware: NVIDIA GeForce RTX 3070 Laptop GPU,
+<code class="docutils literal notranslate"><span class="pre">binWidth=25</span></code>, <code class="docutils literal notranslate"><span class="pre">kernelRadius=1</span></code>):</p>
+<p><strong>Subj001 (34,694 ROI voxels)</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 20.0%" />
+<col style="width: 22.0%" />
+<col style="width: 20.0%" />
+<col style="width: 16.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature Task</p></th>
+<th class="head"><p>Pure PyRadiomics (CPU)</p></th>
+<th class="head"><p>C + TorchRadiomics (GPU)</p></th>
+<th class="head"><p>HABIT Built-in GPU</p></th>
+<th class="head"><p>Speedup (vs CPU / vs C+Torch)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>GLCM Contrast</p></td>
+<td><p>68.71 s</p></td>
+<td><p>7.54 s</p></td>
+<td><p><strong>2.68 s</strong></p></td>
+<td><p><strong>25.6×</strong> / <strong>2.8×</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>GLCM 4 features</p></td>
+<td><p>85.33 s</p></td>
+<td><p>7.04 s</p></td>
+<td><p><strong>3.02 s</strong></p></td>
+<td><p><strong>28.3×</strong> / <strong>2.3×</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>GLRLM (2 features)</p></td>
+<td><p>13.25 s</p></td>
+<td><p>8.02 s</p></td>
+<td><p><strong>2.61 s</strong></p></td>
+<td><p><strong>5.1×</strong> / <strong>3.1×</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>First-order (4 features)</p></td>
+<td><p>5.30 s</p></td>
+<td><p>n/a</p></td>
+<td><p><strong>1.99 s</strong></p></td>
+<td><p><strong>2.7×</strong> / n/a</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subj005 (80,084 ROI voxels — massive tumor benchmark)</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 22.0%" />
+<col style="width: 22.0%" />
+<col style="width: 18.0%" />
+<col style="width: 14.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Runtime Architecture</p></th>
+<th class="head"><p>Matrix Construction</p></th>
+<th class="head"><p>Feature Formula</p></th>
+<th class="head"><p>Time (s)</p></th>
+<th class="head"><p>Speedup</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Pure PyRadiomics (CPU)</strong></p></td>
+<td><p>Single-threaded C (CPU)</p></td>
+<td><p>NumPy (CPU)</p></td>
+<td><p>414.58 s (~7 min)</p></td>
+<td><p>1.0×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>C + TorchRadiomics (GPU)</strong></p></td>
+<td><p>Single-threaded C (CPU)</p></td>
+<td><p>PyTorch (GPU)</p></td>
+<td><p>39.62 s</p></td>
+<td><p>10.5×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>HABIT Built-in GPU</strong></p></td>
+<td><p>Parallel CUDA (GPU)</p></td>
+<td><p>PyTorch (GPU)</p></td>
+<td><p><strong>7.59 s</strong></p></td>
+<td><p><strong>54.6×</strong></p></td>
+</tr>
+</tbody>
+</table>
+<p><em>On an 80k-voxel volume, HABIT collapses a 7-minute CPU bottleneck down to 7.6 seconds,
+and outperforms upstream TorchRadiomics by 5.2× by eliminating the CPU matrix construction.</em></p>
 </section>
 </section>
 <section id="python-api-sklearn-short">

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**01:14.130** total execution time for 23 files **from all galleries**:
+**04:25.222** total execution time for 23 files **from all galleries**:
 
 .. container::
 
@@ -32,8 +32,8 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_parallel_runs.py` (``..\..\examples\guide\06_parallel_runs\plot_01_parallel_runs.py``)
-     - 01:14.130
+   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_03_voxel_texture.py` (``..\..\examples\guide\02_voxel\plot_03_voxel_texture.py``)
+     - 04:25.222
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_01_directory.py` (``..\..\examples\guide\01_data_in\plot_01_directory.py``)
      - 00:00.000
@@ -48,9 +48,6 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_02_voxel_plot_02_custom_features.py` (``..\..\examples\guide\02_voxel\plot_02_custom_features.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_03_voxel_texture.py` (``..\..\examples\guide\02_voxel\plot_03_voxel_texture.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_02_voxel_plot_04_feature_preprocessing.py` (``..\..\examples\guide\02_voxel\plot_04_feature_preprocessing.py``)
@@ -96,6 +93,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_07_deep_learning_embeddings.py` (``..\..\examples\guide\05_quantify\plot_07_deep_learning_embeddings.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_parallel_runs.py` (``..\..\examples\guide\06_parallel_runs\plot_01_parallel_runs.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)

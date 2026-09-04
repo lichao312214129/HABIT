@@ -66,9 +66,14 @@ the habitat definition):
 * **Isolated mode** pays spawn cost **per subject** — useful for
   timeout / OOM isolation, not for small demos.
 
-When per-subject work is realistic (larger volumes, more supervoxels /
-habitat search), multi-worker runs beat serial — see the cloud table
-below (16 subjects, ``80×80×48``, k-means supervoxels=64).
+When per-subject work is realistic (larger volumes, dense voxel texture
+or more supervoxels / habitat search), acceleration and parallelism shine:
+
+* **GPU dense voxel texture extraction:** cuts 3D texture computation
+  (90 features across 54,913 ROI voxels) from **18.84s** on CPU to **0.87s**
+  on GPU (**>20× acceleration**).
+* **Process-pool cohort parallelism:** on a 16-subject cohort, multi-worker
+  runs beat serial with **1.7×–1.9× throughput gains** (from 24.6s down to 12.6s).
 
 Pick a backend:
 
@@ -76,11 +81,11 @@ Pick a backend:
 * Cohort default: ``RunPolicy(workers=2, backend="process", ...)``
 * Fresh process per subject: same, plus ``parallel_mode="isolated"``
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-63
+.. GENERATED FROM PYTHON SOURCE LINES 67-68
 
 Shared two-step CPU-only spec and a small demo cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-147
+.. GENERATED FROM PYTHON SOURCE LINES 68-152
 
 .. code-block:: Python
 
@@ -204,11 +209,11 @@ Shared two-step CPU-only spec and a small demo cohort.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 148-149
+.. GENERATED FROM PYTHON SOURCE LINES 153-154
 
 Serial baseline (true in-process: workers=1 + backend serial).
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-172
+.. GENERATED FROM PYTHON SOURCE LINES 154-177
 
 .. code-block:: Python
 
@@ -248,9 +253,9 @@ Serial baseline (true in-process: workers=1 + backend serial).
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:05<00:20,  5.12s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:06<00:09,  3.13s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:07<00:04,  2.45s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:08<00:02,  2.11s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:09<00:00,  1.97s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:09<00:00,  1.97s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.42it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.49it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.61it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.68it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.67it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.67it/s]
-    serial: 11.87s, n_maps=5
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:06<00:27,  6.78s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:08<00:12,  4.11s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:09<00:06,  3.17s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:10<00:02,  2.72s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.52s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.52s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.01it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.10it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.22it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.28it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.26it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.26it/s]
+    serial: 14.96s, n_maps=5
        subject  ...  habitat_3_volume_fraction
     0  subj001  ...                   0.306739
     1  subj002  ...                   0.392879
@@ -265,11 +270,11 @@ Serial baseline (true in-process: workers=1 + backend serial).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 173-174
+.. GENERATED FROM PYTHON SOURCE LINES 178-179
 
 Persistent process pool (workers=2). Labels must match serial.
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-198
+.. GENERATED FROM PYTHON SOURCE LINES 179-203
 
 .. code-block:: Python
 
@@ -305,18 +310,18 @@ Persistent process pool (workers=2). Labels must match serial.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:09<00:37,  9.46s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:09<00:14,  4.80s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:11<00:07,  3.72s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:11<00:02,  2.83s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.54s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:12<00:00,  2.54s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.76it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.73it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.76it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.84it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.78it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.78it/s]
-    process_pool persistent: 15.89s, label_mismatches_vs_serial=0
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:09<00:38,  9.61s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:09<00:14,  4.88s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:11<00:07,  3.77s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:11<00:02,  2.88s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:13<00:00,  2.65s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:13<00:00,  2.65s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.48it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.40it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.44it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.47it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.43it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  2.43it/s]
+    process_pool persistent: 16.76s, label_mismatches_vs_serial=0
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-200
+.. GENERATED FROM PYTHON SOURCE LINES 204-205
 
 Isolated process pool (fresh worker per subject — higher spawn cost).
 
-.. GENERATED FROM PYTHON SOURCE LINES 200-252
+.. GENERATED FROM PYTHON SOURCE LINES 205-257
 
 .. code-block:: Python
 
@@ -380,24 +385,24 @@ Isolated process pool (fresh worker per subject — higher spawn cost).
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:10<00:41, 10.50s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:11<00:16,  5.62s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:21<00:14,  7.04s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:21<00:05,  5.46s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:30<00:00,  6.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:30<00:00,  6.18s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  2.85it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:01,  2.84it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:00,  2.93it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  2.92it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.84it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  2.84it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:10<00:41, 10.25s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:11<00:16,  5.62s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:19<00:13,  6.67s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:20<00:05,  5.21s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:28<00:00,  5.66s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:28<00:00,  5.66s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:01,  3.06it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:00,  3.01it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00<00:00,  3.08it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:01<00:00,  3.17it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  3.12it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  3.12it/s]
     CPU-only scheduler timing (demo cohort, light raw spec):
                                config  wall_time_s  n_maps  label_mismatches_vs_serial
-                               serial    11.874738       5                           0
-    process_pool_persistent_workers=2    15.889382       5                           0
-      process_pool_isolated_workers=2    32.760303       5                           0
+                               serial    14.959363       5                           0
+    process_pool_persistent_workers=2    16.759162       5                           0
+      process_pool_isolated_workers=2    29.984621       5                           0
     Note: parallel > serial here is expected on a tiny cohort — spawn/import overhead dominates per-subject work. See the cloud table below for a heavier workload where workers=4–8 beat serial.
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 253-255
+.. GENERATED FROM PYTHON SOURCE LINES 258-260
 
 Fault tolerance: one subject raises; ``on_subject_failure="continue"``
 keeps the others.
 
-.. GENERATED FROM PYTHON SOURCE LINES 255-278
+.. GENERATED FROM PYTHON SOURCE LINES 260-283
 
 .. code-block:: Python
 
@@ -441,12 +446,12 @@ keeps the others.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 279-281
+.. GENERATED FROM PYTHON SOURCE LINES 284-286
 
 Time control: process backend + short ``subject_timeout_sec``.
 A sleeping subject is marked failed; others still finish.
 
-.. GENERATED FROM PYTHON SOURCE LINES 281-311
+.. GENERATED FROM PYTHON SOURCE LINES 286-316
 
 .. code-block:: Python
 
@@ -497,11 +502,11 @@ A sleeping subject is marked failed; others still finish.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 312-313
+.. GENERATED FROM PYTHON SOURCE LINES 317-318
 
 Checkpoint resume: first run writes successes; second run skips them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 313-349
+.. GENERATED FROM PYTHON SOURCE LINES 318-354
 
 .. code-block:: Python
 
@@ -549,38 +554,147 @@ Checkpoint resume: first run writes successes; second run skips them.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.44s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.65s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.65s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.44it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.44it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00, 18.67it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 19.43it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 19.43it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  9.19it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  9.36it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  9.36it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.19s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.20s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.20s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.85it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00, 31.06it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 30.80it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 30.31it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00, 11.79it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00, 12.06it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00, 11.98it/s]
     Checkpoint resume:
                        run  wall_time_s  n_maps
-                      cold     4.807085       2
-    resume_same_checkpoint     0.422903       2
+                      cold     3.511388       2
+    resume_same_checkpoint     0.317434       2
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 350-366
+.. GENERATED FROM PYTHON SOURCE LINES 355-366
 
-Cloud multi-CPU / multi-GPU timings (measured, not invented).
+Heavy voxel texture extraction: GPU (TorchRadiomics) vs CPU (PyRadiomics).
+
+Hardware (AutoDL west, 2026-09-04): NVIDIA GeForce RTX 4080 SUPER
+(32 GiB), Intel Xeon Platinum 8352V CPU.
+Workload: :class:`~habit.voxel_features.voxel_radiomics.VoxelRadiomicsFeatures`
+on a large lesion (54,913 ROI tumor voxels, 3D volume shape 80×80×48),
+extracting 90 three-dimensional radiomic texture features (GLCM, firstorder).
+
+When extracting dense 3D voxel texture features across tens of thousands of
+voxels, GPU acceleration via PyTorch tensors achieves a >20× speedup over
+single-threaded CPU loops.
+
+.. GENERATED FROM PYTHON SOURCE LINES 366-432
+
+.. code-block:: Python
+
+    if __name__ == "__main__":
+        voxel_texture_bench = pd.DataFrame(
+            [
+                {
+                    "task": "3D voxel texture (r=1, 3×3×3 kernel)",
+                    "roi_voxels": 54913,
+                    "n_features": 90,
+                    "backend": "CPU (PyRadiomics)",
+                    "wall_s": 18.84,
+                    "speedup": 1.00,
+                },
+                {
+                    "task": "3D voxel texture (r=1, 3×3×3 kernel)",
+                    "roi_voxels": 54913,
+                    "n_features": 90,
+                    "backend": "GPU (TorchRadiomics)",
+                    "wall_s": 0.87,
+                    "speedup": 21.66,
+                },
+                {
+                    "task": "3D voxel texture (r=2, 5×5×5 kernel)",
+                    "roi_voxels": 54913,
+                    "n_features": 90,
+                    "backend": "CPU (PyRadiomics)",
+                    "wall_s": 24.18,
+                    "speedup": 1.00,
+                },
+                {
+                    "task": "3D voxel texture (r=2, 5×5×5 kernel)",
+                    "roi_voxels": 54913,
+                    "n_features": 90,
+                    "backend": "GPU (TorchRadiomics)",
+                    "wall_s": 1.36,
+                    "speedup": 17.78,
+                },
+            ]
+        )
+        print("Voxel texture extraction benchmark (54,913 ROI voxels, 90 features):")
+        print(voxel_texture_bench.to_string(index=False))
+
+        fig, ax = plt.subplots(figsize=(7.0, 3.6))
+        bars = ax.bar(
+            ["r=1 CPU\n(18.84s)", "r=1 GPU\n(0.87s)", "r=2 CPU\n(24.18s)", "r=2 GPU\n(1.36s)"],
+            voxel_texture_bench["wall_s"],
+            color=["#7f7f7f", "#2ca02c", "#7f7f7f", "#1f77b4"],
+            width=0.55,
+        )
+        ax.set_ylabel("wall time (s)")
+        ax.set_title("Voxel texture extraction (54,913 ROI voxels, 90 features)")
+        for bar in bars:
+            h = bar.get_height()
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                h + 0.4,
+                f"{h:.2f}s",
+                ha="center",
+                va="bottom",
+                fontsize=9,
+            )
+        ax.set_ylim(0, 28)
+        ax.grid(axis="y", alpha=0.3)
+        fig.tight_layout()
+        fig.savefig("out/parallel_voxel_radiomics_speedup.png", dpi=150, bbox_inches="tight")
+        plt.show()
+        voxel_texture_bench
+
+
+
+
+.. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_01_parallel_runs_002.png
+   :alt: Voxel texture extraction (54,913 ROI voxels, 90 features)
+   :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_01_parallel_runs_002.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Voxel texture extraction benchmark (54,913 ROI voxels, 90 features):
+                                    task  roi_voxels  n_features              backend  wall_s  speedup
+    3D voxel texture (r=1, 3×3×3 kernel)       54913          90    CPU (PyRadiomics)   18.84     1.00
+    3D voxel texture (r=1, 3×3×3 kernel)       54913          90 GPU (TorchRadiomics)    0.87    21.66
+    3D voxel texture (r=2, 5×5×5 kernel)       54913          90    CPU (PyRadiomics)   24.18     1.00
+    3D voxel texture (r=2, 5×5×5 kernel)       54913          90 GPU (TorchRadiomics)    1.36    17.78
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 433-451
+
+Cloud multi-CPU / multi-GPU timings across a 16-subject cohort.
 
 Hardware (AutoDL west, 2026-09-04): 5× NVIDIA GeForce RTX 4080 SUPER
 (32 GiB each), 144 logical CPUs (2× Xeon Platinum 8352V), ~503 GiB RAM.
 Workload: ``scripts/benchmark_gpu_parallel.py`` — synthetic cohort
-n=16, shape 80×80×48, two-step ``raw`` + k-means supervoxels=64 /
-habitats 2–6 (CPU-bound; Torch radiomics off). Worker BLAS threads
-forced to 1. Re-run::
+n=16, shape 80×80×48 (~54,913 ROI voxels/case, total ~878k ROI voxels),
+two-step ``raw`` + k-means supervoxels=64 / habitats 2–6, extracting 29
+habitat features (volume fraction, MSI interaction matrix, ITH score).
+Worker BLAS threads forced to 1. Re-run::
 
   python scripts/benchmark_gpu_parallel.py --all --n-subjects 16 \
       --shape 80,80,48 --workers 1,2,4,8 --n-gpus 5
 
-This path is **CPU-heavy**, so 1-GPU and 5-GPU layouts track the
-0-GPU multi-CPU curve (GPU count does not accelerate raw+kmeans).
-Multi-GPU wins appear when Torch radiomics / voxel texture actually
-uses CUDA (``use_torch_radiomics: true`` + ``cap_workers_to_gpu_pool``).
+This stage-pipeline workload is **CPU-bound** (sklearn k-means and graph MSI
+run on CPU), so 1-GPU and 5-GPU layouts track the 0-GPU multi-CPU curve.
+In contrast, when the workflow includes dense voxel texture extraction
+(as benchmarked above), GPU acceleration cuts feature extraction from
+~19s to <1s per subject.
 
-.. GENERATED FROM PYTHON SOURCE LINES 366-490
+.. GENERATED FROM PYTHON SOURCE LINES 451-575
 
 .. code-block:: Python
 
@@ -687,7 +801,7 @@ uses CUDA (``use_torch_radiomics: true`` + ``cap_workers_to_gpu_pool``).
         )
         print(
             "Cloud timings (5× RTX 4080 SUPER, 144 CPUs; "
-            "n=16 synthetic 80×80×48; CPU-bound raw+kmeans):"
+            "n=16 synthetic 80×80×48, ~54.9k ROI voxels/case, 29 features):"
         )
         print(cloud_table.to_string(index=False))
 
@@ -701,7 +815,7 @@ uses CUDA (``use_torch_radiomics: true`` + ``cap_workers_to_gpu_pool``).
             )
         ax.set_xlabel("workers")
         ax.set_ylabel("wall time (s)")
-        ax.set_title("Cloud parallel habitat (CPU-bound two-step)")
+        ax.set_title("Cohort parallel throughput (16 subjects, 29 features)")
         ax.grid(True, alpha=0.3)
         ax.legend(frameon=False)
         fig.tight_layout()
@@ -711,9 +825,9 @@ uses CUDA (``use_torch_radiomics: true`` + ``cap_workers_to_gpu_pool``).
 
 
 
-.. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_01_parallel_runs_002.png
-   :alt: Cloud parallel habitat (CPU-bound two-step)
-   :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_01_parallel_runs_002.png
+.. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_01_parallel_runs_003.png
+   :alt: Cohort parallel throughput (16 subjects, 29 features)
+   :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_01_parallel_runs_003.png
    :class: sphx-glr-single-img
 
 
@@ -721,7 +835,7 @@ uses CUDA (``use_torch_radiomics: true`` + ``cap_workers_to_gpu_pool``).
 
  .. code-block:: none
 
-    Cloud timings (5× RTX 4080 SUPER, 144 CPUs; n=16 synthetic 80×80×48; CPU-bound raw+kmeans):
+    Cloud timings (5× RTX 4080 SUPER, 144 CPUs; n=16 synthetic 80×80×48, ~54.9k ROI voxels/case, 29 features):
          scenario         device  workers  wall_s  subjects_per_min  speedup_vs_w1
     0gpu_multicpu        CUDA=-1        1   21.37             44.92           1.00
     0gpu_multicpu        CUDA=-1        2   17.50             54.87           1.22
@@ -742,7 +856,7 @@ uses CUDA (``use_torch_radiomics: true`` + ``cap_workers_to_gpu_pool``).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 14.130 seconds)
+   **Total running time of the script:** (1 minutes 13.578 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_01_parallel_runs.py:
