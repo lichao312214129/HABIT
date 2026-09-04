@@ -22,17 +22,22 @@ Precise voxel features
 ======================
 
 Decide **which voxel features may define habitats**, then cluster only
-those. This is the Prior et al. precision screen (*Radiol Artif Intell*
-2024;6(2):e230118; `DOI <https://doi.org/10.1148/ryai.230118>`__), not a
-new clustering algorithm.
+those robust features. This is the Prior et al. precision screen (*Radiol Artif Intell*
+2024;6(2):e230118; `DOI <https://doi.org/10.1148/ryai.230118>`__).
 
-Appendix S2 simulated retest is Gaussian noise → 0.5-voxel translation →
-0.5° rotation. Three ICC experiments (repeatability; kernel-radius;
-bin-width) must all clear ``lcl_threshold`` (default 0.5). An **extra**
-MONAI ``bspline_deform`` block below shows smooth elastic ROI / anatomy
-warp (Dice / overlap) — it is **not** folded into the Precise whitelist.
+Evaluating stability under perturbation
+---------------------------------------
+The core scientific value of Precise features is **stability under perturbation**:
+when image acquisition has minor variations (simulated retest: noise, shift, rotation),
+habitats defined on all texture features may undergo unpredictable partition shifts.
+Filtering features through repeatability and reproducibility ICC panels yields
+a robust whitelist that produces significantly more stable habitat maps (higher Dice
+and ARI between original and perturbed scans).
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-18
+In addition, an elastic ROI edge perturbation (MONAI ``bspline_deform``) is demonstrated
+to inspect contour and anatomy deformations.
+
+.. GENERATED FROM PYTHON SOURCE LINES 21-23
 
 .. code-block:: Python
    :dedent: 1
@@ -46,12 +51,12 @@ warp (Dice / overlap) — it is **not** folded into the Precise whitelist.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 20-22
+.. GENERATED FROM PYTHON SOURCE LINES 25-27
 
 Load one demo subject. ``extract_voxel_texture`` crops to the ROI box
 internally (``crop_to_roi=True``).
 
-.. GENERATED FROM PYTHON SOURCE LINES 22-64
+.. GENERATED FROM PYTHON SOURCE LINES 27-70
 
 .. code-block:: Python
 
@@ -62,6 +67,7 @@ internally (``crop_to_roi=True``).
     import numpy as np
     import pandas as pd
     from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
 
     from habit.contracts import Cohort, Subject, cohort_from_directory
     from habit.datasets import fetch_demo
@@ -132,11 +138,12 @@ internally (``crop_to_roi=True``).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-66
+.. GENERATED FROM PYTHON SOURCE LINES 71-73
 
 Appendix S2 retest chain on one shared RNG.
+Sequentially applies Gaussian noise -> translation -> rotation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 66-87
+.. GENERATED FROM PYTHON SOURCE LINES 73-94
 
 .. code-block:: Python
 
@@ -154,7 +161,7 @@ Appendix S2 retest chain on one shared RNG.
         before=image,
         roi_mask=mask,
         roi_contour=True,
-        title="Appendix S2 chain (original vs final)",
+        title="Appendix S2 chain (original vs perturbed)",
         before_label="Original",
         image_label="+ noise / shift / rotation",
     )
@@ -165,7 +172,7 @@ Appendix S2 retest chain on one shared RNG.
 
 
 .. image-sg:: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_001.png
-   :alt: Appendix S2 chain (original vs final), Original, + noise / shift / rotation
+   :alt: Appendix S2 chain (original vs perturbed), Original, + noise / shift / rotation
    :srcset: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_001.png
    :class: sphx-glr-single-img
 
@@ -181,11 +188,11 @@ Appendix S2 retest chain on one shared RNG.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 88-89
+.. GENERATED FROM PYTHON SOURCE LINES 95-96
 
-Texture at base R3/B12 and the two reproducibility contrasts.
+Extract texture features at base R3/B12 and the two reproducibility contrasts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-114
+.. GENERATED FROM PYTHON SOURCE LINES 96-121
 
 .. code-block:: Python
 
@@ -331,11 +338,11 @@ Texture at base R3/B12 and the two reproducibility contrasts.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 115-116
+.. GENERATED FROM PYTHON SOURCE LINES 122-123
 
-Precise = LCL >= 0.5 in every experiment that was run.
+Precise screening = Lower Confidence Limit (LCL) >= 0.5 across all 3 ICC experiments.
 
-.. GENERATED FROM PYTHON SOURCE LINES 116-137
+.. GENERATED FROM PYTHON SOURCE LINES 123-144
 
 .. code-block:: Python
 
@@ -356,8 +363,8 @@ Precise = LCL >= 0.5 in every experiment that was run.
     evidence = precise.to_frame().round(3)
     kept: List[str] = list(precise.feature_names)
     dropped = [n for n in feat_r3.feature_names if n not in set(kept)]
-    print(f"kept ({len(kept)}): {kept}")
-    print(f"dropped ({len(dropped)}): {dropped}")
+    print(f"Kept features ({len(kept)}): {kept}")
+    print(f"Dropped features ({len(dropped)}): {dropped}")
     evidence
 
 
@@ -368,8 +375,8 @@ Precise = LCL >= 0.5 in every experiment that was run.
 
  .. code-block:: none
 
-    kept (7): ['original_firstorder_Entropy-LAP', 'original_firstorder_Mean-LAP', 'original_firstorder_Variance-LAP', 'original_glcm_Contrast-LAP', 'original_glcm_JointEntropy-LAP', 'original_glcm_Idm-LAP', 'original_glcm_DifferenceEntropy-LAP']
-    dropped (3): ['original_firstorder_Skewness-LAP', 'original_firstorder_Kurtosis-LAP', 'original_glcm_Correlation-LAP']
+    Kept features (7): ['original_firstorder_Entropy-LAP', 'original_firstorder_Mean-LAP', 'original_firstorder_Variance-LAP', 'original_glcm_Contrast-LAP', 'original_glcm_JointEntropy-LAP', 'original_glcm_Idm-LAP', 'original_glcm_DifferenceEntropy-LAP']
+    Dropped features (3): ['original_firstorder_Skewness-LAP', 'original_firstorder_Kurtosis-LAP', 'original_glcm_Correlation-LAP']
 
 
 .. raw:: html
@@ -710,11 +717,11 @@ Precise = LCL >= 0.5 in every experiment that was run.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 138-139
+.. GENERATED FROM PYTHON SOURCE LINES 145-146
 
-One ICC forest per experiment (immediate figure after each panel).
+Plot one ICC forest per experiment to inspect lower confidence limits.
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-164
+.. GENERATED FROM PYTHON SOURCE LINES 146-171
 
 .. code-block:: Python
 
@@ -774,12 +781,12 @@ One ICC forest per experiment (immediate figure after each panel).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-167
+.. GENERATED FROM PYTHON SOURCE LINES 172-174
 
-Cluster all texture vs precise whitelist; score partition stability
-under the same Appendix S2 image (shared mask).
+Cluster habitats using all texture features vs precise whitelist.
+Compare the stability of habitats between the original image and perturbed image.
 
-.. GENERATED FROM PYTHON SOURCE LINES 167-223
+.. GENERATED FROM PYTHON SOURCE LINES 174-234
 
 .. code-block:: Python
 
@@ -794,7 +801,7 @@ under the same Appendix S2 image (shared mask).
     )
     fitter_spec = Spec(
         "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
+        {"n_habitats": 3, "n_init": 3},
     )
     minmax_spec = Spec("minmax", {"across_features": False})
     subject_pert = Subject(
@@ -804,6 +811,8 @@ under the same Appendix S2 image (shared mask).
     )
     demo = Cohort(subjects=(subject,))
     demo_pert = Cohort(subjects=(subject_pert,))
+
+    # --- Experiment A: All texture features under perturbation ---
     spec_all = HabitatSpec(
         name="all_texture_one_step",
         voxel_feature_extractor=extractor_spec,
@@ -825,14 +834,16 @@ under the same Appendix S2 image (shared mask).
     dice_all = [float(d) for _, _, d, _, _ in habitat_dice_from_mapping(ref_all, mov_all, map_all)]
     mean_dice_all = float(np.mean(dice_all)) if dice_all else float("nan")
     ari_all = float(adjusted_rand_index(ref_all, mov_all))
-    print(f"All texture: mean Dice={mean_dice_all:.3f}, ARI={ari_all:.3f}")
+    print(f"All texture features under perturbation: mean Dice={mean_dice_all:.3f}, ARI={ari_all:.3f}")
+
+    # Label comparison for all texture features: Original scan vs Perturbed scan
     fig_cmp_all = plot_habitat_label_compare(
         image,
         result_all_orig.habitat_maps[0],
         aligned_all,
         titles=(
-            "All features: original",
-            f"All features: S2 perturbed (Dice={mean_dice_all:.3f})",
+            "All features: original image",
+            f"All features: perturbed image (Dice={mean_dice_all:.3f})",
         ),
         align_labels=False,
     )
@@ -843,7 +854,7 @@ under the same Appendix S2 image (shared mask).
 
 
 .. image-sg:: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_005.png
-   :alt: Habitat label compare, All features: original, All features: S2 perturbed (Dice=0.787), Disagreement
+   :alt: Habitat label compare, All features: original image, All features: perturbed image (Dice=0.787), Disagreement
    :srcset: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_005.png
    :class: sphx-glr-single-img
 
@@ -862,20 +873,20 @@ under the same Appendix S2 image (shared mask).
         https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
 
       warnings.warn(msg, RuntimeWarning)
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:25<00:00, 25.08s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:25<00:00, 25.08s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:15<00:00, 15.92s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:15<00:00, 15.92s/it]
-    All texture: mean Dice=0.787, ARI=0.442
+    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:13<00:00, 13.14s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:13<00:00, 13.14s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:08<00:00,  8.42s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:08<00:00,  8.42s/it]
+    All texture features under perturbation: mean Dice=0.787, ARI=0.442
     F:\work\habit_project\habit\viz\habitat_core.py:917: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 224-225
+.. GENERATED FROM PYTHON SOURCE LINES 235-236
 
-Precise whitelist first in ``voxel_feature_preprocessors``.
+--- Experiment B: Precise whitelist under perturbation ---
 
-.. GENERATED FROM PYTHON SOURCE LINES 225-281
+.. GENERATED FROM PYTHON SOURCE LINES 236-307
 
 .. code-block:: Python
 
@@ -894,6 +905,7 @@ Precise whitelist first in ``voxel_feature_preprocessors``.
         )
         result_precise_orig = Study(spec_precise).fit_predict(demo)
         result_precise_pert = Study(spec_precise).fit_predict(demo_pert)
+
         ref_p = np.asarray(result_precise_orig.habitat_maps[0].label_array)
         mov_p = np.asarray(result_precise_pert.habitat_maps[0].label_array)
         map_p = match_labels_by_overlap(ref_p, mov_p)
@@ -903,20 +915,16 @@ Precise whitelist first in ``voxel_feature_preprocessors``.
         dice_p = [float(d) for _, _, d, _, _ in habitat_dice_from_mapping(ref_p, mov_p, map_p)]
         mean_dice_p = float(np.mean(dice_p)) if dice_p else float("nan")
         ari_p = float(adjusted_rand_index(ref_p, mov_p))
-        stability = pd.DataFrame(
-            [
-                {"feature_set": "All texture", "mean_dice": mean_dice_all, "ari": ari_all},
-                {"feature_set": "Precise only", "mean_dice": mean_dice_p, "ari": ari_p},
-            ]
-        )
-        print(stability.to_string(index=False))
+        print(f"Precise whitelist under perturbation: mean Dice={mean_dice_p:.3f}, ARI={ari_p:.3f}")
+
+        # Label comparison for precise features: Original scan vs Perturbed scan
         fig_cmp_p = plot_habitat_label_compare(
             image,
             result_precise_orig.habitat_maps[0],
             aligned_p,
             titles=(
-                "Precise: original",
-                f"Precise: S2 perturbed (Dice={mean_dice_p:.3f})",
+                "Precise whitelist: original image",
+                f"Precise whitelist: perturbed image (Dice={mean_dice_p:.3f})",
             ),
             align_labels=False,
         )
@@ -924,14 +932,32 @@ Precise whitelist first in ``voxel_feature_preprocessors``.
             "out/precise_features_precise_orig_vs_pert.png", dpi=150, bbox_inches="tight"
         )
         plt.show()
-        fig_cmp = plot_habitat_label_compare(
-            image,
-            result_all_orig.habitat_maps[0],
-            result_precise_orig.habitat_maps[0],
-            titles=("All texture features", "Precise features only"),
-            align_labels=True,
+
+        # Quantitative stability summary comparison table and bar chart
+        stability = pd.DataFrame(
+            [
+                {"feature_set": "All texture features", "mean_dice": mean_dice_all, "ari": ari_all},
+                {"feature_set": "Precise whitelist only", "mean_dice": mean_dice_p, "ari": ari_p},
+            ]
         )
-        fig_cmp.savefig("out/precise_features_all_vs_precise.png", dpi=150, bbox_inches="tight")
+        print("Stability under perturbation (Original vs Perturbed):")
+        print(stability.to_string(index=False))
+
+        with use_style("radiology"):
+            fig_stab, ax_s = plt.subplots(figsize=(5.5, 3.8), constrained_layout=True)
+            x_indices = np.arange(2)
+            bar_width = 0.35
+            dices = [mean_dice_all, mean_dice_p]
+            aris = [ari_all, ari_p]
+            ax_s.bar(x_indices - bar_width / 2, dices, bar_width, label="Mean Dice", color="#0072B2")
+            ax_s.bar(x_indices + bar_width / 2, aris, bar_width, label="Adjusted Rand Index", color="#E69F00")
+            ax_s.set_xticks(x_indices)
+            ax_s.set_xticklabels(["All features", "Precise only"])
+            ax_s.set_ylim(0.0, 1.05)
+            ax_s.set_ylabel("Stability score")
+            ax_s.set_title(sanitize_label("Habitat stability under image perturbation"))
+            ax_s.legend(loc="lower right", frameon=True)
+        fig_stab.savefig("out/precise_features_stability_bar.png", dpi=150, bbox_inches="tight")
         plt.show()
         stability
 
@@ -944,14 +970,14 @@ Precise whitelist first in ``voxel_feature_preprocessors``.
     *
 
       .. image-sg:: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_006.png
-         :alt: Habitat label compare, Precise: original, Precise: S2 perturbed (Dice=0.793), Disagreement
+         :alt: Habitat label compare, Precise whitelist: original image, Precise whitelist: perturbed image (Dice=0.793), Disagreement
          :srcset: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_006.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_007.png
-         :alt: Habitat label compare, All texture features, Precise features only, Disagreement
+         :alt: Habitat stability under image perturbation
          :srcset: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_007.png
          :class: sphx-glr-multi-img
 
@@ -960,36 +986,33 @@ Precise whitelist first in ``voxel_feature_preprocessors``.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:19<00:00, 19.60s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:19<00:00, 19.60s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:17<00:00, 17.05s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:17<00:00, 17.05s/it]
-     feature_set  mean_dice      ari
-     All texture   0.786672 0.442492
-    Precise only   0.792555 0.450450
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:37<00:00, 37.34s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:37<00:00, 37.34s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:47<00:00, 47.97s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:47<00:00, 47.97s/it]
+    Precise whitelist under perturbation: mean Dice=0.793, ARI=0.450
     F:\work\habit_project\habit\viz\habitat_core.py:917: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_core.py:917: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
+    Stability under perturbation (Original vs Perturbed):
+               feature_set  mean_dice      ari
+      All texture features   0.786672 0.442492
+    Precise whitelist only   0.792555 0.450450
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 282-288
+.. GENERATED FROM PYTHON SOURCE LINES 308-311
 
-Extra (not Prior S2): MONAI elastic / B-spline warp of image **and** mask.
-Omit ``target_dice`` — that triggers a multi-step search (minutes on CPU).
-Default ``target_dice=None`` is one Rand3DElasticd pass (~tens of seconds).
-Keep ``sigma_range=(2, 4)``; use a larger ``magnitude_range`` than the
-textbook (4, 8) so nearest-neighbour ROI edges actually move on this
-clinical FOV ((4, 8) leaves Dice == 1.0 here).
+MONAI elastic / B-spline deformation of image and ROI mask.
+A realistic displacement field (magnitude_range=(35.0, 50.0) voxels) models
+anatomical and contour variation across repeat acquisitions or observer differences.
 
-.. GENERATED FROM PYTHON SOURCE LINES 288-324
+.. GENERATED FROM PYTHON SOURCE LINES 311-347
 
 .. code-block:: Python
 
     deform = ImagePerturbationRegistry.create(
         "bspline_deform",
         sigma_range=(2.0, 4.0),
-        magnitude_range=(20.0, 30.0),
+        magnitude_range=(35.0, 50.0),
     )
     warped = deform(subject, rng=np.random.default_rng(0))
     image_w = warped.image(MODALITIES[0])
@@ -1018,7 +1041,7 @@ clinical FOV ((4, 8) leaves Dice == 1.0 here).
             },
         ]
     )
-    print("MONAI bspline_deform ROI overlap (target_dice=None, single pass):")
+    print("MONAI bspline_deform ROI overlap metrics:")
     print(overlap.round(4).to_string(index=False))
     overlap
 
@@ -1030,12 +1053,12 @@ clinical FOV ((4, 8) leaves Dice == 1.0 here).
 
  .. code-block:: none
 
-    MONAI bspline_deform ROI overlap (target_dice=None, single pass):
+    MONAI bspline_deform ROI overlap metrics:
                  metric      value
-                   dice     0.9724
-                jaccard     0.9462
-    intersection_voxels 33765.0000
-           union_voxels 35683.0000
+                   dice     0.9454
+                jaccard     0.8965
+    intersection_voxels 32845.0000
+           union_voxels 36637.0000
 
 
 .. raw:: html
@@ -1067,22 +1090,22 @@ clinical FOV ((4, 8) leaves Dice == 1.0 here).
         <tr>
           <th>0</th>
           <td>dice</td>
-          <td>0.972382</td>
+          <td>0.945425</td>
         </tr>
         <tr>
           <th>1</th>
           <td>jaccard</td>
-          <td>0.946249</td>
+          <td>0.896498</td>
         </tr>
         <tr>
           <th>2</th>
           <td>intersection_voxels</td>
-          <td>33765.000000</td>
+          <td>32845.000000</td>
         </tr>
         <tr>
           <th>3</th>
           <td>union_voxels</td>
-          <td>35683.000000</td>
+          <td>36637.000000</td>
         </tr>
       </tbody>
     </table>
@@ -1091,11 +1114,11 @@ clinical FOV ((4, 8) leaves Dice == 1.0 here).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 325-326
+.. GENERATED FROM PYTHON SOURCE LINES 348-349
 
-Anatomy before / after the shared elastic field (HABIT intensity plotter).
+Anatomy slice before and after the elastic deformation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 326-338
+.. GENERATED FROM PYTHON SOURCE LINES 349-361
 
 .. code-block:: Python
 
@@ -1130,11 +1153,11 @@ Anatomy before / after the shared elastic field (HABIT intensity plotter).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 339-340
+.. GENERATED FROM PYTHON SOURCE LINES 362-363
 
-Original vs deformed contour on one anatomy slice (dual outline).
+Zoomed edge perturbation figure: Original vs Deformed ROI with XOR contour difference.
 
-.. GENERATED FROM PYTHON SOURCE LINES 340-366
+.. GENERATED FROM PYTHON SOURCE LINES 363-408
 
 .. code-block:: Python
 
@@ -1143,24 +1166,43 @@ Original vs deformed contour on one anatomy slice (dual outline).
     grey = np.take(np.asarray(image.data), z, axis=0)
     m0 = np.take(ref_bin, z, axis=0)
     m1 = np.take(mov_bin, z, axis=0)
-    finite = grey[np.isfinite(grey)]
-    vmin, vmax = np.percentile(finite, (1.0, 99.0))
+
+    # Crop closely around the ROI on the slice so contour differences are clearly visible
+    union_slice = m0 | m1
+    rows = np.any(union_slice, axis=1)
+    cols = np.any(union_slice, axis=0)
+    ymin, ymax = np.where(rows)[0][[0, -1]]
+    xmin, xmax = np.where(cols)[0][[0, -1]]
+    pad = 20
+    ymin = max(0, ymin - pad)
+    ymax = min(grey.shape[0], ymax + pad)
+    xmin = max(0, xmin - pad)
+    xmax = min(grey.shape[1], xmax + pad)
+
+    grey_c = grey[ymin:ymax, xmin:xmax]
+    m0_c = m0[ymin:ymax, xmin:xmax]
+    m1_c = m1[ymin:ymax, xmin:xmax]
+    xor_c = (m0_c != m1_c)
+
+    finite = grey_c[np.isfinite(grey_c)]
+    vmin, vmax = np.percentile(finite, (2.0, 98.0))
+
     with use_style("radiology"):
-        fig_c, ax = plt.subplots(figsize=(5.5, 5.0), constrained_layout=True)
-        ax.imshow(grey, cmap="gray", origin="upper", vmin=vmin, vmax=vmax)
-        ax.contour(m0.astype(float), levels=[0.5], colors=["#00E5FF"], linewidths=1.8)
-        ax.contour(m1.astype(float), levels=[0.5], colors=["#D55E00"], linewidths=1.8)
-        ax.set_title(sanitize_label("Original vs MONAI-deformed ROI"))
+        fig_c, ax = plt.subplots(figsize=(6, 5.5), constrained_layout=True)
+        ax.imshow(grey_c, cmap="gray", origin="upper", vmin=vmin, vmax=vmax)
+        ax.contourf(xor_c.astype(float), levels=[0.5, 1.5], colors=["#E69F00"], alpha=0.45, origin="upper")
+        ax.contour(m0_c.astype(float), levels=[0.5], colors=["#00E5FF"], linewidths=2.0, origin="upper")
+        ax.contour(m1_c.astype(float), levels=[0.5], colors=["#D55E00"], linewidths=2.0, linestyles="--", origin="upper")
+        ax.set_title(sanitize_label("MONAI Elastic Edge Perturbation (ROI Zoom)"))
         ax.axis("off")
-        fig_c.legend(
+        ax.legend(
             handles=[
                 Line2D([0], [0], color="#00E5FF", lw=2.0, label="Original ROI"),
-                Line2D([0], [0], color="#D55E00", lw=2.0, label="bspline_deform ROI"),
+                Line2D([0], [0], color="#D55E00", lw=2.0, ls="--", label="Deformed ROI"),
+                Patch(facecolor="#E69F00", edgecolor="none", alpha=0.45, label="Contour shift (XOR)"),
             ],
-            loc="lower center",
-            ncol=2,
-            frameon=False,
-            bbox_to_anchor=(0.5, -0.02),
+            loc="lower right",
+            frameon=True,
         )
     fig_c.savefig("out/precise_features_bspline_contours.png", dpi=150, bbox_inches="tight")
     plt.show()
@@ -1168,7 +1210,7 @@ Original vs deformed contour on one anatomy slice (dual outline).
 
 
 .. image-sg:: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_009.png
-   :alt: Original vs MONAI-deformed ROI
+   :alt: MONAI Elastic Edge Perturbation (ROI Zoom)
    :srcset: /auto_examples/03_precision/images/sphx_glr_plot_01_precise_features_009.png
    :class: sphx-glr-single-img
 
@@ -1179,7 +1221,7 @@ Original vs deformed contour on one anatomy slice (dual outline).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 26.630 seconds)
+   **Total running time of the script:** (3 minutes 18.585 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_precision_plot_01_precise_features.py:
