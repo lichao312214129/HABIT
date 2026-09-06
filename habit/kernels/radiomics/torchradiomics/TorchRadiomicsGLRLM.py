@@ -31,6 +31,8 @@ from radiomics import base, cMatrices
 
 from habit.kernels.radiomics.gpumatrices import (
   calculate_glrlm as gpu_calculate_glrlm,
+  calculate_glrlm_coo,
+  glrlm_features_from_coo,
   resolve_use_gpu_matrices,
 )
 
@@ -54,6 +56,30 @@ class TorchRadiomicsGLRLM(TorchRadiomicsBase):
     self.imageArray = self._applyBinning(self.imageArray)
 
   def _initCalculation(self, voxelCoordinates=None):
+    self._sparse_features = None
+    if self._use_sparse_coo(voxelCoordinates):
+      Ng = self.coefficients['Ng']
+      coo, _angles = calculate_glrlm_coo(
+        self.imageArray,
+        self.maskArray,
+        Ng,
+        Nr=None,
+        force2D=self.settings.get('force2D', False),
+        force2Ddimension=self.settings.get('force2Ddimension', 0),
+        kernelRadius=self.settings.get('kernelRadius', 1) if self.voxelBased else 0,
+        voxelCoordinates=voxelCoordinates if self.voxelBased else None,
+        device=self.device,
+        dtype=self.dtype,
+      )
+      self._sparse_features = glrlm_features_from_coo(coo)
+      self.P_glrlm = None
+      self.logger.debug(
+        'GLRLM sparse COO initialized (%d voxels, %d unique runs, nr_cap=%d)',
+        coo.n_vox,
+        int(coo.count.numel()),
+        int(coo.nr_cap),
+      )
+      return
     self.P_glrlm = self._calculateMatrix(voxelCoordinates)
 
     self._calculateCoefficients()

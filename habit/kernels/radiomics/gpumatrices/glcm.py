@@ -48,7 +48,8 @@ from typing import Optional, Tuple, Union
 import numpy as np
 import torch
 
-from ._geom import coords_in_image, flat_index, prepare_centre_grid, window_cells
+from ._geom import CentreGrid, coords_in_image, flat_index, prepare_centre_grid, window_cells
+from .sparse_coo import SparseGLCM, unique_counts, unpack_glcm_key
 
 
 def calculate_glcm(
@@ -111,67 +112,168 @@ def calculate_glcm(
     # so integer atomics are exact and the largest allocation is halved
     # against int32. Cast to ``dtype`` once at the end; the values are small
     # integers, exactly representable in float32/64.
-    p_flat = torch.zeros(n_matrices * Ng * Ng * na, dtype=torch.int16, device=device)
     angles_out = grid.angles_t.to(dtype=dtype)
     if n_vox == 0:
-        return p_flat.reshape(n_matrices, Ng, Ng, na).to(dtype=dtype), angles_out
+        p_empty = torch.zeros(
+            n_matrices, Ng, Ng, na, dtype=dtype, device=device
+        )
+        return p_empty, angles_out
 
+    selected = _glcm_event_keys(grid, int(Ng), int(max_chunk_elems))
+    p_flat = torch.zeros(n_matrices * Ng * Ng * na, dtype=torch.int16, device=device)
+    if selected.numel() > 0:
+        p_flat.index_add_(
+            0,
+            selected,
+            torch.ones(selected.numel(), dtype=torch.int16, device=device),
+        )
+    p_glcm = p_flat.reshape(n_matrices, Ng, Ng, na).to(dtype=dtype)
+    return p_glcm, angles_out
+
+
+def calculate_glcm_coo(
+    image: np.ndarray,
+    mask: np.ndarray,
+    distances: np.ndarray,
+    Ng: int,
+    force2D: bool = False,
+    force2Ddimension: int = 0,
+    kernelRadius: int = 0,
+    voxelCoordinates: Optional[np.ndarray] = None,
+    device: Union[str, torch.device] = "cuda",
+    dtype: torch.dtype = torch.float64,
+    max_chunk_elems: int = 1 << 24,
+) -> Tuple[SparseGLCM, torch.Tensor]:
+    """
+    Sparse-COO GLCM. Never allocates a dense ``(B, Ng, Ng, Na)`` store.
+
+    Same pair generation as :func:`calculate_glcm`. Counts are reduced
+    with ``unique`` + ``bincount``. Default ``dtype`` is float64; float32
+    is opt-in and is not value-safe for ClusterShade.
+
+    Args:
+        image: Discretised image (gray levels 1..Ng inside the mask).
+        mask: Boolean array, same shape as ``image``.
+        distances: Integer infinity-norm distances for angle generation.
+        Ng: Number of gray levels (max gray level inside the ROI).
+        force2D: Restrict angles and the kernel window to a 2D plane.
+        force2Ddimension: Out-of-plane dimension when ``force2D`` is set.
+        kernelRadius: Voxel-kernel radius; must be > 0 in voxel-based mode.
+        voxelCoordinates: ``(Nd, Nvox)`` listed voxels, or ``None`` for
+            segment-based mode.
+        device: Torch device for the calculation and the outputs.
+        dtype: Count / feature compute dtype (float64 default).
+        max_chunk_elems: Same pair-chunk cap as the dense kernel.
+
+    Returns:
+        Tuple[SparseGLCM, torch.Tensor]: COO counts and the ``(Na, Nd)``
+        angle table on ``device``.
+    """
+    grid = prepare_centre_grid(
+        image=image,
+        mask=mask,
+        distances=np.asarray(distances),
+        force2D=force2D,
+        force2Ddimension=force2Ddimension,
+        kernelRadius=kernelRadius,
+        voxelCoordinates=voxelCoordinates,
+        device=device,
+        bidirectional=False,
+    )
+    device = grid.device
+    na = int(grid.angles_t.shape[0])
+    n_vox = grid.n_vox
+    angles_out = grid.angles_t.to(dtype=dtype)
+    empty = torch.empty(0, dtype=torch.long, device=device)
+    if n_vox == 0:
+        return (
+            SparseGLCM(
+                voxel=empty,
+                i_idx=empty,
+                j_idx=empty,
+                angle=empty,
+                count=torch.empty(0, dtype=dtype, device=device),
+                n_vox=int(grid.n_matrices),
+                ng=int(Ng),
+                na=na,
+            ),
+            angles_out,
+        )
+    selected = _glcm_event_keys(grid, int(Ng), int(max_chunk_elems))
+    uniq, counts = unique_counts(selected, dtype)
+    voxel, i_idx, j_idx, angle = unpack_glcm_key(uniq, int(Ng), na)
+    return (
+        SparseGLCM(
+            voxel=voxel,
+            i_idx=i_idx,
+            j_idx=j_idx,
+            angle=angle,
+            count=counts,
+            n_vox=int(grid.n_matrices),
+            ng=int(Ng),
+            na=na,
+        ),
+        angles_out,
+    )
+
+
+def _glcm_event_keys(
+    grid: CentreGrid,
+    ng: int,
+    max_chunk_elems: int,
+) -> torch.Tensor:
+    """
+    Flat C-order ``(v, i, j, a)`` keys for every valid GLCM pair.
+
+    Shared by the dense gold scatter and the sparse COO unique. The
+    working store here is the event list, not ``P``.
+
+    Args:
+        grid: Prepared :class:`CentreGrid`.
+        ng: Gray-level axis length.
+        max_chunk_elems: Upper bound on ``pairs x voxels`` per chunk.
+
+    Returns:
+        torch.Tensor: 1-D int64 keys, possibly empty.
+    """
+    device = grid.device
+    na = int(grid.angles_t.shape[0])
+    n_vox = grid.n_vox
     cells = window_cells(grid) if grid.voxel_based else None
     if cells is not None:
-        # A (angle, offset) pair contributes only if the neighbour stays
-        # inside the kernel window, which is exactly where the neighbour is
-        # itself an enumerated offset.
         pair_a, pair_o = torch.nonzero(cells.neigh_off >= 0, as_tuple=True)
     else:
-        # Segment-based mode: a single matrix; every masked voxel is a centre
-        # and the only neighbour constraint is the image bounds.
         pair_a = torch.arange(na, dtype=torch.long, device=device)
         pair_o = torch.zeros(na, dtype=torch.long, device=device)
 
     n_pairs = int(pair_a.shape[0])
     chunk = max(1, int(max_chunk_elems) // max(1, n_vox))
-
+    parts = []
     for start in range(0, n_pairs, chunk):
-        a_c = pair_a[start : start + chunk]  # (Kc,) angle index per pair
-        o_c = pair_o[start : start + chunk]  # (Kc,) kernel-offset index per pair
-
+        a_c = pair_a[start : start + chunk]
+        o_c = pair_o[start : start + chunk]
         if cells is not None:
-            o2 = cells.neigh_off[a_c, o_c]  # (Kc,), all >= 0 by construction
-            valid = cells.cell_valid[o_c] & cells.cell_valid[o2]  # (Kc, Nvox)
-            gi = (cells.cell_gray[o_c].to(torch.int64) - 1).clamp_(0, Ng - 1)
-            gj = (cells.cell_gray[o2].to(torch.int64) - 1).clamp_(0, Ng - 1)
+            o2 = cells.neigh_off[a_c, o_c]
+            valid = cells.cell_valid[o_c] & cells.cell_valid[o2]
+            gi = (cells.cell_gray[o_c].to(torch.int64) - 1).clamp_(0, ng - 1)
+            gj = (cells.cell_gray[o2].to(torch.int64) - 1).clamp_(0, ng - 1)
         else:
-            # Centres and neighbours for every (pair, voxel) combination.
             centres = grid.base_coords[None, :, :] + grid.offsets_t[o_c][:, None, :]
-            neighbours = centres + grid.angles_t[a_c][:, None, :]  # (Kc, Nvox, Nd)
-            # Both voxels must lie inside the image (the per-voxel kernel
-            # window is the image-clipped [-r, r]^Nd box, so bounds checks
-            # here implement the same clipping as the C bb handling).
+            neighbours = centres + grid.angles_t[a_c][:, None, :]
             valid = coords_in_image(centres, grid.size_t) & coords_in_image(
                 neighbours, grid.size_t
             )
-            # Out-of-bounds coordinates produce out-of-range flat indices;
-            # ``flat_index`` clamps them -- the gathered values at those
-            # positions are don't-care because ``valid`` drops them.
             centre_flat = flat_index(centres, grid.strides_t, grid.n_elements)
             neighbour_flat = flat_index(neighbours, grid.strides_t, grid.n_elements)
-            # Both voxels must be part of the ROI (mask[i] and mask[j] in C).
             valid = (
                 valid
                 & grid.mask_flat[centre_flat]
                 & grid.mask_flat[neighbour_flat]
             )
-            # Gray levels are in [1, Ng] on masked voxels; the clamp only
-            # sanitises don't-care values at invalid positions.
-            gi = (grid.img_flat[centre_flat] - 1).clamp_(0, Ng - 1)
-            gj = (grid.img_flat[neighbour_flat] - 1).clamp_(0, Ng - 1)
-
-        # C-order flat index of element [v, i, j, a] in (Nmat, Ng, Ng, Na).
-        flat_idx = ((grid.matrix_ids[None, :] * Ng + gi) * Ng + gj) * na + a_c[:, None]
-        selected = flat_idx[valid]
-        p_flat.index_add_(
-            0, selected, torch.ones(selected.numel(), dtype=torch.int16, device=device)
-        )
-
-    p_glcm = p_flat.reshape(n_matrices, Ng, Ng, na).to(dtype=dtype)
-    return p_glcm, angles_out
+            gi = (grid.img_flat[centre_flat] - 1).clamp_(0, ng - 1)
+            gj = (grid.img_flat[neighbour_flat] - 1).clamp_(0, ng - 1)
+        flat_idx = ((grid.matrix_ids[None, :] * ng + gi) * ng + gj) * na + a_c[:, None]
+        parts.append(flat_idx[valid])
+    if not parts:
+        return torch.empty(0, dtype=torch.long, device=device)
+    return torch.cat(parts, dim=0)

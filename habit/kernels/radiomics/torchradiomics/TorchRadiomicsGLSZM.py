@@ -33,6 +33,8 @@ from radiomics import base, cMatrices
 
 from habit.kernels.radiomics.gpumatrices import (
   calculate_glszm as gpu_calculate_glszm,
+  calculate_glszm_coo,
+  glszm_features_from_coo,
   resolve_use_gpu_matrices,
 )
 
@@ -97,6 +99,31 @@ class TorchRadiomicsGLSZM(TorchRadiomicsBase):
     self.imageArray = self._applyBinning(self.imageArray)
 
   def _initCalculation(self, voxelCoordinates=None):
+    self._sparse_features = None
+    if self._use_sparse_coo(voxelCoordinates):
+      Ng = self.coefficients['Ng']
+      Ns = numpy.sum(self.maskArray)
+      coo = calculate_glszm_coo(
+        self.imageArray,
+        self.maskArray,
+        Ng,
+        int(Ns),
+        force2D=self.settings.get('force2D', False),
+        force2Ddimension=self.settings.get('force2Ddimension', 0),
+        kernelRadius=self.settings.get('kernelRadius', 1) if self.voxelBased else 0,
+        voxelCoordinates=voxelCoordinates if self.voxelBased else None,
+        device=self.device,
+        dtype=self.dtype,
+      )
+      self._sparse_features = glszm_features_from_coo(coo)
+      self.P_glszm = None
+      self.logger.debug(
+        'GLSZM sparse COO initialized (%d voxels, %d unique zones, ns_cap=%d)',
+        coo.n_vox,
+        int(coo.count.numel()),
+        int(coo.ns_cap),
+      )
+      return
     self.P_glszm = self._calculateMatrix(voxelCoordinates)
 
     self._calculateCoefficients()

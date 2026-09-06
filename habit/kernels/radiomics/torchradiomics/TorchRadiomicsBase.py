@@ -28,9 +28,11 @@
 from __future__ import annotations
 
 import hashlib
-from typing import Any, Dict, List, Tuple, Union
+import time
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 import numpy
+import six
 import torch
 from radiomics import base
 
@@ -117,7 +119,130 @@ class TorchRadiomicsBase(base.RadiomicsFeaturesBase):
         dtype=torch.long,
         device=reference.device,
     )
-  
+
+  def _use_sparse_coo(self, voxelCoordinates: Optional[numpy.ndarray]) -> bool:
+    """True when this class should compute features from sparse COO."""
+    from habit.kernels.radiomics.gpumatrices import resolve_use_sparse_matrices
+
+    if voxelCoordinates is None and not self.voxelBased:
+      # Segment mode: COO is allowed (one matrix, actual events only).
+      pass
+    settings = dict(self.settings)
+    settings["dtype"] = self.dtype
+    settings["enabledFeatures"] = getattr(self, "enabledFeatures", {})
+    return resolve_use_sparse_matrices(
+      settings, device=self.device, voxel_based=bool(self.voxelBased)
+    )
+
+  def _calculateFeatures(self, voxelCoordinates=None):
+    """Yield enabled features; prefer a sparse COO cache when present."""
+    self._initCalculation(voxelCoordinates)
+    cache = getattr(self, "_sparse_features", None)
+    self.logger.debug("Calculating features")
+    for feature, enabled in six.iteritems(self.enabledFeatures):
+      if not enabled:
+        continue
+      try:
+        if cache is not None and feature in cache:
+          yield True, feature, cache[feature]
+        else:
+          yield True, feature, getattr(self, "get%sFeatureValue" % feature)()
+      except DeprecationWarning as deprecatedFeature:
+        self.logger.debug(
+          "Feature %s is deprecated: %s", feature, deprecatedFeature.args[0]
+        )
+      except Exception:
+        import traceback
+
+        self.logger.error("FAILED: %s", traceback.format_exc())
+        yield False, feature, numpy.nan
+
+  def _calculateVoxels(self) -> None:
+    """
+    Voxel loop with one-line per-batch progress and OOM resume.
+
+    A CUDA OOM retries the *failed* batch at half size. Completed
+    batches are not recomputed. HU / binWidth are never changed.
+    """
+    import SimpleITK as sitk
+
+    from habit.utils.torch_radiomics_utils import release_cuda_cache
+    from habit.utils.voxel_batch_utils import preflight_texture_batch
+
+    initValue = self.settings.get("initValue", 0)
+    voxelBatch = int(self.settings.get("voxelBatch", -1))
+    batch_progress = bool(self.settings.get("batch_progress", True))
+    ng = int(self.coefficients.get("Ng", 1))
+    radius = int(self.settings.get("kernelRadius", 1) if self.voxelBased else 0)
+    voxelBatch = preflight_texture_batch(
+      ng=ng,
+      requested_batch=voxelBatch,
+      kernel_radius=radius,
+      torch_device=str(self.device),
+      sparse=self._use_sparse_coo(
+        self.labelledVoxelCoordinates[:, :1]
+        if self.labelledVoxelCoordinates.shape[1]
+        else None
+      ),
+      image_nr=int(max(self.imageArray.shape)),
+    )
+
+    for feature, enabled in six.iteritems(self.enabledFeatures):
+      if enabled:
+        self.featureValues[feature] = numpy.full(
+          list(self.inputImage.GetSize())[::-1], initValue, dtype="float"
+        )
+
+    voxel_count = int(self.labelledVoxelCoordinates.shape[1])
+    if voxelBatch < 0:
+      voxelBatch = voxel_count
+    voxel_batch_idx = 0
+    batch_i = 0
+    n_batches = int(numpy.ceil(float(voxel_count) / max(voxelBatch, 1)))
+    class_name = self.__class__.__name__.replace("TorchRadiomics", "").lower()
+    while voxel_batch_idx < voxel_count:
+      batch_i += 1
+      voxelCoords = self.labelledVoxelCoordinates[
+        :, voxel_batch_idx : voxel_batch_idx + voxelBatch
+      ]
+      t0 = time.perf_counter()
+      try:
+        for success, featureName, featureValue in self._calculateFeatures(voxelCoords):
+          if success:
+            self.featureValues[featureName][tuple(voxelCoords)] = featureValue
+      except RuntimeError as exc:
+        if _is_cuda_oom(exc) and voxelBatch > 1:
+          voxelBatch = max(1, voxelBatch // 2)
+          self.logger.warning(
+            "CUDA OOM at %s batch %d; shrinking voxelBatch to %d and "
+            "retrying this batch (completed voxels are kept)",
+            class_name,
+            batch_i,
+            voxelBatch,
+          )
+          release_cuda_cache()
+          batch_i -= 1
+          n_batches = batch_i + int(
+            numpy.ceil(float(voxel_count - voxel_batch_idx) / voxelBatch)
+          )
+          continue
+        raise
+      elapsed = time.perf_counter() - t0
+      if batch_progress:
+        peak = _peak_allocated_mib()
+        msg = (
+          f"voxel_radiomics: {class_name} batch {batch_i}/{n_batches} "
+          f"{elapsed:.3f}s peak={peak:.0f}MiB"
+        )
+        print(msg, flush=True)
+        self.logger.info(msg)
+      voxel_batch_idx += int(voxelCoords.shape[1])
+
+    for feature, enabled in six.iteritems(self.enabledFeatures):
+      if enabled:
+        self.featureValues[feature] = sitk.GetImageFromArray(self.featureValues[feature])
+        self.featureValues[feature].CopyInformation(self.inputImage)
+
   def delete(
       self,
       arr: torch.Tensor,
@@ -138,3 +263,19 @@ class TorchRadiomicsBase(base.RadiomicsFeaturesBase):
       raise TypeError("ind wrong type")
     indices = [slice(None) if i != dim else skip for i in range(arr.ndim)]
     return arr.__getitem__(indices)
+
+
+def _is_cuda_oom(exc: BaseException) -> bool:
+  """True when ``exc`` is a CUDA out-of-memory error."""
+  text = str(exc).lower()
+  return "out of memory" in text or "cuda oom" in text
+
+
+def _peak_allocated_mib() -> float:
+  """Current CUDA allocated MiB, or 0 when CUDA is unused."""
+  try:
+    if torch.cuda.is_available() and torch.cuda.is_initialized():
+      return float(torch.cuda.memory_allocated()) / (1024.0 * 1024.0)
+  except Exception:
+    return 0.0
+  return 0.0

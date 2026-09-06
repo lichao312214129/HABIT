@@ -209,3 +209,78 @@ def resolve_voxel_batch(
     if isinstance(voxel_batch, str):
         return _parse_positive_batch(int(voxel_batch.strip()))
     return _parse_positive_batch(int(voxel_batch))
+
+
+def preflight_texture_batch(
+    *,
+    ng: int,
+    requested_batch: int,
+    kernel_radius: int,
+    torch_device: str,
+    sparse: bool,
+    image_nr: int,
+    vram_fraction: float = 0.70,
+) -> int:
+    """
+    Shrink or refuse a voxel batch from an Ng-based byte estimate.
+
+    Never clips HU and never changes ``binWidth`` / ``binCount``. An
+    explicit ``requested_batch == -1`` (all voxels) is left unchanged
+    when the estimate fits; otherwise it is reduced.
+
+    Args:
+        ng: Gray-level axis (max gray inside the ROI).
+        requested_batch: Caller batch, or ``-1`` for all voxels.
+        kernel_radius: Voxel kernel radius.
+        torch_device: Torch device string (``cuda:0``, ``cpu``, …).
+        sparse: True when the sparse COO path will run.
+        image_nr: ``max(image.shape)``; used only for a dense-GLRLM estimate.
+        vram_fraction: Fraction of device memory allowed for the working set.
+
+    Returns:
+        int: Batch size to use (``-1`` preserved when it still fits).
+
+    Raises:
+        RuntimeError: If even ``MIN_AUTO_VOXEL_BATCH`` exceeds the budget.
+    """
+    from habit.kernels.radiomics.gpumatrices.sparse_coo import (
+        estimate_dense_working_bytes,
+        estimate_sparse_working_bytes,
+    )
+
+    raw = int(requested_batch)
+    total_gb = _cuda_total_gb(str(torch_device))
+    if total_gb is None:
+        return raw
+    budget = int(total_gb * float(vram_fraction) * (1024 ** 3))
+
+    def _bytes(batch: int) -> int:
+        if sparse:
+            return estimate_sparse_working_bytes(ng, batch, kernel_radius)
+        return estimate_dense_working_bytes(ng, batch, image_nr)
+
+    probe = raw if raw > 0 else MIN_AUTO_VOXEL_BATCH
+    if _bytes(probe) <= budget:
+        return raw
+    batch = probe if raw > 0 else min(4000, int(budget / max(_bytes(1), 1)))
+    while batch > MIN_AUTO_VOXEL_BATCH and _bytes(batch) > budget:
+        batch = max(MIN_AUTO_VOXEL_BATCH, batch // 2)
+    if _bytes(batch) > budget:
+        raise RuntimeError(
+            "Texture working set for Ng=%d batch=%d exceeds %.0f%% of "
+            "device memory (%.1f GiB). Reduce voxel_batch or Ng; "
+            "HABIT will not clip HU or change binWidth."
+            % (int(ng), int(batch), vram_fraction * 100.0, total_gb)
+        )
+    if batch != raw:
+        logger.warning(
+            "Preflight shrank voxel_batch %s -> %d (Ng=%d, sparse=%s, "
+            "est=%.1f MiB, budget=%.1f MiB). HU/binWidth unchanged.",
+            raw,
+            batch,
+            int(ng),
+            sparse,
+            _bytes(batch) / (1024.0 ** 2),
+            budget / (1024.0 ** 2),
+        )
+    return int(batch)

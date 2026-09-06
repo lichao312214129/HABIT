@@ -31,6 +31,8 @@ from radiomics import base, cMatrices
 
 from habit.kernels.radiomics.gpumatrices import (
   calculate_glcm as gpu_calculate_glcm,
+  calculate_glcm_coo,
+  glcm_features_from_coo,
   resolve_use_gpu_matrices,
 )
 
@@ -112,6 +114,31 @@ class TorchRadiomicsGLCM(TorchRadiomicsBase):
     }
 
   def _initCalculation(self, voxelCoordinates=None):
+    self._sparse_features = None
+    if self._use_sparse_coo(voxelCoordinates):
+      Ng = self.coefficients['Ng']
+      coo, _angles = calculate_glcm_coo(
+        self.imageArray,
+        self.maskArray,
+        numpy.array(self.settings.get('distances', [1])),
+        Ng,
+        force2D=self.settings.get('force2D', False),
+        force2Ddimension=self.settings.get('force2Ddimension', 0),
+        kernelRadius=self.settings.get('kernelRadius', 1) if self.voxelBased else 0,
+        voxelCoordinates=voxelCoordinates if self.voxelBased else None,
+        device=self.device,
+        dtype=self.dtype,
+      )
+      self._sparse_features = glcm_features_from_coo(
+        coo, symmetrical=bool(self.symmetricalGLCM)
+      )
+      self.P_glcm = None
+      self.logger.debug(
+        'GLCM sparse COO initialized (%d voxels, %d unique pairs)',
+        coo.n_vox,
+        int(coo.count.numel()),
+      )
+      return
     self.P_glcm = self._calculateMatrix(voxelCoordinates)
 
     self._calculateCoefficients()

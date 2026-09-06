@@ -31,11 +31,19 @@ from typing import Mapping, Optional, Union
 import torch
 
 from .angles import build_angles, get_angle_count
-from .glcm import calculate_glcm
+from .glcm import calculate_glcm, calculate_glcm_coo
 from .gldm import calculate_gldm
-from .glrlm import calculate_glrlm
-from .glszm import calculate_glszm
+from .glrlm import calculate_glrlm, calculate_glrlm_coo
+from .glszm import calculate_glszm, calculate_glszm_coo
 from .ngtdm import calculate_ngtdm
+from .sparse_coo import (
+    GLCM_DENSE_ONLY_FEATURES,
+    estimate_dense_working_bytes,
+    estimate_sparse_working_bytes,
+    glcm_features_from_coo,
+    glrlm_features_from_coo,
+    glszm_features_from_coo,
+)
 
 
 def is_available() -> bool:
@@ -75,14 +83,68 @@ def resolve_use_gpu_matrices(
     return is_available() and str(device).startswith("cuda")
 
 
+def resolve_use_sparse_matrices(
+    settings: Mapping[str, object],
+    device: Optional[Union[str, torch.device]] = None,
+    voxel_based: bool = True,
+) -> bool:
+    """
+    Resolve whether voxel GPU texture features use sparse COO.
+
+    ``auto`` (default): on when the GPU matrix path is on, the compute
+    dtype is float64, and MCC/Imc1/Imc2 are not enabled. float32 is
+    opt-in for dense only -- sparse f32 GLCM ClusterShade failed 1e-3.
+
+    Explicit ``False`` keeps the dense gold kernels (parity tests).
+
+    Args:
+        settings: PyRadiomics / habit settings (reads
+            ``use_sparse_matrices``, ``dtype``, ``enabledFeatures``).
+        device: Feature-class device; forwarded to the GPU-matrix rule.
+        voxel_based: Sparse COO is the default for voxel kernels. Segment
+            mode may still use COO for GLCM/GLRLM/GLSZM when auto.
+
+    Returns:
+        bool: True when the sparse COO feature path should run.
+    """
+    del voxel_based  # reserved: segment COO is also safe and is allowed.
+    flag = settings.get("use_sparse_matrices", "auto")
+    if flag is False or str(flag).lower() == "false":
+        return False
+    if not resolve_use_gpu_matrices(settings, device):
+        return False
+    dtype = settings.get("dtype", torch.float64)
+    if dtype in (torch.float32, "float32"):
+        return False
+    enabled = settings.get("enabledFeatures") or {}
+    if isinstance(enabled, Mapping):
+        if any(enabled.get(name) for name in GLCM_DENSE_ONLY_FEATURES):
+            return False
+    weighting = settings.get("weightingNorm", None)
+    if weighting not in (None, "no_weighting"):
+        return False
+    if flag is True or str(flag).lower() == "true":
+        return True
+    return True
+
+
 __all__ = [
     "build_angles",
     "calculate_glcm",
+    "calculate_glcm_coo",
     "calculate_gldm",
     "calculate_glrlm",
+    "calculate_glrlm_coo",
     "calculate_glszm",
+    "calculate_glszm_coo",
     "calculate_ngtdm",
+    "estimate_dense_working_bytes",
+    "estimate_sparse_working_bytes",
     "get_angle_count",
+    "glcm_features_from_coo",
+    "glrlm_features_from_coo",
+    "glszm_features_from_coo",
     "is_available",
     "resolve_use_gpu_matrices",
+    "resolve_use_sparse_matrices",
 ]

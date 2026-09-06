@@ -44,6 +44,7 @@ import numpy as np
 import torch
 
 from ._geom import CentreGrid, coords_in_image, flat_index, prepare_centre_grid
+from .sparse_coo import SparseGLRLM, unique_counts, voxel_nr_cap
 
 
 def calculate_glrlm(
@@ -96,6 +97,67 @@ def calculate_glrlm(
         bidirectional=False,
     )
     return _accumulate_glrlm(grid, int(Ng), int(Nr), dtype)
+
+
+def calculate_glrlm_coo(
+    image: np.ndarray,
+    mask: np.ndarray,
+    Ng: int,
+    Nr: Optional[int] = None,
+    force2D: bool = False,
+    force2Ddimension: int = 0,
+    kernelRadius: int = 0,
+    voxelCoordinates: Optional[np.ndarray] = None,
+    device: Union[str, torch.device] = "cuda",
+    dtype: torch.dtype = torch.float64,
+) -> Tuple[SparseGLRLM, torch.Tensor]:
+    """
+    Sparse-COO GLRLM. Never allocates a dense ``(B, Ng, Nr, Na)`` store.
+
+    Voxel mode: run lengths are analysed inside the kernel window, so
+    ``Nr`` is ``2*r+1`` (a 7^3 window cannot hold a longer run). Segment
+    mode keeps the protocol cap ``Nr = max(image.shape)`` as a *filter*
+    only -- trailing empty run columns are not materialised.
+
+    Args:
+        image: Discretised image (gray levels 1..Ng inside the mask).
+        mask: Boolean array, same shape as ``image``.
+        Ng: Number of gray levels.
+        Nr: Optional run-length cap. ``None`` selects the voxel-window
+            cap or ``max(image.shape)`` in segment mode.
+        force2D: Restrict angles and the kernel window to a 2D plane.
+        force2Ddimension: Out-of-plane dimension when ``force2D`` is set.
+        kernelRadius: Voxel-kernel radius; must be > 0 in voxel-based mode.
+        voxelCoordinates: ``(Nd, Nvox)`` listed voxels, or ``None`` for
+            segment-based mode.
+        device: Torch device.
+        dtype: Count / feature compute dtype (float64 default).
+
+    Returns:
+        Tuple[SparseGLRLM, torch.Tensor]: COO counts and the angle table.
+    """
+    distances = np.asarray([1], dtype=np.int32)
+    grid = prepare_centre_grid(
+        image=image,
+        mask=mask,
+        distances=distances,
+        force2D=force2D,
+        force2Ddimension=force2Ddimension,
+        kernelRadius=kernelRadius,
+        voxelCoordinates=voxelCoordinates,
+        device=device,
+        bidirectional=False,
+    )
+    if Nr is None:
+        if grid.voxel_based:
+            nr_cap = voxel_nr_cap(grid.kernel_radius)
+        else:
+            nr_cap = int(max(grid.size))
+    else:
+        nr_cap = int(Nr)
+        if grid.voxel_based:
+            nr_cap = min(nr_cap, voxel_nr_cap(grid.kernel_radius))
+    return _accumulate_glrlm_coo(grid, int(Ng), nr_cap, dtype)
 
 
 def _lexsort(keys: List[torch.Tensor]) -> torch.Tensor:
@@ -378,6 +440,261 @@ def _rle_all_angles(
     if n_pts == 0 or na == 0:
         return
     device = coords.device
+    del dump  # COO collection has no dumpster slot; kept on the signature.
+    mid_r, gray_r, run_r, ang_r, multi, present = _rle_chunk_runs(
+        coords, matrix_ids, gl, angles, n_matrices, ng, nr, na, size_max
+    )
+    zero16 = torch.zeros((), dtype=torch.int16, device=device)
+    if mid_r.numel() > 0:
+        flat_idx = ((mid_r * ng + gray_r) * nr + run_r) * na + ang_r
+        p_flat.index_add_(
+            0,
+            flat_idx,
+            torch.ones(flat_idx.numel(), dtype=torch.int16, device=device),
+        )
+    # C multiElement wipe: drop length-1 bins when no ray of that
+    # (matrix, angle) had 2+ voxels. Restrict to matrices present in
+    # this chunk so a previous chunk's counts are not erased.
+    v_all = torch.arange(n_matrices, device=device)
+    g_all = torch.arange(ng, device=device)
+    a_all = torch.arange(na, device=device)
+    idx0 = ((v_all[:, None, None] * ng + g_all[None, :, None]) * nr + 0) * na + a_all[
+        None, None, :
+    ]
+    cur = p_flat[idx0]
+    wipe = present[:, None] & ~multi
+    p_flat[idx0] = torch.where(wipe[:, None, :], zero16, cur)
+
+
+def _runs_from_sorted(
+    mid_s: torch.Tensor,
+    ang_s: torch.Tensor,
+    gl_s: torch.Tensor,
+    t_s: torch.Tensor,
+    same_ray_core: Optional[torch.Tensor],
+    step: torch.Tensor,
+    n_all: int,
+    n_matrices: int,
+    ng: int,
+    nr: int,
+    na: int,
+) -> Tuple[
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+]:
+    """
+    Turn a ray-sorted point list into run starts plus the multiElement mask.
+
+    Shared by the dense gold scatter and the sparse COO path so the C
+    run-break / multiElement rules cannot drift.
+
+    Args:
+        mid_s: Sorted matrix ids, ``(n_all,)``.
+        ang_s: Sorted angle ids, ``(n_all,)``.
+        gl_s: Sorted gray levels, ``(n_all,)``.
+        t_s: Sorted walk positions, ``(n_all,)``.
+        same_ray_core: ``n_all-1`` bools, or ``None`` when ``n_all<=1``.
+        step: ``|angle[d0]|`` per angle, ``(Na,)``.
+        n_all: Sorted length.
+        n_matrices: Output matrix count.
+        ng: Gray-level axis.
+        nr: Run-length cap (runs with ``L-1 >= nr`` are dropped).
+        na: Angle count.
+
+    Returns:
+        Tuple of ``(mid, gray, run, angle, multi, present)`` where
+        ``mid/gray/run/angle`` are 1-D run-start rows (0-based gray/run),
+        ``multi`` is ``(n_matrices, na)`` and ``present`` is ``(n_matrices,)``.
+    """
+    device = mid_s.device
+    ray_new = torch.ones(n_all, dtype=torch.bool, device=device)
+    is_new = torch.ones(n_all, dtype=torch.bool, device=device)
+    if same_ray_core is not None:
+        step_s = step.to(torch.int64)[ang_s]
+        adjacent = (t_s[1:] - t_s[:-1]) == step_s[1:]
+        same_gl = gl_s[1:] == gl_s[:-1]
+        ray_new[1:] = ~same_ray_core
+        is_new[1:] = ~(same_ray_core & adjacent & same_gl)
+    arange_all = torch.arange(n_all, device=device)
+    rl = (_next_start(is_new, n_all) - arange_all) - 1
+    run_gl = (gl_s - 1).clamp_(0, ng - 1)
+    valid_run = is_new & (rl < nr)
+    last_false = torch.zeros(1, dtype=torch.bool, device=device)
+    big = ray_new & torch.cat([~ray_new[1:], last_false])
+    n_ma = n_matrices * na
+    multi_counts = torch.zeros(n_ma + 1, dtype=torch.int32, device=device)
+    pair_idx = mid_s * na + ang_s
+    multi_counts.index_add_(
+        0,
+        torch.where(big, pair_idx, n_ma),
+        torch.where(big, 1, 0).to(torch.int32),
+    )
+    multi = (multi_counts[:n_ma] > 0).reshape(n_matrices, na)
+    present = torch.zeros(n_matrices, dtype=torch.bool, device=device)
+    if mid_s.numel() > 0:
+        present[mid_s.to(torch.long)] = True
+    return (
+        mid_s[valid_run],
+        run_gl[valid_run],
+        rl[valid_run],
+        ang_s[valid_run],
+        multi,
+        present,
+    )
+
+
+def _accumulate_glrlm_coo(
+    grid: CentreGrid,
+    ng: int,
+    nr: int,
+    dtype: torch.dtype,
+    max_sort_elems: int = 1 << 23,
+) -> Tuple[SparseGLRLM, torch.Tensor]:
+    """Vectorised GLRLM into COO. No dense ``(B, Ng, Nr, Na)`` allocation."""
+    device = grid.device
+    na = int(grid.angles_t.shape[0])
+    n_off = int(grid.offsets_t.shape[0])
+    n_vox = grid.n_vox
+    n_matrices = grid.n_matrices
+    angles_out = grid.angles_t.to(dtype=dtype)
+    empty = torch.empty(0, dtype=torch.long, device=device)
+    empty_c = torch.empty(0, dtype=dtype, device=device)
+    empty_coo = SparseGLRLM(
+        voxel=empty,
+        gray=empty,
+        run=empty,
+        angle=empty,
+        count=empty_c,
+        n_vox=n_matrices,
+        ng=ng,
+        na=na,
+        nr_cap=nr,
+    )
+    if n_vox == 0 or n_off == 0:
+        return empty_coo, angles_out
+
+    centres = grid.base_coords[None, :, :] + grid.offsets_t[:, None, :]
+    centre_in = coords_in_image(centres, grid.size_t)
+    if grid.voxel_based:
+        in_window = (
+            (centres - grid.base_coords[None, :, :]).abs() <= grid.kernel_radius
+        ).all(dim=-1)
+        centre_in = centre_in & in_window
+    centre_flat = flat_index(centres, grid.strides_t, grid.n_elements)
+    centre_valid = centre_in & grid.mask_flat[centre_flat]
+    coords = centres[centre_valid]
+    n_pts = int(coords.shape[0])
+    if n_pts == 0:
+        return empty_coo, angles_out
+
+    matrix_ids = grid.matrix_ids.expand(n_off, n_vox)[centre_valid]
+    gl = grid.img_flat[centre_flat][centre_valid]
+    size_max = max(grid.size)
+    max_pts = max(1, int(max_sort_elems) // max(na, 1))
+
+    mid_parts: List[torch.Tensor] = []
+    gray_parts: List[torch.Tensor] = []
+    run_parts: List[torch.Tensor] = []
+    ang_parts: List[torch.Tensor] = []
+    multi = torch.zeros(n_matrices, na, dtype=torch.bool, device=device)
+
+    def _consume(sl_coords: torch.Tensor, sl_mid: torch.Tensor, sl_gl: torch.Tensor) -> None:
+        mid_r, gray_r, run_r, ang_r, multi_c, _present = _rle_chunk_runs(
+            sl_coords, sl_mid, sl_gl, grid.angles_t, n_matrices, ng, nr, na, size_max
+        )
+        if mid_r.numel() > 0:
+            mid_parts.append(mid_r)
+            gray_parts.append(gray_r)
+            run_parts.append(run_r)
+            ang_parts.append(ang_r)
+        multi.logical_or_(multi_c)
+
+    if n_pts <= max_pts:
+        _consume(coords, matrix_ids, gl)
+    else:
+        counts = torch.bincount(matrix_ids, minlength=n_matrices)
+        counts_np = counts.detach().cpu().numpy()
+        start = 0
+        acc = 0
+        for mid, count in enumerate(counts_np.tolist()):
+            count_i = int(count)
+            if acc > 0 and acc + count_i > max_pts:
+                sl = (matrix_ids >= start) & (matrix_ids < mid)
+                _consume(coords[sl], matrix_ids[sl], gl[sl])
+                start = mid
+                acc = 0
+            acc += count_i
+        sl = matrix_ids >= start
+        _consume(coords[sl], matrix_ids[sl], gl[sl])
+
+    if not mid_parts:
+        return empty_coo, angles_out
+    mid_all = torch.cat(mid_parts, dim=0)
+    gray_all = torch.cat(gray_parts, dim=0)
+    run_all = torch.cat(run_parts, dim=0)
+    ang_all = torch.cat(ang_parts, dim=0)
+    # multiElement: drop length-1 runs when that (voxel, angle) never
+    # had a 2+ voxel ray. Same rule as the dense wipe of column j=0.
+    keep = (run_all > 0) | multi[mid_all.to(torch.long), ang_all.to(torch.long)]
+    mid_all = mid_all[keep]
+    gray_all = gray_all[keep]
+    run_all = run_all[keep]
+    ang_all = ang_all[keep]
+    key = ((mid_all * ng + gray_all) * nr + run_all) * na + ang_all
+    uniq, counts = unique_counts(key, dtype)
+    na_r = nr * na
+    voxel = torch.div(uniq, ng * na_r, rounding_mode="floor")
+    rem = uniq - voxel * (ng * na_r)
+    gray_u = torch.div(rem, na_r, rounding_mode="floor")
+    rem = rem - gray_u * na_r
+    run_u = torch.div(rem, na, rounding_mode="floor")
+    ang_u = rem - run_u * na
+    return (
+        SparseGLRLM(
+            voxel=voxel,
+            gray=gray_u,
+            run=run_u,
+            angle=ang_u,
+            count=counts,
+            n_vox=n_matrices,
+            ng=ng,
+            na=na,
+            nr_cap=nr,
+        ),
+        angles_out,
+    )
+
+
+def _rle_chunk_runs(
+    coords: torch.Tensor,
+    matrix_ids: torch.Tensor,
+    gl: torch.Tensor,
+    angles: torch.Tensor,
+    n_matrices: int,
+    ng: int,
+    nr: int,
+    na: int,
+    size_max: int,
+) -> Tuple[
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+]:
+    """Sort one chunk and return run starts (no dense scatter)."""
+    n_pts = int(coords.shape[0])
+    device = coords.device
+    empty = torch.empty(0, dtype=torch.long, device=device)
+    multi0 = torch.zeros(n_matrices, na, dtype=torch.bool, device=device)
+    present0 = torch.zeros(n_matrices, dtype=torch.bool, device=device)
+    if n_pts == 0 or na == 0:
+        return empty, empty, empty, empty, multi0, present0
     nd = int(coords.shape[1])
     inv, t, step = _ray_invariants_and_t_batch(coords, angles)
     n_all = na * n_pts
@@ -402,12 +719,8 @@ def _rle_all_angles(
         keys.append(angle_ids)
         keys.append(mid_b)
         order = _lexsort(keys)
-
+        packed = None
     if packed is not None:
-        # The sorted key already carries (matrix, angle, inv, t); unpacking it
-        # costs a few elementwise ops, while gathering mid / ang / inv / t
-        # through ``order`` would move Nd + 3 permuted int64 arrays of length
-        # na * n_pts. Same fields, same run/ray predicates, same counts.
         span_t = 2 * size_max + 1
         packed_s = packed[order]
         ray_key = packed_s // span_t
@@ -431,60 +744,16 @@ def _rle_all_angles(
             )
         )
     gl_s = gl_b[order]
-
-    ray_new = torch.ones(n_all, dtype=torch.bool, device=device)
-    is_new = torch.ones(n_all, dtype=torch.bool, device=device)
-    if same_ray_core is not None:
-        # step is |angle[d0]|, one value per angle; a break is only tested
-        # between two points of the same ray, so either side's angle serves.
-        step_s = step.to(torch.int64)[ang_s]
-        adjacent = (t_s[1:] - t_s[:-1]) == step_s[1:]
-        same_gl = gl_s[1:] == gl_s[:-1]
-        ray_new[1:] = ~same_ray_core
-        is_new[1:] = ~(same_ray_core & adjacent & same_gl)
-
-    # At a group start the own-group start is the position itself, so the
-    # length is next_start - position.
-    arange_all = torch.arange(n_all, device=device)
-    rl = (_next_start(is_new, n_all) - arange_all) - 1
-    run_gl = (gl_s - 1).clamp_(0, ng - 1)
-    valid_run = is_new & (rl < nr)
-    flat_idx = ((mid_s * ng + run_gl) * nr + rl) * na + ang_s
-    one16 = torch.ones((), dtype=torch.int16, device=device)
-    zero16 = torch.zeros((), dtype=torch.int16, device=device)
-    p_flat.index_add_(
-        0,
-        torch.where(valid_run, flat_idx, dump),
-        torch.where(valid_run, one16, zero16),
+    return _runs_from_sorted(
+        mid_s=mid_s,
+        ang_s=ang_s,
+        gl_s=gl_s,
+        t_s=t_s,
+        same_ray_core=same_ray_core,
+        step=step,
+        n_all=n_all,
+        n_matrices=n_matrices,
+        ng=ng,
+        nr=nr,
+        na=na,
     )
-
-    # A ray starting at i holds 2+ points exactly when i + 1 is not itself a
-    # ray start, which replaces a second cummax / cummin pass over n_all.
-    last_false = torch.zeros(1, dtype=torch.bool, device=device)
-    big = ray_new & torch.cat([~ray_new[1:], last_false])
-    n_ma = n_matrices * na
-    multi_counts = torch.zeros(n_ma + 1, dtype=torch.int32, device=device)
-    pair_idx = mid_s * na + ang_s
-    multi_counts.index_add_(
-        0,
-        torch.where(big, pair_idx, n_ma),
-        torch.where(big, 1, 0).to(torch.int32),
-    )
-    multi = (multi_counts[:n_ma] > 0).reshape(n_matrices, na)
-    # C multiElement is per listed voxel (one output matrix). Sort-size
-    # chunking calls this function on a subset of voxels that still share
-    # the full p_flat / n_matrices. Voxels not in this chunk have
-    # multi=False here; zeroing their length-1 bins would erase counts
-    # that a previous chunk already wrote. Restrict the wipe to mid_s.
-    present = torch.zeros(n_matrices, dtype=torch.bool, device=device)
-    if mid_s.numel() > 0:
-        present[mid_s.to(torch.long)] = True
-    v_all = torch.arange(n_matrices, device=device)
-    g_all = torch.arange(ng, device=device)
-    a_all = torch.arange(na, device=device)
-    idx0 = ((v_all[:, None, None] * ng + g_all[None, :, None]) * nr + 0) * na + a_all[
-        None, None, :
-    ]
-    cur = p_flat[idx0]
-    wipe = present[:, None] & ~multi
-    p_flat[idx0] = torch.where(wipe[:, None, :], zero16, cur)

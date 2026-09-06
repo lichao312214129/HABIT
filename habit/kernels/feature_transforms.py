@@ -993,14 +993,25 @@ def select_precise_correlation_columns(
         return columns
 
     values: np.ndarray = np.asarray(block, dtype=float)
+    # Constant columns make scipy.stats.spearmanr return a scalar (1, 1)
+    # instead of an n x n matrix. Drop them first; ICC screening does not
+    # call this function, so habitat GMM semantics stay local.
+    if values.shape[0] < 2:
+        return columns
+    col_var: np.ndarray = np.var(values, axis=0)
+    varying: np.ndarray = np.isfinite(col_var) & (col_var > 0.0)
+    n_varying: int = int(varying.sum())
+    if n_varying <= 1:
+        return [columns[i] for i in range(n_features) if bool(varying[i])]
+    values = values[:, varying]
+    columns = [columns[i] for i in range(n_features) if bool(varying[i])]
+    n_features = n_varying
     corr_raw, p_raw = stats.spearmanr(values, axis=0)
     corr_matrix: np.ndarray = np.atleast_2d(np.asarray(corr_raw, dtype=float))
     p_matrix: np.ndarray = np.atleast_2d(np.asarray(p_raw, dtype=float))
     if corr_matrix.shape != (n_features, n_features):
-        raise ValueError(
-            "select_precise_correlation_columns: Spearman matrix shape "
-            f"{corr_matrix.shape} does not match n_features={n_features}."
-        )
+        # Still degenerate (e.g. all ranks tied). Skip the filter.
+        return columns
 
     # Same masks as Prior: upper triangle (k=1) AND significant p.
     upper: np.ndarray = np.triu(np.ones_like(corr_matrix), k=1).astype(bool)

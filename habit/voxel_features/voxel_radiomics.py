@@ -341,6 +341,8 @@ class VoxelRadiomicsFeatures:
                 "voxelBatch": self.voxel_batch,
                 "geometryTolerance": 1e-3,
                 "use_gpu_matrices": self.use_gpu_matrices,
+                "use_sparse_matrices": "auto",
+                "batch_progress": True,
             }
         )
         if backend == "torch" and device is not None:

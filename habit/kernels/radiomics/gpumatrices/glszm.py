@@ -36,12 +36,17 @@ mode uses the same propagation on the sparse list of masked voxels.
 from __future__ import annotations
 
 import math
-from typing import Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 import torch
 
 from ._geom import CentreGrid, coords_in_image, element_strides, flat_index, prepare_centre_grid
+from .sparse_coo import SparseGLSZM, unique_counts, voxel_ns_cap
+
+# Reused across voxel batches of the same (No, Nvox) shape. empty_cache is
+# not the product: these tensors stay live and are zero-filled in place.
+_LABEL_BUF: Dict[str, torch.Tensor] = {}
 
 
 def calculate_glszm(
@@ -96,6 +101,59 @@ def calculate_glszm(
     if grid.voxel_based:
         return _accumulate_glszm_voxel(grid, int(Ng), dtype)
     return _accumulate_glszm_segment(grid, int(Ng), dtype)
+
+
+def calculate_glszm_coo(
+    image: np.ndarray,
+    mask: np.ndarray,
+    Ng: int,
+    Ns: int = 0,
+    force2D: bool = False,
+    force2Ddimension: int = 0,
+    kernelRadius: int = 0,
+    voxelCoordinates: Optional[np.ndarray] = None,
+    device: Union[str, torch.device] = "cuda",
+    dtype: torch.dtype = torch.float64,
+) -> SparseGLSZM:
+    """
+    Sparse-COO GLSZM. Never allocates a dense ``(B, Ng, maxRegion)`` store.
+
+    Voxel mode: zone sizes are bounded by ``(2r+1)^Nd``. Segment mode
+    stores only the zones that exist (protocol ``Ns`` is unused, matching
+    the dense kernel).
+
+    Args:
+        image: Discretised image (gray levels 1..Ng inside the mask).
+        mask: Boolean array, same shape as ``image``.
+        Ng: Number of gray levels.
+        Ns: C temp-buffer bound; unused (kept for call-site compatibility).
+        force2D: Restrict angles and the kernel window to a 2D plane.
+        force2Ddimension: Out-of-plane dimension when ``force2D`` is set.
+        kernelRadius: Voxel-kernel radius; must be > 0 in voxel-based mode.
+        voxelCoordinates: ``(Nd, Nvox)`` listed voxels, or ``None`` for
+            segment-based mode.
+        device: Torch device.
+        dtype: Count / feature compute dtype (float64 default).
+
+    Returns:
+        SparseGLSZM: COO zone counts on ``device``.
+    """
+    del Ns
+    distances = np.asarray([1], dtype=np.int32)
+    grid = prepare_centre_grid(
+        image=image,
+        mask=mask,
+        distances=distances,
+        force2D=force2D,
+        force2Ddimension=force2Ddimension,
+        kernelRadius=kernelRadius,
+        voxelCoordinates=voxelCoordinates,
+        device=device,
+        bidirectional=True,
+    )
+    if grid.voxel_based:
+        return _accumulate_glszm_voxel_coo(grid, int(Ng), dtype)
+    return _accumulate_glszm_segment_coo(grid, int(Ng), dtype)
 
 
 def _offset_lookup(offsets: torch.Tensor, radius: int, nd: int) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -230,58 +288,195 @@ def _histogram_zones(
     Returns:
         torch.Tensor: GLSZM cropped to the largest observed zone size.
     """
+    z_mid, z_gl, sizes = _zone_table(
+        matrix_ids, labels, gl, valid, ng, label_bound
+    )
     device = labels.device
-    if not bool(valid.any()):
+    if z_mid.numel() == 0:
         return torch.zeros(n_matrices, ng, 1, dtype=dtype, device=device)
+    max_region = max(int(sizes.max().item()), 1)
+    rl = sizes - 1
+    in_range = (rl >= 0) & (rl < max_region)
+    p = torch.zeros(n_matrices * ng * max_region, dtype=torch.int32, device=device)
+    flat = (z_mid[in_range] * ng + z_gl[in_range]) * max_region + rl[in_range]
+    p.index_add_(0, flat, torch.ones(flat.numel(), dtype=torch.int32, device=device))
+    return p.reshape(n_matrices, ng, max_region).to(dtype=dtype)
 
+
+def _zone_table(
+    matrix_ids: torch.Tensor,
+    labels: torch.Tensor,
+    gl: torch.Tensor,
+    valid: torch.Tensor,
+    ng: int,
+    label_bound: int,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """
+    One row per connected zone: ``(matrix, gray_idx, size)``.
+
+    Args:
+        matrix_ids: Matrix index of every labelled voxel, 1-D.
+        labels: Component labels (unique per matrix), 1-D.
+        gl: Gray levels, 1-D.
+        valid: Boolean mask; only ``True`` entries form zones.
+        ng: Gray-level axis length.
+        label_bound: Exclusive-plus-one upper bound on ``labels``.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        ``z_mid``, ``z_gl`` (0-based), ``sizes`` (voxel count).
+    """
+    device = labels.device
+    empty = torch.empty(0, dtype=torch.int64, device=device)
+    if not bool(valid.any()):
+        return empty, empty, empty
     mid = matrix_ids[valid]
     lab = labels[valid]
     grey = (gl[valid] - 1).clamp(0, ng - 1).to(torch.int64)
-    # Labels are 1..label_bound. A static span stays unique per matrix.
     lab_span = int(label_bound) + 1
     zone_key = mid * lab_span + lab
-
     if device.type == "cuda":
-        # torch.unique / scatter_reduce on CUDA are correct for this many
-        # int64 keys (the CPU torch kernels are not; see glrlm._lexsort),
-        # so only the CPU path pays for the numpy host round-trip.
         uniq, inv = torch.unique(zone_key, return_inverse=True)
         sizes = torch.bincount(inv).to(torch.int64)
         z_mid = torch.div(uniq, lab_span, rounding_mode="floor")
-        # Every voxel of a zone shares one gray level, so amin is exact.
         z_gl = torch.full((uniq.numel(),), ng, dtype=torch.int64, device=device)
         z_gl.scatter_reduce_(0, inv, grey, reduce="amin", include_self=True)
-        max_region = max(int(sizes.max()), 1)
-        rl = sizes - 1
-        in_range = (rl >= 0) & (rl < max_region)
-        p = torch.zeros(n_matrices * ng * max_region, dtype=torch.int32, device=device)
-        flat = (z_mid[in_range] * ng + z_gl[in_range]) * max_region + rl[in_range]
-        p.index_add_(0, flat, torch.ones(flat.numel(), dtype=torch.int32, device=device))
-        return p.reshape(n_matrices, ng, max_region).to(dtype=dtype)
-
+        return z_mid, z_gl, sizes
     mid_np = mid.detach().cpu().numpy().astype(np.int64)
     grey_np = grey.detach().cpu().numpy().astype(np.int64)
     zone_key_np = zone_key.detach().cpu().numpy().astype(np.int64)
     _uniq, first, inv = np.unique(zone_key_np, return_index=True, return_inverse=True)
     sizes = np.bincount(inv).astype(np.int64)
-    z_mid = mid_np[first]
-    z_gl = grey_np[first]
-    max_region = max(int(sizes.max()), 1)
-    p = np.zeros((n_matrices, ng, max_region), dtype=np.int32)
-    rl = sizes - 1
-    in_range = (rl >= 0) & (rl < max_region)
-    np.add.at(p, (z_mid[in_range], z_gl[in_range], rl[in_range]), 1)
-    return torch.as_tensor(p, dtype=dtype, device=device)
+    return (
+        torch.as_tensor(mid_np[first], dtype=torch.int64, device=device),
+        torch.as_tensor(grey_np[first], dtype=torch.int64, device=device),
+        torch.as_tensor(sizes, dtype=torch.int64, device=device),
+    )
+
+
+def _zones_to_coo(
+    z_mid: torch.Tensor,
+    z_gl: torch.Tensor,
+    sizes: torch.Tensor,
+    n_matrices: int,
+    ng: int,
+    ns_cap: int,
+    dtype: torch.dtype,
+) -> SparseGLSZM:
+    """Collapse zones that share ``(voxel, gray, size)`` into COO counts."""
+    device = z_mid.device
+    empty = torch.empty(0, dtype=torch.long, device=device)
+    if z_mid.numel() == 0:
+        return SparseGLSZM(
+            voxel=empty,
+            gray=empty,
+            size=empty,
+            count=torch.empty(0, dtype=dtype, device=device),
+            n_vox=n_matrices,
+            ng=ng,
+            ns_cap=ns_cap,
+        )
+    rl = (sizes - 1).clamp(min=0)
+    if ns_cap > 0:
+        in_range = rl < int(ns_cap)
+        z_mid = z_mid[in_range]
+        z_gl = z_gl[in_range]
+        rl = rl[in_range]
+    ns_used = max(int(ns_cap), int(rl.max().item()) + 1 if rl.numel() else 1)
+    key = (z_mid * ng + z_gl) * ns_used + rl
+    uniq, counts = unique_counts(key, dtype)
+    ns_i = ns_used
+    voxel = torch.div(uniq, ng * ns_i, rounding_mode="floor")
+    rem = uniq - voxel * (ng * ns_i)
+    gray_u = torch.div(rem, ns_i, rounding_mode="floor")
+    size_u = rem - gray_u * ns_i
+    return SparseGLSZM(
+        voxel=voxel,
+        gray=gray_u,
+        size=size_u,
+        count=counts,
+        n_vox=n_matrices,
+        ng=ng,
+        ns_cap=ns_used,
+    )
+
+
+def _reuse_label(n_off: int, n_vox: int, device: torch.device) -> torch.Tensor:
+    """Reuse the ``(No, Nvox)`` label buffer across equal-shaped batches."""
+    tag = "voxel_label"
+    shape = (n_off, n_vox)
+    prev = _LABEL_BUF.get(tag)
+    if (
+        prev is None
+        or prev.shape != shape
+        or prev.dtype != torch.int32
+        or prev.device != device
+    ):
+        prev = torch.empty(shape, dtype=torch.int32, device=device)
+        _LABEL_BUF[tag] = prev
+    ids = torch.arange(1, n_off + 1, dtype=torch.int32, device=device).unsqueeze(1)
+    prev.copy_(ids.expand(n_off, n_vox))
+    return prev
 
 
 def _accumulate_glszm_voxel(grid: CentreGrid, ng: int, dtype: torch.dtype) -> torch.Tensor:
     """26/8-connected zones on the regular per-voxel kernel grid."""
+    fields = _voxel_zone_fields(grid)
+    if fields is None:
+        return torch.zeros(grid.n_matrices, ng, 1, dtype=dtype, device=grid.device)
+    matrix_ids, label, gl, valid, n_off = fields
+    return _histogram_zones(
+        matrix_ids.reshape(-1),
+        label.reshape(-1),
+        gl.reshape(-1),
+        valid.reshape(-1),
+        grid.n_matrices,
+        ng,
+        dtype,
+        n_off,
+    )
+
+
+def _accumulate_glszm_voxel_coo(
+    grid: CentreGrid,
+    ng: int,
+    dtype: torch.dtype,
+) -> SparseGLSZM:
+    """Voxel GLSZM as COO. Zone axis cap is ``(2r+1)^Nd``."""
+    ns_cap = voxel_ns_cap(grid.kernel_radius, grid.nd)
+    fields = _voxel_zone_fields(grid)
+    if fields is None:
+        empty = torch.empty(0, dtype=torch.long, device=grid.device)
+        return SparseGLSZM(
+            voxel=empty,
+            gray=empty,
+            size=empty,
+            count=torch.empty(0, dtype=dtype, device=grid.device),
+            n_vox=grid.n_matrices,
+            ng=ng,
+            ns_cap=ns_cap,
+        )
+    matrix_ids, label, gl, valid, n_off = fields
+    z_mid, z_gl, sizes = _zone_table(
+        matrix_ids.reshape(-1),
+        label.reshape(-1),
+        gl.reshape(-1),
+        valid.reshape(-1),
+        ng,
+        n_off,
+    )
+    return _zones_to_coo(z_mid, z_gl, sizes, grid.n_matrices, ng, ns_cap, dtype)
+
+
+def _voxel_zone_fields(
+    grid: CentreGrid,
+) -> Optional[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, int]]:
+    """Label-propagate one voxel-kernel batch. Shared by dense and COO."""
     device = grid.device
     n_off = int(grid.offsets_t.shape[0])
     n_vox = grid.n_vox
-    na = int(grid.angles_t.shape[0])
     if n_vox == 0 or n_off == 0:
-        return torch.zeros(grid.n_matrices, ng, 1, dtype=dtype, device=device)
+        return None
 
     centres = grid.base_coords[None, :, :] + grid.offsets_t[:, None, :]
     centre_in = coords_in_image(centres, grid.size_t)
@@ -291,12 +486,7 @@ def _accumulate_glszm_voxel(grid: CentreGrid, ng: int, dtype: torch.dtype) -> to
     centre_flat = flat_index(centres, grid.strides_t, grid.n_elements)
     valid = centre_in & in_window & grid.mask_flat[centre_flat]
     gl = grid.img_flat[centre_flat]
-    # Unique label per offset inside one kernel; columns (listed voxels)
-    # never mix, so the same 1..No ids can be reused across columns.
-    # int32 is enough (labels <= No = kernel volume) and halves the
-    # gather traffic in every propagation sweep.
-    label = torch.arange(1, n_off + 1, dtype=torch.int32, device=device).unsqueeze(1)
-    label = label.expand(n_off, n_vox).clone()
+    label = _reuse_label(n_off, n_vox, device)
     label = torch.where(valid, label, torch.zeros_like(label))
 
     lookup, pack_strides = _offset_lookup(grid.offsets_t, grid.kernel_radius, grid.nd)
@@ -336,15 +526,41 @@ def _accumulate_glszm_voxel(grid: CentreGrid, ng: int, dtype: torch.dtype) -> to
         label = new_label
 
     matrix_ids = grid.matrix_ids.expand(n_off, n_vox)
-    return _histogram_zones(
-        matrix_ids.reshape(-1),
-        label.reshape(-1),
-        gl.reshape(-1),
-        valid.reshape(-1),
-        grid.n_matrices,
-        ng,
-        dtype,
-        n_off,
+    return matrix_ids, label, gl, valid, n_off
+
+
+def _accumulate_glszm_segment_coo(
+    grid: CentreGrid,
+    ng: int,
+    dtype: torch.dtype,
+) -> SparseGLSZM:
+    """Segment GLSZM as COO over zones that actually exist."""
+    p = _accumulate_glszm_segment(grid, ng, dtype)
+    # Segment mode is one matrix; convert the (already cropped) dense
+    # gold histogram to COO so feature code is unified. The dense P here
+    # is ``(1, Ng, maxRegion)`` with maxRegion = largest zone, not a
+    # per-voxel Ng * Ns bomb.
+    n_matrices, ng_i, ns = int(p.shape[0]), int(p.shape[1]), int(p.shape[2])
+    nz = torch.nonzero(p, as_tuple=False)
+    if nz.numel() == 0:
+        empty = torch.empty(0, dtype=torch.long, device=p.device)
+        return SparseGLSZM(
+            voxel=empty,
+            gray=empty,
+            size=empty,
+            count=torch.empty(0, dtype=dtype, device=p.device),
+            n_vox=n_matrices,
+            ng=ng_i,
+            ns_cap=ns,
+        )
+    return SparseGLSZM(
+        voxel=nz[:, 0].to(torch.long),
+        gray=nz[:, 1].to(torch.long),
+        size=nz[:, 2].to(torch.long),
+        count=p[nz[:, 0], nz[:, 1], nz[:, 2]].to(dtype=dtype),
+        n_vox=n_matrices,
+        ng=ng_i,
+        ns_cap=ns,
     )
 
 
