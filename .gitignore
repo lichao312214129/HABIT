@@ -1,9 +1,6 @@
-# Ignore Cursor workspace state, but keep selected teaching rules + env def.
+# Ignore Cursor workspace state and all local rules. Do not publish .cursor/rules.
 .cursor/*
 !.cursor/environment.json
-!.cursor/rules/
-.cursor/rules/*
-!.cursor/rules/docs-*.mdc
 
 # rar zip archive files
 *.rar
