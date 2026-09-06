@@ -75,7 +75,7 @@ New-Item -ItemType File -Path "F:\work\habit_gh-pages\.nojekyll" -Force | Out-Nu
 git -C F:\work\habit_gh-pages add -A
 git -C F:\work\habit_gh-pages status
 # MUST show only HTML/site paths — abort if habit/, docs/, tests/, config/, etc. appear
-git -C F:\work\habit_gh-pages commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" -m "docs: publish Sphinx HTML to GitHub Pages"
+git -C F:\work\habit_gh-pages commit -m "docs: publish Sphinx HTML to GitHub Pages"
 git -C F:\work\habit_gh-pages push origin gh-pages
 
 # 5) Remove temp worktree (mandatory)
