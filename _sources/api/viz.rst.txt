@@ -17,7 +17,7 @@
 ``habit`` never pulls a plotting backend. All figure labels are
 English-only.
 
-Interactive overlay (optional ``[view]`` extra):
+Interactive overlay (needs napari):
 :func:`~habit.viz.view_habitat_napari`. Static PNG:
 :func:`~habit.viz.plot_habitat_overlay` (pass an ``ImageVolume`` so
 coronal/sagittal keep superior up).

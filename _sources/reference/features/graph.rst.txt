@@ -929,7 +929,7 @@ YAML-only visualization fields (recipe hook; **not** part of the extractor
    * - ``visualization_grid_linestyle``
      - Lattice line style (default ``--`` dashed)
    * - ``visualization_save_3d``
-     - Also render 3D surface / network views when deps allow (default ``true``; needs ``[view]`` extras)
+     - Also render 3D surface / network views when deps allow (default ``true``; needs napari)
    * - ``enabled`` / ``n_workers``
      - Legacy v0.1 keys accepted for compatibility; **no effect** (activation is ``feature_types``, figures run serially)
 
@@ -985,7 +985,7 @@ Implementation
 * YAML block: ``GraphFeatureBlock`` in ``habit/schemas/workflows/habitat.py``
 * Recipe + CSV name: ``habit/recipes/features.py``,
   ``habit/adapters/extract_io.py`` (stem ``habitat_graph_features``)
-* Figures: ``habit/viz/habitat_graph.py`` (optional ``[viz]`` / ``[view]``)
+* Figures: ``habit/viz/habitat_graph.py`` (matplotlib; 3D needs napari)
 * Removed v2.0.0 shim: ``habit/compat/graph_plugin.py`` (use domain / API)
 
 References

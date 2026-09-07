@@ -418,14 +418,11 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-extras-not-required-for-core-habitat-analysis">Optional extras (not required for core habitat analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#need-more-later">Need more later?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#problems">Problems?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#get-the-demo-images-once">Get the demo images (once)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
@@ -1067,7 +1064,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        use_torch_radiomics: ``&quot;auto&quot;``, ``True`` or ``False`` -- whether to</span>
 <span class="sd">            use the TorchRadiomics path when torch and CUDA are present.</span>
 <span class="sd">        torch_device: Torch device string, or ``&quot;auto&quot;`` to select one.</span>
-<span class="sd">        torch_dtype: ``&quot;float32&quot;`` or ``&quot;float64&quot;`` for the torch path.</span>
+<span class="sd">        torch_dtype: ``&quot;float64&quot;`` (default) or ``&quot;float32&quot;`` for the torch path.</span>
 <span class="sd">        use_gpu_matrices: ``&quot;auto&quot;``, ``True`` or ``False`` -- whether the</span>
 <span class="sd">            TorchRadiomics texture matrices (GLCM, ...) are built on GPU by</span>
 <span class="sd">            ``habit.kernels.radiomics.gpumatrices`` instead of the</span>
@@ -1107,7 +1104,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">voxel_batch</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_VOXEL_BATCH</span><span class="p">,</span>
         <span class="n">use_torch_radiomics</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
         <span class="n">torch_device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
-        <span class="n">torch_dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+        <span class="n">torch_dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
         <span class="n">use_gpu_matrices</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
         <span class="n">output_float32</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">class_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1328,6 +1325,8 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;voxelBatch&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_batch</span><span class="p">,</span>
                 <span class="s2">&quot;geometryTolerance&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
                 <span class="s2">&quot;use_gpu_matrices&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_gpu_matrices</span><span class="p">,</span>
+                <span class="s2">&quot;use_sparse_matrices&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;batch_progress&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span> <span class="ow">and</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

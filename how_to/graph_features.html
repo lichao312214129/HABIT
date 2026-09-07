@@ -64,14 +64,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-packages">Optional packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#need-more-later">Need more later?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#get-the-demo-images-once">Get the demo images (once)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
@@ -672,8 +669,8 @@ physical line per shell command (Windows / conda PowerShell):</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">habitat_graph_features.csv</span></code> under <code class="docutils literal notranslate"><span class="pre">out_dir</span></code></p></li>
 <li><p>when <code class="docutils literal notranslate"><span class="pre">graph.visualize:</span> <span class="pre">true</span></code>, optional figures under
-<code class="docutils literal notranslate"><span class="pre">out_dir/visualizations/graph/</span></code> (2D needs <code class="docutils literal notranslate"><span class="pre">[viz]</span></code>; 3D also needs
-<code class="docutils literal notranslate"><span class="pre">[view]</span></code>)</p></li>
+<code class="docutils literal notranslate"><span class="pre">out_dir/visualizations/graph/</span></code> (2D needs matplotlib; 3D also needs
+napari)</p></li>
 </ul>
 <p>By default nodes sit at <strong>per-cell subregion centroids</strong> on a global
 VOI lattice (<code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">uniform_grid</span></code>, <code class="docutils literal notranslate"><span class="pre">block_size:</span> <span class="pre">8</span></code>
@@ -761,7 +758,7 @@ so each completed subject writes <code class="docutils literal notranslate"><spa
 <p>Optional: other <code class="docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions(...)</span></code> fields, registry
 <code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractorRegistry.create(&quot;graph&quot;,</span> <span class="pre">...)</span></code>, and 3D
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a> /
-<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a> (needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code>).</p>
+<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a> (needs napari).</p>
 </section>
 <section id="small-world-sigma-and-random-graph-nulls">
 <h2>Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> and random-graph nulls<a class="headerlink" href="#small-world-sigma-and-random-graph-nulls" title="Link to this heading"></a></h2>

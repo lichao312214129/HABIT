@@ -64,14 +64,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-packages">Optional packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#need-more-later">Need more later?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#get-the-demo-images-once">Get the demo images (once)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
@@ -677,6 +674,14 @@ siblings) and then <code class="docutils literal notranslate"><span class="pre">
 behind <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>: on when the torch device
 is CUDA). Their README GLCM 636 s → 23.8 s on a <span class="math notranslate nohighlight">\(16^3\)</span> job is the
 middle row vs PyRadiomics (CPU), <strong>not</strong> HABIT CUDA.</p>
+<p><strong>Install in the same</strong> <code class="docutils literal notranslate"><span class="pre">habit</span></code> <strong>env.</strong> <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code> needs neither
+PyRadiomics nor torch. IBSI <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> (all three rows above)
+needs <strong>PyRadiomics</strong> (<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> step 6). The two GPU
+rows also need <strong>PyTorch</strong> in that env: <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code>, then
+open <a class="reference external" href="https://pytorch.org/">pytorch.org</a> → <strong>Get Started</strong> / <a class="reference external" href="https://pytorch.org/get-started/locally/">Start
+Locally</a>, pick OS / Pip /
+Python / Compute Platform, and run the printed command. See
+<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> step 5.</p>
 <p>First-order in HABIT gathers the kernel window and computes the
 reductions on CUDA. That is not a C texture matrix, so the middle column
 does not apply.</p>
@@ -1122,13 +1127,13 @@ panel when you also want the raw image.</p>
 </section>
 <section id="layouts">
 <h2>Layouts<a class="headerlink" href="#layouts" title="Link to this heading"></a></h2>
-<p><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a> is <strong>2D-slice only</strong> (matplotlib
-<code class="docutils literal notranslate"><span class="pre">[viz]</span></code> extra):</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">mode=&quot;overlay&quot;</span></code> — greyscale anatomy + opaque feature in ROI (default)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mode=&quot;side_by_side&quot;</span></code> — anatomy + ROI contour | feature (sibling panel)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mode=&quot;feature_only&quot;</span></code> — feature map alone</p></li>
-</ul>
+<p><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a> is <strong>2D-slice only</strong> (needs
+matplotlib):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>* ``mode=&quot;overlay&quot;`` — greyscale anatomy + opaque feature in ROI (default)
+* ``mode=&quot;side_by_side&quot;`` — anatomy + ROI contour | feature (sibling panel)
+* ``mode=&quot;feature_only&quot;`` — feature map alone
+</pre></div>
+</div>
 <p>Omit <code class="docutils literal notranslate"><span class="pre">axis</span></code> on 3D volumes for three orthogonal panel rows. Panels use
 <code class="docutils literal notranslate"><span class="pre">display_convention=&quot;radiological&quot;</span></code> (pass anatomy as an <code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code> so
 direction is not dropped). There is no built-in 3D volume renderer for

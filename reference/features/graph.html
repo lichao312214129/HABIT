@@ -66,14 +66,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#optional-packages">Optional packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#need-more-later">Need more later?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#problems">Problems?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#get-the-demo-images-once">Get the demo images (once)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
@@ -1494,7 +1491,7 @@ below match the kernel dataclass.</p>
 <td><p>Lattice line style (default <code class="docutils literal notranslate"><span class="pre">--</span></code> dashed)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_save_3d</span></code></p></td>
-<td><p>Also render 3D surface / network views when deps allow (default <code class="docutils literal notranslate"><span class="pre">true</span></code>; needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code> extras)</p></td>
+<td><p>Also render 3D surface / network views when deps allow (default <code class="docutils literal notranslate"><span class="pre">true</span></code>; needs napari)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code> / <code class="docutils literal notranslate"><span class="pre">n_workers</span></code></p></td>
 <td><p>Legacy v0.1 keys accepted for compatibility; <strong>no effect</strong> (activation is <code class="docutils literal notranslate"><span class="pre">feature_types</span></code>, figures run serially)</p></td>
@@ -1555,7 +1552,7 @@ differ from NetworkX <code class="docutils literal notranslate"><span class="pre
 <li><p>YAML block: <code class="docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code> in <code class="docutils literal notranslate"><span class="pre">habit/schemas/workflows/habitat.py</span></code></p></li>
 <li><p>Recipe + CSV name: <code class="docutils literal notranslate"><span class="pre">habit/recipes/features.py</span></code>,
 <code class="docutils literal notranslate"><span class="pre">habit/adapters/extract_io.py</span></code> (stem <code class="docutils literal notranslate"><span class="pre">habitat_graph_features</span></code>)</p></li>
-<li><p>Figures: <code class="docutils literal notranslate"><span class="pre">habit/viz/habitat_graph.py</span></code> (optional <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> / <code class="docutils literal notranslate"><span class="pre">[view]</span></code>)</p></li>
+<li><p>Figures: <code class="docutils literal notranslate"><span class="pre">habit/viz/habitat_graph.py</span></code> (matplotlib; 3D needs napari)</p></li>
 <li><p>Removed v2.0.0 shim: <code class="docutils literal notranslate"><span class="pre">habit/compat/graph_plugin.py</span></code> (use domain / API)</p></li>
 </ul>
 </section>

@@ -69,47 +69,7 @@ returns a volume; :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
     plt.show()
 
 
-
-
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_001.png
-   :alt: Voxel texture (orthogonal slices), Voxel texture - Axis 0 (axial-like) @ 96, Voxel texture - Axis 1 (coronal-like) @ 165, Voxel texture - Axis 2 (sagittal-like) @ 71
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_001.png
-   :class: sphx-glr-single-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    HABIT demo data (cached)
-    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
-
-    On-disk inventory of this folder:
-      subjects (5): subj001, subj002, subj003, subj004, subj005
-      image series: LAP, PVP, delay_3min, pre_contrast
-      mask keys:    LAP, PVP, delay_3min, pre_contrast
-      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
-      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
-
-    Your own data must use the same folder tree (change IDs / series names):
-
-      DATA/
-        images/<subject_id>/<modality>/<one image file>
-        masks/<subject_id>/<roi>/<one mask file>
-
-    Then load it with the same call the demos use:
-
-      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
-
-    Swap DATA / modalities / roi to match your tree. Mask key is often the
-    same as one image series (here LAP).
-    F:\work\habit_project\habit\viz\voxel_texture.py:989: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      direction, spacing = resolve_display_geometry(
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 48-61
+.. GENERATED FROM PYTHON SOURCE LINES 48-67
 
 Three acceleration runtimes for voxel radiomics
 -----------------------------------------------
@@ -123,9 +83,15 @@ architectures can be used:
 3. **HABIT built-in GPU**: GPU-native matrix building (``gpumatrices``) +
    GPU feature formulas (zero CPU-GPU transfer of intermediate matrices).
 
+Install in the same ``habit`` env. ``local_entropy`` (above) needs neither
+PyRadiomics nor torch. The IBSI rows below need **PyRadiomics**. Rows 2–3
+also need **PyTorch**: ``conda activate habit``, then install from
+https://pytorch.org/ (Start Locally; pick OS / Pip / CUDA). See
+:doc:`/tutorial/installation` steps 5–6.
+
 Below, we define a unified extraction helper that selects among these runtimes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-113
+.. GENERATED FROM PYTHON SOURCE LINES 67-119
 
 .. code-block:: Python
 
@@ -182,39 +148,12 @@ Below, we define a unified extraction helper that selects among these runtimes.
     plt.show()
 
 
-
-
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_002.png
-   :alt: original_glcm_Contrast-LAP (orthogonal slices), original_glcm_Contrast-LAP - Axis 0 (axial-like) @ 96, original_glcm_Contrast-LAP - Axis 1 (coronal-like) @ 165, original_glcm_Contrast-LAP - Axis 2 (sagittal-like) @ 71
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_002.png
-   :class: sphx-glr-single-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    CPU voxel_radiomics feature table:
-       original_glcm_Contrast-LAP
-    0                    2.808974
-    1                    4.003205
-    2                    6.676282
-    3                    7.955128
-    4                    6.945513
-    F:\work\habit_project\habit\viz\voxel_texture.py:989: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      direction, spacing = resolve_display_geometry(
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 114-128
+.. GENERATED FROM PYTHON SOURCE LINES 120-132
 
 GPU radiomics and the three-way runtime comparison
 --------------------------------------------------
-Install CUDA torch, then the optional extra::
-
-   pip install torch --index-url https://download.pytorch.org/whl/cu124
-   pip install "habitat-analysis[torch]"
+Install CUDA torch in the ``habit`` env from https://pytorch.org/
+(Start Locally; pick OS / Pip / CUDA).
 
 We compare the two GPU-accelerated runtimes against baseline CPU:
 
@@ -224,7 +163,7 @@ We compare the two GPU-accelerated runtimes against baseline CPU:
 On clinical lesions, HABIT GPU eliminates both the CPU single-threaded C loop
 and the host-to-device intermediate array transfers.
 
-.. GENERATED FROM PYTHON SOURCE LINES 128-212
+.. GENERATED FROM PYTHON SOURCE LINES 132-216
 
 .. code-block:: Python
 
@@ -313,99 +252,13 @@ and the host-to-device intermediate array transfers.
     timing
 
 
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    GPU voxel_radiomics feature table (HABIT built-in GPU):
-       original_glcm_Contrast-LAP
-    0                    2.808974
-    1                    4.003205
-    2                    6.676282
-    3                    7.955128
-    4                    6.945513
-
-    --- Live Runtime Comparison on subj001 (34,694 voxels) ---
-                              runtime  seconds speedup_vs_cpu speedup_vs_c_torch  n_voxels  n_features
-               Pure PyRadiomics (CPU)   51.667           1.0x                  -     34694           1
-    C matrices + TorchRadiomics (GPU)    6.451           8.0x               1.0x     34694           1
-                   HABIT Built-in GPU    2.135          24.2x               3.0x     34694           1
-
-
-.. raw:: html
-
-    <div class="output_subarea output_html rendered_html output_result">
-    <div>
-    <style scoped>
-        .dataframe tbody tr th:only-of-type {
-            vertical-align: middle;
-        }
-
-        .dataframe tbody tr th {
-            vertical-align: top;
-        }
-
-        .dataframe thead th {
-            text-align: right;
-        }
-    </style>
-    <table border="1" class="dataframe">
-      <thead>
-        <tr style="text-align: right;">
-          <th></th>
-          <th>runtime</th>
-          <th>seconds</th>
-          <th>speedup_vs_cpu</th>
-          <th>speedup_vs_c_torch</th>
-          <th>n_voxels</th>
-          <th>n_features</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>0</th>
-          <td>Pure PyRadiomics (CPU)</td>
-          <td>51.667</td>
-          <td>1.0x</td>
-          <td>-</td>
-          <td>34694</td>
-          <td>1</td>
-        </tr>
-        <tr>
-          <th>1</th>
-          <td>C matrices + TorchRadiomics (GPU)</td>
-          <td>6.451</td>
-          <td>8.0x</td>
-          <td>1.0x</td>
-          <td>34694</td>
-          <td>1</td>
-        </tr>
-        <tr>
-          <th>2</th>
-          <td>HABIT Built-in GPU</td>
-          <td>2.135</td>
-          <td>24.2x</td>
-          <td>3.0x</td>
-          <td>34694</td>
-          <td>1</td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    </div>
-    <br />
-    <br />
-
-.. GENERATED FROM PYTHON SOURCE LINES 213-216
+.. GENERATED FROM PYTHON SOURCE LINES 217-220
 
 Numerical parity: GPU must match CPU up to floating-point noise. Report
 max absolute difference and ``numpy.allclose``. A speedup does not
 change the IBSI / PyRadiomics definition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-239
+.. GENERATED FROM PYTHON SOURCE LINES 220-243
 
 .. code-block:: Python
 
@@ -433,20 +286,7 @@ change the IBSI / PyRadiomics definition.
         parity
 
 
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-     max_abs_diff    rtol         atol  allclose
-         0.000008 0.00001 1.000000e-08      True
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 240-271
+.. GENERATED FROM PYTHON SOURCE LINES 244-275
 
 Three tiers of voxel texture acceleration and scientific parity
 ---------------------------------------------------------------
@@ -480,7 +320,7 @@ Scientific parity (54,913 voxels × 90 features, ~4.94M values):
   ~0.00137. ``np.allclose(rtol=1e-4, atol=1e-4)`` holds across all features.
   This is purely float32 summation rounding, not a mathematical definition change.
 
-.. GENERATED FROM PYTHON SOURCE LINES 271-389
+.. GENERATED FROM PYTHON SOURCE LINES 275-393
 
 .. code-block:: Python
 
@@ -602,108 +442,6 @@ Scientific parity (54,913 voxels × 90 features, ~4.94M values):
     fig.savefig("out/voxel_texture_acceleration_speedup.png", dpi=150, bbox_inches="tight")
     plt.show()
     three_route_bench
-
-
-
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_003.png
-   :alt: Voxel texture extraction wall time (54,913 ROI voxels, 90 features), Acceleration factor vs Pure CPU (higher is faster)
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_003.png
-   :class: sphx-glr-single-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    Three-tier voxel texture acceleration (54,913 ROI voxels, 90 features):
-                              route matrix_construction feature_quantification  wall_s  speedup_vs_A  speedup_vs_B
-    Route A: Pure CPU (PyRadiomics) CPU (PyRadiomics C)      CPU (PyRadiomics)   19.85          1.00          0.09
-                Route B: Hybrid GPU CPU (PyRadiomics C)   GPU (TorchRadiomics)    1.70         11.66          1.00
-       Route C: Full End-to-End GPU   GPU (gpumatrices)   GPU (TorchRadiomics)    0.71         28.06          2.41
-
-    Numerical parity (54,913 voxels x 90 features; columns name-aligned):
-                     comparison  max_abs_diff  max_rel_diff                                           note
-     A vs B (CPU vs hybrid GPU)           0.5        0.0126 Abs peak Energy; rel peak Skewness (|v|>=1e-3)
-       A vs C (CPU vs full GPU)           0.5        0.0126         Same float32 rounding as A vs B (B==C)
-    B vs C (hybrid vs full GPU)           0.0        0.0000             Bit-identical after name alignment
-
-
-.. raw:: html
-
-    <div class="output_subarea output_html rendered_html output_result">
-    <div>
-    <style scoped>
-        .dataframe tbody tr th:only-of-type {
-            vertical-align: middle;
-        }
-
-        .dataframe tbody tr th {
-            vertical-align: top;
-        }
-
-        .dataframe thead th {
-            text-align: right;
-        }
-    </style>
-    <table border="1" class="dataframe">
-      <thead>
-        <tr style="text-align: right;">
-          <th></th>
-          <th>route</th>
-          <th>matrix_construction</th>
-          <th>feature_quantification</th>
-          <th>roi_voxels</th>
-          <th>n_features</th>
-          <th>wall_s</th>
-          <th>speedup_vs_A</th>
-          <th>speedup_vs_B</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>0</th>
-          <td>Route A: Pure CPU (PyRadiomics)</td>
-          <td>CPU (PyRadiomics C)</td>
-          <td>CPU (PyRadiomics)</td>
-          <td>54913</td>
-          <td>90</td>
-          <td>19.85</td>
-          <td>1.00</td>
-          <td>0.09</td>
-        </tr>
-        <tr>
-          <th>1</th>
-          <td>Route B: Hybrid GPU</td>
-          <td>CPU (PyRadiomics C)</td>
-          <td>GPU (TorchRadiomics)</td>
-          <td>54913</td>
-          <td>90</td>
-          <td>1.70</td>
-          <td>11.66</td>
-          <td>1.00</td>
-        </tr>
-        <tr>
-          <th>2</th>
-          <td>Route C: Full End-to-End GPU</td>
-          <td>GPU (gpumatrices)</td>
-          <td>GPU (TorchRadiomics)</td>
-          <td>54913</td>
-          <td>90</td>
-          <td>0.71</td>
-          <td>28.06</td>
-          <td>2.41</td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    </div>
-    <br />
-    <br />
-
-
-.. rst-class:: sphx-glr-timing
-
-   **Total running time of the script:** (3 minutes 49.547 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_03_voxel_texture.py:

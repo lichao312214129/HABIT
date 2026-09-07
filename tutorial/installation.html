@@ -65,14 +65,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#open-the-conda-terminal">2. Open the conda terminal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#next-quickstart">6. Next: quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-packages">Optional packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#from-source-developers">From source (developers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#need-more-later">Need more later?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#problems">Problems?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#get-the-demo-images-once">Get the demo images (once)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
@@ -629,20 +626,23 @@
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
 <p>This page is for absolute beginners on Windows (macOS / Linux notes where
-they differ). HABIT must run in a <strong>conda-activated</strong> terminal. Plain CMD /
-PowerShell / system Python (without <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span></code>) often fails with
-<code class="docutils literal notranslate"><span class="pre">habit:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code> or uses the wrong interpreter.</p>
+they differ). HABIT must run in a <strong>conda-activated</strong> terminal. On Windows
+use <strong>Anaconda Prompt</strong> or <strong>Anaconda PowerShell Prompt</strong> (Miniconda:
+<strong>Miniconda Prompt</strong>). System Python without <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span></code> often
+fails with <code class="docutils literal notranslate"><span class="pre">habit:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code> or uses the wrong interpreter.</p>
+<p>Python <strong>3.10–3.14</strong> are supported; these docs use <strong>3.10</strong>.</p>
 <section id="install-miniconda">
 <h2>1. Install Miniconda<a class="headerlink" href="#install-miniconda" title="Link to this heading"></a></h2>
 <p>If you already have Anaconda or Miniconda, skip to step 2.</p>
 <ol class="arabic simple">
 <li><p>Open the official downloads page:
 <a class="reference external" href="https://docs.anaconda.com/miniconda">Miniconda</a>.</p></li>
-<li><p>Download the <strong>Windows 64-bit</strong> installer (<code class="docutils literal notranslate"><span class="pre">.exe</span></code>).</p></li>
-<li><p>Run the installer and accept the defaults (Next → Next → Install).
-When it finishes, Miniconda is ready.</p></li>
+<li><p>Check <strong>Settings → System → About → System type</strong>. Most PCs are
+<strong>64-bit</strong>; download the Windows installer (<code class="docutils literal notranslate"><span class="pre">.exe</span></code>) that matches
+that type.</p></li>
+<li><p>Run the installer and accept the defaults (Next → Next → Install).</p></li>
 </ol>
-<p>You do <strong>not</strong> need Visual Studio Code for the CLI demo.</p>
+<p>You do <strong>not</strong> need Visual Studio Code for HABIT.</p>
 </section>
 <section id="open-the-conda-terminal">
 <h2>2. Open the conda terminal<a class="headerlink" href="#open-the-conda-terminal" title="Link to this heading"></a></h2>
@@ -656,10 +656,8 @@ click <strong>Anaconda Prompt</strong> or <strong>Anaconda PowerShell Prompt</st
 (Miniconda: <strong>Miniconda Prompt</strong>).</p></li>
 <li><p>Or: with Start open, type <code class="docutils literal notranslate"><span class="pre">Anaconda</span> <span class="pre">Prompt</span></code> / <code class="docutils literal notranslate"><span class="pre">Miniconda</span> <span class="pre">Prompt</span></code>
 and open that app.</p></li>
-<li><p>Do <strong>not</strong> use plain “Command Prompt”, “Windows PowerShell”, or
-“Terminal” unless conda is already initialized there.</p></li>
 <li><p>Optional: <strong>Anaconda Navigator</strong> → Environments → Open Terminal on
-the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env.</p></li>
+the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env after you create it.</p></li>
 </ol>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/open_anaconda_prompt_windows.png"><img alt="Windows Start menu: open Anaconda Prompt" src="../_images/open_anaconda_prompt_windows.png" style="width: 85%;" />
@@ -670,26 +668,9 @@ Prompt</strong> (example on Windows 10; on Windows 11 the Start icon may sit
 at the bottom-center). Your folder name may differ (e.g. Miniconda).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<p>After you open the Prompt you often see <code class="docutils literal notranslate"><span class="pre">(base)</span></code>. That is normal — next
-you create and activate the HABIT env.</p>
+<p>After you open the Prompt you often see <code class="docutils literal notranslate"><span class="pre">(base)</span></code>. That is normal.</p>
 <p><strong>macOS / Linux</strong> — open Terminal.app / your shell. If <code class="docutils literal notranslate"><span class="pre">conda</span></code> is not
-found, open the Anaconda/Miniconda shell from the installer menu, or run
-<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">init</span></code> once for your shell and reopen the terminal.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Start (bottom-left on Win10; often bottom-center on Win11)
-     |
-     |  Anaconda3 → Anaconda Prompt
-     |  (or search: Anaconda Prompt)
-     v
-Anaconda Prompt  (or Miniconda Prompt)
-     |
-     |  (base) C:\...&gt;
-     v
-ready for step 3
-
-Wrong: plain CMD / PowerShell without conda
-       -&gt; &quot;conda&quot; / &quot;habit&quot; not found
-</pre></div>
-</div>
+found, run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">init</span></code> once for your shell and reopen the terminal.</p>
 </section>
 <section id="create-and-activate-the-habit-env">
 <h2>3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env<a class="headerlink" href="#create-and-activate-the-habit-env" title="Link to this heading"></a></h2>
@@ -698,75 +679,69 @@ Wrong: plain CMD / PowerShell without conda
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
 </pre></div>
 </div>
-<p>Python <strong>3.10–3.14</strong> are supported; these docs use <strong>3.10</strong>. The env name
-in these docs is <strong>``habit``</strong> (any name is fine if you activate it).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">habit</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.10</span> <span class="o">-</span><span class="n">y</span>
-     <span class="o">|</span>
-     <span class="n">v</span>
-<span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
-     <span class="o">|</span>
-     <span class="n">v</span>
-<span class="p">(</span><span class="n">habit</span><span class="p">)</span> <span class="n">C</span><span class="p">:</span>\<span class="o">...&gt;</span>     <span class="o">&lt;--</span> <span class="n">prompt</span> <span class="n">must</span> <span class="n">show</span> <span class="p">(</span><span class="n">habit</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Every new terminal session: run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> again and check
-that the prompt shows <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> before any <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">...</span></code> command.</p>
-<p><strong>macOS / Linux</strong>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda activate habit
-(habit) $
-</pre></div>
-</div>
+<p>The env name in these docs is <strong>``habit``</strong> (any name is fine if you
+activate it). The prompt must show <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> before any <code class="docutils literal notranslate"><span class="pre">pip</span></code> or
+<code class="docutils literal notranslate"><span class="pre">habit</span></code> command. Every new terminal session: run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code>
+again.</p>
 </section>
 <section id="install-habit-from-official-pypi">
 <h2>4. Install HABIT from official PyPI<a class="headerlink" href="#install-habit-from-official-pypi" title="Link to this heading"></a></h2>
 <p>With <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> showing in the prompt:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">pip</span>
-<span class="c1"># Demo / quickstart path needs tables (parquet) + viz (clustering curves)</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;habitat-analysis[tables,viz]&quot;</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">simple</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">habitat</span><span class="o">-</span><span class="n">analysis</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">simple</span>
 <span class="n">habit</span> <span class="o">--</span><span class="n">version</span>
 </pre></div>
 </div>
-<ul class="simple">
-<li><p>Package on PyPI: <strong>``habitat-analysis``</strong> (code: <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">habit</span></code>)</p></li>
-<li><p>Always use official PyPI for <strong>this</strong> package:
-<code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">https://pypi.org/simple</span></code></p></li>
-</ul>
-<p><strong>Why not a China mirror for HABIT?</strong> Regional mirrors often lag or omit
-<code class="docutils literal notranslate"><span class="pre">habitat-analysis</span></code>. If <code class="docutils literal notranslate"><span class="pre">pip</span></code> cannot find the package, keep
-<code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">https://pypi.org/simple</span></code> — do not switch the install of HABIT itself
-to a mirror.</p>
 </section>
-<section id="optional-china-mirrors-for-other-packages">
-<h2>5. Optional: China mirrors for <em>other</em> packages<a class="headerlink" href="#optional-china-mirrors-for-other-packages" title="Link to this heading"></a></h2>
-<p>If you only need to speed up <strong>unrelated</strong> dependencies (not HABIT), you
-may use a one-off mirror index for that single command, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">some</span><span class="o">-</span><span class="n">other</span><span class="o">-</span><span class="n">package</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">tuna</span><span class="o">.</span><span class="n">tsinghua</span><span class="o">.</span><span class="n">edu</span><span class="o">.</span><span class="n">cn</span><span class="o">/</span><span class="n">simple</span>
+<section id="optional-pytorch-gpu">
+<h2>5. Optional: PyTorch GPU<a class="headerlink" href="#optional-pytorch-gpu" title="Link to this heading"></a></h2>
+<p>Needed only for GPU texture / TorchRadiomics. <strong>CPU habitat analysis
+does not require it.</strong></p>
+<p>Open <a class="reference external" href="https://pytorch.org/">https://pytorch.org/</a> → <strong>Get Started</strong>
+(or <a class="reference external" href="https://pytorch.org/get-started/locally/">Start Locally</a>).
+Select <strong>Your OS</strong>, <strong>Pip</strong>, <strong>Python</strong>, and the <strong>Compute Platform</strong>
+that matches your machine, then run the command the page prints.</p>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/pytorch_get_started_locally.png"><img alt="PyTorch Start Locally installer: pick OS, Pip, Python, and CUDA" src="../_images/pytorch_get_started_locally.png" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Example on pytorch.org: Windows + Pip + Python + CUDA 12.6. Change
+the red cells to match your GPU or choose CPU. Copy <strong>Run this
+Command</strong> into the <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> prompt.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="optional-pyradiomics">
+<h2>6. Optional: PyRadiomics<a class="headerlink" href="#optional-pyradiomics" title="Link to this heading"></a></h2>
+<p>Not installed by default. Needed for <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> /
+<code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code>, <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>, and texture habitat
+features. Habitat maps that do not use those extractors do not need it.</p>
+<p><strong>Windows</strong> — use a prebuilt wheel from
+<a class="reference external" href="https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2">Release v1.0.2</a>
+(do <strong>not</strong> use bare <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyradiomics</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">lichao312214129</span><span class="o">/</span><span class="n">HABIT</span><span class="o">/</span><span class="n">releases</span><span class="o">/</span><span class="n">download</span><span class="o">/</span><span class="n">v1</span><span class="mf">.0.2</span><span class="o">/</span><span class="n">pyradiomics</span><span class="o">-</span><span class="mf">3.1.0</span><span class="o">-</span><span class="n">cp310</span><span class="o">-</span><span class="n">cp310</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span>
 </pre></div>
 </div>
-<p>Do <strong>not</strong> set a permanent global default away from PyPI for HABIT work
-(e.g. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">config</span> <span class="pre">set</span> <span class="pre">global.index-url</span> <span class="pre">...</span></code>). A global mirror can make
-<code class="docutils literal notranslate"><span class="pre">habitat-analysis</span></code> disappear from search results and break future installs
-or upgrades. Prefer one-off <code class="docutils literal notranslate"><span class="pre">-i</span></code> only when needed.</p>
-</section>
-<section id="next-quickstart">
-<h2>6. Next: quickstart<a class="headerlink" href="#next-quickstart" title="Link to this heading"></a></h2>
-<p>You do <strong>not</strong> need a git clone for the demo YAML templates. Create any
-work folder, then:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>
-<span class="n">cd</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>
-<span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
+<p>Change <code class="docutils literal notranslate"><span class="pre">cp310</span></code> in the filename for Python 3.11–3.14.</p>
+<p><strong>macOS / Linux</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;pyradiomics&gt;=3.0.1,&lt;3.2&quot;</span>
 </pre></div>
 </div>
-<p>That writes <code class="docutils literal notranslate"><span class="pre">config/</span></code> into your folder. Download <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code> next to
-it, then run the CLI commands in <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>. Imaging packs are
-<strong>not</strong> inside the wheel.</p>
 </section>
-<section id="optional-napari-habit-view">
-<h2>Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)<a class="headerlink" href="#optional-napari-habit-view" title="Link to this heading"></a></h2>
+<section id="optional-packages">
+<h2>Optional packages<a class="headerlink" href="#optional-packages" title="Link to this heading"></a></h2>
+<p>These do <strong>not</strong> change habitat computation. Install only what you use.</p>
+<p><strong>pyarrow</strong> — write a <strong>direct pooling</strong> voxel table with on the order of
+millions of rows as parquet. Typical two-step / one-step tables are
+small; CSV needs nothing extra. Saving the table is optional:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pyarrow</span>
+</pre></div>
+</div>
+<p><strong>napari</strong> — interactive <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;napari[pyqt5]&quot;</span> <span class="s2">&quot;npe2&gt;=0.8.2&quot;</span> <span class="s2">&quot;pydantic!=2.11.*,&gt;=2.8,&lt;3&quot;</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">simple</span>
 </pre></div>
 </div>
-<p>From a git clone you can use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">&quot;.[view]&quot;</span></code> instead.</p>
+<p>GPU texture speedup numbers: <a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>.</p>
 </section>
 <section id="from-source-developers">
 <h2>From source (developers)<a class="headerlink" href="#from-source-developers" title="Link to this heading"></a></h2>
@@ -780,80 +755,10 @@ it, then run the CLI commands in <a class="reference internal" href="quickstart.
 </pre></div>
 </div>
 </section>
-<section id="need-more-later">
-<h2>Need more later?<a class="headerlink" href="#need-more-later" title="Link to this heading"></a></h2>
-<p>Missing optional packages raise <code class="docutils literal notranslate"><span class="pre">OptionalDependencyError</span></code> with the exact
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> command. Install only what you use.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 18.0%" />
-<col style="width: 82.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Extra</p></th>
-<th class="head"><p>Needed for</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">viz</span></code></p></td>
-<td><p>Figures (<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>, clustering plots)</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tables</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">.parquet</span></code> / <code class="docutils literal notranslate"><span class="pre">.xlsx</span></code> (default habitats table is parquet)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dicom</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">dicom-info</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">slic</span></code></p></td>
-<td><p>SLIC supervoxels (default <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> / <code class="docutils literal notranslate"><span class="pre">gmm</span></code> need nothing)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch</span></code></p></td>
-<td><p>TorchRadiomics / GPU texture</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">registration</span></code></p></td>
-<td><p>ANTs registration</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">view</span></code></p></td>
-<td><p>napari for <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code> (clone: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">&quot;.[view]&quot;</span></code>)</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">all</span></code></p></td>
-<td><p>Remaining extras except <code class="docutils literal notranslate"><span class="pre">torch</span></code>, <code class="docutils literal notranslate"><span class="pre">monai</span></code>, and PyRadiomics</p></td>
-</tr>
-</tbody>
-</table>
-<p>GPU texture needs a CUDA PyTorch wheel; install steps and speedup numbers
-are on <a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>.</p>
-</section>
-<section id="pyradiomics-only-if-you-need-radiomics">
-<h2>PyRadiomics (only if you need radiomics)<a class="headerlink" href="#pyradiomics-only-if-you-need-radiomics" title="Link to this heading"></a></h2>
-<p>Not installed by default. Needed for <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> /
-<code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code>, <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>, and texture habitat features.</p>
-<p><strong>Windows</strong> — use a prebuilt wheel from
-<a class="reference external" href="https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2">Release v1.0.2</a>
-(do <strong>not</strong> use bare <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyradiomics</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python 3.10 example — change cp310 for 3.11–3.14</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">lichao312214129</span><span class="o">/</span><span class="n">HABIT</span><span class="o">/</span><span class="n">releases</span><span class="o">/</span><span class="n">download</span><span class="o">/</span><span class="n">v1</span><span class="mf">.0.2</span><span class="o">/</span><span class="n">pyradiomics</span><span class="o">-</span><span class="mf">3.1.0</span><span class="o">-</span><span class="n">cp310</span><span class="o">-</span><span class="n">cp310</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span>
-</pre></div>
-</div>
-<p><strong>macOS / Linux</strong>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;pyradiomics&gt;=3.0.1,&lt;3.2&quot;</span>
-</pre></div>
-</div>
-</section>
 <section id="problems">
 <h2>Problems?<a class="headerlink" href="#problems" title="Link to this heading"></a></h2>
-<p>See <a class="reference internal" href="../troubleshooting/faq.html"><span class="doc">FAQ</span></a>. Then <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a> or
-<a class="reference internal" href="quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>.</p>
-</section>
-<section id="get-the-demo-images-once">
-<h2>Get the demo images (once)<a class="headerlink" href="#get-the-demo-images-once" title="Link to this heading"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">fetch</span><span class="o">-</span><span class="n">demo</span>
-</pre></div>
-</div>
-<p>This downloads the official 5-subject preprocessed pack the first time,
-prints where it landed, and prints the folder tree your own data must
-match. Later calls reuse the cache. Python equivalent:
-<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">habit.datasets</span> <span class="pre">import</span> <span class="pre">fetch_demo;</span> <span class="pre">DATA</span> <span class="pre">=</span> <span class="pre">fetch_demo()</span></code>.</p>
+<p>See <a class="reference internal" href="../troubleshooting/faq.html"><span class="doc">FAQ</span></a>. After install:
+<a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a> or <a class="reference internal" href="quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>.</p>
 </section>
 </section>
 
