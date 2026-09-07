@@ -107,6 +107,19 @@ os.environ.setdefault("HABIT_NO_VIEW", "1")
 os.environ.setdefault("MPLBACKEND", "Agg")
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
+
+def _plot_gallery_enabled() -> bool:
+    """Whether sphinx-gallery should execute ``plot_*.py`` examples.
+
+    Local / published builds keep the default (on) so Guide figures are real
+    runs. CI sets ``HABIT_PLOT_GALLERY=0``: runners have no ``demo_data/``,
+    and a no-figure gallery must not be published over the local site.
+    Accepted off values: ``0``, ``false``, ``no``, ``off`` (any case).
+    """
+    raw: str = os.environ.get("HABIT_PLOT_GALLERY", "1").strip().lower()
+    return raw not in {"0", "false", "no", "off"}
+
+
 sphinx_gallery_conf = {
     "examples_dirs": [
         str(project_root / "examples" / "guide"),
@@ -126,7 +139,7 @@ sphinx_gallery_conf = {
     # ``.. include:: {{fullname}}.examples`` (nilearn pattern).
     "backreferences_dir": str(Path("api") / "generated"),
     "download_all_examples": False,
-    "plot_gallery": True,
+    "plot_gallery": _plot_gallery_enabled(),
     "reset_modules": ("matplotlib",),
     "min_reported_time": 1,
 }
