@@ -73,11 +73,12 @@ _MAX_LATTICE_WINDOW: int = 9 ** 3
 _BRUTE_PRODUCT: int = 256
 
 try:
-    from numba import njit
+    from numba import njit, prange
 
     _HAS_NUMBA = True
 except Exception:  # pragma: no cover - optional accelerator
     njit = None
+    prange = range  # type: ignore[misc,assignment]
     _HAS_NUMBA = False
 
 
@@ -631,9 +632,13 @@ def _brute_pair_distances(
 ) -> np.ndarray:
     """Set-separation for many small pairs (compiled when numba is present)."""
     if _HAS_NUMBA and _brute_pairs_numba is not None:
-        return _brute_pairs_numba(
-            packed, indptr, index_a, index_b, int(ndim), float(threshold)
-        )
+        try:
+            return _brute_pairs_numba(
+                packed, indptr, index_a, index_b, int(ndim), float(threshold)
+            )
+        except Exception:
+            # Same loop as below: compile/type failure must not change distances.
+            pass
     cap_sq = float(threshold) * float(threshold)
     out = np.empty(index_a.shape[0], dtype=np.float64)
     for slot in range(index_a.shape[0]):

@@ -296,16 +296,16 @@ def test_view_habitat_napari_rejects_shape_mismatch(monkeypatch) -> None:
 
 
 def test_view_habitat_napari_missing_extra_message(monkeypatch) -> None:
-    """Missing napari surfaces OptionalDependencyError with the [view] hint."""
+    """Missing napari surfaces OptionalDependencyError with a pip install hint."""
 
     def _boom(module: str, *, extra: str, purpose: str, **kwargs: Any):
         raise OptionalDependencyError(
             f"{module} is required for {purpose}, but it is not installed.\n"
-            f'pip install "habitat-analysis[{extra}]"'
+            f'pip install "napari[pyqt5]"'
         )
 
     monkeypatch.setattr("habit.viz.habitat_napari.require", _boom)
-    with pytest.raises(OptionalDependencyError, match=r"habitat-analysis\[view\]"):
+    with pytest.raises(OptionalDependencyError, match=r"napari\[pyqt5\]"):
         view_habitat_napari(
             np.zeros((2, 2), dtype=np.float32),
             np.zeros((2, 2), dtype=np.int32),

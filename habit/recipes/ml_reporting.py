@@ -49,7 +49,7 @@ __all__ = [
     "visualization_enabled",
 ]
 
-#: matplotlib is an OPTIONAL dependency (habitat-analysis[viz]) and this whole
+#: matplotlib is a required dependency and this whole
 #: module is figure reporting, but it is imported from the modelling recipes,
 #: so the gates stay inside the functions that actually draw.
 _VIZ_PURPOSE = "machine-learning report figures"
@@ -708,7 +708,7 @@ def _try_write_shap(
     except ImportError:
         logger.warning(
             "Skipping SHAP figures: optional dependency 'shap' is not installed. "
-            'Install with: pip install shap  (or pip install "habitat-analysis[analysis]").'
+            'Install with: pip install shap.'
         )
         return []
 

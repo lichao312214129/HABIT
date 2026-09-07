@@ -24,7 +24,7 @@ Local Sphinx build: see [`docs/README.md`](docs/README.md) (use the py310 Sphinx
 
 ## Install
 
-Python **3.10–3.14**. Full steps and optional extras:
+Python **3.10–3.14**. Full steps:
 [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html).
 
 ```bash
@@ -34,13 +34,6 @@ pip install -U pip
 pip install habitat-analysis -i https://pypi.org/simple
 habit --version
 # import name: import habit
-```
-
-Common extras (install as needed; missing ones raise `OptionalDependencyError`
-with the exact `pip install` line):
-
-```bash
-pip install "habitat-analysis[tables,viz]"
 ```
 
 - **Source**: [GitHub](https://github.com/lichao312214129/HABIT) (dev: `pip install -e .`)

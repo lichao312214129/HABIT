@@ -49,7 +49,7 @@ def _require_pingouin() -> None:
     if not PINGOUIN_AVAILABLE:
         raise OptionalDependencyError(
             "ICC analysis requires the optional pingouin dependency; "
-            "install 'habitat-analysis[analysis]' to use it."
+            "install it with: pip install shap plotly pingouin lifelines scikit-survival."
         )
 
 

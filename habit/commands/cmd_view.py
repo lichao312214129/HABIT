@@ -15,7 +15,7 @@
 """Implementation of the ``habit view`` command.
 
 L5 wiring only: read image file(s) + a habitat map, call ``habit.viz`` helpers,
-and either launch napari (preferred, optional ``view`` extra) or write a PNG
+and either launch napari (preferred, optional napari) or write a PNG
 (matplotlib fallback / forced backend). All drawing / viewing logic lives in
 ``habit.viz``; this module is a thin sink.
 """
@@ -34,16 +34,13 @@ from habit.commands.common import echo_error, echo_success
 
 #: Supported ``habit view --backend`` values.
 #: ``auto`` (default) and ``napari`` prefer the interactive viewer and fall
-#: back to a matplotlib PNG when the ``[view]`` extra is missing.
+#: back to a matplotlib PNG when napari is missing.
 _VIEW_BACKENDS = ("auto", "napari", "matplotlib")
 
 #: Install hint printed when napari is unavailable (fallback path).
-#: Prefer documenting the clone path: published PyPI 1.0.x wheels do not
-#: declare ``[view]`` yet; China mirrors may also omit ``habitat-analysis``.
 _VIEW_EXTRA_HINT = (
-    'pip install "habitat-analysis[view]" '
-    '(from a clone: pip install -e ".[view]"; '
-    'or: pip install "napari[pyqt5]" -i https://pypi.org/simple)'
+    'pip install "napari[pyqt5]" "npe2>=0.8.2" '
+    '"pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple'
 )
 
 
@@ -199,7 +196,7 @@ def _try_napari_then_matplotlib(
     display_convention: str = "radiological",
 ) -> Tuple[str, Optional[Path]]:
     """
-    Prefer napari; on missing ``[view]`` extra, fall back to a matplotlib PNG.
+    Prefer napari; on missing napari, fall back to a matplotlib PNG.
 
     Args:
         image_paths: Source image paths.
@@ -269,8 +266,8 @@ def run_view(
             Napari: construct layers with ``show=False`` and close immediately.
         alpha: Habitat colour / labels opacity in ``(0, 1]``.
         backend: ``"auto"`` (default, prefer napari then fall back to PNG),
-            ``"napari"`` (same fallback when ``[view]`` is missing), or
-            ``"matplotlib"`` (force static PNG; needs ``[viz]``).
+            ``"napari"`` (same fallback when napari is missing), or
+            ``"matplotlib"`` (force static PNG; needs matplotlib).
         convention: Display orientation ``\"radiological\"`` (default),
             ``\"neurological\"``, or ``\"native\"``.
     """

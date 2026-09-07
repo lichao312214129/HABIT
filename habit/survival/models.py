@@ -21,8 +21,8 @@ Three estimators spanning the two survival back-ends:
 - ``RandomSurvivalForest`` and ``GradientBoostingSurvival`` wrap
   scikit-survival -- the sklearn-compatible non-parametric alternatives.
 
-lifelines and scikit-survival are OPTIONAL dependencies (the ``analysis``
-extra); all their imports are lazy inside the backend hooks so importing
+lifelines and scikit-survival are optional (``pip install lifelines
+scikit-survival``); all their imports are lazy inside the backend hooks so importing
 this module stays cheap and the rest of HABIT works without them. lifelines
 is used for CoxPH because its partial-hazard API (``predict_partial_hazard``)
 and baseline-survival handling are the reference implementation; scikit-
@@ -38,6 +38,7 @@ import numpy as np
 import pandas as pd
 
 from habit.exceptions import HABITAPIError
+from habit.utils.optional_deps import install_command
 from habit.survival._base import SurvivalModelBase
 from habit.survival.registry import SurvivalModelRegistry
 from habit.spec.specs import Spec
@@ -70,8 +71,8 @@ def _import_or_raise(module: str, extra: str, owner: str):
     except ImportError as exc:
         raise HABITAPIError(
             f"survival_model.{owner} needs the optional dependency "
-            f"{module.split('.')[0]!r}; install it with the {extra!r} extra "
-            f"(pip install \"habitat-analysis[{extra}]\")."
+            f"{module.split('.')[0]!r}; install it with: "
+            f"{install_command(extra)}."
         ) from exc
 
 

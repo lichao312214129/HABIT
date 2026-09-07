@@ -22,7 +22,7 @@ transparent (NaN / masked).
 
 All text drawn on the figures is English-only. This module ships excellent 2D
 multi-panel slices first; optional 3D volume rendering is intentionally out of
-scope so the API stays consistent with the matplotlib ``[viz]`` stack.
+scope so the API stays consistent with the matplotlib stack.
 """
 
 from __future__ import annotations
@@ -881,7 +881,7 @@ def plot_voxel_texture_slice(
     ROI (or densest finite-feature) slice. Pass ``axis`` / ``index`` to pin one
     plane (``index=None`` still auto-selects the densest slice on that axis).
 
-    This API is **2D-slice only** (matplotlib ``[viz]``). It does not provide
+    This API is **2D-slice only** (matplotlib). It does not provide
     3D volume rendering; use external viewers if you need full volumetric
     browsing of a texture map.
 

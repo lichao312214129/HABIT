@@ -50,7 +50,7 @@ _TORCH_GPU_INSTALL_HINT_LOGGED = False
 
 TORCH_GPU_INSTALL_HINT = (
     "Install a PyTorch build compatible with your NVIDIA driver "
-    "(pip extra: habitat-analysis[torch]). Set use_torch_radiomics: false "
+    "Set use_torch_radiomics: false "
     "to require CPU PyRadiomics."
 )
 

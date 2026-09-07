@@ -33,10 +33,10 @@ from habit.utils.optional_deps import require
 #: three import failures all read the same way.
 _VIZ_PURPOSE = "publication-quality figures (font and backend configuration)"
 
-# matplotlib is an OPTIONAL dependency (habitat-analysis[viz]). This module has
+# matplotlib is a required dependency. This module has
 # no reason to exist without it -- every symbol it exports configures
 # matplotlib -- so the gate sits at module scope: importing this module without
-# the viz extra raises OptionalDependencyError (naming the extra) instead of a
+# matplotlib raises OptionalDependencyError (naming the pip packages) instead of a
 # bare ModuleNotFoundError. Nothing on HABIT's habitat kernel path imports it.
 mpl = require("matplotlib", extra="viz", purpose=_VIZ_PURPOSE)
 

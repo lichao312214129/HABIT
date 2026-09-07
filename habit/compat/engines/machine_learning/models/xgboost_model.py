@@ -57,7 +57,7 @@ class XGBoostModel(BaseModel):
         if not XGBOOST_AVAILABLE:
             raise OptionalDependencyError(
                 "model 'XGBoost' requires the optional xgboost dependency; "
-                "install 'habitat-analysis[ml]' to use it."
+                "install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
             )
         super().__init__(config)
 

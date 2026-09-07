@@ -49,10 +49,10 @@ def _plt():
     """
     Return the pyplot module with the Agg canvas guaranteed headless.
 
-    matplotlib is an OPTIONAL dependency (habitat-analysis[viz]); it is
+    matplotlib is a required dependency; it is
     imported here rather than at module scope so ``import habit.viz`` stays
     free of it, and it goes through ``require`` so a missing install names
-    the extra instead of raising a bare ModuleNotFoundError.
+    the pip packages instead of raising a bare ModuleNotFoundError.
 
     Returns:
         The ``matplotlib.pyplot`` module, with a non-interactive backend
@@ -483,7 +483,7 @@ def plot_habitat_clustering_pca_3d_interactive(
     except ImportError as exc:
         raise OptionalDependencyError(
             "plotly is required for interactive 3D habitat clustering plots. "
-            "Install with: pip install 'habit[viz]' or pip install plotly."
+            "Install with: pip install matplotlib seaborn plotly."
         ) from exc
 
     matrix = _as_feature_matrix(features)

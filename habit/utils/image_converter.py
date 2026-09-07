@@ -178,7 +178,7 @@ class ImageConverter:
         if torch is None:
             raise OptionalDependencyError(
                 "tensor_to_numpy requires the optional torch dependency; "
-                'install with pip install "habitat-analysis[torch]" to use it.'
+                'install torch from https://pytorch.org/ to use it.'
             )
         array = tensor.cpu().numpy()
         if array.shape[0] == 1:  # If single channel
@@ -208,7 +208,7 @@ class ImageConverter:
         if torch is None:
             raise OptionalDependencyError(
                 "numpy_to_tensor requires the optional torch dependency; "
-                'install with pip install "habitat-analysis[torch]" to use it.'
+                'install torch from https://pytorch.org/ to use it.'
             )
         if array.ndim == 2:
             array = array[np.newaxis, ...]  # Add channel dim for 2D
@@ -237,7 +237,7 @@ class ImageConverter:
         if ants is None:
             raise OptionalDependencyError(
                 "ANTs<->ITK conversion requires the optional antspyx dependency; "
-                "install 'habitat-analysis[registration]' to use it."
+                "install it with: pip install antspyx."
             )
         imageITK = sitk.GetImageFromArray(image.numpy().transpose(2, 1, 0))
         imageITK.SetOrigin(image.origin)
@@ -262,7 +262,7 @@ class ImageConverter:
         if ants is None:
             raise OptionalDependencyError(
                 "ITK<->ANTs conversion requires the optional antspyx dependency; "
-                "install 'habitat-analysis[registration]' to use it."
+                "install it with: pip install antspyx."
             )
         image_ants = ants.from_numpy(
             sitk.GetArrayFromImage(image).transpose(2, 1, 0),

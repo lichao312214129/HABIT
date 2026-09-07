@@ -212,7 +212,7 @@ def test_habit_view_auto_falls_back_when_napari_missing(
     def _boom(*args, **kwargs):
         raise OptionalDependencyError(
             'Missing optional dependency napari for interactive habitat viewing. '
-            'Install with: pip install "habitat-analysis[view]"'
+            'Install with: pip install "napari[pyqt5]"'
         )
 
     monkeypatch.setattr("habit.viz.view_habitat_napari", _boom)
@@ -236,7 +236,7 @@ def test_habit_view_auto_falls_back_when_napari_missing(
     )
     assert result.exit_code == 0, result.output
     assert png_path.is_file()
-    assert "habitat-analysis[view]" in result.output
+    assert "napari" in result.output
     assert "Falling back" in result.output or "fallback" in result.output.lower()
     assert "matplotlib" in result.output
 
@@ -250,7 +250,7 @@ def test_habit_view_napari_backend_also_falls_back(
     def _boom(*args, **kwargs):
         raise OptionalDependencyError(
             'Missing optional dependency napari. '
-            'Install with: pip install "habitat-analysis[view]"'
+            'Install with: pip install "napari[pyqt5]"'
         )
 
     monkeypatch.setattr("habit.viz.view_habitat_napari", _boom)
@@ -272,7 +272,7 @@ def test_habit_view_napari_backend_also_falls_back(
     )
     assert result.exit_code == 0, result.output
     assert (tmp_path / "subj001_habitats_overlay.png").is_file()
-    assert "habitat-analysis[view]" in result.output
+    assert "napari" in result.output
     assert "fallback" in result.output.lower()
 
 

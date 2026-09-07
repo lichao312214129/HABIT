@@ -283,7 +283,7 @@ class VifSelector(FittedSelectorBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "feature_selector.vif requires the optional statsmodels "
-                "dependency; install 'habitat-analysis[ml]' to use it."
+                "dependency; install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
             ) from exc
 
         data = table.frame[list(table.feature_columns)].copy()
@@ -591,7 +591,7 @@ class UnivariateLogisticSelector(FittedSelectorBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "feature_selector.univariate_logistic requires the optional "
-                "statsmodels dependency; install 'habitat-analysis[ml]' to use it."
+                "statsmodels dependency; install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
             ) from exc
 
         block = table.frame[list(table.feature_columns)]
@@ -631,7 +631,7 @@ def _logit_fit(y: pd.Series, X_subset: pd.DataFrame) -> Any:
     except ImportError as exc:
         raise OptionalDependencyError(
             "feature_selector.stepwise requires the optional statsmodels "
-            "dependency; install 'habitat-analysis[ml]' to use it."
+            "dependency; install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
         ) from exc
 
     return Logit(y, sm.add_constant(X_subset)).fit(disp=0)
@@ -914,8 +914,8 @@ class UnivariateCoxSelector(FittedSelectorBase):
             from lifelines import CoxPHFitter
         except ImportError as exc:
             raise OptionalDependencyError(
-                "feature_selector.univariate_cox needs lifelines; install the "
-                "'analysis' extra (pip install \"habitat-analysis[analysis]\")."
+                "feature_selector.univariate_cox needs lifelines; "
+                "install it with: pip install lifelines."
             ) from exc
         from lifelines.exceptions import ConvergenceError
 
@@ -1074,7 +1074,7 @@ def _build_rfecv_estimator(name: str, seed: Optional[int]) -> Any:
         except ImportError as exc:
             raise OptionalDependencyError(
                 "rfecv estimator 'XGBClassifier' requires the optional xgboost "
-                "dependency; install 'habitat-analysis[ml]' to use it."
+                "dependency; install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
             ) from exc
 
         return xgb.XGBClassifier(random_state=seed)
@@ -1100,7 +1100,7 @@ def _build_rfecv_estimator(name: str, seed: Optional[int]) -> Any:
         except ImportError as exc:
             raise OptionalDependencyError(
                 "rfecv estimator 'XGBRegressor' requires the optional xgboost "
-                "dependency; install 'habitat-analysis[ml]' to use it."
+                "dependency; install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
             ) from exc
 
         return xgb.XGBRegressor(random_state=seed)
@@ -1578,7 +1578,7 @@ class MrmrSelector(FittedSelectorBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "feature_selector.mrmr requires the optional mrmr-selection "
-                "dependency; install 'habitat-analysis[ml]' to use it."
+                "dependency; install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
             ) from exc
 
         block = table.frame[list(table.feature_columns)]

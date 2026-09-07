@@ -109,9 +109,9 @@ def load_data(
             the loaded data is empty or ``target_column`` is not specified.
     """
     # ``excel`` and ``parquet`` need optional pandas engines (openpyxl /
-    # pyarrow, both in habitat-analysis[tables]). The wrappers gate the read so
-    # a missing engine names the HABIT extra instead of surfacing pandas'
-    # internal "Missing optional dependency" message.
+    # pyarrow). The wrappers gate the read so a missing engine names the
+    # pip packages instead of surfacing pandas' internal
+    # "Missing optional dependency" message.
     def _read_excel(source: Union[str, Path]) -> pd.DataFrame:
         require_excel_backend(purpose=f"reading the feature table {source}")
         return pd.read_excel(source)

@@ -41,7 +41,7 @@ def _lazy_tabular_predictor() -> Any:
     except ImportError as exc:
         raise OptionalDependencyError(
             "classifier.AutoGluonTabular requires the optional AutoGluon "
-            "dependency; install 'habitat-analysis[automl]' to use it."
+            "dependency; install it with: pip install autogluon.tabular."
         ) from exc
     return TabularPredictor
 

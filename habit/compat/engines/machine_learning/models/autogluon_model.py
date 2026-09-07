@@ -38,7 +38,7 @@ try:
 except ImportError:
     raise OptionalDependencyError(
         "AutoML support is not installed. Install "
-        "'habitat-analysis[automl]'."
+        "'pip install autogluon.tabular'."
     )
 
 # HABIT-level keys that configure the wrapper rather than AutoGluon itself.

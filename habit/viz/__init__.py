@@ -177,7 +177,7 @@ __all__ = [
     "plot_habitat_feature_components",
     "plot_habitat_feature_violin",
     "plot_habitat_feature_bars",
-    # habitat graph topology figures (2D: [viz] extra; 3D: [view]+[slic] extras)
+    # habitat graph topology figures (2D: matplotlib; 3D: napari / PyVista / scikit-image)
     "plot_habitat_graph_slice",
     "plot_habitat_graph_network_2d",
     "plot_graph_feature_heatmap",
@@ -188,6 +188,6 @@ __all__ = [
     # voxel texture / feature-map slices (local entropy, voxel radiomics, ...)
     "dense_voxel_feature_map",
     "plot_voxel_texture_slice",
-    # optional interactive napari viewer (requires [view] extra)
+    # optional interactive napari viewer (requires napari)
     "view_habitat_napari",
 ]

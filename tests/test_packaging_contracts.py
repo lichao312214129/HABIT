@@ -74,18 +74,26 @@ REQUIRED_DEPENDENCIES: Dict[str, str] = {
         "Default JIT for MSI / habitat-graph / union-find / CSR kernels. "
         "llvmlite is the size cost; 0.63+ is the CPython 3.14 wheel floor."
     ),
+    "matplotlib": (
+        "Every documented habitat figure and habit.viz plot. A bare install "
+        "must draw Guide / Quickstart figures without a second pip line."
+    ),
+    "seaborn": (
+        "Companion plotting style used with matplotlib on habitat figures."
+    ),
+    "scikit-image": (
+        "SlicSupervoxelizer (skimage.segmentation.slic) and marching cubes "
+        "for 3D habitat-graph surfaces. ~26 MB; networkx already required."
+    ),
 }
 
 #: Optional packages the bare-install smoke test hides from the interpreter.
 #: ``radiomics`` is included even though it is never a pip dependency: the
 #: point of the test is that the habitat kernel path needs none of them.
 BLOCKED_OPTIONAL_MODULES: tuple[str, ...] = (
-    "matplotlib",
-    "seaborn",
     "pydicom",
     "pyarrow",
     "openpyxl",
-    "skimage",
     "radiomics",
     "napari",
 )
@@ -388,18 +396,17 @@ assert not leaked, "kernel path imported optional packages: " + repr(leaked)
 from habit.utils.optional_deps import require
 
 for module, extra in (
-    ("matplotlib.pyplot", "viz"),
-    ("seaborn", "viz"),
     ("pydicom", "dicom"),
     ("pyarrow", "tables"),
     ("openpyxl", "tables"),
-    ("skimage.segmentation", "slic"),
 ):
     try:
         require(module, extra=extra, purpose="the bare-install contract test")
     except OptionalDependencyError as exc:
         message = str(exc)
-        assert 'pip install "habitat-analysis[' + extra + ']"' in message, message
+        from habit.utils.optional_deps import install_command
+        assert install_command(extra) in message, message
+        assert "habitat-analysis[" not in message, message
         assert module in message, message
     else:
         raise AssertionError(module + " was expected to be unavailable")
@@ -413,7 +420,9 @@ try:
     save_habitats_results(pd.DataFrame({{"a": [1]}}), sys.argv[1], "parquet")
 except OptionalDependencyError as exc:
     message = str(exc)
-    assert 'pip install "habitat-analysis[tables]"' in message, message
+    from habit.utils.optional_deps import install_command
+    assert install_command("tables") in message, message
+    assert "habitat-analysis[" not in message, message
     assert "habitats_results_format: csv" in message, message
 else:
     raise AssertionError("parquet export must not succeed without pyarrow")

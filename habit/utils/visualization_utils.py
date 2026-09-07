@@ -19,10 +19,10 @@ import numpy as np
 
 from habit.utils.optional_deps import require
 
-# matplotlib and seaborn are OPTIONAL dependencies (habitat-analysis[viz]).
+# matplotlib and seaborn are required dependencies.
 # Every function in this module draws, so the gate is at module scope:
-# importing it without the viz extra raises OptionalDependencyError naming
-# the extra instead of a bare ModuleNotFoundError.
+# importing it without matplotlib raises OptionalDependencyError naming
+# the pip packages instead of a bare ModuleNotFoundError.
 _VIZ_PURPOSE = "habitat and SHAP visualization helpers"
 plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
 sns = require("seaborn", extra="viz", purpose=_VIZ_PURPOSE)

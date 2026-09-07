@@ -31,7 +31,7 @@ import pandas as pd
 
 from habit.utils.optional_deps import require
 
-# matplotlib and seaborn are OPTIONAL dependencies (habitat-analysis[viz]).
+# matplotlib and seaborn are required dependencies.
 # This module is not re-exported by ``habit.viz.__init__`` -- it is imported
 # only by callers that already asked for a KM figure -- so gating at module
 # scope is safe and gives the clearest failure point.

@@ -24,7 +24,7 @@
 
 ## 安装
 
-Python **3.10–3.14**。完整说明与可选依赖见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。
+Python **3.10–3.14**。完整说明见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。
 
 ```bash
 conda create -n habit python=3.10 -y
@@ -33,12 +33,6 @@ pip install -U pip
 pip install habitat-analysis -i https://pypi.org/simple
 habit --version
 # 代码里：import habit
-```
-
-常用 extras 示例（按需安装；缺什么会报错并给出 `pip install` 命令）：
-
-```bash
-pip install "habitat-analysis[tables,viz]"
 ```
 
 - **源码**：[GitHub](https://github.com/lichao312214129/HABIT)（开发：`pip install -e .`）

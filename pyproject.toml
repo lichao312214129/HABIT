@@ -35,25 +35,19 @@ classifiers = [
 # PyRadiomics pipelines). Exact pins belong to lock files / CI, never to this
 # metadata.
 #
-# THIS LIST IS A WHITELIST, not a convenience dumping ground. It contains only
-# what the habitat kernel cannot run without, and
-# tests/test_packaging_contracts.py asserts it equals an explicit set: adding
-# an entry here turns that test red on purpose. Everything else -- plotting,
-# DICOM, parquet/xlsx, SLIC, tabular ML, survival, registration, PyRadiomics --
-# lives in the extras below and raises OptionalDependencyError (naming the
-# extra and printing the pip command) when used without its extra.
+# THIS LIST IS A WHITELIST. tests/test_packaging_contracts.py asserts it
+# equals an explicit set. Adding an entry turns that test red on purpose.
+# Optional backends (DICOM, parquet/xlsx, tabular ML, survival, registration,
+# PyRadiomics, napari) stay in extras and raise OptionalDependencyError
+# with a pip-install hint when missing.
 #
-# Two groups, and nothing else:
-#   * the habitat kernel itself -- numpy / scipy / pandas / scikit-learn /
-#     SimpleITK / networkx / numba. These are the imaging + clustering +
-#     graph / MSI mathematics; there is no HABIT without them, and together
-#     they dominate the install size (~450 MB plus numba's llvmlite) with
-#     no way to shrink that without deleting the product.
-#   * the plumbing every code path crosses -- pydantic (contract validation),
-#     PyYAML (config), click (the `habit` console script), tqdm (the shared
-#     progress bar), joblib (parallel map), kneed (elbow selection of the
-#     habitat count). ~6.7 MB in total, so demoting any of them would add an
-#     install-time decision for no measurable benefit.
+# Three groups:
+#   * the habitat kernel -- numpy / scipy / pandas / scikit-learn /
+#     SimpleITK / networkx / numba / scikit-image. Imaging, clustering,
+#     graph / MSI mathematics, and SLIC supervoxels.
+#   * figures -- matplotlib / seaborn. Guide, Quickstart, and habit.viz
+#     all draw; a bare install must plot without a second pip line.
+#   * plumbing -- pydantic, PyYAML, click, tqdm, joblib, kneed.
 dependencies = [
     # numpy 2.x is fully supported (verified: full check suite + golden tests
     # under numpy 2.2.6). Extensions built against numpy 2 headers also run on
@@ -84,6 +78,14 @@ dependencies = [
     # llvmlite is the size cost; 0.63+ is the CPython 3.14 wheel floor;
     # cap below 0.68 covers current 0.67.
     "numba>=0.63,<0.68",
+    # Guide / Quickstart / habit.viz figures. ~24 MB matplotlib + ~2 MB
+    # seaborn; pillow / contourpy come with matplotlib.
+    "matplotlib>=3.8,<4",
+    "seaborn>=0.13,<1",
+    # SLIC supervoxels (habit.supervoxel.SlicSupervoxelizer) and marching
+    # cubes for 3D habitat-graph surfaces. ~26 MB plus imageio / tifffile
+    # (~3.5 MB); networkx is already required.
+    "scikit-image>=0.23,<0.27",
 ]
 
 [project.scripts]
@@ -115,8 +117,8 @@ radiomics = []
 # Interactive napari viewer for habitat maps (`habit view --backend napari`).
 # Medium weight: full `napari[pyqt5]` wheel set is ~177 MB download; on a
 # typical HABIT env the net new install is ~80–120 MB (dominated by PyQt5
-# ~55 MB + vispy / dask / napari-console). Default `habit view` stays on
-# matplotlib via the `viz` extra and needs no Qt. Not pulled into `[all]`.
+# ~55 MB + vispy / dask / napari-console). Default `habit view` uses
+# required matplotlib and needs no Qt. Not pulled into `[all]`.
 # Reinforce pydantic!=2.11.* so `pip install ...[view]` cannot leave a broken
 # npe2/PluginManifest stack when an older env already had pydantic 2.11.
 view = [
@@ -126,14 +128,9 @@ view = [
     # Off-screen 3D habitat-graph surfaces/networks (habit.viz.habitat_graph).
     "pyvista>=0.43,<1",
 ]
-# Every figure HABIT can draw. ~57.8 MB installed, of which ~31.4 MB is
-# matplotlib's own transitive tail (pillow, fonttools, kiwisolver, contourpy).
-# habit.viz imports matplotlib lazily inside each plotting function, so the
-# habitat kernel never touches this extra.
-viz = [
-    "matplotlib>=3.8,<4",
-    "seaborn>=0.13,<1",
-]
+# Empty documented alias: matplotlib and seaborn are now required.
+# Kept so existing ``pip install "habitat-analysis[viz]"`` commands stay valid.
+viz = []
 # DICOM reading (`habit dicom-info`, `habit sort-dicom`). ~20.5 MB, used by
 # exactly one module (habit/utils/dicom_utils.py); NIfTI / NRRD input needs
 # nothing beyond the required SimpleITK.
@@ -146,9 +143,9 @@ dicom = [
 # pandas loads at run time.
 #
 # NOTE: habitats_results_format still defaults to `parquet`, so a bare install
-# that runs a habitat analysis without this extra fails with an explicit
-# OptionalDependencyError offering both exits (install [tables], or set
-# habitats_results_format: csv). It never silently switches format.
+# that writes parquet fails with OptionalDependencyError offering both
+# exits (pip install pyarrow, or set habitats_results_format: csv).
+# It never silently switches format.
 tables = [
     # pyarrow 22 is the first release shipping CPython 3.14 wheels; keep the
     # tested 15–21 range on 3.10–3.13 so existing installs stay untouched.
@@ -156,14 +153,9 @@ tables = [
     "pyarrow>=22,<23; python_version >= '3.14'",
     "openpyxl>=3.1,<4",
 ]
-# SLIC supervoxels. ~43.7 MB (incl. ~16.4 MB of networkx / imageio / tifffile)
-# for one function, skimage.segmentation.slic. The kernel contract is the
-# Supervoxelizer PROTOCOL, and the default backends (kmeans / gmm feature
-# clustering) need nothing extra, exactly as the ANTs registration backend is
-# one option behind the `registration` extra rather than a required dependency.
-slic = [
-    "scikit-image>=0.23,<0.27",
-]
+# Empty documented alias: scikit-image is now required.
+# Kept so existing ``pip install "habitat-analysis[slic]"`` commands stay valid.
+slic = []
 # Empty documented alias: numba is now a required dependency. Kept so
 # existing ``pip install "habitat-analysis[accel]"`` commands stay valid.
 accel = []

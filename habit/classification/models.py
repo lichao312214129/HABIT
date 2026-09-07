@@ -487,7 +487,7 @@ class XgboostClassifier(_SpecParamsMixin, SklearnClassifierBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "classifier.XGBoost requires the optional xgboost dependency; "
-                "install 'habitat-analysis[ml]' to use it."
+                "install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
             ) from exc
 
         return xgb.XGBClassifier(random_state=self._seed, **self._params)

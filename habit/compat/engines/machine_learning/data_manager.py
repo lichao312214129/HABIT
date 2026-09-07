@@ -54,7 +54,7 @@ class TabularLoader:
         if ext in (".tsv", ".txt"):
             return pd.read_csv(path, sep="\t", dtype=dtype)
         if ext in (".xlsx", ".xls"):
-            # openpyxl is optional (habitat-analysis[tables]).
+            # openpyxl is optional (pip install pyarrow openpyxl).
             require_excel_backend(purpose=f"reading the feature table {path}")
             # Read first, then caller may normalize subject column explicitly.
             return pd.read_excel(path)

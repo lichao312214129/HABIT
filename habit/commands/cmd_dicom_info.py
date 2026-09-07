@@ -84,7 +84,7 @@ def run_dicom_info(input_path: str,
         logger = get_module_logger('cli.dicom_info')
     
     try:
-        # pydicom is an optional dependency (habitat-analysis[dicom]). Fail
+        # pydicom is an optional dependency (pip install pydicom). Fail
         # here, before any directory scan, so the user gets the install
         # command instead of a traceback thousands of files later.
         if not is_pydicom_available():

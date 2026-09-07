@@ -24,9 +24,9 @@ import numpy as np
 
 from habit.utils.optional_deps import require
 
-# matplotlib is OPTIONAL dependencies (habitat-analysis[viz]).
+# matplotlib is a required dependency.
 # This module draws its own diagnostic figures at module scope, so the gate
-# stays at module scope too: the import failure then names the extra instead
+# stays at module scope too: the import failure then names the pip packages instead
 # of raising a bare ModuleNotFoundError.
 _VIZ_PURPOSE = "stepwise feature-selection diagnostic figures"
 plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
@@ -524,7 +524,7 @@ def python_stepwise_selector(X: pd.DataFrame,
     if not STATSMODELS_AVAILABLE:
         raise OptionalDependencyError(
             "selector 'stepwise' requires the optional statsmodels dependency; "
-            "install 'habitat-analysis[ml]' to use it."
+            "install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
         )
     if context is not None:
         X = context.X

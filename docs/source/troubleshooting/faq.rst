@@ -28,10 +28,10 @@ Python, e.g. 3.10::
 call blocks until you close the window.
 
 **``OptionalDependencyError``** — the message includes the
-``pip install ...`` command for the missing extra.
+``pip install ...`` command for the missing package.
 
-**Parquet / pyarrow** — either ``pip install "habitat-analysis[tables]"``
-or set ``habitats_results_format: csv`` in YAML.
+**Parquet / pyarrow** — ``pip install pyarrow``, or set
+``habitats_results_format: csv`` in YAML.
 
 Run
 ---

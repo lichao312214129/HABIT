@@ -103,15 +103,15 @@ def hide_module() -> Iterator[Any]:
         sys.modules.update(saved)
 
 
-def test_install_command_quotes_the_extra_for_every_shell() -> None:
-    """The hint must be pasteable into zsh / PowerShell, which glob ``[``."""
-    assert install_command("viz") == 'pip install "habitat-analysis[viz]"'
-    assert install_command("tables") == f'pip install "{DISTRIBUTION_NAME}[tables]"'
+def test_install_command_names_the_pip_packages() -> None:
+    """Hints name packages, not ``habitat-analysis[<extra>]``."""
+    assert install_command("viz") == "pip install matplotlib seaborn"
+    assert install_command("tables") == "pip install pyarrow openpyxl"
 
 
 def test_install_command_rejects_an_undeclared_extra() -> None:
     """A typo must fail loudly rather than print an unresolvable command."""
-    with pytest.raises(ValueError, match="Unknown HABIT extra"):
+    with pytest.raises(ValueError, match="Unknown HABIT optional group"):
         install_command("vizz")
 
 
@@ -122,7 +122,7 @@ def test_hint_names_the_module_the_purpose_and_the_command() -> None:
     )
     assert "matplotlib.pyplot" in hint
     assert "publication figures" in hint
-    assert 'pip install "habitat-analysis[viz]"' in hint
+    assert "pip install matplotlib seaborn" in hint
     assert INSTALLATION_DOCS_URL in hint
 
 
@@ -146,7 +146,7 @@ def test_require_returns_the_requested_submodule() -> None:
 
 def test_require_rejects_an_undeclared_extra_before_importing() -> None:
     """The extra is validated first, so the error is identical either way."""
-    with pytest.raises(ValueError, match="Unknown HABIT extra"):
+    with pytest.raises(ValueError, match="Unknown HABIT optional group"):
         require("json", extra="not-an-extra", purpose="a unit test")
 
 
@@ -164,13 +164,14 @@ def test_require_rejects_an_undeclared_extra_before_importing() -> None:
 def test_require_raises_optional_dependency_error_with_pip_command(
     module: str, extra: str, hide_module: Any
 ) -> None:
-    """Every demoted dependency must fail with the extra's install command."""
+    """Every demoted dependency must fail with a copy-pasteable pip command."""
     hide_module(module.split(".")[0])
     with pytest.raises(OptionalDependencyError) as exc_info:
         require(module, extra=extra, purpose="a unit test")
     message = str(exc_info.value)
-    assert f'pip install "habitat-analysis[{extra}]"' in message
+    assert install_command(extra) in message
     assert module in message
+    assert "habitat-analysis[" not in message
 
 
 def test_require_does_not_mask_an_unrelated_missing_module(
@@ -204,7 +205,7 @@ def test_require_reports_a_broken_install_distinctly(hide_module: Any) -> None:
             require("pyarrow", extra="tables", purpose="parquet export")
     message = str(exc_info.value)
     assert "installed but failed to import" in message
-    assert 'pip install "habitat-analysis[tables]"' in message
+    assert install_command("tables") in message
 
 
 def test_table_backend_wrappers_point_at_the_tables_extra(
@@ -216,7 +217,7 @@ def test_table_backend_wrappers_point_at_the_tables_extra(
 
     with pytest.raises(OptionalDependencyError) as excel_info:
         require_excel_backend(purpose="reading a spreadsheet")
-    assert 'pip install "habitat-analysis[tables]"' in str(excel_info.value)
+    assert install_command("tables") in str(excel_info.value)
     assert ".csv" in str(excel_info.value)
 
     with pytest.raises(OptionalDependencyError) as parquet_info:
@@ -224,7 +225,7 @@ def test_table_backend_wrappers_point_at_the_tables_extra(
             purpose="reading a parquet table",
             alternatives=("use CSV",),
         )
-    assert 'pip install "habitat-analysis[tables]"' in str(parquet_info.value)
+    assert install_command("tables") in str(parquet_info.value)
 
 
 def test_optional_extra_modules_covers_the_demoted_packages() -> None:

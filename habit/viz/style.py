@@ -298,7 +298,7 @@ def use_style(name: str | StyleSpec) -> Iterator[StyleSpec]:
         >>> fig.savefig("km.tiff", dpi=style.dpi)  # doctest: +SKIP
     """
     spec = name if isinstance(name, StyleSpec) else get_style(name)
-    # matplotlib is an OPTIONAL dependency (habitat-analysis[viz]). Style
+    # matplotlib is a required dependency. Style
     # presets can be registered and inspected without it; only ACTIVATING one
     # touches rcParams, so the gate sits here.
     mpl = require("matplotlib", extra="viz", purpose="applying a figure style preset")

@@ -36,9 +36,9 @@ except ImportError:
 
 from habit.utils.optional_deps import require
 
-# matplotlib is OPTIONAL dependencies (habitat-analysis[viz]).
+# matplotlib is a required dependency.
 # This module draws its own diagnostic figures at module scope, so the gate
-# stays at module scope too: the import failure then names the extra instead
+# stays at module scope too: the import failure then names the pip packages instead
 # of raising a bare ModuleNotFoundError.
 _VIZ_PURPOSE = "RFECV feature-selection diagnostic figures"
 plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
@@ -115,7 +115,7 @@ def rfecv_selector(data: pd.DataFrame,
     if estimator.startswith('XGB') and not XGBOOST_AVAILABLE:
         raise OptionalDependencyError(
             f"rfecv estimator {estimator!r} requires the optional xgboost "
-            "dependency; install 'habitat-analysis[ml]' to use it."
+            "dependency; install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
         )
     if estimator not in ESTIMATOR_MAP:
         raise ValueError(f"Unsupported estimator: {estimator}. Must be one of {list(ESTIMATOR_MAP.keys())}")

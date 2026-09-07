@@ -195,7 +195,7 @@ def save_habitats_results(
 
     started_at = time.monotonic()
     if fmt == "parquet":
-        # pyarrow is an OPTIONAL dependency (habitat-analysis[tables]) and
+        # pyarrow is an OPTIONAL dependency (pip install pyarrow openpyxl) and
         # parquet remains the DEFAULT format. Deliberately no silent fallback
         # to CSV: that would rename the output file from habitats.parquet to
         # habitats.csv behind the user's back and break every downstream path

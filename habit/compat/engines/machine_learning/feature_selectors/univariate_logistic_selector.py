@@ -60,7 +60,7 @@ def univariate_logistic_selector(
     if not STATSMODELS_AVAILABLE:
         raise OptionalDependencyError(
             "selector 'univariate_logistic' requires the optional statsmodels "
-            "dependency; install 'habitat-analysis[ml]' to use it."
+            "dependency; install it with: pip install xgboost imbalanced-learn mrmr-selection statsmodels."
         )
     if context is not None:
         X = context.X

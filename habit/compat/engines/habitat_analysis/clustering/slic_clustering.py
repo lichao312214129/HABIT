@@ -249,12 +249,9 @@ class SLICClustering(BaseClustering):
         # Final safeguard before SLIC call.
         np.nan_to_num(feature_volume, copy=False, nan=0.0, posinf=0.0, neginf=0.0)
 
-        # scikit-image is an OPTIONAL dependency (habitat-analysis[slic]).
-        # ``clustering/__init__.py`` imports this module eagerly to populate
-        # ClusteringAlgorithmFactory, so the import has to happen here: a
-        # module-scope import would make the whole compat clustering package
-        # -- including the kmeans/gmm backends that need nothing extra --
-        # unimportable on a bare install.
+        # Import skimage here rather than at module scope so a broken
+        # install does not make the whole compat clustering package
+        # unimportable.
         slic = require(
             "skimage.segmentation",
             extra="slic",

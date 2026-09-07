@@ -14,12 +14,12 @@
 #
 """Import gate for every optional third-party backend HABIT can use.
 
-HABIT's required dependency set is deliberately small: only the habitat kernel
-(numpy / scipy / pandas / scikit-learn / SimpleITK / networkx / numba) plus
-the thin plumbing layer (pydantic / PyYAML / click / tqdm / joblib / kneed)
-is installed by a bare ``pip install habitat-analysis``. Everything else --
-plotting, DICOM, parquet/xlsx tables, SLIC supervoxels, tabular ML, survival
-analysis, ANTs registration, PyRadiomics -- lives behind a pip extra.
+A bare ``pip install habitat-analysis`` installs the habitat kernel
+(numpy / scipy / pandas / scikit-learn / SimpleITK / networkx / numba /
+scikit-image), figures (matplotlib / seaborn), and plumbing
+(pydantic / PyYAML / click / tqdm / joblib / kneed). Everything else --
+DICOM, parquet/xlsx, tabular ML, survival, ANTs, napari, PyRadiomics --
+is optional.
 
 :func:`require` is the single entry point every optional backend must go
 through. It converts the raw ``ModuleNotFoundError`` a missing extra would
@@ -67,10 +67,12 @@ DISTRIBUTION_NAME: str = "habitat-analysis"
 #: The ``all`` / ``full`` meta-extras are intentionally absent: they exist for
 #: users, never as the target of a single missing-module hint.
 OPTIONAL_EXTRA_MODULES: Mapping[str, tuple[str, ...]] = {
+    # Empty documented alias: matplotlib / seaborn are now required.
     "viz": ("matplotlib", "seaborn"),
     "view": ("napari",),
     "dicom": ("pydicom",),
     "tables": ("pyarrow", "openpyxl"),
+    # Empty documented alias: scikit-image is now required.
     "slic": ("skimage",),
     "ml": ("xgboost", "imblearn", "mrmr", "statsmodels"),
     "analysis": (
@@ -89,6 +91,33 @@ OPTIONAL_EXTRA_MODULES: Mapping[str, tuple[str, ...]] = {
     # Empty documented alias: numba is now required. Mapping is kept so
     # extras coverage stays complete and ``require("numba", extra="accel")``
     # still resolves; kernels keep a silent ``try: import numba`` fallback.
+    "accel": ("numba",),
+}
+
+#: Pip distribution names for :func:`install_command`. Import names in
+#: ``OPTIONAL_EXTRA_MODULES`` are not always the PyPI name (``skimage`` →
+#: ``scikit-image``, ``ants`` → ``antspyx``). Hints name these packages
+#: directly; they do not teach ``habitat-analysis[<extra>]``.
+OPTIONAL_PIP_PACKAGES: Mapping[str, tuple[str, ...]] = {
+    "viz": ("matplotlib", "seaborn"),
+    "view": ('"napari[pyqt5]"', "npe2", "pyvista"),
+    "dicom": ("pydicom",),
+    "tables": ("pyarrow", "openpyxl"),
+    "slic": ("scikit-image",),
+    "ml": ("xgboost", "imbalanced-learn", "mrmr-selection", "statsmodels"),
+    "analysis": (
+        "krippendorff",
+        "shap",
+        "plotly",
+        "pingouin",
+        "lifelines",
+        "scikit-survival",
+    ),
+    "automl": ("autogluon.tabular",),
+    "registration": ("antspyx",),
+    "torch": ("torch",),
+    "monai": ("monai",),
+    "radiomics": ('"pyradiomics>=3.0.1,<3.2"',),
     "accel": ("numba",),
 }
 
@@ -130,24 +159,25 @@ PYRADIOMICS_INSTALL_HINT: str = (
 
 def install_command(extra: str) -> str:
     """
-    Build the pip command that installs one HABIT extra.
+    Build the pip command that installs the packages for one optional group.
 
     Args:
-        extra: Extra name declared in ``[project.optional-dependencies]``.
+        extra: Key in ``OPTIONAL_PIP_PACKAGES`` (same names as the
+            historical extras in ``pyproject.toml``).
 
     Returns:
-        str: A copy-pasteable command, quoted so shells that treat ``[`` as a
-        glob character (zsh, PowerShell) do not mangle it.
+        str: A copy-pasteable ``pip install <packages>`` line. Package
+        names that contain ``[`` are already quoted.
 
     Raises:
-        ValueError: When ``extra`` is not a declared HABIT extra.
+        ValueError: When ``extra`` is not a declared optional group.
     """
-    if extra not in OPTIONAL_EXTRA_MODULES:
-        known = ", ".join(sorted(OPTIONAL_EXTRA_MODULES))
+    if extra not in OPTIONAL_PIP_PACKAGES:
+        known = ", ".join(sorted(OPTIONAL_PIP_PACKAGES))
         raise ValueError(
-            f"Unknown HABIT extra {extra!r}. Declared extras: {known}."
+            f"Unknown HABIT optional group {extra!r}. Declared groups: {known}."
         )
-    return f'pip install "{DISTRIBUTION_NAME}[{extra}]"'
+    return "pip install " + " ".join(OPTIONAL_PIP_PACKAGES[extra])
 
 
 def optional_dependency_hint(
@@ -166,7 +196,7 @@ def optional_dependency_hint(
     Args:
         module: Importable module name that could not be imported, for
             example ``matplotlib.pyplot``.
-        extra: HABIT extra that provides the module.
+        extra: Optional-group key that selects the pip packages.
         purpose: One-line description of what HABIT needed the module for,
             phrased to complete "... is required for <purpose>".
         alternatives: Extra escape routes to list after the install command,
@@ -177,23 +207,31 @@ def optional_dependency_hint(
         str: Multi-line message ending with the docs URL.
 
     Raises:
-        ValueError: When ``extra`` is not a declared HABIT extra.
+        ValueError: When ``extra`` is not a declared optional group.
     """
     lines = [
         f"{module} is required for {purpose}, but it is not installed.",
         "",
-        "It is an OPTIONAL HABIT dependency. Install the extra that "
-        "provides it:",
+        "It is optional. Install the package:",
         "",
         f"  {install_command(extra)}",
     ]
+    if extra == "torch":
+        lines.extend(
+            [
+                "",
+                "For a CUDA wheel, pick the command on "
+                "https://pytorch.org/get-started/locally/ "
+                "and run it in the same habit env.",
+            ]
+        )
     if alternatives:
         lines.extend(["", "Alternatively:"])
         lines.extend(f"  - {alternative}" for alternative in alternatives)
     lines.extend(
         [
             "",
-            "Every extra and what it unlocks: " f"{INSTALLATION_DOCS_URL}",
+            "Install notes: " f"{INSTALLATION_DOCS_URL}",
         ]
     )
     return "\n".join(lines)
@@ -212,7 +250,7 @@ def require(
     Every optional backend in HABIT is imported through this function instead
     of a bare ``import``. The point is the failure mode: a bare import raises
     ``ModuleNotFoundError: No module named 'matplotlib'``, which tells a user
-    nothing about which HABIT extra to install. This raises
+    nothing about which packages to install. This raises
     ``OptionalDependencyError`` with the exact pip command instead.
 
     Nothing is installed or downloaded; the function only imports and, on
@@ -280,7 +318,7 @@ def require_excel_backend(*, purpose: str) -> ModuleType:
     ``pandas.read_excel`` / ``DataFrame.to_excel`` load at run time. Without
     this gate, a missing openpyxl surfaces as pandas' own
     ``ImportError: Missing optional dependency 'openpyxl'``, which names
-    neither HABIT nor the extra that provides it.
+    neither HABIT nor the pip packages that provide it.
 
     Args:
         purpose: What the spreadsheet is being read or written for.

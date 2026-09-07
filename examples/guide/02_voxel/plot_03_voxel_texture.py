@@ -57,6 +57,12 @@ plt.show()
 # 3. **HABIT built-in GPU**: GPU-native matrix building (``gpumatrices``) +
 #    GPU feature formulas (zero CPU-GPU transfer of intermediate matrices).
 #
+# Install in the same ``habit`` env. ``local_entropy`` (above) needs neither
+# PyRadiomics nor torch. The IBSI rows below need **PyRadiomics**. Rows 2–3
+# also need **PyTorch**: ``conda activate habit``, then install from
+# https://pytorch.org/ (Start Locally; pick OS / Pip / CUDA). See
+# :doc:`/tutorial/installation` steps 5–6.
+#
 # Below, we define a unified extraction helper that selects among these runtimes.
 RADIOMICS_PARAMS: Dict[str, Any] = {
     "imageType": {"Original": {}},
@@ -113,10 +119,8 @@ plt.show()
 # %%
 # GPU radiomics and the three-way runtime comparison
 # --------------------------------------------------
-# Install CUDA torch, then the optional extra::
-#
-#    pip install torch --index-url https://download.pytorch.org/whl/cu124
-#    pip install "habitat-analysis[torch]"
+# Install CUDA torch in the ``habit`` env from https://pytorch.org/
+# (Start Locally; pick OS / Pip / CUDA).
 #
 # We compare the two GPU-accelerated runtimes against baseline CPU:
 #

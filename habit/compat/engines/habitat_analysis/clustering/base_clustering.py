@@ -24,7 +24,7 @@ from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bo
 # matplotlib.pyplot used to be imported here twice; neither binding was ever
 # referenced. Removing the dead imports keeps the clustering factory -- and
 # every backend registered through it -- importable without the optional viz
-# extra (habitat-analysis[viz]).
+# matplotlib / seaborn (required).
 import warnings
 import os
 import importlib

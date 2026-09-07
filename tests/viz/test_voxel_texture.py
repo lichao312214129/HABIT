@@ -286,10 +286,10 @@ def test_plot_voxel_texture_slice_optional_deps_message(monkeypatch) -> None:
     def _boom(name: str, *args, **kwargs):
         raise OptionalDependencyError(
             f"{name} is required for voxel texture figures.\n"
-            "Install with: pip install 'habit[viz]'"
+            "Install with: pip install matplotlib seaborn"
         )
 
     monkeypatch.setattr(voxel_texture_mod, "require", _boom)
     anatomy, roi, entropy = _synthetic_volume()
-    with pytest.raises(OptionalDependencyError, match="habit\\[viz\\]"):
+    with pytest.raises(OptionalDependencyError, match="matplotlib seaborn"):
         plot_voxel_texture_slice(entropy, anatomy=anatomy, roi_mask=roi, axis=0)

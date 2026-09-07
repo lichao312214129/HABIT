@@ -33,7 +33,7 @@ DEFAULT_NUM_WORKERS = min(32, (os.cpu_count() or 1) + 4)
 
 logger = get_module_logger(__name__)
 
-#: pydicom is an OPTIONAL dependency (habitat-analysis[dicom]). This module is
+#: pydicom is an OPTIONAL dependency (pip install pydicom). This module is
 #: reachable from ``habit.recipes`` (via ``recipes.auxiliary``), which the
 #: habitat kernel path imports, so pydicom must NOT be imported at module
 #: scope: doing so would either drag a 20 MB dependency into every bare
@@ -52,7 +52,7 @@ def _pydicom() -> Any:
 
     Raises:
         OptionalDependencyError: When pydicom is not installed, carrying the
-            ``pip install "habitat-analysis[dicom]"`` command.
+            ``pip install pydicom`` command.
     """
     return require("pydicom", extra="dicom", purpose=_PYDICOM_PURPOSE)
 

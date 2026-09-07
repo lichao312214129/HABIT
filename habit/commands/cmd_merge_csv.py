@@ -133,8 +133,8 @@ def run_merge_csv(
             file_ext = os.path.splitext(file_path)[1].lower()
             index_already_set = False
             if file_ext == '.xlsx' or file_ext == '.xls':
-                # openpyxl is optional (habitat-analysis[tables]); fail with
-                # the extra name rather than pandas' engine-level ImportError.
+                # openpyxl is optional (pip install pyarrow openpyxl); fail with
+                # the pip packages rather than pandas' engine-level ImportError.
                 require_excel_backend(
                     purpose=f"reading the spreadsheet {os.path.basename(file_path)}"
                 )

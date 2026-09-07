@@ -52,8 +52,8 @@ Outputs:
 
 * ``habitat_graph_features.csv`` under ``out_dir``
 * when ``graph.visualize: true``, optional figures under
-  ``out_dir/visualizations/graph/`` (2D needs ``[viz]``; 3D also needs
-  ``[view]``)
+  ``out_dir/visualizations/graph/`` (2D needs matplotlib; 3D also needs
+  napari)
 
 By default nodes sit at **per-cell subregion centroids** on a global
 VOI lattice (``node_method: uniform_grid``, ``block_size: 8``
@@ -144,7 +144,7 @@ Full walkthrough: :doc:`../examples/one_step_habitat` (**Stream per subject**).
 Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry
 ``HabitatFeatureExtractorRegistry.create("graph", ...)``, and 3D
 :func:`~habit.viz.render_habitat_graph_network_3d` /
-:func:`~habit.viz.render_habitat_graph_surface_3d` (needs ``[view]``).
+:func:`~habit.viz.render_habitat_graph_surface_3d` (needs napari).
 
 Small-world :math:`\sigma` and random-graph nulls
 -------------------------------------------------

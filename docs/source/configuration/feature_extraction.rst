@@ -150,7 +150,7 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
   - ``visualization_show_grid`` (``true``)
   - ``visualization_block_size`` (``null`` → extraction ``block_size``, default 8 voxels)
   - ``visualization_grid_linestyle`` (``--`` dashed)
-  - ``visualization_save_3d`` (``true``; 3D needs optional ``[view]`` stack)
+  - ``visualization_save_3d`` (``true``; 3D needs napari)
 
 - **Legacy keys** ``enabled`` / ``n_workers``: accepted, ignored (activation is
   ``feature_types``; figures run serially in the main process)

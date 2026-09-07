@@ -15,8 +15,8 @@
 """Optional napari viewer for habitat label maps on source images.
 
 Pure array API: one or more greyscale images + integer habitat labels in, a
-napari ``Viewer`` out. No filesystem I/O. napari (and its Qt binding) live
-behind the ``view`` pip extra; missing them raises
+napari ``Viewer`` out. No filesystem I/O. napari (and its Qt binding) are
+optional; missing them raises
 :class:`~habit.exceptions.OptionalDependencyError` with an install hint.
 
 ``habit view`` prefers this viewer (``--backend auto`` / ``napari``) and
@@ -63,17 +63,11 @@ __all__ = ["view_habitat_napari", "napari_radiological_flips", "napari_display_f
 _VIEW_PURPOSE = "interactive habitat viewing (image + labels layers)"
 
 #: Extra install paths shown when napari / Viewer is missing or broken.
-#: Prefer clone editable install: PyPI 1.0.x does not declare ``[view]`` yet,
-#: and some China mirrors do not host ``habitat-analysis`` at all.
 _VIEW_INSTALL_ALTERNATIVES: Tuple[str, ...] = (
-    'From a cloned HABIT repo (recommended for development): '
-    'pip install -e ".[view]"',
-    'Direct napari stack (works even when the habitat-analysis wheel '
-    'has no [view] extra, or your PyPI mirror lacks the package): '
     'pip install "napari[pyqt5]" "npe2>=0.8.2" '
     '"pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple',
-    'Or fall back to matplotlib: habit view --backend matplotlib '
-    '(requires the "viz" extra)',
+    "Or fall back to matplotlib: habit view --backend matplotlib "
+    "(requires matplotlib)",
 )
 
 #: Accept a single volume or a sequence of volumes for multi-sequence viewing.
@@ -122,7 +116,7 @@ def _require_napari() -> Any:
     namespace directory left after a failed uninstall/reinstall has no
     ``__init__.py`` and therefore no ``Viewer``. That used to surface as a
     cryptic ``AttributeError``. Convert it into the same installable hint
-    users already get for a missing ``[view]`` extra.
+    users already get for a missing napari install.
 
     Returns:
         The imported ``napari`` module (must expose ``Viewer``).
@@ -143,12 +137,11 @@ def _require_napari() -> Any:
             "napari is importable but incomplete (no Viewer). "
             "This usually means a broken or partial install left an empty "
             "napari namespace under site-packages.\n\n"
-            "Reinstall the view stack:\n"
+            "Reinstall napari:\n"
             f"  {install_command('view')}\n"
-            '  # from a clone: pip install -e ".[view]"\n'
             '  # or: pip install "napari[pyqt5]" "npe2>=0.8.2" '
             '"pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple\n\n'
-            f"Every extra and what it unlocks: {INSTALLATION_DOCS_URL}"
+            f"Install notes: {INSTALLATION_DOCS_URL}"
         )
     # Ensure callers can use napari.Viewer even when only the submodule
     # path worked (broken top-level re-export).

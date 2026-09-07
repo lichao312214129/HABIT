@@ -47,10 +47,10 @@ def _plt():
     """
     Return the pyplot module with the Agg canvas guaranteed headless.
 
-    matplotlib is an OPTIONAL dependency (habitat-analysis[viz]); it is
+    matplotlib is a required dependency; it is
     imported here rather than at module scope so ``import habit.viz`` stays
     free of it, and it goes through ``require`` so a missing install names
-    the extra instead of raising a bare ModuleNotFoundError.
+    the pip packages instead of raising a bare ModuleNotFoundError.
 
     Returns:
         The ``matplotlib.pyplot`` module, with a non-interactive backend

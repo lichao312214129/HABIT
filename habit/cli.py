@@ -277,8 +277,8 @@ def get_habitat(
     default='auto',
     show_default=True,
     help='auto (default) / napari: prefer interactive napari, fall back to '
-         'PNG if [view] is missing; matplotlib: force static PNG '
-         '(needs [viz]; first image only)',
+         'PNG if napari is missing; matplotlib: force static PNG '
+         '(needs matplotlib; first image only)',
 )
 @click.option(
     '--convention',

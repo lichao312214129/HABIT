@@ -204,7 +204,7 @@ class PipelineBuilder:
         except Exception as exc:
             raise OptionalDependencyError(
                 "Pipeline resampling requires the optional imbalanced-learn "
-                "dependency; install 'habitat-analysis[ml]' or disable the "
+                "dependency; install xgboost / imbalanced-learn / mrmr-selection / statsmodels, or disable the "
                 "`resampling.enabled` option."
             ) from exc
         return ImblearnPipeline

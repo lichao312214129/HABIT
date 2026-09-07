@@ -49,6 +49,15 @@ behind ``use_gpu_matrices`` (default ``"auto"``: on when the torch device
 is CUDA). Their README GLCM 636 s → 23.8 s on a :math:`16^3` job is the
 middle row vs PyRadiomics (CPU), **not** HABIT CUDA.
 
+**Install in the same** ``habit`` **env.** ``local_entropy`` needs neither
+PyRadiomics nor torch. IBSI ``voxel_radiomics`` (all three rows above)
+needs **PyRadiomics** (:doc:`/tutorial/installation` step 6). The two GPU
+rows also need **PyTorch** in that env: ``conda activate habit``, then
+open `pytorch.org <https://pytorch.org/>`_ → **Get Started** / `Start
+Locally <https://pytorch.org/get-started/locally/>`_, pick OS / Pip /
+Python / Compute Platform, and run the printed command. See
+:doc:`/tutorial/installation` step 5.
+
 First-order in HABIT gathers the kernel window and computes the
 reductions on CUDA. That is not a C texture matrix, so the middle column
 does not apply.
@@ -422,8 +431,8 @@ panel when you also want the raw image.
 Layouts
 -------
 
-:func:`~habit.viz.plot_voxel_texture_slice` is **2D-slice only** (matplotlib
-``[viz]`` extra):
+:func:`~habit.viz.plot_voxel_texture_slice` is **2D-slice only** (needs
+matplotlib)::
 
 * ``mode="overlay"`` — greyscale anatomy + opaque feature in ROI (default)
 * ``mode="side_by_side"`` — anatomy + ROI contour | feature (sibling panel)

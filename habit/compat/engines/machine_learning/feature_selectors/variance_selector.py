@@ -26,9 +26,9 @@ import json
 
 from habit.utils.optional_deps import require
 
-# matplotlib and seaborn are OPTIONAL dependencies (habitat-analysis[viz]).
+# matplotlib and seaborn are required dependencies.
 # This module draws its own diagnostic figures at module scope, so the gate
-# stays at module scope too: the import failure then names the extra instead
+# stays at module scope too: the import failure then names the pip packages instead
 # of raising a bare ModuleNotFoundError.
 _VIZ_PURPOSE = "variance feature-selection diagnostic figures"
 plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)

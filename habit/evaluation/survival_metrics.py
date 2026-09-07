@@ -48,8 +48,8 @@ def _sksurv_metrics(owner: str):
         from sksurv import metrics as _m  # type: ignore
     except ImportError as exc:
         raise HABITAPIError(
-            f"survival_metric.{owner} needs scikit-survival; install the "
-            "'analysis' extra (pip install \"habitat-analysis[analysis]\")."
+            f"survival_metric.{owner} needs scikit-survival; "
+            "install it with: pip install scikit-survival."
         ) from exc
     return _m
 

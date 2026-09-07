@@ -22,9 +22,9 @@ from typing import Dict, List, Tuple, Optional, Union
 
 from habit.utils.optional_deps import require
 
-# matplotlib is an OPTIONAL dependency (habitat-analysis[viz]). Every function
+# matplotlib is a required dependency. Every function
 # in this module draws, so the gate is at module scope: importing it without
-# the viz extra raises OptionalDependencyError naming the extra.
+# a missing matplotlib raises OptionalDependencyError naming the pip packages.
 plt = require(
     "matplotlib.pyplot",
     extra="viz",

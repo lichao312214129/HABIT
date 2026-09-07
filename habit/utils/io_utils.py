@@ -181,7 +181,7 @@ def load_timestamp(file_path: str, subject_id_column: str = "Name") -> dict:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
     
-    # openpyxl is an optional dependency (habitat-analysis[tables]).
+    # openpyxl is an optional dependency (pip install pyarrow openpyxl).
     require_excel_backend(purpose="reading the scan-timestamp spreadsheet")
     df = pd.read_excel(file_path, index_col=subject_id_column)
     # convert index to string

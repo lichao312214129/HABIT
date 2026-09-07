@@ -65,8 +65,7 @@ Stay in the conda env from :doc:`installation`. From ``<work_dir>``::
 4. Run
 ------
 
-If ``get-habitat`` complains about parquet or plots, install
-``habitat-analysis[tables,viz]`` (:doc:`installation`).
+For parquet, ``pip install pyarrow`` (or write CSV). See :doc:`installation`.
 
 ::
 

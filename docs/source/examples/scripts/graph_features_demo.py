@@ -251,7 +251,7 @@ if __name__ == "__main__":
         )
     )
 
-    # Optional 3D renders need [view] / PyVista; keep them out of the recipe.
+    # Optional 3D renders need napari / PyVista; keep them out of the recipe.
     # HABIT_NO_VIEW=1 skips them so the gallery smoke stays on the 2D path.
     import os
 
