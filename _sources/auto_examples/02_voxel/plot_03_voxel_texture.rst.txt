@@ -69,6 +69,46 @@ returns a volume; :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
     plt.show()
 
 
+
+
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_001.png
+   :alt: Voxel texture (orthogonal slices), Voxel texture - Axis 0 (axial-like) @ 96, Voxel texture - Axis 1 (coronal-like) @ 165, Voxel texture - Axis 2 (sagittal-like) @ 71
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_001.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HABIT demo data (cached)
+    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
+
+    On-disk inventory of this folder:
+      subjects (5): subj001, subj002, subj003, subj004, subj005
+      image series: LAP, PVP, delay_3min, pre_contrast
+      mask keys:    LAP, PVP, delay_3min, pre_contrast
+      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
+      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
+
+    Your own data must use the same folder tree (change IDs / series names):
+
+      DATA/
+        images/<subject_id>/<modality>/<one image file>
+        masks/<subject_id>/<roi>/<one mask file>
+
+    Then load it with the same call the demos use:
+
+      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
+
+    Swap DATA / modalities / roi to match your tree. Mask key is often the
+    same as one image series (here LAP).
+    F:\work\habit_project\habit\viz\voxel_texture.py:989: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      direction, spacing = resolve_display_geometry(
+
+
+
+
 .. GENERATED FROM PYTHON SOURCE LINES 48-67
 
 Three acceleration runtimes for voxel radiomics
@@ -146,6 +186,31 @@ Below, we define a unified extraction helper that selects among these runtimes.
     )
     fig_glcm.savefig("out/voxel_texture_glcm_contrast.png", dpi=150, bbox_inches="tight")
     plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_002.png
+   :alt: original_glcm_Contrast-LAP (orthogonal slices), original_glcm_Contrast-LAP - Axis 0 (axial-like) @ 96, original_glcm_Contrast-LAP - Axis 1 (coronal-like) @ 165, original_glcm_Contrast-LAP - Axis 2 (sagittal-like) @ 71
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_002.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    CPU voxel_radiomics feature table:
+       original_glcm_Contrast-LAP
+    0                    2.808974
+    1                    4.003205
+    2                    6.676282
+    3                    7.955128
+    4                    6.945513
+    F:\work\habit_project\habit\viz\voxel_texture.py:989: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      direction, spacing = resolve_display_geometry(
+
+
 
 
 .. GENERATED FROM PYTHON SOURCE LINES 120-132
@@ -252,6 +317,162 @@ and the host-to-device intermediate array transfers.
     timing
 
 
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    voxel_radiomics: glcm batch 1/35 0.554s peak=184MiB
+    voxel_radiomics: glcm batch 2/35 0.107s peak=184MiB
+    voxel_radiomics: glcm batch 3/35 0.093s peak=184MiB
+    voxel_radiomics: glcm batch 4/35 0.092s peak=184MiB
+    voxel_radiomics: glcm batch 5/35 0.098s peak=184MiB
+    voxel_radiomics: glcm batch 6/35 0.118s peak=184MiB
+    voxel_radiomics: glcm batch 7/35 0.103s peak=184MiB
+    voxel_radiomics: glcm batch 8/35 0.092s peak=184MiB
+    voxel_radiomics: glcm batch 9/35 0.090s peak=184MiB
+    voxel_radiomics: glcm batch 10/35 0.099s peak=184MiB
+    voxel_radiomics: glcm batch 11/35 0.099s peak=184MiB
+    voxel_radiomics: glcm batch 12/35 0.103s peak=184MiB
+    voxel_radiomics: glcm batch 13/35 0.111s peak=184MiB
+    voxel_radiomics: glcm batch 14/35 0.129s peak=184MiB
+    voxel_radiomics: glcm batch 15/35 0.135s peak=184MiB
+    voxel_radiomics: glcm batch 16/35 0.120s peak=184MiB
+    voxel_radiomics: glcm batch 17/35 0.104s peak=184MiB
+    voxel_radiomics: glcm batch 18/35 0.100s peak=184MiB
+    voxel_radiomics: glcm batch 19/35 0.093s peak=184MiB
+    voxel_radiomics: glcm batch 20/35 0.104s peak=184MiB
+    voxel_radiomics: glcm batch 21/35 0.106s peak=184MiB
+    voxel_radiomics: glcm batch 22/35 0.107s peak=184MiB
+    voxel_radiomics: glcm batch 23/35 0.104s peak=184MiB
+    voxel_radiomics: glcm batch 24/35 0.101s peak=184MiB
+    voxel_radiomics: glcm batch 25/35 0.116s peak=184MiB
+    voxel_radiomics: glcm batch 26/35 0.107s peak=184MiB
+    voxel_radiomics: glcm batch 27/35 0.105s peak=184MiB
+    voxel_radiomics: glcm batch 28/35 0.106s peak=184MiB
+    voxel_radiomics: glcm batch 29/35 0.099s peak=184MiB
+    voxel_radiomics: glcm batch 30/35 0.107s peak=184MiB
+    voxel_radiomics: glcm batch 31/35 0.110s peak=184MiB
+    voxel_radiomics: glcm batch 32/35 0.111s peak=184MiB
+    voxel_radiomics: glcm batch 33/35 0.118s peak=184MiB
+    voxel_radiomics: glcm batch 34/35 0.127s peak=184MiB
+    voxel_radiomics: glcm batch 35/35 0.083s peak=127MiB
+    voxel_radiomics: glcm batch 1/35 0.268s peak=1MiB
+    voxel_radiomics: glcm batch 2/35 0.019s peak=2MiB
+    voxel_radiomics: glcm batch 3/35 0.020s peak=3MiB
+    voxel_radiomics: glcm batch 4/35 0.021s peak=4MiB
+    voxel_radiomics: glcm batch 5/35 0.020s peak=4MiB
+    voxel_radiomics: glcm batch 6/35 0.019s peak=5MiB
+    voxel_radiomics: glcm batch 7/35 0.017s peak=6MiB
+    voxel_radiomics: glcm batch 8/35 0.018s peak=7MiB
+    voxel_radiomics: glcm batch 9/35 0.018s peak=8MiB
+    voxel_radiomics: glcm batch 10/35 0.017s peak=9MiB
+    voxel_radiomics: glcm batch 11/35 0.018s peak=10MiB
+    voxel_radiomics: glcm batch 12/35 0.017s peak=11MiB
+    voxel_radiomics: glcm batch 13/35 0.017s peak=12MiB
+    voxel_radiomics: glcm batch 14/35 0.016s peak=13MiB
+    voxel_radiomics: glcm batch 15/35 0.016s peak=13MiB
+    voxel_radiomics: glcm batch 16/35 0.016s peak=14MiB
+    voxel_radiomics: glcm batch 17/35 0.015s peak=15MiB
+    voxel_radiomics: glcm batch 18/35 0.015s peak=16MiB
+    voxel_radiomics: glcm batch 19/35 0.016s peak=17MiB
+    voxel_radiomics: glcm batch 20/35 0.016s peak=18MiB
+    voxel_radiomics: glcm batch 21/35 0.015s peak=19MiB
+    voxel_radiomics: glcm batch 22/35 0.016s peak=20MiB
+    voxel_radiomics: glcm batch 23/35 0.016s peak=21MiB
+    voxel_radiomics: glcm batch 24/35 0.016s peak=22MiB
+    voxel_radiomics: glcm batch 25/35 0.016s peak=22MiB
+    voxel_radiomics: glcm batch 26/35 0.018s peak=23MiB
+    voxel_radiomics: glcm batch 27/35 0.016s peak=24MiB
+    voxel_radiomics: glcm batch 28/35 0.016s peak=25MiB
+    voxel_radiomics: glcm batch 29/35 0.014s peak=26MiB
+    voxel_radiomics: glcm batch 30/35 0.015s peak=27MiB
+    voxel_radiomics: glcm batch 31/35 0.014s peak=28MiB
+    voxel_radiomics: glcm batch 32/35 0.015s peak=29MiB
+    voxel_radiomics: glcm batch 33/35 0.016s peak=30MiB
+    voxel_radiomics: glcm batch 34/35 0.015s peak=31MiB
+    voxel_radiomics: glcm batch 35/35 0.014s peak=31MiB
+    GPU voxel_radiomics feature table (HABIT built-in GPU):
+       original_glcm_Contrast-LAP
+    0                    2.808974
+    1                    4.003205
+    2                    6.676282
+    3                    7.955128
+    4                    6.945513
+
+    --- Live Runtime Comparison on subj001 (34,694 voxels) ---
+                              runtime  seconds speedup_vs_cpu speedup_vs_c_torch  n_voxels  n_features
+               Pure PyRadiomics (CPU)   58.346           1.0x                  -     34694           1
+    C matrices + TorchRadiomics (GPU)    5.742          10.2x               1.0x     34694           1
+                   HABIT Built-in GPU    2.356          24.8x               2.4x     34694           1
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>runtime</th>
+          <th>seconds</th>
+          <th>speedup_vs_cpu</th>
+          <th>speedup_vs_c_torch</th>
+          <th>n_voxels</th>
+          <th>n_features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Pure PyRadiomics (CPU)</td>
+          <td>58.346</td>
+          <td>1.0x</td>
+          <td>-</td>
+          <td>34694</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>C matrices + TorchRadiomics (GPU)</td>
+          <td>5.742</td>
+          <td>10.2x</td>
+          <td>1.0x</td>
+          <td>34694</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>HABIT Built-in GPU</td>
+          <td>2.356</td>
+          <td>24.8x</td>
+          <td>2.4x</td>
+          <td>34694</td>
+          <td>1</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <br />
+    <br />
+
 .. GENERATED FROM PYTHON SOURCE LINES 217-220
 
 Numerical parity: GPU must match CPU up to floating-point noise. Report
@@ -284,6 +505,19 @@ change the IBSI / PyRadiomics definition.
         )
         print(parity.to_string(index=False))
         parity
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+     max_abs_diff    rtol         atol  allclose
+              0.0 0.00001 1.000000e-08      True
+
+
 
 
 .. GENERATED FROM PYTHON SOURCE LINES 244-275
@@ -442,6 +676,108 @@ Scientific parity (54,913 voxels × 90 features, ~4.94M values):
     fig.savefig("out/voxel_texture_acceleration_speedup.png", dpi=150, bbox_inches="tight")
     plt.show()
     three_route_bench
+
+
+
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_003.png
+   :alt: Voxel texture extraction wall time (54,913 ROI voxels, 90 features), Acceleration factor vs Pure CPU (higher is faster)
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_003.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Three-tier voxel texture acceleration (54,913 ROI voxels, 90 features):
+                              route matrix_construction feature_quantification  wall_s  speedup_vs_A  speedup_vs_B
+    Route A: Pure CPU (PyRadiomics) CPU (PyRadiomics C)      CPU (PyRadiomics)   19.85          1.00          0.09
+                Route B: Hybrid GPU CPU (PyRadiomics C)   GPU (TorchRadiomics)    1.70         11.66          1.00
+       Route C: Full End-to-End GPU   GPU (gpumatrices)   GPU (TorchRadiomics)    0.71         28.06          2.41
+
+    Numerical parity (54,913 voxels x 90 features; columns name-aligned):
+                     comparison  max_abs_diff  max_rel_diff                                           note
+     A vs B (CPU vs hybrid GPU)           0.5        0.0126 Abs peak Energy; rel peak Skewness (|v|>=1e-3)
+       A vs C (CPU vs full GPU)           0.5        0.0126         Same float32 rounding as A vs B (B==C)
+    B vs C (hybrid vs full GPU)           0.0        0.0000             Bit-identical after name alignment
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>route</th>
+          <th>matrix_construction</th>
+          <th>feature_quantification</th>
+          <th>roi_voxels</th>
+          <th>n_features</th>
+          <th>wall_s</th>
+          <th>speedup_vs_A</th>
+          <th>speedup_vs_B</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Route A: Pure CPU (PyRadiomics)</td>
+          <td>CPU (PyRadiomics C)</td>
+          <td>CPU (PyRadiomics)</td>
+          <td>54913</td>
+          <td>90</td>
+          <td>19.85</td>
+          <td>1.00</td>
+          <td>0.09</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>Route B: Hybrid GPU</td>
+          <td>CPU (PyRadiomics C)</td>
+          <td>GPU (TorchRadiomics)</td>
+          <td>54913</td>
+          <td>90</td>
+          <td>1.70</td>
+          <td>11.66</td>
+          <td>1.00</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>Route C: Full End-to-End GPU</td>
+          <td>GPU (gpumatrices)</td>
+          <td>GPU (TorchRadiomics)</td>
+          <td>54913</td>
+          <td>90</td>
+          <td>0.71</td>
+          <td>28.06</td>
+          <td>2.41</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <br />
+    <br />
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** (3 minutes 54.778 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_03_voxel_texture.py:

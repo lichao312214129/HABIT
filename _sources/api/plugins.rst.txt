@@ -180,7 +180,7 @@ In the plugin's ``pyproject.toml``:
    my_slic_variant = "my_package.my_module:MySupervoxelizer"
 
    [project.entry-points."habit.voxel_feature_extractor"]
-   t1_t2_contrast = "my_package.features:register"
+   dce_hemodynamics = "my_package.features:register"
 
 The registered object must implement the matching protocol from the
 capability package (for example

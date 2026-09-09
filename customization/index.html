@@ -67,7 +67,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-extras-not-required-for-core-habitat-analysis">Optional extras (not required for core habitat analysis)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-packages">Optional packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
 </ul>
@@ -671,7 +671,9 @@ from the corresponding subpackage <code class="docutils literal notranslate"><sp
 <section id="v1-custom-voxel-feature-extractors">
 <h2>v1 custom voxel feature extractors<a class="headerlink" href="#v1-custom-voxel-feature-extractors" title="Link to this heading"></a></h2>
 <p>Use this path for DIY formulas that need neighbourhoods, embeddings, or
-logic beyond the built-in <code class="docutils literal notranslate"><span class="pre">expression</span></code> DSL.</p>
+logic beyond the built-in <code class="docutils literal notranslate"><span class="pre">expression</span></code> DSL. The runnable Custom
+features gallery uses three liver DCE maps (arterial relative
+enhancement, arterial-to-portal wash-out, arterial-to-delayed wash-out).</p>
 <p><strong>Step 1: Implement the protocol and register</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelFeatureField</span>
@@ -684,32 +686,42 @@ logic beyond the built-in <code class="docutils literal notranslate"><span class
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spec</span>
 
-<span class="nd">@VoxelFeatureExtractorRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;t1_t2_contrast&quot;</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">T1T2Contrast</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">),</span> <span class="n">roi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">modalities</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">modalities</span><span class="p">)</span>
+<span class="n">PHASES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">)</span>
+<span class="n">NAMES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;relative_enhancement_lap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;relative_washout_pvp&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;relative_washout_delay&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nd">@VoxelFeatureExtractorRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;dce_hemodynamics&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DCEHemodynamics</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="o">=</span><span class="n">PHASES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">roi</span> <span class="o">=</span> <span class="n">roi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;t1_t2_contrast&quot;</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modalities</span><span class="p">),</span>
-                <span class="s2">&quot;roi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">,</span>
-                <span class="s2">&quot;eps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span>
-            <span class="p">},</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dce_hemodynamics&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;phases&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">),</span> <span class="s2">&quot;roi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">,</span> <span class="s2">&quot;eps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">},</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VoxelFeatureField</span><span class="p">:</span>
         <span class="n">mask</span><span class="p">,</span> <span class="n">inside</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">roi_voxels</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">)</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">aligned_image</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modalities</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mask</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;t1_t2_contrast&quot;</span><span class="p">)</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="n">aligned_image</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modalities</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mask</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;t1_t2_contrast&quot;</span><span class="p">)</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="p">((</span><span class="n">a</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="n">inside</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">))</span>
+        <span class="n">pre</span><span class="p">,</span> <span class="n">lap</span><span class="p">,</span> <span class="n">pvp</span><span class="p">,</span> <span class="n">delay</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">aligned_image</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;dce_hemodynamics&quot;</span><span class="p">)[</span><span class="n">inside</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span>
+        <span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="n">lap</span> <span class="o">-</span> <span class="n">pre</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">pre</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">lap</span> <span class="o">-</span> <span class="n">pvp</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">lap</span> <span class="o">-</span> <span class="n">pre</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">lap</span> <span class="o">-</span> <span class="n">delay</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">lap</span> <span class="o">-</span> <span class="n">pre</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">build_voxel_field</span><span class="p">(</span>
-            <span class="n">subject</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;t1_t2_contrast&quot;</span><span class="p">,),</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+            <span class="n">subject</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">NAMES</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
         <span class="p">)</span>
 </pre></div>
 </div>
@@ -722,12 +734,26 @@ logic beyond the built-in <code class="docutils literal notranslate"><span class
     <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
         <span class="n">Stage</span><span class="p">(</span>
             <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;t1_t2_contrast&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
+            <span class="n">Spec</span><span class="p">(</span>
+                <span class="s2">&quot;dce_hemodynamics&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;phases&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">]},</span>
+            <span class="p">),</span>
         <span class="p">),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+            <span class="n">Spec</span><span class="p">(</span>
+                <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                    <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
         <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
     <span class="p">),</span>
     <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
 <span class="p">)</span>
@@ -737,7 +763,7 @@ logic beyond the built-in <code class="docutils literal notranslate"><span class
 <p><strong>Step 3 (optional): ship as a third-party package</strong></p>
 <p>In the plugin’s <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">project</span><span class="o">.</span><span class="n">entry</span><span class="o">-</span><span class="n">points</span><span class="o">.</span><span class="s2">&quot;habit.voxel_feature_extractor&quot;</span><span class="p">]</span>
-<span class="n">t1_t2_contrast</span> <span class="o">=</span> <span class="s2">&quot;my_package.features:register&quot;</span>
+<span class="n">dce_hemodynamics</span> <span class="o">=</span> <span class="s2">&quot;my_package.features:register&quot;</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">register()</span></code> performs the <code class="docutils literal notranslate"><span class="pre">&#64;VoxelFeatureExtractorRegistry.register</span></code>
@@ -750,7 +776,7 @@ call (or imports the module that does). Users then:</p>
 <code class="docutils literal notranslate"><span class="pre">expression</span></code> and a custom plugin, and <a class="reference internal" href="../api/plugins.html"><span class="doc">Plugin introspection API</span></a> for discovery.</p>
 <p>Other habitat domains follow the same pattern: implement the protocol,
 register on the matching registry, reference the name from
-<code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code>. Catalogs and constructor signatures:
+<a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>. Catalogs and constructor signatures:
 <a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec component catalog</span></a>.</p>
 </section>
 <section id="extension-principles">
@@ -759,7 +785,7 @@ register on the matching registry, reference the name from
 accept the typed contract for that domain (<code class="docutils literal notranslate"><span class="pre">Subject</span></code>, feature field,
 habitat map, …). Do not add I/O inside L0–L3 plugins.</p>
 <p><strong>Register a stable name.</strong> Use a descriptive snake_case name
-(<code class="docutils literal notranslate"><span class="pre">t1_t2_contrast</span></code>, not <code class="docutils literal notranslate"><span class="pre">t1t2</span></code>). Keep it unique in that domain.</p>
+(<code class="docutils literal notranslate"><span class="pre">dce_hemodynamics</span></code>, not <code class="docutils literal notranslate"><span class="pre">dcehemo</span></code>). Keep it unique in that domain.</p>
 <p><strong>Document parameters.</strong> Constructor arguments are the public contract.
 Give defaults and units in the docstring.</p>
 <p><strong>Test.</strong> Unit-test the plugin on a small <code class="docutils literal notranslate"><span class="pre">Subject</span></code>; then run it through
