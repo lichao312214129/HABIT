@@ -2,16 +2,10 @@
 Custom features
 ===============
 
-When ``raw`` / ``concat`` are not enough — for example
-``square(LAP / PVP^3)``, or a neighbourhood / embedding feature — use a
-built-in ``expression`` or a registered voxel extractor.
-
-Both plug into ``HabitatSpec.voxel_feature_extractor`` and the same recipes.
+Three liver DCE maps: arterial relative enhancement, arterial-to-portal
+wash-out, and arterial-to-delayed wash-out.
 """
 
-# %%
-# Register an in-process plugin. A third-party package would instead
-# declare an entry point under ``habit.voxel_feature_extractor``.
 from pathlib import Path
 from typing import Optional, Sequence, Tuple
 
@@ -21,8 +15,8 @@ import numpy as np
 from habit.contracts import VoxelFeatureField, cohort_from_directory
 from habit.contracts.subject import Subject
 from habit.datasets import fetch_demo
-from habit.pipeline.assembly import build_habitat_components
-from habit.spec import HabitatSpec, Spec
+from habit.feature_preprocessing import ZScoreScaling
+from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.specs import Spec as ComponentSpec
 from habit.viz import plot_habitat_overlay
 from habit.voxel_features import (
@@ -33,20 +27,32 @@ from habit.voxel_features import (
 )
 import habit.recipes as recipes
 
+# Unenhanced, late-arterial, portal-venous, delayed (demo pack keys).
+PHASES: Tuple[str, ...] = ("pre_contrast", "LAP", "PVP", "delay_3min")
+ROI = "LAP"
+DCE_FEATURES = {
+    "relative_enhancement_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+    "relative_washout_pvp": "(LAP - PVP) / (LAP - pre_contrast + eps)",
+    "relative_washout_delay": "(LAP - delay_3min) / (LAP - pre_contrast + eps)",
+}
 
-@VoxelFeatureExtractorRegistry.register("t1_t2_contrast")
-class T1T2Contrast:
-    """Per-voxel ``(T1 - T2) / (T1 + T2 + eps)`` (here LAP vs PVP)."""
+
+@VoxelFeatureExtractorRegistry.register("dce_hemodynamics")
+class DCEHemodynamics:
+    """Per-voxel DCE maps from four liver phases."""
 
     def __init__(
         self,
-        modalities: Sequence[str] = ("T1", "T2"),
+        phases: Sequence[str] = PHASES,
         roi: Optional[str] = None,
         eps: float = 1e-8,
     ) -> None:
-        if len(modalities) != 2:
-            raise ValueError("t1_t2_contrast expects exactly two modalities.")
-        self.modalities: Tuple[str, ...] = tuple(modalities)
+        if len(phases) != 4:
+            raise ValueError(
+                "dce_hemodynamics expects four phases: unenhanced, "
+                "arterial, portal, delayed."
+            )
+        self.phases: Tuple[str, ...] = tuple(phases)
         self.roi = roi
         self.eps = float(eps)
 
@@ -54,99 +60,88 @@ class T1T2Contrast:
     def spec(self) -> ComponentSpec:
         """Return the algorithm specification used for provenance."""
         return ComponentSpec(
-            name="t1_t2_contrast",
+            name="dce_hemodynamics",
             params={
-                "modalities": list(self.modalities),
+                "phases": list(self.phases),
                 "roi": self.roi,
                 "eps": self.eps,
             },
         )
 
     def __call__(self, subject: Subject) -> VoxelFeatureField:
-        """Compute the contrast feature inside the ROI."""
+        """Compute the three DCE columns inside the ROI."""
         mask, inside, voxel_index = roi_voxels(subject, self.roi)
-        a = aligned_image(subject, self.modalities[0], mask, owner="t1_t2_contrast")
-        b = aligned_image(subject, self.modalities[1], mask, owner="t1_t2_contrast")
-        numerator = a[inside] - b[inside]
-        denominator = a[inside] + b[inside] + self.eps
-        values = np.asarray(numerator / denominator, dtype=np.float64).reshape(-1, 1)
+        owner = "dce_hemodynamics"
+        pre, lap, pvp, delay = (
+            aligned_image(subject, phase, mask, owner=owner)[inside]
+            for phase in self.phases
+        )
+        values = np.column_stack(
+            [
+                (lap - pre) / (pre + self.eps),
+                (lap - pvp) / (lap - pre + self.eps),
+                (lap - delay) / (lap - pre + self.eps),
+            ]
+        ).astype(np.float64, copy=False)
         return build_voxel_field(
-            subject, mask, voxel_index, ("t1_t2_contrast",), values, self.spec
+            subject,
+            mask,
+            voxel_index,
+            tuple(DCE_FEATURES),
+            values,
+            self.spec,
         )
 
 
 DATA = fetch_demo()
-MODALITIES = ("LAP", "PVP")
-ROI = "LAP"
-cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+cohort = cohort_from_directory(DATA, modalities=PHASES, roi=ROI)[:2]
 subject = cohort[0]
-print(f"Cohort: {len(cohort)} subjects -> {list(cohort.subject_ids)}")
 
-# %%
-# Built-in ``expression`` DSL: restricted arithmetic, no arbitrary Python.
-# Print the voxel-feature head so the formula is a visible column.
-expression_spec = HabitatSpec(
-    name="expression_demo",
-    voxel_feature_extractor=Spec(
-        "expression",
-        {
-            "features": {
-                "lap_over_pvp_sq": "square(LAP / (PVP ^ 3 + eps))",
-            },
-        },
+before = DCEHemodynamics(phases=PHASES, roi=ROI)(subject).feature_frame()
+print("before zscore (mean / std):")
+print(before.agg(["mean", "std"]).round(4))
+print(before.head())
+scaler = ZScoreScaling(across_features=False)
+after = scaler.transform(before, scaler.fit(before))
+print("after zscore (mean / std):")
+print(after.agg(["mean", "std"]).round(4))
+print(after.head())
+
+spec = HabitatSpec(
+    name="dce_hemodynamics_demo",
+    stages=(
+        Stage(
+            "extract_voxel_features",
+            Spec("dce_hemodynamics", {"phases": list(PHASES), "roi": ROI}),
+        ),
+        Stage("preprocess", Spec("zscore", {"across_features": False})),
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 5,
+                    "validation": "elbow",
+                    "n_init": 3,
+                },
+            ),
+        ),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("quantify", Spec("volume")),
     ),
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 5, "n_init": 3}),
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
-    ),
-    habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
     random_seed=21,
 )
-expr_field = (
-    build_habitat_components(expression_spec)
-    .pipeline(assigner=None)
-    .voxel_feature_extractor(subject)
-)
-print("expression feature table:")
-print(expr_field.feature_frame().head())
-expr_field.feature_frame().head()
-
-# %%
-# Fit habitats from the expression field and overlay.
-expr_result = recipes.Study(spec=expression_spec).fit_predict(cohort)
+result = recipes.Study(spec=spec).fit_predict(cohort)
+for sid, model in result.subject_models.items():
+    print(f"{sid}: n_habitats={model.n_habitats}")
+labels = np.unique(result.habitat_maps[0].label_array)
+print("overlay labels", [int(v) for v in labels if v > 0])
 fig = plot_habitat_overlay(
     subject.image("LAP"),
-    expr_result.habitat_maps[0],
-    title="habitats (expression)",
+    result.habitat_maps[0],
+    title="habitats",
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/custom_voxel_overlay.png", dpi=150, bbox_inches="tight")
 plt.show()
-
-# %%
-# The registered ``t1_t2_contrast`` plugin, called as a ``Spec`` name.
-plugin_spec = HabitatSpec(
-    name="plugin_demo",
-    voxel_feature_extractor=Spec(
-        "t1_t2_contrast",
-        {"modalities": list(MODALITIES), "roi": ROI},
-    ),
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 5, "n_init": 3}),
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
-    ),
-    habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
-    random_seed=21,
-)
-plugin_field = (
-    build_habitat_components(plugin_spec)
-    .pipeline(assigner=None)
-    .voxel_feature_extractor(subject)
-)
-print("plugin feature table:")
-print(plugin_field.feature_frame().head())
-plugin_field.feature_frame().head()

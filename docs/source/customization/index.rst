@@ -49,7 +49,9 @@ v1 custom voxel feature extractors
 ----------------------------------
 
 Use this path for DIY formulas that need neighbourhoods, embeddings, or
-logic beyond the built-in ``expression`` DSL.
+logic beyond the built-in ``expression`` DSL. The runnable Custom
+features gallery uses three liver DCE maps (arterial relative
+enhancement, arterial-to-portal wash-out, arterial-to-delayed wash-out).
 
 **Step 1: Implement the protocol and register**
 
@@ -66,32 +68,42 @@ logic beyond the built-in ``expression`` DSL.
    )
    from habit.spec import Spec
 
-   @VoxelFeatureExtractorRegistry.register("t1_t2_contrast")
-   class T1T2Contrast:
-       def __init__(self, modalities=("T1", "T2"), roi=None, eps=1e-8):
-           self.modalities = tuple(modalities)
+   PHASES = ("pre_contrast", "LAP", "PVP", "delay_3min")
+   NAMES = (
+       "relative_enhancement_lap",
+       "relative_washout_pvp",
+       "relative_washout_delay",
+   )
+
+   @VoxelFeatureExtractorRegistry.register("dce_hemodynamics")
+   class DCEHemodynamics:
+       def __init__(self, phases=PHASES, roi=None, eps=1e-8):
+           self.phases = tuple(phases)
            self.roi = roi
            self.eps = float(eps)
 
        @property
        def spec(self) -> Spec:
            return Spec(
-               name="t1_t2_contrast",
-               params={
-                   "modalities": list(self.modalities),
-                   "roi": self.roi,
-                   "eps": self.eps,
-               },
+               name="dce_hemodynamics",
+               params={"phases": list(self.phases), "roi": self.roi, "eps": self.eps},
            )
 
        def __call__(self, subject: Subject) -> VoxelFeatureField:
            mask, inside, index = roi_voxels(subject, self.roi)
-           a = aligned_image(subject, self.modalities[0], mask, owner="t1_t2_contrast")
-           b = aligned_image(subject, self.modalities[1], mask, owner="t1_t2_contrast")
-           values = ((a[inside] - b[inside]) / (a[inside] + b[inside] + self.eps))
+           pre, lap, pvp, delay = (
+               aligned_image(subject, phase, mask, owner="dce_hemodynamics")[inside]
+               for phase in self.phases
+           )
+           values = np.column_stack(
+               [
+                   (lap - pre) / (pre + self.eps),
+                   (lap - pvp) / (lap - pre + self.eps),
+                   (lap - delay) / (lap - pre + self.eps),
+               ]
+           )
            return build_voxel_field(
-               subject, mask, index, ("t1_t2_contrast",),
-               np.asarray(values).reshape(-1, 1), self.spec,
+               subject, mask, index, NAMES, np.asarray(values), self.spec,
            )
 
 **Step 2: Use it from a HabitatSpec**
@@ -106,12 +118,26 @@ logic beyond the built-in ``expression`` DSL.
        stages=(
            Stage(
                "extract_voxel_features",
-               Spec("t1_t2_contrast", {"modalities": ["T1", "T2"]}),
+               Spec(
+                   "dce_hemodynamics",
+                   {"phases": ["pre_contrast", "LAP", "PVP", "delay_3min"]},
+               ),
            ),
-           Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 5})),
-           Stage("pool", Spec("pool")),
-           Stage("fit", Spec("kmeans", {"n_habitats": 3})),
+           Stage("preprocess", Spec("zscore", {"across_features": False})),
+           Stage(
+               "fit",
+               Spec(
+                   "kmeans",
+                   {
+                       "min_habitats": 2,
+                       "max_habitats": 5,
+                       "validation": "elbow",
+                       "n_init": 3,
+                   },
+               ),
+           ),
            Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
        ),
        random_seed=42,
    )
@@ -122,7 +148,7 @@ logic beyond the built-in ``expression`` DSL.
 In the plugin's ``pyproject.toml``::
 
    [project.entry-points."habit.voxel_feature_extractor"]
-   t1_t2_contrast = "my_package.features:register"
+   dce_hemodynamics = "my_package.features:register"
 
 where ``register()`` performs the ``@VoxelFeatureExtractorRegistry.register``
 call (or imports the module that does). Users then::
@@ -135,7 +161,7 @@ See :doc:`../examples/custom_voxel_features` for a runnable demo covering both
 
 Other habitat domains follow the same pattern: implement the protocol,
 register on the matching registry, reference the name from
-``HabitatSpec.stages``. Catalogs and constructor signatures:
+:class:`~habit.spec.HabitatSpec`. Catalogs and constructor signatures:
 :doc:`../how_to/habitat_components`.
 
 Extension principles
@@ -146,7 +172,7 @@ accept the typed contract for that domain (``Subject``, feature field,
 habitat map, …). Do not add I/O inside L0–L3 plugins.
 
 **Register a stable name.** Use a descriptive snake_case name
-(``t1_t2_contrast``, not ``t1t2``). Keep it unique in that domain.
+(``dce_hemodynamics``, not ``dcehemo``). Keep it unique in that domain.
 
 **Document parameters.** Constructor arguments are the public contract.
 Give defaults and units in the docstring.
