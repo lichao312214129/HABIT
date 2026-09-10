@@ -21,6 +21,7 @@ from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.habitat_features import WholeHabitatRadiomicsFeatures
 from habit.recipes import one_step_habitat
+from habit.viz import plot_habitat_overlay
 
 DATA = fetch_demo()
 MODALITIES = ("LAP",)
@@ -47,8 +48,21 @@ print(row.to_string())
 row
 
 # %%
-# Horizontal bar chart of shape and first-order features on the label map.
+# The quantified object is the partition map. Overlay it on anatomy
+# (same objects the table used: ImageVolume + HabitatMap).
 Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    subject.image(ROI),
+    habitat_map,
+    title="habitats (whole-map radiomics)",
+    axis=0,
+    crop_to="labels",
+)
+fig.savefig("out/whole_habitat_radiomics_overlay.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+# %%
+# Horizontal bar chart of shape and first-order features on the label map.
 plot_items: List[Tuple[str, str]] = [
     ("Sphericity", "original_shape_Sphericity"),
     ("SurfaceArea", "original_shape_SurfaceArea"),
