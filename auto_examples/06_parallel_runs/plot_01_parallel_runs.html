@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parallel and checkpoints &mdash; HABIT Documentation</title>
+  <title>Parallel runs and acceleration &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -33,7 +33,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="API Reference" href="../../api/index.html" />
-    <link rel="prev" title="6. Scaled Execution" href="index.html" /> 
+    <link rel="prev" title="6. Parallel runs" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -122,8 +122,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">6. Scaled Execution</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Parallel and checkpoints</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">6. Parallel runs</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -615,8 +615,8 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Habitat Guide</a></li>
-          <li class="breadcrumb-item"><a href="index.html">6. Scaled Execution</a></li>
-      <li class="breadcrumb-item active">Parallel and checkpoints</li>
+          <li class="breadcrumb-item"><a href="index.html">6. Parallel runs</a></li>
+      <li class="breadcrumb-item active">Parallel runs and acceleration</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/auto_examples/06_parallel_runs/plot_01_parallel_runs.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -631,21 +631,20 @@
 <p><a class="reference internal" href="#sphx-glr-download-auto-examples-06-parallel-runs-plot-01-parallel-runs-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="parallel-and-checkpoints">
-<span id="sphx-glr-auto-examples-06-parallel-runs-plot-01-parallel-runs-py"></span><h1>Parallel and checkpoints<a class="headerlink" href="#parallel-and-checkpoints" title="Link to this heading"></a></h1>
+<section class="sphx-glr-example-title" id="parallel-runs-and-acceleration">
+<span id="sphx-glr-auto-examples-06-parallel-runs-plot-01-parallel-runs-py"></span><h1>Parallel runs and acceleration<a class="headerlink" href="#parallel-runs-and-acceleration" title="Link to this heading"></a></h1>
 <p><a class="reference internal" href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> declares what to compute;
 <a class="reference internal" href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> declares how to schedule it. Pass a
 backend from <a class="reference internal" href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy"><code class="xref py py-func docutils literal notranslate"><span class="pre">backend_from_policy()</span></code></a> into
 <a class="reference internal" href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a>. With a fixed <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>
 the maps match serial execution.</p>
-<p>When scaling to realistic clinical cohorts (large volumes, dense 3D voxel texture
-or multi-sequence MRI/CT), multi-GPU and process-pool parallelism unlock
-massive throughput:</p>
+<p>On a dense 3D voxel-texture cohort, multi-GPU process pools raise
+throughput:</p>
 <ul class="simple">
 <li><p><strong>Single-subject GPU voxel texture:</strong> cuts 3D texture computation
 (90 features across 54,913 ROI voxels) from <strong>19.85s</strong> on pure CPU
 down to <strong>0.71s</strong> with HABIT full GPU (see <a class="reference internal" href="../02_voxel/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>).</p></li>
-<li><p><strong>Multi-GPU cohort scaling:</strong> on a 16-subject cohort (878k ROI voxels, 90 features),
+<li><p><strong>Multi-GPU cohort:</strong> on a 16-subject cohort (878k ROI voxels, 90 features),
 5 GPUs with persistent workers cut wall time from <strong>263.49s</strong> (CPU serial)
 down to <strong>4.16s</strong> (<strong>231.03 subjects/min</strong>, <strong>63.4× speedup</strong> vs CPU serial,
 <strong>11.8× speedup</strong> vs 8 CPU workers).</p></li>
@@ -709,8 +708,9 @@ and reuse persistent workers with <code class="docutils literal notranslate"><sp
 
 <span class="c1"># 3. Process the entire cohort, amortizing worker startup across subjects</span>
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="s2">&quot;my_data/preprocessed&quot;</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">backend</span><span class="o">.</span><span class="n">reuse_workers</span><span class="p">():</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">backend</span><span class="o">.</span><span class="n">reuse_workers</span><span class="p">():</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -718,7 +718,7 @@ and reuse persistent workers with <code class="docutils literal notranslate"><sp
 <h2>Robust execution: fault tolerance, timeout, and resume<a class="headerlink" href="#robust-execution-fault-tolerance-timeout-and-resume" title="Link to this heading"></a></h2>
 <p>Real-world clinical batches require fault isolation, hanging-process protection,
 and crash recovery:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckpointStore</span><span class="p">,</span> <span class="n">backend_from_policy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span>
 
@@ -731,421 +731,219 @@ and crash recovery:</p>
     <span class="n">resume</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                    <span class="c1"># Skip already processed cases</span>
 <span class="p">)</span>
 <span class="n">backend</span> <span class="o">=</span> <span class="n">backend_from_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span>
-<span class="n">store</span> <span class="o">=</span> <span class="n">CheckpointStore</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;results/checkpoints&quot;</span><span class="p">))</span>
+<span class="n">store</span> <span class="o">=</span> <span class="n">CheckpointStore</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;results/checkpoints&quot;</span><span class="p">))</span>
 
 <span class="c1"># Run with automatic resume and crash recovery</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="cloud-multi-gpu-scaling-benchmark-16-subjects-90-features">
-<h2>Cloud multi-GPU scaling benchmark (16 subjects, 90 features)<a class="headerlink" href="#cloud-multi-gpu-scaling-benchmark-16-subjects-90-features" title="Link to this heading"></a></h2>
-<p>Hardware (AutoDL cloud benchmark, 2026-09-04): 5× NVIDIA GeForce RTX 4080 SUPER
-(32 GiB each), 144 logical CPUs (2× Intel Xeon Platinum 8352V), ~503 GiB RAM.
-Workload: synthetic cohort n=16, shape 80×80×48 (~54,913 ROI voxels/case,
-total ~878,608 ROI voxels), dense 3D voxel texture feature extraction
-(90 features: FirstOrder, GLCM, GLRLM, GLSZM, GLDM, NGTDM).</p>
-<p>Architectural insights:</p>
-<ol class="arabic simple">
-<li><p><strong>True GPU-bound acceleration</strong>:
-When dense 3D matrix construction and feature quantification run on CUDA,
-single-subject compute drops to ~0.71s. Across the 16-subject cohort,
-serial CPU takes <strong>263.49s</strong>, 8-core CPU takes <strong>49.16s</strong>, whereas 5 GPUs
-with persistent workers finish in just <strong>4.16s</strong> (<strong>231.03 subjects/min</strong>,
-<strong>63.41× speedup</strong> vs CPU serial, <strong>11.83× speedup</strong> vs 8-core CPU).</p></li>
-<li><p><strong>Cold Pool vs. Warm Persistent Pool</strong>:
-Cold runs pay a one-time fixed cost of ~9.4s (spawning 5 worker processes,
-importing PyTorch/SimpleITK, initializing 5 CUDA primary contexts, and process
-cleanup). Using <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">backend.reuse_workers():</span></code> amortizes this startup,
-unlocking linear multi-GPU throughput.</p></li>
-<li><p><strong>Worker count sweet spot on small cohorts (cold pool)</strong>:
-On 16 subjects in a cold pool, 2 workers on 5 GPUs (11.61s) beat 5 workers (14.78s).
-Because single-subject GPU compute is so fast (~0.71s, ~11.4s total compute),
-going from 2 to 5 workers saves only ~2.9s of raw computation, which is
-outweighed by spawning 5 separate processes, initializing 5 CUDA primary
-contexts, and modulo load imbalance (16 is not divisible by 5).
-For small cohorts (&lt;50 subjects) in cold pools, 2–4 workers are optimal; for large
-production cohorts (100+ subjects) or warm pools, all 5 GPUs deliver linear
-multi-worker scaling (4.16s, 231 subj/min).</p></li>
-</ol>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<section id="cloud-benchmark-script-recorded-not-executed-here">
+<h2>Cloud benchmark script (recorded; not executed here)<a class="headerlink" href="#cloud-benchmark-script-recorded-not-executed-here" title="Link to this heading"></a></h2>
+<p>The timings below were measured on AutoDL (2026-09-04): 5× NVIDIA GeForce
+RTX 4080 SUPER (32 GiB each), 144 logical CPUs (2× Intel Xeon Platinum
+8352V), ~503 GiB RAM. Workload: synthetic cohort n=16, shape 80×80×48
+(~54,913 ROI voxels/case, ~878,608 ROI voxels total), 90 voxel-texture
+features (FirstOrder, GLCM, GLRLM, GLSZM, GLDM, NGTDM).</p>
+<p>This page does <strong>not</strong> re-run that workload when the docs are built.
+The snippet is the cloud extract-and-map loop (full driver:
+<code class="docutils literal notranslate"><span class="pre">scripts/run_multi_gpu_cohort_bench.py</span></code>). Warm-pool rows used
+<code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">backend.reuse_workers():</span></code>. On Windows put the <code class="docutils literal notranslate"><span class="pre">map</span></code> call
+inside <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_synthetic_cohort</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features.voxel_radiomics</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelRadiomicsFeatures</span>
 
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span><span class="n">subject</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">VoxelRadiomicsFeatures</span><span class="p">(</span>
+        <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,),</span>
+        <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;tumor&quot;</span><span class="p">,</span>
+        <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">voxel_batch</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_gpu_matrices</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">torch_device</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="p">)(</span><span class="n">subject</span><span class="p">)</span>
 
-<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;0gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=-1 (CPU)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">263.49</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">3.64</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">1.00</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;0gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=-1 (CPU)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">138.03</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">6.96</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">1.91</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;0gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=-1 (CPU)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">79.23</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">12.12</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">3.33</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;0gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=-1 (CPU)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">49.16</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">19.53</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">5.36</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;1gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0 (GPU)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">19.30</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">49.73</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">13.65</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;1gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0 (GPU)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">17.44</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">55.04</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">15.11</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;1gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0 (GPU)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">24.67</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">38.91</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">10.68</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;1gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0 (GPU)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;warm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">12.41</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">77.33</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">21.22</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;5gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0,1,2,3,4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">18.47</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">51.96</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">14.27</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;5gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0,1,2,3,4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">11.61</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">82.68</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">22.70</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;5gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0,1,2,3,4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">14.05</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">68.32</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">18.75</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;5gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0,1,2,3,4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;cold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">14.78</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">64.97</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">17.83</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;scenario&quot;</span><span class="p">:</span> <span class="s2">&quot;5gpu_multicpu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;CUDA=0,1,2,3,4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-            <span class="s2">&quot;pool_state&quot;</span><span class="p">:</span> <span class="s2">&quot;warm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wall_s&quot;</span><span class="p">:</span> <span class="mf">4.16</span><span class="p">,</span>
-            <span class="s2">&quot;subjects_per_min&quot;</span><span class="p">:</span> <span class="mf">231.03</span><span class="p">,</span>
-            <span class="s2">&quot;speedup_vs_cpu_serial&quot;</span><span class="p">:</span> <span class="mf">63.41</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">]</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span>
-    <span class="s2">&quot;Cloud timings (5× RTX 4080 SUPER, 144 CPUs; &quot;</span>
-    <span class="s2">&quot;n=16 synthetic 80×80×48, ~54.9k ROI voxels/case, 90 features):&quot;</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">cloud_table</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">7.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
-
-<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cold_data</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a><span class="p">[</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a><span class="p">[</span><span class="s2">&quot;pool_state&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cold&quot;</span><span class="p">]</span>
-<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">colors</span></a> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;0gpu_multicpu&quot;</span><span class="p">:</span> <span class="s2">&quot;#7f7f7f&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;1gpu_multicpu&quot;</span><span class="p">:</span> <span class="s2">&quot;#1f77b4&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;5gpu_multicpu&quot;</span><span class="p">:</span> <span class="s2">&quot;#2ca02c&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;0gpu_multicpu&quot;</span><span class="p">:</span> <span class="s2">&quot;0 GPU (multi-CPU)&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;1gpu_multicpu&quot;</span><span class="p">:</span> <span class="s2">&quot;1 GPU (cold pool)&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;5gpu_multicpu&quot;</span><span class="p">:</span> <span class="s2">&quot;5 GPUs (cold pool)&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-<span class="k">for</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">scenario</span></a><span class="p">,</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">group</span></a> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="pandas.DataFrame.groupby" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">cold_data</span><span class="o">.</span><span class="n">groupby</span></a><span class="p">(</span><span class="s2">&quot;scenario&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span>
-        <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">group</span></a><span class="p">[</span><span class="s2">&quot;workers&quot;</span><span class="p">],</span>
-        <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">group</span></a><span class="p">[</span><span class="s2">&quot;wall_s&quot;</span><span class="p">],</span>
-        <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
-        <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">colors</span></a><span class="o">.</span><span class="n">get</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">scenario</span></a><span class="p">),</span>
-        <span class="n">label</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a><span class="o">.</span><span class="n">get</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">scenario</span></a><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">scenario</span></a><span class="p">)),</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span>
+        <span class="n">n_subjects</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">48</span><span class="p">),</span> <span class="n">rng</span><span class="o">=</span><span class="mi">21</span>
     <span class="p">)</span>
 
-<a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_1gpu</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a><span class="p">[</span>
-    <span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a><span class="p">[</span><span class="s2">&quot;scenario&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;1gpu_multicpu&quot;</span><span class="p">)</span>
-    <span class="o">&amp;</span> <span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a><span class="p">[</span><span class="s2">&quot;pool_state&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;warm&quot;</span><span class="p">)</span>
-<span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_5gpu</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a><span class="p">[</span>
-    <span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a><span class="p">[</span><span class="s2">&quot;scenario&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;5gpu_multicpu&quot;</span><span class="p">)</span>
-    <span class="o">&amp;</span> <span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a><span class="p">[</span><span class="s2">&quot;pool_state&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;warm&quot;</span><span class="p">)</span>
-<span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># 5-GPU layout; CPU serial used CUDA_VISIBLE_DEVICES=&quot;-1&quot;</span>
+    <span class="c1"># and use_torch_radiomics=False / use_gpu_matrices=False.</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0,1,2,3,4&quot;</span>
+    <span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
+        <span class="n">workers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
+        <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span><span class="p">,</span>
+        <span class="n">cap_workers_to_gpu_pool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;fail_fast&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">ProcessPoolBackend</span><span class="o">.</span><span class="n">from_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span>
 
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html#matplotlib.axes.Axes.scatter" title="matplotlib.axes.Axes.scatter" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span></a><span class="p">(</span>
-    <span class="p">[</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_1gpu</span></a><span class="p">[</span><span class="s2">&quot;workers&quot;</span><span class="p">]],</span>
-    <span class="p">[</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_1gpu</span></a><span class="p">[</span><span class="s2">&quot;wall_s&quot;</span><span class="p">]],</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1f77b4&quot;</span><span class="p">,</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
-    <span class="n">s</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;1 GPU warm pool (</span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_1gpu</span></a><span class="p">[</span><span class="s1">&#39;wall_s&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s, </span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_1gpu</span></a><span class="p">[</span><span class="s1">&#39;speedup_vs_cpu_serial&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x)&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html#matplotlib.axes.Axes.scatter" title="matplotlib.axes.Axes.scatter" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span></a><span class="p">(</span>
-    <span class="p">[</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_5gpu</span></a><span class="p">[</span><span class="s2">&quot;workers&quot;</span><span class="p">]],</span>
-    <span class="p">[</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_5gpu</span></a><span class="p">[</span><span class="s2">&quot;wall_s&quot;</span><span class="p">]],</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#d62728&quot;</span><span class="p">,</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
-    <span class="n">s</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;5 GPUs warm pool (</span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_5gpu</span></a><span class="p">[</span><span class="s1">&#39;wall_s&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s, </span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">warm_5gpu</span></a><span class="p">[</span><span class="s1">&#39;speedup_vs_cpu_serial&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x)&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+    <span class="c1"># Cold pool: pays spawn + CUDA init on this map()</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">extract</span><span class="p">,</span> <span class="n">cohort</span><span class="p">))</span>
 
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_yscale.html#matplotlib.axes.Axes.set_yscale" title="matplotlib.axes.Axes.set_yscale" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span></a><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;Workers&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;Wall Time (s) [log scale]&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Multi-GPU Cohort Acceleration (16 subjects, 90 features)&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.grid.html#matplotlib.axes.Axes.grid" title="matplotlib.axes.Axes.grid" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">grid</span></a><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/parallel_cloud_speedup.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
-<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cloud_table</span></a>
+    <span class="c1"># Warm pool: reuse workers / CUDA contexts across the cohort</span>
+    <span class="k">with</span> <span class="n">backend</span><span class="o">.</span><span class="n">reuse_workers</span><span class="p">():</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">extract</span><span class="p">,</span> <span class="n">cohort</span><span class="p">))</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_01_parallel_runs_001.png" srcset="../../_images/sphx_glr_plot_01_parallel_runs_001.png" alt="Multi-GPU Cohort Acceleration (16 subjects, 90 features)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cloud timings (5× RTX 4080 SUPER, 144 CPUs; n=16 synthetic 80×80×48, ~54.9k ROI voxels/case, 90 features):
-     scenario         device  workers pool_state  wall_s  subjects_per_min  speedup_vs_cpu_serial
-0gpu_multicpu  CUDA=-1 (CPU)        1       cold  263.49              3.64                   1.00
-0gpu_multicpu  CUDA=-1 (CPU)        2       cold  138.03              6.96                   1.91
-0gpu_multicpu  CUDA=-1 (CPU)        4       cold   79.23             12.12                   3.33
-0gpu_multicpu  CUDA=-1 (CPU)        8       cold   49.16             19.53                   5.36
-1gpu_multicpu   CUDA=0 (GPU)        1       cold   19.30             49.73                  13.65
-1gpu_multicpu   CUDA=0 (GPU)        2       cold   17.44             55.04                  15.11
-1gpu_multicpu   CUDA=0 (GPU)        4       cold   24.67             38.91                  10.68
-1gpu_multicpu   CUDA=0 (GPU)        1       warm   12.41             77.33                  21.22
-5gpu_multicpu CUDA=0,1,2,3,4        1       cold   18.47             51.96                  14.27
-5gpu_multicpu CUDA=0,1,2,3,4        2       cold   11.61             82.68                  22.70
-5gpu_multicpu CUDA=0,1,2,3,4        4       cold   14.05             68.32                  18.75
-5gpu_multicpu CUDA=0,1,2,3,4        5       cold   14.78             64.97                  17.83
-5gpu_multicpu CUDA=0,1,2,3,4        5       warm    4.16            231.03                  63.41
-</pre></div>
-</div>
-<div class="output_subarea output_html rendered_html output_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>scenario</th>
-      <th>device</th>
-      <th>workers</th>
-      <th>pool_state</th>
-      <th>wall_s</th>
-      <th>subjects_per_min</th>
-      <th>speedup_vs_cpu_serial</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0gpu_multicpu</td>
-      <td>CUDA=-1 (CPU)</td>
-      <td>1</td>
-      <td>cold</td>
-      <td>263.49</td>
-      <td>3.64</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0gpu_multicpu</td>
-      <td>CUDA=-1 (CPU)</td>
-      <td>2</td>
-      <td>cold</td>
-      <td>138.03</td>
-      <td>6.96</td>
-      <td>1.91</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0gpu_multicpu</td>
-      <td>CUDA=-1 (CPU)</td>
-      <td>4</td>
-      <td>cold</td>
-      <td>79.23</td>
-      <td>12.12</td>
-      <td>3.33</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0gpu_multicpu</td>
-      <td>CUDA=-1 (CPU)</td>
-      <td>8</td>
-      <td>cold</td>
-      <td>49.16</td>
-      <td>19.53</td>
-      <td>5.36</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1gpu_multicpu</td>
-      <td>CUDA=0 (GPU)</td>
-      <td>1</td>
-      <td>cold</td>
-      <td>19.30</td>
-      <td>49.73</td>
-      <td>13.65</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>1gpu_multicpu</td>
-      <td>CUDA=0 (GPU)</td>
-      <td>2</td>
-      <td>cold</td>
-      <td>17.44</td>
-      <td>55.04</td>
-      <td>15.11</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>1gpu_multicpu</td>
-      <td>CUDA=0 (GPU)</td>
-      <td>4</td>
-      <td>cold</td>
-      <td>24.67</td>
-      <td>38.91</td>
-      <td>10.68</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>1gpu_multicpu</td>
-      <td>CUDA=0 (GPU)</td>
-      <td>1</td>
-      <td>warm</td>
-      <td>12.41</td>
-      <td>77.33</td>
-      <td>21.22</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>5gpu_multicpu</td>
-      <td>CUDA=0,1,2,3,4</td>
-      <td>1</td>
-      <td>cold</td>
-      <td>18.47</td>
-      <td>51.96</td>
-      <td>14.27</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>5gpu_multicpu</td>
-      <td>CUDA=0,1,2,3,4</td>
-      <td>2</td>
-      <td>cold</td>
-      <td>11.61</td>
-      <td>82.68</td>
-      <td>22.70</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>5gpu_multicpu</td>
-      <td>CUDA=0,1,2,3,4</td>
-      <td>4</td>
-      <td>cold</td>
-      <td>14.05</td>
-      <td>68.32</td>
-      <td>18.75</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>5gpu_multicpu</td>
-      <td>CUDA=0,1,2,3,4</td>
-      <td>5</td>
-      <td>cold</td>
-      <td>14.78</td>
-      <td>64.97</td>
-      <td>17.83</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>5gpu_multicpu</td>
-      <td>CUDA=0,1,2,3,4</td>
-      <td>5</td>
-      <td>warm</td>
-      <td>4.16</td>
-      <td>231.03</td>
-      <td>63.41</td>
-    </tr>
-  </tbody>
+<p>Architectural notes from that run:</p>
+<ol class="arabic simple">
+<li><p><strong>GPU-bound texture:</strong> single-subject compute is ~0.71s on one GPU.
+CPU serial is <strong>263.49s</strong>; 8 CPU workers <strong>49.16s</strong>; 5 GPUs with a
+warm pool <strong>4.16s</strong> (<strong>63.41×</strong> vs CPU serial, <strong>11.83×</strong> vs 8 CPUs).</p></li>
+<li><p><strong>Cold vs warm pool:</strong> a cold 5-worker start costs ~9.4s (spawn,
+import PyTorch/SimpleITK, five CUDA contexts, join).
+<code class="docutils literal notranslate"><span class="pre">reuse_workers()</span></code> amortizes that fixed cost.</p></li>
+<li><p><strong>Small-cohort cold-pool workers:</strong> on 16 subjects, 2 workers on 5
+GPUs (11.61s) beat 5 workers (14.78s). Extra workers save little
+compute and add spawn / CUDA-init / modulo imbalance (16 is not
+divisible by 5). For large cohorts or a warm pool, use all GPUs.</p></li>
+</ol>
+</section>
+<section id="recorded-autodl-timings">
+<h2>Recorded AutoDL timings<a class="headerlink" href="#recorded-autodl-timings" title="Link to this heading"></a></h2>
+<p>Numbers are copied from the cloud run, not recomputed by this page.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17.3%" />
+<col style="width: 19.2%" />
+<col style="width: 9.6%" />
+<col style="width: 11.5%" />
+<col style="width: 11.5%" />
+<col style="width: 15.4%" />
+<col style="width: 15.4%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Scenario</p></th>
+<th class="head"><p>Device</p></th>
+<th class="head"><p>Workers</p></th>
+<th class="head"><p>Pool</p></th>
+<th class="head"><p>Wall (s)</p></th>
+<th class="head"><p>Subjects/min</p></th>
+<th class="head"><p>Speedup vs CPU serial</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0 GPU</p></td>
+<td><p>CUDA=-1 (CPU)</p></td>
+<td><p>1</p></td>
+<td><p>cold</p></td>
+<td><p>263.49</p></td>
+<td><p>3.64</p></td>
+<td><p>1.00×</p></td>
+</tr>
+<tr class="row-odd"><td><p>0 GPU</p></td>
+<td><p>CUDA=-1 (CPU)</p></td>
+<td><p>2</p></td>
+<td><p>cold</p></td>
+<td><p>138.03</p></td>
+<td><p>6.96</p></td>
+<td><p>1.91×</p></td>
+</tr>
+<tr class="row-even"><td><p>0 GPU</p></td>
+<td><p>CUDA=-1 (CPU)</p></td>
+<td><p>4</p></td>
+<td><p>cold</p></td>
+<td><p>79.23</p></td>
+<td><p>12.12</p></td>
+<td><p>3.33×</p></td>
+</tr>
+<tr class="row-odd"><td><p>0 GPU</p></td>
+<td><p>CUDA=-1 (CPU)</p></td>
+<td><p>8</p></td>
+<td><p>cold</p></td>
+<td><p>49.16</p></td>
+<td><p>19.53</p></td>
+<td><p>5.36×</p></td>
+</tr>
+<tr class="row-even"><td><p>1 GPU</p></td>
+<td><p>CUDA=0</p></td>
+<td><p>1</p></td>
+<td><p>cold</p></td>
+<td><p>19.30</p></td>
+<td><p>49.73</p></td>
+<td><p>13.65×</p></td>
+</tr>
+<tr class="row-odd"><td><p>1 GPU</p></td>
+<td><p>CUDA=0</p></td>
+<td><p>2</p></td>
+<td><p>cold</p></td>
+<td><p>17.44</p></td>
+<td><p>55.04</p></td>
+<td><p>15.11×</p></td>
+</tr>
+<tr class="row-even"><td><p>1 GPU</p></td>
+<td><p>CUDA=0</p></td>
+<td><p>4</p></td>
+<td><p>cold</p></td>
+<td><p>24.67</p></td>
+<td><p>38.91</p></td>
+<td><p>10.68×</p></td>
+</tr>
+<tr class="row-odd"><td><p>1 GPU</p></td>
+<td><p>CUDA=0</p></td>
+<td><p>1</p></td>
+<td><p>warm</p></td>
+<td><p>12.41</p></td>
+<td><p>77.33</p></td>
+<td><p>21.22×</p></td>
+</tr>
+<tr class="row-even"><td><p>5 GPUs</p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>1</p></td>
+<td><p>cold</p></td>
+<td><p>18.47</p></td>
+<td><p>51.96</p></td>
+<td><p>14.27×</p></td>
+</tr>
+<tr class="row-odd"><td><p>5 GPUs</p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>2</p></td>
+<td><p>cold</p></td>
+<td><p>11.61</p></td>
+<td><p>82.68</p></td>
+<td><p>22.70×</p></td>
+</tr>
+<tr class="row-even"><td><p>5 GPUs</p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>4</p></td>
+<td><p>cold</p></td>
+<td><p>14.05</p></td>
+<td><p>68.32</p></td>
+<td><p>18.75×</p></td>
+</tr>
+<tr class="row-odd"><td><p>5 GPUs</p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>5</p></td>
+<td><p>cold</p></td>
+<td><p>14.78</p></td>
+<td><p>64.97</p></td>
+<td><p>17.83×</p></td>
+</tr>
+<tr class="row-even"><td><p>5 GPUs</p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>5</p></td>
+<td><p>warm</p></td>
+<td><p>4.16</p></td>
+<td><p>231.03</p></td>
+<td><p>63.41×</p></td>
+</tr>
+</tbody>
 </table>
-</div>
-</div>
-<br />
-<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.471 seconds)</p>
+<figure class="align-default" id="id1">
+<img alt="Multi-GPU cohort wall time versus worker count" src="../../_images/parallel_cloud_speedup.png" />
+<figcaption>
+<p><span class="caption-text">Recorded AutoDL result (16 subjects, 90 features). Stars are warm
+persistent pools. This page does not regenerate the figure at build time.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-parallel-runs-plot-01-parallel-runs-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/ee88ab9a660a831119d2d60175d3a865/plot_01_parallel_runs.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_parallel_runs.ipynb</span></code></a></p>
@@ -1165,7 +963,7 @@ multi-worker scaling (4.16s, 231 subj/min).</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="6. Scaled Execution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="6. Parallel runs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../../api/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
