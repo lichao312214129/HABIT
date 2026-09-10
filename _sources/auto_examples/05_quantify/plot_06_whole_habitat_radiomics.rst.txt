@@ -43,7 +43,7 @@ The habitat label image plays both intensity and mask roles.
 
 One-step habitats, then whole-map PyRadiomics on the label field.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-49
+.. GENERATED FROM PYTHON SOURCE LINES 14-50
 
 .. code-block:: Python
 
@@ -57,6 +57,7 @@ One-step habitats, then whole-map PyRadiomics on the label field.
     from habit.datasets import fetch_demo
     from habit.habitat_features import WholeHabitatRadiomicsFeatures
     from habit.recipes import one_step_habitat
+    from habit.viz import plot_habitat_overlay
 
     DATA = fetch_demo()
     MODALITIES = ("LAP",)
@@ -112,7 +113,7 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.56s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.56s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]
     Whole-habitat radiomics:
     subject                            subj001
     original_shape_Sphericity         0.719657
@@ -129,15 +130,53 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-51
+.. GENERATED FROM PYTHON SOURCE LINES 51-53
 
-Horizontal bar chart of shape and first-order features on the label map.
+The quantified object is the partition map. Overlay it on anatomy
+(same objects the table used: ImageVolume + HabitatMap).
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-68
+.. GENERATED FROM PYTHON SOURCE LINES 53-64
 
 .. code-block:: Python
 
     Path("out").mkdir(exist_ok=True)
+    fig = plot_habitat_overlay(
+        subject.image(ROI),
+        habitat_map,
+        title="habitats (whole-map radiomics)",
+        axis=0,
+        crop_to="labels",
+    )
+    fig.savefig("out/whole_habitat_radiomics_overlay.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_001.png
+   :alt: habitats (whole-map radiomics)
+   :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_001.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 65-66
+
+Horizontal bar chart of shape and first-order features on the label map.
+
+.. GENERATED FROM PYTHON SOURCE LINES 66-82
+
+.. code-block:: Python
+
     plot_items: List[Tuple[str, str]] = [
         ("Sphericity", "original_shape_Sphericity"),
         ("SurfaceArea", "original_shape_SurfaceArea"),
@@ -157,9 +196,9 @@ Horizontal bar chart of shape and first-order features on the label map.
 
 
 
-.. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_001.png
+.. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_002.png
    :alt: Whole-habitat radiomics (shape + first-order)
-   :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_001.png
+   :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_002.png
    :class: sphx-glr-single-img
 
 
@@ -169,7 +208,7 @@ Horizontal bar chart of shape and first-order features on the label map.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.915 seconds)
+   **Total running time of the script:** (0 minutes 4.107 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_06_whole_habitat_radiomics.py:
