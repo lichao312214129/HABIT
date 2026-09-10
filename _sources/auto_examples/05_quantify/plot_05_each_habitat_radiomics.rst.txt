@@ -56,8 +56,8 @@ One-step habitats, then per-habitat PyRadiomics on the intensity image.
     from habit.contracts import MaskVolume, cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.habitat_features import EachHabitatRadiomicsFeatures
-    from habit.kernels import local_entropy_map
     from habit.recipes import one_step_habitat
+    from habit.voxel_features import extract_voxel_texture
     from habit.viz import plot_voxel_texture_slice
 
     DATA = fetch_demo()
@@ -120,7 +120,7 @@ One-step habitats, then per-habitat PyRadiomics on the intensity image.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:05<00:00,  5.10s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:05<00:00,  5.10s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.93s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.93s/it]
     Per-habitat radiomics (sample columns):
     habitat_1_original_firstorder_Mean_of_LAP            864.629175
     habitat_1_original_firstorder_Energy_of_LAP       10697090209.0
@@ -145,17 +145,26 @@ One-step habitats, then per-habitat PyRadiomics on the intensity image.
 
 .. GENERATED FROM PYTHON SOURCE LINES 58-61
 
-Voxel texture inside each habitat (same overlay style as the voxel
-texture page). The table above is one PyRadiomics scalar per habitat;
-these maps show the intensity neighbourhood inside that label.
+Voxel-wise GLCM Id inside each habitat. Same feature name and
+``binWidth=25`` as the table; the table is one ROI-level scalar per
+habitat, these maps use a 3x3x3 kernel around each voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-91
+.. GENERATED FROM PYTHON SOURCE LINES 61-102
 
 .. code-block:: Python
 
     Path("out").mkdir(exist_ok=True)
     image_vol = subject.image(ROI)
-    entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
+    glcm_field = extract_voxel_texture(
+        image_vol,
+        subject.mask(ROI),
+        kernel_radius=1,
+        bin_width=25,
+        feature_classes={"glcm": ["Id"]},
+    )
+    glcm_id_feature = next(
+        name for name in glcm_field.feature_names if "glcm_Id" in name
+    )
     habitat_ids: List[int] = [
         hid
         for hid in habitat_map.habitat_ids
@@ -169,15 +178,17 @@ these maps show the intensity neighbourhood inside that label.
             labels=(int(hid),),
         )
         fig_tex = plot_voxel_texture_slice(
-            entropy,
+            glcm_field,
+            feature=glcm_id_feature,
             anatomy=image_vol,
             roi_mask=habitat_roi,
             axis=0,
             crop_to="roi",
-            title=f"habitat {hid} local entropy",
+            title=f"habitat {hid} GLCM Id",
+            feature_label="GLCM Id",
         )
         fig_tex.savefig(
-            f"out/each_habitat_{hid}_local_entropy.png",
+            f"out/each_habitat_{hid}_glcm_id.png",
             dpi=150,
             bbox_inches="tight",
         )
@@ -192,21 +203,21 @@ these maps show the intensity neighbourhood inside that label.
     *
 
       .. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_05_each_habitat_radiomics_001.png
-         :alt: habitat 1 local entropy
+         :alt: habitat 1 GLCM Id
          :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_05_each_habitat_radiomics_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_05_each_habitat_radiomics_002.png
-         :alt: habitat 2 local entropy
+         :alt: habitat 2 GLCM Id
          :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_05_each_habitat_radiomics_002.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_05_each_habitat_radiomics_003.png
-         :alt: habitat 3 local entropy
+         :alt: habitat 3 GLCM Id
          :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_05_each_habitat_radiomics_003.png
          :class: sphx-glr-multi-img
 
@@ -215,18 +226,53 @@ these maps show the intensity neighbourhood inside that label.
 
  .. code-block:: none
 
+    voxel_radiomics: glcm batch 1/35 0.783s peak=1MiB
+    voxel_radiomics: glcm batch 2/35 0.018s peak=2MiB
+    voxel_radiomics: glcm batch 3/35 0.019s peak=3MiB
+    voxel_radiomics: glcm batch 4/35 0.019s peak=4MiB
+    voxel_radiomics: glcm batch 5/35 0.019s peak=4MiB
+    voxel_radiomics: glcm batch 6/35 0.018s peak=5MiB
+    voxel_radiomics: glcm batch 7/35 0.018s peak=6MiB
+    voxel_radiomics: glcm batch 8/35 0.019s peak=7MiB
+    voxel_radiomics: glcm batch 9/35 0.017s peak=8MiB
+    voxel_radiomics: glcm batch 10/35 0.019s peak=9MiB
+    voxel_radiomics: glcm batch 11/35 0.017s peak=10MiB
+    voxel_radiomics: glcm batch 12/35 0.019s peak=11MiB
+    voxel_radiomics: glcm batch 13/35 0.019s peak=12MiB
+    voxel_radiomics: glcm batch 14/35 0.018s peak=13MiB
+    voxel_radiomics: glcm batch 15/35 0.017s peak=13MiB
+    voxel_radiomics: glcm batch 16/35 0.020s peak=14MiB
+    voxel_radiomics: glcm batch 17/35 0.019s peak=15MiB
+    voxel_radiomics: glcm batch 18/35 0.017s peak=16MiB
+    voxel_radiomics: glcm batch 19/35 0.018s peak=17MiB
+    voxel_radiomics: glcm batch 20/35 0.015s peak=18MiB
+    voxel_radiomics: glcm batch 21/35 0.017s peak=19MiB
+    voxel_radiomics: glcm batch 22/35 0.016s peak=20MiB
+    voxel_radiomics: glcm batch 23/35 0.015s peak=21MiB
+    voxel_radiomics: glcm batch 24/35 0.016s peak=22MiB
+    voxel_radiomics: glcm batch 25/35 0.017s peak=22MiB
+    voxel_radiomics: glcm batch 26/35 0.018s peak=23MiB
+    voxel_radiomics: glcm batch 27/35 0.016s peak=24MiB
+    voxel_radiomics: glcm batch 28/35 0.016s peak=25MiB
+    voxel_radiomics: glcm batch 29/35 0.017s peak=26MiB
+    voxel_radiomics: glcm batch 30/35 0.016s peak=27MiB
+    voxel_radiomics: glcm batch 31/35 0.016s peak=28MiB
+    voxel_radiomics: glcm batch 32/35 0.018s peak=29MiB
+    voxel_radiomics: glcm batch 33/35 0.017s peak=30MiB
+    voxel_radiomics: glcm batch 34/35 0.016s peak=31MiB
+    voxel_radiomics: glcm batch 35/35 0.016s peak=31MiB
     F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       direction, spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-94
+.. GENERATED FROM PYTHON SOURCE LINES 103-105
 
 One panel per feature so scales stay honest (Mean / Energy / GLCM Id
 must not share a single y-axis — Energy dominates and hides the rest).
 
-.. GENERATED FROM PYTHON SOURCE LINES 94-144
+.. GENERATED FROM PYTHON SOURCE LINES 105-155
 
 .. code-block:: Python
 
@@ -310,7 +356,7 @@ must not share a single y-axis — Energy dominates and hides the rest).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 39.342 seconds)
+   **Total running time of the script:** (0 minutes 14.656 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_05_each_habitat_radiomics.py:
