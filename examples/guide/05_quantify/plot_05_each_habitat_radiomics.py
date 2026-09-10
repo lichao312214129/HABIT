@@ -20,8 +20,8 @@ import pandas as pd
 from habit.contracts import MaskVolume, cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.habitat_features import EachHabitatRadiomicsFeatures
-from habit.kernels import local_entropy_map
 from habit.recipes import one_step_habitat
+from habit.voxel_features import extract_voxel_texture
 from habit.viz import plot_voxel_texture_slice
 
 DATA = fetch_demo()
@@ -55,12 +55,21 @@ print(row[display_cols].to_string())
 row[display_cols]
 
 # %%
-# Voxel texture inside each habitat (same overlay style as the voxel
-# texture page). The table above is one PyRadiomics scalar per habitat;
-# these maps show the intensity neighbourhood inside that label.
+# Voxel-wise GLCM Id inside each habitat. Same feature name and
+# ``binWidth=25`` as the table; the table is one ROI-level scalar per
+# habitat, these maps use a 3x3x3 kernel around each voxel.
 Path("out").mkdir(exist_ok=True)
 image_vol = subject.image(ROI)
-entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
+glcm_field = extract_voxel_texture(
+    image_vol,
+    subject.mask(ROI),
+    kernel_radius=1,
+    bin_width=25,
+    feature_classes={"glcm": ["Id"]},
+)
+glcm_id_feature = next(
+    name for name in glcm_field.feature_names if "glcm_Id" in name
+)
 habitat_ids: List[int] = [
     hid
     for hid in habitat_map.habitat_ids
@@ -74,15 +83,17 @@ for hid in habitat_ids:
         labels=(int(hid),),
     )
     fig_tex = plot_voxel_texture_slice(
-        entropy,
+        glcm_field,
+        feature=glcm_id_feature,
         anatomy=image_vol,
         roi_mask=habitat_roi,
         axis=0,
         crop_to="roi",
-        title=f"habitat {hid} local entropy",
+        title=f"habitat {hid} GLCM Id",
+        feature_label="GLCM Id",
     )
     fig_tex.savefig(
-        f"out/each_habitat_{hid}_local_entropy.png",
+        f"out/each_habitat_{hid}_glcm_id.png",
         dpi=150,
         bbox_inches="tight",
     )
