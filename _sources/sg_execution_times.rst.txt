@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**02:43.449** total execution time for 24 files **from all galleries**:
+**02:40.319** total execution time for 24 files **from all galleries**:
 
 .. container::
 
@@ -32,11 +32,8 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_05_each_habitat_radiomics.py` (``..\..\examples\guide\05_quantify\plot_05_each_habitat_radiomics.py``)
-     - 02:39.342
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_06_whole_habitat_radiomics.py` (``..\..\examples\guide\05_quantify\plot_06_whole_habitat_radiomics.py``)
-     - 00:04.107
+     - 02:40.319
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_01_directory.py` (``..\..\examples\guide\01_data_in\plot_01_directory.py``)
      - 00:00.000
@@ -93,6 +90,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_04_graph_features.py` (``..\..\examples\guide\05_quantify\plot_04_graph_features.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_05_each_habitat_radiomics.py` (``..\..\examples\guide\05_quantify\plot_05_each_habitat_radiomics.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_07_deep_learning_embeddings.py` (``..\..\examples\guide\05_quantify\plot_07_deep_learning_embeddings.py``)

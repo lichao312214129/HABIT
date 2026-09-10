@@ -43,21 +43,22 @@ The habitat label image plays both intensity and mask roles.
 
 One-step habitats, then whole-map PyRadiomics on the label field.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-50
+.. GENERATED FROM PYTHON SOURCE LINES 14-51
 
 .. code-block:: Python
 
     from pathlib import Path
-    from typing import Any, Dict, List, Tuple
+    from typing import Any, Dict
 
     import matplotlib.pyplot as plt
-    import pandas as pd
+    import numpy as np
 
-    from habit.contracts import cohort_from_directory
+    from habit.contracts import MaskVolume, cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.habitat_features import WholeHabitatRadiomicsFeatures
+    from habit.kernels import local_entropy_map
     from habit.recipes import one_step_habitat
-    from habit.viz import plot_habitat_overlay
+    from habit.viz import plot_voxel_texture_slice
 
     DATA = fetch_demo()
     MODALITIES = ("LAP",)
@@ -113,7 +114,7 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:05<00:00,  5.12s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:05<00:00,  5.12s/it]
     Whole-habitat radiomics:
     subject                            subj001
     original_shape_Sphericity         0.719657
@@ -130,31 +131,39 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-53
+.. GENERATED FROM PYTHON SOURCE LINES 52-55
 
-The quantified object is the partition map. Overlay it on anatomy
-(same objects the table used: ImageVolume + HabitatMap).
+Local entropy over the whole partition (same overlay style as the
+voxel-texture page). The table above is PyRadiomics on the label
+field; this map is neighbourhood texture inside all habitat voxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-64
+.. GENERATED FROM PYTHON SOURCE LINES 55-73
 
 .. code-block:: Python
 
     Path("out").mkdir(exist_ok=True)
-    fig = plot_habitat_overlay(
-        subject.image(ROI),
-        habitat_map,
-        title="habitats (whole-map radiomics)",
-        axis=0,
-        crop_to="labels",
+    image_vol = subject.image(ROI)
+    entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
+    habitat_roi = MaskVolume.from_geometry(
+        (habitat_map.label_array > 0).astype(np.uint8),
+        habitat_map.geometry,
+        roi_name=ROI,
     )
-    fig.savefig("out/whole_habitat_radiomics_overlay.png", dpi=150, bbox_inches="tight")
+    fig = plot_voxel_texture_slice(
+        entropy,
+        anatomy=image_vol,
+        roi_mask=habitat_roi,
+        axis=0,
+        crop_to="roi",
+        title="whole-habitat local entropy",
+    )
+    fig.savefig("out/whole_habitat_radiomics_texture.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
 
-
 .. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_001.png
-   :alt: habitats (whole-map radiomics)
+   :alt: whole-habitat local entropy
    :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_001.png
    :class: sphx-glr-single-img
 
@@ -163,44 +172,8 @@ The quantified object is the partition map. Overlay it on anatomy
 
  .. code-block:: none
 
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 65-66
-
-Horizontal bar chart of shape and first-order features on the label map.
-
-.. GENERATED FROM PYTHON SOURCE LINES 66-82
-
-.. code-block:: Python
-
-    plot_items: List[Tuple[str, str]] = [
-        ("Sphericity", "original_shape_Sphericity"),
-        ("SurfaceArea", "original_shape_SurfaceArea"),
-        ("Mean", "original_firstorder_Mean"),
-        ("Entropy", "original_firstorder_Entropy"),
-    ]
-    labels = [name for name, _ in plot_items]
-    values = [float(row[col]) for _, col in plot_items]
-
-    fig, ax = plt.subplots(figsize=(7, 3.5))
-    ax.barh(labels, values, color="#4C72B0")
-    ax.set_xlabel("Feature value")
-    ax.set_title("Whole-habitat radiomics (shape + first-order)")
-    fig.tight_layout()
-    fig.savefig("out/whole_habitat_radiomics_bar.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-
-
-.. image-sg:: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_002.png
-   :alt: Whole-habitat radiomics (shape + first-order)
-   :srcset: /auto_examples/05_quantify/images/sphx_glr_plot_06_whole_habitat_radiomics_002.png
-   :class: sphx-glr-single-img
-
+    F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      direction, spacing = resolve_display_geometry(
 
 
 
@@ -208,7 +181,7 @@ Horizontal bar chart of shape and first-order features on the label map.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.107 seconds)
+   **Total running time of the script:** (2 minutes 40.319 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_06_whole_habitat_radiomics.py:

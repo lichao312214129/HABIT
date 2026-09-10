@@ -12,16 +12,17 @@ The habitat label image plays both intensity and mask roles.
 # %%
 # One-step habitats, then whole-map PyRadiomics on the label field.
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict
 
 import matplotlib.pyplot as plt
-import pandas as pd
+import numpy as np
 
-from habit.contracts import cohort_from_directory
+from habit.contracts import MaskVolume, cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.habitat_features import WholeHabitatRadiomicsFeatures
+from habit.kernels import local_entropy_map
 from habit.recipes import one_step_habitat
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_voxel_texture_slice
 
 DATA = fetch_demo()
 MODALITIES = ("LAP",)
@@ -48,34 +49,24 @@ print(row.to_string())
 row
 
 # %%
-# The quantified object is the partition map. Overlay it on anatomy
-# (same objects the table used: ImageVolume + HabitatMap).
+# Local entropy over the whole partition (same overlay style as the
+# voxel-texture page). The table above is PyRadiomics on the label
+# field; this map is neighbourhood texture inside all habitat voxels.
 Path("out").mkdir(exist_ok=True)
-fig = plot_habitat_overlay(
-    subject.image(ROI),
-    habitat_map,
-    title="habitats (whole-map radiomics)",
-    axis=0,
-    crop_to="labels",
+image_vol = subject.image(ROI)
+entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
+habitat_roi = MaskVolume.from_geometry(
+    (habitat_map.label_array > 0).astype(np.uint8),
+    habitat_map.geometry,
+    roi_name=ROI,
 )
-fig.savefig("out/whole_habitat_radiomics_overlay.png", dpi=150, bbox_inches="tight")
-plt.show()
-
-# %%
-# Horizontal bar chart of shape and first-order features on the label map.
-plot_items: List[Tuple[str, str]] = [
-    ("Sphericity", "original_shape_Sphericity"),
-    ("SurfaceArea", "original_shape_SurfaceArea"),
-    ("Mean", "original_firstorder_Mean"),
-    ("Entropy", "original_firstorder_Entropy"),
-]
-labels = [name for name, _ in plot_items]
-values = [float(row[col]) for _, col in plot_items]
-
-fig, ax = plt.subplots(figsize=(7, 3.5))
-ax.barh(labels, values, color="#4C72B0")
-ax.set_xlabel("Feature value")
-ax.set_title("Whole-habitat radiomics (shape + first-order)")
-fig.tight_layout()
-fig.savefig("out/whole_habitat_radiomics_bar.png", dpi=150, bbox_inches="tight")
+fig = plot_voxel_texture_slice(
+    entropy,
+    anatomy=image_vol,
+    roi_mask=habitat_roi,
+    axis=0,
+    crop_to="roi",
+    title="whole-habitat local entropy",
+)
+fig.savefig("out/whole_habitat_radiomics_texture.png", dpi=150, bbox_inches="tight")
 plt.show()
