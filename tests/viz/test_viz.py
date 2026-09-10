@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 from matplotlib.figure import Figure
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.viz import (
     StyleSpec,
     available_styles,

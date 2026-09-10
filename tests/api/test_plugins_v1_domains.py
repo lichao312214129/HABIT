@@ -20,9 +20,9 @@ from typing import Any
 
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.utils.deprecation import HabitDeprecationWarning
-from habit.api.plugins import (
+from habit.plugins import (
     format_plugin_catalog_rst,
     get_param_schema,
     get_plugin_info,
@@ -287,7 +287,7 @@ def test_load_plugins_scans_old_and_new_groups() -> None:
 @pytest.mark.unit
 def test_load_plugins_logs_nonfatal_failures(monkeypatch: pytest.MonkeyPatch) -> None:
     """Broken entry points are recorded and logged without aborting discovery."""
-    from habit.api import plugins
+    from habit.plugins import catalog as plugins
 
     class BrokenEntryPoint:
         """Minimal entry point whose load() always raises."""

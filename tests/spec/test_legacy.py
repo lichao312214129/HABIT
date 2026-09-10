@@ -22,7 +22,7 @@ from typing import Any, Dict, Mapping, Optional, Tuple
 import pytest
 import yaml
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.spec.legacy import (
     LegacyConfigAdapter,
     _V0_SELECTOR_DEFAULT_BEFORE_Z_SCORE,

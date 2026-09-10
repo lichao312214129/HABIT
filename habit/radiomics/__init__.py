@@ -14,7 +14,7 @@
 #
 """Stable low-level radiomics component API."""
 
-from habit.api.radiomics import (
+from habit.radiomics.extract import (
     FeatureResult,
     FeatureTableResult,
     extract_batch,

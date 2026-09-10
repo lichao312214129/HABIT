@@ -100,7 +100,7 @@ def _run_view_matplotlib(
     Returns:
         Path to the written PNG.
     """
-    from habit.api.image import read_image, read_mask
+    from habit.image import read_image, read_mask
     from habit.viz import plot_habitat_overlay
 
     if len(image_paths) > 1:
@@ -155,7 +155,7 @@ def _run_view_napari(
     :func:`~habit.viz.view_habitat_napari` blocks via ``napari.run()`` until
     the user closes the window.
     """
-    from habit.api.image import read_image, read_mask
+    from habit.image import read_image, read_mask
     from habit.viz import view_habitat_napari
 
     image_vols = [read_image(path) for path in image_paths]

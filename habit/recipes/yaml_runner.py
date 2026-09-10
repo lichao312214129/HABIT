@@ -288,7 +288,7 @@ def run_from_yaml(
         :class:`~habit.recipes.result.StudyResult` for habitat train/predict,
         :class:`~habit.recipes.modeling.ModelResult` or
         :class:`~habit.recipes.modeling.CVResult` for ML train/K-fold,
-        or :class:`~habit.api.contracts.WorkflowResult` for comparison and
+        or :class:`~habit.recipes.workflow.WorkflowResult` for comparison and
         thin-delegation workflows.
 
     Raises:
@@ -502,7 +502,7 @@ def _run_v1_ml_yaml(
     """Run an ML v1 document through the v1 recipes."""
     mode = str(document.get("mode", "train")).strip().lower()
     if mode == "predict":
-        from habit.api.machine_learning import MLConfig, run_ml
+        from habit.recipes.ml_workflow import MLConfig, run_ml
 
         config = MLConfig.model_validate(_ml_v0_payload_from_v1(document, path))
         return run_ml(config, logger=logger)
@@ -695,7 +695,7 @@ def _load_feature_table_from_v1(
     logger: Optional[logging.Logger],
 ) -> FeatureTable:
     """Assemble a feature table from a v1 ML document's ``data.input`` list."""
-    from habit.api.machine_learning import MLConfig
+    from habit.recipes.ml_workflow import MLConfig
 
     config = MLConfig.model_validate(_ml_v0_payload_from_v1(document, path))
     return _load_feature_table(config, logger=logger)
@@ -789,7 +789,7 @@ def _run_habitat_yaml(
     logger: Optional[logging.Logger],
 ) -> Any:
     """Translate and run a habitat workflow YAML."""
-    from habit.api.habitat import HabitatAnalysisConfig
+    from habit.recipes.habitat_config import HabitatAnalysisConfig
 
     config = HabitatAnalysisConfig.from_file(str(path))
     # When outputs will be persisted, probe out_dir before the long fit/predict
@@ -1039,7 +1039,7 @@ def _run_ml_yaml(
     """Translate and run an ML hold-out or K-fold YAML."""
     config = _load_ml_config(path)
     if str(config.run_mode) == "predict":
-        from habit.api.machine_learning import run_ml
+        from habit.recipes.ml_workflow import run_ml
 
         return run_ml(config, logger=logger)
 
@@ -1075,7 +1075,7 @@ def _run_compare_yaml(
     logger: Optional[logging.Logger],
 ) -> Any:
     """Run model comparison through the L4 recipe."""
-    from habit.api.machine_learning import ModelComparisonConfig
+    from habit.recipes.ml_workflow import ModelComparisonConfig
 
     config = ModelComparisonConfig.from_file(str(path))
     output_dir = str(config.output_dir) if save else None
@@ -1088,7 +1088,7 @@ def _run_preprocess_yaml(
     logger: Optional[logging.Logger],
 ) -> Any:
     """Run image preprocessing through the L4 recipe."""
-    from habit.api.preprocessing import PreprocessingConfig
+    from habit.recipes.preprocess_workflow import PreprocessingConfig
 
     config = PreprocessingConfig.from_file(str(path))
     return preprocess_images(config, logger=logger)
@@ -1100,7 +1100,7 @@ def _run_icc_yaml(
     logger: Optional[logging.Logger],
 ) -> Any:
     """Run ICC reliability analysis through the L4 recipe."""
-    from habit.api.analysis import ICCConfig
+    from habit.recipes.icc_workflow import ICCConfig
 
     config = ICCConfig.from_file(str(path))
     return icc_analysis(config)
@@ -1112,7 +1112,7 @@ def _run_extract_yaml(
     logger: Optional[logging.Logger],
 ) -> Any:
     """Run habitat feature extraction through the L4 recipe."""
-    from habit.api.habitat import load_feature_extraction_config
+    from habit.recipes.habitat_config import load_feature_extraction_config
 
     config, plugin_configs = load_feature_extraction_config(str(path))
     return extract_habitat_features(
@@ -1128,7 +1128,7 @@ def _run_radiomics_yaml(
     logger: Optional[logging.Logger],
 ) -> Any:
     """Run standalone traditional radiomics through the L4 recipe."""
-    from habit.api.habitat import RadiomicsConfig
+    from habit.recipes.habitat_config import RadiomicsConfig
 
     config = RadiomicsConfig.from_file(str(path))
     return traditional_radiomics(config, logger=logger)
@@ -1140,7 +1140,7 @@ def _run_sort_dicom_yaml(
     logger: Optional[logging.Logger],
 ) -> Any:
     """Run standalone DICOM sort through the L4 recipe."""
-    from habit.api.dicom_sort import DicomSortConfig
+    from habit.recipes.dicom_sort_workflow import DicomSortConfig
 
     config = DicomSortConfig.from_file(str(path))
     return sort_dicom(config, logger=logger)
@@ -1164,7 +1164,7 @@ def _ml_spec_from_document(document: Mapping[str, Any]) -> MLSpec:
 
 def _load_ml_config(path: Path) -> Any:
     """Load and validate an ML config through the public API facade."""
-    from habit.api.machine_learning import MLConfig
+    from habit.recipes.ml_workflow import MLConfig
 
     return MLConfig.from_file(str(path))
 

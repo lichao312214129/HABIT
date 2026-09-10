@@ -98,6 +98,7 @@ fig_before = plot_habitat_label_compare(
     map_b.label_array,
     titles=("Fit A (seed=0)", "Fit B (seed=1)"),
     align_labels=False,
+    crop_to="labels",
 )
 fig_before.savefig("out/match_labels_before.png", dpi=150, bbox_inches="tight")
 plt.show()
@@ -108,6 +109,7 @@ fig_after = plot_habitat_label_compare(
     aligned_b,
     titles=("Fit A", "Fit B remapped"),
     align_labels=False,
+    crop_to="labels",
 )
 fig_after.savefig("out/match_labels_after.png", dpi=150, bbox_inches="tight")
 plt.show()

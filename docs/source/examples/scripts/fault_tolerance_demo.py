@@ -23,9 +23,9 @@ from unittest.mock import patch
 import numpy as np
 
 from habit.exceptions import CompatibilityError, GeometryError, ProcessingError
-from habit.api.radiomics import FeatureResult, extract_batch
-from habit.api.image import GeometryPolicy, GeometryReport, ImageMaskPair, ImageVolume, MaskVolume, align_image_mask
-from habit.api.plugins import load_plugins
+from habit.radiomics.extract import FeatureResult, extract_batch
+from habit.image import GeometryPolicy, GeometryReport, ImageMaskPair, ImageVolume, MaskVolume, align_image_mask
+from habit.plugins import load_plugins
 from habit.contracts import Cohort, Subject
 from habit.execution import SerialBackend
 
@@ -105,7 +105,7 @@ def demo_extract_batch_fail_fast() -> None:
             resolved_params={},
         )
 
-    with patch("habit.api.radiomics.extract_features", side_effect=_stub):
+    with patch("habit.radiomics.extract.extract_features", side_effect=_stub):
         try:
             extract_batch([ok, bad], fail_fast=True)
         except GeometryError as exc:

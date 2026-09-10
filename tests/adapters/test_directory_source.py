@@ -23,7 +23,7 @@ import numpy as np
 import pytest
 
 from habit.adapters import DirectoryDataSource
-from habit.api.exceptions import DataFormatError
+from habit.exceptions import DataFormatError
 from habit.contracts import ImageVolume, MaskVolume, cohort_from_directory
 
 sitk = pytest.importorskip("SimpleITK")

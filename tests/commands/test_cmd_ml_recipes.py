@@ -294,7 +294,7 @@ def test_run_model_precomputed_icc_selector_stays_on_v1(
     def _legacy_fail(*args: Any, **kwargs: Any) -> None:
         raise AssertionError("v0.1 engine must not run for icc_results configs")
 
-    monkeypatch.setattr("habit.api.machine_learning.run_ml", _legacy_fail)
+    monkeypatch.setattr("habit.recipes.ml_workflow.run_ml", _legacy_fail)
 
     run_ml(str(config_path), mode=None)
 
@@ -348,7 +348,7 @@ def test_predict_with_v1_habitpipeline_runs_predict_model_recipe(
     def _legacy_fail(*args: Any, **kwargs: Any) -> None:
         raise AssertionError("v0.1 engine must not run for .habitpipeline")
 
-    monkeypatch.setattr("habit.api.machine_learning.run_ml", _legacy_fail)
+    monkeypatch.setattr("habit.recipes.ml_workflow.run_ml", _legacy_fail)
 
     run_ml(str(predict_config), mode=None)
 
@@ -394,7 +394,7 @@ def test_predict_unlabelled_input_skips_evaluation(
         name="predict_u.yaml",
     )
     monkeypatch.setattr(
-        "habit.api.machine_learning.run_ml",
+        "habit.recipes.ml_workflow.run_ml",
         lambda *args, **kwargs: (_ for _ in ()).throw(
             AssertionError("v0.1 engine must not run for .habitpipeline")
         ),
@@ -443,7 +443,7 @@ def test_predict_delegates_to_legacy_api(
     synthetic_table: tuple[FeatureTable, Path],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Predict mode keeps the v0.1 engine via habit.api.machine_learning.run_ml."""
+    """Predict mode keeps the v0.1 engine via habit.recipes.ml_workflow.run_ml."""
     _, csv_path = synthetic_table
     fake_pipeline = tmp_path / "LogisticRegression_final_pipeline.pkl"
     fake_pipeline.write_bytes(b"legacy-pickle")
@@ -464,7 +464,7 @@ def test_predict_delegates_to_legacy_api(
     def _spy(config: Any, **kwargs: Any) -> None:
         calls.append({"config": config, **kwargs})
 
-    monkeypatch.setattr("habit.api.machine_learning.run_ml", _spy)
+    monkeypatch.setattr("habit.recipes.ml_workflow.run_ml", _spy)
 
     run_ml(str(config_path), mode=None)
 

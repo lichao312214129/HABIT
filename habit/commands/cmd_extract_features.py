@@ -26,7 +26,7 @@ from pathlib import Path
 
 import click
 
-from habit.api.habitat import load_feature_extraction_config
+from habit.recipes.habitat_config import load_feature_extraction_config
 from habit.commands.common import (
     echo_success,
     exit_with_error,

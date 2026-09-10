@@ -12,7 +12,7 @@ import sys
 
 import pytest
 
-from habit.api.registry import PUBLIC_API_SYMBOLS, PUBLIC_NAMESPACES
+from habit._public_api import PUBLIC_API_SYMBOLS, PUBLIC_NAMESPACES
 
 
 @pytest.mark.unit
@@ -54,6 +54,30 @@ def test_removed_domain_package_is_not_importable() -> None:
     sys.modules.pop("habit.domain", None)
     with pytest.raises(ModuleNotFoundError):
         importlib.import_module("habit.domain")
+
+
+@pytest.mark.unit
+def test_taught_study_entry_is_exported() -> None:
+    """End-to-end habitat analysis is taught through Study factories."""
+    from habit.recipes import (
+        Study,
+        direct_pooling_habitat,
+        one_step_habitat,
+        two_step_habitat,
+    )
+
+    assert Study is not None
+    assert callable(two_step_habitat)
+    assert callable(one_step_habitat)
+    assert callable(direct_pooling_habitat)
+
+
+@pytest.mark.unit
+def test_removed_api_package_is_not_importable() -> None:
+    """The v1 config facade must not survive as a namespace package."""
+    sys.modules.pop("habit.api", None)
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("habit.api")
 
 
 @pytest.mark.unit

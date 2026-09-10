@@ -52,7 +52,7 @@ import yaml
 
 from habit.adapters.directory import DirectoryDataSource
 from habit.adapters.image_refs import FileImageRef
-from habit.api.habitat import apply_habitat_cli_overrides
+from habit.recipes.habitat_config import apply_habitat_cli_overrides
 from habit.commands.common import echo_error, echo_success, load_config_or_exit
 from habit.contracts.habitat import HabitatModel
 from habit.contracts.subject import Cohort, Subject

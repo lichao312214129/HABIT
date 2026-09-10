@@ -19,8 +19,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, Mapping, Optional, Union
 
-from habit.api.contracts import WorkflowResult, coerce_config
-from habit.api.provenance import create_run_manifest, write_run_manifest
+from habit.recipes.workflow import WorkflowResult, coerce_config
+from habit.recipes.workflow_manifest import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
     from habit.schemas.workflows.dicom_sort import DicomSortConfig

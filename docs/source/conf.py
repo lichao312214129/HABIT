@@ -389,7 +389,7 @@ def _write_plugin_catalog_include() -> None:
     exists; built-ins have none, so rows come from the constructor signature
     (``_signature_param_infos``). Do not change that generator here.
     """
-    from habit.api.plugins import format_plugin_catalog_rst
+    from habit.plugins import format_plugin_catalog_rst
 
     dest = Path(__file__).parent / "api" / "_generated_plugin_catalog.rst"
     dest.write_text(format_plugin_catalog_rst(), encoding="utf-8")

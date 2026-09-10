@@ -148,7 +148,7 @@ packages → L4 recipes → L5 CLI/GUI`。L0–L3 不得依赖 YAML、目录约�
 - Registry `domain`（如 `voxel_feature_extractor`）、entry-point 组
   `habit.voxel_feature_extractor`、`Spec.name`、YAML 字段均保持冻结；**Python 包移动不能改变
   插件发现规则**。
-- `habit.api.plugins._V1_DOMAIN_REGISTRIES` 等硬编码表改为新 canonical 路径；插件输出显示
+- `habit.plugins._V1_DOMAIN_REGISTRIES` 等硬编码表改为新 canonical 路径；插件输出显示
   新 `type.__module__`。
 
 ### 3.2 产物与序列化

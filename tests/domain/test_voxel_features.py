@@ -19,7 +19,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from habit.api.exceptions import GeometryError, HABITAPIError
+from habit.exceptions import GeometryError, HABITAPIError
 from habit.contracts import ArrayImageRef, Geometry, Subject, VoxelFeatureField
 from habit._protocols import VoxelFeatureExtractor
 from habit.voxel_features import RawVoxelFeatures, VoxelFeatureExtractorRegistry

@@ -5,7 +5,7 @@ Cohort assembly, plugins, auxiliary workflows, and config tooling.
 Covers:
 
 * :func:`~habit.contracts.cohort_from_directory` (batch) and single-subject slice
-* :func:`~habit.api.plugins.list_plugins`
+* :func:`~habit.plugins.list_plugins`
 * :func:`~habit.recipes.dice`, :func:`~habit.recipes.dicom_info`,
   :func:`~habit.recipes.merge_tables`
 * :func:`~habit.recipes.icc_analysis`, :func:`~habit.recipes.dice`,
@@ -32,7 +32,7 @@ import SimpleITK as sitk
 
 # BEGIN example
 from habit.contracts import cohort_from_directory
-from habit.api.plugins import list_plugins
+from habit.plugins import list_plugins
 from habit.datasets import make_synthetic_cohort
 from habit.commands.cmd_check_config import run_check_config
 from habit.commands.cmd_migrate_config import run_migrate_config

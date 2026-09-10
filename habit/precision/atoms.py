@@ -26,9 +26,8 @@ from typing import Any, Optional
 
 import numpy as np
 
-from habit.api.image import ImageVolume, MaskVolume
 from habit.contracts.geometry import Geometry
-from habit.contracts.image import ArrayImageRef
+from habit.contracts.image import ArrayImageRef, ImageVolume, MaskVolume
 from habit.contracts.subject import Subject
 from habit.precision.registry import ImagePerturbationRegistry
 from habit.exceptions import HABITAPIError

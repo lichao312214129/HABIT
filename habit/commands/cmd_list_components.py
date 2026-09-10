@@ -26,7 +26,7 @@ def run_list_components(domain: Optional[str], as_json: bool) -> None:
     """
     List the registered components of one or all plugin domains.
 
-    This is the CLI view of :func:`habit.api.plugins.list_plugins`: every
+    This is the CLI view of :func:`habit.plugins.list_plugins`: every
     name a YAML ``name:`` field or an expression node may reference, plus
     the implementation backing it.
 
@@ -35,7 +35,7 @@ def run_list_components(domain: Optional[str], as_json: bool) -> None:
             ``combiner``); ``None`` lists every registry-backed domain.
         as_json: Emit machine-readable JSON instead of a text table.
     """
-    from habit.api.plugins import list_plugins
+    from habit.plugins import list_plugins
 
     infos = list_plugins(domain)
     if as_json:

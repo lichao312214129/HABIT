@@ -108,6 +108,12 @@ from habit.viz.habitat_core import (
 )
 from habit.viz.habitat_overlay import plot_habitat_overlay
 from habit.viz.habitat_napari import view_habitat_napari
+from habit.viz.diagrams import (
+    plot_directory_ingest,
+    plot_feature_preprocessing_chain,
+    plot_numpy_ingest,
+    plot_simpleitk_ingest,
+)
 from habit.viz.intensity import plot_intensity_slice
 from habit.viz.voxel_texture import dense_voxel_feature_map, plot_voxel_texture_slice
 from habit.viz.survival import (
@@ -163,6 +169,11 @@ __all__ = [
     "plot_habitat_clustering_pca_3d_interactive",
     # habitat overlay on source image
     "plot_habitat_overlay",
+    # ingestion / preprocessing teaching diagrams
+    "plot_directory_ingest",
+    "plot_simpleitk_ingest",
+    "plot_numpy_ingest",
+    "plot_feature_preprocessing_chain",
     # habitat core analysis figures (validation / map features / compare)
     "plot_cluster_validation_curves",
     "plot_cluster_validation_from_report",

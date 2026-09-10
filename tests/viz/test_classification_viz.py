@@ -23,7 +23,7 @@ import numpy as np
 import pytest
 from matplotlib.figure import Figure
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.recipes.ml_reporting import (
     visualization_enabled,
     write_classification_figures,

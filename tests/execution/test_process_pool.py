@@ -29,7 +29,7 @@ from typing import FrozenSet, List, Tuple
 
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts import Subject
 from habit.execution import (
     CheckpointStore,

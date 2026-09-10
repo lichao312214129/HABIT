@@ -30,8 +30,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, FrozenSet, List, Mapping, Optional, Sequence, Tuple
 
-from habit.api.contracts import WorkflowResult, coerce_config
-from habit.api.provenance import create_run_manifest, write_run_manifest
+from habit.recipes.workflow import WorkflowResult, coerce_config
+from habit.recipes.workflow_manifest import create_run_manifest, write_run_manifest
 from habit.contracts.ops import ExecutionBackend, SubjectResult
 from habit.contracts.subject import Subject
 from habit.contracts.table import FeatureTable
@@ -744,20 +744,20 @@ def extract_habitat_features(
     Args:
         config: Validated feature-extraction configuration (schema object or
             mapping accepted by
-            :func:`habit.api.habitat.build_feature_extraction_config`).
+            :func:`habit.recipes.habitat_config.build_feature_extraction_config`).
         plugin_configs: Optional plugin settings (e.g. ``graph``).
         logger: Optional run logger.
         backend: Optional execution backend. When omitted, ``n_processes`` from
             the config selects serial vs process-pool.
 
     Returns:
-        :class:`~habit.api.contracts.WorkflowResult` with output directory
+        :class:`~habit.recipes.workflow.WorkflowResult` with output directory
         metadata and a run manifest path.
 
     Raises:
         HABITAPIError: If a requested feature type is registered nowhere.
     """
-    from habit.api.habitat import build_feature_extraction_config
+    from habit.recipes.habitat_config import build_feature_extraction_config
     from habit.schemas.workflows.habitat import FeatureExtractionConfig
 
     log = logger or _LOG

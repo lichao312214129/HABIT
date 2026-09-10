@@ -209,7 +209,7 @@ def run_check_config(
             # Plugin-aware path: the optional top-level ``graph:`` block is
             # stripped before the shared schema check and validated against
             # its own model, so field errors point at the right section.
-            from habit.api.habitat import load_feature_extraction_config
+            from habit.recipes.habitat_config import load_feature_extraction_config
 
             config = load_feature_extraction_config(path)[0]
         else:
@@ -245,7 +245,7 @@ def _report_model_params(config: object) -> None:
         return
 
     # Imported lazily: model modules pull in heavy optional dependencies.
-    from habit.api.plugins import create_ml_model
+    from habit.plugins import create_ml_model
     from habit.utils.estimator_utils import collect_param_reports
 
     click.echo("\n模型参数检查 / Model parameter check:")

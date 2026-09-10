@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for :func:`habit.api.utils.check_component`."""
+"""Tests for :func:`habit.utils.runtime.check_component`."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ import pytest
 @pytest.mark.unit
 def test_check_component_resolves_builtin_names() -> None:
     """Known built-in components resolve; unknown names and domains do not."""
-    from habit.api.utils import check_component
+    from habit.utils.runtime import check_component
 
     assert check_component("kmeans", domain="habitat_model_fitter") is True
     assert check_component("slic", domain="supervoxelizer") is True

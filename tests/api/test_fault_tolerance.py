@@ -28,8 +28,8 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from habit.api.exceptions import GeometryError, ProcessingError
-from habit.api.plugins import load_plugins
+from habit.exceptions import GeometryError, ProcessingError
+from habit.plugins import load_plugins
 from habit.contracts import Cohort, Subject
 from habit.execution import SerialBackend
 from habit.image import (
@@ -80,7 +80,7 @@ def _mismatched_pair(*, subject_id: str = "bad") -> ImageMaskPair:
 
 def _fake_feature_result(subject_id: str) -> FeatureResult:
     """Minimal FeatureResult for batch success stubs."""
-    from habit.api.image import GeometryReport
+    from habit.image import GeometryReport
 
     return FeatureResult(
         values={"original_firstorder_Mean": 1.0},
@@ -116,7 +116,7 @@ def test_extract_batch_fail_fast_false_collects_failures() -> None:
             raise GeometryError("incompatible geometry")
         return _fake_feature_result(str(sid))
 
-    with patch("habit.api.radiomics.extract_features", side_effect=_stub_extract):
+    with patch("habit.radiomics.extract.extract_features", side_effect=_stub_extract):
         batch = extract_batch([ok, bad], fail_fast=False)
 
     assert list(batch.table["subject_id"]) == ["ok"]
@@ -133,7 +133,7 @@ def test_load_plugins_strict_true_raises_first_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """strict=True aborts plugin discovery on the first broken entry point."""
-    from habit.api import plugins
+    from habit import plugins
 
     class BrokenEntryPoint:
         """Minimal entry point whose load() always raises."""

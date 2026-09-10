@@ -21,7 +21,7 @@ import inspect
 import numpy as np
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.evaluation import (
     AccuracyMetric,
     AucMetric,

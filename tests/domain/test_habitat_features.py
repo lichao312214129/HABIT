@@ -19,7 +19,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts import ArrayImageRef, Geometry, Subject
 from habit.habitat_features import (
     EachHabitatRadiomicsFeatures,

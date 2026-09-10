@@ -19,9 +19,8 @@ the foundation of the layering rules: it must never import other ``habit``
 modules, so every layer (kernels -> contracts -> domain -> api -> interfaces)
 can depend on it without creating import cycles.
 
-``habit.api.exceptions`` (public API facade) and
-``habit.core.common.exceptions`` (v0.1 internal module) re-export these
-classes for backward compatibility; new code should import from here.
+The canonical definitions live in this module. New code should import
+from here.
 
 ``NotFittedError`` is constructed lazily via PEP 562 ``__getattr__``: it must
 subclass :class:`sklearn.exceptions.NotFittedError` for sklearn interop, but

@@ -25,7 +25,7 @@ import pandas as pd
 import pytest
 
 import habit.commands.cmd_icc as cmd_icc
-from habit.api.analysis import ICCConfig
+from habit.recipes.icc_workflow import ICCConfig
 from habit.commands.cmd_icc import run_icc
 from habit.recipes.icc import icc_analysis
 
@@ -121,7 +121,7 @@ def test_icc_recipe_delegates_to_api(
     synthetic_sessions: Tuple[Path, Path, Path],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The L4 recipe forwards to habit.api.analysis.run_icc_analysis."""
+    """The L4 recipe forwards to habit.recipes.icc_workflow.run_icc_analysis."""
     test_csv, retest_csv, output_json = synthetic_sessions
     config_path = _write_config(
         output_json.parent.parent,
@@ -135,7 +135,7 @@ def test_icc_recipe_delegates_to_api(
         calls.append({"args": args, "kwargs": kwargs})
         return object()
 
-    monkeypatch.setattr("habit.api.analysis.run_icc_analysis", _spy)
+    monkeypatch.setattr("habit.recipes.icc_workflow.run_icc_analysis", _spy)
 
     icc_analysis(config)
 

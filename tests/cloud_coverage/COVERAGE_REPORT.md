@@ -130,7 +130,7 @@ outside the audited packages, 4 unresolvable by static inspection.**
 
 | Symbol | Notes |
 |---|---|
-| `GeometryPolicy`, `GeometryReport`, `ImageMaskPair`, `read_image`, `read_mask` (`habit.api.image`) | v1 image-IO facade; pipeline runs go through SimpleITK helpers instead |
+| `GeometryPolicy`, `GeometryReport`, `ImageMaskPair`, `read_image`, `read_mask` (`habit.image`) | v1 image-IO facade; pipeline runs go through SimpleITK helpers instead |
 | `CohortFingerprint`, `CohortOperator`, `DataSource`, `ExecutionBackend`, `ImageRef`, `ResultWriter`, `SubjectOperator` (`habit.contracts`) | Protocol/ABC surface for third-party implementations; only the concrete adapters run in tests |
 | `cohort_from_directory` (`habit.contracts`) | v1 convenience constructor; CLI paths build cohorts through `DirectoryDataSource` |
 | `CVResult`, `ModelResult`, `PredictionResult` (`habit.recipes`) | Result dataclasses ARE produced by the runs; flagged untouched because their source range executes entirely at class-definition time -- static-inspection limitation, not a real gap |

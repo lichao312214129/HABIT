@@ -105,7 +105,7 @@ def _registry_for(domain: str) -> Any:
     Returns:
         The registry class.
     """
-    from habit.api.plugins import _registry_for_domain
+    from habit.plugins import _registry_for_domain
 
     return _registry_for_domain(domain)
 

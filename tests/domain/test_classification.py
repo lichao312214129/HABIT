@@ -23,7 +23,7 @@ import importlib.util
 import numpy as np
 import pytest
 
-from habit.api.exceptions import HABITAPIError, OptionalDependencyError
+from habit.exceptions import HABITAPIError, OptionalDependencyError
 from habit.classification import (
     AdaboostClassifier,
     AutogluonTabularClassifier,

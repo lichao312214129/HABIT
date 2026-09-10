@@ -23,7 +23,7 @@ import numpy as np
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
-from habit.api.preprocessing import preprocess_image, preprocess_subject
+from habit.recipes import preprocess_image, preprocess_subject
 from habit.viz import plot_intensity_slice, use_style
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout

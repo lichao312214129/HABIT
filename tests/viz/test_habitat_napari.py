@@ -374,7 +374,7 @@ def test_view_habitat_napari_demo_paths_smoke() -> None:
     if not image_path.is_file() or not habitat_path.is_file():
         pytest.skip("demo_data habitat view paths not present")
 
-    from habit.api.image import read_image, read_mask
+    from habit.image import read_image, read_mask
 
     image_vol = read_image(image_path)
     label_vol = read_mask(habitat_path)

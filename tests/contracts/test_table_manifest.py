@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts import (
     BinaryOutcome,
     FeatureTable,

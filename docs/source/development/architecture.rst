@@ -209,8 +209,7 @@ Five engineering pillars follow from that:
 4. **Train and predict share a contract** — inference reuses fitted state,
    including cohort-level preprocessing on
    :class:`~habit.contracts.habitat.HabitatModel`.
-5. **Commands stay thin** — L5 delegates to ``habit.recipes`` /
-   ``habit.api``.
+5. **Commands stay thin** — L5 delegates to ``habit.recipes``.
 
 Habitat and API glossary
 ------------------------

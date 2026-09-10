@@ -161,7 +161,7 @@ def test_demo_yaml_feature_routes_enable_graph() -> None:
     """Demo extract YAML lists light families including ``graph`` explicitly."""
     from pathlib import Path
 
-    from habit.api.habitat import load_feature_extraction_config
+    from habit.recipes.habitat_config import load_feature_extraction_config
     from habit.recipes.features import _build_domain_extractors
 
     demo = (

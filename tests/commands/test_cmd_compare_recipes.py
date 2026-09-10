@@ -24,7 +24,7 @@ import pandas as pd
 import pytest
 
 import habit.commands.cmd_compare as cmd_compare
-from habit.api.machine_learning import run_model_comparison
+from habit.recipes.ml_workflow import run_model_comparison
 from habit.commands.cmd_compare import run_compare
 from habit.schemas.workflows.ml import ModelComparisonConfig
 from habit.recipes.comparison import compare_models, pairwise_delong_test

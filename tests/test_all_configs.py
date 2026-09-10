@@ -240,7 +240,7 @@ def _schema_loader(spec: PipelineConfigSpec) -> Callable[[str], Any]:
         ),
     }
     if spec.command == "extract":
-        from habit.api.habitat import load_feature_extraction_config
+        from habit.recipes.habitat_config import load_feature_extraction_config
 
         def _load_extract(path: str) -> Any:
             config, _plugins = load_feature_extraction_config(path)

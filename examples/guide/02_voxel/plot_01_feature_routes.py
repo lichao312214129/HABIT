@@ -57,6 +57,23 @@ print(raw_field.feature_frame().head())
 raw_field.feature_frame().head()
 
 # %%
+# The matrix clustering sees: one row per ROI voxel, one column per
+# modality (rows subsampled so the heatmap stays legible).
+frame = raw_field.feature_frame()
+row_step = max(1, len(frame) // 60)
+sample = frame.iloc[::row_step]
+fig_matrix, ax_matrix = plt.subplots(figsize=(4.6, 4.6), constrained_layout=True)
+im = ax_matrix.imshow(sample.to_numpy(dtype=float), aspect="auto", cmap="viridis")
+ax_matrix.set_xticks(range(len(sample.columns)))
+ax_matrix.set_xticklabels([str(column) for column in sample.columns])
+ax_matrix.set_ylabel("ROI voxels (subsampled)")
+ax_matrix.set_title("Voxel feature matrix (raw)")
+fig_matrix.colorbar(im, ax=ax_matrix, shrink=0.8, label="Intensity")
+Path("out").mkdir(exist_ok=True)
+fig_matrix.savefig("out/habitat_feature_routes_matrix.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+# %%
 # Fit the ``raw`` route and overlay habitats.
 raw_result = recipes.Study(spec=raw_spec).fit_predict(cohort)
 print(raw_result.habitat_model.summary())

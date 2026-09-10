@@ -19,7 +19,7 @@ In addition, an elastic ROI edge perturbation (MONAI ``bspline_deform``) is demo
 to inspect contour and anatomy deformations.
 """
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 5
 
 # %%
 # Load one demo subject. ``extract_voxel_texture`` crops to the ROI box
@@ -218,6 +218,7 @@ ari_all = float(adjusted_rand_index(ref_all, mov_all))
 print(f"All texture features under perturbation: mean Dice={mean_dice_all:.3f}, ARI={ari_all:.3f}")
 
 # Label comparison for all texture features: Original scan vs Perturbed scan
+# (zoomed to the habitat bounding box).
 fig_cmp_all = plot_habitat_label_compare(
     image,
     result_all_orig.habitat_maps[0],
@@ -227,6 +228,7 @@ fig_cmp_all = plot_habitat_label_compare(
         f"All features: perturbed image (Dice={mean_dice_all:.3f})",
     ),
     align_labels=False,
+    crop_to="labels",
 )
 fig_cmp_all.savefig("out/precise_features_all_orig_vs_pert.png", dpi=150, bbox_inches="tight")
 plt.show()

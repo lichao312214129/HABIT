@@ -28,6 +28,7 @@ import numpy as np
 
 from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
+from habit.viz._crop import bbox_slices, validate_crop_to
 from habit.viz.colorbar import (
     ColorbarSpec,
     DEFAULT_HABITAT_CBAR_LABEL,
@@ -99,7 +100,7 @@ def _as_volume(array: object, name: str) -> np.ndarray:
     """
     Coerce ``array`` to a 2D or 3D float/int volume (drop singleton leading axes).
 
-    Accepts a NumPy array, :class:`~habit.api.image.ImageVolume` (``.data``),
+    Accepts a NumPy array, :class:`~habit.image.ImageVolume` (``.data``),
     or a habitat / supervoxel map (``.label_array``).
 
     Args:
@@ -552,6 +553,8 @@ def plot_habitat_overlay(
     contour: bool = True,
     colorbar: ColorbarSpec = True,
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
+    crop_to: str = "none",
+    crop_pad: int = 6,
 ) -> "Figure":
     """
     Draw habitat labels as an opaque colour overlay on the source image.
@@ -568,7 +571,7 @@ def plot_habitat_overlay(
     is omitted, HABIT reads it from an ``ImageVolume`` / ``HabitatMap`` if
     you pass those objects rather than bare arrays; otherwise LPS identity
     is assumed — the same default as
-    :class:`~habit.api.image.ImageVolume` — not RAS.
+    :class:`~habit.image.ImageVolume` — not RAS.
 
     Panel aspect ratios follow ``spacing`` (SimpleITK ``(x, y, z)``) so thick
     slices are not squashed into square pixels on coronal / sagittal views.
@@ -579,7 +582,7 @@ def plot_habitat_overlay(
 
     Args:
         image: Source image array (2D or 3D; SimpleITK/NumPy ``(z, y, x)``
-            order) or an :class:`~habit.api.image.ImageVolume`.
+            order) or an :class:`~habit.image.ImageVolume`.
         labels: Habitat label map with the same shape as ``image``, or a
             :class:`~habit.contracts.habitat.HabitatMap`.
         alpha: Habitat colour opacity (default ``1.0`` = opaque inside
@@ -605,6 +608,12 @@ def plot_habitat_overlay(
             kwargs (``shrink``, ``pad``, ``fraction``, ``aspect``,
             ``label``, ...).
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
+        crop_to: ``\"none\"`` (default) draws the full field of view;
+            ``\"labels\"`` zooms every panel to the bounding box of
+            non-background habitat voxels so a small tumour fills the frame.
+            Display-only zoom: values, spacing and orientation are unchanged.
+        crop_pad: Voxels of anatomical context kept around the bounding box
+            when ``crop_to=\"labels\"`` (default ``6``).
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -637,6 +646,20 @@ def plot_habitat_overlay(
 
     plt = _plt()
     label_int = np.asarray(label_vol, dtype=np.int32)
+    crop_mode = validate_crop_to(
+        crop_to, allowed=("none", "labels"), caller="plot_habitat_overlay"
+    )
+    if crop_mode == "labels":
+        # Zoom to the habitat bounding box before slice selection so the
+        # densest slice is picked inside the cropped volume.
+        crop = bbox_slices(
+            label_int,
+            crop_pad,
+            caller="plot_habitat_overlay",
+            mask_name="labels",
+        )
+        image_vol = image_vol[crop]
+        label_int = label_int[crop]
     resolved_direction, resolved_spacing = resolve_display_geometry(
         image, labels, direction=direction, spacing=spacing
     )

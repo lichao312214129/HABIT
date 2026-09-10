@@ -15,7 +15,7 @@
 """L4 image-preprocessing recipes (thin assembly).
 
 Two surfaces, both free of direct ``habit.compat.engines`` imports (architecture
-gate): they delegate to :mod:`habit.api.preprocessing`.
+gate): they delegate to :mod:`habit.recipes.preprocess_workflow`.
 
 * :func:`preprocess_images` — batch directory pipeline (CLI twin).
 * :func:`preprocess_subject` / :func:`preprocess_image` — atomic in-memory
@@ -29,8 +29,8 @@ import multiprocessing
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from habit.adapters.preprocessing_io import PreprocessingIOAdapter, PreprocessingInput
-from habit.api.contracts import WorkflowResult, coerce_config
-from habit.api.provenance import create_run_manifest, write_run_manifest
+from habit.recipes.workflow import WorkflowResult, coerce_config
+from habit.recipes.workflow_manifest import create_run_manifest, write_run_manifest
 from habit.contracts.subject import Subject
 from habit.exceptions import HABITAPIError
 from habit.schemas.workflows.preprocessing import PreprocessingConfig
@@ -57,7 +57,7 @@ def preprocess_images(
         logger: Optional run logger forwarded to the workflow helper.
 
     Returns:
-        :class:`~habit.api.contracts.WorkflowResult` with output directory
+        :class:`~habit.recipes.workflow.WorkflowResult` with output directory
         metadata and a run manifest path.
     """
     validated_config = coerce_config(config, PreprocessingConfig)
@@ -131,7 +131,7 @@ def _run_subject(
                 "Use n4_correction, resample, reorientation, or "
                 "zscore_normalization."
             )
-        from habit.api.preprocessing import preprocess_subject
+        from habit.recipes.preprocess_workflow import preprocess_subject
 
         # Legacy YAML did not implicitly select a mask for preprocessing.
         # Each atomic operator now receives a mask only through an explicit
@@ -179,7 +179,7 @@ def preprocess_subject(
     """
     Apply an ordered image-preprocessing chain to one subject in memory.
 
-    Recipe twin of :func:`habit.api.preprocessing.preprocess_subject`. See
+    Recipe twin of :func:`habit.recipes.preprocess_workflow.preprocess_subject`. See
     that function for full argument documentation.
 
     Args:
@@ -193,7 +193,7 @@ def preprocess_subject(
     Returns:
         A new Subject with processed in-memory volumes.
     """
-    from habit.api.preprocessing import preprocess_subject as _api_preprocess_subject
+    from habit.recipes.preprocess_workflow import preprocess_subject as _api_preprocess_subject
 
     return _api_preprocess_subject(
         subject,
@@ -204,16 +204,16 @@ def preprocess_subject(
 
 
 def preprocess_image(
-    image: "habit.api.image.ImageVolume",
+    image: "habit.image.ImageVolume",
     steps: Mapping[str, Mapping[str, Any]],
     *,
-    mask: Optional["habit.api.image.MaskVolume"] = None,
+    mask: Optional["habit.image.MaskVolume"] = None,
     modality: str = "image",
-) -> "habit.api.image.ImageVolume":
+) -> "habit.image.ImageVolume":
     """
     Apply an ordered image-preprocessing chain to one volume in memory.
 
-    Recipe twin of :func:`habit.api.preprocessing.preprocess_image`.
+    Recipe twin of :func:`habit.recipes.preprocess_workflow.preprocess_image`.
 
     Args:
         image: Intensity volume to process.
@@ -224,7 +224,7 @@ def preprocess_image(
     Returns:
         The processed intensity volume.
     """
-    from habit.api.preprocessing import preprocess_image as _api_preprocess_image
+    from habit.recipes.preprocess_workflow import preprocess_image as _api_preprocess_image
 
     return _api_preprocess_image(
         image, steps, mask=mask, modality=modality

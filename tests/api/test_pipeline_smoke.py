@@ -22,8 +22,8 @@ from typing import Any, Dict
 import pytest
 import SimpleITK as sitk
 
-from habit.api.habitat import FeatureExtractionConfig, run_feature_extraction
-from habit.api.preprocessing import PreprocessingConfig, run_preprocess
+from habit.recipes.habitat_config import FeatureExtractionConfig, run_feature_extraction
+from habit.recipes.preprocess_workflow import PreprocessingConfig, run_preprocess
 
 
 @pytest.mark.integration

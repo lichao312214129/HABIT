@@ -39,12 +39,12 @@ def icc_analysis(config: Any) -> Any:
 
     Args:
         config: Validated ICC configuration (v0.1 schema object or mapping
-            accepted by :class:`~habit.api.analysis.ICCConfig`).
+            accepted by :class:`~habit.recipes.icc_workflow.ICCConfig`).
 
     Returns:
-        :class:`~habit.api.contracts.WorkflowResult` with the ICC JSON path
+        :class:`~habit.recipes.workflow.WorkflowResult` with the ICC JSON path
         in ``artifacts["icc_result"]`` and a run manifest path.
     """
-    from habit.api.analysis import run_icc_analysis
+    from habit.recipes.icc_workflow import run_icc_analysis
 
     return run_icc_analysis(config)

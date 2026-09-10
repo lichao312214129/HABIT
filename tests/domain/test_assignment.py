@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from habit.api.exceptions import CompatibilityError
+from habit.exceptions import CompatibilityError
 from habit.habitat_model.assignment import HabitatAssignerRegistry, NearestCentroidAssigner
 from habit._protocols import HabitatAssigner
 

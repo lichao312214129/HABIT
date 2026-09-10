@@ -23,7 +23,15 @@ YAML, output directories, run modes, CLI, or logging.
 from __future__ import annotations
 
 from habit.contracts.geometry import Geometry
-from habit.contracts.image import ArrayImageRef, ImageRef, ImageVolume, MaskVolume
+from habit.contracts.image import (
+    ArrayImageRef,
+    GeometryPolicy,
+    GeometryReport,
+    ImageMaskPair,
+    ImageRef,
+    ImageVolume,
+    MaskVolume,
+)
 from habit.contracts.subject import (
     Cohort,
     CohortFingerprint,
@@ -73,9 +81,12 @@ from habit.contracts.ops import (
 
 __all__ = [
     "Geometry",
+    "GeometryPolicy",
+    "GeometryReport",
     "ImageRef",
     "ImageVolume",
     "MaskVolume",
+    "ImageMaskPair",
     "ArrayImageRef",
     "Subject",
     "Cohort",

@@ -20,7 +20,7 @@ Two complementary entry points:
   directory pipeline (YAML / ``data_dir`` / ``out_dir``).
 * :func:`preprocess_subject` / :func:`preprocess_image` — **atomic**
   in-memory operators that take a :class:`~habit.contracts.Subject` or a
-  single :class:`~habit.api.image.ImageVolume` and return a new object. No
+  single :class:`~habit.image.ImageVolume` and return a new object. No
   filesystem, YAML, or cohort is required. This is the embedding-ecosystem
   surface: a third-party notebook can call ``preprocess_subject(subject,
   steps)`` on one case without accepting HABIT's directory conventions.
@@ -32,12 +32,12 @@ import logging
 from collections.abc import Mapping as MappingABC
 from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Sequence, Union
 
-from habit.api.contracts import WorkflowResult, coerce_config
-from habit.api.provenance import create_run_manifest, write_run_manifest
+from habit.recipes.workflow import WorkflowResult, coerce_config
+from habit.recipes.workflow_manifest import create_run_manifest, write_run_manifest
 from habit.exceptions import HABITAPIError
 
 if TYPE_CHECKING:
-    from habit.api.image import ImageVolume, MaskVolume
+    from habit.contracts.image import ImageVolume, MaskVolume
     from habit.contracts.subject import Subject
     from habit.schemas.workflows.preprocessing import PreprocessingConfig
 
@@ -206,7 +206,7 @@ def preprocess_image(
     Apply an ordered image-preprocessing chain to one volume in memory.
 
     Thin wrapper around :func:`preprocess_subject` for callers who hold a
-    single :class:`~habit.api.image.ImageVolume` (and optional mask) rather
+    single :class:`~habit.image.ImageVolume` (and optional mask) rather
     than a full Subject. Useful when embedding HABIT next to MONAI / SimpleITK
     code that already works with individual volumes.
 
@@ -364,7 +364,7 @@ def _sitk_to_image_volume(
     subject_id: str,
 ) -> "ImageVolume":
     """Convert a SimpleITK image (or ndarray) back to ImageVolume."""
-    from habit.api.image import ImageVolume
+    from habit.contracts.image import ImageVolume
     import SimpleITK as sitk
     import numpy as np
 
@@ -389,7 +389,7 @@ def _sitk_to_mask_volume(
     subject_id: str,
 ) -> "MaskVolume":
     """Convert a SimpleITK mask (or ndarray) back to MaskVolume."""
-    from habit.api.image import MaskVolume
+    from habit.contracts.image import MaskVolume
     import SimpleITK as sitk
     import numpy as np
 

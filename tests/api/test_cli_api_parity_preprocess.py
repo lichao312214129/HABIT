@@ -24,7 +24,7 @@ from typing import Any, Dict
 import pytest
 import yaml
 
-from habit.api.preprocessing import PreprocessingConfig, run_preprocess
+from habit.recipes.preprocess_workflow import PreprocessingConfig, run_preprocess
 from tests.api.helpers import assert_output_trees_equal
 from habit.utils.subprocess_utils import run_capture_text
 

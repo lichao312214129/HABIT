@@ -28,7 +28,7 @@ rare teaching case where the same transform follows the mask
 (registration; optionally resample/reorient). It does not hide voxels
 outside the mask.
 
-Pure functions: arrays or :class:`~habit.api.image.ImageVolume` in, a
+Pure functions: arrays or :class:`~habit.image.ImageVolume` in, a
 matplotlib ``Figure`` out, no filesystem and no ``show``.
 """
 
@@ -40,6 +40,7 @@ import numpy as np
 
 from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
+from habit.viz._crop import bbox_slices, validate_crop_to
 from habit.viz.colorbar import ColorbarSpec, add_image_colorbar_from_spec, colorbar_is_enabled
 from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
@@ -490,6 +491,8 @@ def plot_intensity_slice(
     before_colorbar_label: str = "Intensity",
     before_cmap: Optional[str] = None,
     symmetric_clim: bool = False,
+    crop_to: str = "none",
+    crop_pad: int = 6,
 ) -> "Figure":
     """
     Display a whole-FOV greyscale anatomy / intensity slice.
@@ -518,7 +521,7 @@ def plot_intensity_slice(
 
     Args:
         image: Processed (or only) intensity volume. Array or
-            :class:`~habit.api.image.ImageVolume`.
+            :class:`~habit.image.ImageVolume`.
         before: Optional original volume, same shape as ``image``.
         roi_mask: Optional ROI (``> 0`` inside). Contour overlay only;
             never used to crop the display.
@@ -550,6 +553,13 @@ def plot_intensity_slice(
             windowed symmetrically about zero. Use this for z-score so the
             colorbar reads as ``[-a, a]`` rather than an asymmetric
             percentile window that hides the signed scale.
+        crop_to: ``\"none\"`` (default) keeps the full field of view, as
+            whole-image preprocessing teaching requires. ``\"roi\"`` zooms
+            every panel to the bounding box of ``roi_mask`` so a small
+            lesion fills the frame. Display-only zoom: values, spacing and
+            orientation are unchanged.
+        crop_pad: Voxels of anatomical context kept around the bounding box
+            when ``crop_to=\"roi\"`` (default ``6``).
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -584,6 +594,24 @@ def plot_intensity_slice(
                 f"same shape; got roi {roi_vol.shape} vs image "
                 f"{image_vol.shape}."
             )
+
+    crop_mode = validate_crop_to(
+        crop_to, allowed=("none", "roi"), caller="plot_intensity_slice"
+    )
+    if crop_mode == "roi":
+        if roi_vol is None:
+            raise HABITAPIError(
+                "plot_intensity_slice: crop_to='roi' requires roi_mask."
+            )
+        # Zoom to the ROI bounding box before slice selection so the densest
+        # slice is picked inside the cropped volume.
+        crop = bbox_slices(
+            roi_vol, crop_pad, caller="plot_intensity_slice", mask_name="roi_mask"
+        )
+        image_vol = image_vol[crop]
+        if before_vol is not None:
+            before_vol = before_vol[crop]
+        roi_vol = roi_vol[crop]
 
     resolved_direction, resolved_spacing = resolve_display_geometry(
         image, before, roi_mask, direction=direction, spacing=spacing

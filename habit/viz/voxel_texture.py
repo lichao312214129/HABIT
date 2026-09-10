@@ -33,6 +33,7 @@ import numpy as np
 
 from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
+from habit.viz._crop import bbox_slices, validate_crop_to
 from habit.viz.colorbar import ColorbarSpec, add_image_colorbar_from_spec
 from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
@@ -862,6 +863,8 @@ def plot_voxel_texture_slice(
     roi_contour: bool = True,
     feature_contour: bool = True,
     colorbar: ColorbarSpec = True,
+    crop_to: str = "none",
+    crop_pad: int = 6,
 ) -> "Figure":
     """
     Display a voxel-level texture / feature map as 2D publication panels.
@@ -922,6 +925,12 @@ def plot_voxel_texture_slice(
             ``False`` to hide it, or a mapping of style kwargs
             (``shrink``, ``pad``, ``fraction``, ``aspect``, ``ticks``,
             ``label``, ...) to override the default.
+        crop_to: ``\"none\"`` (default) draws the full field of view;
+            ``\"roi\"`` zooms every panel to the bounding box of
+            ``roi_mask`` so a small lesion fills the frame. Display-only
+            zoom: values, spacing and orientation are unchanged.
+        crop_pad: Voxels of anatomical context kept around the bounding box
+            when ``crop_to=\"roi\"`` (default ``6``).
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -985,6 +994,27 @@ def plot_voxel_texture_slice(
                 f"the same shape; got roi {roi_vol.shape} vs feature "
                 f"{feature_vol.shape}."
             )
+
+    crop_mode = validate_crop_to(
+        crop_to, allowed=("none", "roi"), caller="plot_voxel_texture_slice"
+    )
+    if crop_mode == "roi":
+        if roi_vol is None:
+            raise HABITAPIError(
+                "plot_voxel_texture_slice: crop_to='roi' requires roi_mask."
+            )
+        # Zoom to the ROI bounding box before slice selection so the densest
+        # slice is picked inside the cropped volume.
+        crop = bbox_slices(
+            roi_vol,
+            crop_pad,
+            caller="plot_voxel_texture_slice",
+            mask_name="roi_mask",
+        )
+        feature_vol = feature_vol[crop]
+        if anatomy_vol is not None:
+            anatomy_vol = anatomy_vol[crop]
+        roi_vol = roi_vol[crop]
 
     direction, spacing = resolve_display_geometry(
         feature_map, anatomy, roi_mask, direction=direction, spacing=spacing

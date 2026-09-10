@@ -39,7 +39,7 @@ class Geometry:
     HABIT accept images produced by other tools (nnU-Net, MONAI, 3D Slicer)
     without a directory convention acting as the implicit contract.
 
-    Axis-order convention follows the existing public ``habit.api.image``
+    Axis-order convention follows the existing public ``habit.image``
     contract: ``shape`` is the NumPy array shape in ``(z, y, x)`` order,
     while ``spacing``, ``origin`` and ``direction`` keep the SimpleITK
     physical-space axis order ``(x, y, z)`` so that round-tripping through

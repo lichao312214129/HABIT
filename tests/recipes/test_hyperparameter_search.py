@@ -31,7 +31,7 @@ from typing import Any, Dict
 
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.datasets.synthetic import make_synthetic_feature_table
 from habit.recipes.modeling import (
     CVResult,

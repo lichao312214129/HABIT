@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo, inspect_preprocessed_root
-from habit.viz import plot_intensity_slice
+from habit.viz import plot_directory_ingest, plot_intensity_slice
 
 # Official pack (first call downloads; later calls reuse the cache).
 # Your own data: DATA = r"D:/my_study/preprocessed"
@@ -30,10 +30,18 @@ cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
 print(list(cohort.subject_ids), list(cohort[0].images.keys()))
 
 # %%
-# Anatomy check: greyscale LAP slice of the first subject, with the ROI
-# contour. Pass the :class:`~habit.api.image.ImageVolume` (not ``.data``).
+# Visual summary of this route: the directory tree becomes plottable
+# Subjects (right panel zooms to the ROI; badge colours: folder / image /
+# mask).
 subject = cohort[0]
 Path("out").mkdir(exist_ok=True)
+fig_ingest = plot_directory_ingest(subject.image("LAP"), subject.mask(ROI))
+fig_ingest.savefig("out/data_in_ingest.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+# %%
+# Anatomy check: greyscale LAP slice of the first subject, with the ROI
+# contour. Pass the :class:`~habit.image.ImageVolume` (not ``.data``).
 fig_anatomy = plot_intensity_slice(
     subject.image("LAP"),
     roi_mask=subject.mask(ROI),

@@ -25,7 +25,7 @@ from pathlib import Path
 
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts.table import FeatureTable
 from habit.datasets.synthetic import make_synthetic_feature_table
 from habit.recipes.modeling import (

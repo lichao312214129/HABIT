@@ -22,7 +22,7 @@ clustering algorithm. The biological habitat phenotypes emerge from cohort-wide
 clustering of these pooled supervoxel units.
 """
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 1
 
 # %%
 # Load two demo subjects to demonstrate cohort-level two-step analysis.
@@ -78,6 +78,8 @@ fig_slic = plot_habitat_overlay(
     image0,
     slic_units0,
     title="SLIC supervoxels (n=24)",
+    axis=0,
+    crop_to="labels",
 )
 fig_slic.savefig("out/supervoxels_slic.png", dpi=150, bbox_inches="tight")
 plt.show()

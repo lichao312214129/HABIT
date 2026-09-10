@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from habit.api.exceptions import ConfigurationError, HABITAPIError
+from habit.exceptions import ConfigurationError, HABITAPIError
 from habit._protocols import Supervoxelizer
 from habit.supervoxel import SlicSupervoxelizer, SupervoxelizerRegistry
 

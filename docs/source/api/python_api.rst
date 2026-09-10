@@ -4,9 +4,16 @@ Python API guide (v2.0)
 =======================
 
 This guide is the **canonical** way to use HABIT from Python in v2.0.
-``import habit`` exposes only ``__version__``. Import L3 components from
-``habit.<capability>`` and workflow helpers from ``habit.recipes`` or
-``habit.api.<area>``.
+``import habit`` exposes only ``__version__``. There are two taught paths:
+
+* **End-to-end habitat analysis** — :class:`~habit.recipes.Study` factories
+  such as :func:`~habit.recipes.two_step_habitat`.
+* **Single steps** — import the operator from ``habit.<capability>``, for
+  example ``from habit.voxel_features import RawVoxelFeatures``.
+
+:class:`~habit.pipeline.SubjectPipeline` and :class:`~habit.spec.HabitatSpec`
+stage lists are advanced assembly. YAML / CLI remain a shell around the same
+objects.
 
 .. note::
 
@@ -58,13 +65,39 @@ recipe). Integrators: atoms first, then this page. Concept:
 Primary entry: ``Study`` (cohort recipe)
 ----------------------------------------
 
-Declare stages, then call :meth:`~habit.recipes.Study.fit_predict`. Nothing is
-written until you ask for it:
+The shortest path is a factory plus :meth:`~habit.recipes.Study.fit_predict`.
+Nothing is written until you ask for it:
+
+.. code-block:: python
+
+   from habit.contracts import cohort_from_directory
+   from habit.recipes import two_step_habitat
+
+   DATA = "demo_data/preprocessed"  # Change DATA / MODALITIES / ROI
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
+   study = two_step_habitat(modalities=list(MODALITIES), n_habitats=3, random_seed=42)
+   result = study.fit_predict(cohort)
+   result.save("out/study")  # optional, explicit
+
+:func:`~habit.recipes.one_step_habitat` and
+:func:`~habit.recipes.direct_pooling_habitat` are the other two designs.
+Single-subject debugging uses ``habit.<capability>`` operators
+(``RawVoxelFeatures(subject)``, and so on) — see
+:doc:`../examples/habitat_atomic_ops`.
+
+Advanced: declare stages yourself
+---------------------------------
+
+When a factory is not enough, build a :class:`~habit.spec.HabitatSpec` and
+pass it to :class:`~habit.recipes.Study`. This is the same object the
+factories produce; it is not a second public API.
 
 .. code-block:: python
 
    from habit.spec import HabitatSpec, Spec, Stage
-   import habit.recipes as recipes
+   from habit.recipes import Study
 
    spec = HabitatSpec(
        name="demo",
@@ -78,11 +111,7 @@ written until you ask for it:
        ),
        random_seed=42,
    )
-   result = recipes.Study(spec=spec).fit_predict(cohort)
-   result.save("out/study")                         # optional, explicit
-
-   # Apply a published definition to a new cohort
-   predicted = recipes.Study.from_model(result.habitat_model, spec).predict(other_cohort)
+   result = Study(spec=spec).fit_predict(cohort)
 
 Recommended stage labels (documentation only, not keywords):
 ``extract_voxel_features``, ``preprocess1`` / ``preprocess2`` / …,
@@ -154,7 +183,7 @@ Environment fingerprint
 
 .. code-block:: python
 
-   from habit.api.utils import show_versions
+   from habit.utils.runtime import show_versions
 
    print(show_versions())  # HABIT, Python, NumPy, …
 

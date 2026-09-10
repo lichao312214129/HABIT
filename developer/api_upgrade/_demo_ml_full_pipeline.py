@@ -263,7 +263,7 @@ if __name__ == "__main__":
 # Image preprocessing (elastix) is NOT part of TablePipeline.
 # It still goes through the workflow API today:
 #
-#   from habit.api.preprocessing import run_preprocess
+#   from habit.recipes.preprocess_workflow import run_preprocess
 #
 #   run_preprocess({
 #       "data_dir": "path/to/raw",
@@ -283,6 +283,6 @@ if __name__ == "__main__":
 #   })
 #
 # The preprocessed images would then feed habitat analysis
-# (habit.api.habitat / habit.recipes) to produce the feature CSV that
+# (habit.recipes.habitat_config / habit.recipes) to produce the feature CSV that
 # ``load_feature_table_from_csv`` consumes above.
 # ---------------------------------------------------------------------------

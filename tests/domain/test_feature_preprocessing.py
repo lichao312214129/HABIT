@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.compat.engines.habitat_analysis.feature_preprocessing.pipeline import (
     apply_preprocessing_pipeline,
 )

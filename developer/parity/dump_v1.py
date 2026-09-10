@@ -69,7 +69,7 @@ def _load_spec_and_cohort(config_path: Path) -> Tuple[Any, Any, Any]:
     Returns:
         Tuple of (config object, ``HabitatSpec``, ``Cohort``).
     """
-    from habit.api.habitat import HabitatAnalysisConfig
+    from habit.recipes.habitat_config import HabitatAnalysisConfig
     from habit.recipes.yaml_runner import _load_habitat_cohort
     from habit.spec.legacy import LegacyConfigAdapter
     from habit.spec.specs import HabitatSpec

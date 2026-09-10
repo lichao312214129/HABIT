@@ -300,7 +300,7 @@ def _build_optional_probes() -> Tuple[OptionalExtraProbe, ...]:
     Construct optional-dependency probes lazily so ``import habit`` happens
     after the runner starts (keeping import timing visible in reports).
     """
-    from habit.api.utils import is_available
+    from habit.utils.runtime import is_available
     from habit.exceptions import OptionalDependencyError
     from habit.viz import plot_habitat_clustering_pca_3d_interactive
 
@@ -620,7 +620,7 @@ def run_smoke_import(runner: CheckRunner) -> str:
     runner.run("import", "habit_version", _import_version)
 
     def _show_versions() -> None:
-        from habit.api.utils import show_versions
+        from habit.utils.runtime import show_versions
 
         versions = show_versions()
         assert isinstance(versions, dict)
@@ -629,7 +629,7 @@ def run_smoke_import(runner: CheckRunner) -> str:
     runner.run("import", "show_versions", _show_versions)
 
     def _list_plugins() -> None:
-        from habit.api.plugins import list_plugins
+        from habit.plugins import list_plugins
 
         plugins = list_plugins()
         assert isinstance(plugins, (list, tuple)), "list_plugins must return a sequence"
@@ -647,7 +647,7 @@ def run_smoke_public_api(runner: CheckRunner) -> None:
     Each symbol is its own timed check so slow lazy imports are visible in
     the report (important when diagnosing optional heavy backends).
     """
-    from habit.api.registry import PUBLIC_NAMESPACES
+    from habit._public_api import PUBLIC_NAMESPACES
 
     for namespace, symbols in PUBLIC_NAMESPACES.items():
         for symbol in symbols:
@@ -701,7 +701,7 @@ def run_smoke_optional_deps(runner: CheckRunner, *, skip_extras: bool) -> None:
         )
         return
 
-    from habit.api.utils import is_available
+    from habit.utils.runtime import is_available
     from habit.exceptions import OptionalDependencyError
 
     for probe in _build_optional_probes():
@@ -800,7 +800,7 @@ def run_full_atomic_api(runner: CheckRunner, demo_root: Path) -> None:
     """
 
     def _atomic() -> None:
-        from habit.api.preprocessing import preprocess_image, preprocess_subject
+        from habit.recipes.preprocess_workflow import preprocess_image, preprocess_subject
 
         cohort = _load_demo_cohort(demo_root)
         subject = cohort[0]
@@ -881,7 +881,7 @@ def run_full_feature_extraction(
     Skips PyRadiomics ``traditional`` features when PyRadiomics is absent; MSI
     and volume features remain sufficient to prove the extraction pipeline.
     """
-    from habit.api.utils import is_available
+    from habit.utils.runtime import is_available
     import habit.recipes as recipes
 
     if habitat_result is None:

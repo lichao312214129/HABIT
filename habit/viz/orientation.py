@@ -44,7 +44,7 @@ display flips (array order as stored).
 Missing ``direction``
 ---------------------
 When callers omit geometry, HABIT assumes **LPS identity** — the same default
-as :meth:`habit.api.image.ImageVolume.from_array`. It does **not** silently
+as :meth:`habit.image.ImageVolume.from_array`. It does **not** silently
 assume RAS (that previously mis-flipped A-P on LPS demo NRRDs).
 
 Napari vs matplotlib (axial index)
@@ -97,7 +97,7 @@ _LPS_ANTERIOR = np.array([0.0, -1.0, 0.0], dtype=np.float64)
 _LPS_SUPERIOR = np.array([0.0, 0.0, 1.0], dtype=np.float64)
 
 #: Default when callers pass arrays without geometry. Matches
-#: :meth:`habit.api.image.ImageVolume.from_array` (LPS identity), **not** RAS.
+#: :meth:`habit.image.ImageVolume.from_array` (LPS identity), **not** RAS.
 DEFAULT_NATIVE_DIRECTION: Tuple[float, ...] = (
     1.0,
     0.0,
@@ -173,7 +173,7 @@ def direction_matrix(
         direction: Flattened row-major direction cosines (``ndim**2`` values),
             in SimpleITK index order ``(x, y, z)``. ``None`` uses
             :data:`DEFAULT_NATIVE_DIRECTION` (LPS identity), matching
-            :class:`~habit.api.image.ImageVolume` defaults — not RAS.
+            :class:`~habit.image.ImageVolume` defaults — not RAS.
         ndim: Array dimensionality (2 or 3). Orientation flips apply only to 3D.
 
     Returns:
@@ -504,7 +504,7 @@ def display_geometry_from_input(
 
     Prefers ``.geometry.direction`` / ``.geometry.spacing`` (contracts
     :class:`~habit.contracts.geometry.Geometry`), then ``.direction`` /
-    ``.spacing`` on :class:`~habit.api.image.ImageVolume`. Arrays have no
+    ``.spacing`` on :class:`~habit.image.ImageVolume`. Arrays have no
     geometry; the caller then falls back to LPS identity.
 
     Args:

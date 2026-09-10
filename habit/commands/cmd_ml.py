@@ -27,7 +27,7 @@ with the hold-out validation design (``split_method`` / ``test_size`` / id
 files) stated at the call site from the v0.1 config. Predict mode applies a
 v1 ``.habitpipeline`` through :func:`habit.recipes.modeling.predict_model`;
 legacy ``*_final_pipeline.pkl`` pickles keep the v0.1 engine via
-:func:`habit.api.machine_learning.run_ml` (they are opaque to the v1 loader,
+:func:`habit.recipes.ml_workflow.run_ml` (they are opaque to the v1 loader,
 mirroring habitat's legacy-pickle predict path).
 """
 
@@ -42,7 +42,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 import click
 import pandas as pd
 
-from habit.api.machine_learning import apply_ml_mode_override
+from habit.recipes.ml_workflow import apply_ml_mode_override
 from habit.commands.common import (
     echo_success,
     exit_with_error,
@@ -271,9 +271,9 @@ def _run_predict(config: MLConfig, logger: logging.Logger) -> None:
         return
     logger.info(
         "Predict mode delegates to the v0.1 engine via "
-        "habit.api.machine_learning.run_ml (legacy pickle artefact)."
+        "habit.recipes.ml_workflow.run_ml (legacy pickle artefact)."
     )
-    from habit.api.machine_learning import run_ml as api_run_ml
+    from habit.recipes.ml_workflow import run_ml as api_run_ml
 
     api_run_ml(config, logger=logger, output_dir=str(config.output))
 

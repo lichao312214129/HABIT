@@ -51,7 +51,7 @@ DCE_FEATURES = {
 #   dce_hemodynamics = "my_pkg.features:register"
 #
 # where ``register()`` performs the decorator registration below, then call
-# ``habit.api.plugins.load_plugins()`` before building the Spec.
+# ``habit.plugins.load_plugins()`` before building the Spec.
 # ---------------------------------------------------------------------------
 @VoxelFeatureExtractorRegistry.register("dce_hemodynamics")
 class DCEHemodynamics:

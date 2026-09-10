@@ -28,10 +28,9 @@ from typing import Any, Dict, Mapping, Optional, Sequence, Union
 
 import numpy as np
 
-from habit.api.image import ImageVolume, MaskVolume
 from habit.contracts.geometry import Geometry
 from habit.contracts.habitat import VoxelFeatureField
-from habit.contracts.image import ArrayImageRef
+from habit.contracts.image import ArrayImageRef, ImageVolume, MaskVolume
 from habit.contracts.subject import Subject
 from habit.voxel_features.voxel_radiomics import (
     DEFAULT_VOXEL_BATCH,

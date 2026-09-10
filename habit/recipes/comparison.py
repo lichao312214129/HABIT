@@ -28,8 +28,8 @@ from typing import Any, Mapping, Optional
 import numpy as np
 import pandas as pd
 
-from habit.api.contracts import WorkflowResult, coerce_config
-from habit.api.provenance import create_run_manifest, write_run_manifest
+from habit.recipes.workflow import WorkflowResult, coerce_config
+from habit.recipes.workflow_manifest import create_run_manifest, write_run_manifest
 from habit.evaluation.comparison import (
     PredictionSource,
     evaluate_comparison,
@@ -58,7 +58,7 @@ def compare_models(
         output_dir: Optional output directory override.
 
     Returns:
-        :class:`~habit.api.contracts.WorkflowResult` with the metrics store in
+        :class:`~habit.recipes.workflow.WorkflowResult` with the metrics store in
         ``data`` and written artefact paths in ``artifacts``.
     """
     validated = coerce_config(config, ModelComparisonConfig)

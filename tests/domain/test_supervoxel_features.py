@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit._protocols import SupervoxelFeatureExtractor
 from habit.supervoxel import (
     GmmSupervoxelizer,

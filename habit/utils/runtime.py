@@ -45,21 +45,21 @@ def check_component(name: str, domain: str) -> bool:
 
     This is a lightweight pre-flight check before building a
     :class:`~habit.spec.specs.HabitatSpec` or calling
-    :func:`~habit.api.plugins.list_plugins`. It resolves the domain through
+    :func:`~habit.plugins.list_plugins`. It resolves the domain through
     the same registry mapping used by the plugin discovery API.
 
     Args:
         name: Registered implementation name (e.g. ``"kmeans"``,
             ``"slic"``).
         domain: Plugin domain key (e.g. ``"habitat_model_fitter"``,
-            ``"supervoxelizer"``). See :func:`~habit.api.plugins.list_plugins`
+            ``"supervoxelizer"``). See :func:`~habit.plugins.list_plugins`
             for the supported domain names.
 
     Returns:
         ``True`` when ``name`` appears in the domain registry;
         ``False`` when the domain is unknown or the name is not registered.
     """
-    from habit.api.plugins import _registry_for_domain
+    from habit.plugins.catalog import _registry_for_domain
 
     from habit.exceptions import HABITAPIError
 

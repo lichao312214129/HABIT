@@ -28,7 +28,7 @@ from sklearn.base import clone, is_classifier
 from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.pipeline import Pipeline as SkPipeline
 
-from habit.api.exceptions import CompatibilityError, HABITAPIError
+from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts import BinaryOutcome, FeatureTable
 from habit.pipeline.assembly import build_table_pipeline
 from habit.classification import LogisticRegressionClassifier, RandomForestClassifier

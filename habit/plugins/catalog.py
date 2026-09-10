@@ -46,7 +46,7 @@ from pydantic import BaseModel
 from habit.exceptions import HABITAPIError
 from habit.utils.deprecation import HabitDeprecationWarning, build_deprecation_message
 
-logger = logging.getLogger("habit.api.plugins")
+logger = logging.getLogger("habit.plugins")
 
 __all__ = [
     "PluginInfo",

@@ -262,7 +262,7 @@ def test_orient_transposes_when_superior_is_column_axis() -> None:
 
 def test_resolve_display_geometry_prefers_mask_on_conflict() -> None:
     """Image LPS identity vs mask +z=Inferior: warn and keep the mask."""
-    from habit.api.image import ImageVolume, MaskVolume
+    from habit.image import ImageVolume, MaskVolume
 
     image = ImageVolume.from_array(
         np.zeros((4, 6, 6), dtype=np.float32),

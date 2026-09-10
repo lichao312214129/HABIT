@@ -42,7 +42,7 @@ class TestPreprocessingAPI:
 
     def test_public_runner_invokes_recipe(self, cwd_repo_root: None) -> None:
         """Validated configurations reach the L4 recipe without YAML reloading."""
-        from habit.api.preprocessing import PreprocessingConfig, run_preprocess
+        from habit.recipes.preprocess_workflow import PreprocessingConfig, run_preprocess
 
         cfg_path = _require_config("config/preprocessing/config_preprocessing_demo.yaml")
         config = PreprocessingConfig.from_file(str(cfg_path))
@@ -116,8 +116,8 @@ class TestFeatureExtractionAPI:
         self,
         cwd_repo_root: None,
     ) -> None:
-        """``habit.api.habitat.run_feature_extraction`` delegates to the L4 recipe."""
-        from habit.api.habitat import FeatureExtractionConfig, run_feature_extraction
+        """``habit.recipes.habitat_config.run_feature_extraction`` delegates to the L4 recipe."""
+        from habit.recipes.habitat_config import FeatureExtractionConfig, run_feature_extraction
 
         cfg_path = _require_config(
             "config/feature_extraction/config_extract_features_demo.yaml"
@@ -153,8 +153,8 @@ class TestRadiomicsAndAnalysisAPI:
         self,
         cwd_repo_root: None,
     ) -> None:
-        """``habit.api.machine_learning.run_model_comparison`` delegates to the v1 recipe."""
-        from habit.api.machine_learning import (
+        """``habit.recipes.ml_workflow.run_model_comparison`` delegates to the v1 recipe."""
+        from habit.recipes.ml_workflow import (
             ModelComparisonConfig,
             run_model_comparison,
         )
@@ -165,7 +165,7 @@ class TestRadiomicsAndAnalysisAPI:
         config = ModelComparisonConfig.from_file(str(cfg_path))
 
         # The delegate is habit.recipes.comparison.compare_models, not the v0.1
-        # ModelComparison engine; habit.api.machine_learning imports it inside
+        # ModelComparison engine; habit.recipes.ml_workflow imports it inside
         # the function body, so patching the recipe module is what intercepts
         # the call.
         with patch("habit.recipes.comparison.compare_models") as mock_run:
@@ -177,16 +177,16 @@ class TestRadiomicsAndAnalysisAPI:
             )
 
     def test_icc_config_from_demo_yaml(self, cwd_repo_root: None) -> None:
-        """ICC schema loads through ``habit.api.analysis``."""
-        from habit.api.analysis import ICCConfig
+        """ICC schema loads through ``habit.recipes.icc_workflow``."""
+        from habit.recipes.icc_workflow import ICCConfig
 
         cfg_path = _require_config("config/auxiliary/config_icc_demo.yaml")
         config = ICCConfig.from_file(str(cfg_path))
         assert config.output.path
 
     def test_public_run_icc_analysis_delegates(self, cwd_repo_root: None) -> None:
-        """``habit.api.analysis.run_icc_analysis`` delegates to its L4 recipe."""
-        from habit.api.analysis import ICCConfig, run_icc_analysis
+        """``habit.recipes.icc_workflow.run_icc_analysis`` delegates to its L4 recipe."""
+        from habit.recipes.icc_workflow import ICCConfig, run_icc_analysis
 
         cfg_path = _require_config("config/auxiliary/config_icc_demo.yaml")
         config = ICCConfig.from_file(str(cfg_path))

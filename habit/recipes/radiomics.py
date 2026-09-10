@@ -14,9 +14,8 @@ from habit.adapters.radiomics_io import (
     discover_radiomics_file_pairs,
     write_radiomics_feature_tables,
 )
-from habit.api.contracts import WorkflowResult, coerce_config
-from habit.api.image import GeometryPolicy
-from habit.api.provenance import create_run_manifest, write_run_manifest
+from habit.recipes.workflow import WorkflowResult, coerce_config
+from habit.recipes.workflow_manifest import create_run_manifest, write_run_manifest
 from habit.exceptions import ProcessingError
 from habit.schemas.workflows.habitat import RadiomicsConfig
 from habit.utils.progress_utils import CustomTqdm
@@ -29,7 +28,8 @@ _LOG = logging.getLogger(__name__)
 
 def _extract_pair(pair: RadiomicsFilePair, params_file: Optional[str], label: int) -> RadiomicsFeatureRow:
     """Extract one configured label through the stable low-level public API."""
-    from habit.api.radiomics import GeometryPolicy, extract_features
+    from habit.contracts.image import GeometryPolicy
+    from habit.radiomics.extract import extract_features
 
     result = extract_features(
         pair.image_path,

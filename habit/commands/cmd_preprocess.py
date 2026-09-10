@@ -27,7 +27,7 @@ from pathlib import Path
 
 import click
 
-from habit.api.preprocessing import PreprocessingConfig
+from habit.recipes.preprocess_workflow import PreprocessingConfig
 from habit.commands.common import (
     echo_fatal,
     echo_success,

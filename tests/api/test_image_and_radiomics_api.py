@@ -23,7 +23,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from habit.api.exceptions import GeometryError
+from habit.exceptions import GeometryError
 from habit.image import (
     GeometryPolicy,
     ImageMaskPair,
@@ -83,7 +83,7 @@ def test_low_level_radiomics_returns_features_and_provenance() -> None:
     image = ImageVolume.from_array(np.ones((2, 2), dtype=np.float32))
     mask = MaskVolume.from_array(np.ones((2, 2), dtype=np.uint8))
     with patch(
-        "habit.api.radiomics._create_pyradiomics_extractor",
+        "habit.radiomics.extract._create_pyradiomics_extractor",
         return_value=FakeExtractor(),
     ):
         result = extract_features(image, mask, params={"setting": {"binWidth": 25}})
@@ -214,7 +214,7 @@ def test_plugin_entry_point_loader_invokes_registration_callable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Third-party plugins can self-register through a standard entry point."""
-    import habit.api.plugins as plugins
+    import habit.plugins.catalog as plugins
 
     called: list[bool] = []
 
@@ -246,7 +246,7 @@ def test_plugin_entry_point_loader_invokes_registration_callable(
 @pytest.mark.unit
 def test_run_manifest_has_deterministic_config_hash_and_persists(tmp_path) -> None:
     """A workflow manifest must preserve resolved configuration and version context."""
-    from habit.api.provenance import create_run_manifest, write_run_manifest
+    from habit.recipes.workflow_manifest import create_run_manifest, write_run_manifest
 
     config = {"out_dir": tmp_path / "results", "random_state": 42}
     first = create_run_manifest("radiomics", config)

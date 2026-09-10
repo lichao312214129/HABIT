@@ -3,8 +3,8 @@
 Discover plugins and document the third-party entry-point pattern.
 
 In-process registration is shown in ``custom_voxel_feature_demo.py``.
-This script focuses on discovery (:func:`habit.api.plugins.list_plugins`) and loading
-(:func:`habit.api.plugins.load_plugins`) so a separate package can expose components via::
+This script focuses on discovery (:func:`habit.plugins.list_plugins`) and loading
+(:func:`habit.plugins.load_plugins`) so a separate package can expose components via::
 
     [project.entry-points."habit.voxel_feature_extractor"]
     my_feature = "my_pkg.features:register"
@@ -20,7 +20,7 @@ Run from the repository root::
 
 from __future__ import annotations
 
-from habit.api.plugins import list_plugins, load_plugins
+from habit.plugins import list_plugins, load_plugins
 from habit.voxel_features import VoxelFeatureExtractorRegistry
 
 

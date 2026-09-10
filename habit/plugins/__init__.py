@@ -14,17 +14,17 @@
 #
 """Stable HABIT plugin discovery and inspection API.
 
-Re-exports :mod:`habit.api.plugins`. For v2 built-in components, prefer
-:func:`~habit.api.plugins.plugin_catalog` or
-:meth:`~habit.registry.ComponentRegistry.constructor_signature`; ``get_param_schema``
-returns a legacy third-party Pydantic schema only when one was registered.
+Implementation lives in :mod:`habit.plugins.catalog`. For v2 built-in
+components, prefer :func:`plugin_catalog` or
+:meth:`~habit.registry.ComponentRegistry.constructor_signature`.
 """
 
-from habit.api.plugins import (
+from habit.plugins.catalog import (
     PluginCatalogEntry,
     PluginInfo,
     PluginLoadReport,
     PluginParamInfo,
+    create_ml_model,
     format_plugin_catalog_rst,
     get_param_schema,
     get_plugin_info,
@@ -38,6 +38,7 @@ __all__ = [
     "PluginParamInfo",
     "PluginCatalogEntry",
     "PluginLoadReport",
+    "create_ml_model",
     "list_plugins",
     "get_plugin_info",
     "get_param_schema",

@@ -332,7 +332,7 @@ def test_coronal_sagittal_superior_stays_upper_half_on_screen() -> None:
 
 def test_plot_habitat_overlay_reads_geometry_from_image_volume() -> None:
     """Passing ImageVolume (not .data) must pick up RAS direction automatically."""
-    from habit.api.image import ImageVolume
+    from habit.image import ImageVolume
 
     ras = (-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0)
     image = np.zeros((8, 10, 10), dtype=np.float32)

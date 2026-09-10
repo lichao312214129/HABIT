@@ -16,7 +16,7 @@
 
 Stage-4 scope: wire the ``sort-dicom`` CLI command through a recipe instead
 of importing ``habit.core.dicom_sort.run`` directly. The recipe delegates
-to the public :func:`habit.api.dicom_sort.run_dicom_sort` workflow helper
+to the public :func:`habit.recipes.dicom_sort_workflow.run_dicom_sort` workflow helper
 (which still executes the v0.1 engine internally), keeping ``habit.recipes``
 free of direct ``habit.core`` imports per the architecture gate.
 """
@@ -40,13 +40,13 @@ def sort_dicom(
     Args:
         config: Validated DICOM sort configuration (v0.1 schema object or
             mapping accepted by
-            :class:`~habit.api.dicom_sort.DicomSortConfig`).
+            :class:`~habit.recipes.dicom_sort_workflow.DicomSortConfig`).
         logger: Optional run logger forwarded to the workflow helper.
 
     Returns:
-        :class:`~habit.api.contracts.WorkflowResult` with output directory
+        :class:`~habit.recipes.workflow.WorkflowResult` with output directory
         metadata and a run manifest path.
     """
-    from habit.api.dicom_sort import run_dicom_sort
+    from habit.recipes.dicom_sort_workflow import run_dicom_sort
 
     return run_dicom_sort(config, logger=logger)

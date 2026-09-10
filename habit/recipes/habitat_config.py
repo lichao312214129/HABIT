@@ -22,8 +22,8 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Tuple, Union, ca
 
 import pandas as pd
 
-from habit.api.contracts import WorkflowResult, coerce_config
-from habit.api.provenance import create_run_manifest, write_run_manifest
+from habit.recipes.workflow import WorkflowResult, coerce_config
+from habit.recipes.workflow_manifest import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
     from habit.schemas.workflows.habitat import (

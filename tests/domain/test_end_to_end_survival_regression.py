@@ -22,7 +22,7 @@ import pytest
 import yaml
 from matplotlib.figure import Figure
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts import (
     ContinuousOutcome,
     FeatureTable,

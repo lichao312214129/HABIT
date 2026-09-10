@@ -21,7 +21,7 @@ import importlib.util
 import numpy as np
 import pytest
 
-from habit.api.exceptions import OptionalDependencyError
+from habit.exceptions import OptionalDependencyError
 from habit.classification import AutogluonTabularClassifier
 from habit.viz.habitat_clustering import plot_habitat_clustering_pca_3d_interactive
 

@@ -23,6 +23,12 @@ layout, a DataFrame, in-memory arrays, or an nnU-Net dataset -- into the L2
 from __future__ import annotations
 
 from habit.adapters.directory import DirectoryDataSource
+from habit.adapters.volume_io import (
+    align_image_mask,
+    read_image,
+    read_mask,
+    validate_geometry,
+)
 from habit.adapters.extract_io import (
     discover_habitat_map_paths,
     load_extract_cohort,
@@ -44,4 +50,8 @@ __all__ = [
     "read_habitat_map",
     "resolve_n_habitats",
     "write_extract_feature_csvs",
+    "align_image_mask",
+    "read_image",
+    "read_mask",
+    "validate_geometry",
 ]

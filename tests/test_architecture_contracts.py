@@ -294,7 +294,6 @@ _FOUNDATION_PREFIXES = (
     "habit.registry",
     "habit.schemas",
     "habit.exceptions",
-    "habit.api.image",  # reused by habit.contracts per architecture mapping
     "habit.utils",
 )
 
@@ -327,6 +326,8 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
+        "habit.image",
+        "habit.api",
         "habit.compat.engines.habitat_analysis",
         "habit.compat.engines.machine_learning",
         "habit.compat.engines.preprocessing",
@@ -356,8 +357,8 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.compat.engines.habitat_analysis",
         "habit.compat.engines.machine_learning",
         "habit.compat.engines.preprocessing",
-        "habit.api.habitat",
-        "habit.api.clinical",
+        "habit.image",
+        "habit.api",
     ),
     "habit.voxel_features": (
         "habit.adapters",
@@ -368,6 +369,8 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
+        "habit.image",
+        "habit.api",
         # The v0.1 engines are an upper layer for the domain: every algorithm
         # the domain used to borrow from them now lives in habit.kernels.
         "habit.compat.engines.habitat_analysis",
@@ -461,6 +464,8 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.compat.engines.habitat_analysis",
         "habit.compat.engines.machine_learning",
         "habit.compat.engines.preprocessing",
+        "habit.image",
+        "habit.api",
     ),
 }
 

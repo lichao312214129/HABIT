@@ -12,19 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Phase-4b CLI switch tests: ``get-habitat`` runs on v1 recipes.
+"""Phase-4b CLI switch tests: ``get-habitat`` runs on the v1 ``Study`` path.
 
 These tests prove that ``habit.commands.cmd_habitat.run_habitat`` wires the
-v0.1 YAML into the v1 stack (LegacyConfigAdapter -> spec -> cohort -> recipe
--> DirectoryResultWriter) instead of the v0.1 engine, for all three
-clustering modes, on a tiny synthetic two-subject dataset. No demo_data, no
-golden baseline: everything here finishes in seconds and stays in the
-default ``pytest -m "not slow"`` selection.
+v0.1 YAML into the v1 stack (LegacyConfigAdapter -> spec -> cohort ->
+``Study.fit_predict`` -> DirectoryResultWriter) instead of the v0.1 engine,
+on a tiny synthetic two-subject dataset. No demo_data, no golden baseline:
+everything here finishes in seconds and stays in the default
+``pytest -m "not slow"`` selection.
 
 Coverage:
-- train (directory layout and manifest layout) dispatches to the recipe,
-  writes the v0.1 artefact layout, and records per-subject results in the
-  v1 checkpoint store at the v0.1 location;
 - the fitted model is saved as ``habitat_model.habitatmodel``, and predict on
   that archive reproduces the training labels;
 - predict on a legacy raw-pickle pipeline is rejected with a v1 migration message;
@@ -36,15 +33,13 @@ from __future__ import annotations
 
 import pickle
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pytest
 import SimpleITK as sitk
 
-import habit.commands.cmd_habitat as cmd_habitat
 from habit.commands.cmd_habitat import run_habitat
-from habit.contracts.subject import Cohort
 
 #: Modality/ROI key used throughout the synthetic dataset.
 _MODALITY = "t1"
@@ -96,37 +91,6 @@ def _write_dataset(root: Path) -> Path:
         _write_nrrd(data_root / "images" / subject_id / _MODALITY / "image.nrrd", image)
         _write_nrrd(data_root / "masks" / subject_id / _MODALITY / "mask.nrrd", mask)
     return data_root
-
-
-def _write_manifest(root: Path, data_root: Path) -> Path:
-    """
-    Write a v0.1 ``file_*.yaml`` manifest equivalent of the directory layout.
-
-    Args:
-        root: Scratch directory the manifest lives in (relative paths
-            resolve against it, v0.1 semantics).
-        data_root: Dataset root written by :func:`_write_dataset`.
-
-    Returns:
-        The manifest path.
-    """
-    lines = ["auto_select_first_file: true", "images:"]
-    for subject_id in _SUBJECT_IDS:
-        rel = (
-            data_root / "images" / subject_id / _MODALITY / "image.nrrd"
-        ).relative_to(root)
-        lines.append(f"  {subject_id}:")
-        lines.append(f"    {_MODALITY}: {rel.as_posix()}")
-    lines.append("masks:")
-    for subject_id in _SUBJECT_IDS:
-        rel = (
-            data_root / "masks" / subject_id / _MODALITY / "mask.nrrd"
-        ).relative_to(root)
-        lines.append(f"  {subject_id}:")
-        lines.append(f"    {_MODALITY}: {rel.as_posix()}")
-    manifest = root / "file_synthetic.yaml"
-    manifest.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return manifest
 
 
 def _config_yaml(
@@ -204,124 +168,6 @@ def _write_config(root: Path, content: str, name: str = "config.yaml") -> Path:
 def _read_labels(path: Path) -> np.ndarray:
     """Read a label map back as a NumPy array."""
     return sitk.GetArrayFromImage(sitk.ReadImage(str(path)))
-
-
-class _RecipeSpy:
-    """
-    Wrapper recording recipe invocations while delegating to the real one.
-
-    Attributes:
-        calls: Positional arguments of every invocation (cohort first).
-    """
-
-    def __init__(self, recipe: Callable[..., Any]) -> None:
-        self._recipe = recipe
-        self.calls: List["tuple[Any, ...]"] = []
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        """Record the call and run the wrapped recipe."""
-        self.calls.append(args)
-        return self._recipe(*args, **kwargs)
-
-
-def _spy_on_recipe(
-    monkeypatch: pytest.MonkeyPatch, mode: str
-) -> _RecipeSpy:
-    """Replace one entry of the CLI's recipe table with a recording spy."""
-    spy = _RecipeSpy(cmd_habitat._RECIPE_BY_MODE[mode])
-    monkeypatch.setitem(cmd_habitat._RECIPE_BY_MODE, mode, spy)
-    return spy
-
-
-@pytest.mark.cli
-def test_train_two_step_dispatches_to_recipe_and_writes_v0_layout(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Two-step train runs the recipe, not the v0.1 engine, and writes v0.1 artefacts."""
-    data_root = _write_dataset(tmp_path)
-    out_dir = tmp_path / "out_two_step"
-    config_path = _write_config(tmp_path, _config_yaml(data_root, out_dir))
-    spy = _spy_on_recipe(monkeypatch, "two_step")
-
-    run_habitat(str(config_path), debug_mode=False, mode=None, pipeline_path=None, exit_on_error=False)
-
-    # The recipe ran exactly once, on a two-subject cohort in sorted order.
-    assert len(spy.calls) == 1
-    cohort = spy.calls[0][0]
-    assert isinstance(cohort, Cohort)
-    assert cohort.subject_ids == _SUBJECT_IDS
-
-    # v0.1 artefact layout: maps, supervoxel maps, table, manifests, model.
-    for subject_id in _SUBJECT_IDS:
-        assert (out_dir / f"{subject_id}_habitats.nrrd").is_file()
-        assert (out_dir / f"{subject_id}_supervoxel.nrrd").is_file()
-        labels = _read_labels(out_dir / f"{subject_id}_habitats.nrrd")
-        assert set(np.unique(labels)) == {0, 1, 2}
-    assert (out_dir / "habitats.parquet").is_file()
-    assert (out_dir / "habitat_model.habitatmodel").is_file()
-    assert (out_dir / "run_manifest.json").is_file()
-
-    # Stage-5 checkpoint strategy: the v1 store sits at the v0.1 location
-    # with one entry per subject per cached stage (units + labels), in the
-    # v1 digest format -- never the v0.1 manifest/subjects layout.
-    checkpoint_dir = out_dir / ".habitat_checkpoint"
-    assert checkpoint_dir.is_dir()
-    assert len(list(checkpoint_dir.glob("*.pkl"))) == 2 * len(_SUBJECT_IDS)
-    assert not (checkpoint_dir / "manifest.json").exists()
-    assert not (checkpoint_dir / "subjects").exists()
-
-    # save_images: true also enables the v1 population clustering scatter.
-    assert (
-        out_dir / "visualizations" / "habitat_clustering" / "habitat_clustering_2D.png"
-    ).is_file()
-
-
-@pytest.mark.cli
-def test_train_two_step_via_manifest_builds_cohort_in_manifest_order(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Manifest input is parsed at L5 and yields the same cohort shape."""
-    data_root = _write_dataset(tmp_path)
-    manifest = _write_manifest(tmp_path, data_root)
-    out_dir = tmp_path / "out_manifest"
-    config_path = _write_config(tmp_path, _config_yaml(manifest, out_dir))
-    spy = _spy_on_recipe(monkeypatch, "two_step")
-
-    run_habitat(str(config_path), debug_mode=False, mode=None, pipeline_path=None, exit_on_error=False)
-
-    assert len(spy.calls) == 1
-    cohort = spy.calls[0][0]
-    assert cohort.subject_ids == _SUBJECT_IDS
-    subject = cohort[0]
-    assert sorted(subject.images) == [_MODALITY]
-    assert sorted(subject.masks) == [_MODALITY]
-    assert (out_dir / "habitats.parquet").is_file()
-
-
-@pytest.mark.cli
-@pytest.mark.parametrize("mode", ["one_step", "direct_pooling"])
-def test_train_other_modes_dispatch_to_their_recipe(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str
-) -> None:
-    """one_step and direct_pooling also run through their v1 recipes."""
-    data_root = _write_dataset(tmp_path)
-    out_dir = tmp_path / f"out_{mode}"
-    config_path = _write_config(
-        tmp_path, _config_yaml(data_root, out_dir, clustering_mode=mode)
-    )
-    spy = _spy_on_recipe(monkeypatch, mode)
-
-    run_habitat(str(config_path), debug_mode=False, mode=None, pipeline_path=None, exit_on_error=False)
-
-    assert len(spy.calls) == 1
-    for subject_id in _SUBJECT_IDS:
-        assert (out_dir / f"{subject_id}_habitats.nrrd").is_file()
-    assert (out_dir / "habitats.parquet").is_file()
-    # one_step fits per-subject models: no cohort model artefact (decision 5).
-    if mode == "one_step":
-        assert not (out_dir / "habitat_model.habitatmodel").exists()
-    else:
-        assert (out_dir / "habitat_model.habitatmodel").is_file()
 
 
 @pytest.mark.cli

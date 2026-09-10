@@ -34,6 +34,7 @@ import numpy as np
 
 from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
+from habit.viz._crop import bbox_slices, validate_crop_to
 from habit.viz.habitat_overlay import (
     _as_volume,
     _direction_matrix,
@@ -836,6 +837,8 @@ def plot_habitat_label_compare(
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
     align_labels: Optional[bool] = None,
     align_method: str = "overlap",
+    crop_to: str = "none",
+    crop_pad: int = 6,
 ) -> "Figure":
     """
     Side-by-side habitat overlays, optional disagreement mask.
@@ -875,6 +878,13 @@ def plot_habitat_label_compare(
             model_id (spec + subject-id digest) and need ``True``.
         align_method: ``"overlap"`` (default, same-grid visual compare) or
             ``"centroid"`` (feature / intensity centroids).
+        crop_to: ``"none"`` (default) draws the full field of view;
+            ``"labels"`` zooms every panel to the bounding box of the union
+            of non-background voxels in both maps so a small tumour fills
+            the frame. Display-only zoom: values, spacing and orientation
+            are unchanged.
+        crop_pad: Voxels of anatomical context kept around the bounding box
+            when ``crop_to="labels"`` (default ``6``).
 
     Returns:
         A matplotlib ``Figure``.
@@ -910,6 +920,23 @@ def plot_habitat_label_compare(
             "plot_habitat_label_compare: image/labels shapes must match; "
             f"got {image_vol.shape}, {a.shape}, {b.shape}."
         )
+
+    crop_mode = validate_crop_to(
+        crop_to, allowed=("none", "labels"), caller="plot_habitat_label_compare"
+    )
+    if crop_mode == "labels":
+        # Zoom to the union of both label maps AFTER alignment so the same
+        # crop box applies to every panel.
+        union_mask = ((a > 0) | (b > 0)).astype(np.int8)
+        crop = bbox_slices(
+            union_mask,
+            crop_pad,
+            caller="plot_habitat_label_compare",
+            mask_name="labels",
+        )
+        image_vol = image_vol[crop]
+        a = a[crop]
+        b = b[crop]
 
     axis_id = 0 if image_vol.ndim == 2 else int(axis)
     union = np.where((a > 0) | (b > 0), 1, 0).astype(np.int32)

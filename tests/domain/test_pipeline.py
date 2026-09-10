@@ -19,7 +19,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from habit.api.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError
 from habit.contracts import Cohort, HabitatMap
 from habit.feature_preprocessing import CohortPreprocessingChain, SubjectPreprocessingChain, build_methods
 from habit.habitat_features import HabitatVolumeFeatures, IthHabitatFeatures, MsiHabitatFeatures

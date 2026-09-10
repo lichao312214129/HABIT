@@ -28,7 +28,7 @@ from habit.commands.common import (
     log_platform_info,
     safe_echo,
 )
-from habit.api.dicom_sort import DicomSortConfig
+from habit.recipes.dicom_sort_workflow import DicomSortConfig
 from habit.recipes.sort_dicom import sort_dicom
 from habit.utils.log_utils import setup_logger, stop_queue_listener
 

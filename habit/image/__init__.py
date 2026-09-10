@@ -12,25 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Stable image and mask data contracts.
+"""Convenience re-exports for image volumes and file I/O.
 
-This namespace is a public alias for the image contracts implemented by
-``habit.api.image``.  Import from here when integrating HABIT into a
-third-party imaging pipeline.
+Canonical types live in :mod:`habit.contracts.image`. File I/O and resampling
+live in :mod:`habit.adapters.volume_io`. Import this package from notebooks
+or CLI helpers that need both in one place; L0-L3 code must import types from
+``habit.contracts`` and must not import this package (it pulls adapters).
 """
 
-from habit.api.image import (
-    GeometryPolicy,
-    GeometryReport,
+from habit.adapters.volume_io import (
     ImageInput,
-    ImageMaskPair,
-    ImageVolume,
     MaskInput,
-    MaskVolume,
     align_image_mask,
     read_image,
     read_mask,
     validate_geometry,
+)
+from habit.contracts.image import (
+    GeometryPolicy,
+    GeometryReport,
+    ImageMaskPair,
+    ImageVolume,
+    MaskVolume,
 )
 
 __all__ = [

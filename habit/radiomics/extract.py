@@ -31,16 +31,18 @@ import numpy as np
 import pandas as pd
 
 from habit.exceptions import HABITAPIError, OptionalDependencyError, ProcessingError
-from habit.api.image import (
+from habit.adapters.volume_io import (
+    ImageInput,
+    MaskInput,
+    align_image_mask,
+    coerce_image,
+    coerce_mask,
+)
+from habit.contracts.image import (
     GeometryPolicy,
     GeometryReport,
-    ImageInput,
     ImageMaskPair,
-    MaskInput,
     MaskVolume,
-    _coerce_image,
-    _coerce_mask,
-    align_image_mask,
 )
 
 __all__ = [
@@ -190,8 +192,8 @@ def extract_features(
             "supports only 'pyradiomics'."
         )
 
-    image_volume = _coerce_image(image)
-    mask_volume = _coerce_mask(mask)
+    image_volume = coerce_image(image)
+    mask_volume = coerce_mask(mask)
     if label not in mask_volume.labels:
         raise HABITAPIError(
             f"Mask does not contain requested label {label}; available labels: "

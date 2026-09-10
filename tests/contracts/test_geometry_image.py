@@ -133,8 +133,8 @@ def test_array_image_ref_roundtrip_and_pickle() -> None:
 @pytest.mark.unit
 def test_contracts_volume_is_public_volume_subclass() -> None:
     """Contracts volumes reuse the stable public classes (single family)."""
-    from habit.api.image import ImageVolume as PublicImageVolume
-    from habit.api.image import MaskVolume as PublicMaskVolume
+    from habit.image import ImageVolume as PublicImageVolume
+    from habit.image import MaskVolume as PublicMaskVolume
 
     assert issubclass(ImageVolume, PublicImageVolume)
     assert issubclass(MaskVolume, PublicMaskVolume)

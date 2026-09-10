@@ -108,7 +108,7 @@ def materialised_volumes_demo() -> None:
     Show the eager counterpart of ``ArrayImageRef``.
 
     ``ImageVolume`` / ``MaskVolume`` subclass the stable public classes of
-    ``habit.api.image``, whose constructor takes ``spacing`` / ``origin`` /
+    ``habit.image``, whose constructor takes ``spacing`` / ``origin`` /
     ``direction`` separately rather than one ``Geometry`` object. Use
     ``from_geometry`` when a ``Geometry`` value is already at hand.
     """

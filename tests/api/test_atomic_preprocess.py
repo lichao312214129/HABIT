@@ -19,7 +19,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from habit.api.preprocessing import preprocess_image, preprocess_subject
+from habit.recipes.preprocess_workflow import preprocess_image, preprocess_subject
 from habit.datasets import make_synthetic_cohort
 from habit.exceptions import HABITAPIError
 
