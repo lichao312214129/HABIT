@@ -50,5 +50,5 @@ are Python-first in the Guide.
      - :doc:`../configuration/auxiliary`
 
 Help: ``habit --help``, ``habit <cmd> --help``.
-Demo templates: ``habit copy-demo-config`` (or ``from habit.api.demo_config import copy_demo_config``).
+Demo templates: ``habit copy-demo-config`` (or ``from habit.utils.demo_config_utils import copy_demo_config``).
 Imaging pack: ``habit fetch-demo`` (or ``from habit.datasets import fetch_demo``).

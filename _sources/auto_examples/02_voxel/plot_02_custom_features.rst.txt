@@ -24,75 +24,7 @@ Custom features
 Three liver DCE maps: arterial relative enhancement, arterial-to-portal
 wash-out, and arterial-to-delayed wash-out.
 
-.. GENERATED FROM PYTHON SOURCE LINES 8-148
-
-
-
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_02_custom_features_001.png
-   :alt: habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_02_custom_features_001.png
-   :class: sphx-glr-single-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    HABIT demo data (cached)
-    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
-
-    On-disk inventory of this folder:
-      subjects (5): subj001, subj002, subj003, subj004, subj005
-      image series: LAP, PVP, delay_3min, pre_contrast
-      mask keys:    LAP, PVP, delay_3min, pre_contrast
-      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
-      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
-
-    Your own data must use the same folder tree (change IDs / series names):
-
-      DATA/
-        images/<subject_id>/<modality>/<one image file>
-        masks/<subject_id>/<roi>/<one mask file>
-
-    Then load it with the same call the demos use:
-
-      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
-
-    Swap DATA / modalities / roi to match your tree. Mask key is often the
-    same as one image series (here LAP).
-    before zscore (mean / std):
-          relative_enhancement_lap  relative_washout_pvp  relative_washout_delay
-    mean                    1.3312                0.0758                  0.2508
-    std                     0.3877                0.4732                  0.5241
-       relative_enhancement_lap  relative_washout_pvp  relative_washout_delay
-    0                  1.388759             -0.016863                0.042159
-    1                  1.324201             -0.086207                0.041379
-    2                  1.453303             -0.017241                0.144201
-    3                  1.353070              0.001621                0.087520
-    4                  1.188559             -0.176471                0.010695
-    after zscore (mean / std):
-          relative_enhancement_lap  relative_washout_pvp  relative_washout_delay
-    mean                       0.0                   0.0                     0.0
-    std                        1.0                   1.0                     1.0
-       relative_enhancement_lap  relative_washout_pvp  relative_washout_delay
-    0                  0.148434             -0.195890               -0.398068
-    1                 -0.018086             -0.342421               -0.399554
-    2                  0.314919             -0.196689               -0.203376
-    3                  0.056379             -0.156831               -0.311520
-    4                 -0.367959             -0.533159               -0.458098
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:05<00:05,  5.47s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:07<00:00,  3.61s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:07<00:00,  3.61s/it]
-    subj001: n_habitats=4
-    subj002: n_habitats=4
-    overlay labels [1, 2, 3, 4]
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-
-
-
-
-
-
-|
+.. GENERATED FROM PYTHON SOURCE LINES 8-100
 
 .. code-block:: Python
 
@@ -188,7 +120,68 @@ wash-out, and arterial-to-delayed wash-out.
     cohort = cohort_from_directory(DATA, modalities=PHASES, roi=ROI)[:2]
     subject = cohort[0]
 
-    before = DCEHemodynamics(phases=PHASES, roi=ROI)(subject).feature_frame()
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HABIT demo data (cached)
+    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
+
+    On-disk inventory of this folder:
+      subjects (5): subj001, subj002, subj003, subj004, subj005
+      image series: LAP, PVP, delay_3min, pre_contrast
+      mask keys:    LAP, PVP, delay_3min, pre_contrast
+      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
+      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
+
+    Your own data must use the same folder tree (change IDs / series names):
+
+      DATA/
+        images/<subject_id>/<modality>/<one image file>
+        masks/<subject_id>/<roi>/<one mask file>
+
+    Then load it with the same call the demos use:
+
+      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
+
+    Swap DATA / modalities / roi to match your tree. Mask key is often the
+    same as one image series (here LAP).
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 101-104
+
+The arterial-enhancement map clustering sees, zoomed to the ROI. The
+extractor returns a :class:`~habit.contracts.VoxelFeatureField`, which
+:func:`~habit.viz.plot_voxel_texture_slice` draws directly.
+
+.. GENERATED FROM PYTHON SOURCE LINES 104-169
+
+.. code-block:: Python
+
+    from habit.viz import plot_voxel_texture_slice
+
+    dce_field = DCEHemodynamics(phases=PHASES, roi=ROI)(subject)
+    fig_map = plot_voxel_texture_slice(
+        dce_field,
+        feature="relative_enhancement_lap",
+        anatomy=subject.image("LAP"),
+        roi_mask=subject.mask(ROI),
+        cmap="inferno",
+        axis=0,
+        crop_to="roi",
+        feature_label="Relative enhancement",
+    )
+    Path("out").mkdir(exist_ok=True)
+    fig_map.savefig("out/custom_voxel_dce_map.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+    before = dce_field.feature_frame()
     print("before zscore (mean / std):")
     print(before.agg(["mean", "std"]).round(4))
     print(before.head())
@@ -238,9 +231,65 @@ wash-out, and arterial-to-delayed wash-out.
     plt.show()
 
 
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_02_custom_features_001.png
+         :alt: Relative enhancement (axis-0, index=21)
+         :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_02_custom_features_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_02_custom_features_002.png
+         :alt: habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+         :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_02_custom_features_002.png
+         :class: sphx-glr-multi-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      direction, spacing = resolve_display_geometry(
+    before zscore (mean / std):
+          relative_enhancement_lap  relative_washout_pvp  relative_washout_delay
+    mean                    1.3312                0.0758                  0.2508
+    std                     0.3877                0.4732                  0.5241
+       relative_enhancement_lap  relative_washout_pvp  relative_washout_delay
+    0                  1.388759             -0.016863                0.042159
+    1                  1.324201             -0.086207                0.041379
+    2                  1.453303             -0.017241                0.144201
+    3                  1.353070              0.001621                0.087520
+    4                  1.188559             -0.176471                0.010695
+    after zscore (mean / std):
+          relative_enhancement_lap  relative_washout_pvp  relative_washout_delay
+    mean                       0.0                   0.0                     0.0
+    std                        1.0                   1.0                     1.0
+       relative_enhancement_lap  relative_washout_pvp  relative_washout_delay
+    0                  0.148434             -0.195890               -0.398068
+    1                 -0.018086             -0.342421               -0.399554
+    2                  0.314919             -0.196689               -0.203376
+    3                  0.056379             -0.156831               -0.311520
+    4                 -0.367959             -0.533159               -0.458098
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01<00:01,  1.98s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.95s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.95s/it]
+    subj001: n_habitats=4
+    subj002: n_habitats=4
+    overlay labels [1, 2, 3, 4]
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 10.169 seconds)
+   **Total running time of the script:** (0 minutes 7.906 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_02_custom_features.py:

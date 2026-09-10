@@ -448,7 +448,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
@@ -641,6 +641,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -983,11 +984,8 @@ window.runMermaid = runMermaid;</script>
 <li><a href="habit/adapters/extract_io.html">habit.adapters.extract_io</a></li>
 <li><a href="habit/adapters/image_refs.html">habit.adapters.image_refs</a></li>
 <li><a href="habit/adapters/preprocessing_io.html">habit.adapters.preprocessing_io</a></li>
+<li><a href="habit/adapters/volume_io.html">habit.adapters.volume_io</a></li>
 <li><a href="habit/adapters/writers.html">habit.adapters.writers</a></li>
-<li><a href="habit/api/image.html">habit.api.image</a></li>
-<li><a href="habit/api/plugins.html">habit.api.plugins</a></li>
-<li><a href="habit/api/radiomics.html">habit.api.radiomics</a></li>
-<li><a href="habit/api/utils.html">habit.api.utils</a></li>
 <li><a href="habit/classification/registry.html">habit.classification.registry</a></li>
 <li><a href="habit/combiners/_base.html">habit.combiners._base</a></li>
 <li><a href="habit/combiners/arithmetic.html">habit.combiners.arithmetic</a></li>
@@ -1053,13 +1051,15 @@ window.runMermaid = runMermaid;</script>
 <ul><li><a href="habit/pipeline/pooling.html">habit.pipeline.pooling</a></li>
 <li><a href="habit/pipeline/pooling_marker/pool.html">habit.pipeline.pooling_marker.pool</a></li>
 <li><a href="habit/pipeline/pooling_marker/registry.html">habit.pipeline.pooling_marker.registry</a></li>
-</ul><li><a href="habit/precision/analysis.html">habit.precision.analysis</a></li>
+</ul><li><a href="habit/plugins/catalog.html">habit.plugins.catalog</a></li>
+<li><a href="habit/precision/analysis.html">habit.precision.analysis</a></li>
 <li><a href="habit/precision/atoms.html">habit.precision.atoms</a></li>
 <li><a href="habit/precision/chain.html">habit.precision.chain</a></li>
 <li><a href="habit/precision/perturbations.html">habit.precision.perturbations</a></li>
 <li><a href="habit/precision/precise_set.html">habit.precision.precise_set</a></li>
 <li><a href="habit/precision/registry.html">habit.precision.registry</a></li>
 <li><a href="habit/precision/stability.html">habit.precision.stability</a></li>
+<li><a href="habit/radiomics/extract.html">habit.radiomics.extract</a></li>
 <li><a href="habit/recipes/auxiliary.html">habit.recipes.auxiliary</a></li>
 <li><a href="habit/recipes/comparison.html">habit.recipes.comparison</a></li>
 <li><a href="habit/recipes/features.html">habit.recipes.features</a></li>
@@ -1091,7 +1091,9 @@ window.runMermaid = runMermaid;</script>
 <li><a href="habit/supervoxel/statistics.html">habit.supervoxel.statistics</a></li>
 <li><a href="habit/table_preprocessing/registry.html">habit.table_preprocessing.registry</a></li>
 <li><a href="habit/utils/log_utils.html">habit.utils.log_utils</a></li>
+<li><a href="habit/utils/runtime.html">habit.utils.runtime</a></li>
 <li><a href="habit/viz/classification.html">habit.viz.classification</a></li>
+<li><a href="habit/viz/diagrams.html">habit.viz.diagrams</a></li>
 <li><a href="habit/viz/habitat_clustering.html">habit.viz.habitat_clustering</a></li>
 <li><a href="habit/viz/habitat_core.html">habit.viz.habitat_core</a></li>
 <li><a href="habit/viz/habitat_features.html">habit.viz.habitat_features</a></li>

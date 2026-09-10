@@ -17,7 +17,7 @@ import SimpleITK as sitk
 from habit.contracts import Cohort, ImageVolume, MaskVolume, Subject
 from habit.datasets import fetch_demo
 from habit.recipes import one_step_habitat
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_habitat_overlay, plot_simpleitk_ingest
 
 DATA = fetch_demo()
 MODALITIES = ("LAP",)
@@ -49,6 +49,13 @@ sitk_result = one_step_habitat(
     modalities=MODALITIES, n_habitats=3, random_seed=0, roi="LAP"
 ).fit_predict(sitk_cohort)
 Path("out").mkdir(exist_ok=True)
+
+# Visual summary of this route: SimpleITK image objects in, habitats out
+# (right panel zooms to the habitat bounding box).
+fig_ingest = plot_simpleitk_ingest(volume, sitk_result.habitat_maps[0])
+fig_ingest.savefig("out/data_from_sitk_ingest.png", dpi=150, bbox_inches="tight")
+plt.show()
+
 fig_sitk = plot_habitat_overlay(
     volume,
     sitk_result.habitat_maps[0],

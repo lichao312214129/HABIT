@@ -18,8 +18,8 @@
 .. _sphx_glr_auto_examples_02_voxel_plot_04_feature_preprocessing.py:
 
 
-Feature chains
-==============
+Feature preprocessing
+=====================
 
 Clustering operates on **preprocessed feature matrices**, not raw
 intensities. :class:`~habit.spec.HabitatSpec` exposes three ordered chains:
@@ -139,6 +139,13 @@ z-score. Cohort: uniform binning (fitted on pooled training units).
 
 
 
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\examples\guide\02_voxel\plot_04_feature_preprocessing.py:52: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+      spec = HabitatSpec(
 
 
 
@@ -540,8 +547,8 @@ replays that fitted chain at assign (one subject shown here).
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.26s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.18s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.63it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.09s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.01it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.22it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.22it/s]
     HabitatModel kmeans-ffce5e56f4bce59d
       habitats           : 3
       features (2)    : LAP, PVP
@@ -626,11 +633,51 @@ replays that fitted chain at assign (one subject shown here).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-135
+.. GENERATED FROM PYTHON SOURCE LINES 134-137
+
+The chain at a glance: voxel-level winsorize + minmax, supervoxel-level
+z-score, cohort-level binning -- then habitats. The right panel zooms to
+the resulting habitat map.
+
+.. GENERATED FROM PYTHON SOURCE LINES 137-148
+
+.. code-block:: Python
+
+    from habit.viz import plot_feature_preprocessing_chain
+
+    Path("out").mkdir(exist_ok=True)
+    fig_chain = plot_feature_preprocessing_chain(
+        ("raw", "winsorize", "minmax", "zscore", "binning"),
+        image=subject.image(MODALITIES[0]),
+        labels=result.habitat_maps[0],
+    )
+    fig_chain.savefig("out/habitat_preprocessing_chain.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_04_feature_preprocessing_001.png
+   :alt: Feature preprocessing, Habitats after the chain
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_04_feature_preprocessing_001.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\diagrams.py:243: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 149-150
 
 Overlay the first subject's habitats after all three chains.
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-143
+.. GENERATED FROM PYTHON SOURCE LINES 150-158
 
 .. code-block:: Python
 
@@ -645,9 +692,9 @@ Overlay the first subject's habitats after all three chains.
 
 
 
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_04_feature_preprocessing_001.png
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_04_feature_preprocessing_002.png
    :alt: habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_04_feature_preprocessing_001.png
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_04_feature_preprocessing_002.png
    :class: sphx-glr-single-img
 
 
@@ -655,7 +702,7 @@ Overlay the first subject's habitats after all three chains.
 
  .. code-block:: none
 
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
@@ -664,7 +711,7 @@ Overlay the first subject's habitats after all three chains.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 8.585 seconds)
+   **Total running time of the script:** (0 minutes 13.342 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_04_feature_preprocessing.py:

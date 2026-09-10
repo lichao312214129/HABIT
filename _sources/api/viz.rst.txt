@@ -81,6 +81,22 @@ Habitat clustering and overlay
    plot_voxel_texture_slice
    view_habitat_napari
 
+Ingestion and preprocessing diagrams
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Teaching diagrams for the gallery: how data enters HABIT (directory tree,
+SimpleITK objects, NumPy arrays) and how clustering features are
+preprocessed. The right-hand panel is a real cropped data view.
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   plot_directory_ingest
+   plot_simpleitk_ingest
+   plot_numpy_ingest
+   plot_feature_preprocessing_chain
+
 Supporting plots (survival / classification / SHAP)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

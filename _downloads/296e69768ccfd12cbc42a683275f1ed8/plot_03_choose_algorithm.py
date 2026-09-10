@@ -148,13 +148,15 @@ print(summary.to_string(index=False))
 dice_table
 
 # %%
-# Visual comparison: k-means habitats vs matched GMM habitats.
+# Visual comparison: k-means habitats vs matched GMM habitats (zoomed to
+# the habitat bounding box).
 fig_fit = plot_habitat_label_compare(
     cohort[0].image(ROI),
     kmeans_result.habitat_maps[0],
     aligned,
     titles=("k-means habitats", f"GMM habitats (matched, ARI={ari:.3f})"),
     align_labels=False,
+    crop_to="labels",
 )
 fig_fit.savefig("out/choose_kmeans_vs_gmm.png", dpi=150, bbox_inches="tight")
 plt.show()

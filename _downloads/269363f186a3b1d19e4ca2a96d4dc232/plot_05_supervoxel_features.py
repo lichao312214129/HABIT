@@ -29,7 +29,7 @@ This page benchmarks extraction time, confirms multi-fold speedup, and proves ex
 numerical parity against PyRadiomics.
 """
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 1
 
 # %%
 # Load one demo subject and generate SLIC supervoxels.
@@ -70,11 +70,14 @@ svx = SlicSupervoxelizer(n_supervoxels=24, compactness=10.0)
 units = svx(field)
 print(f"Generated {len(units.features)} SLIC supervoxels.")
 
-# Visualize the SLIC supervoxels on the anatomical image
+# Visualize the SLIC supervoxels on the anatomical image, zoomed to the
+# partition bounding box (single axial panel).
 fig_svx = plot_habitat_overlay(
     image,
     units,
     title="SLIC supervoxels (n=24)",
+    axis=0,
+    crop_to="labels",
 )
 fig_svx.savefig("out/supervoxel_features_slic_overlay.png", dpi=150, bbox_inches="tight")
 plt.show()

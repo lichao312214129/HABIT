@@ -1,12 +1,12 @@
 Plugin introspection API
 ========================
 
-.. automodule:: habit.api.plugins
+.. automodule:: habit.plugins
    :no-members:
    :no-inherited-members:
    :no-special-members:
 
-.. currentmodule:: habit.api.plugins
+.. currentmodule:: habit.plugins
 
 **User guide:** :doc:`../how_to/habitat_components` · :doc:`registry`.
 Discover built-in and entry-point components. Parameter order is always
@@ -38,7 +38,7 @@ Functions
    format_plugin_catalog_rst
    load_plugins
 
-.. currentmodule:: habit.api.utils
+.. currentmodule:: habit.utils.runtime
 
 .. autosummary::
    :toctree: generated
@@ -51,7 +51,7 @@ Functions
 
 .. code-block:: python
 
-   from habit.api.plugins import get_plugin_info, list_plugins, load_plugins
+   from habit.plugins import get_plugin_info, list_plugins, load_plugins
    from habit.supervoxel import SlicSupervoxelizer, SupervoxelizerRegistry
 
    report = load_plugins(strict=False)
@@ -132,7 +132,7 @@ parameters.
 
 .. code-block:: python
 
-   from habit.api.plugins import list_plugins
+   from habit.plugins import list_plugins
    from habit.table_preprocessing import TablePreprocessorRegistry
 
    print([info.name for info in list_plugins("table_preprocessor")])

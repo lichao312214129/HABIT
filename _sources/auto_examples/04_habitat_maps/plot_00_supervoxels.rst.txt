@@ -126,7 +126,7 @@ Load two demo subjects to demonstrate cohort-level two-step analysis.
 Step 1: Inspect SLIC supervoxelization on the first subject.
 Raw LAP intensity features are extracted and partitioned into 24 supervoxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-85
+.. GENERATED FROM PYTHON SOURCE LINES 56-87
 
 .. code-block:: Python
 
@@ -155,6 +155,8 @@ Raw LAP intensity features are extracted and partitioned into 24 supervoxels.
         image0,
         slic_units0,
         title="SLIC supervoxels (n=24)",
+        axis=0,
+        crop_to="labels",
     )
     fig_slic.savefig("out/supervoxels_slic.png", dpi=150, bbox_inches="tight")
     plt.show()
@@ -163,7 +165,7 @@ Raw LAP intensity features are extracted and partitioned into 24 supervoxels.
 
 
 .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_001.png
-   :alt: SLIC supervoxels (n=24), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :alt: SLIC supervoxels (n=24)
    :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_00_supervoxels_001.png
    :class: sphx-glr-single-img
 
@@ -184,19 +186,19 @@ Raw LAP intensity features are extracted and partitioned into 24 supervoxels.
     3           871.323963
     4           896.928330
     5           944.081194
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-89
+.. GENERATED FROM PYTHON SOURCE LINES 88-91
 
 Step 2 & 3: Configure and run the complete two-step HabitatSpec.
 Notice how the stages chain together:
 extract_voxel_features -> preprocess -> partition (SLIC) -> pool -> fit (k-means) -> assign -> quantify.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-120
+.. GENERATED FROM PYTHON SOURCE LINES 91-122
 
 .. code-block:: Python
 
@@ -239,18 +241,8 @@ extract_voxel_features -> preprocess -> partition (SLIC) -> pool -> fit (k-means
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:12<00:12, 12.64s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:24<00:00, 12.24s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:24<00:00, 12.24s/it]
-    E:\conda\mconda\envs\py310\lib\site-packages\threadpoolctl.py:1226: RuntimeWarning: 
-    Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded at
-    the same time. Both libraries are known to be incompatible and this
-    can cause random crashes or deadlocks on Linux when loaded in the
-    same Python program.
-    Using threadpoolctl may cause crashes or deadlocks. For more
-    information and possible workarounds, please see
-        https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
-
-      warnings.warn(msg, RuntimeWarning)
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.71it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.89it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.88it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:10<00:10, 10.17s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:19<00:00,  9.67s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:19<00:00,  9.67s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.12it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.15it/s]
 
     Learned Habitat Model:
     HabitatModel kmeans-3fb1a8736ca6964a
@@ -267,11 +259,11 @@ extract_voxel_features -> preprocess -> partition (SLIC) -> pool -> fit (k-means
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-122
+.. GENERATED FROM PYTHON SOURCE LINES 123-124
 
 Step 4: Visualize the final habitat label map on Subject 0.
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-133
+.. GENERATED FROM PYTHON SOURCE LINES 124-135
 
 .. code-block:: Python
 
@@ -299,17 +291,17 @@ Step 4: Visualize the final habitat label map on Subject 0.
 
  .. code-block:: none
 
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-135
+.. GENERATED FROM PYTHON SOURCE LINES 136-137
 
 Step 5: Quantify volume fractions of the discovered habitats across the cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-139
+.. GENERATED FROM PYTHON SOURCE LINES 137-141
 
 .. code-block:: Python
 
@@ -393,7 +385,7 @@ Step 5: Quantify volume fractions of the discovered habitats across the cohort.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 46.167 seconds)
+   **Total running time of the script:** (0 minutes 31.886 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_00_supervoxels.py:

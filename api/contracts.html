@@ -95,7 +95,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
@@ -143,7 +143,7 @@
 <li class="toctree-l4"><a class="reference internal" href="spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -288,6 +288,7 @@
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#where-to-go-next">Where to go next</a></li>
@@ -651,10 +652,10 @@ Adapters that load these objects from disk: <a class="reference internal" href="
 <td><p>In-memory <a class="reference internal" href="generated/habit.contracts.ImageRef.html#habit.contracts.ImageRef" title="habit.contracts.ImageRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageRef</span></code></a> backed by a NumPy array.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageVolume</span></code></a></p></td>
-<td><p>Materialised intensity volume bound to a geometry.</p></td>
+<td><p>An image array with explicit physical-space metadata.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskVolume</span></code></a></p></td>
-<td><p>Materialised label volume bound to a geometry.</p></td>
+<td><p>An image-space segmentation mask with explicit label semantics.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Subject</span></code></a></p></td>
 <td><p>One imaging subject.</p></td>

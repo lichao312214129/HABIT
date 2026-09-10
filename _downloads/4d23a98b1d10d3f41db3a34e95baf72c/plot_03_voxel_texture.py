@@ -6,13 +6,14 @@ Texture maps are **inputs to clustering**, not post-label tables.
 GPU is a faster implementation of the same IBSI / PyRadiomics definition —
 the numbers do not change because of GPU.
 
-Pass :class:`~habit.api.image.ImageVolume` /
-:class:`~habit.api.image.MaskVolume` to the plotter (not ``.data``).
+Pass :class:`~habit.image.ImageVolume` /
+:class:`~habit.image.MaskVolume` to the plotter (not ``.data``).
 """
 
 # %%
-# Local entropy on one demo subject. :func:`~habit.kernels.local_entropy_map`
-# returns a volume; :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
+# Local entropy on one demo subject, zoomed to the ROI bounding box.
+# :func:`~habit.kernels.local_entropy_map` returns a volume;
+# :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
 from pathlib import Path
 import time
 from typing import Any, Dict, Optional
@@ -38,7 +39,7 @@ mask_vol = subject.mask(ROI)
 
 entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
 fig = plot_voxel_texture_slice(
-    entropy, anatomy=image_vol, roi_mask=mask_vol
+    entropy, anatomy=image_vol, roi_mask=mask_vol, axis=0, crop_to="roi"
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/voxel_texture_overlay.png", dpi=150, bbox_inches="tight")

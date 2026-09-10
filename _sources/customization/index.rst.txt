@@ -153,7 +153,7 @@ In the plugin's ``pyproject.toml``::
 where ``register()`` performs the ``@VoxelFeatureExtractorRegistry.register``
 call (or imports the module that does). Users then::
 
-   from habit.api.plugins import load_plugins
+   from habit.plugins import load_plugins
    load_plugins()
 
 See :doc:`../examples/custom_voxel_features` for a runnable demo covering both

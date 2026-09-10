@@ -32,7 +32,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="GeometryPolicy" href="generated/habit.api.image.GeometryPolicy.html" />
+    <link rel="next" title="GeometryPolicy" href="generated/habit.image.GeometryPolicy.html" />
     <link rel="prev" title="DelongResult" href="generated/habit.evaluation.DelongResult.html" /> 
 </head>
 
@@ -95,7 +95,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
@@ -143,7 +143,7 @@
 <li class="toctree-l4"><a class="reference internal" href="spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -288,6 +288,7 @@
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#where-to-go-next">Where to go next</a></li>
@@ -624,13 +625,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-habit.api.image">
-<span id="low-level-image-i-o-helpers"></span><span id="api-image-io"></span><h1>Low-level image I/O helpers<a class="headerlink" href="#module-habit.api.image" title="Link to this heading"></a></h1>
-<p>Stable image, mask, and spatial-geometry contracts for HABIT APIs.</p>
-<p>The workflow implementation historically passed file paths, <code class="docutils literal notranslate"><span class="pre">SimpleITK</span></code> images,
-and <code class="docutils literal notranslate"><span class="pre">numpy</span></code> arrays through different code paths.  This module provides one
-explicit public representation so callers can validate image/mask geometry before
-running preprocessing, radiomics, or habitat analysis.</p>
+  <section id="module-habit.image">
+<span id="low-level-image-i-o-helpers"></span><span id="api-image-io"></span><h1>Low-level image I/O helpers<a class="headerlink" href="#module-habit.image" title="Link to this heading"></a></h1>
+<p>Convenience re-exports for image volumes and file I/O.</p>
+<p>Canonical types live in <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.contracts.image</span></code>. File I/O and resampling
+live in <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.adapters.volume_io</span></code>. Import this package from notebooks
+or CLI helpers that need both in one place; L0-L3 code must import types from
+<code class="docutils literal notranslate"><span class="pre">habit.contracts</span></code> and must not import this package (it pulls adapters).</p>
 <p><strong>User guide:</strong> <a class="reference internal" href="data_model.html"><span class="doc">Data model (habit.contracts)</span></a>. Prefer contracts volumes inside
 pipelines; use these when you need SimpleITK-backed read / geometry
 checks outside a <code class="docutils literal notranslate"><span class="pre">Subject</span></code>.</p>
@@ -638,29 +639,29 @@ checks outside a <code class="docutils literal notranslate"><span class="pre">Su
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.GeometryPolicy.html#habit.api.image.GeometryPolicy" title="habit.api.image.GeometryPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeometryPolicy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.image.GeometryPolicy.html#habit.image.GeometryPolicy" title="habit.image.GeometryPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeometryPolicy</span></code></a></p></td>
 <td><p>Define how an image/mask geometry mismatch is handled.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.GeometryReport.html#habit.api.image.GeometryReport" title="habit.api.image.GeometryReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeometryReport</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.image.GeometryReport.html#habit.image.GeometryReport" title="habit.image.GeometryReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeometryReport</span></code></a></p></td>
 <td><p>Describe image/mask geometry compatibility and any correction applied.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.ImageVolume.html#habit.api.image.ImageVolume" title="habit.api.image.ImageVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageVolume</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.image.ImageVolume.html#habit.image.ImageVolume" title="habit.image.ImageVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageVolume</span></code></a></p></td>
 <td><p>An image array with explicit physical-space metadata.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.MaskVolume.html#habit.api.image.MaskVolume" title="habit.api.image.MaskVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskVolume</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.image.MaskVolume.html#habit.image.MaskVolume" title="habit.image.MaskVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskVolume</span></code></a></p></td>
 <td><p>An image-space segmentation mask with explicit label semantics.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.ImageMaskPair.html#habit.api.image.ImageMaskPair" title="habit.api.image.ImageMaskPair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageMaskPair</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.image.ImageMaskPair.html#habit.image.ImageMaskPair" title="habit.image.ImageMaskPair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageMaskPair</span></code></a></p></td>
 <td><p>Pair one image and mask with the geometry result used by downstream code.</p></td>
 </tr>
 </tbody>
 </table>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.radiomics.FeatureResult.html#habit.api.radiomics.FeatureResult" title="habit.api.radiomics.FeatureResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureResult</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.radiomics.extract.FeatureResult.html#habit.radiomics.extract.FeatureResult" title="habit.radiomics.extract.FeatureResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureResult</span></code></a></p></td>
 <td><p>Structured output from radiomics extraction for one image/mask pair.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.radiomics.FeatureTableResult.html#habit.api.radiomics.FeatureTableResult" title="habit.api.radiomics.FeatureTableResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureTableResult</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.radiomics.extract.FeatureTableResult.html#habit.radiomics.extract.FeatureTableResult" title="habit.radiomics.extract.FeatureTableResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureTableResult</span></code></a></p></td>
 <td><p>Structured batch output with successful feature rows and failures.</p></td>
 </tr>
 </tbody>
@@ -670,26 +671,26 @@ checks outside a <code class="docutils literal notranslate"><span class="pre">Su
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.read_image.html#habit.api.image.read_image" title="habit.api.image.read_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_image</span></code></a></p></td>
-<td><p>Read an image file into a geometry-aware <a class="reference internal" href="generated/habit.api.image.ImageVolume.html#habit.api.image.ImageVolume" title="habit.api.image.ImageVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageVolume</span></code></a>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.image.read_image.html#habit.image.read_image" title="habit.image.read_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_image</span></code></a></p></td>
+<td><p>Read an image file into a geometry-aware <a class="reference internal" href="generated/habit.image.ImageVolume.html#habit.image.ImageVolume" title="habit.image.ImageVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageVolume</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.read_mask.html#habit.api.image.read_mask" title="habit.api.image.read_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_mask</span></code></a></p></td>
-<td><p>Read a mask file into a geometry-aware <a class="reference internal" href="generated/habit.api.image.MaskVolume.html#habit.api.image.MaskVolume" title="habit.api.image.MaskVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaskVolume</span></code></a>.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.image.read_mask.html#habit.image.read_mask" title="habit.image.read_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_mask</span></code></a></p></td>
+<td><p>Read a mask file into a geometry-aware <a class="reference internal" href="generated/habit.image.MaskVolume.html#habit.image.MaskVolume" title="habit.image.MaskVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaskVolume</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.validate_geometry.html#habit.api.image.validate_geometry" title="habit.api.image.validate_geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_geometry</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.image.validate_geometry.html#habit.image.validate_geometry" title="habit.image.validate_geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_geometry</span></code></a></p></td>
 <td><p>Return an explicit geometry comparison without changing either input.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.align_image_mask.html#habit.api.image.align_image_mask" title="habit.api.image.align_image_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_image_mask</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.image.align_image_mask.html#habit.image.align_image_mask" title="habit.image.align_image_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_image_mask</span></code></a></p></td>
 <td><p>Validate or explicitly correct image/mask geometry according to <code class="docutils literal notranslate"><span class="pre">policy</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.radiomics.extract_features.html#habit.api.radiomics.extract_features" title="habit.api.radiomics.extract_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_features</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.radiomics.extract.extract_features.html#habit.radiomics.extract.extract_features" title="habit.radiomics.extract.extract_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_features</span></code></a></p></td>
 <td><p>Extract segment-based radiomics features from one image/mask pair.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.radiomics.extract_batch.html#habit.api.radiomics.extract_batch" title="habit.api.radiomics.extract_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_batch</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.radiomics.extract.extract_batch.html#habit.radiomics.extract.extract_batch" title="habit.radiomics.extract.extract_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_batch</span></code></a></p></td>
 <td><p>Extract radiomics features deterministically for an ordered image/mask batch.</p></td>
 </tr>
 </tbody>
@@ -697,7 +698,7 @@ checks outside a <code class="docutils literal notranslate"><span class="pre">Su
 <p>File I/O helpers (<code class="docutils literal notranslate"><span class="pre">read_image</span></code> / <code class="docutils literal notranslate"><span class="pre">read_mask</span></code> / geometry checks). Prefer
 contracts volumes inside pipelines (<a class="reference internal" href="data_model.html"><span class="doc">Data model (habit.contracts)</span></a>); use these when you
 need SimpleITK-backed read / geometry checks outside a <code class="docutils literal notranslate"><span class="pre">Subject</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.image</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.image</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">GeometryPolicy</span><span class="p">,</span>
     <span class="n">ImageMaskPair</span><span class="p">,</span>
     <span class="n">align_image_mask</span><span class="p">,</span>
@@ -765,8 +766,8 @@ Pipeline code should use <code class="docutils literal notranslate"><span class=
 <section id="low-level-radiomics-extraction">
 <h2>Low-level radiomics extraction<a class="headerlink" href="#low-level-radiomics-extraction" title="Link to this heading"></a></h2>
 <p>Component API (not the YAML workflow):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeometryPolicy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.radiomics</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_batch</span><span class="p">,</span> <span class="n">extract_features</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeometryPolicy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.radiomics.extract</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_batch</span><span class="p">,</span> <span class="n">extract_features</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="s2">&quot;params.yaml&quot;</span><span class="p">)</span>
 <span class="n">batch</span> <span class="o">=</span> <span class="n">extract_batch</span><span class="p">(</span>
@@ -788,7 +789,7 @@ Pipeline code should use <code class="docutils literal notranslate"><span class=
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="generated/habit.evaluation.DelongResult.html" class="btn btn-neutral float-left" title="DelongResult" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="generated/habit.api.image.GeometryPolicy.html" class="btn btn-neutral float-right" title="GeometryPolicy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="generated/habit.image.GeometryPolicy.html" class="btn btn-neutral float-right" title="GeometryPolicy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

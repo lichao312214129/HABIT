@@ -113,7 +113,7 @@ Load two demo subjects.
 Two-step: ``partition`` + ``pool``. Supervoxels first, then a shared
 cohort definition. Voxel winsorize + minmax run before parcels form.
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-97
+.. GENERATED FROM PYTHON SOURCE LINES 43-99
 
 .. code-block:: Python
 
@@ -156,6 +156,8 @@ cohort definition. Voxel winsorize + minmax run before parcels form.
         cohort[0].image(ROI),
         two_step_result.habitat_maps[0],
         title="habitats (two-step)",
+        axis=0,
+        crop_to="labels",
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/two_step_overlay.png", dpi=150, bbox_inches="tight")
@@ -180,7 +182,7 @@ cohort definition. Voxel winsorize + minmax run before parcels form.
     *
 
       .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_01_recipes_001.png
-         :alt: habitats (two-step), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+         :alt: habitats (two-step)
          :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_01_recipes_001.png
          :class: sphx-glr-multi-img
 
@@ -196,8 +198,8 @@ cohort definition. Voxel winsorize + minmax run before parcels form.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.25s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.22s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.22s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.45it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.51it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.50it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.06s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.68it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.72it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.72it/s]
     HabitatModel kmeans-3dc01b676bbed095
       habitats           : 3
       features (1)    : LAP
@@ -213,20 +215,20 @@ cohort definition. Voxel winsorize + minmax run before parcels form.
     1  subj002                 3837.0  ...  2.666441   0.483423
 
     [2 rows x 30 columns]
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_core.py:1079: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_core.py:1106: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-100
+.. GENERATED FROM PYTHON SOURCE LINES 100-102
 
 One-step: neither ``partition`` nor ``pool``. Cluster voxels inside
 each subject (no supervoxels). Integer ids are per-subject.
 
-.. GENERATED FROM PYTHON SOURCE LINES 100-139
+.. GENERATED FROM PYTHON SOURCE LINES 102-141
 
 .. code-block:: Python
 
@@ -282,24 +284,24 @@ each subject (no supervoxels). Integer ids are per-subject.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.72s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.72s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.48s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.48s/it]
     Per-subject models: ['subj001']
        subject  ...  habitat_3_volume_fraction
     0  subj001  ...                   0.381536
 
     [1 rows x 7 columns]
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 140-142
+.. GENERATED FROM PYTHON SOURCE LINES 142-144
 
 Direct-pooling: ``pool`` only. Skip the cluster partition and pool
 existing voxel units across the cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-176
+.. GENERATED FROM PYTHON SOURCE LINES 144-178
 
 .. code-block:: Python
 
@@ -350,8 +352,8 @@ existing voxel units across the cohort.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.01it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.01it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.11it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.11it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.12it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:00<00:00,  1.12it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.61it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.60it/s]
     HabitatModel kmeans-bd97684aacf278ac
       habitats           : 3
       features (1)    : LAP
@@ -366,7 +368,7 @@ existing voxel units across the cohort.
     0  subj001  ...                   0.408918
 
     [1 rows x 7 columns]
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
@@ -375,7 +377,7 @@ existing voxel units across the cohort.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.860 seconds)
+   **Total running time of the script:** (0 minutes 9.934 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_01_recipes.py:

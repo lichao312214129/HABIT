@@ -65,7 +65,7 @@ numerical parity against PyRadiomics.
 
 Load one demo subject and generate SLIC supervoxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-82
+.. GENERATED FROM PYTHON SOURCE LINES 36-85
 
 .. code-block:: Python
 
@@ -106,11 +106,14 @@ Load one demo subject and generate SLIC supervoxels.
     units = svx(field)
     print(f"Generated {len(units.features)} SLIC supervoxels.")
 
-    # Visualize the SLIC supervoxels on the anatomical image
+    # Visualize the SLIC supervoxels on the anatomical image, zoomed to the
+    # partition bounding box (single axial panel).
     fig_svx = plot_habitat_overlay(
         image,
         units,
         title="SLIC supervoxels (n=24)",
+        axis=0,
+        crop_to="labels",
     )
     fig_svx.savefig("out/supervoxel_features_slic_overlay.png", dpi=150, bbox_inches="tight")
     plt.show()
@@ -119,7 +122,7 @@ Load one demo subject and generate SLIC supervoxels.
 
 
 .. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_05_supervoxel_features_001.png
-   :alt: SLIC supervoxels (n=24), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :alt: SLIC supervoxels (n=24)
    :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_05_supervoxel_features_001.png
    :class: sphx-glr-single-img
 
@@ -152,18 +155,18 @@ Load one demo subject and generate SLIC supervoxels.
     same as one image series (here LAP).
     Subject: subj001
     Generated 24 SLIC supervoxels.
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-85
+.. GENERATED FROM PYTHON SOURCE LINES 86-88
 
 Approach 1: Statistical feature extraction (Mean, Median, Std).
 Each extractor binds the voxel field and aggregates voxel intensities within each parcel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-109
+.. GENERATED FROM PYTHON SOURCE LINES 88-112
 
 .. code-block:: Python
 
@@ -278,12 +281,12 @@ Each extractor binds the voxel field and aggregates voxel intensities within eac
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 110-112
+.. GENERATED FROM PYTHON SOURCE LINES 113-115
 
 Approach 2: Supervoxel Radiomics texture and high-throughput acceleration.
 Compare HABIT native C-extension against PyRadiomics for time and numerical parity.
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-176
+.. GENERATED FROM PYTHON SOURCE LINES 115-179
 
 .. code-block:: Python
 
@@ -361,9 +364,9 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
 
 
     Extraction time for 24 supervoxels:
-      HABIT Native C-extension : 0.975 s
-      Reference PyRadiomics    : 1.810 s
-      Speedup factor           : 1.86x faster
+      HABIT Native C-extension : 0.540 s
+      Reference PyRadiomics    : 1.100 s
+      Speedup factor           : 2.04x faster
 
     Maximum absolute difference across all features: 1.44e-10
 
@@ -379,11 +382,11 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 177-178
+.. GENERATED FROM PYTHON SOURCE LINES 180-181
 
 Visual comparison: execution time and numerical parity correlation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 178-214
+.. GENERATED FROM PYTHON SOURCE LINES 181-217
 
 .. code-block:: Python
 
@@ -427,7 +430,7 @@ Visual comparison: execution time and numerical parity correlation.
 
 
 .. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_05_supervoxel_features_002.png
-   :alt: Supervoxel texture benchmark (1.9x speedup), Numerical parity: JointEntropy-LAP
+   :alt: Supervoxel texture benchmark (2.0x speedup), Numerical parity: JointEntropy-LAP
    :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_05_supervoxel_features_002.png
    :class: sphx-glr-single-img
 
@@ -438,7 +441,7 @@ Visual comparison: execution time and numerical parity correlation.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 26.778 seconds)
+   **Total running time of the script:** (0 minutes 15.078 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_05_supervoxel_features.py:

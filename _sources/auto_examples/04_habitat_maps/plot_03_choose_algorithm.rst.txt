@@ -186,10 +186,10 @@ Build two-step pipelines: shared SLIC partition stage, differing only in the fit
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:13<00:00, 13.57s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:13<00:00, 13.57s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.82it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.82it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:12<00:00, 12.46s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:12<00:00, 12.47s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.71it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  2.70it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:09<00:00,  9.90s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:09<00:00,  9.90s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  3.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  3.10it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:09<00:00,  9.82s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 1/1 [00:09<00:00,  9.83s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  3.35it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 1/1 [00:00<00:00,  3.35it/s]
 
 
 
@@ -332,11 +332,12 @@ Match GMM habitat IDs onto k-means IDs via Hungarian maximum overlap.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 151-152
+.. GENERATED FROM PYTHON SOURCE LINES 151-153
 
-Visual comparison: k-means habitats vs matched GMM habitats.
+Visual comparison: k-means habitats vs matched GMM habitats (zoomed to
+the habitat bounding box).
 
-.. GENERATED FROM PYTHON SOURCE LINES 152-162
+.. GENERATED FROM PYTHON SOURCE LINES 153-164
 
 .. code-block:: Python
 
@@ -346,6 +347,7 @@ Visual comparison: k-means habitats vs matched GMM habitats.
         aligned,
         titles=("k-means habitats", f"GMM habitats (matched, ARI={ari:.3f})"),
         align_labels=False,
+        crop_to="labels",
     )
     fig_fit.savefig("out/choose_kmeans_vs_gmm.png", dpi=150, bbox_inches="tight")
     plt.show()
@@ -363,17 +365,17 @@ Visual comparison: k-means habitats vs matched GMM habitats.
 
  .. code-block:: none
 
-    F:\work\habit_project\habit\viz\habitat_core.py:917: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_core.py:944: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-164
+.. GENERATED FROM PYTHON SOURCE LINES 165-166
 
 Per-habitat Dice agreement bar plot.
 
-.. GENERATED FROM PYTHON SOURCE LINES 164-176
+.. GENERATED FROM PYTHON SOURCE LINES 166-178
 
 .. code-block:: Python
 
@@ -404,7 +406,7 @@ Per-habitat Dice agreement bar plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 29.448 seconds)
+   **Total running time of the script:** (0 minutes 21.691 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_03_choose_algorithm.py:

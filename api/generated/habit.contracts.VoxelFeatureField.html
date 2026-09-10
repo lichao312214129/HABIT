@@ -95,7 +95,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
@@ -143,7 +143,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -288,6 +288,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#where-to-go-next">Where to go next</a></li>
@@ -817,12 +818,15 @@ change the numbers.</p>
 
 <section id="examples-using-habit-contracts-voxelfeaturefield">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.VoxelFeatureField</span></code><a class="headerlink" href="#examples-using-habit-contracts-voxelfeaturefield" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Three liver DCE maps: arterial relative enhancement, arterial-to-portal wash-out, and arterial-to-delayed wash-out."><img alt="" src="../../_images/sphx_glr_plot_02_custom_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_custom_features.html"><span class="doc">Custom features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Custom features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Texture maps are inputs to clustering, not post-label tables. GPU is a faster implementation of the same IBSI / PyRadiomics definition — the numbers do not change because of GPU."><img alt="" src="../../_images/sphx_glr_plot_03_voxel_texture_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Voxel texture and GPU</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/03_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Two-step habitat analysis decouples local spatial partitioning from cohort-level habitat definition:"><img alt="" src="../../_images/sphx_glr_plot_00_supervoxels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_00_supervoxels.html"><span class="doc">Two-step habitats with SLIC supervoxels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Two-step habitats with SLIC supervoxels</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

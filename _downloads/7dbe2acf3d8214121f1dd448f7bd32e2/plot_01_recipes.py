@@ -17,7 +17,7 @@ Quickstart.
   permuted — match labels before comparing patients.
 """
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 1
 
 # %%
 # Load two demo subjects.
@@ -79,6 +79,8 @@ fig = plot_habitat_overlay(
     cohort[0].image(ROI),
     two_step_result.habitat_maps[0],
     title="habitats (two-step)",
+    axis=0,
+    crop_to="labels",
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/two_step_overlay.png", dpi=150, bbox_inches="tight")

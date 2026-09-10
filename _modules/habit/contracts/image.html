@@ -418,14 +418,11 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-packages">Optional packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#need-more-later">Need more later?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#problems">Problems?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#get-the-demo-images-once">Get the demo images (once)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
@@ -451,7 +448,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -459,9 +457,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Two-step habitats with SLIC supervoxels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Comparing clustering algorithms: k-means vs GMM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Apply a saved model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Match habitat labels</a></li>
 </ul>
@@ -497,7 +496,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -642,6 +641,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -937,19 +937,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -1006,24 +994,18 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Lazy image references and materialised volume contracts.</span>
 
-<span class="sd">This module is part of the L2 contracts layer. The lazy/eager split is the</span>
-<span class="sd">single most important reason HABIT can serve both the notebook user with 30</span>
-<span class="sd">subjects and the batch user with 3000: operators always receive an</span>
-<span class="sd">:class:`ImageRef` and decide when to materialise it, so small cohorts can stay</span>
-<span class="sd">fully in memory while large cohorts pass lightweight handles across process</span>
-<span class="sd">boundaries.</span>
-
-<span class="sd">The materialised :class:`ImageVolume` / :class:`MaskVolume` defined here reuse</span>
-<span class="sd">the existing public classes from ``habit.api.image`` (per the v1.0 architecture</span>
-<span class="sd">mapping) and add the two members that make them satisfy :class:`ImageRef`</span>
-<span class="sd">structurally -- a ``geometry`` property and a ``load()`` method returning the</span>
-<span class="sd">already-resident array. There is therefore ONE family of image types, not a</span>
-<span class="sd">parallel eager/lazy pair.</span>
+<span class="sd">This module is the single home of :class:`ImageVolume` / :class:`MaskVolume`.</span>
+<span class="sd">Operators receive an :class:`ImageRef` and decide when to materialise it, so</span>
+<span class="sd">small cohorts can stay in memory while large cohorts pass lightweight handles</span>
+<span class="sd">across process boundaries. File I/O and resampling live in</span>
+<span class="sd">:mod:`habit.adapters.volume_io`; they return these same classes.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Mapping</span><span class="p">,</span>
@@ -1037,17 +1019,98 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageVolume</span> <span class="k">as</span> <span class="n">_PublicImageVolume</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaskVolume</span> <span class="k">as</span> <span class="n">_PublicMaskVolume</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span><span class="p">,</span> <span class="n">OptionalDependencyError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;GeometryPolicy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GeometryReport&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ImageRef&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ImageVolume&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MaskVolume&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImageMaskPair&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ArrayImageRef&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
+
+<div class="viewcode-block" id="GeometryPolicy">
+<a class="viewcode-back" href="../../../api/generated/habit.image.GeometryPolicy.html#habit.contracts.GeometryPolicy">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GeometryPolicy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define how an image/mask geometry mismatch is handled.&quot;&quot;&quot;</span>
+
+    <span class="n">STRICT</span> <span class="o">=</span> <span class="s2">&quot;strict&quot;</span>
+    <span class="n">RESAMPLE_MASK</span> <span class="o">=</span> <span class="s2">&quot;resample_mask&quot;</span>
+    <span class="n">RESAMPLE_IMAGE</span> <span class="o">=</span> <span class="s2">&quot;resample_image&quot;</span>
+    <span class="n">WARN</span> <span class="o">=</span> <span class="s2">&quot;warn&quot;</span>
+    <span class="n">HARMONIZE</span> <span class="o">=</span> <span class="s2">&quot;harmonize&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="GeometryReport">
+<a class="viewcode-back" href="../../../api/generated/habit.image.GeometryReport.html#habit.contracts.GeometryReport">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GeometryReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Describe image/mask geometry compatibility and any correction applied.&quot;&quot;&quot;</span>
+
+    <span class="n">compatible</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">mismatches</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalized_geometry</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">ndim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">origin</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and normalize physical metadata for a volume.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ndim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Only 2D, 3D, and 4D volumes are supported; received </span><span class="si">{</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">normalized_spacing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">spacing</span><span class="p">)</span>
+    <span class="n">normalized_origin</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">origin</span><span class="p">)</span>
+    <span class="n">normalized_direction</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">direction</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">normalized_spacing</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ndim</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;spacing must contain </span><span class="si">{</span><span class="n">ndim</span><span class="si">}</span><span class="s2"> values; received </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">normalized_spacing</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">normalized_origin</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ndim</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;origin must contain </span><span class="si">{</span><span class="n">ndim</span><span class="si">}</span><span class="s2"> values; received </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">normalized_origin</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">normalized_direction</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ndim</span> <span class="o">*</span> <span class="n">ndim</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;direction must contain a square direction matrix flattened to &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ndim</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ndim</span><span class="si">}</span><span class="s2"> values; received </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">normalized_direction</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">normalized_spacing</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;spacing must contain finite values greater than zero.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">normalized_origin</span> <span class="o">+</span> <span class="n">normalized_direction</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;origin and direction must contain finite values.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">normalized_spacing</span><span class="p">,</span> <span class="n">normalized_origin</span><span class="p">,</span> <span class="n">normalized_direction</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_direction</span><span class="p">(</span><span class="n">ndim</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a flattened identity direction matrix for ``ndim`` dimensions.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_simpleitk</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Import SimpleITK only for operations that require it.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">SimpleITK</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sitk</span>
+    <span class="k">except</span> <span class="ne">ModuleNotFoundError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">OptionalDependencyError</span><span class="p">(</span>
+            <span class="s2">&quot;SimpleITK is required for image file I/O and resampling. &quot;</span>
+            <span class="s2">&quot;Install the radiomics or full HABIT dependency set.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">return</span> <span class="n">sitk</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_geometry_matches_array</span><span class="p">(</span><span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">geometry</span><span class="p">:</span> <span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1109,26 +1172,89 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="ImageVolume">
-<a class="viewcode-back" href="../../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ImageVolume</span><span class="p">(</span><span class="n">_PublicImageVolume</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Materialised intensity volume bound to a geometry.</span>
+<a class="viewcode-back" href="../../../api/generated/habit.image.ImageVolume.html#habit.contracts.ImageVolume">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImageVolume</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An image array with explicit physical-space metadata.</span>
 
-<span class="sd">    Subclasses the stable public :class:`habit.api.image.ImageVolume` so any</span>
-<span class="sd">    value produced by existing HABIT code can flow into the v1.0 contracts</span>
-<span class="sd">    unchanged, and adds the :class:`ImageRef` surface (``geometry`` /</span>
-<span class="sd">    ``load()``).</span>
+<span class="sd">    ``data`` follows the NumPy convention used by ``SimpleITK.GetArrayFromImage``.</span>
+<span class="sd">    Physical metadata remains in SimpleITK axis order. Callers should use this</span>
+<span class="sd">    object rather than infer geometry from array axes.</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        data: Voxel intensities, NumPy axis order ``(z, y, x)``.</span>
-<span class="sd">        spacing: Physical voxel size, SimpleITK axis order ``(x, y, z)``.</span>
-<span class="sd">        origin: Physical origin, SimpleITK axis order.</span>
-<span class="sd">        direction: Flattened direction cosine matrix.</span>
-<span class="sd">        modality: Modality or sequence label, e.g. ``&quot;T1&quot;``, ``&quot;delay2&quot;``.</span>
+<span class="sd">    The volume also satisfies :class:`ImageRef`: ``geometry`` returns a</span>
+<span class="sd">    :class:`~habit.contracts.geometry.Geometry` and ``load()`` returns the</span>
+<span class="sd">    already-resident array.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">spacing</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">origin</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">modality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">subject_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">timepoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageVolume.__post_init__">
+<a class="viewcode-back" href="../../../api/generated/habit.image.ImageVolume.html#habit.contracts.ImageVolume.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize arrays and immutable metadata at the public boundary.&quot;&quot;&quot;</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;ImageVolume.data must be 2D, 3D, or 4D; received </span><span class="si">{</span><span class="n">array</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;ImageVolume.data must not be empty.&quot;</span><span class="p">)</span>
+        <span class="n">spacing</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">_normalized_geometry</span><span class="p">(</span>
+            <span class="n">ndim</span><span class="o">=</span><span class="n">array</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span>
+            <span class="n">direction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">array</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;spacing&quot;</span><span class="p">,</span> <span class="n">spacing</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;origin&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ImageVolume.from_array">
+<a class="viewcode-back" href="../../../api/generated/habit.image.ImageVolume.html#habit.contracts.ImageVolume.from_array">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_array</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">spacing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">origin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">modality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">subject_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">timepoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ImageVolume&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a volume from an array using identity physical metadata by default.&quot;&quot;&quot;</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">array</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">(</span><span class="mf">1.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">)),</span>
+            <span class="n">origin</span><span class="o">=</span><span class="n">origin</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">(</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">)),</span>
+            <span class="n">direction</span><span class="o">=</span><span class="n">direction</span> <span class="ow">or</span> <span class="n">_default_direction</span><span class="p">(</span><span class="n">ndim</span><span class="p">),</span>
+            <span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">,</span>
+            <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">timepoint</span><span class="o">=</span><span class="n">timepoint</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{},</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="ImageVolume.from_geometry">
-<a class="viewcode-back" href="../../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume.from_geometry">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/habit.image.ImageVolume.html#habit.contracts.ImageVolume.from_geometry">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_geometry</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -1140,29 +1266,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">timepoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ImageVolume&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build a volume from an array plus a :class:`Geometry` value.</span>
-
-<span class="sd">        The inherited constructor takes ``spacing`` / ``origin`` /</span>
-<span class="sd">        ``direction`` separately, because it is the stable public</span>
-<span class="sd">        ``habit.api.image`` contract. This classmethod is the contracts-layer</span>
-<span class="sd">        entry point for code that already holds a single ``Geometry`` object,</span>
-<span class="sd">        so the geometry never has to be unpacked by hand.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            array: Voxel intensities, NumPy axis order ``(z, y, x)``.</span>
-<span class="sd">            geometry: Spatial definition of ``array``.</span>
-<span class="sd">            modality: Modality or sequence label, e.g. ``&quot;T1&quot;``.</span>
-<span class="sd">            subject_id: Optional owning subject identifier.</span>
-<span class="sd">            timepoint: Optional acquisition timepoint label.</span>
-<span class="sd">            metadata: Optional free-form acquisition attributes.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The materialised volume bound to ``geometry``.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: If ``geometry`` does not describe ``array``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a volume from an array plus a :class:`Geometry` value.&quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
         <span class="n">_check_geometry_matches_array</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
@@ -1177,6 +1281,48 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="ImageVolume.from_sitk">
+<a class="viewcode-back" href="../../../api/generated/habit.image.ImageVolume.html#habit.contracts.ImageVolume.from_sitk">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_sitk</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">image</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">modality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">subject_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">timepoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ImageVolume&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a ``SimpleITK.Image`` without discarding its physical metadata.&quot;&quot;&quot;</span>
+        <span class="n">sitk</span> <span class="o">=</span> <span class="n">_require_simpleitk</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;image must be a SimpleITK.Image.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">image</span><span class="p">),</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetSpacing</span><span class="p">()),</span>
+            <span class="n">origin</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetOrigin</span><span class="p">()),</span>
+            <span class="n">direction</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetDirection</span><span class="p">()),</span>
+            <span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">,</span>
+            <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">timepoint</span><span class="o">=</span><span class="n">timepoint</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImageVolume.to_sitk">
+<a class="viewcode-back" href="../../../api/generated/habit.image.ImageVolume.html#habit.contracts.ImageVolume.to_sitk">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_sitk</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert this public volume into a ``SimpleITK.Image`` lazily.&quot;&quot;&quot;</span>
+        <span class="n">sitk</span> <span class="o">=</span> <span class="n">_require_simpleitk</span><span class="p">()</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetImageFromArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">SetSpacing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">SetOrigin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">SetDirection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span></div>
+
+
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Geometry</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the spatial definition of this volume without copying data.&quot;&quot;&quot;</span>
@@ -1188,34 +1334,86 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="ImageVolume.load">
-<a class="viewcode-back" href="../../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume.load">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/habit.image.ImageVolume.html#habit.contracts.ImageVolume.load">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the already-resident voxel array (ImageRef conformance).&quot;&quot;&quot;</span>
-        <span class="c1"># ``data`` is declared on the public base ``habit.api.image``, which</span>
-        <span class="c1"># mypy sees as ``Any`` under ``follow_imports = &quot;skip&quot;``; the field is</span>
-        <span class="c1"># a NumPy array by construction.</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="MaskVolume">
-<a class="viewcode-back" href="../../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MaskVolume</span><span class="p">(</span><span class="n">_PublicMaskVolume</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Materialised label volume bound to a geometry.</span>
+<a class="viewcode-back" href="../../../api/generated/habit.image.MaskVolume.html#habit.contracts.MaskVolume">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MaskVolume</span><span class="p">(</span><span class="n">ImageVolume</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An image-space segmentation mask with explicit label semantics.&quot;&quot;&quot;</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        data: Integer labels; ``0`` denotes background.</span>
-<span class="sd">        spacing: Physical voxel size, SimpleITK axis order.</span>
-<span class="sd">        origin: Physical origin, SimpleITK axis order.</span>
-<span class="sd">        direction: Flattened direction cosine matrix.</span>
-<span class="sd">        labels: Non-background label values present in the mask.</span>
-<span class="sd">        label_names: Optional human-readable names per label value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">label_names</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MaskVolume.__post_init__">
+<a class="viewcode-back" href="../../../api/generated/habit.image.MaskVolume.html#habit.contracts.MaskVolume.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate mask labels after the shared image-volume normalization.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;MaskVolume.data must use a numeric dtype.&quot;</span><span class="p">)</span>
+        <span class="n">inferred_labels</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">normalized_labels</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">({</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">}))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span>
+            <span class="k">else</span> <span class="n">inferred_labels</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">normalized_labels</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;MaskVolume.labels must not contain background label 0.&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="n">normalized_labels</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s2">&quot;label_names&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">):</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_names</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MaskVolume.from_array">
+<a class="viewcode-back" href="../../../api/generated/habit.image.MaskVolume.html#habit.contracts.MaskVolume.from_array">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_array</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">spacing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">origin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">modality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">label_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">subject_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">timepoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MaskVolume&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a mask from an array with explicit or inferred nonzero labels.&quot;&quot;&quot;</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">array</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">(</span><span class="mf">1.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">)),</span>
+            <span class="n">origin</span><span class="o">=</span><span class="n">origin</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">(</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">)),</span>
+            <span class="n">direction</span><span class="o">=</span><span class="n">direction</span> <span class="ow">or</span> <span class="n">_default_direction</span><span class="p">(</span><span class="n">ndim</span><span class="p">),</span>
+            <span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">label_names</span><span class="o">=</span><span class="n">label_names</span> <span class="ow">or</span> <span class="p">{},</span>
+            <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">timepoint</span><span class="o">=</span><span class="n">timepoint</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{},</span>
+        <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="MaskVolume.from_geometry">
-<a class="viewcode-back" href="../../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume.from_geometry">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/habit.image.MaskVolume.html#habit.contracts.MaskVolume.from_geometry">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_geometry</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -1229,29 +1427,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">timepoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MaskVolume&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build a mask from a label array plus a :class:`Geometry` value.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            array: Integer labels, NumPy axis order ``(z, y, x)``; ``0``</span>
-<span class="sd">                denotes background.</span>
-<span class="sd">            geometry: Spatial definition of ``array``.</span>
-<span class="sd">            roi_name: Name of the delineated region, e.g. ``&quot;tumor&quot;``. Stored</span>
-<span class="sd">                in the shared ``modality`` field and exposed as</span>
-<span class="sd">                :attr:`roi_name`.</span>
-<span class="sd">            labels: Explicit non-background label values; inferred from the</span>
-<span class="sd">                array when empty.</span>
-<span class="sd">            label_names: Optional human-readable name per label value.</span>
-<span class="sd">            subject_id: Optional owning subject identifier.</span>
-<span class="sd">            timepoint: Optional acquisition timepoint label.</span>
-<span class="sd">            metadata: Optional free-form attributes.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The materialised mask bound to ``geometry``.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: If ``geometry`` does not describe ``array``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a mask from a label array plus a :class:`Geometry` value.&quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
         <span class="n">_check_geometry_matches_array</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
@@ -1268,18 +1444,42 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span></div>
 
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Geometry</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the spatial definition of this mask without copying data.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Geometry</span><span class="p">(</span>
-            <span class="n">shape</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
-            <span class="n">spacing</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spacing</span><span class="p">),</span>
-            <span class="n">origin</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">origin</span><span class="p">),</span>
-            <span class="n">direction</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">),</span>
-        <span class="p">)</span>
+<div class="viewcode-block" id="MaskVolume.from_sitk">
+<a class="viewcode-back" href="../../../api/generated/habit.image.MaskVolume.html#habit.contracts.MaskVolume.from_sitk">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_sitk</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">image</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">modality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">label_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">subject_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">timepoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MaskVolume&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a ``SimpleITK.Image`` into a mask while retaining geometry.&quot;&quot;&quot;</span>
+        <span class="n">sitk</span> <span class="o">=</span> <span class="n">_require_simpleitk</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">sitk</span><span class="o">.</span><span class="n">Image</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;image must be a SimpleITK.Image.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">image</span><span class="p">),</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetSpacing</span><span class="p">()),</span>
+            <span class="n">origin</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetOrigin</span><span class="p">()),</span>
+            <span class="n">direction</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetDirection</span><span class="p">()),</span>
+            <span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">label_names</span><span class="o">=</span><span class="n">label_names</span> <span class="ow">or</span> <span class="p">{},</span>
+            <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">timepoint</span><span class="o">=</span><span class="n">timepoint</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{},</span>
+        <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="MaskVolume.load">
-<a class="viewcode-back" href="../../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume.load">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/habit.image.MaskVolume.html#habit.contracts.MaskVolume.load">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the already-resident label array (ImageRef conformance).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
@@ -1287,13 +1487,20 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">roi_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ROI name for this mask, mapped from ``modality``.</span>
-
-<span class="sd">        The public base stores the region label in the shared ``modality``</span>
-<span class="sd">        field; the contracts layer exposes it under the domain term used by</span>
-<span class="sd">        the ``Subject.masks`` mapping.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ROI name for this mask, mapped from ``modality``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">modality</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ImageMaskPair">
+<a class="viewcode-back" href="../../../api/generated/habit.image.ImageMaskPair.html#habit.contracts.ImageMaskPair">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImageMaskPair</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pair one image and mask with the geometry result used by downstream code.&quot;&quot;&quot;</span>
+
+    <span class="n">image</span><span class="p">:</span> <span class="n">ImageVolume</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">MaskVolume</span>
+    <span class="n">geometry_report</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GeometryReport</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 
@@ -1305,10 +1512,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    In-memory :class:`ImageRef` backed by a NumPy array.</span>
 
 <span class="sd">    This is the reference implementation for custom lazy references: it holds</span>
-<span class="sd">    the array plus its geometry and materialises trivially. The ``geometry``</span>
-<span class="sd">    field satisfies the :class:`ImageRef` property structurally, so third</span>
-<span class="sd">    parties can implement the same two-member surface over PACS, zarr, or</span>
-<span class="sd">    torch tensors.</span>
+<span class="sd">    the array plus its geometry and materialises trivially.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        array: Voxel values, NumPy axis order ``(z, y, x)``.</span>
@@ -1328,15 +1532,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ArrayImageRef.load_volume">
 <a class="viewcode-back" href="../../../api/generated/habit.contracts.ArrayImageRef.html#habit.contracts.ArrayImageRef.load_volume">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">modality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageVolume</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Materialise directly as an :class:`ImageVolume`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            modality: Optional modality label attached to the volume.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The materialised volume bound to ``geometry``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Materialise directly as an :class:`ImageVolume`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">ImageVolume</span><span class="o">.</span><span class="n">from_geometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">)</span></div>
 </div>
 

@@ -124,7 +124,7 @@ Probe optional stacks without importing heavy backends:
 
 .. code-block:: python
 
-   from habit.api.utils import is_available
+   from habit.utils.runtime import is_available
 
    if is_available("torch"):
        ...
@@ -135,7 +135,7 @@ Logger helper for scripts:
 
 .. code-block:: python
 
-   from habit.api.utils import setup_logger
+   from habit.utils.runtime import setup_logger
 
    logger = setup_logger(
        name="study",

@@ -129,6 +129,8 @@ feature preprocessor).
 
  .. code-block:: none
 
+    F:\work\habit_project\examples\guide\02_voxel\plot_01_feature_routes.py:38: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+      raw_spec = HabitatSpec(
     raw feature table:
           LAP     PVP
     0  1020.0  1030.0
@@ -196,11 +198,46 @@ feature preprocessor).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-61
+.. GENERATED FROM PYTHON SOURCE LINES 60-62
+
+The matrix clustering sees: one row per ROI voxel, one column per
+modality (rows subsampled so the heatmap stays legible).
+
+.. GENERATED FROM PYTHON SOURCE LINES 62-76
+
+.. code-block:: Python
+
+    frame = raw_field.feature_frame()
+    row_step = max(1, len(frame) // 60)
+    sample = frame.iloc[::row_step]
+    fig_matrix, ax_matrix = plt.subplots(figsize=(4.6, 4.6), constrained_layout=True)
+    im = ax_matrix.imshow(sample.to_numpy(dtype=float), aspect="auto", cmap="viridis")
+    ax_matrix.set_xticks(range(len(sample.columns)))
+    ax_matrix.set_xticklabels([str(column) for column in sample.columns])
+    ax_matrix.set_ylabel("ROI voxels (subsampled)")
+    ax_matrix.set_title("Voxel feature matrix (raw)")
+    fig_matrix.colorbar(im, ax=ax_matrix, shrink=0.8, label="Intensity")
+    Path("out").mkdir(exist_ok=True)
+    fig_matrix.savefig("out/habitat_feature_routes_matrix.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_01_feature_routes_001.png
+   :alt: Voxel feature matrix (raw)
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_01_feature_routes_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 77-78
 
 Fit the ``raw`` route and overlay habitats.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-72
+.. GENERATED FROM PYTHON SOURCE LINES 78-89
 
 .. code-block:: Python
 
@@ -218,9 +255,9 @@ Fit the ``raw`` route and overlay habitats.
 
 
 
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_01_feature_routes_001.png
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_01_feature_routes_002.png
    :alt: habitats (raw), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_01_feature_routes_001.png
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_01_feature_routes_002.png
    :class: sphx-glr-single-img
 
 
@@ -228,8 +265,8 @@ Fit the ``raw`` route and overlay habitats.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:05<00:05,  5.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.07s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.07s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.33it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.33it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.23s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.25s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.25s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.01s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.20it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.20it/s]
     HabitatModel kmeans-eb51fe90351b084b
       habitats           : 3
       features (2)    : LAP, PVP
@@ -240,18 +277,18 @@ Fit the ``raw`` route and overlay habitats.
       habit version      : 2.0.0
       random seed        : 11
       preprocessing state: inertia, selection_report, validation
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-75
+.. GENERATED FROM PYTHON SOURCE LINES 90-92
 
 ``concat`` joins two ``raw`` extractors column-wise. The head() table
 should show the same number of rows and more columns.
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-106
+.. GENERATED FROM PYTHON SOURCE LINES 92-123
 
 .. code-block:: Python
 
@@ -294,6 +331,8 @@ should show the same number of rows and more columns.
 
  .. code-block:: none
 
+    F:\work\habit_project\examples\guide\02_voxel\plot_01_feature_routes.py:93: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+      concat_spec = HabitatSpec(
     concat feature table:
           LAP     PVP
     0  1020.0  1030.0
@@ -301,8 +340,8 @@ should show the same number of rows and more columns.
     2  1077.0  1088.0
     3  1073.0  1072.0
     4  1033.0  1132.0
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.34s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.33s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.33s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.71it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.68it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.68it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.37s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.34s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.34s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.63it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.52it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.52it/s]
     concat habitats: 3
 
 
@@ -311,7 +350,7 @@ should show the same number of rows and more columns.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 16.786 seconds)
+   **Total running time of the script:** (0 minutes 14.319 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_01_feature_routes.py:

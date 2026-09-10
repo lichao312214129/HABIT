@@ -46,7 +46,7 @@ Recipe helpers exported from ``habit.recipes``:
    habit.recipes.search_hyperparameters
    habit.recipes.compare_models
    habit.recipes.pairwise_delong_test
-   habit.api.plugins.create_ml_model
+   habit.plugins.create_ml_model
 
 Evaluation statistics
 ~~~~~~~~~~~~~~~~~~~~~

@@ -77,7 +77,7 @@ chain on two-step runs under-expresses habitats — see
 Atomic Python (same steps, no YAML)
 -----------------------------------
 
-:func:`~habit.api.preprocessing.preprocess_subject` / :func:`~habit.api.preprocessing.preprocess_image` take a
+:func:`~habit.recipes.preprocess_subject` / :func:`~habit.recipes.preprocess_image` take a
 ``Subject`` or one volume. Copy from :doc:`../examples/image_preprocessing`
 and swap ``DATA``. Per-step figures:
 

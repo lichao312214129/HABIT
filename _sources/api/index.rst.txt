@@ -17,6 +17,10 @@ The declarative registry of the stable surface lives in
 that export surface (each package ``__all__``). Anything not exported
 there is internal and may change without notice.
 
+Taught Python paths: :class:`~habit.recipes.Study` for a full habitat
+study, and ``habit.<capability>`` for a single operator. Pipeline / Spec
+stage lists are advanced.
+
 Habitat analysis pipeline
 -------------------------
 

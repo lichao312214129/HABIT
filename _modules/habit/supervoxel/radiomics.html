@@ -418,14 +418,11 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-packages">Optional packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#need-more-later">Need more later?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#problems">Problems?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#get-the-demo-images-once">Get the demo images (once)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
@@ -451,7 +448,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
@@ -499,7 +496,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -644,6 +641,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1070,7 +1068,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            of the union of all supervoxels before extraction.</span>
 <span class="sd">        supervoxel_pad_distance: Padding around that bounding box; ``None``</span>
 <span class="sd">            keeps the PyRadiomics ``padDistance`` setting.</span>
-<span class="sd">        use_supervoxel_cext: ``&quot;auto&quot;``, ``True`` or ``False`` -- whether to</span>
+<span class="sd">        use_supervoxel_cext: ``True`` (default), ``&quot;auto&quot;``, or ``False`` -- whether to</span>
 <span class="sd">            use the habit native C extension for texture matrices.</span>
 <span class="sd">        union_bin: When False (default) each supervoxel is discretized</span>
 <span class="sd">            with its own ``binWidth`` edges, matching PyRadiomics</span>
@@ -1078,7 +1076,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        use_torch_radiomics: ``&quot;auto&quot;``, ``True`` or ``False`` -- whether to</span>
 <span class="sd">            use the TorchRadiomics GPU path when torch and CUDA are present.</span>
 <span class="sd">        torch_device: Torch device string, or ``&quot;auto&quot;`` to select one.</span>
-<span class="sd">        torch_dtype: ``&quot;float32&quot;`` or ``&quot;float64&quot;`` for the torch path.</span>
+<span class="sd">        torch_dtype: ``&quot;float64&quot;`` (default) or ``&quot;float32&quot;`` for the torch path.</span>
 <span class="sd">        output_float32: Downcast the resulting feature columns to float32,</span>
 <span class="sd">            the v0.1 default that keeps large supervoxel tables manageable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1095,11 +1093,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">supervoxel_batch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
         <span class="n">supervoxel_union_bbox_crop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">supervoxel_pad_distance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">use_supervoxel_cext</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">use_supervoxel_cext</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">union_bin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">use_torch_radiomics</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
         <span class="n">torch_device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
-        <span class="n">torch_dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+        <span class="n">torch_dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
         <span class="n">output_float32</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">modality</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">modalities</span><span class="p">:</span>
@@ -1257,44 +1255,67 @@ window.runMermaid = runMermaid;</script>
         <span class="n">extractor</span> <span class="o">=</span> <span class="n">build_pyradiomics_extractor</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_resolved_params_file</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;supervoxel_radiomics&quot;</span>
         <span class="p">)</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.parallel_gpu_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_worker_gpu_slot_index</span>
-
-        <span class="n">backend</span><span class="p">,</span> <span class="n">device</span> <span class="o">=</span> <span class="n">resolve_voxel_radiomics_backend</span><span class="p">(</span>
-            <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_torch_radiomics</span><span class="p">,</span>
-            <span class="n">torch_device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_device</span><span class="p">,</span>
-            <span class="n">subject</span><span class="o">=</span><span class="n">partition</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
-            <span class="n">gpu_slot_index</span><span class="o">=</span><span class="n">read_worker_gpu_slot_index</span><span class="p">(),</span>
-        <span class="p">)</span>
         <span class="n">extractor</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;geometryTolerance&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">})</span>
-        <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span> <span class="ow">and</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">extractor</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;device&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
-            <span class="n">extractor</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolve_torch_dtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_dtype</span><span class="p">)</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radiomics_settings</span><span class="p">(</span><span class="n">extractor</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
         <span class="n">suffix</span> <span class="o">=</span> <span class="n">column_label</span> <span class="k">if</span> <span class="n">column_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">modality</span>
 
-        <span class="k">with</span> <span class="n">injected_torch_radiomics</span><span class="p">(</span><span class="n">enabled</span><span class="o">=</span><span class="p">(</span><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span><span class="p">:</span>
-                <span class="n">frame</span> <span class="o">=</span> <span class="n">extract_batched_supervoxel_features</span><span class="p">(</span>
-                    <span class="n">image_sitk</span><span class="p">,</span>
-                    <span class="n">supervoxel_sitk</span><span class="p">,</span>
-                    <span class="n">labels</span><span class="p">,</span>
-                    <span class="n">enabled_features</span><span class="o">=</span><span class="n">extractor</span><span class="o">.</span><span class="n">enabledFeatures</span><span class="p">,</span>
-                    <span class="n">image_name</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
-                    <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
-                    <span class="n">device</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">),</span>
-                    <span class="n">dtype_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_dtype</span><span class="p">,</span>
-                    <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_batch</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">frame</span> <span class="o">=</span> <span class="n">extract_supervoxel_features_pyradiomics</span><span class="p">(</span>
-                    <span class="n">image_sitk</span><span class="p">,</span>
-                    <span class="n">supervoxel_sitk</span><span class="p">,</span>
-                    <span class="n">labels</span><span class="p">,</span>
-                    <span class="n">enabled_features</span><span class="o">=</span><span class="n">extractor</span><span class="o">.</span><span class="n">enabledFeatures</span><span class="p">,</span>
-                    <span class="n">image_name</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
-                    <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
-                    <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_batch</span><span class="p">,</span>
-                <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.radiomics.cext</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_cext_available</span>
+
+        <span class="n">use_cext</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">use_supervoxel_cext</span> <span class="ow">is</span> <span class="kc">True</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_supervoxel_cext</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span> <span class="ow">and</span> <span class="n">is_cext_available</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_cext</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.radiomics.native_batch</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+                <span class="n">extract_native_supervoxel_features</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">extract_native_supervoxel_features</span><span class="p">(</span>
+                <span class="n">image_sitk</span><span class="p">,</span>
+                <span class="n">supervoxel_sitk</span><span class="p">,</span>
+                <span class="n">labels</span><span class="p">,</span>
+                <span class="n">enabled_features</span><span class="o">=</span><span class="n">extractor</span><span class="o">.</span><span class="n">enabledFeatures</span><span class="p">,</span>
+                <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
+                <span class="n">image_name</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+                <span class="n">union_bin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">union_bin</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.parallel_gpu_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_worker_gpu_slot_index</span>
+
+            <span class="n">backend</span><span class="p">,</span> <span class="n">device</span> <span class="o">=</span> <span class="n">resolve_voxel_radiomics_backend</span><span class="p">(</span>
+                <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_torch_radiomics</span><span class="p">,</span>
+                <span class="n">torch_device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_device</span><span class="p">,</span>
+                <span class="n">subject</span><span class="o">=</span><span class="n">partition</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">gpu_slot_index</span><span class="o">=</span><span class="n">read_worker_gpu_slot_index</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span> <span class="ow">and</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">extractor</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;device&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
+                <span class="n">extractor</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolve_torch_dtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_dtype</span><span class="p">)</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radiomics_settings</span><span class="p">(</span><span class="n">extractor</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">injected_torch_radiomics</span><span class="p">(</span><span class="n">enabled</span><span class="o">=</span><span class="p">(</span><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span><span class="p">:</span>
+                    <span class="n">frame</span> <span class="o">=</span> <span class="n">extract_batched_supervoxel_features</span><span class="p">(</span>
+                        <span class="n">image_sitk</span><span class="p">,</span>
+                        <span class="n">supervoxel_sitk</span><span class="p">,</span>
+                        <span class="n">labels</span><span class="p">,</span>
+                        <span class="n">enabled_features</span><span class="o">=</span><span class="n">extractor</span><span class="o">.</span><span class="n">enabledFeatures</span><span class="p">,</span>
+                        <span class="n">image_name</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+                        <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
+                        <span class="n">device</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">),</span>
+                        <span class="n">dtype_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">torch_dtype</span><span class="p">,</span>
+                        <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_batch</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">frame</span> <span class="o">=</span> <span class="n">extract_supervoxel_features_pyradiomics</span><span class="p">(</span>
+                        <span class="n">image_sitk</span><span class="p">,</span>
+                        <span class="n">supervoxel_sitk</span><span class="p">,</span>
+                        <span class="n">labels</span><span class="p">,</span>
+                        <span class="n">enabled_features</span><span class="o">=</span><span class="n">extractor</span><span class="o">.</span><span class="n">enabledFeatures</span><span class="p">,</span>
+                        <span class="n">image_name</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+                        <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
+                        <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_batch</span><span class="p">,</span>
+                    <span class="p">)</span>
         <span class="k">if</span> <span class="n">_V01_LABEL_COLUMN</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                 <span class="s2">&quot;supervoxel_radiomics: extraction returned no &quot;</span>

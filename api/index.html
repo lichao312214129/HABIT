@@ -96,7 +96,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
@@ -289,6 +289,7 @@
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#where-to-go-next">Where to go next</a></li>
@@ -640,6 +641,9 @@ selector, or kernel. Click a package to see its classes and functions.</p>
 <code class="docutils literal notranslate"><span class="pre">habit/_public_api.py</span></code> (<code class="docutils literal notranslate"><span class="pre">PUBLIC_NAMESPACES</span></code>). Package pages document
 that export surface (each package <code class="docutils literal notranslate"><span class="pre">__all__</span></code>). Anything not exported
 there is internal and may change without notice.</p>
+<p>Taught Python paths: <a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code></a> for a full habitat
+study, and <code class="docutils literal notranslate"><span class="pre">habit.&lt;capability&gt;</span></code> for a single operator. Pipeline / Spec
+stage lists are advanced.</p>
 <section id="habitat-analysis-pipeline">
 <h2>Habitat analysis pipeline<a class="headerlink" href="#habitat-analysis-pipeline" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">

@@ -94,7 +94,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
@@ -142,7 +142,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -287,6 +287,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -688,11 +689,11 @@ versus z-score (native units; not a shared <span class="math notranslate nohighl
 <p>Image z-score here is <strong>per-volume intensity</strong> (DICOM/NIfTI tree). It is
 not the clustering-time <code class="docutils literal notranslate"><span class="pre">winsorize</span></code> / <code class="docutils literal notranslate"><span class="pre">minmax</span></code> chain; skipping that
 chain on two-step runs under-expresses habitats — see
-<a class="reference internal" href="../examples/habitat_preprocessing.html"><span class="doc">Feature chains</span></a>.</p>
+<a class="reference internal" href="../examples/habitat_preprocessing.html"><span class="doc">Feature preprocessing</span></a>.</p>
 </section>
 <section id="atomic-python-same-steps-no-yaml">
 <h2>Atomic Python (same steps, no YAML)<a class="headerlink" href="#atomic-python-same-steps-no-yaml" title="Link to this heading"></a></h2>
-<p><code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_image()</span></code> take a
+<p><a class="reference internal" href="../api/generated/habit.recipes.preprocess_subject.html#habit.recipes.preprocess_subject" title="habit.recipes.preprocess_subject"><code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code></a> / <a class="reference internal" href="../api/generated/habit.recipes.preprocess_image.html#habit.recipes.preprocess_image" title="habit.recipes.preprocess_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_image()</span></code></a> take a
 <code class="docutils literal notranslate"><span class="pre">Subject</span></code> or one volume. Copy from <a class="reference internal" href="../examples/image_preprocessing.html"><span class="doc">Image preprocessing</span></a>
 and swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code>. Per-step figures:</p>
 <figure class="align-default" id="id2">

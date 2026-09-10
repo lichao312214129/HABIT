@@ -97,7 +97,28 @@ DATA = fetch_demo()
 cohort = cohort_from_directory(DATA, modalities=PHASES, roi=ROI)[:2]
 subject = cohort[0]
 
-before = DCEHemodynamics(phases=PHASES, roi=ROI)(subject).feature_frame()
+# %%
+# The arterial-enhancement map clustering sees, zoomed to the ROI. The
+# extractor returns a :class:`~habit.contracts.VoxelFeatureField`, which
+# :func:`~habit.viz.plot_voxel_texture_slice` draws directly.
+from habit.viz import plot_voxel_texture_slice
+
+dce_field = DCEHemodynamics(phases=PHASES, roi=ROI)(subject)
+fig_map = plot_voxel_texture_slice(
+    dce_field,
+    feature="relative_enhancement_lap",
+    anatomy=subject.image("LAP"),
+    roi_mask=subject.mask(ROI),
+    cmap="inferno",
+    axis=0,
+    crop_to="roi",
+    feature_label="Relative enhancement",
+)
+Path("out").mkdir(exist_ok=True)
+fig_map.savefig("out/custom_voxel_dce_map.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+before = dce_field.feature_frame()
 print("before zscore (mean / std):")
 print(before.agg(["mean", "std"]).round(4))
 print(before.head())

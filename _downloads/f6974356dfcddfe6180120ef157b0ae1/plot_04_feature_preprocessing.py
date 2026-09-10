@@ -1,6 +1,6 @@
 """
-Feature chains
-==============
+Feature preprocessing
+=====================
 
 Clustering operates on **preprocessed feature matrices**, not raw
 intensities. :class:`~habit.spec.HabitatSpec` exposes three ordered chains:
@@ -129,6 +129,21 @@ binned = binned_units.feature_frame()
 print("After cohort binning (fitted chain replayed on one subject):")
 print(binned.head())
 binned.head()
+
+# %%
+# The chain at a glance: voxel-level winsorize + minmax, supervoxel-level
+# z-score, cohort-level binning -- then habitats. The right panel zooms to
+# the resulting habitat map.
+from habit.viz import plot_feature_preprocessing_chain
+
+Path("out").mkdir(exist_ok=True)
+fig_chain = plot_feature_preprocessing_chain(
+    ("raw", "winsorize", "minmax", "zscore", "binning"),
+    image=subject.image(MODALITIES[0]),
+    labels=result.habitat_maps[0],
+)
+fig_chain.savefig("out/habitat_preprocessing_chain.png", dpi=150, bbox_inches="tight")
+plt.show()
 
 # %%
 # Overlay the first subject's habitats after all three chains.

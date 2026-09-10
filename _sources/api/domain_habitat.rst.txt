@@ -352,7 +352,7 @@ parameters live on each component constructor.
 
 .. code-block:: python
 
-   from habit.api.plugins import list_plugins
+   from habit.plugins import list_plugins
    from habit.image_preprocessing import PreprocessorRegistry
 
    for info in list_plugins("preprocessor"):

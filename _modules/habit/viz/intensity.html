@@ -418,14 +418,11 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-packages">Optional packages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#need-more-later">Need more later?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#problems">Problems?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#get-the-demo-images-once">Get the demo images (once)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
@@ -451,7 +448,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -459,9 +457,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_00_supervoxels.html">Two-step habitats with SLIC supervoxels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_01_recipes.html">Recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_atomic_ops.html">Atomic operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Choose a habitat algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_choose_algorithm.html">Comparing clustering algorithms: k-means vs GMM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Apply a saved model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Match habitat labels</a></li>
 </ul>
@@ -497,7 +496,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -642,6 +641,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -937,19 +937,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#bug-fixes">Bug Fixes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#version-1-x">Version 1.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#future-roadmap">Future Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#see-also">See Also</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
 <ul>
@@ -1020,7 +1008,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">(registration; optionally resample/reorient). It does not hide voxels</span>
 <span class="sd">outside the mask.</span>
 
-<span class="sd">Pure functions: arrays or :class:`~habit.api.image.ImageVolume` in, a</span>
+<span class="sd">Pure functions: arrays or :class:`~habit.image.ImageVolume` in, a</span>
 <span class="sd">matplotlib ``Figure`` out, no filesystem and no ``show``.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1032,6 +1020,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.optional_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">require</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz._crop</span><span class="w"> </span><span class="kn">import</span> <span class="n">bbox_slices</span><span class="p">,</span> <span class="n">validate_crop_to</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.colorbar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorbarSpec</span><span class="p">,</span> <span class="n">add_image_colorbar_from_spec</span><span class="p">,</span> <span class="n">colorbar_is_enabled</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.orientation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1484,6 +1473,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">before_colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Intensity&quot;</span><span class="p">,</span>
     <span class="n">before_cmap</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">symmetric_clim</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">crop_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="n">crop_pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Display a whole-FOV greyscale anatomy / intensity slice.</span>
@@ -1512,7 +1503,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        image: Processed (or only) intensity volume. Array or</span>
-<span class="sd">            :class:`~habit.api.image.ImageVolume`.</span>
+<span class="sd">            :class:`~habit.image.ImageVolume`.</span>
 <span class="sd">        before: Optional original volume, same shape as ``image``.</span>
 <span class="sd">        roi_mask: Optional ROI (``&gt; 0`` inside). Contour overlay only;</span>
 <span class="sd">            never used to crop the display.</span>
@@ -1544,6 +1535,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            windowed symmetrically about zero. Use this for z-score so the</span>
 <span class="sd">            colorbar reads as ``[-a, a]`` rather than an asymmetric</span>
 <span class="sd">            percentile window that hides the signed scale.</span>
+<span class="sd">        crop_to: ``\&quot;none\&quot;`` (default) keeps the full field of view, as</span>
+<span class="sd">            whole-image preprocessing teaching requires. ``\&quot;roi\&quot;`` zooms</span>
+<span class="sd">            every panel to the bounding box of ``roi_mask`` so a small</span>
+<span class="sd">            lesion fills the frame. Display-only zoom: values, spacing and</span>
+<span class="sd">            orientation are unchanged.</span>
+<span class="sd">        crop_pad: Voxels of anatomical context kept around the bounding box</span>
+<span class="sd">            when ``crop_to=\&quot;roi\&quot;`` (default ``6``).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib ``Figure``. The caller owns persistence / display.</span>
@@ -1578,6 +1576,24 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;same shape; got roi </span><span class="si">{</span><span class="n">roi_vol</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> vs image &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image_vol</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
+
+    <span class="n">crop_mode</span> <span class="o">=</span> <span class="n">validate_crop_to</span><span class="p">(</span>
+        <span class="n">crop_to</span><span class="p">,</span> <span class="n">allowed</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;roi&quot;</span><span class="p">),</span> <span class="n">caller</span><span class="o">=</span><span class="s2">&quot;plot_intensity_slice&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">crop_mode</span> <span class="o">==</span> <span class="s2">&quot;roi&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">roi_vol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_intensity_slice: crop_to=&#39;roi&#39; requires roi_mask.&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># Zoom to the ROI bounding box before slice selection so the densest</span>
+        <span class="c1"># slice is picked inside the cropped volume.</span>
+        <span class="n">crop</span> <span class="o">=</span> <span class="n">bbox_slices</span><span class="p">(</span>
+            <span class="n">roi_vol</span><span class="p">,</span> <span class="n">crop_pad</span><span class="p">,</span> <span class="n">caller</span><span class="o">=</span><span class="s2">&quot;plot_intensity_slice&quot;</span><span class="p">,</span> <span class="n">mask_name</span><span class="o">=</span><span class="s2">&quot;roi_mask&quot;</span>
+        <span class="p">)</span>
+        <span class="n">image_vol</span> <span class="o">=</span> <span class="n">image_vol</span><span class="p">[</span><span class="n">crop</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">before_vol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">before_vol</span> <span class="o">=</span> <span class="n">before_vol</span><span class="p">[</span><span class="n">crop</span><span class="p">]</span>
+        <span class="n">roi_vol</span> <span class="o">=</span> <span class="n">roi_vol</span><span class="p">[</span><span class="n">crop</span><span class="p">]</span>
 
     <span class="n">resolved_direction</span><span class="p">,</span> <span class="n">resolved_spacing</span> <span class="o">=</span> <span class="n">resolve_display_geometry</span><span class="p">(</span>
         <span class="n">image</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">roi_mask</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span>

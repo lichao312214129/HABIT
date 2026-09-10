@@ -18,7 +18,7 @@ stage below. Parameter tables are generated at Sphinx build time from each
 component constructor. Do not copy them into notebooks — look names and
 constructor signatures up at runtime::
 
-   from habit.api.plugins import list_plugins
+   from habit.plugins import list_plugins
    from habit.spec import parse_feature_expression
    from habit.voxel_features import RawVoxelFeatures, VoxelFeatureExtractorRegistry
 

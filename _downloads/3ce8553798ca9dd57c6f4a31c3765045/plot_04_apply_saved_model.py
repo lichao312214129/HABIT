@@ -70,6 +70,8 @@ fig = plot_habitat_overlay(
     train_cohort[0].image(ROI),
     train_result.habitat_maps[0],
     title="train habitats",
+    axis=0,
+    crop_to="labels",
 )
 fig.savefig("out/apply_saved_train_overlay.png", dpi=150, bbox_inches="tight")
 plt.show()

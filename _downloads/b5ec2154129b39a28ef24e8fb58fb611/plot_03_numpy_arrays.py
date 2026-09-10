@@ -18,7 +18,7 @@ import SimpleITK as sitk
 
 from habit.contracts import ArrayImageRef, Geometry, Subject
 from habit.datasets import fetch_demo
-from habit.viz import plot_intensity_slice
+from habit.viz import plot_numpy_ingest
 from habit.voxel_features import RawVoxelFeatures
 
 DATA = fetch_demo()
@@ -55,13 +55,12 @@ print(field.feature_frame().head())
 field.feature_frame().head()
 
 # %%
-# Anatomy slice with ROI contour — confirms the array-built Subject is plottable.
+# Visual summary of this route: the array itself (left, as a colour matrix)
+# becomes a plottable Subject (right, zoomed to the ROI).
 Path("out").mkdir(exist_ok=True)
-fig = plot_intensity_slice(
+fig = plot_numpy_ingest(
     np_subject.image("LAP"),
     roi_mask=np_subject.mask("LAP"),
-    roi_contour=True,
-    title="NumPy-constructed Subject: LAP with ROI",
 )
-fig.savefig("out/numpy_subject_slice.png", dpi=150, bbox_inches="tight")
+fig.savefig("out/numpy_subject_ingest.png", dpi=150, bbox_inches="tight")
 plt.show()

@@ -3,12 +3,12 @@
 Low-level image I/O helpers
 ===========================
 
-.. automodule:: habit.api.image
+.. automodule:: habit.image
    :no-members:
    :no-inherited-members:
    :no-special-members:
 
-.. currentmodule:: habit.api.image
+.. currentmodule:: habit.image
 
 **User guide:** :doc:`data_model`. Prefer contracts volumes inside
 pipelines; use these when you need SimpleITK-backed read / geometry
@@ -27,7 +27,7 @@ Classes
    MaskVolume
    ImageMaskPair
 
-.. currentmodule:: habit.api.radiomics
+.. currentmodule:: habit.radiomics.extract
 
 .. autosummary::
    :toctree: generated
@@ -39,7 +39,7 @@ Classes
 Functions
 ---------
 
-.. currentmodule:: habit.api.image
+.. currentmodule:: habit.image
 
 .. autosummary::
    :toctree: generated
@@ -50,7 +50,7 @@ Functions
    validate_geometry
    align_image_mask
 
-.. currentmodule:: habit.api.radiomics
+.. currentmodule:: habit.radiomics.extract
 
 .. autosummary::
    :toctree: generated
@@ -65,7 +65,7 @@ need SimpleITK-backed read / geometry checks outside a ``Subject``.
 
 .. code-block:: python
 
-   from habit.api.image import (
+   from habit.image import (
        GeometryPolicy,
        ImageMaskPair,
        align_image_mask,
@@ -124,8 +124,8 @@ Low-level radiomics extraction
 
 Component API (not the YAML workflow)::
 
-   from habit.api.image import GeometryPolicy
-   from habit.api.radiomics import extract_batch, extract_features
+   from habit.image import GeometryPolicy
+   from habit.radiomics.extract import extract_batch, extract_features
 
    result = extract_features(image, mask, params="params.yaml")
    batch = extract_batch(

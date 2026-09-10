@@ -95,7 +95,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
 </ul>
 </li>
@@ -143,7 +143,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -288,6 +288,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#mental-model">Mental model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#where-to-go-next">Where to go next</a></li>
@@ -640,10 +641,7 @@ signature, and not how to use it. Please refer to the
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>In-memory <a class="reference internal" href="habit.contracts.ImageRef.html#habit.contracts.ImageRef" title="habit.contracts.ImageRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageRef</span></code></a> backed by a NumPy array.</p>
 <p>This is the reference implementation for custom lazy references: it holds
-the array plus its geometry and materialises trivially. The <code class="docutils literal notranslate"><span class="pre">geometry</span></code>
-field satisfies the <a class="reference internal" href="habit.contracts.ImageRef.html#habit.contracts.ImageRef" title="habit.contracts.ImageRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageRef</span></code></a> property structurally, so third
-parties can implement the same two-member surface over PACS, zarr, or
-torch tensors.</p>
+the array plus its geometry and materialises trivially.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="habit.contracts.ArrayImageRef.array">
 <span class="sig-name descname"><span class="pre">array</span></span><a class="headerlink" href="#habit.contracts.ArrayImageRef.array" title="Link to this definition"></a></dt>
@@ -674,16 +672,8 @@ torch tensors.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.contracts.ArrayImageRef.load_volume">
-<span class="sig-name descname"><span class="pre">load_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/image.html#ArrayImageRef.load_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.ArrayImageRef.load_volume" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.image.ImageVolume.html#habit.image.ImageVolume" title="habit.contracts.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/image.html#ArrayImageRef.load_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.ArrayImageRef.load_volume" title="Link to this definition"></a></dt>
 <dd><p>Materialise directly as an <a class="reference internal" href="habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageVolume</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>modality</strong> – Optional modality label attached to the volume.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The materialised volume bound to <code class="docutils literal notranslate"><span class="pre">geometry</span></code>.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">

@@ -42,7 +42,7 @@ inventory. That printed tree is what your own ``DATA`` must match.
 
     from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo, inspect_preprocessed_root
-    from habit.viz import plot_intensity_slice
+    from habit.viz import plot_directory_ingest, plot_intensity_slice
 
     # Official pack (first call downloads; later calls reuse the cache).
     # Your own data: DATA = r"D:/my_study/preprocessed"
@@ -109,17 +109,50 @@ inventory. That printed tree is what your own ``DATA`` must match.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-35
+.. GENERATED FROM PYTHON SOURCE LINES 33-36
 
-Anatomy check: greyscale LAP slice of the first subject, with the ROI
-contour. Pass the :class:`~habit.api.image.ImageVolume` (not ``.data``).
+Visual summary of this route: the directory tree becomes plottable
+Subjects (right panel zooms to the ROI; badge colours: folder / image /
+mask).
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-45
+.. GENERATED FROM PYTHON SOURCE LINES 36-42
 
 .. code-block:: Python
 
     subject = cohort[0]
     Path("out").mkdir(exist_ok=True)
+    fig_ingest = plot_directory_ingest(subject.image("LAP"), subject.mask(ROI))
+    fig_ingest.savefig("out/data_in_ingest.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/01_data_in/images/sphx_glr_plot_01_directory_001.png
+   :alt: From directory to Subject, Subject anatomy + ROI
+   :srcset: /auto_examples/01_data_in/images/sphx_glr_plot_01_directory_001.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\diagrams.py:243: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 43-45
+
+Anatomy check: greyscale LAP slice of the first subject, with the ROI
+contour. Pass the :class:`~habit.image.ImageVolume` (not ``.data``).
+
+.. GENERATED FROM PYTHON SOURCE LINES 45-53
+
+.. code-block:: Python
+
     fig_anatomy = plot_intensity_slice(
         subject.image("LAP"),
         roi_mask=subject.mask(ROI),
@@ -131,9 +164,9 @@ contour. Pass the :class:`~habit.api.image.ImageVolume` (not ``.data``).
 
 
 
-.. image-sg:: /auto_examples/01_data_in/images/sphx_glr_plot_01_directory_001.png
+.. image-sg:: /auto_examples/01_data_in/images/sphx_glr_plot_01_directory_002.png
    :alt: LAP anatomy, Processed
-   :srcset: /auto_examples/01_data_in/images/sphx_glr_plot_01_directory_001.png
+   :srcset: /auto_examples/01_data_in/images/sphx_glr_plot_01_directory_002.png
    :class: sphx-glr-single-img
 
 
@@ -141,11 +174,16 @@ contour. Pass the :class:`~habit.api.image.ImageVolume` (not ``.data``).
 
  .. code-block:: none
 
-    F:\work\habit_project\habit\viz\intensity.py:588: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\intensity.py:616: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** (0 minutes 1.912 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_01_directory.py:

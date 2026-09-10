@@ -40,7 +40,7 @@ YAML tree (shipped inside the wheel; not ``demo_data``)::
 
 Python::
 
-   from habit.api.demo_config import copy_demo_config
+   from habit.utils.demo_config_utils import copy_demo_config
    copy_demo_config(r"D:/my_habit_work")
 
 Commands below assume your shell ``cwd`` is this ``<work_dir>``.
