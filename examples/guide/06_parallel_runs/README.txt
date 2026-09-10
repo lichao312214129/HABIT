@@ -1,6 +1,6 @@
-6. Scaled Execution
-===================
+6. Parallel runs
+================
 
-Schedule a cohort with RunPolicy and ProcessPoolBackend. Compare
-serial, persistent, and isolated process pools; checkpoints let a
-second run skip subjects already recorded as success.
+Schedule a cohort with RunPolicy and a process-pool backend.
+Checkpoints skip subjects already recorded as success. Dense
+voxel-texture cohorts can use multi-GPU workers.
