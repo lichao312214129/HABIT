@@ -170,27 +170,9 @@ pool = recipes.Study(spec=direct_spec).fit_predict(cohort)
 assert pool.habitat_model is not None
 print(f"  habitats={pool.habitat_model.n_habitats}")
 
-print("=== Design Study + named-field sugar ===")
-# Named-field sugar + Study(design=...) remains supported.
-sugar = HabitatSpec(
-    name="two_step_sugar",
-    voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 3}),
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {
-            "min_habitats": 2,
-            "max_habitats": 3,
-            "validation": "elbow",
-            "n_init": 3,
-        },
-    ),
-    habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
-    random_seed=11,
-)
-alias = recipes.Study(spec=sugar, design='two_step').fit_predict(cohort)
-print(f"  Study(design=two_step) sugar: habitats={alias.habitat_model.n_habitats}")
+print("=== Design Study validates the two_step stage signature ===")
+alias = recipes.Study(spec=two_step_spec, design="two_step").fit_predict(cohort)
+print(f"  Study(design=two_step): habitats={alias.habitat_model.n_habitats}")
 # END example
 
 # BEGIN figures

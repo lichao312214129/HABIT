@@ -92,7 +92,13 @@ def _infer_design(spec: HabitatSpec) -> str:
     """
     if spec.pooling == "none":
         return "one_step"
-    return "two_step" if spec.supervoxelizer is not None else "direct_pooling"
+    if spec.supervoxelizer is not None:
+        return "two_step"
+    if spec._stages_explicit:
+        from habit.pipeline.stages import design_from_stages, resolve_habitat_stages
+
+        return design_from_stages(resolve_habitat_stages(spec))
+    return "direct_pooling"
 
 
 def _coerce_habitat_features(
@@ -215,6 +221,7 @@ def _build_habitat_spec(
             habitat_features=_coerce_habitat_features(habitat_features),
             random_seed=random_seed,
             pooling="cohort",
+            _named_field_compat=True,
         )
     if design == "one_step":
         return HabitatSpec(
@@ -232,6 +239,7 @@ def _build_habitat_spec(
             habitat_features=_coerce_habitat_features(habitat_features),
             random_seed=random_seed,
             pooling="none",
+            _named_field_compat=True,
         )
     if design == "direct_pooling":
         return HabitatSpec(
@@ -249,6 +257,7 @@ def _build_habitat_spec(
             habitat_features=_coerce_habitat_features(habitat_features),
             random_seed=random_seed,
             pooling="cohort",
+            _named_field_compat=True,
         )
     raise HABITAPIError(
         f"Unknown habitat design {design!r}; expected one of "

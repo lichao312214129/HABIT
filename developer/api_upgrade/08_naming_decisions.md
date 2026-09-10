@@ -393,3 +393,18 @@ v1.1 起 `MLSpec.steps: Tuple[Spec, ...]` 是**唯一**的表步骤表达：**�
 | 随机种子 | `set_random_state(seed)` |
 | 异常基类 | `HabitError` |
 | 表导出 | `result.features.frame.to_csv()`（`FeatureTable` 无 `to_csv`，用其 `.frame`） |
+
+---
+
+## 12. v2：`HabitatSpec` 作者面只留 `stages`
+
+具名字段（`voxel_feature_extractor` / `supervoxelizer` / `pooling` /
+`*_preprocessors` …）是用槽位表达顺序，和 `MLSpec` 当初的三桶字段同一类债。
+
+v2.0 起：
+
+- **作者面**：新代码、新文档、新 YAML 只写 `HabitatSpec(..., stages=(Stage(...), ...))`。
+- **具名字段构造**发出 `HabitDeprecationWarning`，v2.x 全程可用，v3.0 删除。
+- **`to_dict()` 形状不对称**（同 §9.2）：用具名字段声明的 spec 继续输出具名字段 payload（没有 `stages` 键）；`stages=` 声明的输出 `stages`。无条件改成 stages 会移动已发表分析的指纹。
+- **`from_dict` / v0 YAML 翻译 / `two_step_habitat()` 工厂**仍走具名字段路径（不警告），以免加载历史文档或工厂指纹无故漂移。
+- 具名字段作为只读派生视图留给装配层；`build_habitat_components` 会对 stages-first spec 做 role 解析后再读这些字段。

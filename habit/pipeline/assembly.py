@@ -192,8 +192,24 @@ def build_habitat_components(spec: HabitatSpec) -> HabitatComponents:
 
     Raises:
         ComponentNotFoundError: If a spec names an unregistered component.
-        ConfigurationError: If a component's parameters fail validation.
+        HABITAPIError: If a stages-first spec cannot be resolved to the
+            components assembly needs.
     """
+    # Stages-first specs often omit role= and leave named fields empty
+    # until resolution. Assembly reads those fields, so resolve here.
+    from habit.pipeline.stages.executor import ensure_habitat_spec_resolved
+
+    spec = ensure_habitat_spec_resolved(spec)
+    if spec.voxel_feature_extractor is None:
+        raise HABITAPIError(
+            "HabitatSpec is missing a voxel_feature_extractor after stage "
+            "resolution; declare extract_voxel_features in stages."
+        )
+    if spec.habitat_model_fitter is None:
+        raise HABITAPIError(
+            "HabitatSpec is missing a habitat_model_fitter after stage "
+            "resolution; declare a fit stage."
+        )
     voxel_feature_extractor = build_voxel_extractor(spec.voxel_feature_extractor)
     supervoxelizer = None
     if spec.supervoxelizer is not None:

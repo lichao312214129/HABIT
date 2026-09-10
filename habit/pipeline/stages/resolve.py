@@ -168,6 +168,19 @@ def _disambiguate(
             "before extract_supervoxel_features (partition) or immediately "
             "before assign after pool (fitter)."
         )
+    from habit.combiners import CombinerRegistry
+
+    if (
+        "voxel_feature_extractor" in domain_set
+        and CombinerRegistry.get(name) is not None
+        and ROLE_PARTITION in roles_so_far
+    ):
+        # concat / expression trees are voxel extractors and combiners.
+        # After partition they describe supervoxels.
+        return (
+            "supervoxel_feature_extractor",
+            ROLE_EXTRACT_SUPERVOXEL_FEATURES,
+        )
     if len(domains) == 1:
         domain = domains[0]
         if domain == "postprocess":

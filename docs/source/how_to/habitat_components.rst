@@ -135,10 +135,10 @@ Equivalent v1 YAML (``stages`` form)::
            name: volume
            params: {}
 
-Named-field sugar (``voxel_feature_extractor:``, ``habitat_model_fitter:``,
-…) expands to the same stages. Prefer ``stages`` for new Python; both
-round-trip. See :doc:`../api/spec` and
-:doc:`../configuration/habitat`.
+The named-field constructor (``voxel_feature_extractor:``,
+``habitat_model_fitter:``, …) is deprecated: it still loads and keeps
+historical fingerprints, but new Python and YAML should use ``stages``
+only. See :doc:`../api/spec` and :doc:`../configuration/habitat`.
 
 1. Voxel feature extraction
 ---------------------------

@@ -23,6 +23,7 @@ import numpy as np
 import pytest
 
 from habit.contracts.habitat import HabitatModel
+from habit.pipeline.assembly import build_habitat_components
 from habit.pipeline.pooling_marker import PoolMarker, PoolingRegistry
 from habit.pipeline.stages import (
     design_from_stages,
@@ -34,7 +35,7 @@ from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.inspection import StepRecorder
 from habit.recipes.study import Study
 from habit.spec import HabitatSpec, Spec, Stage
-from habit.spec.specs import ROLE_POSTPROCESS_HABITAT
+from habit.spec.specs import ROLE_EXTRACT_SUPERVOXEL_FEATURES, ROLE_POSTPROCESS_HABITAT
 from habit.datasets import make_synthetic_cohort
 
 
@@ -361,6 +362,59 @@ def test_role_inferred_without_explicit_role() -> None:
     assert list(one_result.subject_models) == [
         s.subject_id for s in cohort
     ]
+
+
+@pytest.mark.unit
+def test_build_habitat_components_resolves_nameless_preprocess_roles() -> None:
+    """Assembly fills named fields from stages that omit role=."""
+    spec = HabitatSpec(
+        name="one_step_prep",
+        stages=(
+            Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1"]})),
+            Stage("preprocess1", Spec("minmax", {"across_features": False})),
+            Stage("fit", Spec("kmeans", {"n_habitats": 2, "n_init": 3})),
+            Stage("assign", Spec("nearest_centroid")),
+        ),
+        random_seed=1,
+    )
+    assert spec.voxel_feature_preprocessors == ()
+    components = build_habitat_components(spec)
+    assert components.voxel_feature_preprocessor is not None
+    names = [
+        method.spec.name for method in components.voxel_feature_preprocessor.methods
+    ]
+    assert "minmax" in names
+
+
+@pytest.mark.unit
+def test_concat_after_partition_resolves_as_supervoxel_extractor() -> None:
+    """concat is a voxel extractor and a combiner; after partition it is supervoxel."""
+    spec = HabitatSpec(
+        name="svx_concat",
+        stages=(
+            Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1"]})),
+            Stage("partition", Spec("kmeans", {"n_supervoxels": 4, "n_init": 3})),
+            Stage(
+                "extract_supervoxel_features",
+                Spec(
+                    "concat",
+                    {
+                        "children": [
+                            {"name": "mean", "params": {"modality": "T1"}},
+                        ],
+                    },
+                ),
+            ),
+            Stage("pool", Spec("pool")),
+            Stage("fit", Spec("kmeans", {"n_habitats": 2, "n_init": 3})),
+            Stage("assign", Spec("nearest_centroid")),
+        ),
+        random_seed=1,
+    )
+    roles = [item.role for item in resolve_habitat_stages(spec)]
+    assert ROLE_EXTRACT_SUPERVOXEL_FEATURES in roles
+    components = build_habitat_components(spec)
+    assert components.supervoxel_feature_extractor is not None
 
 
 @pytest.mark.unit

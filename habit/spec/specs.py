@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union, cast
 
 from habit.exceptions import HABITAPIError
+from habit.utils.deprecation import HabitDeprecationWarning, build_deprecation_message
 
 __all__ = [
     "Spec",
@@ -630,8 +631,12 @@ class HabitatSpec:
     """
     Complete specification of a habitat analysis.
 
-    A frozen, fingerprintable value object. ``supervoxelizer=None`` selects
-    the direct clustering designs (one-step / direct-pooling), mirroring the
+    A frozen, fingerprintable value object. Author a habitat analysis as an
+    ordered :attr:`stages` list. The named component fields
+    (``voxel_feature_extractor``, ``supervoxelizer``, ``pooling``, …) are a
+    deprecated constructor kept so historical documents keep their
+    fingerprints. ``supervoxelizer=None`` selects the direct clustering
+    designs (one-step / direct-pooling), mirroring the
     ``SubjectPipeline`` contract.
 
     Attributes:
@@ -669,16 +674,17 @@ class HabitatSpec:
             The default is omitted from :meth:`to_dict` so historical
             fingerprints stay stable when the policy is unchanged.
         pooling: Cross-subject pooling declaration of the habitat dataflow
-            (sugar / derived view). Prefer :attr:`stages` with a ``pool``
-            marker for new code. ``"cohort"`` pools clustering units across
-            subjects; ``"none"`` defines habitats inside each subject
+            (deprecated constructor / derived view). Prefer :attr:`stages`
+            with a ``pool`` marker. ``"cohort"`` pools clustering units
+            across subjects; ``"none"`` defines habitats inside each subject
             (one-step). ``None`` (default) means undeclared and resolves to
-            ``"cohort"`` for sugar forms without an explicit ``pool`` stage;
-            both ``None`` and ``"cohort"`` are omitted from :meth:`to_dict`
-            so historical fingerprints stay stable, while ``"none"`` is
-            always recorded (with the derived :attr:`definition_level`).
-        stages: Ordered named stages (source of truth when provided
-            explicitly). The named component fields above remain as sugar
+            ``"cohort"`` for named-field forms without an explicit ``pool``
+            stage; both ``None`` and ``"cohort"`` are omitted from
+            :meth:`to_dict` so historical fingerprints stay stable, while
+            ``"none"`` is always recorded (with the derived
+            :attr:`definition_level`).
+        stages: Ordered named stages. This is the authoring form for new
+            code. Named component fields remain as a deprecated constructor
             that normalises to the same internal stage list.
         postprocess_supervoxel: Optional Spec for connected-component cleanup
             of supervoxel label maps (two-step). ``None`` skips cleanup and is
@@ -696,19 +702,27 @@ class HabitatSpec:
 
     Examples:
         A two-step design (supervoxels per subject, habitats across the
-        cohort) declared as data:
+        cohort) declared as an ordered stage list:
 
-        >>> from habit.spec import HabitatSpec, Spec
+        >>> from habit.spec import HabitatSpec, Spec, Stage
         >>> spec = HabitatSpec(
         ...     name="habitat_two_step",
-        ...     voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-        ...     supervoxelizer=Spec("kmeans", {"n_supervoxels": 50, "n_init": 10}),
-        ...     habitat_model_fitter=Spec(
-        ...         "kmeans",
-        ...         {"min_habitats": 2, "max_habitats": 10, "validation": "elbow"},
+        ...     stages=(
+        ...         Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        ...         Stage("partition", Spec("kmeans", {"n_supervoxels": 50, "n_init": 10})),
+        ...         Stage("pool", Spec("pool")),
+        ...         Stage(
+        ...             "fit",
+        ...             Spec(
+        ...                 "kmeans",
+        ...                 {"min_habitats": 2, "max_habitats": 10, "validation": "elbow"},
+        ...             ),
+        ...         ),
+        ...         Stage("assign", Spec("nearest_centroid")),
+        ...         Stage("quantify", Spec("volume")),
+        ...         Stage("quantify2", Spec("msi")),
+        ...         Stage("quantify3", Spec("ith_score")),
         ...     ),
-        ...     habitat_assigner=Spec("nearest_centroid"),
-        ...     habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
         ...     random_seed=42,
         ... )
         >>> spec.fingerprint()  # doctest: +ELLIPSIS
@@ -722,8 +736,9 @@ class HabitatSpec:
     """
 
     name: str
-    # Named fields are sugar. They are required unless ``stages`` is supplied
-    # explicitly (then roles fill them after resolution / sugar roles).
+    # Named fields are a deprecated constructor. They are required unless
+    # ``stages`` is supplied explicitly (then roles fill them after
+    # resolution).
     voxel_feature_extractor: Optional[Spec] = None
     supervoxelizer: Optional[Spec] = None
     habitat_model_fitter: Optional[Spec] = None
@@ -744,6 +759,12 @@ class HabitatSpec:
     #: records the ordered stage list). Sugar-only specs keep historical
     #: named-field fingerprints.
     _stages_explicit: bool = field(default=False, repr=False, compare=False)
+    #: Skip the named-field constructor warning. ``from_dict`` sets this for
+    #: historical documents; recipe factories set it so fingerprints stay on
+    #: the named-field payload. After a user-facing sugar construct warns
+    #: once, ``__post_init__`` flips this so ``dataclasses.replace`` does not
+    #: repeat the warning.
+    _named_field_compat: bool = field(default=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         """Coerce component payloads into Spec instances and tuples."""
@@ -845,6 +866,21 @@ class HabitatSpec:
         object.__setattr__(self, "_stages_explicit", stages_explicit)
         if self.random_seed is not None:
             object.__setattr__(self, "random_seed", int(self.random_seed))
+
+        if not stages_explicit and not self._named_field_compat:
+            warnings.warn(
+                build_deprecation_message(
+                    "HabitatSpec named-field constructor",
+                    "2.0.0",
+                    alternative="HabitatSpec(..., stages=(Stage(...), ...))",
+                    removed_in="3.0.0",
+                )
+                + " Named-field YAML / from_dict payloads still load and "
+                "keep their historical fingerprints.",
+                HabitDeprecationWarning,
+                stacklevel=3,
+            )
+            object.__setattr__(self, "_named_field_compat", True)
 
         stage_names = [stage.name for stage in self.resolved_stages()]
         if len(stage_names) != len(set(stage_names)):
@@ -1259,6 +1295,7 @@ class HabitatSpec:
                 ),
                 postprocess_habitat=coerce_spec(payload.get("postprocess_habitat")),
                 version=str(payload.get("version", "1.0")),
+                _named_field_compat=True,
                 **chains,
             )
         # A document may also carry the derived ``definition_level`` (written

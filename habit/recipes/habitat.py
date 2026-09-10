@@ -198,6 +198,19 @@ def _effective_spec(spec: HabitatSpec, seed: Optional[int]) -> HabitatSpec:
     return dataclasses.replace(spec, random_seed=int(seed))
 
 
+def _design_view(spec: HabitatSpec) -> HabitatSpec:
+    """
+    Return a spec whose named fields match resolved stages.
+
+    Design guards read those fields. Stages-first documents often omit
+    ``role=`` and leave them empty until resolution. This view is not the
+    fingerprinted document passed to the executor.
+    """
+    from habit.pipeline.stages.executor import ensure_habitat_spec_resolved
+
+    return ensure_habitat_spec_resolved(spec)
+
+
 def _with_model_habitat_postprocessing(
     spec: HabitatSpec, model: HabitatModel
 ) -> HabitatSpec:
@@ -1273,13 +1286,16 @@ def _two_step(
         True
     """
     effective = _effective_spec(spec, seed)
-    if effective.supervoxelizer is None:
+    view = _design_view(effective)
+    if view.supervoxelizer is None:
         raise HABITAPIError(
             "two_step requires a supervoxelizer in the spec. A spec without "
             "one clusters voxels directly: use direct_pooling (cohort-level "
             "habitats) or one_step (per-subject habitats)."
         )
-    if effective.pooling == "none":
+    if view.pooling == "none" or (
+        effective._stages_explicit and view.definition_level == "subject"
+    ):
         raise HABITAPIError(
             "two_step fits one cohort-level habitat definition, but this "
             "spec declares pooling='none' (subject-level definition). Use "
@@ -1341,13 +1357,16 @@ def _direct_pooling(
             cohort-level definition this design fits).
     """
     effective = _effective_spec(spec, seed)
-    if effective.supervoxelizer is not None:
+    view = _design_view(effective)
+    if view.supervoxelizer is not None:
         raise HABITAPIError(
             "direct_pooling clusters voxels directly, but this spec declares "
-            f"the supervoxelizer {effective.supervoxelizer.name!r}. Use "
+            f"the supervoxelizer {view.supervoxelizer.name!r}. Use "
             "two_step, or drop the supervoxelizer from the spec."
         )
-    if effective.pooling == "none":
+    if view.pooling == "none" or (
+        effective._stages_explicit and view.definition_level == "subject"
+    ):
         raise HABITAPIError(
             "direct_pooling fits one cohort-level habitat definition, but "
             "this spec declares pooling='none' (subject-level definition). "
@@ -1431,19 +1450,22 @@ def _one_step(
             cohort-level dataflow contradicts this design).
     """
     effective = _effective_spec(spec, seed)
-    if effective.supervoxelizer is not None:
+    view = _design_view(effective)
+    if view.supervoxelizer is not None:
         raise HABITAPIError(
             "one_step clusters each subject's voxels directly, but this spec "
-            f"declares the supervoxelizer {effective.supervoxelizer.name!r}."
+            f"declares the supervoxelizer {view.supervoxelizer.name!r}."
         )
-    if effective.cohort_feature_preprocessors:
+    if view.cohort_feature_preprocessors:
         raise HABITAPIError(
             "one_step defines habitats within each subject, so a cohort-level "
             "preprocessing chain would fit statistics no step ever uses. "
             "Move those methods to voxel_feature_preprocessors, or use "
             "direct_pooling."
         )
-    if effective.pooling == "cohort":
+    if effective.pooling == "cohort" or (
+        effective._stages_explicit and view.definition_level == "cohort"
+    ):
         raise HABITAPIError(
             "one_step defines habitats within each subject, but this spec "
             "declares pooling='cohort'. Use two_step / direct_pooling, or "

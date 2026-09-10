@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 import pytest
 
@@ -25,11 +27,13 @@ from habit.spec import (
     MLSpec,
     RunPolicy,
     Spec,
+    Stage,
     load_habitat_spec,
     load_run_policy,
     save_habitat_spec,
     save_run_policy,
 )
+from habit.utils.deprecation import HabitDeprecationWarning
 
 
 def _habitat_spec() -> HabitatSpec:
@@ -97,6 +101,54 @@ def test_habitat_spec_roundtrip_and_component_specs() -> None:
     assert "on_geometry_mismatch" not in payload
     assert restored.component_specs()["supervoxelizer"].name == "slic"
     assert [s.name for s in restored.habitat_features] == ["msi", "ith_score"]
+
+
+@pytest.mark.unit
+@pytest.mark.filterwarnings(
+    "default:HabitatSpec named-field constructor is deprecated:"
+    "habit.utils.deprecation.HabitDeprecationWarning"
+)
+def test_habitat_spec_named_field_constructor_is_deprecated() -> None:
+    """Named-field kwargs warn; stages authoring, from_dict, and factories do not."""
+    with pytest.warns(HabitDeprecationWarning, match="named-field constructor"):
+        HabitatSpec(
+            name="demo",
+            voxel_feature_extractor=Spec(name="raw", params={"modalities": ["T1"]}),
+            supervoxelizer=Spec(name="slic"),
+            habitat_model_fitter=Spec(name="kmeans"),
+            habitat_assigner=Spec(name="nearest_centroid"),
+        )
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", HabitDeprecationWarning)
+        staged = HabitatSpec(
+            name="demo",
+            stages=(
+                Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1"]})),
+                Stage("partition", Spec("slic")),
+                Stage("pool", Spec("pool")),
+                Stage("fit", Spec("kmeans")),
+                Stage("assign", Spec("nearest_centroid")),
+            ),
+        )
+        restored = HabitatSpec.from_dict(
+            {
+                "name": "demo",
+                "voxel_feature_extractor": {
+                    "name": "raw",
+                    "params": {"modalities": ["T1"]},
+                },
+                "supervoxelizer": {"name": "slic", "params": {}},
+                "habitat_model_fitter": {"name": "kmeans", "params": {}},
+                "habitat_assigner": {"name": "nearest_centroid", "params": {}},
+            }
+        )
+        from habit.recipes.study import two_step_habitat
+
+        study = two_step_habitat(modalities=["T1"], n_habitats=3, random_seed=0)
+    assert "stages" in staged.to_dict()
+    assert "stages" not in restored.to_dict()
+    assert "stages" not in study.spec.to_dict()
 
 
 @pytest.mark.unit

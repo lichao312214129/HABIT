@@ -41,6 +41,15 @@ DEMO_DATA_DIR = PROJECT_ROOT / "demo_data"
 ML_DATA_DIR = DEMO_DATA_DIR / "ml_data"
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    """Quiet HabitatSpec named-field deprecation across the suite."""
+    config.addinivalue_line(
+        "filterwarnings",
+        "ignore:HabitatSpec named-field constructor is deprecated:"
+        "habit.utils.deprecation.HabitDeprecationWarning",
+    )
+
+
 @pytest.fixture(scope="session")
 def project_root() -> Path:
     """Absolute path to the project root directory."""
