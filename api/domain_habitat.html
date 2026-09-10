@@ -143,7 +143,7 @@
 <li class="toctree-l4"><a class="reference internal" href="spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -706,10 +706,10 @@ checkpoints: <a class="reference internal" href="../tutorial/execution.html"><sp
 <h2>Ordered stages and the shared executor<a class="headerlink" href="#ordered-stages-and-the-shared-executor" title="Link to this heading"></a></h2>
 <p>A <a class="reference internal" href="generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stage</span></code></a> is a named component slot. Stage <code class="docutils literal notranslate"><span class="pre">name</span></code> values
 are custom labels (not role keywords); scientific roles are inferred from
-position + registry domain. Prefer declaring
-<a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.stages" title="habit.spec.HabitatSpec.stages"><code class="xref py py-attr docutils literal notranslate"><span class="pre">stages</span></code></a> for new code; the classic named
+position + registry domain. Author
+<a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.stages" title="habit.spec.HabitatSpec.stages"><code class="xref py py-attr docutils literal notranslate"><span class="pre">stages</span></code></a>. The classic named
 fields (<code class="docutils literal notranslate"><span class="pre">voxel_feature_extractor</span></code>, <code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code>, …, <code class="docutils literal notranslate"><span class="pre">pooling</span></code>)
-remain sugar that expands to the same sequence.</p>
+are a deprecated constructor that expands to the same sequence.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.pipeline.stages</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_habitat_stages</span><span class="p">,</span> <span class="n">run_subject_stage_prefix</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>

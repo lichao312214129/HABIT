@@ -157,14 +157,15 @@ Primary entry: :meth:`~habit.recipes.Study.fit_predict`.
    print(two_step.describe_methods(style="radiology"))
    # result = recipes.Study(spec=two_step).fit_predict(cohort)
 
-Named-field sugar and ``pooling`` (compat)
-------------------------------------------
+Named-field constructor (deprecated)
+------------------------------------
 
 The classic named fields (``voxel_feature_extractor``, ``supervoxelizer``,
 ``habitat_model_fitter``, ``*_preprocessors``, …) and the ``pooling``
-declaration remain **sugar**: they expand to the same internal stage list.
-When both ``stages`` and named fields are provided, ``stages`` wins if they
-agree; contradictions raise. Prefer ``stages`` for new Python code.
+declaration remain a **deprecated constructor** through v2.x: they expand
+to the same internal stage list and keep historical fingerprints.
+``HabitatSpec.from_dict`` still loads named-field YAML. New Python and new
+YAML should declare ``stages`` only. Removal is scheduled for v3.0.0.
 
 Derived views: a ``pool`` stage ⇒ ``pooling="cohort"`` /
 ``definition_level="cohort"``; otherwise ``"none"`` / ``"subject"``.
@@ -174,27 +175,8 @@ Habitat factories :func:`~habit.recipes.two_step_habitat`,
 :func:`~habit.recipes.one_step_habitat`, and
 :func:`~habit.recipes.direct_pooling_habitat` return a
 :class:`~habit.recipes.Study` whose ``design`` validates the shape their
-name promises before :meth:`~habit.recipes.Study.fit`.
-
-Sugar form (same two-step science as above)::
-
-   from habit.spec import HabitatSpec, Spec
-
-   sugar = HabitatSpec(
-       name="two_step_sugar",
-       voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-       supervoxelizer=Spec("slic", {"n_supervoxels": 50}),
-       habitat_model_fitter=Spec("kmeans", {"n_habitats": 4}),
-       habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(
-           Spec("volume"),
-           Spec("msi"),
-           Spec("ith_score"),
-           Spec("non_radiomics"),
-           Spec("graph"),
-       ),
-       random_seed=42,
-   )
+name promises before :meth:`~habit.recipes.Study.fit`. They remain the
+short path when you do not want to write the stage list by hand.
 
 Save / load and runnable YAML
 -----------------------------

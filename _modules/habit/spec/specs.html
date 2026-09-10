@@ -496,7 +496,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -1010,6 +1010,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitDeprecationWarning</span><span class="p">,</span> <span class="n">build_deprecation_message</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;Spec&quot;</span><span class="p">,</span>
@@ -1644,8 +1645,12 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Complete specification of a habitat analysis.</span>
 
-<span class="sd">    A frozen, fingerprintable value object. ``supervoxelizer=None`` selects</span>
-<span class="sd">    the direct clustering designs (one-step / direct-pooling), mirroring the</span>
+<span class="sd">    A frozen, fingerprintable value object. Author a habitat analysis as an</span>
+<span class="sd">    ordered :attr:`stages` list. The named component fields</span>
+<span class="sd">    (``voxel_feature_extractor``, ``supervoxelizer``, ``pooling``, …) are a</span>
+<span class="sd">    deprecated constructor kept so historical documents keep their</span>
+<span class="sd">    fingerprints. ``supervoxelizer=None`` selects the direct clustering</span>
+<span class="sd">    designs (one-step / direct-pooling), mirroring the</span>
 <span class="sd">    ``SubjectPipeline`` contract.</span>
 
 <span class="sd">    Attributes:</span>
@@ -1683,16 +1688,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            The default is omitted from :meth:`to_dict` so historical</span>
 <span class="sd">            fingerprints stay stable when the policy is unchanged.</span>
 <span class="sd">        pooling: Cross-subject pooling declaration of the habitat dataflow</span>
-<span class="sd">            (sugar / derived view). Prefer :attr:`stages` with a ``pool``</span>
-<span class="sd">            marker for new code. ``&quot;cohort&quot;`` pools clustering units across</span>
-<span class="sd">            subjects; ``&quot;none&quot;`` defines habitats inside each subject</span>
+<span class="sd">            (deprecated constructor / derived view). Prefer :attr:`stages`</span>
+<span class="sd">            with a ``pool`` marker. ``&quot;cohort&quot;`` pools clustering units</span>
+<span class="sd">            across subjects; ``&quot;none&quot;`` defines habitats inside each subject</span>
 <span class="sd">            (one-step). ``None`` (default) means undeclared and resolves to</span>
-<span class="sd">            ``&quot;cohort&quot;`` for sugar forms without an explicit ``pool`` stage;</span>
-<span class="sd">            both ``None`` and ``&quot;cohort&quot;`` are omitted from :meth:`to_dict`</span>
-<span class="sd">            so historical fingerprints stay stable, while ``&quot;none&quot;`` is</span>
-<span class="sd">            always recorded (with the derived :attr:`definition_level`).</span>
-<span class="sd">        stages: Ordered named stages (source of truth when provided</span>
-<span class="sd">            explicitly). The named component fields above remain as sugar</span>
+<span class="sd">            ``&quot;cohort&quot;`` for named-field forms without an explicit ``pool``</span>
+<span class="sd">            stage; both ``None`` and ``&quot;cohort&quot;`` are omitted from</span>
+<span class="sd">            :meth:`to_dict` so historical fingerprints stay stable, while</span>
+<span class="sd">            ``&quot;none&quot;`` is always recorded (with the derived</span>
+<span class="sd">            :attr:`definition_level`).</span>
+<span class="sd">        stages: Ordered named stages. This is the authoring form for new</span>
+<span class="sd">            code. Named component fields remain as a deprecated constructor</span>
 <span class="sd">            that normalises to the same internal stage list.</span>
 <span class="sd">        postprocess_supervoxel: Optional Spec for connected-component cleanup</span>
 <span class="sd">            of supervoxel label maps (two-step). ``None`` skips cleanup and is</span>
@@ -1710,19 +1716,27 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A two-step design (supervoxels per subject, habitats across the</span>
-<span class="sd">        cohort) declared as data:</span>
+<span class="sd">        cohort) declared as an ordered stage list:</span>
 
-<span class="sd">        &gt;&gt;&gt; from habit.spec import HabitatSpec, Spec</span>
+<span class="sd">        &gt;&gt;&gt; from habit.spec import HabitatSpec, Spec, Stage</span>
 <span class="sd">        &gt;&gt;&gt; spec = HabitatSpec(</span>
 <span class="sd">        ...     name=&quot;habitat_two_step&quot;,</span>
-<span class="sd">        ...     voxel_feature_extractor=Spec(&quot;raw&quot;, {&quot;modalities&quot;: [&quot;T1&quot;, &quot;T2&quot;]}),</span>
-<span class="sd">        ...     supervoxelizer=Spec(&quot;kmeans&quot;, {&quot;n_supervoxels&quot;: 50, &quot;n_init&quot;: 10}),</span>
-<span class="sd">        ...     habitat_model_fitter=Spec(</span>
-<span class="sd">        ...         &quot;kmeans&quot;,</span>
-<span class="sd">        ...         {&quot;min_habitats&quot;: 2, &quot;max_habitats&quot;: 10, &quot;validation&quot;: &quot;elbow&quot;},</span>
+<span class="sd">        ...     stages=(</span>
+<span class="sd">        ...         Stage(&quot;extract_voxel_features&quot;, Spec(&quot;raw&quot;, {&quot;modalities&quot;: [&quot;T1&quot;, &quot;T2&quot;]})),</span>
+<span class="sd">        ...         Stage(&quot;partition&quot;, Spec(&quot;kmeans&quot;, {&quot;n_supervoxels&quot;: 50, &quot;n_init&quot;: 10})),</span>
+<span class="sd">        ...         Stage(&quot;pool&quot;, Spec(&quot;pool&quot;)),</span>
+<span class="sd">        ...         Stage(</span>
+<span class="sd">        ...             &quot;fit&quot;,</span>
+<span class="sd">        ...             Spec(</span>
+<span class="sd">        ...                 &quot;kmeans&quot;,</span>
+<span class="sd">        ...                 {&quot;min_habitats&quot;: 2, &quot;max_habitats&quot;: 10, &quot;validation&quot;: &quot;elbow&quot;},</span>
+<span class="sd">        ...             ),</span>
+<span class="sd">        ...         ),</span>
+<span class="sd">        ...         Stage(&quot;assign&quot;, Spec(&quot;nearest_centroid&quot;)),</span>
+<span class="sd">        ...         Stage(&quot;quantify&quot;, Spec(&quot;volume&quot;)),</span>
+<span class="sd">        ...         Stage(&quot;quantify2&quot;, Spec(&quot;msi&quot;)),</span>
+<span class="sd">        ...         Stage(&quot;quantify3&quot;, Spec(&quot;ith_score&quot;)),</span>
 <span class="sd">        ...     ),</span>
-<span class="sd">        ...     habitat_assigner=Spec(&quot;nearest_centroid&quot;),</span>
-<span class="sd">        ...     habitat_features=(Spec(&quot;volume&quot;), Spec(&quot;msi&quot;), Spec(&quot;ith_score&quot;)),</span>
 <span class="sd">        ...     random_seed=42,</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; spec.fingerprint()  # doctest: +ELLIPSIS</span>
@@ -1736,8 +1750,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="c1"># Named fields are sugar. They are required unless ``stages`` is supplied</span>
-    <span class="c1"># explicitly (then roles fill them after resolution / sugar roles).</span>
+    <span class="c1"># Named fields are a deprecated constructor. They are required unless</span>
+    <span class="c1"># ``stages`` is supplied explicitly (then roles fill them after</span>
+    <span class="c1"># resolution).</span>
     <span class="n">voxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">supervoxelizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">habitat_model_fitter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1758,6 +1773,12 @@ window.runMermaid = runMermaid;</script>
     <span class="c1">#: records the ordered stage list). Sugar-only specs keep historical</span>
     <span class="c1">#: named-field fingerprints.</span>
     <span class="n">_stages_explicit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1">#: Skip the named-field constructor warning. ``from_dict`` sets this for</span>
+    <span class="c1">#: historical documents; recipe factories set it so fingerprints stay on</span>
+    <span class="c1">#: the named-field payload. After a user-facing sugar construct warns</span>
+    <span class="c1">#: once, ``__post_init__`` flips this so ``dataclasses.replace`` does not</span>
+    <span class="c1">#: repeat the warning.</span>
+    <span class="n">_named_field_compat</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="HabitatSpec.__post_init__">
 <a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.__post_init__">[docs]</a>
@@ -1861,6 +1882,21 @@ window.runMermaid = runMermaid;</script>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_stages_explicit&quot;</span><span class="p">,</span> <span class="n">stages_explicit</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;random_seed&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stages_explicit</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_named_field_compat</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="n">build_deprecation_message</span><span class="p">(</span>
+                    <span class="s2">&quot;HabitatSpec named-field constructor&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;2.0.0&quot;</span><span class="p">,</span>
+                    <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;HabitatSpec(..., stages=(Stage(...), ...))&quot;</span><span class="p">,</span>
+                    <span class="n">removed_in</span><span class="o">=</span><span class="s2">&quot;3.0.0&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot; Named-field YAML / from_dict payloads still load and &quot;</span>
+                <span class="s2">&quot;keep their historical fingerprints.&quot;</span><span class="p">,</span>
+                <span class="n">HabitDeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_named_field_compat&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
         <span class="n">stage_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_stages</span><span class="p">()]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stage_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">stage_names</span><span class="p">)):</span>
@@ -2302,6 +2338,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">),</span>
                 <span class="n">postprocess_habitat</span><span class="o">=</span><span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">)),</span>
                 <span class="n">version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">)),</span>
+                <span class="n">_named_field_compat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">chains</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="c1"># A document may also carry the derived ``definition_level`` (written</span>

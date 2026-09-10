@@ -143,7 +143,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -765,10 +765,10 @@ stores the same mapping under <code class="docutils literal notranslate"><span c
         <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
 </pre></div>
 </div>
-<p>Named-field sugar (<code class="docutils literal notranslate"><span class="pre">voxel_feature_extractor:</span></code>, <code class="docutils literal notranslate"><span class="pre">habitat_model_fitter:</span></code>,
-…) expands to the same stages. Prefer <code class="docutils literal notranslate"><span class="pre">stages</span></code> for new Python; both
-round-trip. See <a class="reference internal" href="../api/spec.html"><span class="doc">Spec, RunPolicy, and YAML isomorphism</span></a> and
-<a class="reference internal" href="../configuration/habitat.html"><span class="doc">Habitat Segmentation Configuration</span></a>.</p>
+<p>The named-field constructor (<code class="docutils literal notranslate"><span class="pre">voxel_feature_extractor:</span></code>,
+<code class="docutils literal notranslate"><span class="pre">habitat_model_fitter:</span></code>, …) is deprecated: it still loads and keeps
+historical fingerprints, but new Python and YAML should use <code class="docutils literal notranslate"><span class="pre">stages</span></code>
+only. See <a class="reference internal" href="../api/spec.html"><span class="doc">Spec, RunPolicy, and YAML isomorphism</span></a> and <a class="reference internal" href="../configuration/habitat.html"><span class="doc">Habitat Segmentation Configuration</span></a>.</p>
 </section>
 <section id="voxel-feature-extraction">
 <h2>1. Voxel feature extraction<a class="headerlink" href="#voxel-feature-extraction" title="Link to this heading"></a></h2>

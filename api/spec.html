@@ -143,7 +143,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -820,13 +820,14 @@ Recommended labels (convention only): <code class="docutils literal notranslate"
 </pre></div>
 </div>
 </section>
-<section id="named-field-sugar-and-pooling-compat">
-<h2>Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)<a class="headerlink" href="#named-field-sugar-and-pooling-compat" title="Link to this heading"></a></h2>
+<section id="named-field-constructor-deprecated">
+<h2>Named-field constructor (deprecated)<a class="headerlink" href="#named-field-constructor-deprecated" title="Link to this heading"></a></h2>
 <p>The classic named fields (<code class="docutils literal notranslate"><span class="pre">voxel_feature_extractor</span></code>, <code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code>,
 <code class="docutils literal notranslate"><span class="pre">habitat_model_fitter</span></code>, <code class="docutils literal notranslate"><span class="pre">*_preprocessors</span></code>, …) and the <code class="docutils literal notranslate"><span class="pre">pooling</span></code>
-declaration remain <strong>sugar</strong>: they expand to the same internal stage list.
-When both <code class="docutils literal notranslate"><span class="pre">stages</span></code> and named fields are provided, <code class="docutils literal notranslate"><span class="pre">stages</span></code> wins if they
-agree; contradictions raise. Prefer <code class="docutils literal notranslate"><span class="pre">stages</span></code> for new Python code.</p>
+declaration remain a <strong>deprecated constructor</strong> through v2.x: they expand
+to the same internal stage list and keep historical fingerprints.
+<code class="docutils literal notranslate"><span class="pre">HabitatSpec.from_dict</span></code> still loads named-field YAML. New Python and new
+YAML should declare <code class="docutils literal notranslate"><span class="pre">stages</span></code> only. Removal is scheduled for v3.0.0.</p>
 <p>Derived views: a <code class="docutils literal notranslate"><span class="pre">pool</span></code> stage ⇒ <code class="docutils literal notranslate"><span class="pre">pooling=&quot;cohort&quot;</span></code> /
 <code class="docutils literal notranslate"><span class="pre">definition_level=&quot;cohort&quot;</span></code>; otherwise <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;subject&quot;</span></code>.
 <code class="docutils literal notranslate"><span class="pre">definition_level</span></code> is read-only.</p>
@@ -834,27 +835,8 @@ agree; contradictions raise. Prefer <code class="docutils literal notranslate"><
 <a class="reference internal" href="generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat" title="habit.recipes.one_step_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_step_habitat()</span></code></a>, and
 <a class="reference internal" href="generated/habit.recipes.direct_pooling_habitat.html#habit.recipes.direct_pooling_habitat" title="habit.recipes.direct_pooling_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">direct_pooling_habitat()</span></code></a> return a
 <a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code></a> whose <code class="docutils literal notranslate"><span class="pre">design</span></code> validates the shape their
-name promises before <a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study.fit" title="habit.recipes.Study.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a>.</p>
-<p>Sugar form (same two-step science as above):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span>
-
-<span class="n">sugar</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;two_step_sugar&quot;</span><span class="p">,</span>
-    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
-    <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;slic&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}),</span>
-    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}),</span>
-    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
-    <span class="n">habitat_features</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">),</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">),</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">),</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span>
-    <span class="p">),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
+name promises before <a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study.fit" title="habit.recipes.Study.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a>. They remain the
+short path when you do not want to write the stage list by hand.</p>
 </section>
 <section id="save-load-and-runnable-yaml">
 <h2>Save / load and runnable YAML<a class="headerlink" href="#save-load-and-runnable-yaml" title="Link to this heading"></a></h2>

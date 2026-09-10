@@ -496,7 +496,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#classes">Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
@@ -1071,7 +1071,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;one_step&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;two_step&quot;</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;direct_pooling&quot;</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;two_step&quot;</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">_stages_explicit</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.pipeline.stages</span><span class="w"> </span><span class="kn">import</span> <span class="n">design_from_stages</span><span class="p">,</span> <span class="n">resolve_habitat_stages</span>
+
+        <span class="k">return</span> <span class="n">design_from_stages</span><span class="p">(</span><span class="n">resolve_habitat_stages</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s2">&quot;direct_pooling&quot;</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_habitat_features</span><span class="p">(</span>
@@ -1194,6 +1200,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">habitat_features</span><span class="o">=</span><span class="n">_coerce_habitat_features</span><span class="p">(</span><span class="n">habitat_features</span><span class="p">),</span>
             <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
             <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;cohort&quot;</span><span class="p">,</span>
+            <span class="n">_named_field_compat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">design</span> <span class="o">==</span> <span class="s2">&quot;one_step&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">HabitatSpec</span><span class="p">(</span>
@@ -1211,6 +1218,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">habitat_features</span><span class="o">=</span><span class="n">_coerce_habitat_features</span><span class="p">(</span><span class="n">habitat_features</span><span class="p">),</span>
             <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
             <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="n">_named_field_compat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">design</span> <span class="o">==</span> <span class="s2">&quot;direct_pooling&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">HabitatSpec</span><span class="p">(</span>
@@ -1228,6 +1236,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">habitat_features</span><span class="o">=</span><span class="n">_coerce_habitat_features</span><span class="p">(</span><span class="n">habitat_features</span><span class="p">),</span>
             <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
             <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;cohort&quot;</span><span class="p">,</span>
+            <span class="n">_named_field_compat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;Unknown habitat design </span><span class="si">{</span><span class="n">design</span><span class="si">!r}</span><span class="s2">; expected one of &quot;</span>

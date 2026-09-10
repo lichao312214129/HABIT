@@ -72,10 +72,10 @@ Ordered stages and the shared executor
 
 A :class:`~habit.spec.Stage` is a named component slot. Stage ``name`` values
 are custom labels (not role keywords); scientific roles are inferred from
-position + registry domain. Prefer declaring
-:attr:`~habit.spec.HabitatSpec.stages` for new code; the classic named
+position + registry domain. Author
+:attr:`~habit.spec.HabitatSpec.stages`. The classic named
 fields (``voxel_feature_extractor``, ``supervoxelizer``, …, ``pooling``)
-remain sugar that expands to the same sequence.
+are a deprecated constructor that expands to the same sequence.
 
 .. code-block:: python
 
