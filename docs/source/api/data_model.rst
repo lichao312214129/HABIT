@@ -125,6 +125,32 @@ Map a subject operator over the cohort (default serial backend)::
 
    maps = cohort.map(pipeline)
 
+Load from one image file and one ROI file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is no single ``load(image, roi)`` helper. Read the two files, or wrap
+the same paths as lazy references on a :class:`~habit.contracts.Subject`.
+NIfTI (``.nii`` / ``.nii.gz``), NRRD, and MetaImage all work. Walk-through:
+:doc:`/auto_examples/01_data_in/plot_04_nifti_files`.
+
+.. code-block:: python
+
+   from habit.image import read_image, read_mask
+
+   image = read_image("subj.nii.gz", modality="T2")
+   mask = read_mask("roi.nii.gz")
+
+.. code-block:: python
+
+   from habit.adapters import FileImageRef
+   from habit.contracts import Subject
+
+   subject = Subject(
+       subject_id="subj001",
+       images={"T2": FileImageRef("subj.nii.gz", is_mask=False, role_name="T2")},
+       masks={"tumor": FileImageRef("roi.nii.gz", is_mask=True, role_name="tumor")},
+   )
+
 Habitat artefacts
 -----------------
 
