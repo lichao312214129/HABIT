@@ -89,6 +89,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -638,7 +639,7 @@ signature, and not how to use it. Please refer to the
 <dl class="py class">
 <dt class="sig sig-object py" id="habit.contracts.Subject">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Subject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">subject_id:</span> <span class="pre">str,</span> <span class="pre">images:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.image.ImageRef],</span> <span class="pre">masks:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.image.ImageRef],</span> <span class="pre">metadata:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>One imaging subject.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="habit.contracts.Subject.subject_id">
@@ -646,7 +647,7 @@ signature, and not how to use it. Please refer to the
 <dd><p>Identifier unique within a cohort.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -657,7 +658,7 @@ signature, and not how to use it. Please refer to the
 <dd><p>Modality name to lazy image handle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference internal" href="habit.contracts.ImageRef.html#habit.contracts.ImageRef" title="habit.contracts.image.ImageRef">habit.contracts.image.ImageRef</a>]</p>
+<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference internal" href="habit.contracts.ImageRef.html#habit.contracts.ImageRef" title="habit.contracts.image.ImageRef">habit.contracts.image.ImageRef</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -668,7 +669,7 @@ signature, and not how to use it. Please refer to the
 <dd><p>ROI name to lazy mask handle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference internal" href="habit.contracts.ImageRef.html#habit.contracts.ImageRef" title="habit.contracts.image.ImageRef">habit.contracts.image.ImageRef</a>]</p>
+<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference internal" href="habit.contracts.ImageRef.html#habit.contracts.ImageRef" title="habit.contracts.image.ImageRef">habit.contracts.image.ImageRef</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -680,20 +681,20 @@ signature, and not how to use it. Please refer to the
 computation; consumed by downstream modelling and reporting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]</p>
+<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.contracts.Subject.__post_init__">
-<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject.__post_init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject.__post_init__" title="Link to this definition"></a></dt>
 <dd><p>Validate identity and defensively copy the mapping fields.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.contracts.Subject.image">
-<span class="sig-name descname"><span class="pre">image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject.image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject.image" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.image.ImageVolume.html#habit.image.ImageVolume" title="habit.contracts.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject.image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject.image" title="Link to this definition"></a></dt>
 <dd><p>Materialise one modality.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -703,14 +704,14 @@ computation; consumed by downstream modelling and reporting.</p>
 <dd class="field-even"><p>The loaded intensity volume.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the modality is absent for this subject.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the modality is absent for this subject.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.contracts.Subject.mask">
-<span class="sig-name descname"><span class="pre">mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roi_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.image.MaskVolume"><span class="pre">MaskVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject.mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject.mask" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roi_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.image.MaskVolume"><span class="pre">MaskVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject.mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject.mask" title="Link to this definition"></a></dt>
 <dd><p>Materialise one ROI mask.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -722,8 +723,8 @@ exists, that mask is returned.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the ROI is absent.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">roi_name</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> and the subject has more
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the ROI is absent.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">roi_name</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> and the subject has more
     than one mask, since silently picking one would be unsafe.</p></li>
 </ul>
 </dd>
@@ -732,16 +733,16 @@ exists, that mask is returned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.contracts.Subject.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">subject_id:</span> <span class="pre">str,</span> <span class="pre">images:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.image.ImageRef],</span> <span class="pre">masks:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.image.ImageRef],</span> <span class="pre">metadata:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#habit.contracts.Subject.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">subject_id:</span> <span class="pre">str,</span> <span class="pre">images:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.image.ImageRef],</span> <span class="pre">masks:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.image.ImageRef],</span> <span class="pre">metadata:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#habit.contracts.Subject.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <section id="examples-using-habit-contracts-subject">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.Subject</span></code><a class="headerlink" href="#examples-using-habit-contracts-subject" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="When you have one image file and one ROI file (NIfTI, NRRD, or MetaImage), use HABIT&#x27;s file readers or wrap the same paths as lazy FileImageRef handles on a Subject. There is no single load(image, roi) helper; these two calls are the public pair."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

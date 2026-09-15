@@ -442,6 +442,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -475,8 +476,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -1098,9 +1099,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    are ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``,</span>
 <span class="sd">    and ``bspline_deform`` (the last needs the optional ``monai`` extra).</span>
 <span class="sd">    Mask-only contour methods (``morphological``, ``gradient_weighted``,</span>
-<span class="sd">    ``slice_extent``) leave the image unchanged; call the registered</span>
-<span class="sd">    component on a :class:`~habit.contracts.subject.Subject` when you</span>
-<span class="sd">    need the edited mask.</span>
+<span class="sd">    ``slice_extent``, and ``bspline_deform`` with ``mask_only=True``)</span>
+<span class="sd">    leave the image unchanged; call the registered component on a</span>
+<span class="sd">    :class:`~habit.contracts.subject.Subject` when you need the edited</span>
+<span class="sd">    mask.</span>
 <span class="sd">    Geometric methods resample back onto the original voxel grid so the</span>
 <span class="sd">    result stays voxel-wise comparable to ``image``.</span>
 

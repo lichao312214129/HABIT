@@ -28,7 +28,11 @@ import matplotlib.pyplot as plt
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.spec import HabitatSpec, Spec, Stage
-from habit.viz import plot_habitat_overlay, plot_partition_triptych
+from habit.viz import (
+    plot_cluster_validation_from_report,
+    plot_habitat_overlay,
+    plot_partition_triptych,
+)
 import habit.recipes as recipes
 
 DATA = fetch_demo()
@@ -96,6 +100,16 @@ fig_tri = plot_partition_triptych(
 fig_tri.savefig("out/two_step_triptych.png", dpi=150, bbox_inches="tight")
 plt.show()
 
+# Auto-K / elbow: cohort HabitatModel. Volume / MSI / ITH figures live in
+# Habitat Guide 5. Quantify — this page only saves the selection curves.
+report = (two_step_result.habitat_model.preprocessing_state or {}).get(
+    "selection_report"
+)
+assert report is not None
+fig_k = plot_cluster_validation_from_report(report)
+fig_k.savefig("out/two_step_cluster_validation.png", dpi=150, bbox_inches="tight")
+plt.show()
+
 # %%
 # One-step: neither ``partition`` nor ``pool``. Cluster voxels inside
 # each subject (no supervoxels). Integer ids are per-subject.
@@ -138,6 +152,14 @@ fig_one = plot_habitat_overlay(
 fig_one.savefig("out/one_step_overlay.png", dpi=150, bbox_inches="tight")
 plt.show()
 
+# One-step has no cohort HabitatModel; the report is on this subject's model.
+one_model = one_step_result.subject_models[cohort[0].subject_id]
+one_report = (one_model.preprocessing_state or {}).get("selection_report")
+assert one_report is not None
+fig_one_k = plot_cluster_validation_from_report(one_report)
+fig_one_k.savefig("out/one_step_cluster_validation.png", dpi=150, bbox_inches="tight")
+plt.show()
+
 # %%
 # Direct-pooling: ``pool`` only. Skip the cluster partition and pool
 # existing voxel units across the cohort.
@@ -174,4 +196,14 @@ fig_direct = plot_habitat_overlay(
     title="habitats (direct-pooling)",
 )
 fig_direct.savefig("out/direct_pooling_overlay.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+report = (direct_result.habitat_model.preprocessing_state or {}).get(
+    "selection_report"
+)
+assert report is not None
+fig_direct_k = plot_cluster_validation_from_report(report)
+fig_direct_k.savefig(
+    "out/direct_pooling_cluster_validation.png", dpi=150, bbox_inches="tight"
+)
 plt.show()

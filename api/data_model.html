@@ -89,6 +89,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -122,8 +123,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -737,6 +738,29 @@ the convenience helper or <a class="reference internal" href="generated/habit.ad
 </div>
 <p>Map a subject operator over the cohort (default serial backend):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">maps</span> <span class="o">=</span> <span class="n">cohort</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="load-from-one-image-file-and-one-roi-file">
+<h3>Load from one image file and one ROI file<a class="headerlink" href="#load-from-one-image-file-and-one-roi-file" title="Link to this heading"></a></h3>
+<p>There is no single <code class="docutils literal notranslate"><span class="pre">load(image,</span> <span class="pre">roi)</span></code> helper. Read the two files, or wrap
+the same paths as lazy references on a <a class="reference internal" href="generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a>.
+NIfTI (<code class="docutils literal notranslate"><span class="pre">.nii</span></code> / <code class="docutils literal notranslate"><span class="pre">.nii.gz</span></code>), NRRD, and MetaImage all work. Walk-through:
+<a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_image</span><span class="p">,</span> <span class="n">read_mask</span>
+
+<span class="n">image</span> <span class="o">=</span> <span class="n">read_image</span><span class="p">(</span><span class="s2">&quot;subj.nii.gz&quot;</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T2&quot;</span><span class="p">)</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">read_mask</span><span class="p">(</span><span class="s2">&quot;roi.nii.gz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileImageRef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">Subject</span>
+
+<span class="n">subject</span> <span class="o">=</span> <span class="n">Subject</span><span class="p">(</span>
+    <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span>
+    <span class="n">images</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;T2&quot;</span><span class="p">:</span> <span class="n">FileImageRef</span><span class="p">(</span><span class="s2">&quot;subj.nii.gz&quot;</span><span class="p">,</span> <span class="n">is_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">role_name</span><span class="o">=</span><span class="s2">&quot;T2&quot;</span><span class="p">)},</span>
+    <span class="n">masks</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tumor&quot;</span><span class="p">:</span> <span class="n">FileImageRef</span><span class="p">(</span><span class="s2">&quot;roi.nii.gz&quot;</span><span class="p">,</span> <span class="n">is_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">role_name</span><span class="o">=</span><span class="s2">&quot;tumor&quot;</span><span class="p">)},</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </section>

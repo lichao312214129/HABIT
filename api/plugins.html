@@ -89,6 +89,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -2571,7 +2572,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <h4>image_perturbation<a class="headerlink" href="#image-perturbation" title="Link to this heading"></a></h4>
 <dl>
 <dt><strong>bspline_deform</strong></dt><dd><p>MONAI elastic / B-spline free-form warp of every image and ROI.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device,</span> <span class="pre">target_dice,</span> <span class="pre">dice_tolerance,</span> <span class="pre">control_spacing</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device,</span> <span class="pre">target_dice,</span> <span class="pre">dice_tolerance,</span> <span class="pre">control_spacing,</span> <span class="pre">mask_only</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;bspline_deform&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;bspline_deform&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -2633,6 +2634,11 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
 <td><p>float | None</p></td>
 <td><p>When set, voxels between neighbouring FFD control points (must be <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">1</span></code>). <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElasticd</span></code> path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mask_only</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, warp every ROI and leave images untouched (inter-observer contour wobble on a fixed scan). When <code class="docutils literal notranslate"><span class="pre">False</span></code>, image and mask share one field.</p></td>
 </tr>
 </tbody>
 </table>

@@ -89,6 +89,7 @@
 <li class="toctree-l3"><a class="reference internal" href="plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -122,8 +123,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -628,7 +629,8 @@
   <section id="data-in">
 <span id="sphx-glr-auto-examples-01-data-in"></span><h1>1. Data In<a class="headerlink" href="#data-in" title="Link to this heading"></a></h1>
 <p>Load images and ROIs into Subject / Cohort objects from directory trees,
-SimpleITK image objects, or NumPy arrays and deep-learning tensors.</p>
+NIfTI / NRRD file pairs, SimpleITK image objects, or NumPy arrays and
+deep-learning tensors.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="HABIT operators take a Subject (or a Cohort of them). Build that object from a preprocessed directory tree with cohort_from_directory."><img alt="" src="../../_images/sphx_glr_plot_01_directory_thumb.png" />
 <p><a class="reference internal" href="plot_01_directory.html"><span class="doc">Load from directory</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from directory</div>
@@ -638,6 +640,9 @@ SimpleITK image objects, or NumPy arrays and deep-learning tensors.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Wrap raw NumPy arrays or deep-learning tensors with ArrayImageRef and explicit Geometry. Axis order is (z, y, x); mask arrays must be integer labels (``0`` = background)."><img alt="" src="../../_images/sphx_glr_plot_03_numpy_arrays_thumb.png" />
 <p><a class="reference internal" href="plot_03_numpy_arrays.html"><span class="doc">Load from NumPy arrays</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from NumPy arrays</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="When you have one image file and one ROI file (NIfTI, NRRD, or MetaImage), use HABIT&#x27;s file readers or wrap the same paths as lazy FileImageRef handles on a Subject. There is no single load(image, roi) helper; these two calls are the public pair."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
+<p><a class="reference internal" href="plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
 </div></div><div class="toctree-wrapper compound">
 </div>
 </section>

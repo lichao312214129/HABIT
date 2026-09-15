@@ -87,6 +87,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -120,8 +121,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -627,11 +628,14 @@
 <p>This page is a bookmark. Load images and masks from:</p>
 <ul class="simple">
 <li><p>a directory (<code class="docutils literal notranslate"><span class="pre">fetch_demo</span></code> / <code class="docutils literal notranslate"><span class="pre">cohort_from_directory</span></code>),</p></li>
+<li><p>one image file + one ROI file (<code class="docutils literal notranslate"><span class="pre">read_image</span></code> / <code class="docutils literal notranslate"><span class="pre">read_mask</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">FileImageRef</span></code> + <code class="docutils literal notranslate"><span class="pre">Subject</span></code>),</p></li>
 <li><p>SimpleITK, or</p></li>
 <li><p>NumPy arrays</p></li>
 </ul>
 <p>on <a class="reference internal" href="../examples/data_from_arrays.html"><span class="doc">Load data</span></a>. Path-list YAML for CLI (scattered
-files) is on that same page.</p>
+files) is on that same page. The NIfTI / NRRD file-pair route is
+<a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a>.</p>
 <p>Then run a map recipe: <a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis</span></a>,
 <a class="reference internal" href="../examples/one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a>, or
 <a class="reference internal" href="../examples/apply_saved_model.html"><span class="doc">Apply a saved model</span></a>.</p>
