@@ -27,6 +27,7 @@ from habit.viz import (
     plot_habitat_label_compare,
     plot_habitat_overlay,
     plot_intensity_slice,
+    plot_nifti_ingest,
     plot_numpy_ingest,
     plot_simpleitk_ingest,
     plot_voxel_texture_slice,
@@ -196,6 +197,24 @@ def test_numpy_ingest_with_roi_returns_figure() -> None:
     roi = (labels > 0).astype(np.int32)
     fig = plot_numpy_ingest(image, roi_mask=roi)
     assert isinstance(fig, Figure)
+    _close(fig)
+
+
+def test_nifti_ingest_returns_ascii_figure_with_file_pair() -> None:
+    image, labels = _synthetic_volume()
+    roi = (labels > 0).astype(np.int32)
+    fig = plot_nifti_ingest(image, roi)
+    assert isinstance(fig, Figure)
+    fig.canvas.draw()
+    texts = []
+    for ax in fig.axes:
+        texts.extend(text.get_text() for text in ax.texts)
+        if ax.get_title():
+            texts.append(ax.get_title())
+    assert texts and all(text.isascii() for text in texts)
+    assert any("image.nii.gz" in text for text in texts)
+    assert any("mask.nii.gz" in text for text in texts)
+    assert any("read_image" in text for text in texts)
     _close(fig)
 
 

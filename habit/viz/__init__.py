@@ -111,6 +111,7 @@ from habit.viz.habitat_napari import view_habitat_napari
 from habit.viz.diagrams import (
     plot_directory_ingest,
     plot_feature_preprocessing_chain,
+    plot_nifti_ingest,
     plot_numpy_ingest,
     plot_simpleitk_ingest,
 )
@@ -173,6 +174,7 @@ __all__ = [
     "plot_directory_ingest",
     "plot_simpleitk_ingest",
     "plot_numpy_ingest",
+    "plot_nifti_ingest",
     "plot_feature_preprocessing_chain",
     # habitat core analysis figures (validation / map features / compare)
     "plot_cluster_validation_curves",

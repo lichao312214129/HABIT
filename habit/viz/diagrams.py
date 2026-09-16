@@ -15,15 +15,16 @@
 """Teaching diagrams: how data ENTERS HABIT and how features are chained.
 
 Gallery pages that teach an ingestion route (directory tree, SimpleITK
-objects, NumPy arrays) or the feature-preprocessing chains get a thumbnail
-that shows the ROUTE, not another bare slice: a stylised badge on the left,
-an arrow, and a real cropped data panel on the right. The data panel reuses
-the habitat-overlay rendering internals, so colours and orientation match
-:func:`~habit.viz.plot_habitat_overlay` exactly.
+objects, NumPy arrays, NIfTI file pairs) or the feature-preprocessing
+chains get a thumbnail that shows the ROUTE, not another bare slice: a
+stylised badge on the left, an arrow, and a real cropped data panel on the
+right. The data panel reuses the habitat-overlay rendering internals, so
+colours and orientation match :func:`~habit.viz.plot_habitat_overlay`
+exactly.
 
-The badges are HABIT-drawn schematics. They are NOT the official SimpleITK
-or NumPy logos (trademark); they only evoke a voxel cube / a matrix so the
-ingestion route is recognisable at thumbnail size.
+The badges are HABIT-drawn schematics. They are NOT official SimpleITK,
+NumPy, or NIfTI logos (trademark); they only evoke a voxel cube / a matrix
+/ a file pair so the ingestion route is recognisable at thumbnail size.
 
 Pure functions: contract objects or arrays in, a matplotlib ``Figure`` out,
 no filesystem and no ``show``. All text is ASCII (journal-safe).
@@ -65,6 +66,7 @@ __all__ = [
     "plot_directory_ingest",
     "plot_simpleitk_ingest",
     "plot_numpy_ingest",
+    "plot_nifti_ingest",
     "plot_feature_preprocessing_chain",
 ]
 
@@ -478,6 +480,131 @@ def _draw_numpy_badge(ax: "Axes", matrix: np.ndarray) -> None:
     ax.set_xlabel("NumPy ndarray  (z, y, x)", fontsize=11, fontweight="bold")
 
 
+def _draw_file_card(
+    ax: "Axes",
+    *,
+    x0: float,
+    y0: float,
+    width: float,
+    height: float,
+    facecolor: str,
+    edgecolor: str,
+    foldcolor: str,
+    label: str,
+    zorder: int,
+) -> None:
+    """
+    Draw one document glyph (rounded body + dog-ear) labelled ``label``.
+
+    Args:
+        ax: Target axes in axes-fraction coordinates.
+        x0: Left edge of the card.
+        y0: Bottom edge of the card.
+        width: Card width.
+        height: Card height.
+        facecolor: Fill of the card body.
+        edgecolor: Stroke of the body and the dog-ear.
+        foldcolor: Fill of the folded corner.
+        label: ASCII filename drawn on the card (e.g. ``image.nii.gz``).
+        zorder: Matplotlib z-order; the dog-ear and text sit above the body.
+    """
+    from matplotlib.patches import Polygon
+
+    fold = min(width, height) * 0.22
+    body = [
+        (x0, y0),
+        (x0 + width, y0),
+        (x0 + width, y0 + height - fold),
+        (x0 + width - fold, y0 + height),
+        (x0, y0 + height),
+    ]
+    ax.add_patch(
+        Polygon(
+            body,
+            closed=True,
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            linewidth=1.6,
+            zorder=zorder,
+        )
+    )
+    ear = [
+        (x0 + width - fold, y0 + height),
+        (x0 + width, y0 + height - fold),
+        (x0 + width - fold, y0 + height - fold),
+    ]
+    ax.add_patch(
+        Polygon(
+            ear,
+            closed=True,
+            facecolor=foldcolor,
+            edgecolor=edgecolor,
+            linewidth=1.2,
+            zorder=zorder + 1,
+        )
+    )
+    ax.text(
+        x0 + width * 0.46,
+        y0 + height * 0.42,
+        sanitize_label(label),
+        fontsize=10,
+        fontweight="bold",
+        color="#222222",
+        ha="center",
+        va="center",
+        zorder=zorder + 2,
+    )
+
+
+def _draw_nifti_badge(ax: "Axes") -> None:
+    """
+    Draw two stacked file cards: ``image.nii.gz`` over ``mask.nii.gz``.
+
+    Colours match :data:`_TREE_KIND_COLORS` (image green, mask orange) so
+    the NIfTI badge and the directory-tree swatches read as one system.
+    The cards are HABIT-drawn; they are not a NIfTI Consortium logo.
+    """
+    ax.axis("off")
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    # Image card sits up-left; mask card is offset down-right. Vertical
+    # gap keeps the upper filename clear of the overlapping card.
+    _draw_file_card(
+        ax,
+        x0=0.08,
+        y0=0.50,
+        width=0.58,
+        height=0.38,
+        facecolor="#B8E0D2",
+        edgecolor=_TREE_KIND_COLORS["image"],
+        foldcolor="#7FCBB3",
+        label="image.nii.gz",
+        zorder=2,
+    )
+    _draw_file_card(
+        ax,
+        x0=0.32,
+        y0=0.16,
+        width=0.58,
+        height=0.38,
+        facecolor="#F6E2B3",
+        edgecolor=_TREE_KIND_COLORS["mask"],
+        foldcolor="#EED18A",
+        label="mask.nii.gz",
+        zorder=3,
+    )
+    ax.text(
+        0.5,
+        0.06,
+        "read_image / read_mask",
+        family="monospace",
+        fontsize=9,
+        color="#555555",
+        ha="center",
+        va="center",
+    )
+
+
 def _draw_chain(ax: "Axes", steps: Sequence[str]) -> None:
     """
     Draw the feature-preprocessing chain as coloured boxes joined by arrows.
@@ -718,6 +845,42 @@ def plot_numpy_ingest(
         lambda ax: _draw_numpy_badge(ax, matrix),
         image,
         labels=labels,
+        roi_mask=roi_mask,
+        title=title,
+        panel_title=panel_title,
+        crop_pad=crop_pad,
+    )
+
+
+def plot_nifti_ingest(
+    image: object,
+    roi_mask: object,
+    *,
+    title: str = "From NIfTI files to Subject",
+    panel_title: str = "Subject anatomy + ROI",
+    crop_pad: int = 8,
+) -> "Figure":
+    """
+    Diagram for the file-pair route: ``image.nii.gz`` + ``mask.nii.gz``.
+
+    The right-hand panel is the cropped anatomy with a cyan ROI fill, the
+    same view as :func:`plot_directory_ingest` / :func:`plot_numpy_ingest`.
+    This page does not fit habitats; the story is files to ``Subject``.
+
+    Args:
+        image: Anatomy volume (array or ``ImageVolume``) of one subject.
+        roi_mask: ROI mask (array or ``MaskVolume``), same grid as ``image``.
+        title: Figure title (ASCII-sanitised).
+        panel_title: Title of the cropped data panel.
+        crop_pad: Context voxels around the ROI bounding box (default ``8``).
+
+    Returns:
+        A matplotlib ``Figure`` with the NIfTI file-pair badge on the left
+        and the cropped anatomy + cyan ROI fill on the right.
+    """
+    return _ingest_figure(
+        _draw_nifti_badge,
+        image,
         roi_mask=roi_mask,
         title=title,
         panel_title=panel_title,
