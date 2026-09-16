@@ -785,8 +785,9 @@ coronal/sagittal keep superior up).</p>
 <section id="ingestion-and-preprocessing-diagrams">
 <h3>Ingestion and preprocessing diagrams<a class="headerlink" href="#ingestion-and-preprocessing-diagrams" title="Link to this heading"></a></h3>
 <p>Teaching diagrams for the gallery: how data enters HABIT (directory tree,
-SimpleITK objects, NumPy arrays) and how clustering features are
-preprocessed. The right-hand panel is a real cropped data view.</p>
+SimpleITK objects, NumPy arrays, NIfTI file pairs) and how clustering
+features are preprocessed. The right-hand panel is a real cropped data
+view.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_directory_ingest.html#habit.viz.plot_directory_ingest" title="habit.viz.plot_directory_ingest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_directory_ingest</span></code></a></p></td>
@@ -798,7 +799,10 @@ preprocessed. The right-hand panel is a real cropped data view.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_numpy_ingest.html#habit.viz.plot_numpy_ingest" title="habit.viz.plot_numpy_ingest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_numpy_ingest</span></code></a></p></td>
 <td><p>Diagram for the array route: the data itself drawn as a colour matrix.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_feature_preprocessing_chain.html#habit.viz.plot_feature_preprocessing_chain" title="habit.viz.plot_feature_preprocessing_chain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_feature_preprocessing_chain</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_nifti_ingest.html#habit.viz.plot_nifti_ingest" title="habit.viz.plot_nifti_ingest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_nifti_ingest</span></code></a></p></td>
+<td><p>Diagram for the file-pair route: <code class="docutils literal notranslate"><span class="pre">image.nii.gz</span></code> + <code class="docutils literal notranslate"><span class="pre">mask.nii.gz</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_feature_preprocessing_chain.html#habit.viz.plot_feature_preprocessing_chain" title="habit.viz.plot_feature_preprocessing_chain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_feature_preprocessing_chain</span></code></a></p></td>
 <td><p>Diagram of the clustering-feature preprocessing chain.</p></td>
 </tr>
 </tbody>

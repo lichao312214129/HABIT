@@ -442,6 +442,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -475,8 +476,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -995,15 +996,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;Teaching diagrams: how data ENTERS HABIT and how features are chained.</span>
 
 <span class="sd">Gallery pages that teach an ingestion route (directory tree, SimpleITK</span>
-<span class="sd">objects, NumPy arrays) or the feature-preprocessing chains get a thumbnail</span>
-<span class="sd">that shows the ROUTE, not another bare slice: a stylised badge on the left,</span>
-<span class="sd">an arrow, and a real cropped data panel on the right. The data panel reuses</span>
-<span class="sd">the habitat-overlay rendering internals, so colours and orientation match</span>
-<span class="sd">:func:`~habit.viz.plot_habitat_overlay` exactly.</span>
+<span class="sd">objects, NumPy arrays, NIfTI file pairs) or the feature-preprocessing</span>
+<span class="sd">chains get a thumbnail that shows the ROUTE, not another bare slice: a</span>
+<span class="sd">stylised badge on the left, an arrow, and a real cropped data panel on the</span>
+<span class="sd">right. The data panel reuses the habitat-overlay rendering internals, so</span>
+<span class="sd">colours and orientation match :func:`~habit.viz.plot_habitat_overlay`</span>
+<span class="sd">exactly.</span>
 
-<span class="sd">The badges are HABIT-drawn schematics. They are NOT the official SimpleITK</span>
-<span class="sd">or NumPy logos (trademark); they only evoke a voxel cube / a matrix so the</span>
-<span class="sd">ingestion route is recognisable at thumbnail size.</span>
+<span class="sd">The badges are HABIT-drawn schematics. They are NOT official SimpleITK,</span>
+<span class="sd">NumPy, or NIfTI logos (trademark); they only evoke a voxel cube / a matrix</span>
+<span class="sd">/ a file pair so the ingestion route is recognisable at thumbnail size.</span>
 
 <span class="sd">Pure functions: contract objects or arrays in, a matplotlib ``Figure`` out,</span>
 <span class="sd">no filesystem and no ``show``. All text is ASCII (journal-safe).</span>
@@ -1045,6 +1047,7 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;plot_directory_ingest&quot;</span><span class="p">,</span>
     <span class="s2">&quot;plot_simpleitk_ingest&quot;</span><span class="p">,</span>
     <span class="s2">&quot;plot_numpy_ingest&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_nifti_ingest&quot;</span><span class="p">,</span>
     <span class="s2">&quot;plot_feature_preprocessing_chain&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -1458,6 +1461,131 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;NumPy ndarray  (z, y, x)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_draw_file_card</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="s2">&quot;Axes&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">x0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">y0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">facecolor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">foldcolor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw one document glyph (rounded body + dog-ear) labelled ``label``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ax: Target axes in axes-fraction coordinates.</span>
+<span class="sd">        x0: Left edge of the card.</span>
+<span class="sd">        y0: Bottom edge of the card.</span>
+<span class="sd">        width: Card width.</span>
+<span class="sd">        height: Card height.</span>
+<span class="sd">        facecolor: Fill of the card body.</span>
+<span class="sd">        edgecolor: Stroke of the body and the dog-ear.</span>
+<span class="sd">        foldcolor: Fill of the folded corner.</span>
+<span class="sd">        label: ASCII filename drawn on the card (e.g. ``image.nii.gz``).</span>
+<span class="sd">        zorder: Matplotlib z-order; the dog-ear and text sit above the body.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span>
+
+    <span class="n">fold</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.22</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">height</span> <span class="o">-</span> <span class="n">fold</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">width</span> <span class="o">-</span> <span class="n">fold</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">height</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">height</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+        <span class="n">Polygon</span><span class="p">(</span>
+            <span class="n">body</span><span class="p">,</span>
+            <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="n">zorder</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ear</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">width</span> <span class="o">-</span> <span class="n">fold</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">height</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">height</span> <span class="o">-</span> <span class="n">fold</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">width</span> <span class="o">-</span> <span class="n">fold</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">height</span> <span class="o">-</span> <span class="n">fold</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+        <span class="n">Polygon</span><span class="p">(</span>
+            <span class="n">ear</span><span class="p">,</span>
+            <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="n">foldcolor</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="n">zorder</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="n">x0</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mf">0.46</span><span class="p">,</span>
+        <span class="n">y0</span> <span class="o">+</span> <span class="n">height</span> <span class="o">*</span> <span class="mf">0.42</span><span class="p">,</span>
+        <span class="n">sanitize_label</span><span class="p">(</span><span class="n">label</span><span class="p">),</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#222222&quot;</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="n">zorder</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_draw_nifti_badge</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="s2">&quot;Axes&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw two stacked file cards: ``image.nii.gz`` over ``mask.nii.gz``.</span>
+
+<span class="sd">    Colours match :data:`_TREE_KIND_COLORS` (image green, mask orange) so</span>
+<span class="sd">    the NIfTI badge and the directory-tree swatches read as one system.</span>
+<span class="sd">    The cards are HABIT-drawn; they are not a NIfTI Consortium logo.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="c1"># Image card sits up-left; mask card is offset down-right. Vertical</span>
+    <span class="c1"># gap keeps the upper filename clear of the overlapping card.</span>
+    <span class="n">_draw_file_card</span><span class="p">(</span>
+        <span class="n">ax</span><span class="p">,</span>
+        <span class="n">x0</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
+        <span class="n">y0</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mf">0.58</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mf">0.38</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#B8E0D2&quot;</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="n">_TREE_KIND_COLORS</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span>
+        <span class="n">foldcolor</span><span class="o">=</span><span class="s2">&quot;#7FCBB3&quot;</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;image.nii.gz&quot;</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_draw_file_card</span><span class="p">(</span>
+        <span class="n">ax</span><span class="p">,</span>
+        <span class="n">x0</span><span class="o">=</span><span class="mf">0.32</span><span class="p">,</span>
+        <span class="n">y0</span><span class="o">=</span><span class="mf">0.16</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mf">0.58</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mf">0.38</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#F6E2B3&quot;</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="n">_TREE_KIND_COLORS</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span>
+        <span class="n">foldcolor</span><span class="o">=</span><span class="s2">&quot;#EED18A&quot;</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;mask.nii.gz&quot;</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.5</span><span class="p">,</span>
+        <span class="mf">0.06</span><span class="p">,</span>
+        <span class="s2">&quot;read_image / read_mask&quot;</span><span class="p">,</span>
+        <span class="n">family</span><span class="o">=</span><span class="s2">&quot;monospace&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#555555&quot;</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_draw_chain</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="s2">&quot;Axes&quot;</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw the feature-preprocessing chain as coloured boxes joined by arrows.</span>
@@ -1706,6 +1834,45 @@ window.runMermaid = runMermaid;</script>
         <span class="k">lambda</span> <span class="n">ax</span><span class="p">:</span> <span class="n">_draw_numpy_badge</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">matrix</span><span class="p">),</span>
         <span class="n">image</span><span class="p">,</span>
         <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+        <span class="n">roi_mask</span><span class="o">=</span><span class="n">roi_mask</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">panel_title</span><span class="o">=</span><span class="n">panel_title</span><span class="p">,</span>
+        <span class="n">crop_pad</span><span class="o">=</span><span class="n">crop_pad</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_nifti_ingest">
+<a class="viewcode-back" href="../../../api/generated/habit.viz.plot_nifti_ingest.html#habit.viz.plot_nifti_ingest">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_nifti_ingest</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">roi_mask</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;From NIfTI files to Subject&quot;</span><span class="p">,</span>
+    <span class="n">panel_title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Subject anatomy + ROI&quot;</span><span class="p">,</span>
+    <span class="n">crop_pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Diagram for the file-pair route: ``image.nii.gz`` + ``mask.nii.gz``.</span>
+
+<span class="sd">    The right-hand panel is the cropped anatomy with a cyan ROI fill, the</span>
+<span class="sd">    same view as :func:`plot_directory_ingest` / :func:`plot_numpy_ingest`.</span>
+<span class="sd">    This page does not fit habitats; the story is files to ``Subject``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: Anatomy volume (array or ``ImageVolume``) of one subject.</span>
+<span class="sd">        roi_mask: ROI mask (array or ``MaskVolume``), same grid as ``image``.</span>
+<span class="sd">        title: Figure title (ASCII-sanitised).</span>
+<span class="sd">        panel_title: Title of the cropped data panel.</span>
+<span class="sd">        crop_pad: Context voxels around the ROI bounding box (default ``8``).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A matplotlib ``Figure`` with the NIfTI file-pair badge on the left</span>
+<span class="sd">        and the cropped anatomy + cyan ROI fill on the right.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_ingest_figure</span><span class="p">(</span>
+        <span class="n">_draw_nifti_badge</span><span class="p">,</span>
+        <span class="n">image</span><span class="p">,</span>
         <span class="n">roi_mask</span><span class="o">=</span><span class="n">roi_mask</span><span class="p">,</span>
         <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
         <span class="n">panel_title</span><span class="o">=</span><span class="n">panel_title</span><span class="p">,</span>

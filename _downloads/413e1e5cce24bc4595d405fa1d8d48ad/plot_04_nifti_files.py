@@ -28,7 +28,7 @@ from habit.image import (
     read_image,
     read_mask,
 )
-from habit.viz import plot_intensity_slice
+from habit.viz import plot_nifti_ingest
 
 DATA = fetch_demo()
 # Change IMAGE / MASK to your own NIfTI or NRRD paths.
@@ -66,14 +66,10 @@ print(
 )
 
 # %%
-# Anatomy check on the Subject-backed volumes. Pass the
+# Visual summary of this route: the image/mask file pair becomes a plottable
+# Subject (right panel zooms to the ROI). Pass the
 # :class:`~habit.image.ImageVolume` (not ``.data``).
 Path("out").mkdir(exist_ok=True)
-fig = plot_intensity_slice(
-    volume,
-    roi_mask=roi,
-    title="LAP from NIfTI files",
-    roi_contour=True,
-)
-fig.savefig("out/data_from_nifti_files.png", dpi=150, bbox_inches="tight")
+fig = plot_nifti_ingest(volume, roi)
+fig.savefig("out/data_from_nifti_ingest.png", dpi=150, bbox_inches="tight")
 plt.show()

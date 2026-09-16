@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>habit.kernels.cluster_selection.MINIMIZE &mdash; HABIT Documentation</title>
+  <title>plot_nifti_ingest &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -16,7 +16,7 @@
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=211e58f4" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.kernels.cluster_selection.MINIMIZE.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.viz.plot_nifti_ingest.html" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -32,8 +32,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="habit.kernels.cluster_selection.KNEE" href="habit.kernels.cluster_selection.KNEE.html" />
-    <link rel="prev" title="habit.kernels.cluster_selection.MAXIMIZE" href="habit.kernels.cluster_selection.MAXIMIZE.html" /> 
+    <link rel="next" title="plot_feature_preprocessing_chain" href="habit.viz.plot_feature_preprocessing_chain.html" />
+    <link rel="prev" title="plot_numpy_ingest" href="habit.viz.plot_numpy_ingest.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -203,9 +203,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../report.html#functions">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../viz.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code>: publication overlays</a><ul>
+<li class="toctree-l3 current"><a class="reference internal" href="../viz.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code>: publication overlays</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../viz.html#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../viz.html#functions">Functions</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../viz.html#functions">Functions</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../execution.html">Execution backends</a><ul>
@@ -231,9 +231,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../datasets.html#functions">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current"><a class="reference internal" href="../kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#classes">Classes</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../kernels.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kernels.html#functions">Functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#habitat-metrics-examples">Habitat metrics (examples)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#graph-topology-kernels">Graph topology kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#icc-kernels">ICC kernels</a></li>
@@ -616,10 +616,10 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
-          <li class="breadcrumb-item"><a href="../kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a></li>
-      <li class="breadcrumb-item active">habit.kernels.cluster_selection.MINIMIZE</li>
+          <li class="breadcrumb-item"><a href="../viz.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code>: publication overlays</a></li>
+      <li class="breadcrumb-item active">plot_nifti_ingest</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/api/generated/habit.kernels.cluster_selection.MINIMIZE.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/api/generated/habit.viz.plot_nifti_ingest.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -627,27 +627,53 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="habit-kernels-cluster-selection-minimize">
-<h1>habit.kernels.cluster_selection.MINIMIZE<a class="headerlink" href="#habit-kernels-cluster-selection-minimize" title="Link to this heading"></a></h1>
-<dl class="py data">
-<dt class="sig sig-object py" id="habit.kernels.cluster_selection.MINIMIZE">
-<span class="sig-name descname"><span class="pre">MINIMIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'minimize'</span></em><a class="headerlink" href="#habit.kernels.cluster_selection.MINIMIZE" title="Link to this definition"></a></dt>
-<dd><p>the best score is the smallest one.</p>
+  <section id="plot-nifti-ingest">
+<h1>plot_nifti_ingest<a class="headerlink" href="#plot-nifti-ingest" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This page is a reference documentation. It only explains the
+function signature, and not how to use it. Please refer to the
+<a class="reference internal" href="../../auto_examples/index.html"><span class="doc">Habitat Guide</span></a> and
+<a class="reference internal" href="../python_api.html"><span class="doc">Python API guide (v2.0)</span></a> for usage.</p>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="habit.viz.plot_nifti_ingest">
+<span class="sig-name descname"><span class="pre">plot_nifti_ingest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">roi_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'From</span> <span class="pre">NIfTI</span> <span class="pre">files</span> <span class="pre">to</span> <span class="pre">Subject'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Subject</span> <span class="pre">anatomy</span> <span class="pre">+</span> <span class="pre">ROI'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_pad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="../../_modules/habit/viz/diagrams.html#plot_nifti_ingest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.viz.plot_nifti_ingest" title="Link to this definition"></a></dt>
+<dd><p>Diagram for the file-pair route: <code class="docutils literal notranslate"><span class="pre">image.nii.gz</span></code> + <code class="docutils literal notranslate"><span class="pre">mask.nii.gz</span></code>.</p>
+<p>The right-hand panel is the cropped anatomy with a cyan ROI fill, the
+same view as <a class="reference internal" href="habit.viz.plot_directory_ingest.html#habit.viz.plot_directory_ingest" title="habit.viz.plot_directory_ingest"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_directory_ingest()</span></code></a> / <a class="reference internal" href="habit.viz.plot_numpy_ingest.html#habit.viz.plot_numpy_ingest" title="habit.viz.plot_numpy_ingest"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_numpy_ingest()</span></code></a>.
+This page does not fit habitats; the story is files to <code class="docutils literal notranslate"><span class="pre">Subject</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Selection rule</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – Anatomy volume (array or <code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code>) of one subject.</p></li>
+<li><p><strong>roi_mask</strong> – ROI mask (array or <code class="docutils literal notranslate"><span class="pre">MaskVolume</span></code>), same grid as <code class="docutils literal notranslate"><span class="pre">image</span></code>.</p></li>
+<li><p><strong>title</strong> – Figure title (ASCII-sanitised).</p></li>
+<li><p><strong>panel_title</strong> – Title of the cropped data panel.</p></li>
+<li><p><strong>crop_pad</strong> – Context voxels around the ROI bounding box (default <code class="docutils literal notranslate"><span class="pre">8</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A matplotlib <code class="docutils literal notranslate"><span class="pre">Figure</span></code> with the NIfTI file-pair badge on the left
+and the cropped anatomy + cyan ROI fill on the right.</p>
 </dd>
 </dl>
 </dd></dl>
 
+<section id="examples-using-habit-viz-plot-nifti-ingest">
+<h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_nifti_ingest</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-nifti-ingest" title="Link to this heading"></a></h2>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="When you have one image file and one ROI file (NIfTI, NRRD, or MetaImage), use HABIT&#x27;s file readers or wrap the same paths as lazy FileImageRef handles on a Subject. There is no single load(image, roi) helper; these two calls are the public pair."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
+</div></div><div style="clear:both"></div></section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habit.kernels.cluster_selection.MAXIMIZE.html" class="btn btn-neutral float-left" title="habit.kernels.cluster_selection.MAXIMIZE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habit.kernels.cluster_selection.KNEE.html" class="btn btn-neutral float-right" title="habit.kernels.cluster_selection.KNEE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habit.viz.plot_numpy_ingest.html" class="btn btn-neutral float-left" title="plot_numpy_ingest" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.viz.plot_feature_preprocessing_chain.html" class="btn btn-neutral float-right" title="plot_feature_preprocessing_chain" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -52,7 +52,7 @@ the grids differ.
         read_image,
         read_mask,
     )
-    from habit.viz import plot_intensity_slice
+    from habit.viz import plot_nifti_ingest
 
     DATA = fetch_demo()
     # Change IMAGE / MASK to your own NIfTI or NRRD paths.
@@ -143,29 +143,25 @@ and assemble a :class:`~habit.contracts.Subject`. Pixel data stay on disk until
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 69-71
+.. GENERATED FROM PYTHON SOURCE LINES 69-72
 
-Anatomy check on the Subject-backed volumes. Pass the
+Visual summary of this route: the image/mask file pair becomes a plottable
+Subject (right panel zooms to the ROI). Pass the
 :class:`~habit.image.ImageVolume` (not ``.data``).
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-80
+.. GENERATED FROM PYTHON SOURCE LINES 72-76
 
 .. code-block:: Python
 
     Path("out").mkdir(exist_ok=True)
-    fig = plot_intensity_slice(
-        volume,
-        roi_mask=roi,
-        title="LAP from NIfTI files",
-        roi_contour=True,
-    )
-    fig.savefig("out/data_from_nifti_files.png", dpi=150, bbox_inches="tight")
+    fig = plot_nifti_ingest(volume, roi)
+    fig.savefig("out/data_from_nifti_ingest.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
 
 .. image-sg:: /auto_examples/01_data_in/images/sphx_glr_plot_04_nifti_files_001.png
-   :alt: LAP from NIfTI files, Processed
+   :alt: From NIfTI files to Subject, Subject anatomy + ROI
    :srcset: /auto_examples/01_data_in/images/sphx_glr_plot_04_nifti_files_001.png
    :class: sphx-glr-single-img
 
@@ -174,7 +170,7 @@ Anatomy check on the Subject-backed volumes. Pass the
 
  .. code-block:: none
 
-    F:\work\habit_project\habit\viz\intensity.py:616: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\diagrams.py:245: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
@@ -183,7 +179,7 @@ Anatomy check on the Subject-backed volumes. Pass the
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.089 seconds)
+   **Total running time of the script:** (0 minutes 1.826 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_04_nifti_files.py:

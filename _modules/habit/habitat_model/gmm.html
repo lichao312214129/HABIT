@@ -442,6 +442,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -475,8 +476,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -1021,6 +1022,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: available to every centroid model are also offered.</span>
 <span class="n">_VALIDATION_METHODS</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">&quot;bic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bic_elbow&quot;</span><span class="p">,</span>
     <span class="s2">&quot;aic&quot;</span><span class="p">,</span>
     <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
     <span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">,</span>
@@ -1055,6 +1057,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        max_habitats: Largest candidate count during selection.</span>
 <span class="sd">        validation: Selection criterion, or a list of criteria that each cast</span>
 <span class="sd">            one vote: ``&quot;bic&quot;`` / ``&quot;aic&quot;`` / ``&quot;davies_bouldin&quot;`` (minimise),</span>
+<span class="sd">            ``&quot;bic_elbow&quot;`` (Prior 2024 BIC-slope elbow, not minimum BIC),</span>
 <span class="sd">            or ``&quot;silhouette&quot;`` / ``&quot;calinski_harabasz&quot;`` / ``&quot;gap&quot;``</span>
 <span class="sd">            (maximise).</span>
 <span class="sd">        covariance_type: GaussianMixture covariance structure.</span>
@@ -1169,11 +1172,14 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Hard labels are only needed by the structure-based criteria.</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bic&quot;</span><span class="p">,</span> <span class="s2">&quot;aic&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bic&quot;</span><span class="p">,</span> <span class="s2">&quot;aic&quot;</span><span class="p">,</span> <span class="s2">&quot;bic_elbow&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">)</span>
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bic&quot;</span><span class="p">:</span>
+                <span class="n">scores</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">bic</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bic_elbow&quot;</span><span class="p">:</span>
+                <span class="c1"># Same BIC curve as ``bic``; the elbow rule is applied later.</span>
                 <span class="n">scores</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">bic</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;aic&quot;</span><span class="p">:</span>
                 <span class="n">scores</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">aic</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span>
