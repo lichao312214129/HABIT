@@ -4,9 +4,11 @@ Per-subject wall-clock limit
 
 ``subject_timeout_sec`` is enforced only by the process backend. The
 limit on this page is 2 seconds, below a real texture extraction, and
-the extractor is not allowed to read the on-disk texture cache. Both
-subjects therefore finish as :class:`~habit.execution.SubjectTimeoutError`.
-A study that should finish uses a limit on the order of minutes.
+the extractor is not allowed to read the on-disk texture cache.
+``parallel_mode="isolated"`` and ``workers=1`` run one subject at a
+time in its own process, so the limit is recorded on every slot. Both
+finish as :class:`~habit.execution.SubjectTimeoutError`. A study that
+should finish uses a limit on the order of minutes.
 """
 
 # %%
@@ -53,9 +55,9 @@ texture = VoxelRadiomicsFeatures(
     use_gpu_matrices=True,
 )
 policy = RunPolicy(
-    workers=2,
+    workers=1,
     backend="process",
-    parallel_mode="persistent",
+    parallel_mode="isolated",
     on_subject_failure="continue",
     subject_timeout_sec=2.0,
     auto_retry_rounds=0,
@@ -77,7 +79,7 @@ def main() -> None:
     for slot in slots:
         print(slot.subject_id, type(slot.error).__name__ if slot.error else "ok")
         if slot.error is not None:
-            print(isinstance(slot.error, SubjectTimeoutError))
+            print(slot.error)
     labels = [slot.subject_id for slot in slots]
     timed_out = [
         slot.error is not None and isinstance(slot.error, SubjectTimeoutError)
