@@ -241,7 +241,7 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: the same cohort, the same two-step design, the same k and seed. Output: two HabitatMap overlays. The only change is voxel_feature_preprocessors.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: the same cohort, the same two-step design, the same k and seed. The only change is the voxel-feature preprocessor chain.">
 
 .. only:: html
 

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**02:15.221** total execution time for 46 files **from all galleries**:
+**00:12.787** total execution time for 46 files **from all galleries**:
 
 .. container::
 
@@ -32,35 +32,8 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_05_process_pool.py` (``..\..\examples\guide\06_parallel_runs\plot_05_process_pool.py``)
-     - 00:23.358
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_13_isolated.py` (``..\..\examples\guide\06_parallel_runs\plot_13_isolated.py``)
-     - 00:20.481
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_08_subject_zscore.py` (``..\..\examples\guide\06_parallel_runs\plot_08_subject_zscore.py``)
-     - 00:16.411
-     - 0.0
-   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)
-     - 00:15.720
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_14_wall_clock.py` (``..\..\examples\guide\06_parallel_runs\plot_14_wall_clock.py``)
-     - 00:15.251
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_06_reuse_workers.py` (``..\..\examples\guide\06_parallel_runs\plot_06_reuse_workers.py``)
-     - 00:13.244
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_11_cohort_zscore.py` (``..\..\examples\guide\06_parallel_runs\plot_11_cohort_zscore.py``)
-     - 00:07.845
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_12_cohort_binning.py` (``..\..\examples\guide\06_parallel_runs\plot_12_cohort_binning.py``)
-     - 00:07.833
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_09_subject_robust.py` (``..\..\examples\guide\06_parallel_runs\plot_09_subject_robust.py``)
-     - 00:07.556
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_10_subject_winsorize.py` (``..\..\examples\guide\06_parallel_runs\plot_10_subject_winsorize.py``)
-     - 00:07.523
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_11_preprocess_compare.py` (``..\..\examples\guide\04_habitat_maps\plot_11_preprocess_compare.py``)
+     - 00:12.787
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_01_directory.py` (``..\..\examples\guide\01_data_in\plot_01_directory.py``)
      - 00:00.000
@@ -122,9 +95,6 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_10_preprocess_features.py` (``..\..\examples\guide\04_habitat_maps\plot_10_preprocess_features.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_11_preprocess_compare.py` (``..\..\examples\guide\04_habitat_maps\plot_11_preprocess_compare.py``)
-     - 00:00.000
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_12_supervoxels.py` (``..\..\examples\guide\04_habitat_maps\plot_12_supervoxels.py``)
      - 00:00.000
      - 0.0
@@ -167,6 +137,36 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_04_resume.py` (``..\..\examples\guide\06_parallel_runs\plot_04_resume.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_05_process_pool.py` (``..\..\examples\guide\06_parallel_runs\plot_05_process_pool.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_06_reuse_workers.py` (``..\..\examples\guide\06_parallel_runs\plot_06_reuse_workers.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_07_several_gpus.py` (``..\..\examples\guide\06_parallel_runs\plot_07_several_gpus.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_08_subject_zscore.py` (``..\..\examples\guide\06_parallel_runs\plot_08_subject_zscore.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_09_subject_robust.py` (``..\..\examples\guide\06_parallel_runs\plot_09_subject_robust.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_10_subject_winsorize.py` (``..\..\examples\guide\06_parallel_runs\plot_10_subject_winsorize.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_11_cohort_zscore.py` (``..\..\examples\guide\06_parallel_runs\plot_11_cohort_zscore.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_12_cohort_binning.py` (``..\..\examples\guide\06_parallel_runs\plot_12_cohort_binning.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_13_isolated.py` (``..\..\examples\guide\06_parallel_runs\plot_13_isolated.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_14_wall_clock.py` (``..\..\examples\guide\06_parallel_runs\plot_14_wall_clock.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)
      - 00:00.000
      - 0.0
