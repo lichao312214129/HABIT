@@ -13,6 +13,7 @@ cohort-level preprocessing state, but upstream stages are re-declared.
 # %%
 # Demo pack has ``subj001`` … ``subj005``. Train on the first three;
 # apply on the last two.
+# sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -20,7 +21,7 @@ import matplotlib.pyplot as plt
 from habit.contracts import HabitatModel, cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.spec import HabitatSpec, Spec, Stage
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
 import habit.recipes as recipes
 
 DATA = fetch_demo()
@@ -70,7 +71,6 @@ fig = plot_habitat_overlay(
     train_cohort[0].image(ROI),
     train_result.habitat_maps[0],
     title="train habitats",
-    axis=0,
     crop_to="labels",
 )
 fig.savefig("out/apply_saved_train_overlay.png", dpi=150, bbox_inches="tight")

@@ -18,13 +18,12 @@ for two independent clusterings that must be named after the fact.
   same tumour, two masks on one grid (two observers).
 """
 
-# sphinx_gallery_thumbnail_number = 2
-
 # %%
 # Two independent one-step fits on the same subject (different seeds).
 # Same grid, so we can overlay before/after alignment. A second subject
 # would use the same feature matcher; overlap matching would not apply
 # across patients.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt

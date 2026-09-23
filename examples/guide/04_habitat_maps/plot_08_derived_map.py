@@ -5,13 +5,11 @@ Clustering habitats from a derived map
 Input: one :class:`~habit.contracts.Subject` with unenhanced and arterial
 phases. Output: a :class:`~habit.contracts.HabitatMap`. Stage:
 ``extract_voxel_features`` with ``expression``, then a per-subject ``fit``.
-
-Registration of the phases stays in
-:doc:`/auto_examples/02_voxel/plot_02_custom_features`.
 """
 
 # %%
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+# sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -20,7 +18,7 @@ from habit.contracts import Cohort, cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.habitat_model import KMeansHabitatModelFitter
 from habit.pipeline import voxel_units
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_habitat_overlay, plot_voxel_texture_slice
 from habit.voxel_features import ExpressionVoxelFeatures
 
 DATA = fetch_demo()
@@ -43,13 +41,22 @@ model = fitter.fit([units], cohort=Cohort([subject], name="one"))
 habitat_map = model.assigner()(units)
 print(model.summary())
 
+Path("out").mkdir(exist_ok=True)
+fig_field = plot_voxel_texture_slice(
+    field,
+    anatomy=subject.image(ROI),
+    roi_mask=subject.mask(ROI),
+    title="relative enhancement",
+    crop_to="roi",
+)
+fig_field.savefig("out/relative_enhancement.png", dpi=150, bbox_inches="tight")
+plt.show()
+
 fig = plot_habitat_overlay(
     subject.image(ROI),
     habitat_map,
     title="habitats (relative enhancement)",
-    axis=0,
     crop_to="labels",
 )
-Path("out").mkdir(exist_ok=True)
 fig.savefig("out/derived_map_overlay.png", dpi=150, bbox_inches="tight")
 plt.show()

@@ -13,10 +13,9 @@ to compare on this page. Fixed ``n_habitats=3`` draws the map. ``"auto"``
 draws the elbow on the same cohort.
 """
 
-# sphinx_gallery_thumbnail_number = 1
-
 # %%
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+# sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -24,7 +23,7 @@ import matplotlib.pyplot as plt
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.recipes import two_step_habitat
-from habit.viz import plot_cluster_validation_from_report, plot_habitat_overlay
+from habit.viz import plot_cluster_validation_from_report, plot_partition_triptych
 
 DATA = fetch_demo()
 MODALITIES = ("LAP",)
@@ -34,7 +33,7 @@ print(f"Cohort: {list(cohort.subject_ids)}")
 
 result = two_step_habitat(
     modalities=MODALITIES,
-    n_supervoxels=8,
+    n_supervoxels=100,
     n_habitats=3,
     habitat_features=("volume",),
     random_seed=0,
@@ -45,15 +44,14 @@ print(result.habitat_model.summary())
 print(result.features.frame)
 result.features.frame
 
-fig = plot_habitat_overlay(
+fig = plot_partition_triptych(
     cohort[0].image(ROI),
+    result.units[0],
     result.habitat_maps[0],
-    title="habitats (two-step)",
     axis=0,
-    crop_to="labels",
 )
 Path("out").mkdir(exist_ok=True)
-fig.savefig("out/two_step_overlay.png", dpi=150, bbox_inches="tight")
+fig.savefig("out/two_step_triptych.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
@@ -62,7 +60,7 @@ plt.show()
 # :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
 elbow = two_step_habitat(
     modalities=MODALITIES,
-    n_supervoxels=8,
+    n_supervoxels=100,
     n_habitats="auto",
     random_seed=0,
     supervoxel_algorithm="slic",

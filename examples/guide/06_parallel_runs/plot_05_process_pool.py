@@ -12,6 +12,10 @@ only on this backend. On Windows the ``map`` call must sit under
 # %%
 # Building the backend does not start workers. ``map`` does.
 # This docs build has no script path, so it stops after printing the backend.
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
 from habit.contracts import Cohort, Subject
 from habit.execution import backend_from_policy
 from habit.spec import RunPolicy
@@ -44,6 +48,14 @@ def main() -> None:
     if "__file__" in globals():
         slots = list(backend.map(subject_label, cohort))
         print([slot.result() for slot in slots])
+    fig, ax = plt.subplots(figsize=(6.4, 2.6))
+    worker_labels = [f"worker {index + 1}" for index in range(int(backend.workers))]
+    ax.barh(worker_labels, [1] * len(worker_labels), color="#4C78A8")
+    ax.set_xlabel("slot")
+    ax.set_title(f"process pool (timeout {backend.policy.subject_timeout_sec:g} s)")
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/process_pool.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
 
 if __name__ == "__main__":

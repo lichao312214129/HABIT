@@ -58,7 +58,3 @@ and the :class:`~habit.spec.HabitatSpec` stage.
   :doc:`/auto_examples/04_habitat_maps/plot_16_measure_volume`.
 * **Chaining the steps** —
   :doc:`/auto_examples/04_habitat_maps/plot_17_chain`.
-
-MSI, ITH, graphs, and radiomics stay in
-:doc:`/auto_examples/05_quantify/index`.
-DICOM stays in :doc:`/auto_examples/01_data_in/index`.

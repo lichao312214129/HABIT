@@ -10,6 +10,7 @@ Input: a cohort of at least two subjects. Output: one shared
 
 # %%
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -18,6 +19,7 @@ from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.recipes import direct_pooling_habitat
 from habit.viz import plot_habitat_overlay
+import numpy as np
 
 DATA = fetch_demo()
 MODALITIES = ("LAP",)
@@ -36,13 +38,33 @@ print(result.habitat_model.summary())
 print(result.features.frame)
 result.features.frame
 
-fig = plot_habitat_overlay(
-    cohort[0].image(ROI),
-    result.habitat_maps[0],
-    title="habitats (pooling)",
-    axis=0,
-    crop_to="labels",
-)
 Path("out").mkdir(exist_ok=True)
-fig.savefig("out/pooling_overlay.png", dpi=150, bbox_inches="tight")
+fig_hist, ax = plt.subplots(figsize=(6.2, 3.2))
+colors = ["#4C78A8", "#F58518", "#54A24B"]
+for habitat_id in sorted(
+    int(v) for v in np.unique(result.habitat_maps[0].label_array) if int(v) != 0
+):
+    values = cohort[0].image(ROI).data[
+        result.habitat_maps[0].label_array == habitat_id
+    ]
+    ax.hist(values, bins=30, alpha=0.6, label=f"habitat {habitat_id}", color=colors[habitat_id - 1])
+ax.set_xlabel(MODALITIES[0])
+ax.set_ylabel("voxels")
+ax.set_title("pooled voxel intensities by habitat")
+ax.legend()
+fig_hist.savefig("out/pooling_intensity_hist.png", dpi=150, bbox_inches="tight")
 plt.show()
+
+for subject, habitat_map in zip(cohort, result.habitat_maps):
+    fig = plot_habitat_overlay(
+        subject.image(ROI),
+        habitat_map,
+        title=f"habitats ({habitat_map.subject_id})",
+        crop_to="labels",
+    )
+    fig.savefig(
+        f"out/pooling_{habitat_map.subject_id}.png",
+        dpi=150,
+        bbox_inches="tight",
+    )
+    plt.show()

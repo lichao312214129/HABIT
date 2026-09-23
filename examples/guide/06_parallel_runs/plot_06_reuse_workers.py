@@ -11,6 +11,10 @@ and labelling do not start the pool twice.
 # %%
 # Entering the block does not spawn workers. ``map`` does, and only when
 # this file is executed as a script.
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
 from habit.contracts import Cohort, Subject
 from habit.execution import backend_from_policy
 from habit.spec import RunPolicy
@@ -41,6 +45,13 @@ def main() -> None:
         if "__file__" in globals():
             print([slot.result() for slot in backend.map(subject_label, cohort)])
             print([slot.result() for slot in backend.map(subject_label, cohort)])
+    fig, ax = plt.subplots(figsize=(6.4, 3.2))
+    ax.bar(["map 1", "map 2"], [backend.workers, backend.workers], color="#4C78A8")
+    ax.set_ylabel("workers")
+    ax.set_title("workers stay up")
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/reuse_workers.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
 
 if __name__ == "__main__":

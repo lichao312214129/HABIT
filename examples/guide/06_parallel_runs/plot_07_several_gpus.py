@@ -1,4 +1,3 @@
-# sphinx_gallery_thumbnail_path = '_static/images/examples/parallel_cloud_speedup.png'
 """
 Running a cohort on several GPUs
 ================================
@@ -11,6 +10,7 @@ repeat that workload when the docs are built.
 
 # %%
 # The policy a 5-GPU node uses. Building it does not launch workers.
+# sphinx_gallery_thumbnail_path = '_static/images/examples/parallel_cloud_speedup.png'
 from habit.execution import backend_from_policy
 from habit.spec import RunPolicy
 
