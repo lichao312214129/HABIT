@@ -3,12 +3,13 @@
 Voxel texture feature maps
 ==========================
 
-Goal: compute and display **voxel-level texture** maps — densified
-``voxel_radiomics`` columns (here GLCM Contrast) — as publication 2D slices.
+Goal: compute and display **voxel-level texture** maps — local neighbourhood
+entropy and densified ``voxel_radiomics`` columns (e.g. GLCM) — as publication
+2D slices.
 
+``local_entropy`` is a built-in extractor (fast; no PyRadiomics).
 ``voxel_radiomics`` uses PyRadiomics / TorchRadiomics for per-voxel maps; keep
-the enabled ``featureClass`` list small for interactive demos. Neighbourhood
-entropy (``local_entropy``) is a separate statistic, not this texture.
+the enabled ``featureClass`` list small for interactive demos.
 
 Walk-through (Guide): :doc:`/auto_examples/02_voxel/plot_03_voxel_texture`.
 For multi-GPU cohort timings, see :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`. Scheduling (serial, skip, resume, process pool) is :doc:`/auto_examples/06_parallel_runs/index`. This page keeps
@@ -48,9 +49,9 @@ behind ``use_gpu_matrices`` (default ``"auto"``: on when the torch device
 is CUDA). Their README GLCM 636 s → 23.8 s on a :math:`16^3` job is the
 middle row vs PyRadiomics (CPU), **not** HABIT CUDA.
 
-**Install in the same** ``habit`` **env.** IBSI ``voxel_radiomics`` (all
-three rows above) needs **PyRadiomics** (:doc:`/tutorial/installation` step 6).
-The two GPU
+**Install in the same** ``habit`` **env.** ``local_entropy`` needs neither
+PyRadiomics nor torch. IBSI ``voxel_radiomics`` (all three rows above)
+needs **PyRadiomics** (:doc:`/tutorial/installation` step 6). The two GPU
 rows also need **PyTorch** in that env: ``conda activate habit``, then
 open `pytorch.org <https://pytorch.org/>`_ → **Get Started** / `Start
 Locally <https://pytorch.org/get-started/locally/>`_, pick OS / Pip /
@@ -395,17 +396,17 @@ Architectural Highlights:
 Python API (sklearn-short)
 --------------------------
 
-The figure below is written by ``docs/source/examples/scripts/voxel_texture_demo.py``.
-Reproduce it::
+The figure below is written by the voxel-texture gallery
+(:doc:`../examples/voxel_texture`). Reproduce it::
 
    python docs/source/examples/scripts/voxel_texture_demo.py
 
-Or paste the same load + plot::
+Or paste the same load + plot the gallery shows::
 
    from habit.contracts import cohort_from_directory
    from habit.datasets import fetch_demo
+   from habit.kernels import local_entropy_map
    from habit.viz import plot_voxel_texture_slice
-   from habit.voxel_features import extract_voxel_texture
 
    # Change DATA / MODALITY / ROI to your preprocessed layout
    DATA = fetch_demo()  # or "demo_data/preprocessed"
@@ -414,19 +415,15 @@ Or paste the same load + plot::
    subject = cohort_from_directory(DATA, modalities=(MODALITY,), roi=ROI)[0]
    image_vol = subject.image(MODALITY)
    mask_vol = subject.mask(ROI)
-   field = extract_voxel_texture(
-       image_vol,
-       mask_vol,
-       kernel_radius=1,
-       bin_width=25.0,
-       feature_classes={"glcm": ["Contrast"]},
-   )
+   entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
    fig = plot_voxel_texture_slice(
-       field, feature=0, anatomy=image_vol, roi_mask=mask_vol,
+       entropy, anatomy=image_vol, roi_mask=mask_vol,
    )
 
-``feature=0`` is the first column (GLCM Contrast). A column name works too.
-Default ``mode="overlay"`` paints **opaque** feature colours inside
+For ``voxel_radiomics`` GLCM columns, create a
+:class:`~habit.contracts.habitat.VoxelFeatureField` then pass it with
+``feature=0`` (or a column name) — see the :doc:`../examples/voxel_texture`
+script. Default ``mode="overlay"`` paints **opaque** feature colours inside
 the ROI on greyscale anatomy (optional cyan contour). ``alpha<1`` is the
 explicit translucent option. ``mode="side_by_side"`` adds a sibling anatomy
 panel when you also want the raw image.
@@ -447,7 +444,7 @@ direction is not dropped). There is no built-in 3D volume renderer for
 texture maps; use ITK-SNAP / 3D Slicer / napari for full volumetric browsing.
 
 .. figure:: ../_static/images/examples/voxel_texture_overlay.png
-   :alt: Opaque GLCM Contrast overlay on anatomy
+   :alt: Opaque local-entropy overlay on anatomy
    :width: 520
 
    Default ``overlay`` layout
@@ -457,5 +454,5 @@ Also see
 --------
 
 * Examples gallery: :doc:`../examples/voxel_texture`
-* Extractor: :func:`~habit.voxel_features.extract_voxel_texture`
+* Kernel: :func:`~habit.kernels.local_entropy_map`
 * Habitat-map graph figures: :doc:`graph_features`

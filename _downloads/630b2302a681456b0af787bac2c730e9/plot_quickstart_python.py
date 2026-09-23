@@ -9,10 +9,11 @@ This page uses the official demo pack. Change ``DATA`` / ``MODALITIES`` /
 ``ROI`` to your preprocessed tree.
 """
 
+# sphinx_gallery_thumbnail_number = 2
+
 # %%
 # Load the official imaging pack (downloads once) and take two subjects
 # so the run stays short. Drop the slice to use the full pack.
-# sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
 
 import matplotlib.pyplot as plt

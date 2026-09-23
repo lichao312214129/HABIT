@@ -654,8 +654,10 @@ to download the full example code.</p>
 <p>Atomic MSI from a habitat label map (Wu et al., <em>Radiology</em> 2018):
 <a class="reference internal" href="../../api/generated/habit.kernels.spatial_interaction_matrix.html#habit.kernels.spatial_interaction_matrix" title="habit.kernels.spatial_interaction_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">spatial_interaction_matrix()</span></code></a> and
 <a class="reference internal" href="../../api/generated/habit.kernels.msi_features_from_matrix.html#habit.kernels.msi_features_from_matrix" title="habit.kernels.msi_features_from_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">msi_features_from_matrix()</span></code></a>.</p>
-<p>Build a habitat map, then compute the MSI matrix and scalar summaries.
-sphinx_gallery_thumbnail_number = 1</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>Build a habitat map, then compute the MSI matrix and scalar summaries.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -704,8 +706,8 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.49s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.49s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.32s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.32s/it]
 </pre></div>
 </div>
 <p>MSI matrix (background row/column 0) and derived scalar features.</p>
@@ -737,7 +739,7 @@ H3    2349   6837     30  53256
 MSI scalars: {&#39;firstorder_0_and_1&#39;: 3261.0, &#39;firstorder_0_and_2&#39;: 3212.0, &#39;firstorder_0_and_3&#39;: 2349.0, &#39;firstorder_1_and_2&#39;: 7194.0, &#39;firstorder_1_and_3&#39;: 6837.0, &#39;firstorder_2_and_3&#39;: 30.0, &#39;firstorder_1_and_1&#39;: 68220.0, &#39;firstorder_2_and_2&#39;: 49744.0, &#39;firstorder_3_and_3&#39;: 53256.0, &#39;firstorder_normalized_0_and_1&#39;: 0.0168, &#39;firstorder_normalized_0_and_2&#39;: 0.0165, &#39;firstorder_normalized_0_and_3&#39;: 0.0121, &#39;firstorder_normalized_1_and_2&#39;: 0.0371, &#39;firstorder_normalized_1_and_3&#39;: 0.0352, &#39;firstorder_normalized_2_and_3&#39;: 0.0002, &#39;firstorder_normalized_1_and_1&#39;: 0.3515, &#39;firstorder_normalized_2_and_2&#39;: 0.2563, &#39;firstorder_normalized_3_and_3&#39;: 0.2744, &#39;contrast&#39;: 0.74, &#39;homogeneity&#39;: 2.8914, &#39;correlation&#39;: 0.0115, &#39;energy&#39;: 4.0042}
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.752 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.306 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-quantify-plot-02-msi-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/f126760c80187780adb4eca4848a5b49/plot_02_msi.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_02_msi.ipynb</span></code></a></p>

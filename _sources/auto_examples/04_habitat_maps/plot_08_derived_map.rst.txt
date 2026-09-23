@@ -30,7 +30,7 @@ phases. Output: a :class:`~habit.contracts.HabitatMap`. Stage:
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-63
+.. GENERATED FROM PYTHON SOURCE LINES 13-73
 
 .. code-block:: Python
 
@@ -46,18 +46,27 @@ sphinx_gallery_thumbnail_number = 2
     from habit.voxel_features import ExpressionVoxelFeatures
 
     DATA = fetch_demo()
-    MODALITIES = ("pre_contrast", "LAP")
+    # All four DCE phases: unenhanced, arterial, portal-venous, delayed.
+    MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
     ROI = "LAP"
     subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
 
+    # ExpressionVoxelFeatures evaluates arithmetic on the raw phases.
+    # Each key becomes one column in the VoxelFeatureField.
     extractor = ExpressionVoxelFeatures(
         features={
-            "relative_enhancement_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+            "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+            "rel_enh_pvp": "(PVP - pre_contrast) / (pre_contrast + eps)",
+            "rel_enh_delay": "(delay_3min - pre_contrast) / (pre_contrast + eps)",
+            "washout": "(LAP - delay_3min) / (LAP + eps)",
         },
         roi=ROI,
     )
     field = extractor(subject)
     print(field.feature_frame().head())
+
+    # voxel_units wraps the field as one-voxel Supervoxelization units,
+    # so the fitter sees every voxel as its own clustering unit.
     units = voxel_units(field)
     fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
     fitter.set_random_state(0)
@@ -68,9 +77,10 @@ sphinx_gallery_thumbnail_number = 2
     Path("out").mkdir(exist_ok=True)
     fig_field = plot_voxel_texture_slice(
         field,
+        feature=0,
         anatomy=subject.image(ROI),
         roi_mask=subject.mask(ROI),
-        title="relative enhancement",
+        title="relative enhancement (LAP)",
         crop_to="roi",
     )
     fig_field.savefig("out/relative_enhancement.png", dpi=150, bbox_inches="tight")
@@ -79,7 +89,7 @@ sphinx_gallery_thumbnail_number = 2
     fig = plot_habitat_overlay(
         subject.image(ROI),
         habitat_map,
-        title="habitats (relative enhancement)",
+        title="habitats (derived maps)",
         crop_to="labels",
     )
     fig.savefig("out/derived_map_overlay.png", dpi=150, bbox_inches="tight")
@@ -93,14 +103,14 @@ sphinx_gallery_thumbnail_number = 2
     *
 
       .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
-         :alt: relative enhancement, relative_enhancement_lap - Axis 0 (axial-like) @ 21, relative_enhancement_lap - Axis 1 (coronal-like) @ 34, relative_enhancement_lap - Axis 2 (sagittal-like) @ 28
+         :alt: relative enhancement (LAP), rel_enh_lap - Axis 0 (axial-like) @ 21, rel_enh_lap - Axis 1 (coronal-like) @ 34, rel_enh_lap - Axis 2 (sagittal-like) @ 28
          :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_002.png
-         :alt: habitats (relative enhancement), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
+         :alt: habitats (derived maps), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
          :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_002.png
          :class: sphx-glr-multi-img
 
@@ -131,17 +141,17 @@ sphinx_gallery_thumbnail_number = 2
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-       relative_enhancement_lap
-    0                  1.388759
-    1                  1.324201
-    2                  1.453303
-    3                  1.353070
-    4                  1.188559
+       rel_enh_lap  rel_enh_pvp  rel_enh_delay   washout
+    0     1.388759     1.412178       1.330211  0.024510
+    1     1.324201     1.438356       1.269406  0.023576
+    2     1.453303     1.478360       1.243736  0.085422
+    3     1.353070     1.350877       1.234649  0.050326
+    4     1.188559     1.398305       1.175847  0.005808
     HabitatModel kmeans-550300eb7e79e3f6
       habitats           : 3
-      features (1)    : relative_enhancement_lap
+      features (4)    : rel_enh_lap, rel_enh_pvp, rel_enh_delay, washout
       defining cohort    : n=1, name=one
-      modalities         : pre_contrast, LAP
+      modalities         : pre_contrast, LAP, PVP, delay_3min
       cohort digest      : bbf1d587b6155a53...
       produced by        : habitat_model_fitter.kmeans
       habit version      : 2.0.0
@@ -158,7 +168,7 @@ sphinx_gallery_thumbnail_number = 2
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.304 seconds)
+   **Total running time of the script:** (0 minutes 3.745 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_08_derived_map.py:

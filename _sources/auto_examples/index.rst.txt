@@ -525,7 +525,7 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: the same rows after winsorize then min-max. Stage: voxel_feature_preprocessors.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: a HabitatMap built from the preprocessed features. Stage: voxel_feature_preprocessors, then partition, fit, assign.">
 
 .. only:: html
 

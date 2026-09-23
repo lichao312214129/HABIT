@@ -667,13 +667,17 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat" title="habit.recipes.one_step_habitat" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><span class="n">one_step_habitat</span></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_label_compare</span></a><span class="p">,</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a>
 
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">()</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<span class="c1"># Three DCE phases: unenhanced, arterial, and portal-venous.</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">)</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
-<a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+<a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
 
+<span class="c1"># One-step: each subject gets its own private clustering. The integer</span>
+<span class="c1"># labels are arbitrary across subjects -- habitat 1 in subj001 is not</span>
+<span class="c1"># habitat 1 in subj002.</span>
 <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat" title="habit.recipes.one_step_habitat" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><span class="n">one_step_habitat</span></a><span class="p">(</span>
     <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">,</span>
     <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
@@ -689,39 +693,8 @@ sphinx_gallery_thumbnail_number = 1</p>
     <span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">present</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span></a><span class="p">)</span>
 <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span></a>
-
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig_compare</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_label_compare</span></a><span class="p">(</span>
-    <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
-    <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span><span class="p">,</span>
-    <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span><span class="p">,</span>
-    <span class="n">titles</span><span class="o">=</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">subject_id</span><span class="p">),</span>
-    <span class="n">align_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig_compare</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/one_step_compare.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
-
-<span class="k">for</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">):</span>
-    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
-        <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
-        <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a><span class="p">,</span>
-        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;habitats (</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-        <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;out/one_step_</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span>
-        <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
-        <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<ul class="sphx-glr-horizontal">
-<li><img src="../../_images/sphx_glr_plot_02_inside_each_subject_001.png" srcset="../../_images/sphx_glr_plot_02_inside_each_subject_001.png" alt="Habitat label compare, subj001, subj002, Disagreement" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_plot_02_inside_each_subject_002.png" srcset="../../_images/sphx_glr_plot_02_inside_each_subject_002.png" alt="habitats (subj001), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28" class = "sphx-glr-multi-img"/></li>
-<li><img src="../../_images/sphx_glr_plot_02_inside_each_subject_003.png" srcset="../../_images/sphx_glr_plot_02_inside_each_subject_003.png" alt="habitats (subj002), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 27, Axis 2 (sagittal-like) @ 19" class = "sphx-glr-multi-img"/></li>
-</ul>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>HABIT demo data (cached)
 DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
 
@@ -745,25 +718,119 @@ Then load it with the same call the demos use:
 Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
-Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.33s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.31s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.31s/it]
-Per-subject models: [&#39;subj001&#39;, &#39;subj002&#39;]
+Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/3 [00:00&lt;?, ?it/s]
+Cohort.map[_DefineAndLabelWithinSubject]:  33%|███▎      | 1/3 [00:01&lt;00:02,  1.49s/it]
+Cohort.map[_DefineAndLabelWithinSubject]:  67%|██████▋   | 2/3 [00:02&lt;00:01,  1.44s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04&lt;00:00,  1.47s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04&lt;00:00,  1.47s/it]
+Per-subject models: [&#39;subj001&#39;, &#39;subj002&#39;, &#39;subj003&#39;]
 subj001 [1, 2, 3]
 subj002 [1, 2, 3]
+subj003 [1, 2, 3]
    subject  ...  habitat_3_volume_fraction
-0  subj001  ...                   0.300110
-1  subj002  ...                   0.367925
+0  subj001  ...                   0.191561
+1  subj002  ...                   0.381213
+2  subj003  ...                   0.352989
 
-[2 rows x 7 columns]
+[3 rows x 7 columns]
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>subject</th>
+      <th>habitat_1_voxel_count</th>
+      <th>habitat_1_volume_fraction</th>
+      <th>habitat_2_voxel_count</th>
+      <th>habitat_2_volume_fraction</th>
+      <th>habitat_3_voxel_count</th>
+      <th>habitat_3_volume_fraction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>subj001</td>
+      <td>14235.0</td>
+      <td>0.410301</td>
+      <td>13813.0</td>
+      <td>0.398138</td>
+      <td>6646.0</td>
+      <td>0.191561</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>subj002</td>
+      <td>3585.0</td>
+      <td>0.363664</td>
+      <td>2515.0</td>
+      <td>0.255123</td>
+      <td>3758.0</td>
+      <td>0.381213</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>subj003</td>
+      <td>1303.0</td>
+      <td>0.211663</td>
+      <td>2680.0</td>
+      <td>0.435348</td>
+      <td>2173.0</td>
+      <td>0.352989</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<br />
+<br /><p>Show each subject’s habitat map on its own anatomy. No comparison –
+just the three maps side by side.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">):</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
+        <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
+        <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;habitats (</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;out/one_step_</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span>
+        <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+        <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_plot_02_inside_each_subject_001.png" srcset="../../_images/sphx_glr_plot_02_inside_each_subject_001.png" alt="habitats (subj001), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_plot_02_inside_each_subject_002.png" srcset="../../_images/sphx_glr_plot_02_inside_each_subject_002.png" alt="habitats (subj002), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 27, Axis 2 (sagittal-like) @ 19" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_plot_02_inside_each_subject_003.png" srcset="../../_images/sphx_glr_plot_02_inside_each_subject_003.png" alt="habitats (subj003), Axis 0 (axial-like) @ 14, Axis 1 (coronal-like) @ 18, Axis 2 (sagittal-like) @ 15" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
 F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.041 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.480 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-habitat-maps-plot-02-inside-each-subject-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/ea9231a40d1e9f15e6f95b06855a0080/plot_02_inside_each_subject.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_02_inside_each_subject.ipynb</span></code></a></p>

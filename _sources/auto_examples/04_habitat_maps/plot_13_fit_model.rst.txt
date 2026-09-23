@@ -29,7 +29,7 @@ Output: a :class:`~habit.contracts.HabitatModel`. Stage: ``fit``.
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-43
+.. GENERATED FROM PYTHON SOURCE LINES 12-50
 
 .. code-block:: Python
 
@@ -44,13 +44,20 @@ sphinx_gallery_thumbnail_number = 1
     from habit.voxel_features import RawVoxelFeatures
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 
     voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
     slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
+    # slic(voxel(subject)) for each subject: extract raw features, then
+    # partition into supervoxels. Each element of `units` is one subject's
+    # Supervoxelization -- the clustering units the cohort model will fit on.
     units = [slic(voxel(subject)) for subject in cohort]
+    # KMeansHabitatModelFitter pools all subjects' units and learns one
+    # shared set of habitat centroids. The same model can then assign
+    # labels to any subject processed with the same upstream steps.
     fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
     fitter.set_random_state(0)
     model = fitter.fit(units, cohort=cohort)
@@ -101,9 +108,9 @@ sphinx_gallery_thumbnail_number = 1
     same as one image series (here LAP).
     HabitatModel kmeans-5d775118aebe119f
       habitats           : 3
-      features (1)    : LAP
+      features (3)    : pre_contrast, LAP, PVP
       defining cohort    : n=2
-      modalities         : LAP
+      modalities         : pre_contrast, LAP, PVP
       cohort digest      : cc1b16a34cc7478d...
       produced by        : habitat_model_fitter.kmeans
       habit version      : 2.0.0
@@ -116,7 +123,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 39.979 seconds)
+   **Total running time of the script:** (0 minutes 50.988 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_13_fit_model.py:

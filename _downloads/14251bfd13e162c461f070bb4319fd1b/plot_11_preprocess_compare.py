@@ -17,29 +17,44 @@ import matplotlib.pyplot as plt
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.recipes import Study
-from habit.spec import HabitatSpec, Spec
+from habit.spec import HabitatSpec, Spec, Stage
 from habit.viz import plot_habitat_overlay
 import numpy as np
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 Path("out").mkdir(exist_ok=True)
 
 
 def two_step(preprocessors: tuple) -> HabitatSpec:
-    """Build the same two-step spec with or without voxel preprocessing."""
-    return HabitatSpec(
-        name="two_step",
-        voxel_feature_extractor=Spec("raw", {"modalities": list(MODALITIES), "roi": ROI}),
-        voxel_feature_preprocessors=preprocessors,
-        supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 3}),
-        habitat_model_fitter=Spec("kmeans", {"n_habitats": 3, "n_init": 3}),
-        habitat_assigner=Spec("nearest_centroid"),
-        random_seed=0,
-        pooling="cohort",
+    """Build the same two-step spec with or without voxel preprocessing.
+
+    ``preprocessors`` is a tuple of :class:`~habit.spec.Spec` objects
+    inserted between feature extraction and the k-means partition.
+    An empty tuple leaves the raw intensities unchanged.
+    """
+    stages = [
+        Stage(
+            "extract_voxel_features",
+            Spec("raw", {"modalities": list(MODALITIES), "roi": ROI}),
+        )
+    ]
+    for index, preprocessor in enumerate(preprocessors, start=1):
+        stages.append(Stage(f"preprocess{index}", preprocessor))
+    stages.extend(
+        [
+            Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 3})),
+            Stage("pool", Spec("pool")),
+            Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 3})),
+            Stage("assign", Spec("nearest_centroid")),
+            # volume writes habitat_*_volume_fraction, which the bar chart uses.
+            Stage("quantify", Spec("volume")),
+        ]
     )
+    return HabitatSpec(name="two_step", stages=tuple(stages), random_seed=0)
 
 
 plain = Study(spec=two_step(())).fit_predict(cohort)

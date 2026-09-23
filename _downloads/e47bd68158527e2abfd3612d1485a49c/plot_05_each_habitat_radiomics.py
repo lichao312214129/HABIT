@@ -6,9 +6,10 @@ Extract first-order and GLCM features **within each habitat subregion**
 using :class:`~habit.habitat_features.EachHabitatRadiomicsFeatures`.
 """
 
+# sphinx_gallery_thumbnail_number = 1
+
 # %%
 # One-step habitats, then per-habitat PyRadiomics on the intensity image.
-# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 

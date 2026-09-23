@@ -23,9 +23,12 @@ from habit.recipes import one_step_habitat
 from habit.viz import plot_partition_triptych
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+# A Python list is not a Cohort. fit_predict reads cohort.name, so wrap
+# a single subject explicitly. The name is used in logs and provenance.
 one = Cohort([subject], name="one")
 
 result = one_step_habitat(

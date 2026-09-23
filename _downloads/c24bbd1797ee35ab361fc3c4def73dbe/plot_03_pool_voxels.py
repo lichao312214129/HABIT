@@ -22,11 +22,14 @@ from habit.viz import plot_habitat_overlay
 import numpy as np
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(f"Cohort: {list(cohort.subject_ids)}")
 
+# direct_pooling_habitat skips supervoxels. Each ROI voxel is its own
+# clustering unit, and one model is fit on every subject's voxels.
 result = direct_pooling_habitat(
     modalities=MODALITIES,
     n_habitats=3,
@@ -44,11 +47,12 @@ colors = ["#4C78A8", "#F58518", "#54A24B"]
 for habitat_id in sorted(
     int(v) for v in np.unique(result.habitat_maps[0].label_array) if int(v) != 0
 ):
+    # Histogram uses the displayed ROI image (LAP), not a feature column.
     values = cohort[0].image(ROI).data[
         result.habitat_maps[0].label_array == habitat_id
     ]
     ax.hist(values, bins=30, alpha=0.6, label=f"habitat {habitat_id}", color=colors[habitat_id - 1])
-ax.set_xlabel(MODALITIES[0])
+ax.set_xlabel(ROI)
 ax.set_ylabel("voxels")
 ax.set_title("pooled voxel intensities by habitat")
 ax.legend()

@@ -34,7 +34,7 @@ labels before comparing people:
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-73
+.. GENERATED FROM PYTHON SOURCE LINES 17-52
 
 .. code-block:: Python
 
@@ -46,13 +46,17 @@ sphinx_gallery_thumbnail_number = 1
     from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.recipes import one_step_habitat
-    from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
+    from habit.viz import plot_habitat_overlay
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
-    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
 
+    # One-step: each subject gets its own private clustering. The integer
+    # labels are arbitrary across subjects -- habitat 1 in subj001 is not
+    # habitat 1 in subj002.
     result = one_step_habitat(
         modalities=MODALITIES,
         n_habitats=3,
@@ -69,57 +73,8 @@ sphinx_gallery_thumbnail_number = 1
     print(result.features.frame)
     result.features.frame
 
-    Path("out").mkdir(exist_ok=True)
-    fig_compare = plot_habitat_label_compare(
-        cohort[0].image(ROI),
-        result.habitat_maps[0].label_array,
-        result.habitat_maps[1].label_array,
-        titles=(result.habitat_maps[0].subject_id, result.habitat_maps[1].subject_id),
-        align_labels=False,
-        crop_to="labels",
-    )
-    fig_compare.savefig("out/one_step_compare.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-    for subject, habitat_map in zip(cohort, result.habitat_maps):
-        fig = plot_habitat_overlay(
-            subject.image(ROI),
-            habitat_map,
-            title=f"habitats ({habitat_map.subject_id})",
-            crop_to="labels",
-        )
-        fig.savefig(
-            f"out/one_step_{habitat_map.subject_id}.png",
-            dpi=150,
-            bbox_inches="tight",
-        )
-        plt.show()
 
 
-
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_001.png
-         :alt: Habitat label compare, subj001, subj002, Disagreement
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_001.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_002.png
-         :alt: habitats (subj001), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_002.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_003.png
-         :alt: habitats (subj002), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 27, Axis 2 (sagittal-like) @ 19
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_003.png
-         :class: sphx-glr-multi-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -148,15 +103,144 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01<00:01,  1.33s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:02<00:00,  1.31s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:02<00:00,  1.31s/it]
-    Per-subject models: ['subj001', 'subj002']
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  33%|███▎      | 1/3 [00:01<00:02,  1.49s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  67%|██████▋   | 2/3 [00:02<00:01,  1.44s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.47s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.47s/it]
+    Per-subject models: ['subj001', 'subj002', 'subj003']
     subj001 [1, 2, 3]
     subj002 [1, 2, 3]
+    subj003 [1, 2, 3]
        subject  ...  habitat_3_volume_fraction
-    0  subj001  ...                   0.300110
-    1  subj002  ...                   0.367925
+    0  subj001  ...                   0.191561
+    1  subj002  ...                   0.381213
+    2  subj003  ...                   0.352989
 
-    [2 rows x 7 columns]
+    [3 rows x 7 columns]
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>subject</th>
+          <th>habitat_1_voxel_count</th>
+          <th>habitat_1_volume_fraction</th>
+          <th>habitat_2_voxel_count</th>
+          <th>habitat_2_volume_fraction</th>
+          <th>habitat_3_voxel_count</th>
+          <th>habitat_3_volume_fraction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>subj001</td>
+          <td>14235.0</td>
+          <td>0.410301</td>
+          <td>13813.0</td>
+          <td>0.398138</td>
+          <td>6646.0</td>
+          <td>0.191561</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>subj002</td>
+          <td>3585.0</td>
+          <td>0.363664</td>
+          <td>2515.0</td>
+          <td>0.255123</td>
+          <td>3758.0</td>
+          <td>0.381213</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>subj003</td>
+          <td>1303.0</td>
+          <td>0.211663</td>
+          <td>2680.0</td>
+          <td>0.435348</td>
+          <td>2173.0</td>
+          <td>0.352989</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <br />
+    <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 53-55
+
+Show each subject's habitat map on its own anatomy. No comparison --
+just the three maps side by side.
+
+.. GENERATED FROM PYTHON SOURCE LINES 55-69
+
+.. code-block:: Python
+
+    Path("out").mkdir(exist_ok=True)
+    for subject, habitat_map in zip(cohort, result.habitat_maps):
+        fig = plot_habitat_overlay(
+            subject.image(ROI),
+            habitat_map,
+            title=f"habitats ({habitat_map.subject_id})",
+            crop_to="labels",
+        )
+        fig.savefig(
+            f"out/one_step_{habitat_map.subject_id}.png",
+            dpi=150,
+            bbox_inches="tight",
+        )
+        plt.show()
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_001.png
+         :alt: habitats (subj001), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_002.png
+         :alt: habitats (subj002), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 27, Axis 2 (sagittal-like) @ 19
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_003.png
+         :alt: habitats (subj003), Axis 0 (axial-like) @ 14, Axis 1 (coronal-like) @ 18, Axis 2 (sagittal-like) @ 15
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_003.png
+         :class: sphx-glr-multi-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
@@ -168,7 +252,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.041 seconds)
+   **Total running time of the script:** (0 minutes 7.480 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_02_inside_each_subject.py:

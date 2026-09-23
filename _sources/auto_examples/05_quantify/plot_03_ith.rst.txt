@@ -25,12 +25,25 @@ Atomic ITH metrics from a habitat label map:
 :func:`~habit.kernels.ith_score` and
 :func:`~habit.kernels.habitat_ith_dispersion`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-13
+.. GENERATED FROM PYTHON SOURCE LINES 9-11
+
+.. code-block:: Python
+   :dedent: 1
+
+
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 13-14
 
 One-step habitats, then ITH scalar plus per-habitat dispersion.
-sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-47
+.. GENERATED FROM PYTHON SOURCE LINES 14-48
 
 .. code-block:: Python
 
@@ -103,7 +116,7 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.25s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.25s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.24s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.24s/it]
     ITH scores:
     habitat    score
         ITH 0.958465
@@ -117,7 +130,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.732 seconds)
+   **Total running time of the script:** (0 minutes 1.754 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_03_ith.py:

@@ -30,7 +30,7 @@ Input: a :class:`~habit.contracts.VoxelFeatureField`. Output: a
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-42
+.. GENERATED FROM PYTHON SOURCE LINES 13-47
 
 .. code-block:: Python
 
@@ -45,11 +45,16 @@ sphinx_gallery_thumbnail_number = 1
     from habit.voxel_features import RawVoxelFeatures
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
 
     field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
+    # SlicSupervoxelizer groups nearby voxels with similar intensity into
+    # supervoxels. The result is a Supervoxelization ("units"): one row per
+    # supervoxel, with the mean feature vector of its voxels. These units
+    # are the smallest clustering element in a two-step habitat study.
     units = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)(field)
     print(f"n_supervoxels={len(units.features)}")
     print(units.features.head())
@@ -99,13 +104,13 @@ sphinx_gallery_thumbnail_number = 1
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     n_supervoxels=100
-                       LAP
-    supervoxel            
-    1           818.019900
-    2           906.058047
-    3           940.373333
-    4           960.294906
-    5           902.255132
+                pre_contrast          LAP         PVP
+    supervoxel                                       
+    1             380.128767   787.739726  760.224658
+    2             433.455657  1026.703364  922.183486
+    3             397.488024   857.470060  840.371257
+    4             442.124242  1151.854545  889.772727
+    5             377.165929   942.422566  781.544248
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
@@ -115,7 +120,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 21.621 seconds)
+   **Total running time of the script:** (0 minutes 27.135 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_12_supervoxels.py:

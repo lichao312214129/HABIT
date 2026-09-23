@@ -19,10 +19,11 @@ In addition, an elastic ROI edge perturbation (MONAI ``bspline_deform``) is demo
 to inspect contour and anatomy deformations.
 """
 
+# sphinx_gallery_thumbnail_number = 5
+
 # %%
 # Load one demo subject. ``extract_voxel_texture`` crops to the ROI box
 # internally (``crop_to_roi=True``).
-# sphinx_gallery_thumbnail_number = 5
 from pathlib import Path
 from typing import Dict, List, Tuple
 

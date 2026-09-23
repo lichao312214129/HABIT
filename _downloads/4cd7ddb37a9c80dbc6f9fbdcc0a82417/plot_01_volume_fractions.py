@@ -7,9 +7,10 @@ Atomic volume metrics from a habitat label map:
 :func:`~habit.kernels.habitat_region_stats`.
 """
 
+# sphinx_gallery_thumbnail_number = 2
+
 # %%
 # One-step habitats give a map to quantify.
-# sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
 
 import matplotlib.pyplot as plt

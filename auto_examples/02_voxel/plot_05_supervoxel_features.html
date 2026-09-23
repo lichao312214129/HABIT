@@ -675,8 +675,10 @@ Furthermore, HABIT sets GPU and backend calculation precision to double precisio
 against official PyRadiomics without single-precision (<code class="docutils literal notranslate"><span class="pre">float32</span></code>) quantization error.
 This page benchmarks extraction time, confirms multi-fold speedup, and proves exact
 numerical parity against PyRadiomics.</p>
-<p>Load one demo subject and generate SLIC supervoxels.
-sphinx_gallery_thumbnail_number = 1</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>Load one demo subject and generate SLIC supervoxels.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">,</span> <span class="n">Tuple</span>
@@ -925,9 +927,9 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Extraction time for 24 supervoxels:
-  HABIT Native C-extension : 0.809 s
-  Reference PyRadiomics    : 1.208 s
-  Speedup factor           : 1.49x faster
+  HABIT Native C-extension : 0.555 s
+  Reference PyRadiomics    : 0.986 s
+  Speedup factor           : 1.78x faster
 
 Maximum absolute difference across all features: 1.44e-10
 
@@ -980,7 +982,7 @@ original_firstorder_Skewness-LAP  1.076916e-14   3.681372e-15
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" srcset="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" alt="Supervoxel texture benchmark (1.5x speedup), Numerical parity: JointEntropy-LAP" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 15.264 seconds)</p>
+<img src="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" srcset="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" alt="Supervoxel texture benchmark (1.8x speedup), Numerical parity: JointEntropy-LAP" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 15.094 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-voxel-plot-05-supervoxel-features-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0c54ef8764daccd55355b78f6c38e3d0/plot_05_supervoxel_features.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_05_supervoxel_features.ipynb</span></code></a></p>

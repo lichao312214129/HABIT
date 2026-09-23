@@ -31,7 +31,7 @@ Input: a fitted :class:`~habit.contracts.HabitatModel` and one
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-65
+.. GENERATED FROM PYTHON SOURCE LINES 14-68
 
 .. code-block:: Python
 
@@ -48,7 +48,8 @@ sphinx_gallery_thumbnail_number = 2
     from habit.voxel_features import RawVoxelFeatures
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     subject = cohort[0]
@@ -60,6 +61,8 @@ sphinx_gallery_thumbnail_number = 2
     fitter.set_random_state(0)
     model = fitter.fit(units, cohort=cohort)
 
+    # model.assigner() returns a callable that maps one subject's units to
+    # a HabitatMap by finding the nearest centroid for each supervoxel.
     habitat_map = model.assigner()(units[0])
     print(habitat_map.subject_id)
 
@@ -143,7 +146,7 @@ sphinx_gallery_thumbnail_number = 2
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 41.206 seconds)
+   **Total running time of the script:** (0 minutes 51.095 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_14_assign_labels.py:

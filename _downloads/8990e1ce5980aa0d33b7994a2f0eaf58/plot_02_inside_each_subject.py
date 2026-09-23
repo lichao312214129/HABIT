@@ -22,13 +22,17 @@ import numpy as np
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.recipes import one_step_habitat
-from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
+from habit.viz import plot_habitat_overlay
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
-cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
 
+# One-step: each subject gets its own private clustering. The integer
+# labels are arbitrary across subjects -- habitat 1 in subj001 is not
+# habitat 1 in subj002.
 result = one_step_habitat(
     modalities=MODALITIES,
     n_habitats=3,
@@ -45,18 +49,10 @@ for habitat_map in result.habitat_maps:
 print(result.features.frame)
 result.features.frame
 
+# %%
+# Show each subject's habitat map on its own anatomy. No comparison --
+# just the three maps side by side.
 Path("out").mkdir(exist_ok=True)
-fig_compare = plot_habitat_label_compare(
-    cohort[0].image(ROI),
-    result.habitat_maps[0].label_array,
-    result.habitat_maps[1].label_array,
-    titles=(result.habitat_maps[0].subject_id, result.habitat_maps[1].subject_id),
-    align_labels=False,
-    crop_to="labels",
-)
-fig_compare.savefig("out/one_step_compare.png", dpi=150, bbox_inches="tight")
-plt.show()
-
 for subject, habitat_map in zip(cohort, result.habitat_maps):
     fig = plot_habitat_overlay(
         subject.image(ROI),

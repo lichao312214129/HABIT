@@ -36,7 +36,7 @@ draws the elbow on the same cohort.
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-57
+.. GENERATED FROM PYTHON SOURCE LINES 19-62
 
 .. code-block:: Python
 
@@ -50,11 +50,16 @@ sphinx_gallery_thumbnail_number = 2
     from habit.viz import plot_cluster_validation_from_report, plot_partition_triptych
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     print(f"Cohort: {list(cohort.subject_ids)}")
 
+    # two_step_habitat partitions each ROI into supervoxels. Those
+    # supervoxels are the clustering units: one mean feature vector per
+    # supervoxel. The units are then pooled across subjects and one shared
+    # habitat model is fit.
     result = two_step_habitat(
         modalities=MODALITIES,
         n_supervoxels=100,
@@ -114,21 +119,21 @@ sphinx_gallery_thumbnail_number = 2
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort: ['subj001', 'subj002']
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:21<00:21, 21.25s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:41<00:00, 20.64s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:41<00:00, 20.64s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.27it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.32it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.32it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:23<00:23, 23.26s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:45<00:00, 22.70s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:45<00:00, 22.70s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.45it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.45it/s]
     HabitatModel kmeans-3fb1a8736ca6964a
       habitats           : 3
-      features (1)    : LAP
+      features (3)    : pre_contrast, LAP, PVP
       defining cohort    : n=2
-      modalities         : LAP
+      modalities         : pre_contrast, LAP, PVP
       cohort digest      : cc1b16a34cc7478d...
       produced by        : habitat_model_fitter.kmeans
       habit version      : 2.0.0
       random seed        : 0
       preprocessing state: inertia, validation
        subject  ...  habitat_3_volume_fraction
-    0  subj001  ...                   0.487433
-    1  subj002  ...                   0.329986
+    0  subj001  ...                   0.271632
+    1  subj002  ...                   0.167174
 
     [2 rows x 7 columns]
     F:\work\habit_project\habit\viz\habitat_core.py:1106: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
@@ -137,13 +142,13 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-61
+.. GENERATED FROM PYTHON SOURCE LINES 63-66
 
 Elbow on the same two-step declaration. The chosen count is the knee,
 not a second overlay. A saved model is
 :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-74
+.. GENERATED FROM PYTHON SOURCE LINES 66-79
 
 .. code-block:: Python
 
@@ -173,13 +178,13 @@ not a second overlay. A saved model is
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:20<00:20, 20.34s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:39<00:00, 19.85s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:39<00:00, 19.85s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.74it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.86it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.86it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:22<00:22, 22.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:44<00:00, 22.44s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:44<00:00, 22.44s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.51it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.55it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 4
-      features (1)    : LAP
+      features (3)    : pre_contrast, LAP, PVP
       defining cohort    : n=2
-      modalities         : LAP
+      modalities         : pre_contrast, LAP, PVP
       cohort digest      : cc1b16a34cc7478d...
       produced by        : habitat_model_fitter.kmeans
       habit version      : 2.0.0
@@ -192,7 +197,7 @@ not a second overlay. A saved model is
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 23.775 seconds)
+   **Total running time of the script:** (1 minutes 33.219 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_01_two_step.py:

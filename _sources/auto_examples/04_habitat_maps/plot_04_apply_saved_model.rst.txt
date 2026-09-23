@@ -34,7 +34,7 @@ Demo pack has ``subj001`` … ``subj005``. Train on the first three;
 apply on the last two.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-58
+.. GENERATED FROM PYTHON SOURCE LINES 17-59
 
 .. code-block:: Python
 
@@ -49,7 +49,8 @@ sphinx_gallery_thumbnail_number = 2
     import habit.recipes as recipes
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
     train_cohort = cohort[:3]
@@ -114,11 +115,11 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-60
+.. GENERATED FROM PYTHON SOURCE LINES 60-61
 
 Fit on the discovery cohort and persist one self-describing archive.
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-79
+.. GENERATED FROM PYTHON SOURCE LINES 61-80
 
 .. code-block:: Python
 
@@ -154,22 +155,22 @@ Fit on the discovery cohort and persist one self-describing archive.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.02s/it]    Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:01<00:00,  1.01it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.01it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.01it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.46s/it]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:02<00:01,  1.01s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.17it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.17it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.48s/it]    Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:02<00:01,  1.25s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03<00:00,  1.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03<00:00,  1.16s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.27s/it]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:01<00:00,  1.06it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.23it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.23it/s]
     HabitatModel kmeans-8a84cd5253eb126f
       habitats           : 3
-      features (1)    : LAP
+      features (3)    : pre_contrast, LAP, PVP
       defining cohort    : n=3
-      modalities         : LAP
+      modalities         : pre_contrast, LAP, PVP
       cohort digest      : 7ffce8f589e3ad28...
       produced by        : habitat_model_fitter.kmeans
       habit version      : 2.0.0
       random seed        : 42
       preprocessing state: inertia, validation
        subject  habitat_1_voxel_count  ...    energy  ith_score
-    0  subj001                14732.0  ...  4.010323   0.954196
-    1  subj002                 3837.0  ...  2.666441   0.483423
-    2  subj003                 2937.0  ...  2.434844   0.544201
+    0  subj001                14151.0  ...  3.966085   0.964886
+    1  subj002                 1811.0  ...  2.727729   0.835447
+    2  subj003                 1834.0  ...  2.402330   0.784911
 
     [3 rows x 30 columns]
     Saved out\habitat_model.habitatmodel
@@ -179,11 +180,11 @@ Fit on the discovery cohort and persist one self-describing archive.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-81
+.. GENERATED FROM PYTHON SOURCE LINES 81-82
 
 Reload and label held-out subjects. No fitting after the reload.
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-95
+.. GENERATED FROM PYTHON SOURCE LINES 82-96
 
 .. code-block:: Python
 
@@ -214,11 +215,11 @@ Reload and label held-out subjects. No fitting after the reload.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01<00:01,  1.57s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.68s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.68s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01<00:01,  1.81s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:04<00:00,  2.13s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:04<00:00,  2.13s/it]
     Applied to ['subj004', 'subj005']
        subject  habitat_1_voxel_count  ...    energy  ith_score
-    0  subj004                 2426.0  ...  3.552956   0.814030
-    1  subj005                35478.0  ...  3.651607   0.980247
+    0  subj004                  889.0  ...  3.489069   0.820012
+    1  subj005                16354.0  ...  3.548671   0.974884
 
     [2 rows x 30 columns]
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
@@ -230,7 +231,7 @@ Reload and label held-out subjects. No fitting after the reload.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 10.690 seconds)
+   **Total running time of the script:** (0 minutes 12.410 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py:

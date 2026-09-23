@@ -42,7 +42,8 @@ from habit.recipes import one_step_habitat
 from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 subject = cohort[0]

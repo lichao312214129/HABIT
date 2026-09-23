@@ -31,7 +31,7 @@ Input: a cohort of at least two subjects. Output: one shared
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-71
+.. GENERATED FROM PYTHON SOURCE LINES 14-75
 
 .. code-block:: Python
 
@@ -46,11 +46,14 @@ sphinx_gallery_thumbnail_number = 1
     import numpy as np
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     print(f"Cohort: {list(cohort.subject_ids)}")
 
+    # direct_pooling_habitat skips supervoxels. Each ROI voxel is its own
+    # clustering unit, and one model is fit on every subject's voxels.
     result = direct_pooling_habitat(
         modalities=MODALITIES,
         n_habitats=3,
@@ -68,11 +71,12 @@ sphinx_gallery_thumbnail_number = 1
     for habitat_id in sorted(
         int(v) for v in np.unique(result.habitat_maps[0].label_array) if int(v) != 0
     ):
+        # Histogram uses the displayed ROI image (LAP), not a feature column.
         values = cohort[0].image(ROI).data[
             result.habitat_maps[0].label_array == habitat_id
         ]
         ax.hist(values, bins=30, alpha=0.6, label=f"habitat {habitat_id}", color=colors[habitat_id - 1])
-    ax.set_xlabel(MODALITIES[0])
+    ax.set_xlabel(ROI)
     ax.set_ylabel("voxels")
     ax.set_title("pooled voxel intensities by habitat")
     ax.legend()
@@ -147,21 +151,21 @@ sphinx_gallery_thumbnail_number = 1
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort: ['subj001', 'subj002']
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.11it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.11it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.11it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.18it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.16it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.16it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.01s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.01s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.01s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.24it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.15it/s]
     HabitatModel kmeans-3fb1a8736ca6964a
       habitats           : 3
-      features (1)    : LAP
+      features (3)    : pre_contrast, LAP, PVP
       defining cohort    : n=2
-      modalities         : LAP
+      modalities         : pre_contrast, LAP, PVP
       cohort digest      : cc1b16a34cc7478d...
       produced by        : habitat_model_fitter.kmeans
       habit version      : 2.0.0
       random seed        : 0
       preprocessing state: inertia, validation
        subject  ...  habitat_3_volume_fraction
-    0  subj001  ...                   0.238082
-    1  subj002  ...                   0.486813
+    0  subj001  ...                    0.21926
+    1  subj002  ...                    0.14932
 
     [2 rows x 7 columns]
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
@@ -175,7 +179,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.632 seconds)
+   **Total running time of the script:** (0 minutes 4.969 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_03_pool_voxels.py:

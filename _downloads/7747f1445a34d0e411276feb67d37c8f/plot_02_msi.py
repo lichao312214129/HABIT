@@ -7,9 +7,10 @@ Atomic MSI from a habitat label map (Wu et al., *Radiology* 2018):
 :func:`~habit.kernels.msi_features_from_matrix`.
 """
 
+# sphinx_gallery_thumbnail_number = 1
+
 # %%
 # Build a habitat map, then compute the MSI matrix and scalar summaries.
-# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt

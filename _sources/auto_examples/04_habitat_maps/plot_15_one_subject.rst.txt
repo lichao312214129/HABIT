@@ -33,7 +33,7 @@ A Python list is not a cohort. ``fit_predict`` reads ``cohort.name``.
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-49
+.. GENERATED FROM PYTHON SOURCE LINES 16-52
 
 .. code-block:: Python
 
@@ -47,9 +47,12 @@ sphinx_gallery_thumbnail_number = 1
     from habit.viz import plot_partition_triptych
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+    # A Python list is not a Cohort. fit_predict reads cohort.name, so wrap
+    # a single subject explicitly. The name is used in logs and provenance.
     one = Cohort([subject], name="one")
 
     result = one_step_habitat(
@@ -105,10 +108,10 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.24s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.24s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.41s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]
     subj001 HabitatModel kmeans-d89e622368013807
       habitats           : 3
-      features (1)    : LAP
+      features (3)    : pre_contrast, LAP, PVP
       defining cohort    : n=1
       modalities         : n/a
       cohort digest      : bbf1d587b6155a53...
@@ -125,7 +128,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.259 seconds)
+   **Total running time of the script:** (0 minutes 2.497 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_15_one_subject.py:

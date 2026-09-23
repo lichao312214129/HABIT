@@ -30,7 +30,7 @@ only change is ``voxel_feature_preprocessors``.
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 3
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-87
+.. GENERATED FROM PYTHON SOURCE LINES 13-102
 
 .. code-block:: Python
 
@@ -41,29 +41,44 @@ sphinx_gallery_thumbnail_number = 3
     from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.recipes import Study
-    from habit.spec import HabitatSpec, Spec
+    from habit.spec import HabitatSpec, Spec, Stage
     from habit.viz import plot_habitat_overlay
     import numpy as np
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     Path("out").mkdir(exist_ok=True)
 
 
     def two_step(preprocessors: tuple) -> HabitatSpec:
-        """Build the same two-step spec with or without voxel preprocessing."""
-        return HabitatSpec(
-            name="two_step",
-            voxel_feature_extractor=Spec("raw", {"modalities": list(MODALITIES), "roi": ROI}),
-            voxel_feature_preprocessors=preprocessors,
-            supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 3}),
-            habitat_model_fitter=Spec("kmeans", {"n_habitats": 3, "n_init": 3}),
-            habitat_assigner=Spec("nearest_centroid"),
-            random_seed=0,
-            pooling="cohort",
+        """Build the same two-step spec with or without voxel preprocessing.
+
+        ``preprocessors`` is a tuple of :class:`~habit.spec.Spec` objects
+        inserted between feature extraction and the k-means partition.
+        An empty tuple leaves the raw intensities unchanged.
+        """
+        stages = [
+            Stage(
+                "extract_voxel_features",
+                Spec("raw", {"modalities": list(MODALITIES), "roi": ROI}),
+            )
+        ]
+        for index, preprocessor in enumerate(preprocessors, start=1):
+            stages.append(Stage(f"preprocess{index}", preprocessor))
+        stages.extend(
+            [
+                Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 3})),
+                Stage("pool", Spec("pool")),
+                Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 3})),
+                Stage("assign", Spec("nearest_centroid")),
+                # volume writes habitat_*_volume_fraction, which the bar chart uses.
+                Stage("quantify", Spec("volume")),
+            ]
         )
+        return HabitatSpec(name="two_step", stages=tuple(stages), random_seed=0)
 
 
     plain = Study(spec=two_step(())).fit_predict(cohort)
@@ -162,16 +177,12 @@ sphinx_gallery_thumbnail_number = 3
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    F:\work\habit_project\examples\guide\04_habitat_maps\plot_11_preprocess_compare.py:33: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
-      return HabitatSpec(
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.00it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.00it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.44it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.60it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.59it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.21s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.24s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.24s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.43it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.29it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.28it/s]
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\examples\guide\04_habitat_maps\plot_11_preprocess_compare.py:33: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
-      return HabitatSpec(
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.03it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.04it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.04it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.53it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.56it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.56it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.30it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.94it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.94it/s]
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
@@ -181,7 +192,7 @@ sphinx_gallery_thumbnail_number = 3
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.210 seconds)
+   **Total running time of the script:** (0 minutes 7.553 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_11_preprocess_compare.py:

@@ -654,8 +654,10 @@ to download the full example code.</p>
 <p>Quantify the <strong>shape and spatial distribution of the partition map itself</strong>
 using <a class="reference internal" href="../../api/generated/habit.habitat_features.WholeHabitatRadiomicsFeatures.html#habit.habitat_features.WholeHabitatRadiomicsFeatures" title="habit.habitat_features.WholeHabitatRadiomicsFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">WholeHabitatRadiomicsFeatures</span></code></a>.
 The habitat label image plays both intensity and mask roles.</p>
-<p>One-step habitats, then whole-map PyRadiomics on the label field.
-sphinx_gallery_thumbnail_number = 2</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>One-step habitats, then whole-map PyRadiomics on the label field.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Any</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a>
 
@@ -718,8 +720,8 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.45s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.45s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.32s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.32s/it]
 Whole-habitat radiomics:
 subject                            subj001
 original_shape_Sphericity         0.719657
@@ -781,7 +783,7 @@ F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geom
   direction, spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 24.329 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 23.353 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-quantify-plot-06-whole-habitat-radiomics-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/df367d11c601555454e0e07dad0a8e89/plot_06_whole_habitat_radiomics.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_06_whole_habitat_radiomics.ipynb</span></code></a></p>

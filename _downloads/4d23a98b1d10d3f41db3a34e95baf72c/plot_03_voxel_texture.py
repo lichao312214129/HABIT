@@ -8,12 +8,12 @@ the numbers do not change because of GPU.
 
 Pass :class:`~habit.image.ImageVolume` /
 :class:`~habit.image.MaskVolume` to the plotter (not ``.data``).
-The map on this page is per-voxel GLCM Contrast.
 """
 
 # %%
-# One demo subject. Later cells time the same GLCM Contrast definition
-# on CPU and on the two GPU runtimes.
+# Local entropy on one demo subject, zoomed to the ROI bounding box.
+# :func:`~habit.kernels.local_entropy_map` returns a volume;
+# :func:`~habit.viz.plot_voxel_texture_slice` overlays it.
 from pathlib import Path
 import time
 from typing import Any, Dict, Optional
@@ -25,6 +25,7 @@ import pandas as pd
 import habit.voxel_features  # registers built-in voxel extractors
 from habit.contracts import Subject, VoxelFeatureField, cohort_from_directory
 from habit.datasets import fetch_demo
+from habit.kernels import local_entropy_map
 from habit.voxel_features import VoxelFeatureExtractorRegistry
 from habit.viz import plot_voxel_texture_slice
 
@@ -35,7 +36,14 @@ cohort = cohort_from_directory(DATA, modalities=(MODALITY,), roi=ROI)[:1]
 subject = cohort[0]
 image_vol = subject.image(MODALITY)
 mask_vol = subject.mask(ROI)
+
+entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
+fig = plot_voxel_texture_slice(
+    entropy, anatomy=image_vol, roi_mask=mask_vol, axis=0, crop_to="roi"
+)
 Path("out").mkdir(exist_ok=True)
+fig.savefig("out/voxel_texture_overlay.png", dpi=150, bbox_inches="tight")
+plt.show()
 
 # %%
 # Three acceleration runtimes for voxel radiomics
@@ -50,8 +58,9 @@ Path("out").mkdir(exist_ok=True)
 # 3. **HABIT built-in GPU**: GPU-native matrix building (``gpumatrices``) +
 #    GPU feature formulas (zero CPU-GPU transfer of intermediate matrices).
 #
-# Install in the same ``habit`` env. The IBSI rows below need **PyRadiomics**.
-# Rows 2–3 also need **PyTorch**: ``conda activate habit``, then install from
+# Install in the same ``habit`` env. ``local_entropy`` (above) needs neither
+# PyRadiomics nor torch. The IBSI rows below need **PyRadiomics**. Rows 2–3
+# also need **PyTorch**: ``conda activate habit``, then install from
 # https://pytorch.org/ (Start Locally; pick OS / Pip / CUDA). See
 # :doc:`/tutorial/installation` steps 5–6.
 #
@@ -103,12 +112,7 @@ print(cpu_field.feature_frame().head())
 cpu_field.feature_frame().head()
 
 fig_glcm = plot_voxel_texture_slice(
-    cpu_field,
-    feature=0,
-    anatomy=image_vol,
-    roi_mask=mask_vol,
-    axis=0,
-    crop_to="roi",
+    cpu_field, feature=0, anatomy=image_vol, roi_mask=mask_vol
 )
 fig_glcm.savefig("out/voxel_texture_glcm_contrast.png", dpi=150, bbox_inches="tight")
 plt.show()

@@ -26,12 +26,17 @@ Input: a :class:`~habit.contracts.Subject` and a
 :class:`~habit.contracts.FeatureTable` of voxel counts and volume
 fractions. Stage: ``quantify`` with ``volume``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-14
+The two-step fit below only produces a label map (same design as
+:doc:`/auto_examples/04_habitat_maps/plot_01_two_step`). The new step
+is :class:`~habit.habitat_features.HabitatVolumeFeatures`, which
+measures that map.
+
+.. GENERATED FROM PYTHON SOURCE LINES 17-19
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-51
+.. GENERATED FROM PYTHON SOURCE LINES 19-65
 
 .. code-block:: Python
 
@@ -39,23 +44,32 @@ sphinx_gallery_thumbnail_number = 1
 
     import matplotlib.pyplot as plt
 
-    from habit.contracts import Cohort, cohort_from_directory
+    from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.habitat_features import HabitatVolumeFeatures
-    from habit.recipes import one_step_habitat
+    from habit.recipes import two_step_habitat
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
+    # Three DCE phases: unenhanced, arterial, and portal-venous.
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
-    subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
-    result = one_step_habitat(
+    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+
+    # Two-step shared model (same as plot_01). The habitat map is already
+    # defined; this page only measures it.
+    result = two_step_habitat(
         modalities=MODALITIES,
+        n_supervoxels=100,
         n_habitats=3,
         random_seed=0,
+        supervoxel_algorithm="slic",
         roi=ROI,
-    ).fit_predict(Cohort([subject], name="one"))
+    ).fit_predict(cohort)
 
-    table = HabitatVolumeFeatures()(subject, result.habitat_maps[0])
+    # HabitatVolumeFeatures takes one subject and its HabitatMap.
+    # It returns a FeatureTable with one row per subject and one column
+    # per habitat volume metric.
+    table = HabitatVolumeFeatures()(cohort[0], result.habitat_maps[0])
     print(table.frame)
     table.frame
 
@@ -107,9 +121,10 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.20s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.20s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:25<00:25, 25.31s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:50<00:00, 25.07s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:50<00:00, 25.07s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.91it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.95it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.95it/s]
        subject  ...  habitat_3_volume_fraction
-    0  subj001  ...                    0.30011
+    0  subj001  ...                   0.271632
 
     [1 rows x 7 columns]
 
@@ -119,7 +134,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.457 seconds)
+   **Total running time of the script:** (0 minutes 50.897 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_16_measure_volume.py:

@@ -671,11 +671,16 @@ sphinx_gallery_thumbnail_number = 2</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.viz.plot_cluster_validation_from_report.html#habit.viz.plot_cluster_validation_from_report" title="habit.viz.plot_cluster_validation_from_report" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_cluster_validation_from_report</span></a><span class="p">,</span> <a href="../../api/generated/habit.viz.plot_partition_triptych.html#habit.viz.plot_partition_triptych" title="habit.viz.plot_partition_triptych" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_partition_triptych</span></a>
 
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">()</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<span class="c1"># Three DCE phases: unenhanced, arterial, and portal-venous.</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">)</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
 <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cohort: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort.subject_ids" title="habit.contracts.Cohort.subject_ids" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-property"><span class="n">cohort</span><span class="o">.</span><span class="n">subject_ids</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+<span class="c1"># two_step_habitat partitions each ROI into supervoxels. Those</span>
+<span class="c1"># supervoxels are the clustering units: one mean feature vector per</span>
+<span class="c1"># supervoxel. The units are then pooled across subjects and one shared</span>
+<span class="c1"># habitat model is fit.</span>
 <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.two_step_habitat.html#habit.recipes.two_step_habitat" title="habit.recipes.two_step_habitat" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><span class="n">two_step_habitat</span></a><span class="p">(</span>
     <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">,</span>
     <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
@@ -725,27 +730,27 @@ same as one image series (here LAP).
 Cohort: [&#39;subj001&#39;, &#39;subj002&#39;]
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:21&lt;00:21, 21.25s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:41&lt;00:00, 20.64s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:41&lt;00:00, 20.64s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:23&lt;00:23, 23.26s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:45&lt;00:00, 22.70s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:45&lt;00:00, 22.70s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.27it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.32it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.32it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.55it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.45it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.45it/s]
 HabitatModel kmeans-3fb1a8736ca6964a
   habitats           : 3
-  features (1)    : LAP
+  features (3)    : pre_contrast, LAP, PVP
   defining cohort    : n=2
-  modalities         : LAP
+  modalities         : pre_contrast, LAP, PVP
   cohort digest      : cc1b16a34cc7478d...
   produced by        : habitat_model_fitter.kmeans
   habit version      : 2.0.0
   random seed        : 0
   preprocessing state: inertia, validation
    subject  ...  habitat_3_volume_fraction
-0  subj001  ...                   0.487433
-1  subj002  ...                   0.329986
+0  subj001  ...                   0.271632
+1  subj002  ...                   0.167174
 
 [2 rows x 7 columns]
 F:\work\habit_project\habit\viz\habitat_core.py:1106: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
@@ -771,19 +776,19 @@ not a second overlay. A saved model is
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_01_two_step_002.png" srcset="../../_images/sphx_glr_plot_01_two_step_002.png" alt="Cluster validation curves, elbow (selected k=4)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:20&lt;00:20, 20.34s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:39&lt;00:00, 19.85s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:39&lt;00:00, 19.85s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:22&lt;00:22, 22.16s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:44&lt;00:00, 22.44s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:44&lt;00:00, 22.44s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  4.74it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  4.86it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  4.86it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  4.51it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  4.55it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  4.55it/s]
 HabitatModel kmeans-3432f3b65bfec11a
   habitats           : 4
-  features (1)    : LAP
+  features (3)    : pre_contrast, LAP, PVP
   defining cohort    : n=2
-  modalities         : LAP
+  modalities         : pre_contrast, LAP, PVP
   cohort digest      : cc1b16a34cc7478d...
   produced by        : habitat_model_fitter.kmeans
   habit version      : 2.0.0
@@ -791,7 +796,7 @@ HabitatModel kmeans-3432f3b65bfec11a
   preprocessing state: inertia, selection_report, validation
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 23.775 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 33.219 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-habitat-maps-plot-01-two-step-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/7c45c86571d2fcec68e70fb58619ef9c/plot_01_two_step.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_two_step.ipynb</span></code></a></p>
