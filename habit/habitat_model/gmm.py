@@ -41,6 +41,7 @@ __all__ = ["GmmHabitatModelFitter", "GmmHabitatModelFitterParams"]
 #: available to every centroid model are also offered.
 _VALIDATION_METHODS = (
     "bic",
+    "bic_elbow",
     "aic",
     "silhouette",
     "calinski_harabasz",
@@ -73,6 +74,7 @@ class GmmHabitatModelFitter:
         max_habitats: Largest candidate count during selection.
         validation: Selection criterion, or a list of criteria that each cast
             one vote: ``"bic"`` / ``"aic"`` / ``"davies_bouldin"`` (minimise),
+            ``"bic_elbow"`` (Prior 2024 BIC-slope elbow, not minimum BIC),
             or ``"silhouette"`` / ``"calinski_harabasz"`` / ``"gap"``
             (maximise).
         covariance_type: GaussianMixture covariance structure.
@@ -181,11 +183,14 @@ class GmmHabitatModelFitter:
         # Hard labels are only needed by the structure-based criteria.
         labels = (
             model.predict(matrix)
-            if any(name not in ("bic", "aic") for name in methods)
+            if any(name not in ("bic", "aic", "bic_elbow") for name in methods)
             else None
         )
         for name in methods:
             if name == "bic":
+                scores[name] = float(model.bic(matrix))
+            elif name == "bic_elbow":
+                # Same BIC curve as ``bic``; the elbow rule is applied later.
                 scores[name] = float(model.bic(matrix))
             elif name == "aic":
                 scores[name] = float(model.aic(matrix))

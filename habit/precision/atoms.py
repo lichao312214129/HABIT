@@ -116,9 +116,10 @@ def perturb_image(
     are ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``,
     and ``bspline_deform`` (the last needs the optional ``monai`` extra).
     Mask-only contour methods (``morphological``, ``gradient_weighted``,
-    ``slice_extent``) leave the image unchanged; call the registered
-    component on a :class:`~habit.contracts.subject.Subject` when you
-    need the edited mask.
+    ``slice_extent``, and ``bspline_deform`` with ``mask_only=True``)
+    leave the image unchanged; call the registered component on a
+    :class:`~habit.contracts.subject.Subject` when you need the edited
+    mask.
     Geometric methods resample back onto the original voxel grid so the
     result stays voxel-wise comparable to ``image``.
 

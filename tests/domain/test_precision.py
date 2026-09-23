@@ -626,6 +626,44 @@ class TestBSplineDeformPerturbation:
         assert not np.array_equal(after_mask, before_mask)
         assert not np.allclose(after_image, before_image)
 
+    def test_mask_only_leaves_image_unchanged(self) -> None:
+        """FFD contour wobble must not resample intensities."""
+        subject = self._sphere_subject(32)
+        before_image = np.asarray(subject.image("T1").data).copy()
+        step = BSplineDeformPerturbation(
+            control_spacing=8.0,
+            magnitude_range=(5.0, 5.0),
+            mask_mode="bilinear",
+            mask_only=True,
+            device="cpu",
+        )
+        perturbed = step(subject, rng=np.random.default_rng(0))
+        after_image = np.asarray(perturbed.image("T1").data)
+        before_mask = np.asarray(subject.mask("tumor").data)
+        after_mask = np.asarray(perturbed.mask("tumor").data)
+        np.testing.assert_array_equal(after_image, before_image)
+        assert not np.array_equal(after_mask, before_mask)
+
+    def test_mask_only_monai_leaves_image_unchanged(self) -> None:
+        """MONAI elastic field on masks only; image bytes stay identical."""
+        subject = self._sphere_subject(32)
+        before_image = np.asarray(subject.image("T1").data).copy()
+        step = BSplineDeformPerturbation(
+            sigma_range=(1.5, 2.5),
+            magnitude_range=(4.0, 6.0),
+            mask_only=True,
+            device="cpu",
+        )
+        try:
+            perturbed = step(subject, rng=np.random.default_rng(0))
+        except OptionalDependencyError:
+            pytest.skip("monai extra is not installed")
+        after_image = np.asarray(perturbed.image("T1").data)
+        before_mask = np.asarray(subject.mask("tumor").data)
+        after_mask = np.asarray(perturbed.mask("tumor").data)
+        np.testing.assert_array_equal(after_image, before_image)
+        assert not np.array_equal(after_mask, before_mask)
+
 
 class TestPerturbationChain:
     def test_empty_chain_raises(self) -> None:

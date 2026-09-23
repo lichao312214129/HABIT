@@ -201,6 +201,31 @@ def test_gmm_supports_structure_based_criteria() -> None:
 
 
 @pytest.mark.unit
+def test_gmm_bic_elbow_uses_prior2024_rule() -> None:
+    """``bic_elbow`` scores BIC then selects with the Prior 2024 slope rule."""
+    from habit.kernels.cluster_selection import prior2024_bic_gradient_k
+
+    units = two_cluster_units(supervoxels_per_subject=8)
+    fitter = GmmHabitatModelFitter(
+        n_habitats=None,
+        min_habitats=2,
+        max_habitats=5,
+        validation="bic_elbow",
+        n_init=5,
+        max_iter=50,
+    )
+    fitter.set_random_state(2)
+    model = fitter.fit(units)
+    report = model.preprocessing_state["selection_report"]
+    assert report["methods"] == ["bic_elbow"]
+    assert report["directions"] == {"bic_elbow": "bic_gradient"}
+    assert report["selected"] == model.n_habitats
+    assert report["selected"] == prior2024_bic_gradient_k(
+        report["scores"]["bic_elbow"], report["candidates"]
+    )
+
+
+@pytest.mark.unit
 def test_kmeans_selection_uses_the_shared_kernel_rule() -> None:
     """
     The fitter delegates knee detection to the shared selection kernel.

@@ -146,13 +146,24 @@ def fit_gmm_or_singleton(matrix: np.ndarray) -> Tuple[np.ndarray, int]:
 def fit_one_habitat_panel(
     field: VoxelFeatureField,
     feature_names: Sequence[str],
+    *,
+    corr_threshold: float = 0.7,
+    p_threshold: float = 0.05,
 ) -> Dict[str, Any]:
     """Fit one named column panel on an already-loaded field.
+
+    Spearman de-correlation follows Prior 2024 ``filtering()``: drop a later
+    column when signed r is strictly above ``corr_threshold`` and p is
+    below ``p_threshold``. Defaults match their GitHub code (P < 0.05).
+    The paper text used P < 0.001; pass that explicitly to replicate the
+    published rule.
 
     Args:
         field: Loaded voxel feature field. Not modified.
         feature_names: Requested columns. Missing names are dropped; at least
             one name must exist on the field.
+        corr_threshold: Signed Spearman r cut-off (strictly greater).
+        p_threshold: Drop only when the Spearman p-value is below this.
 
     Returns:
         Dict with ``labels`` (``np.ndarray`` of kept voxels), ``k``,
@@ -187,7 +198,9 @@ def fit_one_habitat_panel(
     else:
         var_idx: List[int] = [shared.index(c) for c in varying_names]
         df0 = pd.DataFrame(full_mat[:, var_idx], columns=varying_names)
-        kept = select_precise_correlation_columns(df0)
+        kept = select_precise_correlation_columns(
+            df0, corr_threshold=corr_threshold, p_threshold=p_threshold
+        )
         if len(kept) < 1:
             labels = np.ones(n_keep, dtype=np.int32)
             k = 1

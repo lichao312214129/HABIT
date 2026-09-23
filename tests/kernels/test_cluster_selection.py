@@ -26,6 +26,7 @@ import numpy as np
 import pytest
 
 from habit.kernels.cluster_selection import (
+    BIC_GRADIENT,
     KNEE,
     MAXIMIZE,
     MINIMIZE,
@@ -80,6 +81,7 @@ def test_score_direction_covers_every_shipped_criterion() -> None:
     assert score_direction("davies_bouldin") == MINIMIZE
     assert score_direction("aic") == MINIMIZE
     assert score_direction("bic") == MINIMIZE
+    assert score_direction("bic_elbow") == BIC_GRADIENT
     assert score_direction("inertia") == KNEE
     # Unknown names fall back to maximise, matching the v0.1 default.
     assert score_direction("no_such_score") == MAXIMIZE
@@ -181,3 +183,7 @@ def test_prior2024_bic_gradient_k_matches_their_index_rule() -> None:
     slope = np.diff(y) / np.diff(x)
     expected_index = int(np.argmax(np.abs(np.diff(slope)))) + 1
     assert prior2024_bic_gradient_k(bic_scores, k_values) == k_values[expected_index]
+    dummy_k = tuple(range(len(bic_scores)))
+    assert best_index(bic_scores, BIC_GRADIENT) == int(
+        prior2024_bic_gradient_k(bic_scores, dummy_k)
+    )

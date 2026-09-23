@@ -1162,10 +1162,11 @@ class BSplineDeformPerturbation:
     MONAI elastic / B-spline free-form warp of every image and ROI.
 
     This is **not** the Prior 2024 / MIRP 1.2.0 simulated-retest chain
-    (noise → translation → rotation). It is the optional follow-up that
-    actually changes ROI *shape*: one random 3-D displacement field is
-    drawn and applied to every modality and mask of the subject so the
-    contour and the anatomy stay paired.
+    (noise → translation → rotation). Default behaviour changes ROI
+    *shape* by applying one random 3-D displacement field to every
+    modality and mask so the contour and the anatomy stay paired.
+    ``mask_only=True`` keeps every intensity volume unchanged and warps
+    only the ROI: same scan, different contour.
 
     Implementation (MONAI ``Rand3DElasticd``, optional extra ``monai``):
 
@@ -1212,6 +1213,9 @@ class BSplineDeformPerturbation:
         control_spacing: When set, voxels between neighbouring FFD
             control points (must be ``> 1``). ``None`` keeps the MONAI
             ``Rand3DElasticd`` path.
+        mask_only: When ``True``, warp every ROI and leave images
+            untouched (inter-observer contour wobble on a fixed scan).
+            When ``False``, image and mask share one field.
     """
 
     def __init__(
@@ -1225,6 +1229,7 @@ class BSplineDeformPerturbation:
         target_dice: Optional[float] = None,
         dice_tolerance: float = 0.02,
         control_spacing: Optional[float] = None,
+        mask_only: bool = False,
     ) -> None:
         self.sigma_range = _pair_range("sigma_range", sigma_range)
         self.magnitude_range = _pair_range("magnitude_range", magnitude_range)
@@ -1270,6 +1275,7 @@ class BSplineDeformPerturbation:
                     f"when set; got {control_spacing!r}."
                 )
             self.control_spacing = spacing
+        self.mask_only = bool(mask_only)
 
     @property
     def spec(self) -> Spec:
@@ -1286,6 +1292,7 @@ class BSplineDeformPerturbation:
                 "target_dice": self.target_dice,
                 "dice_tolerance": self.dice_tolerance,
                 "control_spacing": self.control_spacing,
+                "mask_only": self.mask_only,
             },
         )
 
@@ -1579,9 +1586,16 @@ class BSplineDeformPerturbation:
                 also requires at least one mask.
         """
         seed = int(rng.integers(0, 2**31 - 1))
+        if self.mask_only and not list(subject.masks):
+            raise HABITAPIError(
+                "bspline_deform: mask_only requires at least one ROI mask."
+            )
         if self.target_dice is None:
             return self._warp(
-                subject, seed=seed, magnitude_range=self.magnitude_range
+                subject,
+                seed=seed,
+                magnitude_range=self.magnitude_range,
+                mask_keys_only=self.mask_only,
             )
         if not list(subject.masks):
             raise HABITAPIError(
@@ -1589,7 +1603,10 @@ class BSplineDeformPerturbation:
             )
         magnitude = self._magnitude_for_target_dice(subject, seed)
         return self._warp(
-            subject, seed=seed, magnitude_range=(magnitude, magnitude)
+            subject,
+            seed=seed,
+            magnitude_range=(magnitude, magnitude),
+            mask_keys_only=self.mask_only,
         )
 
 

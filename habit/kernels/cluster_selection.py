@@ -28,6 +28,9 @@ Selection rules
   Calinski-Harabasz, gap / Davies-Bouldin, AIC, BIC).
 * ``knee`` -- locate the knee of a convex, decreasing curve (inertia) with
   the Kneedle algorithm.
+* ``bic_gradient`` -- Prior 2024 BIC-slope rule
+  (:func:`prior2024_bic_gradient_k`); used by ``bic_elbow``. This is not
+  minimum BIC and not Kneedle-on-inertia.
 
 .. warning::
    **Breaking change in v1.0**: ``elbow`` now resolves to the same Kneedle
@@ -49,6 +52,7 @@ __all__ = [
     "MAXIMIZE",
     "MINIMIZE",
     "KNEE",
+    "BIC_GRADIENT",
     "score_direction",
     "knee_index",
     "best_index",
@@ -63,6 +67,8 @@ MAXIMIZE = "maximize"
 MINIMIZE = "minimize"
 #: Selection rule: the best score sits at the knee of a decreasing curve.
 KNEE = "knee"
+#: Selection rule: Prior 2024 second-difference of the BIC slope.
+BIC_GRADIENT = "bic_gradient"
 
 #: Validation score -> selection rule. The rule is a property of the score
 #: itself (a silhouette is always maximised), so it does not depend on which
@@ -77,6 +83,7 @@ SCORE_DIRECTIONS: Mapping[str, str] = {
     "davies_bouldin": MINIMIZE,
     "aic": MINIMIZE,
     "bic": MINIMIZE,
+    "bic_elbow": BIC_GRADIENT,
     "inertia": KNEE,
     "kneedle": KNEE,
     "elbow": KNEE,
@@ -91,8 +98,9 @@ def score_direction(method: str) -> str:
         method: Validation score name, e.g. ``"silhouette"`` or ``"elbow"``.
 
     Returns:
-        One of :data:`MAXIMIZE`, :data:`MINIMIZE` or :data:`KNEE`. Unknown
-        names fall back to :data:`MAXIMIZE`, matching the v0.1 default.
+        One of :data:`MAXIMIZE`, :data:`MINIMIZE`, :data:`KNEE` or
+        :data:`BIC_GRADIENT`. Unknown names fall back to :data:`MAXIMIZE`,
+        matching the v0.1 default.
     """
     return SCORE_DIRECTIONS.get(str(method), MAXIMIZE)
 
@@ -195,7 +203,8 @@ def best_index(scores: Sequence[float], direction: str) -> int:
 
     Args:
         scores: Score per candidate cluster count, in ascending count order.
-        direction: :data:`MAXIMIZE`, :data:`MINIMIZE` or :data:`KNEE`.
+        direction: :data:`MAXIMIZE`, :data:`MINIMIZE`, :data:`KNEE` or
+            :data:`BIC_GRADIENT`.
 
     Returns:
         Index into ``scores`` of the selected candidate.
@@ -208,6 +217,13 @@ def best_index(scores: Sequence[float], direction: str) -> int:
         raise ValueError("Cluster selection requires at least one score.")
     if direction == KNEE:
         return knee_index(values)
+    if direction == BIC_GRADIENT:
+        # Dummy k = 0..n-1 so prior2024 returns the index into ``scores``.
+        # Fewer than three points cannot form their second difference.
+        if values.size < 3:
+            return int(np.argmin(values))
+        dummy_k = list(range(int(values.size)))
+        return int(prior2024_bic_gradient_k(values, dummy_k))
     if direction == MINIMIZE:
         return int(np.argmin(values))
     return int(np.argmax(values))
