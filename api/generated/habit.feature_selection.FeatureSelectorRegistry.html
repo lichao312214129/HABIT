@@ -89,6 +89,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -122,8 +123,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -642,14 +643,14 @@ signature, and not how to use it. Please refer to the
 <p>Name-to-implementation registry for feature-table selectors.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="habit.feature_selection.FeatureSelectorRegistry.domain">
-<span class="sig-name descname"><span class="pre">domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'feature_selector'</span></em><a class="headerlink" href="#habit.feature_selection.FeatureSelectorRegistry.domain" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'feature_selector'</span></em><a class="headerlink" href="#habit.feature_selection.FeatureSelectorRegistry.domain" title="Link to this definition"></a></dt>
 <dd><p>Plugin domain name; <code class="docutils literal notranslate"><span class="pre">snake_case</span></code> of the protocol class, singular.
 The entry point group is <code class="docutils literal notranslate"><span class="pre">f&quot;habit.{domain}&quot;</span></code>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="habit.feature_selection.FeatureSelectorRegistry.kind">
-<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'feature</span> <span class="pre">selector'</span></em><a class="headerlink" href="#habit.feature_selection.FeatureSelectorRegistry.kind" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'feature</span> <span class="pre">selector'</span></em><a class="headerlink" href="#habit.feature_selection.FeatureSelectorRegistry.kind" title="Link to this definition"></a></dt>
 <dd><p>Human-readable component kind, used only in error messages.</p>
 </dd></dl>
 

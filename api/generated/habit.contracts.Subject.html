@@ -740,7 +740,16 @@ exists, that mask is returned.</p>
 
 <section id="examples-using-habit-contracts-subject">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.Subject</span></code><a class="headerlink" href="#examples-using-habit-contracts-subject" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="When you have one image file and one ROI file (NIfTI, NRRD, or MetaImage), use HABIT&#x27;s file readers or wrap the same paths as lazy FileImageRef handles on a Subject. There is no single load(image, roi) helper; these two calls are the public pair."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Build a Cohort from a folder tree with cohort_from_directory. The tree is images/&lt;subject&gt;/&lt;series&gt;/&lt;one file&gt; and masks/&lt;subject&gt;/&lt;roi&gt;/&lt;one file&gt;. Below: several people from the tree, then one person taken from that cohort."><img alt="" src="../../_images/sphx_glr_plot_01_directory_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/01_data_in/plot_01_directory.html"><span class="doc">Load from directory</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Load from directory</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Read an image file and a mask file with SimpleITK, then put the volumes on a Subject. modality= is the series or ROI name. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_02_simpleitk_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/01_data_in/plot_02_simpleitk.html"><span class="doc">Load from SimpleITK</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Load from SimpleITK</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Arrays use axis order (z, y, x). The mask is integer labels, 0 = background. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_03_numpy_arrays_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/01_data_in/plot_03_numpy_arrays.html"><span class="doc">Load from NumPy arrays</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Load from NumPy arrays</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Point at one image file and one mask file (``.nii``, .nii.gz, .nrrd, .mha, .mhd). Change the paths below to your own files. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
 </div></div><div style="clear:both"></div></section>

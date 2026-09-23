@@ -87,6 +87,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -120,8 +121,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -712,10 +713,9 @@ from <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&g
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p>Next: <a class="reference internal" href="../examples/data_from_arrays.html"><span class="doc">Load data</span></a> — directory / SimpleITK / NumPy / CLI path-list YAML
-(Option B), or the Python gallery load
-(<a class="reference internal" href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory"><code class="xref py py-func docutils literal notranslate"><span class="pre">cohort_from_directory()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> /
-<code class="docutils literal notranslate"><span class="pre">ROI</span></code>, Option C). The same three knobs appear in every gallery script.</p>
+<p>Next: <a class="reference internal" href="../auto_examples/01_data_in/index.html"><span class="doc">1. Data In</span></a> — pick directory, loose NIfTI,
+SimpleITK, or NumPy. The same <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> knobs
+appear in every gallery script. DICOM is <a class="reference internal" href="preprocess.html"><span class="doc">Preprocessing</span></a>, not a load route.</p>
 </section>
 </section>
 

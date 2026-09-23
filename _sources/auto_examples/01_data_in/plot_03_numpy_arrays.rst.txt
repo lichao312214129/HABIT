@@ -21,16 +21,15 @@
 Load from NumPy arrays
 ======================
 
-Wrap raw NumPy arrays or deep-learning tensors with
-:class:`~habit.contracts.ArrayImageRef` and explicit
-:class:`~habit.contracts.Geometry`. Axis order is ``(z, y, x)``;
-mask arrays must be **integer labels** (``0`` = background).
+Arrays use axis order ``(z, y, x)``. The mask is integer labels,
+``0`` = background. One person and several people are each a
+:class:`~habit.contracts.Cohort`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-13
+.. GENERATED FROM PYTHON SOURCE LINES 11-12
 
-Read the same demo files, then build a Subject from arrays.
+One person. Change the two paths to your files, then keep the arrays.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-57
+.. GENERATED FROM PYTHON SOURCE LINES 12-46
 
 .. code-block:: Python
 
@@ -40,24 +39,17 @@ Read the same demo files, then build a Subject from arrays.
     import numpy as np
     import SimpleITK as sitk
 
-    from habit.contracts import ArrayImageRef, Geometry, Subject
+    from habit.contracts import ArrayImageRef, Cohort, Geometry, Subject
     from habit.datasets import fetch_demo
     from habit.viz import plot_numpy_ingest
     from habit.voxel_features import RawVoxelFeatures
 
     DATA = fetch_demo()
-    MODALITIES = ("LAP",)
-    ROI = "LAP"
-    image_path = next(
-        path for path in (DATA / "images" / "subj001" / "LAP").iterdir() if path.is_file()
-    )
-    mask_path = next(
-        path for path in (DATA / "masks" / "subj001" / "LAP").iterdir() if path.is_file()
-    )
-    sitk_image = sitk.ReadImage(str(image_path))
-    sitk_mask = sitk.ReadImage(str(mask_path))
+    IMAGE = DATA / "images" / "subj001" / "LAP" / "WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd"
+    MASK = DATA / "masks" / "subj001" / "LAP" / "WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd"
+    sitk_image = sitk.ReadImage(str(IMAGE))
     array = sitk.GetArrayFromImage(sitk_image)
-    mask = np.asarray(sitk.GetArrayFromImage(sitk_mask), dtype=np.int32)
+    mask = np.asarray(sitk.GetArrayFromImage(sitk.ReadImage(str(MASK))), dtype=np.int32)
     geometry = Geometry.from_array(
         array.shape,
         spacing=tuple(sitk_image.GetSpacing()),
@@ -69,12 +61,9 @@ Read the same demo files, then build a Subject from arrays.
         images={"LAP": ArrayImageRef(array=array, geometry=geometry)},
         masks={"LAP": ArrayImageRef(array=mask, geometry=geometry)},
     )
+    one = Cohort([np_subject], name="one")
+    print(one)
     field = RawVoxelFeatures(modalities=["LAP"])(np_subject)
-    print(
-        f"NumPy Subject: id={np_subject.subject_id}, "
-        f"LAP shape={np_subject.image('LAP').data.shape}, "
-        f"voxels={field.values.shape[0]}"
-    )
     print(field.feature_frame().head())
     field.feature_frame().head()
 
@@ -108,7 +97,7 @@ Read the same demo files, then build a Subject from arrays.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    NumPy Subject: id=subj001, LAP shape=(200, 360, 360), voxels=34694
+    Cohort(1 subjects [subj001], name='one')
           LAP
     0  1020.0
     1  1018.0
@@ -169,12 +158,12 @@ Read the same demo files, then build a Subject from arrays.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-60
+.. GENERATED FROM PYTHON SOURCE LINES 47-49
 
 Visual summary of this route: the array itself (left, as a colour matrix)
 becomes a plottable Subject (right, zoomed to the ROI).
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-67
+.. GENERATED FROM PYTHON SOURCE LINES 49-57
 
 .. code-block:: Python
 
@@ -188,6 +177,7 @@ becomes a plottable Subject (right, zoomed to the ROI).
 
 
 
+
 .. image-sg:: /auto_examples/01_data_in/images/sphx_glr_plot_03_numpy_arrays_001.png
    :alt: From NumPy arrays to HABIT, Subject anatomy + ROI
    :srcset: /auto_examples/01_data_in/images/sphx_glr_plot_03_numpy_arrays_001.png
@@ -197,10 +187,49 @@ becomes a plottable Subject (right, zoomed to the ROI).
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 58-59
+
+Several people. One Subject per person, then one cohort.
+
+.. GENERATED FROM PYTHON SOURCE LINES 59-77
+
+.. code-block:: Python
+
+    IMAGE_2 = DATA / "images" / "subj002" / "LAP" / "012_WATERWATERAxDynLAVAFlexC.nrrd"
+    MASK_2 = DATA / "masks" / "subj002" / "LAP" / "016_WATERWATERBHAxLAVAFlex5min_mask.nrrd"
+    sitk_image_2 = sitk.ReadImage(str(IMAGE_2))
+    array_2 = sitk.GetArrayFromImage(sitk_image_2)
+    mask_2 = np.asarray(sitk.GetArrayFromImage(sitk.ReadImage(str(MASK_2))), dtype=np.int32)
+    geometry_2 = Geometry.from_array(
+        array_2.shape,
+        spacing=tuple(sitk_image_2.GetSpacing()),
+        origin=tuple(sitk_image_2.GetOrigin()),
+        direction=tuple(sitk_image_2.GetDirection()),
+    )
+    subject_2 = Subject(
+        subject_id="subj002",
+        images={"LAP": ArrayImageRef(array=array_2, geometry=geometry_2)},
+        masks={"LAP": ArrayImageRef(array=mask_2, geometry=geometry_2)},
+    )
+    many = Cohort([np_subject, subject_2], name="many")
+    print(many)
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort(2 subjects [subj001, subj002], name='many')
+
+
+
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.521 seconds)
+   **Total running time of the script:** (0 minutes 1.343 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_03_numpy_arrays.py:

@@ -2,38 +2,30 @@
 Load from NumPy arrays
 ======================
 
-Wrap raw NumPy arrays or deep-learning tensors with
-:class:`~habit.contracts.ArrayImageRef` and explicit
-:class:`~habit.contracts.Geometry`. Axis order is ``(z, y, x)``;
-mask arrays must be **integer labels** (``0`` = background).
+Arrays use axis order ``(z, y, x)``. The mask is integer labels,
+``0`` = background. One person and several people are each a
+:class:`~habit.contracts.Cohort`.
 """
 
 # %%
-# Read the same demo files, then build a Subject from arrays.
+# One person. Change the two paths to your files, then keep the arrays.
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import SimpleITK as sitk
 
-from habit.contracts import ArrayImageRef, Geometry, Subject
+from habit.contracts import ArrayImageRef, Cohort, Geometry, Subject
 from habit.datasets import fetch_demo
 from habit.viz import plot_numpy_ingest
 from habit.voxel_features import RawVoxelFeatures
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
-ROI = "LAP"
-image_path = next(
-    path for path in (DATA / "images" / "subj001" / "LAP").iterdir() if path.is_file()
-)
-mask_path = next(
-    path for path in (DATA / "masks" / "subj001" / "LAP").iterdir() if path.is_file()
-)
-sitk_image = sitk.ReadImage(str(image_path))
-sitk_mask = sitk.ReadImage(str(mask_path))
+IMAGE = DATA / "images" / "subj001" / "LAP" / "WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd"
+MASK = DATA / "masks" / "subj001" / "LAP" / "WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd"
+sitk_image = sitk.ReadImage(str(IMAGE))
 array = sitk.GetArrayFromImage(sitk_image)
-mask = np.asarray(sitk.GetArrayFromImage(sitk_mask), dtype=np.int32)
+mask = np.asarray(sitk.GetArrayFromImage(sitk.ReadImage(str(MASK))), dtype=np.int32)
 geometry = Geometry.from_array(
     array.shape,
     spacing=tuple(sitk_image.GetSpacing()),
@@ -45,12 +37,9 @@ np_subject = Subject(
     images={"LAP": ArrayImageRef(array=array, geometry=geometry)},
     masks={"LAP": ArrayImageRef(array=mask, geometry=geometry)},
 )
+one = Cohort([np_subject], name="one")
+print(one)
 field = RawVoxelFeatures(modalities=["LAP"])(np_subject)
-print(
-    f"NumPy Subject: id={np_subject.subject_id}, "
-    f"LAP shape={np_subject.image('LAP').data.shape}, "
-    f"voxels={field.values.shape[0]}"
-)
 print(field.feature_frame().head())
 field.feature_frame().head()
 
@@ -64,3 +53,24 @@ fig = plot_numpy_ingest(
 )
 fig.savefig("out/numpy_subject_ingest.png", dpi=150, bbox_inches="tight")
 plt.show()
+
+# %%
+# Several people. One Subject per person, then one cohort.
+IMAGE_2 = DATA / "images" / "subj002" / "LAP" / "012_WATERWATERAxDynLAVAFlexC.nrrd"
+MASK_2 = DATA / "masks" / "subj002" / "LAP" / "016_WATERWATERBHAxLAVAFlex5min_mask.nrrd"
+sitk_image_2 = sitk.ReadImage(str(IMAGE_2))
+array_2 = sitk.GetArrayFromImage(sitk_image_2)
+mask_2 = np.asarray(sitk.GetArrayFromImage(sitk.ReadImage(str(MASK_2))), dtype=np.int32)
+geometry_2 = Geometry.from_array(
+    array_2.shape,
+    spacing=tuple(sitk_image_2.GetSpacing()),
+    origin=tuple(sitk_image_2.GetOrigin()),
+    direction=tuple(sitk_image_2.GetDirection()),
+)
+subject_2 = Subject(
+    subject_id="subj002",
+    images={"LAP": ArrayImageRef(array=array_2, geometry=geometry_2)},
+    masks={"LAP": ArrayImageRef(array=mask_2, geometry=geometry_2)},
+)
+many = Cohort([np_subject, subject_2], name="many")
+print(many)

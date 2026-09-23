@@ -625,17 +625,24 @@
              
   <section id="prepare-data">
 <h1>Prepare data<a class="headerlink" href="#prepare-data" title="Link to this heading"></a></h1>
-<p>This page is a bookmark. Load images and masks from:</p>
+<p>This page is a bookmark. Load images and masks into a <code class="docutils literal notranslate"><span class="pre">Cohort</span></code>, then run a map recipe.
+Which gallery page to copy depends on the files you already have
+(<a class="reference internal" href="../auto_examples/01_data_in/index.html"><span class="doc">1. Data In</span></a>):</p>
 <ul class="simple">
-<li><p>a directory (<code class="docutils literal notranslate"><span class="pre">fetch_demo</span></code> / <code class="docutils literal notranslate"><span class="pre">cohort_from_directory</span></code>),</p></li>
-<li><p>one image file + one ROI file (<code class="docutils literal notranslate"><span class="pre">read_image</span></code> / <code class="docutils literal notranslate"><span class="pre">read_mask</span></code>, or
-<code class="docutils literal notranslate"><span class="pre">FileImageRef</span></code> + <code class="docutils literal notranslate"><span class="pre">Subject</span></code>),</p></li>
-<li><p>SimpleITK, or</p></li>
-<li><p>NumPy arrays</p></li>
+<li><p>HABIT directory <code class="docutils literal notranslate"><span class="pre">images/&lt;subject&gt;/&lt;series&gt;/</span></code> and
+<code class="docutils literal notranslate"><span class="pre">masks/&lt;subject&gt;/&lt;roi&gt;/</span></code> —
+<a class="reference internal" href="../auto_examples/01_data_in/plot_01_directory.html"><span class="doc">Load from directory</span></a></p></li>
+<li><p>Loose NIfTI / NRRD / MetaImage, one subject or many, series name
+different from the ROI name, or grids that differ —
+<a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a></p></li>
+<li><p>SimpleITK images already in memory —
+<a class="reference internal" href="../auto_examples/01_data_in/plot_02_simpleitk.html"><span class="doc">Load from SimpleITK</span></a></p></li>
+<li><p>NumPy arrays or tensors —
+<a class="reference internal" href="../auto_examples/01_data_in/plot_03_numpy_arrays.html"><span class="doc">Load from NumPy arrays</span></a></p></li>
 </ul>
-<p>on <a class="reference internal" href="../examples/data_from_arrays.html"><span class="doc">Load data</span></a>. Path-list YAML for CLI (scattered
-files) is on that same page. The NIfTI / NRRD file-pair route is
-<a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a>.</p>
+<p>Recipes take that cohort. <code class="docutils literal notranslate"><span class="pre">cohort[:1]</span></code> stays a cohort. A Python list
+of subjects does not. DICOM still goes through
+<a class="reference internal" href="preprocess.html"><span class="doc">Preprocessing</span></a> before any of the routes above.</p>
 <p>Then run a map recipe: <a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis</span></a>,
 <a class="reference internal" href="../examples/one_step_habitat.html"><span class="doc">One-step habitat analysis</span></a>, or
 <a class="reference internal" href="../examples/apply_saved_model.html"><span class="doc">Apply a saved model</span></a>.</p>

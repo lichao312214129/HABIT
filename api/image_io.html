@@ -752,6 +752,12 @@ and for <code class="docutils literal notranslate"><span class="pre">extract_fea
 <td><p>Resample image onto the mask grid (linear); report
 <code class="docutils literal notranslate"><span class="pre">compatible=True</span></code>, <code class="docutils literal notranslate"><span class="pre">action=&quot;resample_image&quot;</span></code></p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HARMONIZE</span></code></p></td>
+<td><p>When shapes match, copy the image spacing, origin, and direction
+onto the mask array without resampling
+(<code class="docutils literal notranslate"><span class="pre">action=&quot;harmonize&quot;</span></code>). When shapes differ, fall through to
+<code class="docutils literal notranslate"><span class="pre">RESAMPLE_MASK</span></code>.</p></td>
+</tr>
 </tbody>
 </table>
 <p>Exports: <code class="docutils literal notranslate"><span class="pre">GeometryPolicy</span></code>, <code class="docutils literal notranslate"><span class="pre">GeometryReport</span></code>, <code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code>,

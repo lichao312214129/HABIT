@@ -89,6 +89,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -122,8 +123,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -637,7 +638,7 @@ function signature, and not how to use it. Please refer to the
 </div>
 <dl class="py function">
 <dt class="sig sig-object py" id="habit.kernels.icc3_1">
-<span class="sig-name descname"><span class="pre">icc3_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../../_modules/habit/kernels/icc.html#icc3_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.kernels.icc3_1" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">icc3_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../../_modules/habit/kernels/icc.html#icc3_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.kernels.icc3_1" title="Link to this definition"></a></dt>
 <dd><p>Compute ICC(3,1): two-way mixed model, consistency, single measurement.</p>
 <p>This is the ICC variant HABIT uses by default for test-retest feature
 stability (the v0.1 <code class="docutils literal notranslate"><span class="pre">icc3</span></code> configuration default, pingouin’s <code class="docutils literal notranslate"><span class="pre">ICC3</span></code>

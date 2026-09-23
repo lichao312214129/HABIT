@@ -89,6 +89,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
@@ -122,8 +123,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06_parallel_runs/index.html">6. Scaled Execution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel and checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_parallel_runs.html">Parallel runs and acceleration</a></li>
 </ul>
 </li>
 </ul>
@@ -638,7 +639,7 @@ signature, and not how to use it. Please refer to the
 <dl class="py class">
 <dt class="sig sig-object py" id="habit.contracts.Provenance">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Provenance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">produced_by:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_fingerprint:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs:</span> <span class="pre">~typing.Tuple[~habit.contracts.provenance.Provenance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">...]</span> <span class="pre">=</span> <span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">software:</span> <span class="pre">~typing.Mapping[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notes:</span> <span class="pre">~typing.Mapping[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/contracts/provenance.html#Provenance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Provenance" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Immutable record answering “how was this object produced?”.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="habit.contracts.Provenance.produced_by">
@@ -647,7 +648,7 @@ signature, and not how to use it. Please refer to the
 <code class="docutils literal notranslate"><span class="pre">&quot;supervoxelizer.slic&quot;</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -659,7 +660,7 @@ signature, and not how to use it. Please refer to the
 two runs can be compared for scientific equivalence.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -683,7 +684,7 @@ forms a directed acyclic graph back to the raw images.</p>
 dependencies (e.g. PyRadiomics, SimpleITK, scikit-learn).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -696,7 +697,7 @@ when no seeded step contributed. Deterministic derivations inherit
 the parent’s seed via <a class="reference internal" href="#habit.contracts.Provenance.derive" title="habit.contracts.Provenance.derive"><code class="xref py py-meth docutils literal notranslate"><span class="pre">derive()</span></code></a> unless cleared explicitly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> | None</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -707,7 +708,7 @@ the parent’s seed via <a class="reference internal" href="#habit.contracts.Pro
 <dd><p>ISO-8601 UTC timestamp.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | None</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -719,7 +720,7 @@ the parent’s seed via <a class="reference internal" href="#habit.contracts.Pro
 reproduction; they exist for human readers only.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]</p>
+<dd class="field-odd"><p>Mapping[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -756,7 +757,7 @@ derivation.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.contracts.Provenance.source">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">produced_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.contracts.Provenance" title="habit.contracts.provenance.Provenance"><span class="pre">Provenance</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/provenance.html#Provenance.source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Provenance.source" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">produced_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.contracts.Provenance" title="habit.contracts.provenance.Provenance"><span class="pre">Provenance</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/provenance.html#Provenance.source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Provenance.source" title="Link to this definition"></a></dt>
 <dd><p>Create the root provenance of an object that has no HABIT inputs.</p>
 <p>Used for objects entering the pipeline from the outside world (raw
 images, user-constructed arrays) so that every derived record still
@@ -775,7 +776,7 @@ fingerprint.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.contracts.Provenance.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">produced_by:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_fingerprint:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs:</span> <span class="pre">~typing.Tuple[~habit.contracts.provenance.Provenance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">...]</span> <span class="pre">=</span> <span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">software:</span> <span class="pre">~typing.Mapping[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notes:</span> <span class="pre">~typing.Mapping[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#habit.contracts.Provenance.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">produced_by:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_fingerprint:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs:</span> <span class="pre">~typing.Tuple[~habit.contracts.provenance.Provenance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">...]</span> <span class="pre">=</span> <span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">software:</span> <span class="pre">~typing.Mapping[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notes:</span> <span class="pre">~typing.Mapping[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#habit.contracts.Provenance.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

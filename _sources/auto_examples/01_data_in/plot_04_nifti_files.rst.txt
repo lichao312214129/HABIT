@@ -21,20 +21,16 @@
 Load from NIfTI files
 =====================
 
-When you have one image file and one ROI file (NIfTI, NRRD, or MetaImage),
-use HABIT's file readers or wrap the same paths as lazy
-:class:`~habit.adapters.FileImageRef` handles on a
-:class:`~habit.contracts.Subject`. There is no single
-``load(image, roi)`` helper; these two calls are the public pair.
+Point at one image file and one mask file (``.nii``, ``.nii.gz``, ``.nrrd``,
+``.mha``, ``.mhd``). Change the paths below to your own files. One person
+and several people are each a :class:`~habit.contracts.Cohort`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-17
+.. GENERATED FROM PYTHON SOURCE LINES 11-13
 
-Immediate volumes: :func:`~habit.image.read_image` and
-:func:`~habit.image.read_mask`. Both go through SimpleITK, so ``.nii``,
-``.nii.gz``, ``.nrrd``, ``.mha``, and ``.mhd`` work. Align the pair when
-the grids differ.
+One person. ``role_name`` is the series or ROI name stored on the volume.
+Use the same string as the dictionary key.
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-52
+.. GENERATED FROM PYTHON SOURCE LINES 13-59
 
 .. code-block:: Python
 
@@ -43,7 +39,7 @@ the grids differ.
     import matplotlib.pyplot as plt
 
     from habit.adapters import FileImageRef
-    from habit.contracts import Subject
+    from habit.contracts import Cohort, Subject
     from habit.datasets import fetch_demo
     from habit.image import (
         GeometryPolicy,
@@ -51,27 +47,38 @@ the grids differ.
         align_image_mask,
         read_image,
         read_mask,
+        validate_geometry,
     )
     from habit.viz import plot_nifti_ingest
 
     DATA = fetch_demo()
-    # Change IMAGE / MASK to your own NIfTI or NRRD paths.
-    IMAGE = next(
-        path for path in (DATA / "images" / "subj001" / "LAP").iterdir() if path.is_file()
-    )
-    MASK = next(
-        path for path in (DATA / "masks" / "subj001" / "LAP").iterdir() if path.is_file()
-    )
+    # Change these two paths to your files.
+    IMAGE = DATA / "images" / "subj001" / "LAP" / "WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd"
+    MASK = DATA / "masks" / "subj001" / "LAP" / "WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd"
+
     image = read_image(IMAGE, modality="LAP")
     mask = read_mask(MASK)
-    pair = align_image_mask(
-        ImageMaskPair(image, mask),
-        policy=GeometryPolicy.RESAMPLE_MASK,
+    report = validate_geometry(image, mask)
+    print(report.compatible, report.mismatches)
+    if report.compatible:
+        pair = ImageMaskPair(image, mask, report)
+    else:
+        pair = align_image_mask(
+            ImageMaskPair(image, mask),
+            policy=GeometryPolicy.RESAMPLE_MASK,
+        )
+    print(pair.image.data.shape, pair.mask.data.shape)
+
+    subject = Subject(
+        subject_id="subj001",
+        images={"LAP": FileImageRef(IMAGE, is_mask=False, role_name="LAP")},
+        masks={"LAP": FileImageRef(MASK, is_mask=True, role_name="LAP")},
     )
-    print(
-        f"read_image/read_mask: image shape={pair.image.data.shape}, "
-        f"mask shape={pair.mask.data.shape}, spacing={pair.image.geometry.spacing}"
-    )
+    one = Cohort([subject], name="one")
+    print(one)
+
+    volume = subject.image("LAP")
+    roi = subject.mask("LAP")
 
 
 
@@ -103,53 +110,20 @@ the grids differ.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    read_image/read_mask: image shape=(200, 360, 360), mask shape=(200, 360, 360), spacing=(1.0, 1.0, 1.0)
+    False ('origin', 'direction')
+    (200, 360, 360) (200, 360, 360)
+    Cohort(1 subjects [subj001], name='one')
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-56
-
-Pipeline object: wrap the same two paths as :class:`~habit.adapters.FileImageRef`
-and assemble a :class:`~habit.contracts.Subject`. Pixel data stay on disk until
-``subject.image(...)`` / ``subject.mask(...)``.
-
-.. GENERATED FROM PYTHON SOURCE LINES 56-68
-
-.. code-block:: Python
-
-    subject = Subject(
-        subject_id="subj001",
-        images={"LAP": FileImageRef(IMAGE, is_mask=False, role_name="LAP")},
-        masks={"LAP": FileImageRef(MASK, is_mask=True, role_name="LAP")},
-    )
-    volume = subject.image("LAP")
-    roi = subject.mask("LAP")
-    print(
-        f"FileImageRef Subject: id={subject.subject_id}, "
-        f"LAP shape={volume.data.shape}, spacing={volume.geometry.spacing}"
-    )
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    FileImageRef Subject: id=subj001, LAP shape=(200, 360, 360), spacing=(1.0, 1.0, 1.0)
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 69-72
+.. GENERATED FROM PYTHON SOURCE LINES 60-63
 
 Visual summary of this route: the image/mask file pair becomes a plottable
 Subject (right panel zooms to the ROI). Pass the
 :class:`~habit.image.ImageVolume` (not ``.data``).
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-76
+.. GENERATED FROM PYTHON SOURCE LINES 63-68
 
 .. code-block:: Python
 
@@ -157,6 +131,7 @@ Subject (right panel zooms to the ROI). Pass the
     fig = plot_nifti_ingest(volume, roi)
     fig.savefig("out/data_from_nifti_ingest.png", dpi=150, bbox_inches="tight")
     plt.show()
+
 
 
 
@@ -176,10 +151,42 @@ Subject (right panel zooms to the ROI). Pass the
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 69-72
+
+Several people. One :class:`~habit.contracts.Subject` per person, then one
+cohort. ``subject_id`` values must be unique. Pass ``many`` to
+``fit_predict``, not a list.
+
+.. GENERATED FROM PYTHON SOURCE LINES 72-81
+
+.. code-block:: Python
+
+    IMAGE_2 = DATA / "images" / "subj002" / "LAP" / "012_WATERWATERAxDynLAVAFlexC.nrrd"
+    MASK_2 = DATA / "masks" / "subj002" / "LAP" / "016_WATERWATERBHAxLAVAFlex5min_mask.nrrd"
+    subject_2 = Subject(
+        subject_id="subj002",
+        images={"LAP": FileImageRef(IMAGE_2, is_mask=False, role_name="LAP")},
+        masks={"LAP": FileImageRef(MASK_2, is_mask=True, role_name="LAP")},
+    )
+    many = Cohort([subject, subject_2], name="many")
+    print(many)
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort(2 subjects [subj001, subj002], name='many')
+
+
+
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.826 seconds)
+   **Total running time of the script:** (0 minutes 1.668 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_04_nifti_files.py:

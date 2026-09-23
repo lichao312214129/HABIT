@@ -628,19 +628,39 @@
              
   <section id="data-in">
 <span id="sphx-glr-auto-examples-01-data-in"></span><h1>1. Data In<a class="headerlink" href="#data-in" title="Link to this heading"></a></h1>
-<p>Load images and ROIs into Subject / Cohort objects from directory trees,
-NIfTI / NRRD file pairs, SimpleITK image objects, or NumPy arrays and
-deep-learning tensors.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="HABIT operators take a Subject (or a Cohort of them). Build that object from a preprocessed directory tree with cohort_from_directory."><img alt="" src="../../_images/sphx_glr_plot_01_directory_thumb.png" />
+<p>Every route ends in a <a class="reference internal" href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cohort</span></code></a>. Each page shows
+two assemblies: <code class="docutils literal notranslate"><span class="pre">Cohort([one_subject])</span></code> and <code class="docutils literal notranslate"><span class="pre">Cohort([several_subjects])</span></code>.
+Pass that cohort to <code class="docutils literal notranslate"><span class="pre">fit</span></code> / <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code>. A Python list is not a cohort.</p>
+<p>Pick the page that matches the files you already have.</p>
+<ul class="simple">
+<li><p><strong>HABIT directory</strong> — <code class="docutils literal notranslate"><span class="pre">images/&lt;subject&gt;/&lt;series&gt;/&lt;one</span> <span class="pre">file&gt;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">masks/&lt;subject&gt;/&lt;roi&gt;/&lt;one</span> <span class="pre">file&gt;</span></code>. One series or several. The mask
+folder name can differ from the series name.
+<a class="reference internal" href="plot_01_directory.html"><span class="doc">Load from directory</span></a>.</p></li>
+<li><p><strong>Loose NIfTI, NRRD, or MetaImage</strong> — one pair or many. You choose the
+series name and the ROI name. Image and mask grids may differ.
+<a class="reference internal" href="plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a>.</p></li>
+<li><p><strong>SimpleITK images already in memory</strong> —
+<a class="reference internal" href="plot_02_simpleitk.html"><span class="doc">Load from SimpleITK</span></a>.</p></li>
+<li><p><strong>NumPy arrays or deep-learning tensors</strong> — axis order <code class="docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>,
+integer mask, <code class="docutils literal notranslate"><span class="pre">0</span></code> = background.
+<a class="reference internal" href="plot_03_numpy_arrays.html"><span class="doc">Load from NumPy arrays</span></a>.</p></li>
+</ul>
+<p>DICOM, and series that still need resampling or bias correction, are not a
+load route. Preprocess them first (<a class="reference internal" href="../../how_to/preprocess.html"><span class="doc">Preprocessing</span></a>), then use the
+directory page. The official demo pack is already preprocessed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">read_image</span></code> / <code class="docutils literal notranslate"><span class="pre">read_mask</span></code> accept what SimpleITK reads
+(<code class="docutils literal notranslate"><span class="pre">.nii</span></code>, <code class="docutils literal notranslate"><span class="pre">.nii.gz</span></code>, <code class="docutils literal notranslate"><span class="pre">.nrrd</span></code>, <code class="docutils literal notranslate"><span class="pre">.mha</span></code>, <code class="docutils literal notranslate"><span class="pre">.mhd</span></code>).</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Build a Cohort from a folder tree with cohort_from_directory. The tree is images/&lt;subject&gt;/&lt;series&gt;/&lt;one file&gt; and masks/&lt;subject&gt;/&lt;roi&gt;/&lt;one file&gt;. Below: several people from the tree, then one person taken from that cohort."><img alt="" src="../../_images/sphx_glr_plot_01_directory_thumb.png" />
 <p><a class="reference internal" href="plot_01_directory.html"><span class="doc">Load from directory</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from directory</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Read NRRD / NIfTI with SimpleITK, then wrap volumes with ImageVolume and MaskVolume. Spacing, origin, and direction cosines are preserved."><img alt="" src="../../_images/sphx_glr_plot_02_simpleitk_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Read an image file and a mask file with SimpleITK, then put the volumes on a Subject. modality= is the series or ROI name. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_02_simpleitk_thumb.png" />
 <p><a class="reference internal" href="plot_02_simpleitk.html"><span class="doc">Load from SimpleITK</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from SimpleITK</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Wrap raw NumPy arrays or deep-learning tensors with ArrayImageRef and explicit Geometry. Axis order is (z, y, x); mask arrays must be integer labels (``0`` = background)."><img alt="" src="../../_images/sphx_glr_plot_03_numpy_arrays_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Arrays use axis order (z, y, x). The mask is integer labels, 0 = background. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_03_numpy_arrays_thumb.png" />
 <p><a class="reference internal" href="plot_03_numpy_arrays.html"><span class="doc">Load from NumPy arrays</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from NumPy arrays</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="When you have one image file and one ROI file (NIfTI, NRRD, or MetaImage), use HABIT&#x27;s file readers or wrap the same paths as lazy FileImageRef handles on a Subject. There is no single load(image, roi) helper; these two calls are the public pair."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Point at one image file and one mask file (``.nii``, .nii.gz, .nrrd, .mha, .mhd). Change the paths below to your own files. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
 <p><a class="reference internal" href="plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
 </div></div><div class="toctree-wrapper compound">

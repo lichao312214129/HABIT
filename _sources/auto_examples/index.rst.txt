@@ -32,9 +32,31 @@ Every example loads the official pack with
 1. Data In
 ==========
 
-Load images and ROIs into Subject / Cohort objects from directory trees,
-NIfTI / NRRD file pairs, SimpleITK image objects, or NumPy arrays and
-deep-learning tensors.
+Every route ends in a :class:`~habit.contracts.Cohort`. Each page shows
+two assemblies: ``Cohort([one_subject])`` and ``Cohort([several_subjects])``.
+Pass that cohort to ``fit`` / ``fit_predict``. A Python list is not a cohort.
+
+Pick the page that matches the files you already have.
+
+* **HABIT directory** — ``images/<subject>/<series>/<one file>`` and
+  ``masks/<subject>/<roi>/<one file>``. One series or several. The mask
+  folder name can differ from the series name.
+  :doc:`/auto_examples/01_data_in/plot_01_directory`.
+* **Loose NIfTI, NRRD, or MetaImage** — one pair or many. You choose the
+  series name and the ROI name. Image and mask grids may differ.
+  :doc:`/auto_examples/01_data_in/plot_04_nifti_files`.
+* **SimpleITK images already in memory** —
+  :doc:`/auto_examples/01_data_in/plot_02_simpleitk`.
+* **NumPy arrays or deep-learning tensors** — axis order ``(z, y, x)``,
+  integer mask, ``0`` = background.
+  :doc:`/auto_examples/01_data_in/plot_03_numpy_arrays`.
+
+DICOM, and series that still need resampling or bias correction, are not a
+load route. Preprocess them first (:doc:`/how_to/preprocess`), then use the
+directory page. The official demo pack is already preprocessed.
+
+``read_image`` / ``read_mask`` accept what SimpleITK reads
+(``.nii``, ``.nii.gz``, ``.nrrd``, ``.mha``, ``.mhd``).
 
 
 .. raw:: html
@@ -50,7 +72,7 @@ deep-learning tensors.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="HABIT operators take a Subject (or a Cohort of them). Build that object from a preprocessed directory tree with cohort_from_directory.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Build a Cohort from a folder tree with cohort_from_directory. The tree is images/&lt;subject&gt;/&lt;series&gt;/&lt;one file&gt; and masks/&lt;subject&gt;/&lt;roi&gt;/&lt;one file&gt;. Below: several people from the tree, then one person taken from that cohort.">
 
 .. only:: html
 
@@ -67,7 +89,7 @@ deep-learning tensors.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Read NRRD / NIfTI with SimpleITK, then wrap volumes with ImageVolume and MaskVolume. Spacing, origin, and direction cosines are preserved.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Read an image file and a mask file with SimpleITK, then put the volumes on a Subject. modality= is the series or ROI name. One person and several people are each a Cohort.">
 
 .. only:: html
 
@@ -84,7 +106,7 @@ deep-learning tensors.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Wrap raw NumPy arrays or deep-learning tensors with ArrayImageRef and explicit Geometry. Axis order is (z, y, x); mask arrays must be integer labels (``0`` = background).">
+    <div class="sphx-glr-thumbcontainer" tooltip="Arrays use axis order (z, y, x). The mask is integer labels, 0 = background. One person and several people are each a Cohort.">
 
 .. only:: html
 
@@ -101,7 +123,7 @@ deep-learning tensors.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="When you have one image file and one ROI file (NIfTI, NRRD, or MetaImage), use HABIT&#x27;s file readers or wrap the same paths as lazy FileImageRef handles on a Subject. There is no single load(image, roi) helper; these two calls are the public pair.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Point at one image file and one mask file (``.nii``, .nii.gz, .nrrd, .mha, .mhd). Change the paths below to your own files. One person and several people are each a Cohort.">
 
 .. only:: html
 

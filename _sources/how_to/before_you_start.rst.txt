@@ -95,7 +95,6 @@ Validate without running::
 
    habit check-config --config config/habitat/config_habitat_two_step.yaml
 
-Next: :doc:`../examples/data_from_arrays` — directory / SimpleITK / NumPy / CLI path-list YAML
-(Option B), or the Python gallery load
-(:func:`~habit.contracts.cohort_from_directory` with ``DATA`` / ``MODALITIES`` /
-``ROI``, Option C). The same three knobs appear in every gallery script.
+Next: :doc:`/auto_examples/01_data_in/index` — pick directory, loose NIfTI,
+SimpleITK, or NumPy. The same ``DATA`` / ``MODALITIES`` / ``ROI`` knobs
+appear in every gallery script. DICOM is :doc:`preprocess`, not a load route.
