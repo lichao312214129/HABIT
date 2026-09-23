@@ -10,8 +10,7 @@ serial ↔ process pool if ``random_seed`` is fixed.
 
 This page is the integrator chapter. Knob-by-knob reference:
 :doc:`../api/execution`. Runnable demos:
-:doc:`../examples/parallel_execution` and
-:doc:`../examples/fault_tolerance`.
+:doc:`/auto_examples/06_parallel_runs/index`.
 
 Beginners can ignore this page until a cohort is slow or one subject
 crashes the run. The quickstarts use a small process pool already
@@ -179,5 +178,4 @@ Next
 * Habitat core: :doc:`habitat_analysis`
 * Embed operators: :doc:`../examples/habitat_atomic_ops`
 * API reference: :doc:`../api/execution`
-* Demos: :doc:`../examples/parallel_execution` ·
-  :doc:`../examples/fault_tolerance`
+* Demos: :doc:`/auto_examples/06_parallel_runs/index`
