@@ -26,11 +26,12 @@ Input: a fitted :class:`~habit.contracts.HabitatModel` and one
 :class:`~habit.contracts.HabitatMap`. Stage: ``assign`` with
 ``nearest_centroid``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-13
+.. GENERATED FROM PYTHON SOURCE LINES 12-14
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-50
+.. GENERATED FROM PYTHON SOURCE LINES 14-65
 
 .. code-block:: Python
 
@@ -43,6 +44,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     from habit.habitat_model import KMeansHabitatModelFitter
     from habit.supervoxel import SlicSupervoxelizer
     from habit.viz import plot_habitat_overlay
+    import numpy as np
     from habit.voxel_features import RawVoxelFeatures
 
     DATA = fetch_demo()
@@ -52,7 +54,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     subject = cohort[0]
 
     voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
-    slic = SlicSupervoxelizer(n_supervoxels=8, compactness=10.0)
+    slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
     units = [slic(voxel(item)) for item in cohort]
     fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
     fitter.set_random_state(0)
@@ -65,19 +67,44 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
         subject.image(ROI),
         habitat_map,
         title="assigned habitats",
-        axis=0,
         crop_to="labels",
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/assigned_habitats.png", dpi=150, bbox_inches="tight")
     plt.show()
 
+    counts = [
+        int(np.sum(habitat_map.label_array == habitat_id))
+        for habitat_id in sorted(
+            int(v) for v in np.unique(habitat_map.label_array) if int(v) != 0
+        )
+    ]
+    labels = [f"habitat {index + 1}" for index in range(len(counts))]
+    fig_bar, ax = plt.subplots(figsize=(6.2, 3.2))
+    ax.bar(labels, counts, color=["#4C78A8", "#F58518", "#54A24B"])
+    ax.set_ylabel("voxels")
+    ax.set_title("assigned habitat voxel counts")
+    fig_bar.savefig("out/assigned_voxel_counts.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
 
-.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_001.png
-   :alt: assigned habitats
-   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_001.png
-   :class: sphx-glr-single-img
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_001.png
+         :alt: assigned habitats, Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_002.png
+         :alt: assigned habitat voxel counts
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_002.png
+         :class: sphx-glr-multi-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -116,7 +143,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.032 seconds)
+   **Total running time of the script:** (0 minutes 41.206 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_14_assign_labels.py:

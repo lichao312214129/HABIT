@@ -700,9 +700,6 @@ and the <a class="reference internal" href="../../api/generated/habit.spec.Habit
 <li><p><strong>Chaining the steps</strong> —
 <a class="reference internal" href="plot_17_chain.html"><span class="doc">Chaining the steps</span></a>.</p></li>
 </ul>
-<p>MSI, ITH, graphs, and radiomics stay in
-<a class="reference internal" href="../05_quantify/index.html"><span class="doc">5. Habitat Quantification</span></a>.
-DICOM stays in <a class="reference internal" href="../01_data_in/index.html"><span class="doc">1. Data In</span></a>.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. Stages: partition then pool then fit."><img alt="" src="../../_images/sphx_glr_plot_01_two_step_thumb.png" />
 <p><a class="reference internal" href="plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a></p>
   <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
@@ -721,13 +718,13 @@ DICOM stays in <a class="reference internal" href="../01_data_in/index.html"><sp
 </div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw."><img alt="" src="../../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
 <p><a class="reference internal" href="plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a></p>
   <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of local entropy. Stage: extract_voxel_features with local_entropy."><img alt="" src="../../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture."><img alt="" src="../../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
 <p><a class="reference internal" href="plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a></p>
   <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with unenhanced and arterial phases. Output: a HabitatMap. Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
 <p><a class="reference internal" href="plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
   <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a local-entropy VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_features with local_entropy, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
 <p><a class="reference internal" href="plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
   <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: the same rows after winsorize then min-max. Stage: voxel_feature_preprocessors."><img alt="" src="../../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />

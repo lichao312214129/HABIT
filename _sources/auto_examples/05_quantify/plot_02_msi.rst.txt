@@ -25,25 +25,12 @@ Atomic MSI from a habitat label map (Wu et al., *Radiology* 2018):
 :func:`~habit.kernels.spatial_interaction_matrix` and
 :func:`~habit.kernels.msi_features_from_matrix`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-11
-
-.. code-block:: Python
-   :dedent: 1
-
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 13-14
+.. GENERATED FROM PYTHON SOURCE LINES 11-13
 
 Build a habitat map, then compute the MSI matrix and scalar summaries.
+sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-37
+.. GENERATED FROM PYTHON SOURCE LINES 13-36
 
 .. code-block:: Python
 
@@ -100,16 +87,16 @@ Build a habitat map, then compute the MSI matrix and scalar summaries.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.48s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.48s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.49s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.49s/it]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-39
+.. GENERATED FROM PYTHON SOURCE LINES 37-38
 
 MSI matrix (background row/column 0) and derived scalar features.
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-56
+.. GENERATED FROM PYTHON SOURCE LINES 38-55
 
 .. code-block:: Python
 
@@ -157,7 +144,7 @@ MSI matrix (background row/column 0) and derived scalar features.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.314 seconds)
+   **Total running time of the script:** (0 minutes 5.752 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_02_msi.py:

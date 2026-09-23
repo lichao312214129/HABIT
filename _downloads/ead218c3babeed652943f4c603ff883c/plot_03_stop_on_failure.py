@@ -9,6 +9,10 @@ misread as a finished study.
 
 # %%
 # ``subj002`` raises. ``subj003`` is not visited.
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
 from habit.contracts import Cohort, Subject
 from habit.execution import SerialBackend
 
@@ -39,3 +43,14 @@ try:
 except RuntimeError as exc:
     print(type(exc).__name__)
 print(seen)
+
+labels = [subject.subject_id for subject in cohort]
+visited = [subject_id in seen for subject_id in labels]
+fig, ax = plt.subplots(figsize=(6.4, 2.4))
+colors = ["#4C78A8" if flag else "#D0D0D0" for flag in visited]
+ax.barh(list(reversed(labels)), [1, 1, 1], color=list(reversed(colors)))
+ax.set_xlabel("visited")
+ax.set_title("stop at the first failure")
+Path("out").mkdir(exist_ok=True)
+fig.savefig("out/stop_on_failure.png", dpi=150, bbox_inches="tight")
+plt.show()

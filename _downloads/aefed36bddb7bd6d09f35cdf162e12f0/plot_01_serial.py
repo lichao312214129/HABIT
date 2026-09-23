@@ -10,6 +10,10 @@ another. That is the laptop default. Pass the same
 # %%
 # Three subjects stand in for a cohort. The callable only returns the id.
 # A habitat study uses the same scheduling with ``Study(spec).fit_predict(cohort)``.
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
 from habit.contracts import Cohort, Subject
 from habit.execution import SerialBackend
 
@@ -26,5 +30,15 @@ def subject_label(subject: Subject) -> str:
     """Return the subject id. A study would run the habitat steps here."""
     return subject.subject_id
 
+ids = []
 for slot in SerialBackend().map(subject_label, cohort):
     print(slot.subject_id, slot.result())
+    ids.append(slot.subject_id)
+
+fig, ax = plt.subplots(figsize=(6.4, 2.4))
+ax.barh(list(reversed(ids)), list(range(len(ids), 0, -1)), color="#4C78A8")
+ax.set_xlabel("order")
+ax.set_title("serial order")
+Path("out").mkdir(exist_ok=True)
+fig.savefig("out/serial_order.png", dpi=150, bbox_inches="tight")
+plt.show()

@@ -25,11 +25,12 @@ Input: one :class:`~habit.contracts.Subject`. Output: a
 :class:`~habit.contracts.VoxelFeatureField`. Stage:
 ``extract_voxel_features`` with ``raw``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-12
+.. GENERATED FROM PYTHON SOURCE LINES 11-13
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-39
+.. GENERATED FROM PYTHON SOURCE LINES 13-42
 
 .. code-block:: Python
 
@@ -54,8 +55,10 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     fig = plot_intensity_slice(
         subject.image(ROI),
         roi_mask=subject.mask(ROI),
-        title="LAP",
+        title="voxel intensities",
+        image_label="LAP",
         roi_contour=True,
+        crop_to="roi",
     )
     Path("out").mkdir(exist_ok=True)
     fig.savefig("out/voxel_intensities.png", dpi=150, bbox_inches="tight")
@@ -64,7 +67,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
 
 .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_06_voxel_intensities_001.png
-   :alt: LAP, Processed
+   :alt: voxel intensities, LAP
    :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_06_voxel_intensities_001.png
    :class: sphx-glr-single-img
 
@@ -110,7 +113,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.004 seconds)
+   **Total running time of the script:** (0 minutes 1.615 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_06_voxel_intensities.py:

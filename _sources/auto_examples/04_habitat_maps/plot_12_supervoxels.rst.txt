@@ -25,11 +25,12 @@ Input: a :class:`~habit.contracts.VoxelFeatureField`. Output: a
 :class:`~habit.contracts.Supervoxelization`. Stage: ``partition`` with
 ``slic``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-12
+.. GENERATED FROM PYTHON SOURCE LINES 11-13
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-42
+.. GENERATED FROM PYTHON SOURCE LINES 13-42
 
 .. code-block:: Python
 
@@ -49,7 +50,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
 
     field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
-    units = SlicSupervoxelizer(n_supervoxels=8, compactness=10.0)(field)
+    units = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)(field)
     print(f"n_supervoxels={len(units.features)}")
     print(units.features.head())
 
@@ -57,7 +58,6 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
         subject.image(ROI),
         units,
         title="SLIC supervoxels",
-        axis=0,
         crop_to="labels",
     )
     Path("out").mkdir(exist_ok=True)
@@ -67,7 +67,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
 
 .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_12_supervoxels_001.png
-   :alt: SLIC supervoxels
+   :alt: SLIC supervoxels, Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
    :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_12_supervoxels_001.png
    :class: sphx-glr-single-img
 
@@ -98,14 +98,14 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    n_supervoxels=8
-                        LAP
-    supervoxel             
-    1            921.910414
-    2           1008.677876
-    3            907.945100
-    4            749.472496
-    5            753.243214
+    n_supervoxels=100
+                       LAP
+    supervoxel            
+    1           818.019900
+    2           906.058047
+    3           940.373333
+    4           960.294906
+    5           902.255132
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
@@ -115,7 +115,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.856 seconds)
+   **Total running time of the script:** (0 minutes 21.621 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_12_supervoxels.py:

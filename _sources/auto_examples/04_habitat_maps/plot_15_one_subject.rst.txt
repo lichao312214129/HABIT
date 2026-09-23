@@ -28,11 +28,12 @@ no ``partition`` and no ``pool``.
 
 A Python list is not a cohort. ``fit_predict`` reads ``cohort.name``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-15
+.. GENERATED FROM PYTHON SOURCE LINES 14-16
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-49
+.. GENERATED FROM PYTHON SOURCE LINES 16-49
 
 .. code-block:: Python
 
@@ -43,7 +44,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     from habit.contracts import Cohort, cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.recipes import one_step_habitat
-    from habit.viz import plot_habitat_overlay
+    from habit.viz import plot_partition_triptych
 
     DATA = fetch_demo()
     MODALITIES = ("LAP",)
@@ -60,21 +61,20 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     habitat_map = result.habitat_maps[0]
     print(habitat_map.subject_id, result.subject_models[subject.subject_id].summary())
 
-    fig = plot_habitat_overlay(
+    fig = plot_partition_triptych(
         subject.image(ROI),
+        result.units[0],
         habitat_map,
-        title="habitats (one subject)",
         axis=0,
-        crop_to="labels",
     )
     Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/one_subject_overlay.png", dpi=150, bbox_inches="tight")
+    fig.savefig("out/one_subject_triptych.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
 
 .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_15_one_subject_001.png
-   :alt: habitats (one subject)
+   :alt: Two-step partitions, Anatomy, Supervoxels, Habitats
    :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_15_one_subject_001.png
    :class: sphx-glr-single-img
 
@@ -105,7 +105,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.44s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.44s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.24s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.24s/it]
     subj001 HabitatModel kmeans-d89e622368013807
       habitats           : 3
       features (1)    : LAP
@@ -116,7 +116,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
       habit version      : 2.0.0
       random seed        : 0
       preprocessing state: inertia, validation
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_core.py:1106: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
@@ -125,7 +125,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.920 seconds)
+   **Total running time of the script:** (0 minutes 2.259 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_15_one_subject.py:

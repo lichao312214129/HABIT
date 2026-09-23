@@ -12,6 +12,7 @@ A Python list is not a cohort. ``fit_predict`` reads ``cohort.name``.
 
 # %%
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ import matplotlib.pyplot as plt
 from habit.contracts import Cohort, cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.recipes import one_step_habitat
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_partition_triptych
 
 DATA = fetch_demo()
 MODALITIES = ("LAP",)
@@ -36,13 +37,12 @@ result = one_step_habitat(
 habitat_map = result.habitat_maps[0]
 print(habitat_map.subject_id, result.subject_models[subject.subject_id].summary())
 
-fig = plot_habitat_overlay(
+fig = plot_partition_triptych(
     subject.image(ROI),
+    result.units[0],
     habitat_map,
-    title="habitats (one subject)",
     axis=0,
-    crop_to="labels",
 )
 Path("out").mkdir(exist_ok=True)
-fig.savefig("out/one_subject_overlay.png", dpi=150, bbox_inches="tight")
+fig.savefig("out/one_subject_triptych.png", dpi=150, bbox_inches="tight")
 plt.show()

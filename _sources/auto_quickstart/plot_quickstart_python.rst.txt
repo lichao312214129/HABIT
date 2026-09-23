@@ -27,26 +27,13 @@ Install first (:doc:`/tutorial/installation`). Construct a cohort, a
 This page uses the official demo pack. Change ``DATA`` / ``MODALITIES`` /
 ``ROI`` to your preprocessed tree.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-13
-
-.. code-block:: Python
-   :dedent: 1
-
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 15-17
+.. GENERATED FROM PYTHON SOURCE LINES 13-16
 
 Load the official imaging pack (downloads once) and take two subjects
 so the run stays short. Drop the slice to use the full pack.
+sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-35
+.. GENERATED FROM PYTHON SOURCE LINES 16-34
 
 .. code-block:: Python
 
@@ -104,13 +91,13 @@ so the run stays short. Drop the slice to use the full pack.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-39
+.. GENERATED FROM PYTHON SOURCE LINES 35-38
 
 Two-step spec: voxel features, clustering-feature preprocessors,
 supervoxels, cohort binning, then fit / assign.
 ``supervoxelizer`` + default pooling selects the two-step design.
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-66
+.. GENERATED FROM PYTHON SOURCE LINES 38-65
 
 .. code-block:: Python
 
@@ -149,17 +136,19 @@ supervoxels, cohort binning, then fit / assign.
 
  .. code-block:: none
 
+    F:\work\habit_project\examples\quickstart\plot_quickstart_python.py:38: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+      spec = HabitatSpec(
     Spec fingerprint: cb01a843dfc2b123...
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-69
+.. GENERATED FROM PYTHON SOURCE LINES 66-68
 
 Clustering-feature tables **before** the voxel preprocessor chain.
 Same rows after winsorize + minmax. This is not image resampling.
 
-.. GENERATED FROM PYTHON SOURCE LINES 69-76
+.. GENERATED FROM PYTHON SOURCE LINES 68-75
 
 .. code-block:: Python
 
@@ -257,12 +246,12 @@ Same rows after winsorize + minmax. This is not image resampling.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-79
+.. GENERATED FROM PYTHON SOURCE LINES 76-78
 
 Same voxel rows after the subject-level chain
 (:attr:`~habit.spec.HabitatSpec.voxel_feature_preprocessors`).
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-84
+.. GENERATED FROM PYTHON SOURCE LINES 78-83
 
 .. code-block:: Python
 
@@ -358,12 +347,12 @@ Same voxel rows after the subject-level chain
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-87
+.. GENERATED FROM PYTHON SOURCE LINES 84-86
 
 Fit habitats on the cohort and write maps. Overlay uses
 :func:`~habit.viz.plot_habitat_overlay` with volume objects, not ``.data``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-113
+.. GENERATED FROM PYTHON SOURCE LINES 86-112
 
 .. code-block:: Python
 
@@ -418,8 +407,8 @@ Fit habitats on the cohort and write maps. Overlay uses
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.20s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.05s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.04s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.02s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.02s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.47s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.44s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.44s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.59it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.60it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.60it/s]
     HabitatModel kmeans-871f02bb99ee0af6
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -436,15 +425,15 @@ Fit habitats on the cohort and write maps. Overlay uses
     1  subj002                 1566.0  ...  2.657745   0.833348
 
     [2 rows x 56 columns]
-    F:\work\habit_project\habit\viz\habitat_overlay.py:640: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_core.py:1079: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_core.py:1106: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-119
+.. GENERATED FROM PYTHON SOURCE LINES 113-118
 
 Reload the ``.habitatmodel`` and label the same cohort. Optional napari
 view (needs the ``view`` extra)::
@@ -452,7 +441,7 @@ view (needs the ``view`` extra)::
    from habit.viz import view_habitat_napari
    view_habitat_napari(subject.image("LAP"), result.habitat_maps[0])
 
-.. GENERATED FROM PYTHON SOURCE LINES 119-122
+.. GENERATED FROM PYTHON SOURCE LINES 118-121
 
 .. code-block:: Python
 
@@ -467,7 +456,7 @@ view (needs the ``view`` extra)::
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:02<00:02,  2.99s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:05<00:00,  2.67s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:05<00:00,  2.67s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01<00:01,  1.98s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.91s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.91s/it]
     2 subjects labelled
 
 
@@ -476,7 +465,7 @@ view (needs the ``view`` extra)::
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 18.739 seconds)
+   **Total running time of the script:** (0 minutes 13.705 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_python.py:

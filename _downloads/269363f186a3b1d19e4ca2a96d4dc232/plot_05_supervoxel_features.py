@@ -29,10 +29,9 @@ This page benchmarks extraction time, confirms multi-fold speedup, and proves ex
 numerical parity against PyRadiomics.
 """
 
-# sphinx_gallery_thumbnail_number = 1
-
 # %%
 # Load one demo subject and generate SLIC supervoxels.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 import time
 from typing import Dict, List, Tuple

@@ -836,16 +836,25 @@ change the numbers.</p>
 
 <section id="examples-using-habit-contracts-voxelfeaturefield">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.VoxelFeatureField</span></code><a class="headerlink" href="#examples-using-habit-contracts-voxelfeaturefield" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw."><img alt="" src="../../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Texture maps are inputs to clustering, not post-label tables. GPU is a faster implementation of the same IBSI / PyRadiomics definition — the numbers do not change because of GPU."><img alt="" src="../../_images/sphx_glr_plot_03_voxel_texture_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Voxel texture and GPU</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/03_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw."><img alt="" src="../../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a></p>
   <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of local entropy. Stage: extract_voxel_features with local_entropy."><img alt="" src="../../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture."><img alt="" src="../../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a></p>
   <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with unenhanced and arterial phases. Output: a HabitatMap. Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
   <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a local-entropy VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_features with local_entropy, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
   <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: the same rows after winsorize then min-max. Stage: voxel_feature_preprocessors."><img alt="" src="../../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />
@@ -857,6 +866,9 @@ change the numbers.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a HabitatMap. SubjectPipeline runs extract, partition, and assign. Swap RawVoxelFeatures for another extractor to change only the VoxelFeatureField."><img alt="" src="../../_images/sphx_glr_plot_17_chain_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_17_chain.html"><span class="doc">Chaining the steps</span></a></p>
   <div class="sphx-glr-thumbnail-title">Chaining the steps</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

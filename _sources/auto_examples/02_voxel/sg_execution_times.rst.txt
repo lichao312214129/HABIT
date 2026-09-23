@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:28.420** total execution time for 5 files **from auto_examples\02_voxel**:
+**01:18.090** total execution time for 5 files **from auto_examples\02_voxel**:
 
 .. container::
 
@@ -32,11 +32,11 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_05_supervoxel_features.py` (``plot_05_supervoxel_features.py``)
-     - 00:15.078
+   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_03_voxel_texture.py` (``plot_03_voxel_texture.py``)
+     - 01:02.826
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_04_feature_preprocessing.py` (``plot_04_feature_preprocessing.py``)
-     - 00:13.342
+   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_05_supervoxel_features.py` (``plot_05_supervoxel_features.py``)
+     - 00:15.264
      - 0.0
    * - :ref:`sphx_glr_auto_examples_02_voxel_plot_01_feature_routes.py` (``plot_01_feature_routes.py``)
      - 00:00.000
@@ -44,6 +44,6 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_02_voxel_plot_02_custom_features.py` (``plot_02_custom_features.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_03_voxel_texture.py` (``plot_03_voxel_texture.py``)
+   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_04_feature_preprocessing.py` (``plot_04_feature_preprocessing.py``)
      - 00:00.000
      - 0.0

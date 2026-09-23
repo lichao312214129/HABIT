@@ -25,14 +25,12 @@ Input: one :class:`~habit.contracts.Subject` with unenhanced and arterial
 phases. Output: a :class:`~habit.contracts.HabitatMap`. Stage:
 ``extract_voxel_features`` with ``expression``, then a per-subject ``fit``.
 
-Registration of the phases stays in
-:doc:`/auto_examples/02_voxel/plot_02_custom_features`.
-
-.. GENERATED FROM PYTHON SOURCE LINES 14-15
+.. GENERATED FROM PYTHON SOURCE LINES 11-13
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-56
+.. GENERATED FROM PYTHON SOURCE LINES 13-63
 
 .. code-block:: Python
 
@@ -44,7 +42,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     from habit.datasets import fetch_demo
     from habit.habitat_model import KMeansHabitatModelFitter
     from habit.pipeline import voxel_units
-    from habit.viz import plot_habitat_overlay
+    from habit.viz import plot_habitat_overlay, plot_voxel_texture_slice
     from habit.voxel_features import ExpressionVoxelFeatures
 
     DATA = fetch_demo()
@@ -67,23 +65,44 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     habitat_map = model.assigner()(units)
     print(model.summary())
 
+    Path("out").mkdir(exist_ok=True)
+    fig_field = plot_voxel_texture_slice(
+        field,
+        anatomy=subject.image(ROI),
+        roi_mask=subject.mask(ROI),
+        title="relative enhancement",
+        crop_to="roi",
+    )
+    fig_field.savefig("out/relative_enhancement.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
     fig = plot_habitat_overlay(
         subject.image(ROI),
         habitat_map,
         title="habitats (relative enhancement)",
-        axis=0,
         crop_to="labels",
     )
-    Path("out").mkdir(exist_ok=True)
     fig.savefig("out/derived_map_overlay.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
 
-.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
-   :alt: habitats (relative enhancement)
-   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
-   :class: sphx-glr-single-img
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
+         :alt: relative enhancement, relative_enhancement_lap - Axis 0 (axial-like) @ 21, relative_enhancement_lap - Axis 1 (coronal-like) @ 34, relative_enhancement_lap - Axis 2 (sagittal-like) @ 28
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_002.png
+         :alt: habitats (relative enhancement), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_002.png
+         :class: sphx-glr-multi-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -128,6 +147,8 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
       habit version      : 2.0.0
       random seed        : 0
       preprocessing state: inertia, validation
+    F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      direction, spacing = resolve_display_geometry(
     F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
@@ -137,7 +158,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.799 seconds)
+   **Total running time of the script:** (0 minutes 3.304 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_08_derived_map.py:

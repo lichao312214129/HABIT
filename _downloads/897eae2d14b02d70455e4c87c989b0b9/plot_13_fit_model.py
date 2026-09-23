@@ -8,6 +8,7 @@ Output: a :class:`~habit.contracts.HabitatModel`. Stage: ``fit``.
 
 # %%
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -24,20 +25,18 @@ ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 
 voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
-slic = SlicSupervoxelizer(n_supervoxels=8, compactness=10.0)
+slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
 units = [slic(voxel(subject)) for subject in cohort]
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 model = fitter.fit(units, cohort=cohort)
 print(model.summary())
 
-fig, ax = plt.subplots()
-image = ax.imshow(model.centroids, aspect="auto")
-ax.set_xticks(range(len(model.feature_names)))
-ax.set_xticklabels(list(model.feature_names))
-ax.set_ylabel("habitat")
+fig, ax = plt.subplots(figsize=(6.2, 3.2))
+names = [f"habitat {index + 1}" for index in range(int(model.n_habitats))]
+ax.bar(names, model.centroids[:, 0], color=["#4C78A8", "#F58518", "#54A24B"])
+ax.set_ylabel(str(model.feature_names[0]))
 ax.set_title("habitat centroids")
-fig.colorbar(image, ax=ax)
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/cohort_centroids.png", dpi=150, bbox_inches="tight")
 plt.show()

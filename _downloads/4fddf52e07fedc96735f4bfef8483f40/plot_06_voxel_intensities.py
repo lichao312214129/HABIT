@@ -9,6 +9,7 @@ Input: one :class:`~habit.contracts.Subject`. Output: a
 
 # %%
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -30,8 +31,10 @@ field.feature_frame().head()
 fig = plot_intensity_slice(
     subject.image(ROI),
     roi_mask=subject.mask(ROI),
-    title="LAP",
+    title="voxel intensities",
+    image_label="LAP",
     roi_contour=True,
+    crop_to="roi",
 )
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/voxel_intensities.png", dpi=150, bbox_inches="tight")

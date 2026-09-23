@@ -7,10 +7,9 @@ Atomic ITH metrics from a habitat label map:
 :func:`~habit.kernels.habitat_ith_dispersion`.
 """
 
-# sphinx_gallery_thumbnail_number = 1
-
 # %%
 # One-step habitats, then ITH scalar plus per-habitat dispersion.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt

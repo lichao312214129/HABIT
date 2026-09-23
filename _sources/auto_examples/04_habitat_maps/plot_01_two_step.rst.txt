@@ -31,25 +31,12 @@ same study with a different partitioner, not a second habitat definition
 to compare on this page. Fixed ``n_habitats=3`` draws the map. ``"auto"``
 draws the elbow on the same cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-17
-
-.. code-block:: Python
-   :dedent: 1
-
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 19-20
+.. GENERATED FROM PYTHON SOURCE LINES 17-19
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 20-59
+.. GENERATED FROM PYTHON SOURCE LINES 19-57
 
 .. code-block:: Python
 
@@ -60,7 +47,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.recipes import two_step_habitat
-    from habit.viz import plot_cluster_validation_from_report, plot_habitat_overlay
+    from habit.viz import plot_cluster_validation_from_report, plot_partition_triptych
 
     DATA = fetch_demo()
     MODALITIES = ("LAP",)
@@ -70,7 +57,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
     result = two_step_habitat(
         modalities=MODALITIES,
-        n_supervoxels=8,
+        n_supervoxels=100,
         n_habitats=3,
         habitat_features=("volume",),
         random_seed=0,
@@ -81,22 +68,21 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     print(result.features.frame)
     result.features.frame
 
-    fig = plot_habitat_overlay(
+    fig = plot_partition_triptych(
         cohort[0].image(ROI),
+        result.units[0],
         result.habitat_maps[0],
-        title="habitats (two-step)",
         axis=0,
-        crop_to="labels",
     )
     Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/two_step_overlay.png", dpi=150, bbox_inches="tight")
+    fig.savefig("out/two_step_triptych.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
 
 
 .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_01_two_step_001.png
-   :alt: habitats (two-step)
+   :alt: Two-step partitions, Anatomy, Supervoxels, Habitats
    :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_01_two_step_001.png
    :class: sphx-glr-single-img
 
@@ -128,8 +114,8 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort: ['subj001', 'subj002']
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:06<00:06,  6.07s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:11<00:00,  5.90s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:11<00:00,  5.90s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.36it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.27it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.27it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:21<00:21, 21.25s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:41<00:00, 20.64s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:41<00:00, 20.64s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.27it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.32it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.32it/s]
     HabitatModel kmeans-3fb1a8736ca6964a
       habitats           : 3
       features (1)    : LAP
@@ -141,29 +127,29 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
       random seed        : 0
       preprocessing state: inertia, validation
        subject  ...  habitat_3_volume_fraction
-    0  subj001  ...                   0.379287
-    1  subj002  ...                   0.115744
+    0  subj001  ...                   0.487433
+    1  subj002  ...                   0.329986
 
     [2 rows x 7 columns]
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_core.py:1106: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-63
+.. GENERATED FROM PYTHON SOURCE LINES 58-61
 
 Elbow on the same two-step declaration. The chosen count is the knee,
 not a second overlay. A saved model is
 :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-76
+.. GENERATED FROM PYTHON SOURCE LINES 61-74
 
 .. code-block:: Python
 
     elbow = two_step_habitat(
         modalities=MODALITIES,
-        n_supervoxels=8,
+        n_supervoxels=100,
         n_habitats="auto",
         random_seed=0,
         supervoxel_algorithm="slic",
@@ -187,8 +173,8 @@ not a second overlay. A saved model is
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:05<00:05,  5.65s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:11<00:00,  5.60s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:11<00:00,  5.60s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.61it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.80it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.80it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:20<00:20, 20.34s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:39<00:00, 19.85s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:39<00:00, 19.85s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.74it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.86it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.86it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 4
       features (1)    : LAP
@@ -206,7 +192,7 @@ not a second overlay. A saved model is
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 29.000 seconds)
+   **Total running time of the script:** (1 minutes 23.775 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_01_two_step.py:

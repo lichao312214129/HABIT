@@ -26,18 +26,18 @@ Input: a :class:`~habit.contracts.Subject` and a
 :class:`~habit.contracts.FeatureTable` of voxel counts and volume
 fractions. Stage: ``quantify`` with ``volume``.
 
-MSI, ITH, graphs, and radiomics are in
-:doc:`/auto_examples/05_quantify/index`.
-Repeatability before reporting is in
-:doc:`/auto_examples/03_precision/plot_01_precise_features`.
-
-.. GENERATED FROM PYTHON SOURCE LINES 17-18
+.. GENERATED FROM PYTHON SOURCE LINES 12-14
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-37
+.. GENERATED FROM PYTHON SOURCE LINES 14-51
 
 .. code-block:: Python
+
+    from pathlib import Path
+
+    import matplotlib.pyplot as plt
 
     from habit.contracts import Cohort, cohort_from_directory
     from habit.datasets import fetch_demo
@@ -59,7 +59,26 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
     print(table.frame)
     table.frame
 
+    fraction_columns = [
+        str(name) for name in table.frame.columns if str(name).endswith("volume_fraction")
+    ]
+    fractions = table.frame.iloc[0][fraction_columns].to_numpy(dtype=float)
+    labels = [name.replace("_volume_fraction", "").replace("_", " ") for name in fraction_columns]
+    fig, ax = plt.subplots(figsize=(6.2, 3.2))
+    ax.bar(labels, fractions, color=["#4C78A8", "#F58518", "#54A24B"])
+    ax.set_ylabel("volume fraction")
+    ax.set_ylim(0, 1)
+    ax.set_title("habitat volume")
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/habitat_volume.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_16_measure_volume_001.png
+   :alt: habitat volume
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_16_measure_volume_001.png
+   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -88,65 +107,19 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.49s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.49s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.20s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.20s/it]
        subject  ...  habitat_3_volume_fraction
     0  subj001  ...                    0.30011
 
     [1 rows x 7 columns]
 
 
-.. raw:: html
 
-    <div class="output_subarea output_html rendered_html output_result">
-    <div>
-    <style scoped>
-        .dataframe tbody tr th:only-of-type {
-            vertical-align: middle;
-        }
-
-        .dataframe tbody tr th {
-            vertical-align: top;
-        }
-
-        .dataframe thead th {
-            text-align: right;
-        }
-    </style>
-    <table border="1" class="dataframe">
-      <thead>
-        <tr style="text-align: right;">
-          <th></th>
-          <th>subject</th>
-          <th>habitat_1_voxel_count</th>
-          <th>habitat_1_volume_fraction</th>
-          <th>habitat_2_voxel_count</th>
-          <th>habitat_2_volume_fraction</th>
-          <th>habitat_3_voxel_count</th>
-          <th>habitat_3_volume_fraction</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>0</th>
-          <td>subj001</td>
-          <td>14252.0</td>
-          <td>0.410791</td>
-          <td>10030.0</td>
-          <td>0.289099</td>
-          <td>10412.0</td>
-          <td>0.30011</td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    </div>
-    <br />
-    <br />
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.685 seconds)
+   **Total running time of the script:** (0 minutes 1.457 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_16_measure_volume.py:

@@ -28,12 +28,13 @@ archive, and project it onto later subjects.
 The spec must match between training and application: the model stores
 cohort-level preprocessing state, but upstream stages are re-declared.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-16
+.. GENERATED FROM PYTHON SOURCE LINES 14-17
 
 Demo pack has ``subj001`` … ``subj005``. Train on the first three;
 apply on the last two.
+sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-57
+.. GENERATED FROM PYTHON SOURCE LINES 17-58
 
 .. code-block:: Python
 
@@ -44,7 +45,7 @@ apply on the last two.
     from habit.contracts import HabitatModel, cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.spec import HabitatSpec, Spec, Stage
-    from habit.viz import plot_habitat_overlay
+    from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
     import habit.recipes as recipes
 
     DATA = fetch_demo()
@@ -113,11 +114,11 @@ apply on the last two.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-59
+.. GENERATED FROM PYTHON SOURCE LINES 59-60
 
 Fit on the discovery cohort and persist one self-describing archive.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-79
+.. GENERATED FROM PYTHON SOURCE LINES 60-79
 
 .. code-block:: Python
 
@@ -135,7 +136,6 @@ Fit on the discovery cohort and persist one self-describing archive.
         train_cohort[0].image(ROI),
         train_result.habitat_maps[0],
         title="train habitats",
-        axis=0,
         crop_to="labels",
     )
     fig.savefig("out/apply_saved_train_overlay.png", dpi=150, bbox_inches="tight")
@@ -145,7 +145,7 @@ Fit on the discovery cohort and persist one self-describing archive.
 
 
 .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_04_apply_saved_model_001.png
-   :alt: train habitats
+   :alt: train habitats, Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
    :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_04_apply_saved_model_001.png
    :class: sphx-glr-single-img
 
@@ -154,8 +154,8 @@ Fit on the discovery cohort and persist one self-describing archive.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.15s/it]    Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:02<00:01,  1.07s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03<00:00,  1.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03<00:00,  1.05s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.18s/it]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:01<00:00,  1.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.30it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.30it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.02s/it]    Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:01<00:00,  1.01it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.01it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.01it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.46s/it]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:02<00:01,  1.01s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.17it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.17it/s]
     HabitatModel kmeans-8a84cd5253eb126f
       habitats           : 3
       features (1)    : LAP
@@ -214,7 +214,7 @@ Reload and label held-out subjects. No fitting after the reload.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01<00:01,  1.67s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.73s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.73s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01<00:01,  1.57s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.68s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.68s/it]
     Applied to ['subj004', 'subj005']
        subject  habitat_1_voxel_count  ...    energy  ith_score
     0  subj004                 2426.0  ...  3.552956   0.814030
@@ -230,7 +230,7 @@ Reload and label held-out subjects. No fitting after the reload.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 10.494 seconds)
+   **Total running time of the script:** (0 minutes 10.690 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py:

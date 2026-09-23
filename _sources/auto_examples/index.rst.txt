@@ -358,10 +358,6 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 * **Chaining the steps** —
   :doc:`/auto_examples/04_habitat_maps/plot_17_chain`.
 
-MSI, ITH, graphs, and radiomics stay in
-:doc:`/auto_examples/05_quantify/index`.
-DICOM stays in :doc:`/auto_examples/01_data_in/index`.
-
 
 .. raw:: html
 
@@ -478,7 +474,7 @@ DICOM stays in :doc:`/auto_examples/01_data_in/index`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of local entropy. Stage: extract_voxel_features with local_entropy.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture.">
 
 .. only:: html
 
@@ -512,7 +508,7 @@ DICOM stays in :doc:`/auto_examples/01_data_in/index`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: a local-entropy VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_features with local_entropy, then a per-subject fit.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit.">
 
 .. only:: html
 

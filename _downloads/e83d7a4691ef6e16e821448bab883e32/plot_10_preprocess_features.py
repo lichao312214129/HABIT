@@ -5,13 +5,11 @@ Preprocessing features before clustering
 Input: a raw :class:`~habit.contracts.VoxelFeatureField`. Output: the
 same rows after winsorize then min-max. Stage:
 ``voxel_feature_preprocessors``.
-
-The three preprocessor chains (voxel, supervoxel, cohort) are in
-:doc:`/auto_examples/02_voxel/plot_04_feature_preprocessing`.
 """
 
 # %%
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt

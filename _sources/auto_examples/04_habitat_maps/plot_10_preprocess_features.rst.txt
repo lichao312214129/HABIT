@@ -25,14 +25,12 @@ Input: a raw :class:`~habit.contracts.VoxelFeatureField`. Output: the
 same rows after winsorize then min-max. Stage:
 ``voxel_feature_preprocessors``.
 
-The three preprocessor chains (voxel, supervoxel, cohort) are in
-:doc:`/auto_examples/02_voxel/plot_04_feature_preprocessing`.
-
-.. GENERATED FROM PYTHON SOURCE LINES 14-15
+.. GENERATED FROM PYTHON SOURCE LINES 11-13
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
+sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-49
+.. GENERATED FROM PYTHON SOURCE LINES 13-47
 
 .. code-block:: Python
 
@@ -126,7 +124,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.861 seconds)
+   **Total running time of the script:** (0 minutes 1.578 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_10_preprocess_features.py:
