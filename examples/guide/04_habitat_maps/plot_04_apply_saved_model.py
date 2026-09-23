@@ -1,6 +1,6 @@
 """
-Apply a saved model
-===================
+Applying a saved habitat model
+==============================
 
 Train a two-step habitat definition, round-trip the
 :class:`~habit.contracts.HabitatModel` through a ``.habitatmodel``
