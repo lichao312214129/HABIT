@@ -1,21 +1,16 @@
 """
-Running subjects in separate processes
-======================================
+One fresh process per subject
+=============================
 
-``RunPolicy(workers=2, backend="process")`` builds a
-:class:`~habit.execution.ProcessPoolBackend`. Texture extraction and
-habitat assignment run in that pool. Z-scoring and fitting stay in this
-process. On Windows the ``map`` calls sit under ``__main__`` so a worker
-does not start another pool.
+``parallel_mode="isolated"`` starts a new process for every subject
+instead of keeping a worker alive. The texture definition and the
+subject z-score match the persistent process-pool page. Spawn cost is
+higher; the habitat counts are the same chain.
 """
 
 # %%
-# Load the cohort and build the pool
-# ----------------------------------
-# Building the backend does not start workers. ``map`` does.
-# ``subject_timeout_sec`` is enforced only on this backend. The short
-# wall-clock page sets a limit that texture cannot meet; this page leaves
-# the default so both subjects finish.
+# Load the cohort and select isolated mode
+# ----------------------------------------
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
@@ -65,27 +60,25 @@ fitter.set_random_state(0)
 policy = RunPolicy(
     workers=2,
     backend="process",
-    parallel_mode="persistent",
-    on_subject_failure="continue",
+    parallel_mode="isolated",
     auto_retry_rounds=0,
 )
 backend = backend_from_policy(policy)
-print(type(backend).__name__, backend.workers, backend.policy.parallel_mode)
+print(type(backend).__name__, backend.policy.parallel_mode)
 
 
 # %%
-# Map texture, then map assignment
-# --------------------------------
+# Run one process per subject
+# ---------------------------
 def main() -> None:
-    """Run the chain once this file is the original script."""
+    """Extract texture in isolated children, then assign the same way."""
     fields = [slot.result() for slot in backend.map(texture, cohort)]
+    scaled_fields = []
     for field in fields:
         print(
             f"{field.subject_id}: {field.values.shape[0]} voxels, "
             f"{len(field.feature_names)} columns"
         )
-    scaled_fields = []
-    for field in fields:
         scaled_fields.append(
             field.with_feature_frame(
                 zscore(field.feature_frame()),
@@ -108,10 +101,10 @@ def main() -> None:
     fig_map = plot_habitat_overlay(
         cohort[0].image(ROI),
         maps[0],
-        title="habitats (process pool)",
+        title="habitats (isolated processes)",
         crop_to="labels",
     )
-    fig_map.savefig("out/process_pool_habitats.png", dpi=150, bbox_inches="tight")
+    fig_map.savefig("out/isolated_habitats.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 

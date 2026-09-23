@@ -1,10 +1,28 @@
 6. Parallel runs
 ================
 
-:class:`~habit.spec.HabitatSpec` is what to compute.
-:class:`~habit.spec.RunPolicy` is how to schedule it.
-The same cohort and the same ``fit_predict`` call take a different
-backend. A fixed ``random_seed`` keeps the maps aligned with a serial run.
+Voxel texture (four DCE series, radius 3, ``binWidth`` 12) is the
+workload. Feature preprocessing changes the numbers. A backend only
+changes how subjects are scheduled. GPU and ``voxel_batch`` are set on
+the extractor; they do not change the texture definition.
+
+Preprocessing, one method per page. Scheduling on these pages is
+:class:`~habit.execution.SerialBackend`.
+
+* **Subject z-score** (and the matching ``HabitatSpec``) —
+  :doc:`/auto_examples/06_parallel_runs/plot_08_subject_zscore`.
+* **Subject robust scaling** —
+  :doc:`/auto_examples/06_parallel_runs/plot_09_subject_robust`.
+* **Subject winsorizing** —
+  :doc:`/auto_examples/06_parallel_runs/plot_10_subject_winsorize`.
+* **Cohort z-score** —
+  :doc:`/auto_examples/06_parallel_runs/plot_11_cohort_zscore`.
+* **Cohort binning** —
+  :doc:`/auto_examples/06_parallel_runs/plot_12_cohort_binning`.
+
+Scheduling uses the subject z-score chain unless the page is about a
+failure. A fixed ``random_seed`` keeps finished maps aligned with a
+serial run.
 
 * **One machine, in order** —
   :doc:`/auto_examples/06_parallel_runs/plot_01_serial`.
@@ -18,8 +36,9 @@ backend. A fixed ``random_seed`` keeps the maps aligned with a serial run.
   :doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`.
 * **Do not pay worker startup twice** —
   :doc:`/auto_examples/06_parallel_runs/plot_06_reuse_workers`.
+* **One fresh process per subject** —
+  :doc:`/auto_examples/06_parallel_runs/plot_13_isolated`.
+* **Per-subject wall-clock limit** —
+  :doc:`/auto_examples/06_parallel_runs/plot_14_wall_clock`.
 * **One worker per GPU** (recorded timings, not re-run here) —
   :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`.
-
-A per-subject time limit is enforced only by the process backend.
-It is set on the process-pool page.

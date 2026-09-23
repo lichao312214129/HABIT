@@ -1,27 +1,27 @@
 """
-Running a cohort serially
-=========================
+Cohort z-score on voxel texture
+===============================
 
-:class:`~habit.execution.SerialBackend` runs the texture extraction and
-the habitat assignment in this process, one subject after another.
-Z-scoring and fitting stay here as well: the scaler is per subject, and
-the fit has to see every subject. The matching :class:`~habit.spec.HabitatSpec`
-is on the subject z-score page.
+Cohort z-score is fitted once on the pooled training rows and replayed
+on every subject. A single subject's column mean is then not zero: both
+subjects share the training mean and standard deviation. That fitted
+state has to travel with the habitat model.
 """
 
 # %%
 # Load the cohort
 # ---------------
-# sphinx_gallery_thumbnail_number = 1
+# sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.execution import SerialBackend
-from habit.feature_preprocessing import SubjectPreprocessingChain, ZScoreScaling
+from habit.feature_preprocessing import CohortPreprocessingChain, ZScoreScaling
 from habit.habitat_model import KMeansHabitatModelFitter
 from habit.pipeline import voxel_units
 from habit.viz import plot_habitat_overlay
@@ -36,10 +36,8 @@ Path("out").mkdir(exist_ok=True)
 CACHE = str((Path("out") / "voxel_texture_cache").resolve())
 
 # %%
-# Extract, z-score, fit, assign
-# -----------------------------
-# ``SerialBackend.map`` yields one slot per subject, in cohort order.
-# The printed card and the voxel counts are the result of that chain.
+# Extract voxel texture
+# ---------------------
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -60,27 +58,64 @@ texture = VoxelRadiomicsFeatures(
     use_gpu_matrices=True,
     cache_dir=CACHE,
 )
-zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
-fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
-fitter.set_random_state(0)
 backend = SerialBackend()
-
 fields = [slot.result() for slot in backend.map(texture, cohort)]
 for field in fields:
     print(
         f"{field.subject_id}: {field.values.shape[0]} voxels, "
         f"{len(field.feature_names)} columns"
     )
+
+# %%
+# Fit z-score on the pooled rows
+# ------------------------------
+# ``fit`` sees every training voxel. ``transform`` replays that state.
+# Impute is inserted first. Printing ``is_fitted`` shows the chain now
+# carries state, unlike a subject chain.
+zscore = CohortPreprocessingChain([ZScoreScaling(across_features=False)])
+pooled = pd.concat(
+    [field.feature_frame() for field in fields],
+    axis=0,
+    ignore_index=True,
+)
+zscore.fit(pooled)
+print("fitted:", zscore.is_fitted, "columns:", len(zscore.fit_columns))
+column = next(
+    name
+    for name in fields[0].feature_names
+    if "Contrast" in name and name.endswith("-LAP")
+)
+
 scaled_fields = []
 for field in fields:
-    scaled = zscore(field.feature_frame())
+    scaled = zscore.transform(field.feature_frame())
+    print(
+        field.subject_id,
+        column,
+        "mean after cohort z-score",
+        round(float(scaled[column].mean()), 3),
+    )
     scaled_fields.append(
         field.with_feature_frame(
             scaled,
-            produced_by="subject_feature_preprocessor",
+            produced_by="cohort_feature_preprocessor",
             spec_fingerprint=zscore.spec.fingerprint(),
         )
     )
+
+fig_hist, axes = plt.subplots(1, 2, figsize=(8, 3), constrained_layout=True)
+axes[0].hist(fields[0].feature_frame()[column].to_numpy(), bins=30)
+axes[0].set_title(f"{column} before")
+axes[1].hist(scaled_fields[0].feature_frame()[column].to_numpy(), bins=30)
+axes[1].set_title(f"{column} after cohort z-score")
+fig_hist.savefig("out/cohort_zscore_hist.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+# %%
+# Fit and assign
+# --------------
+fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+fitter.set_random_state(0)
 units = [voxel_units(field) for field in scaled_fields]
 model = fitter.fit(units, cohort=cohort)
 print(model.summary())
@@ -97,8 +132,8 @@ for habitat_map in maps:
 fig_map = plot_habitat_overlay(
     cohort[0].image(ROI),
     maps[0],
-    title="habitats (serial backend)",
+    title="habitats (texture, cohort z-score)",
     crop_to="labels",
 )
-fig_map.savefig("out/serial_habitats.png", dpi=150, bbox_inches="tight")
+fig_map.savefig("out/cohort_zscore_habitats.png", dpi=150, bbox_inches="tight")
 plt.show()
