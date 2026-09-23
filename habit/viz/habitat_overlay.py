@@ -22,7 +22,7 @@ palette (opaque by default). Pass ``alpha<1`` only for an explicit blend.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -339,6 +339,107 @@ def _slice_index(
     return int(np.argmax(counts))
 
 
+def _triptych_indices(
+    index: Optional[Union[int, Sequence[int]]],
+) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+    """Normalize ``index`` for the three orthogonal panels.
+
+    ``None`` asks each panel for its own densest slice. A length-3
+    sequence pins one original-volume index per NumPy axis ``0 / 1 / 2``
+    so two maps can be drawn on the same planes.
+
+    Args:
+        index: Omitted, or three original-volume slice indices.
+
+    Returns:
+        One entry per axis. ``None`` means auto-select on that axis.
+
+    Raises:
+        HABITAPIError: When a single integer or a sequence of the wrong
+            length is passed for the triptych.
+    """
+    if index is None:
+        return (None, None, None)
+    if isinstance(index, (int, np.integer)):
+        raise HABITAPIError(
+            "plot_habitat_overlay: index must be a sequence of three "
+            "integers when drawing the orthogonal triptych "
+            f"(one index per axis); got {index!r}. "
+            "Pass axis= to draw a single plane."
+        )
+    values = tuple(index)
+    if len(values) != 3:
+        raise HABITAPIError(
+            "plot_habitat_overlay: triptych index must have length 3 "
+            f"(axis 0, 1, 2); got {len(values)}."
+        )
+    return (int(values[0]), int(values[1]), int(values[2]))
+
+
+def _to_cropped_index(
+    index: Optional[int],
+    axis_id: int,
+    crop: Optional[Tuple[slice, ...]],
+) -> Optional[int]:
+    """Shift an original-volume index into the cropped display array.
+
+    ``index`` is a coordinate in the volume the caller passed. After a
+    display crop the array that is actually sliced is shorter, so the
+    same anatomical plane is ``index - crop.start``. ``None`` stays
+    ``None`` and the caller auto-selects inside the cropped array.
+
+    Args:
+        index: Original-volume slice index, or ``None`` to auto-select.
+        axis_id: Axis the index refers to.
+        crop: Per-axis slices applied to the volume, or ``None`` when
+            the full field of view is drawn.
+
+    Returns:
+        Index into the cropped array, or ``None`` when ``index`` is omitted.
+
+    Raises:
+        HABITAPIError: When ``index`` lies outside the crop window.
+    """
+    if index is None or crop is None:
+        return None if index is None else int(index)
+    window = crop[axis_id]
+    start = 0 if window.start is None else int(window.start)
+    stop = window.stop
+    if stop is not None and (int(index) < start or int(index) >= int(stop)):
+        raise HABITAPIError(
+            "plot_habitat_overlay: slice index "
+            f"{int(index)} on axis {axis_id} falls outside the display crop "
+            f"[{start}, {int(stop)})."
+        )
+    return int(index) - start
+
+
+def _volume_slice_index(
+    local_index: int,
+    axis_id: int,
+    crop: Optional[Tuple[slice, ...]],
+) -> int:
+    """Map a cropped-array index back to the original volume.
+
+    Panel titles use this so two figures that share a crop report the
+    same slice number the caller passed (or the densest plane in the
+    full volume), not an offset that depends on the bounding box.
+
+    Args:
+        local_index: Index into the array after an optional display crop.
+        axis_id: Axis ``local_index`` refers to.
+        crop: Crop applied before slicing, or ``None``.
+
+    Returns:
+        Slice index in the original volume.
+    """
+    if crop is None:
+        return int(local_index)
+    start = crop[axis_id].start
+    origin = 0 if start is None else int(start)
+    return int(local_index) + origin
+
+
 def _take_slice(volume: np.ndarray, axis: int, index: int) -> np.ndarray:
     """Extract a 2D slice from a 2D/3D volume."""
     if volume.ndim == 2:
@@ -546,7 +647,7 @@ def plot_habitat_overlay(
     alpha: float = 1.0,
     title: Optional[str] = None,
     axis: Optional[int] = None,
-    index: Optional[int] = None,
+    index: Optional[Union[int, Sequence[int]]] = None,
     direction: Optional[Sequence[float]] = None,
     spacing: Optional[Sequence[float]] = None,
     display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
@@ -555,6 +656,7 @@ def plot_habitat_overlay(
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
     crop_to: str = "none",
     crop_pad: int = 6,
+    crop_labels: Optional[object] = None,
 ) -> "Figure":
     """
     Draw habitat labels as an opaque colour overlay on the source image.
@@ -562,9 +664,15 @@ def plot_habitat_overlay(
     For 3D volumes the default is a three-panel figure (orthogonal slices in
     NumPy axis order ``0 / 1 / 2``, i.e. SimpleITK ``(z, y, x)``). Each panel
     uses the slice with the most non-background habitat voxels so the overlay
-    is visible even when the tumour is off-centre. Pass ``axis`` / ``index`` to
-    pin a specific slice. Label ``0`` is treated as background and is not
-    coloured.
+    is visible even when the tumour is off-centre. Pass ``axis`` plus an
+    integer ``index`` to pin one plane, or pass ``index`` as three
+    original-volume indices (axis 0, 1, 2) to pin the triptych. Label ``0``
+    is treated as background and is not coloured.
+
+    Two maps of the same tumour are comparable only when they share this
+    window. Pass the same ``index`` and the same ``crop_labels`` (the union
+    of both label maps) with ``crop_to="labels"``. Each call would otherwise
+    zoom to its own habitat bounding box and pick its own densest slices.
 
     Slices are oriented using ``direction`` (SimpleITK flattened 3x3) and
     ``display_convention`` (default ``\"radiological\"``). When ``direction``
@@ -591,7 +699,12 @@ def plot_habitat_overlay(
         contour: When True, outline non-background habitat voxels.
         title: Optional figure title (ASCII-sanitised).
         axis: If set, draw only this axis (``0``, ``1``, or ``2``).
-        index: Slice index along ``axis``; densest habitat slice when omitted.
+        index: Original-volume slice index. With ``axis`` set, one integer
+            (or omitted, for the densest slice on that axis). For the
+            default triptych, a sequence of three integers, one per axis,
+            or omitted so each panel picks its own densest slice. Indices
+            count from the volume you passed, including when
+            ``crop_to="labels"`` zooms the frame.
         direction: Optional SimpleITK direction cosines (9 floats). Same layout
             as ``ImageVolume.direction``. Controls anterior/posterior,
             superior/inferior, and left/right flips per panel. Inferred from
@@ -614,6 +727,12 @@ def plot_habitat_overlay(
             Display-only zoom: values, spacing and orientation are unchanged.
         crop_pad: Voxels of anatomical context kept around the bounding box
             when ``crop_to=\"labels\"`` (default ``6``).
+        crop_labels: Optional label volume used only to place the
+            ``crop_to="labels"`` window. Same shape as ``image``. When
+            omitted, the window is the bounding box of ``labels``. Pass the
+            union of every map being compared so each figure uses that same
+            window. Required together with ``crop_to="labels"``; passing it
+            with another ``crop_to`` raises.
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -649,17 +768,36 @@ def plot_habitat_overlay(
     crop_mode = validate_crop_to(
         crop_to, allowed=("none", "labels"), caller="plot_habitat_overlay"
     )
+    # None means the drawn array is the full volume. A tuple means every
+    # panel was zoomed with the same per-axis window; slice indices the
+    # caller passed are still in the original volume and get shifted.
+    crop: Optional[Tuple[slice, ...]] = None
     if crop_mode == "labels":
+        # Shared comparisons pass crop_labels (union of both maps) so the
+        # bounding box does not follow whichever map is being drawn.
+        crop_source = label_int
+        if crop_labels is not None:
+            crop_source = np.asarray(_as_volume(crop_labels, "crop_labels"), dtype=np.int32)
+            if crop_source.shape != label_int.shape:
+                raise HABITAPIError(
+                    "plot_habitat_overlay: crop_labels must share the image shape; "
+                    f"got {crop_source.shape} vs labels {label_int.shape}."
+                )
         # Zoom to the habitat bounding box before slice selection so the
         # densest slice is picked inside the cropped volume.
         crop = bbox_slices(
-            label_int,
+            crop_source,
             crop_pad,
             caller="plot_habitat_overlay",
-            mask_name="labels",
+            mask_name="labels" if crop_labels is None else "crop_labels",
         )
         image_vol = image_vol[crop]
         label_int = label_int[crop]
+    elif crop_labels is not None:
+        raise HABITAPIError(
+            "plot_habitat_overlay: crop_labels is only used when "
+            "crop_to='labels'."
+        )
     resolved_direction, resolved_spacing = resolve_display_geometry(
         image, labels, direction=direction, spacing=spacing
     )
@@ -676,7 +814,18 @@ def plot_habitat_overlay(
                 raise HABITAPIError(
                     f"plot_habitat_overlay: axis must be 0, 1, or 2; got {axis_id}."
                 )
-            slice_index = _slice_index(label_int, axis_id, index)
+            if index is not None and not isinstance(index, (int, np.integer)):
+                raise HABITAPIError(
+                    "plot_habitat_overlay: index must be an integer when axis "
+                    f"is set; got {index!r}."
+                )
+            plane_index = None if index is None else int(index)
+            slice_index = _slice_index(
+                label_int,
+                axis_id,
+                _to_cropped_index(plane_index, axis_id, crop),
+            )
+            shown_index = _volume_slice_index(slice_index, axis_id, crop)
             rgb, labs = _prepare_overlay_slice(
                 image_vol,
                 label_int,
@@ -718,7 +867,7 @@ def plot_habitat_overlay(
                 sanitize_label(
                     title
                     if title is not None
-                    else f"Habitat overlay ({axis_name}, index={slice_index})"
+                    else f"Habitat overlay ({axis_name}, index={shown_index})"
                 )
             )
             ax.axis("off")
@@ -740,8 +889,14 @@ def plot_habitat_overlay(
             "Axis 1 (coronal-like)",
             "Axis 2 (sagittal-like)",
         )
+        per_axis = _triptych_indices(index)
         for axis_id, ax in enumerate(axes):
-            slice_index = _slice_index(label_int, axis_id, None)
+            slice_index = _slice_index(
+                label_int,
+                axis_id,
+                _to_cropped_index(per_axis[axis_id], axis_id, crop),
+            )
+            shown_index = _volume_slice_index(slice_index, axis_id, crop)
             rgb, labs = _prepare_overlay_slice(
                 image_vol,
                 label_int,
@@ -770,7 +925,7 @@ def plot_habitat_overlay(
             if contour:
                 _draw_label_contour(ax, labs, extent=extent)
             ax.set_aspect("equal", adjustable="box")
-            ax.set_title(sanitize_label(f"{panel_names[axis_id]} @ {slice_index}"))
+            ax.set_title(sanitize_label(f"{panel_names[axis_id]} @ {shown_index}"))
             ax.axis("off")
 
         # Shared discrete bar on the last panel (same IDs on every view).

@@ -376,3 +376,75 @@ def test_plot_habitat_overlay_colorbar_false_skips_bar() -> None:
     assert len([ax for ax in fig.axes if ax.images]) == 1
     assert len([ax for ax in fig.axes if not ax.images]) == 0
     plt.close(fig)
+
+
+def _panel_titles(fig: Figure) -> list:
+    """Titles of the orthogonal image panels (they contain ``@``)."""
+    return [ax.get_title() for ax in fig.axes if "@" in ax.get_title()]
+
+
+def _panel_extents(fig: Figure) -> list:
+    """Imshow extents of the orthogonal image panels, in panel order."""
+    extents = []
+    for ax in fig.axes:
+        if "@" not in ax.get_title() or not ax.images:
+            continue
+        extents.append(tuple(float(v) for v in ax.images[0].get_extent()))
+    return extents
+
+
+def test_plot_habitat_overlay_shared_crop_and_slices_match() -> None:
+    """Two maps compared with one crop and one index triple share a window.
+
+    Independent ``crop_to='labels'`` zooms each map to its own bounding
+    box and picks its own densest slices, so the anatomy does not line up.
+    """
+    import matplotlib.pyplot as plt
+
+    image = np.zeros((30, 30, 30), dtype=np.float32)
+    image[:] = 40.0
+    labels_a = np.zeros((30, 30, 30), dtype=np.int32)
+    labels_b = np.zeros((30, 30, 30), dtype=np.int32)
+    labels_a[8, 4:8, 4:8] = 1
+    labels_b[22, 20:26, 20:26] = 2
+    union = ((labels_a > 0) | (labels_b > 0)).astype(np.int32)
+    shared = (8, 6, 6)
+
+    fig_a = plot_habitat_overlay(
+        image,
+        labels_a,
+        title="A",
+        crop_to="labels",
+        crop_labels=union,
+        index=shared,
+    )
+    fig_b = plot_habitat_overlay(
+        image,
+        labels_b,
+        title="B",
+        crop_to="labels",
+        crop_labels=union,
+        index=shared,
+    )
+    assert _panel_titles(fig_a) == _panel_titles(fig_b)
+    assert _panel_extents(fig_a) == _panel_extents(fig_b)
+    assert any("@ 8" in title for title in _panel_titles(fig_a))
+
+    lone_a = plot_habitat_overlay(image, labels_a, title="A", crop_to="labels")
+    lone_b = plot_habitat_overlay(image, labels_b, title="B", crop_to="labels")
+    assert _panel_extents(lone_a) != _panel_extents(lone_b)
+
+    with pytest.raises(HABITAPIError, match="length 3"):
+        plot_habitat_overlay(image, labels_a, index=(8, 6))
+    with pytest.raises(HABITAPIError, match="outside the display crop"):
+        plot_habitat_overlay(
+            image,
+            labels_a,
+            crop_to="labels",
+            crop_labels=union,
+            index=(0, 6, 6),
+        )
+    with pytest.raises(HABITAPIError, match="crop_labels"):
+        plot_habitat_overlay(image, labels_a, crop_labels=union, index=shared)
+
+    plt.close("all")
