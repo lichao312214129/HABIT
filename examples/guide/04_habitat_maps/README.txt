@@ -52,9 +52,3 @@ and the :class:`~habit.spec.HabitatSpec` stage.
   :doc:`/auto_examples/04_habitat_maps/plot_13_fit_model`.
 * **Assigning habitat labels** —
   :doc:`/auto_examples/04_habitat_maps/plot_14_assign_labels`.
-* **Clustering habitats inside one subject** —
-  :doc:`/auto_examples/04_habitat_maps/plot_15_one_subject`.
-* **Measuring habitats on a label map** —
-  :doc:`/auto_examples/04_habitat_maps/plot_16_measure_volume`.
-* **Chaining the steps** —
-  :doc:`/auto_examples/04_habitat_maps/plot_17_chain`.

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**02:15.221** total execution time for 49 files **from all galleries**:
+**02:15.221** total execution time for 46 files **from all galleries**:
 
 .. container::
 
@@ -132,15 +132,6 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_14_assign_labels.py` (``..\..\examples\guide\04_habitat_maps\plot_14_assign_labels.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_15_one_subject.py` (``..\..\examples\guide\04_habitat_maps\plot_15_one_subject.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_16_measure_volume.py` (``..\..\examples\guide\04_habitat_maps\plot_16_measure_volume.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_17_chain.py` (``..\..\examples\guide\04_habitat_maps\plot_17_chain.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_01_volume_fractions.py` (``..\..\examples\guide\05_quantify\plot_01_volume_fractions.py``)
