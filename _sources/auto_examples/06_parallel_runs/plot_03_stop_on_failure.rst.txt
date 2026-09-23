@@ -97,12 +97,12 @@ sphinx_gallery_thumbnail_number = 1
 
 .. GENERATED FROM PYTHON SOURCE LINES 40-44
 
-Stop on the missing series
---------------------------
-``seen`` records who actually entered the extractor. The second id is
-absent, and the exception type is printed.
+Build the extractor
+-------------------
+No cache directory: this page should raise, not reuse a finished field.
+This cell does not call the extractor.
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-87
+.. GENERATED FROM PYTHON SOURCE LINES 44-73
 
 .. code-block:: Python
 
@@ -125,6 +125,7 @@ absent, and the exception type is printed.
         torch_device="cuda:0",
         use_gpu_matrices=True,
     )
+    print("feature classes:", sorted(RADIOMICS_PARAMS["featureClass"]))
     seen: list[str] = []
 
 
@@ -134,12 +135,61 @@ absent, and the exception type is printed.
         return texture(subject)
 
 
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    feature classes: ['firstorder', 'glcm', 'glrlm']
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 74-78
+
+Stop on the missing series
+--------------------------
+``seen`` records who actually entered the extractor. The second id is
+absent, and the exception type is printed.
+
+.. GENERATED FROM PYTHON SOURCE LINES 78-85
+
+.. code-block:: Python
+
     try:
         list(SerialBackend(on_subject_failure="fail_fast").map(extract, cohort))
     except Exception as exc:
         print(type(exc).__name__)
         print(exc)
     print("visited:", seen)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HABITAPIError
+    voxel_radiomics: subject 'missing_lap' does not provide modalities ['LAP']; available: ['PVP', 'delay_3min', 'pre_contrast'].
+    visited: ['missing_lap']
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 86-89
+
+Who was visited
+---------------
+Grey is the subject the backend did not start.
+
+.. GENERATED FROM PYTHON SOURCE LINES 89-97
+
+.. code-block:: Python
 
     labels = [subject.subject_id for subject in cohort]
     colors = ["#4C78A8" if subject_id in seen else "#D0D0D0" for subject_id in labels]
@@ -157,14 +207,6 @@ absent, and the exception type is printed.
    :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_03_stop_on_failure_001.png
    :class: sphx-glr-single-img
 
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    HABITAPIError
-    voxel_radiomics: subject 'missing_lap' does not provide modalities ['LAP']; available: ['PVP', 'delay_3min', 'pre_contrast'].
-    visited: ['missing_lap']
 
 
 

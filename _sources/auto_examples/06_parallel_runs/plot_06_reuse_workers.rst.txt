@@ -28,11 +28,11 @@ workers stay up.
 
 .. GENERATED FROM PYTHON SOURCE LINES 12-15
 
-Load the cohort and build one pool
-----------------------------------
+Load the cohort
+---------------
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-70
+.. GENERATED FROM PYTHON SOURCE LINES 15-38
 
 .. code-block:: Python
 
@@ -58,6 +58,52 @@ sphinx_gallery_thumbnail_number = 1
     print(cohort)
     Path("out").mkdir(exist_ok=True)
     CACHE = str((Path("out") / "voxel_texture_cache").resolve())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HABIT demo data (cached)
+    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
+
+    On-disk inventory of this folder:
+      subjects (5): subj001, subj002, subj003, subj004, subj005
+      image series: LAP, PVP, delay_3min, pre_contrast
+      mask keys:    LAP, PVP, delay_3min, pre_contrast
+      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
+      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
+
+    Your own data must use the same folder tree (change IDs / series names):
+
+      DATA/
+        images/<subject_id>/<modality>/<one image file>
+        masks/<subject_id>/<roi>/<one mask file>
+
+    Then load it with the same call the demos use:
+
+      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
+
+    Swap DATA / modalities / roi to match your tree. Mask key is often the
+    same as one image series (here LAP).
+    Cohort(2 subjects [subj001, subj002])
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 39-42
+
+Build one pool
+--------------
+Workers are not started until the session below is entered.
+
+.. GENERATED FROM PYTHON SOURCE LINES 42-74
+
+.. code-block:: Python
+
     RADIOMICS_PARAMS = {
         "imageType": {"Original": {}},
         "featureClass": {
@@ -94,110 +140,101 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
 
-    HABIT demo data (cached)
-    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
-
-    On-disk inventory of this folder:
-      subjects (5): subj001, subj002, subj003, subj004, subj005
-      image series: LAP, PVP, delay_3min, pre_contrast
-      mask keys:    LAP, PVP, delay_3min, pre_contrast
-      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
-      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
-
-    Your own data must use the same folder tree (change IDs / series names):
-
-      DATA/
-        images/<subject_id>/<modality>/<one image file>
-        masks/<subject_id>/<roi>/<one mask file>
-
-    Then load it with the same call the demos use:
-
-      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
-
-    Swap DATA / modalities / roi to match your tree. Mask key is often the
-    same as one image series (here LAP).
-    Cohort(2 subjects [subj001, subj002])
     ProcessPoolBackend persistent
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-73
+.. GENERATED FROM PYTHON SOURCE LINES 75-79
 
-Two maps, one pool
-------------------
+Open one worker session
+-----------------------
+The session stays open through scaling, fitting, and the assignment
+map. It closes in the last cell. Isolated mode would ignore this.
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-116
+.. GENERATED FROM PYTHON SOURCE LINES 79-84
 
 .. code-block:: Python
 
-    def main() -> None:
-        """Keep the workers alive from texture extraction through assignment."""
-        with backend.reuse_workers():
-            fields = [slot.result() for slot in backend.map(texture, cohort)]
-            scaled_fields = []
-            for field in fields:
-                scaled_fields.append(
-                    field.with_feature_frame(
-                        zscore(field.feature_frame()),
-                        produced_by="subject_feature_preprocessor",
-                        spec_fingerprint=zscore.spec.fingerprint(),
-                    )
-                )
-            units = [voxel_units(field) for field in scaled_fields]
-            model = fitter.fit(units, cohort=cohort)
-            print(model.summary())
-            maps = [slot.result() for slot in backend.map(model.assigner(), units)]
-        for habitat_map in maps:
-            labels, counts = np.unique(habitat_map.label_array, return_counts=True)
-            present = {
-                int(label): int(count)
-                for label, count in zip(labels, counts)
-                if int(label) != 0
-            }
-            print(habitat_map.subject_id, "voxels per habitat:", present)
-        fig, ax = plt.subplots(figsize=(6.4, 3.2))
-        ax.bar(["texture map", "assign map"], [backend.workers, backend.workers], color="#4C78A8")
-        ax.set_ylabel("workers")
-        ax.set_title("workers stay up across both maps")
-        fig.savefig("out/reuse_workers.png", dpi=150, bbox_inches="tight")
-        plt.show()
-        fig_map = plot_habitat_overlay(
-            cohort[0].image(ROI),
-            maps[0],
-            title="habitats (reused workers)",
-            crop_to="labels",
-        )
-        fig_map.savefig("out/reuse_workers_habitats.png", dpi=150, bbox_inches="tight")
-        plt.show()
+    if __name__ == "__main__":
+        worker_session = backend.reuse_workers()
+        worker_session.__enter__()
+        print("worker session open, workers:", backend.workers)
 
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    worker session open, workers: 2
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 85-87
+
+Extract texture on those workers
+--------------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 87-95
+
+.. code-block:: Python
 
     if __name__ == "__main__":
-        main()
+        fields = [slot.result() for slot in backend.map(texture, cohort)]
+        for field in fields:
+            print(
+                f"{field.subject_id}: {field.values.shape[0]} voxels, "
+                f"{len(field.feature_names)} columns"
+            )
 
 
 
-.. rst-class:: sphx-glr-horizontal
 
 
-    *
+.. rst-class:: sphx-glr-script-out
 
-      .. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_001.png
-         :alt: workers stay up across both maps
-         :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_001.png
-         :class: sphx-glr-multi-img
+ .. code-block:: none
 
-    *
+    subj001: 34694 voxels, 32 columns
+    subj002: 9858 voxels, 32 columns
 
-      .. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_002.png
-         :alt: habitats (reused workers), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 27, Axis 2 (sagittal-like) @ 19
-         :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_002.png
-         :class: sphx-glr-multi-img
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 96-99
+
+Z-score and fit while the workers stay up
+------------------------------------------
+Both steps run in this process. The worker session is still open.
+
+.. GENERATED FROM PYTHON SOURCE LINES 99-113
+
+.. code-block:: Python
+
+    if __name__ == "__main__":
+        scaled_fields = []
+        for field in fields:
+            scaled_fields.append(
+                field.with_feature_frame(
+                    zscore(field.feature_frame()),
+                    produced_by="subject_feature_preprocessor",
+                    spec_fingerprint=zscore.spec.fingerprint(),
+                )
+            )
+        units = [voxel_units(field) for field in scaled_fields]
+        model = fitter.fit(units, cohort=cohort)
+        print(model.summary())
+
+
+
 
 
 .. rst-class:: sphx-glr-script-out
@@ -214,10 +251,77 @@ Two maps, one pool
       habit version      : 2.0.0
       random seed        : 0
       preprocessing state: inertia, validation
-    subj002 voxels per habitat: {1: 5603, 2: 1557, 3: 2698}
-    subj001 voxels per habitat: {1: 17350, 2: 7413, 3: 9931}
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 114-116
+
+Assign on the same workers, then close the session
+--------------------------------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 116-147
+
+.. code-block:: Python
+
+    if __name__ == "__main__":
+        try:
+            maps = [slot.result() for slot in backend.map(model.assigner(), units)]
+            for habitat_map in maps:
+                labels, counts = np.unique(habitat_map.label_array, return_counts=True)
+                present = {
+                    int(label): int(count)
+                    for label, count in zip(labels, counts)
+                    if int(label) != 0
+                }
+                print(habitat_map.subject_id, "voxels per habitat:", present)
+        finally:
+            worker_session.__exit__(None, None, None)
+        fig, ax = plt.subplots(figsize=(6.4, 3.2))
+        ax.bar(
+            ["texture map", "assign map"],
+            [backend.workers, backend.workers],
+            color="#4C78A8",
+        )
+        ax.set_ylabel("workers")
+        ax.set_title("workers stay up across both maps")
+        fig.savefig("out/reuse_workers.png", dpi=150, bbox_inches="tight")
+        plt.show()
+        fig_map = plot_habitat_overlay(
+            cohort[0].image(ROI),
+            maps[0],
+            title="habitats (reused workers)",
+            crop_to="labels",
+        )
+        fig_map.savefig("out/reuse_workers_habitats.png", dpi=150, bbox_inches="tight")
+        plt.show()
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_001.png
+         :alt: workers stay up across both maps
+         :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_001.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_002.png
+         :alt: habitats (reused workers), Axis 0 (axial-like) @ 86, Axis 1 (coronal-like) @ 233, Axis 2 (sagittal-like) @ 69
+         :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_002.png
+         :class: sphx-glr-multi-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    subj002 voxels per habitat: {1: 5609, 2: 1568, 3: 2681}
+    subj001 voxels per habitat: {1: 17427, 2: 7448, 3: 9819}
 
 
 
@@ -225,7 +329,7 @@ Two maps, one pool
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 13.244 seconds)
+   **Total running time of the script:** (0 minutes 10.101 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_06_reuse_workers.py:

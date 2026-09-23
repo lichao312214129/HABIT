@@ -9,8 +9,8 @@ workers stay up.
 """
 
 # %%
-# Load the cohort and build one pool
-# ----------------------------------
+# Load the cohort
+# ---------------
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
@@ -34,6 +34,11 @@ cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(cohort)
 Path("out").mkdir(exist_ok=True)
 CACHE = str((Path("out") / "voxel_texture_cache").resolve())
+
+# %%
+# Build one pool
+# --------------
+# Workers are not started until the session below is entered.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -66,37 +71,67 @@ policy = RunPolicy(
 backend = backend_from_policy(policy)
 print(type(backend).__name__, backend.policy.parallel_mode)
 
+# %%
+# Open one worker session
+# -----------------------
+# The session stays open through scaling, fitting, and the assignment
+# map. It closes in the last cell. Isolated mode would ignore this.
+if __name__ == "__main__":
+    worker_session = backend.reuse_workers()
+    worker_session.__enter__()
+    print("worker session open, workers:", backend.workers)
 
 # %%
-# Two maps, one pool
-# ------------------
-def main() -> None:
-    """Keep the workers alive from texture extraction through assignment."""
-    with backend.reuse_workers():
-        fields = [slot.result() for slot in backend.map(texture, cohort)]
-        scaled_fields = []
-        for field in fields:
-            scaled_fields.append(
-                field.with_feature_frame(
-                    zscore(field.feature_frame()),
-                    produced_by="subject_feature_preprocessor",
-                    spec_fingerprint=zscore.spec.fingerprint(),
-                )
+# Extract texture on those workers
+# --------------------------------
+if __name__ == "__main__":
+    fields = [slot.result() for slot in backend.map(texture, cohort)]
+    for field in fields:
+        print(
+            f"{field.subject_id}: {field.values.shape[0]} voxels, "
+            f"{len(field.feature_names)} columns"
+        )
+
+# %%
+# Z-score and fit while the workers stay up
+# ------------------------------------------
+# Both steps run in this process. The worker session is still open.
+if __name__ == "__main__":
+    scaled_fields = []
+    for field in fields:
+        scaled_fields.append(
+            field.with_feature_frame(
+                zscore(field.feature_frame()),
+                produced_by="subject_feature_preprocessor",
+                spec_fingerprint=zscore.spec.fingerprint(),
             )
-        units = [voxel_units(field) for field in scaled_fields]
-        model = fitter.fit(units, cohort=cohort)
-        print(model.summary())
+        )
+    units = [voxel_units(field) for field in scaled_fields]
+    model = fitter.fit(units, cohort=cohort)
+    print(model.summary())
+
+# %%
+# Assign on the same workers, then close the session
+# --------------------------------------------------
+if __name__ == "__main__":
+    try:
         maps = [slot.result() for slot in backend.map(model.assigner(), units)]
-    for habitat_map in maps:
-        labels, counts = np.unique(habitat_map.label_array, return_counts=True)
-        present = {
-            int(label): int(count)
-            for label, count in zip(labels, counts)
-            if int(label) != 0
-        }
-        print(habitat_map.subject_id, "voxels per habitat:", present)
+        for habitat_map in maps:
+            labels, counts = np.unique(habitat_map.label_array, return_counts=True)
+            present = {
+                int(label): int(count)
+                for label, count in zip(labels, counts)
+                if int(label) != 0
+            }
+            print(habitat_map.subject_id, "voxels per habitat:", present)
+    finally:
+        worker_session.__exit__(None, None, None)
     fig, ax = plt.subplots(figsize=(6.4, 3.2))
-    ax.bar(["texture map", "assign map"], [backend.workers, backend.workers], color="#4C78A8")
+    ax.bar(
+        ["texture map", "assign map"],
+        [backend.workers, backend.workers],
+        color="#4C78A8",
+    )
     ax.set_ylabel("workers")
     ax.set_title("workers stay up across both maps")
     fig.savefig("out/reuse_workers.png", dpi=150, bbox_inches="tight")
@@ -109,7 +144,3 @@ def main() -> None:
     )
     fig_map.savefig("out/reuse_workers_habitats.png", dpi=150, bbox_inches="tight")
     plt.show()
-
-
-if __name__ == "__main__":
-    main()

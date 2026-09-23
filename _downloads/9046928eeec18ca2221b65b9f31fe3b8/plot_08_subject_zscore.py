@@ -207,6 +207,13 @@ spec = HabitatSpec(
     ),
     random_seed=0,
 )
+print("stages:", [(stage.name, stage.role) for stage in spec.stages])
+
+# %%
+# Run that spec
+# -------------
+# ``Study.fit_predict`` builds the same chain. The voxel counts match
+# the atomic assignment above.
 result = Study(spec).fit_predict(cohort, backend=backend)
 print(result.habitat_model.summary())
 for habitat_map in result.habitat_maps:

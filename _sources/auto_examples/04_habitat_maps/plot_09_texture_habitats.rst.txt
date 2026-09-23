@@ -26,14 +26,16 @@ Output: a :class:`~habit.contracts.HabitatMap`. Stages:
 :func:`~habit.voxel_features.extract_voxel_texture`, then a per-subject
 ``fit``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-16
+.. GENERATED FROM PYTHON SOURCE LINES 12-18
 
+Load one subject
+----------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 Contrast, Correlation, and Idm share one GLCM, so this is one texture
 pass rather than three.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-68
+.. GENERATED FROM PYTHON SOURCE LINES 18-37
 
 .. code-block:: Python
 
@@ -54,60 +56,10 @@ sphinx_gallery_thumbnail_number = 2
     subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
     image = subject.image(ROI)
     mask = subject.mask(ROI)
-
-    field = extract_voxel_texture(
-        image,
-        mask,
-        kernel_radius=1,
-        bin_width=25.0,
-        feature_classes={"glcm": ["Contrast", "Correlation", "Idm"]},
-    )
-    units = voxel_units(field)
-    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
-    fitter.set_random_state(0)
-    model = fitter.fit([units], cohort=Cohort([subject], name="one"))
-    habitat_map = model.assigner()(units)
-    print(model.summary())
-
-    Path("out").mkdir(exist_ok=True)
-    fig_field = plot_voxel_texture_slice(
-        field,
-        feature=0,
-        anatomy=image,
-        roi_mask=mask,
-        title="GLCM Contrast",
-        crop_to="roi",
-    )
-    fig_field.savefig("out/texture_field.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-    fig = plot_habitat_overlay(
-        image,
-        habitat_map,
-        title="habitats (GLCM texture)",
-        crop_to="labels",
-    )
-    fig.savefig("out/texture_habitats_overlay.png", dpi=150, bbox_inches="tight")
-    plt.show()
+    print(subject.subject_id)
 
 
 
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_09_texture_habitats_001.png
-         :alt: GLCM Contrast, original_glcm_Contrast-LAP - Axis 0 (axial-like) @ 21, original_glcm_Contrast-LAP - Axis 1 (coronal-like) @ 34, original_glcm_Contrast-LAP - Axis 2 (sagittal-like) @ 28
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_09_texture_habitats_001.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_09_texture_habitats_002.png
-         :alt: habitats (GLCM texture), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_09_texture_habitats_002.png
-         :class: sphx-glr-multi-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -136,41 +88,111 @@ sphinx_gallery_thumbnail_number = 2
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    voxel_radiomics: glcm batch 1/35 0.223s peak=28MiB
-    voxel_radiomics: glcm batch 2/35 0.017s peak=29MiB
-    voxel_radiomics: glcm batch 3/35 0.018s peak=30MiB
-    voxel_radiomics: glcm batch 4/35 0.015s peak=31MiB
-    voxel_radiomics: glcm batch 5/35 0.016s peak=31MiB
-    voxel_radiomics: glcm batch 6/35 0.016s peak=32MiB
-    voxel_radiomics: glcm batch 7/35 0.016s peak=33MiB
-    voxel_radiomics: glcm batch 8/35 0.016s peak=34MiB
-    voxel_radiomics: glcm batch 9/35 0.016s peak=35MiB
-    voxel_radiomics: glcm batch 10/35 0.016s peak=36MiB
-    voxel_radiomics: glcm batch 11/35 0.015s peak=37MiB
-    voxel_radiomics: glcm batch 12/35 0.016s peak=38MiB
-    voxel_radiomics: glcm batch 13/35 0.015s peak=39MiB
-    voxel_radiomics: glcm batch 14/35 0.016s peak=40MiB
-    voxel_radiomics: glcm batch 15/35 0.016s peak=40MiB
-    voxel_radiomics: glcm batch 16/35 0.015s peak=41MiB
-    voxel_radiomics: glcm batch 17/35 0.015s peak=42MiB
-    voxel_radiomics: glcm batch 18/35 0.015s peak=43MiB
-    voxel_radiomics: glcm batch 19/35 0.015s peak=44MiB
-    voxel_radiomics: glcm batch 20/35 0.016s peak=45MiB
-    voxel_radiomics: glcm batch 21/35 0.014s peak=46MiB
-    voxel_radiomics: glcm batch 22/35 0.017s peak=47MiB
-    voxel_radiomics: glcm batch 23/35 0.016s peak=48MiB
-    voxel_radiomics: glcm batch 24/35 0.017s peak=49MiB
-    voxel_radiomics: glcm batch 25/35 0.017s peak=49MiB
-    voxel_radiomics: glcm batch 26/35 0.017s peak=50MiB
-    voxel_radiomics: glcm batch 27/35 0.016s peak=51MiB
-    voxel_radiomics: glcm batch 28/35 0.018s peak=52MiB
-    voxel_radiomics: glcm batch 29/35 0.016s peak=53MiB
-    voxel_radiomics: glcm batch 30/35 0.015s peak=54MiB
-    voxel_radiomics: glcm batch 31/35 0.016s peak=55MiB
-    voxel_radiomics: glcm batch 32/35 0.017s peak=56MiB
-    voxel_radiomics: glcm batch 33/35 0.016s peak=57MiB
-    voxel_radiomics: glcm batch 34/35 0.016s peak=58MiB
-    voxel_radiomics: glcm batch 35/35 0.015s peak=1MiB
+    subj001
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 38-41
+
+Extract three GLCM features in one pass
+---------------------------------------
+Contrast, Correlation, and Idm share one grey-level matrix.
+
+.. GENERATED FROM PYTHON SOURCE LINES 41-51
+
+.. code-block:: Python
+
+    field = extract_voxel_texture(
+        image,
+        mask,
+        kernel_radius=1,
+        bin_width=25.0,
+        feature_classes={"glcm": ["Contrast", "Correlation", "Idm"]},
+    )
+    print(f"{field.values.shape[0]} voxels, columns: {list(field.feature_names)}")
+    print(field.feature_frame().head())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    voxel_radiomics: glcm batch 1/35 0.059s peak=32MiB
+    voxel_radiomics: glcm batch 2/35 0.044s peak=33MiB
+    voxel_radiomics: glcm batch 3/35 0.054s peak=34MiB
+    voxel_radiomics: glcm batch 4/35 0.055s peak=35MiB
+    voxel_radiomics: glcm batch 5/35 0.051s peak=36MiB
+    voxel_radiomics: glcm batch 6/35 0.035s peak=37MiB
+    voxel_radiomics: glcm batch 7/35 0.015s peak=38MiB
+    voxel_radiomics: glcm batch 8/35 0.014s peak=39MiB
+    voxel_radiomics: glcm batch 9/35 0.015s peak=40MiB
+    voxel_radiomics: glcm batch 10/35 0.015s peak=40MiB
+    voxel_radiomics: glcm batch 11/35 0.015s peak=41MiB
+    voxel_radiomics: glcm batch 12/35 0.015s peak=42MiB
+    voxel_radiomics: glcm batch 13/35 0.016s peak=43MiB
+    voxel_radiomics: glcm batch 14/35 0.015s peak=44MiB
+    voxel_radiomics: glcm batch 15/35 0.016s peak=45MiB
+    voxel_radiomics: glcm batch 16/35 0.015s peak=46MiB
+    voxel_radiomics: glcm batch 17/35 0.016s peak=47MiB
+    voxel_radiomics: glcm batch 18/35 0.017s peak=48MiB
+    voxel_radiomics: glcm batch 19/35 0.014s peak=49MiB
+    voxel_radiomics: glcm batch 20/35 0.014s peak=49MiB
+    voxel_radiomics: glcm batch 21/35 0.015s peak=50MiB
+    voxel_radiomics: glcm batch 22/35 0.015s peak=51MiB
+    voxel_radiomics: glcm batch 23/35 0.016s peak=52MiB
+    voxel_radiomics: glcm batch 24/35 0.014s peak=53MiB
+    voxel_radiomics: glcm batch 25/35 0.014s peak=54MiB
+    voxel_radiomics: glcm batch 26/35 0.016s peak=55MiB
+    voxel_radiomics: glcm batch 27/35 0.015s peak=56MiB
+    voxel_radiomics: glcm batch 28/35 0.014s peak=57MiB
+    voxel_radiomics: glcm batch 29/35 0.015s peak=58MiB
+    voxel_radiomics: glcm batch 30/35 0.014s peak=1MiB
+    voxel_radiomics: glcm batch 31/35 0.016s peak=2MiB
+    voxel_radiomics: glcm batch 32/35 0.015s peak=3MiB
+    voxel_radiomics: glcm batch 33/35 0.016s peak=4MiB
+    voxel_radiomics: glcm batch 34/35 0.014s peak=4MiB
+    voxel_radiomics: glcm batch 35/35 0.013s peak=5MiB
+    34694 voxels, columns: ['original_glcm_Contrast-LAP', 'original_glcm_Correlation-LAP', 'original_glcm_Idm-LAP']
+       original_glcm_Contrast-LAP  ...  original_glcm_Idm-LAP
+    0                    2.808974  ...               0.443929
+    1                    4.003205  ...               0.436981
+    2                    6.676282  ...               0.332238
+    3                    7.955128  ...               0.277605
+    4                    6.945513  ...               0.308761
+
+    [5 rows x 3 columns]
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 52-54
+
+Fit and assign on these voxels
+------------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 54-61
+
+.. code-block:: Python
+
+    units = voxel_units(field)
+    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+    fitter.set_random_state(0)
+    model = fitter.fit([units], cohort=Cohort([subject], name="one"))
+    habitat_map = model.assigner()(units)
+    print(model.summary())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
     HabitatModel kmeans-550300eb7e79e3f6
       habitats           : 3
       features (3)    : original_glcm_Contrast-LAP, original_glcm_Correlation-LAP, original_glcm_Idm-LAP
@@ -181,10 +203,68 @@ sphinx_gallery_thumbnail_number = 2
       habit version      : 2.0.0
       random seed        : 0
       preprocessing state: inertia, validation
-    F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      direction, spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 62-64
+
+GLCM Contrast
+-------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 64-76
+
+.. code-block:: Python
+
+    Path("out").mkdir(exist_ok=True)
+    fig_field = plot_voxel_texture_slice(
+        field,
+        feature=0,
+        anatomy=image,
+        roi_mask=mask,
+        title="GLCM Contrast",
+        crop_to="roi",
+    )
+    fig_field.savefig("out/texture_field.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_09_texture_habitats_001.png
+   :alt: GLCM Contrast, original_glcm_Contrast-LAP - Axis 0 (axial-like) @ 21, original_glcm_Contrast-LAP - Axis 1 (coronal-like) @ 34, original_glcm_Contrast-LAP - Axis 2 (sagittal-like) @ 28
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_09_texture_habitats_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 77-79
+
+Habitats from the texture field
+-------------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 79-87
+
+.. code-block:: Python
+
+    fig = plot_habitat_overlay(
+        image,
+        habitat_map,
+        title="habitats (GLCM texture)",
+        crop_to="labels",
+    )
+    fig.savefig("out/texture_habitats_overlay.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_09_texture_habitats_002.png
+   :alt: habitats (GLCM texture), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_09_texture_habitats_002.png
+   :class: sphx-glr-single-img
+
 
 
 
@@ -192,7 +272,7 @@ sphinx_gallery_thumbnail_number = 2
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.563 seconds)
+   **Total running time of the script:** (0 minutes 4.195 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_09_texture_habitats.py:

@@ -29,12 +29,14 @@ Habitat 1 in the first subject is not habitat 1 in the second. Match
 labels before comparing people:
 :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-17
+.. GENERATED FROM PYTHON SOURCE LINES 15-19
 
+Load the cohort
+---------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-52
+.. GENERATED FROM PYTHON SOURCE LINES 19-36
 
 .. code-block:: Python
 
@@ -53,25 +55,7 @@ sphinx_gallery_thumbnail_number = 1
     MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
-
-    # One-step: each subject gets its own private clustering. The integer
-    # labels are arbitrary across subjects -- habitat 1 in subj001 is not
-    # habitat 1 in subj002.
-    result = one_step_habitat(
-        modalities=MODALITIES,
-        n_habitats=3,
-        habitat_features=("volume",),
-        random_seed=0,
-        roi=ROI,
-    ).fit_predict(cohort)
-    print(f"Per-subject models: {list(result.subject_models)}")
-    for habitat_map in result.habitat_maps:
-        present = sorted(
-            int(v) for v in np.unique(habitat_map.label_array) if int(v) != 0
-        )
-        print(habitat_map.subject_id, present)
-    print(result.features.frame)
-    result.features.frame
+    print(f"Cohort: {list(cohort.subject_ids)}")
 
 
 
@@ -103,7 +87,47 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  33%|███▎      | 1/3 [00:01<00:02,  1.49s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  67%|██████▋   | 2/3 [00:02<00:01,  1.44s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.47s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.47s/it]
+    Cohort: ['subj001', 'subj002', 'subj003']
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 37-41
+
+Fit a private model inside each subject
+---------------------------------------
+Habitat 1 in the first subject is not habitat 1 in the second.
+There is no shared centroid.
+
+.. GENERATED FROM PYTHON SOURCE LINES 41-57
+
+.. code-block:: Python
+
+    result = one_step_habitat(
+        modalities=MODALITIES,
+        n_habitats=3,
+        habitat_features=("volume",),
+        random_seed=0,
+        roi=ROI,
+    ).fit_predict(cohort)
+    print(f"Per-subject models: {list(result.subject_models)}")
+    for habitat_map in result.habitat_maps:
+        present = sorted(
+            int(v) for v in np.unique(habitat_map.label_array) if int(v) != 0
+        )
+        print(habitat_map.subject_id, present)
+    print(result.features.frame)
+    result.features.frame
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  33%|███▎      | 1/3 [00:01<00:02,  1.37s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  67%|██████▋   | 2/3 [00:02<00:01,  1.39s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.35s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.35s/it]
     Per-subject models: ['subj001', 'subj002', 'subj003']
     subj001 [1, 2, 3]
     subj002 [1, 2, 3]
@@ -184,12 +208,12 @@ sphinx_gallery_thumbnail_number = 1
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-55
+.. GENERATED FROM PYTHON SOURCE LINES 58-60
 
 Show each subject's habitat map on its own anatomy. No comparison --
 just the three maps side by side.
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-69
+.. GENERATED FROM PYTHON SOURCE LINES 60-74
 
 .. code-block:: Python
 
@@ -216,35 +240,24 @@ just the three maps side by side.
     *
 
       .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_001.png
-         :alt: habitats (subj001), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
+         :alt: habitats (subj001), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
          :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_002.png
-         :alt: habitats (subj002), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 27, Axis 2 (sagittal-like) @ 19
+         :alt: habitats (subj002), Axis 0 (axial-like) @ 86, Axis 1 (coronal-like) @ 233, Axis 2 (sagittal-like) @ 69
          :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_002.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_003.png
-         :alt: habitats (subj003), Axis 0 (axial-like) @ 14, Axis 1 (coronal-like) @ 18, Axis 2 (sagittal-like) @ 15
+         :alt: habitats (subj003), Axis 0 (axial-like) @ 46, Axis 1 (coronal-like) @ 121, Axis 2 (sagittal-like) @ 200
          :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_02_inside_each_subject_003.png
          :class: sphx-glr-multi-img
 
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
@@ -252,7 +265,7 @@ just the three maps side by side.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.480 seconds)
+   **Total running time of the script:** (0 minutes 6.663 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_02_inside_each_subject.py:

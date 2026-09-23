@@ -24,12 +24,14 @@ Fitting a cohort habitat model
 Input: one :class:`~habit.contracts.Supervoxelization` per subject.
 Output: a :class:`~habit.contracts.HabitatModel`. Stage: ``fit``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 10-12
+.. GENERATED FROM PYTHON SOURCE LINES 10-14
 
+Load the cohort
+---------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-50
+.. GENERATED FROM PYTHON SOURCE LINES 14-31
 
 .. code-block:: Python
 
@@ -48,36 +50,10 @@ sphinx_gallery_thumbnail_number = 1
     MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
-
-    voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
-    slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
-    # slic(voxel(subject)) for each subject: extract raw features, then
-    # partition into supervoxels. Each element of `units` is one subject's
-    # Supervoxelization -- the clustering units the cohort model will fit on.
-    units = [slic(voxel(subject)) for subject in cohort]
-    # KMeansHabitatModelFitter pools all subjects' units and learns one
-    # shared set of habitat centroids. The same model can then assign
-    # labels to any subject processed with the same upstream steps.
-    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
-    fitter.set_random_state(0)
-    model = fitter.fit(units, cohort=cohort)
-    print(model.summary())
-
-    fig, ax = plt.subplots(figsize=(6.2, 3.2))
-    names = [f"habitat {index + 1}" for index in range(int(model.n_habitats))]
-    ax.bar(names, model.centroids[:, 0], color=["#4C78A8", "#F58518", "#54A24B"])
-    ax.set_ylabel(str(model.feature_names[0]))
-    ax.set_title("habitat centroids")
-    Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/cohort_centroids.png", dpi=150, bbox_inches="tight")
-    plt.show()
+    print(f"Cohort: {list(cohort.subject_ids)}")
 
 
 
-.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_13_fit_model_001.png
-   :alt: habitat centroids
-   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_13_fit_model_001.png
-   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -106,6 +82,65 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
+    Cohort: ['subj001', 'subj002']
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 32-36
+
+Partition each subject
+----------------------
+Each element of ``units`` is one subject's supervoxels. These rows
+are what the cohort model fits on.
+
+.. GENERATED FROM PYTHON SOURCE LINES 36-42
+
+.. code-block:: Python
+
+    voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
+    slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
+    units = [slic(voxel(subject)) for subject in cohort]
+    for one in units:
+        print(f"{one.subject_id}: {len(one.features)} supervoxels")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    subj001: 100 supervoxels
+    subj002: 97 supervoxels
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 43-46
+
+Fit one shared model
+--------------------
+The fitter pools every subject's units and learns one set of centroids.
+
+.. GENERATED FROM PYTHON SOURCE LINES 46-51
+
+.. code-block:: Python
+
+    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+    fitter.set_random_state(0)
+    model = fitter.fit(units, cohort=cohort)
+    print(model.summary())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
     HabitatModel kmeans-5d775118aebe119f
       habitats           : 3
       features (3)    : pre_contrast, LAP, PVP
@@ -120,10 +155,39 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 52-54
+
+First feature of each centroid
+------------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 54-62
+
+.. code-block:: Python
+
+    fig, ax = plt.subplots(figsize=(6.2, 3.2))
+    names = [f"habitat {index + 1}" for index in range(int(model.n_habitats))]
+    ax.bar(names, model.centroids[:, 0], color=["#4C78A8", "#F58518", "#54A24B"])
+    ax.set_ylabel(str(model.feature_names[0]))
+    ax.set_title("habitat centroids")
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/cohort_centroids.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_13_fit_model_001.png
+   :alt: habitat centroids
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_13_fit_model_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 50.988 seconds)
+   **Total running time of the script:** (0 minutes 43.187 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_13_fit_model.py:

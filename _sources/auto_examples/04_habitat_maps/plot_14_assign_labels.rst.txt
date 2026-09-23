@@ -26,12 +26,14 @@ Input: a fitted :class:`~habit.contracts.HabitatModel` and one
 :class:`~habit.contracts.HabitatMap`. Stage: ``assign`` with
 ``nearest_centroid``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-14
+.. GENERATED FROM PYTHON SOURCE LINES 12-16
 
+Load the cohort
+---------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-68
+.. GENERATED FROM PYTHON SOURCE LINES 16-37
 
 .. code-block:: Python
 
@@ -53,61 +55,11 @@ sphinx_gallery_thumbnail_number = 2
     ROI = "LAP"
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     subject = cohort[0]
-
-    voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
-    slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
-    units = [slic(voxel(item)) for item in cohort]
-    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
-    fitter.set_random_state(0)
-    model = fitter.fit(units, cohort=cohort)
-
-    # model.assigner() returns a callable that maps one subject's units to
-    # a HabitatMap by finding the nearest centroid for each supervoxel.
-    habitat_map = model.assigner()(units[0])
-    print(habitat_map.subject_id)
-
-    fig = plot_habitat_overlay(
-        subject.image(ROI),
-        habitat_map,
-        title="assigned habitats",
-        crop_to="labels",
-    )
-    Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/assigned_habitats.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-    counts = [
-        int(np.sum(habitat_map.label_array == habitat_id))
-        for habitat_id in sorted(
-            int(v) for v in np.unique(habitat_map.label_array) if int(v) != 0
-        )
-    ]
-    labels = [f"habitat {index + 1}" for index in range(len(counts))]
-    fig_bar, ax = plt.subplots(figsize=(6.2, 3.2))
-    ax.bar(labels, counts, color=["#4C78A8", "#F58518", "#54A24B"])
-    ax.set_ylabel("voxels")
-    ax.set_title("assigned habitat voxel counts")
-    fig_bar.savefig("out/assigned_voxel_counts.png", dpi=150, bbox_inches="tight")
-    plt.show()
+    print(f"Cohort: {list(cohort.subject_ids)}")
+    print("assigning:", subject.subject_id)
 
 
 
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_001.png
-         :alt: assigned habitats, Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_001.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_002.png
-         :alt: assigned habitat voxel counts
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_002.png
-         :class: sphx-glr-multi-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -136,9 +88,167 @@ sphinx_gallery_thumbnail_number = 2
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
+    Cohort: ['subj001', 'subj002']
+    assigning: subj001
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 38-40
+
+Partition each subject
+----------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 40-46
+
+.. code-block:: Python
+
+    voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
+    slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
+    units = [slic(voxel(item)) for item in cohort]
+    for one in units:
+        print(f"{one.subject_id}: {len(one.features)} supervoxels")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    subj001: 100 supervoxels
+    subj002: 97 supervoxels
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 47-49
+
+Fit one shared model
+--------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 49-54
+
+.. code-block:: Python
+
+    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+    fitter.set_random_state(0)
+    model = fitter.fit(units, cohort=cohort)
+    print(model.summary())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HabitatModel kmeans-5d775118aebe119f
+      habitats           : 3
+      features (3)    : pre_contrast, LAP, PVP
+      defining cohort    : n=2
+      modalities         : pre_contrast, LAP, PVP
+      cohort digest      : cc1b16a34cc7478d...
+      produced by        : habitat_model_fitter.kmeans
+      habit version      : 2.0.0
+      random seed        : 0
+      preprocessing state: inertia, validation
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 55-59
+
+Assign the first subject
+------------------------
+``assigner`` maps one subject's units to a habitat map by the nearest
+centroid. The second subject's units were used only to fit.
+
+.. GENERATED FROM PYTHON SOURCE LINES 59-69
+
+.. code-block:: Python
+
+    habitat_map = model.assigner()(units[0])
+    print(habitat_map.subject_id)
+    counts = [
+        int(np.sum(habitat_map.label_array == habitat_id))
+        for habitat_id in sorted(
+            int(v) for v in np.unique(habitat_map.label_array) if int(v) != 0
+        )
+    ]
+    print("voxels per habitat:", counts)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
     subj001
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
+    voxels per habitat: [9424, 16304, 8966]
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 70-72
+
+Overlay
+-------
+
+.. GENERATED FROM PYTHON SOURCE LINES 72-82
+
+.. code-block:: Python
+
+    fig = plot_habitat_overlay(
+        subject.image(ROI),
+        habitat_map,
+        title="assigned habitats",
+        crop_to="labels",
+    )
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/assigned_habitats.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_001.png
+   :alt: assigned habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 83-85
+
+Voxel counts
+------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 85-92
+
+.. code-block:: Python
+
+    labels = [f"habitat {index + 1}" for index in range(len(counts))]
+    fig_bar, ax = plt.subplots(figsize=(6.2, 3.2))
+    ax.bar(labels, counts, color=["#4C78A8", "#F58518", "#54A24B"])
+    ax.set_ylabel("voxels")
+    ax.set_title("assigned habitat voxel counts")
+    fig_bar.savefig("out/assigned_voxel_counts.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_002.png
+   :alt: assigned habitat voxel counts
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_14_assign_labels_002.png
+   :class: sphx-glr-single-img
+
 
 
 
@@ -146,7 +256,7 @@ sphinx_gallery_thumbnail_number = 2
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 51.095 seconds)
+   **Total running time of the script:** (0 minutes 44.782 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_14_assign_labels.py:

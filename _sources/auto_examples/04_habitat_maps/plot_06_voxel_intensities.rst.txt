@@ -25,12 +25,14 @@ Input: one :class:`~habit.contracts.Subject`. Output: a
 :class:`~habit.contracts.VoxelFeatureField`. Stage:
 ``extract_voxel_features`` with ``raw``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-13
+.. GENERATED FROM PYTHON SOURCE LINES 11-15
 
+Load one subject
+----------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-49
+.. GENERATED FROM PYTHON SOURCE LINES 15-31
 
 .. code-block:: Python
 
@@ -48,35 +50,10 @@ sphinx_gallery_thumbnail_number = 1
     MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
     subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
-
-    # RawVoxelFeatures reads the ROI voxels from each phase and returns a
-    # VoxelFeatureField: one row per voxel, one column per modality, plus
-    # the 3D grid position of every row so the field can be rendered back
-    # into image space.
-    field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
-    print(field.feature_frame().head())
-    field.feature_frame().head()
-
-    # The slice shows the ROI anatomy (LAP). The table above has one
-    # column per phase: pre_contrast, LAP, and PVP.
-    fig = plot_intensity_slice(
-        subject.image(ROI),
-        roi_mask=subject.mask(ROI),
-        title="voxel intensities",
-        image_label="LAP",
-        roi_contour=True,
-        crop_to="roi",
-    )
-    Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/voxel_intensities.png", dpi=150, bbox_inches="tight")
-    plt.show()
+    print(subject.subject_id, sorted(subject.images))
 
 
 
-.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_06_voxel_intensities_001.png
-   :alt: voxel intensities, LAP
-   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_06_voxel_intensities_001.png
-   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -105,14 +82,136 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
+    subj001 ['LAP', 'PVP', 'pre_contrast']
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 32-37
+
+Read one row per ROI voxel
+--------------------------
+``RawVoxelFeatures`` returns a field with one column per phase, plus
+the grid position of every row so the field can be drawn back into
+the image.
+
+.. GENERATED FROM PYTHON SOURCE LINES 37-41
+
+.. code-block:: Python
+
+    field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
+    print(field.feature_frame().head())
+    field.feature_frame().head()
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
        pre_contrast     LAP     PVP
     0         427.0  1020.0  1030.0
     1         438.0  1018.0  1068.0
     2         439.0  1077.0  1088.0
     3         456.0  1073.0  1072.0
     4         472.0  1033.0  1132.0
-    F:\work\habit_project\habit\viz\intensity.py:616: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>pre_contrast</th>
+          <th>LAP</th>
+          <th>PVP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>427.0</td>
+          <td>1020.0</td>
+          <td>1030.0</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>438.0</td>
+          <td>1018.0</td>
+          <td>1068.0</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>439.0</td>
+          <td>1077.0</td>
+          <td>1088.0</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>456.0</td>
+          <td>1073.0</td>
+          <td>1072.0</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>472.0</td>
+          <td>1033.0</td>
+          <td>1132.0</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <br />
+    <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 42-45
+
+Arterial-phase slice
+--------------------
+The table above has one column per phase: pre_contrast, LAP, and PVP.
+
+.. GENERATED FROM PYTHON SOURCE LINES 45-56
+
+.. code-block:: Python
+
+    fig = plot_intensity_slice(
+        subject.image(ROI),
+        roi_mask=subject.mask(ROI),
+        title="voxel intensities",
+        image_label="LAP",
+        roi_contour=True,
+        crop_to="roi",
+    )
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/voxel_intensities.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_06_voxel_intensities_001.png
+   :alt: voxel intensities, LAP
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_06_voxel_intensities_001.png
+   :class: sphx-glr-single-img
+
 
 
 
@@ -120,7 +219,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.003 seconds)
+   **Total running time of the script:** (0 minutes 1.644 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_06_voxel_intensities.py:

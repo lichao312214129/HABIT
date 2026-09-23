@@ -660,48 +660,30 @@ to download the full example code.</p>
 Stage: <a class="reference internal" href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_voxel_texture()</span></code></a>.</p>
 <p>GPU paths for the same IBSI texture are in
 <a class="reference internal" href="../02_voxel/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>.</p>
+<section id="load-one-subject">
+<h2>Load one subject<a class="headerlink" href="#load-one-subject" title="Link to this heading"></a></h2>
 <p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your preprocessed layout.
 Radius 1 is a 3x3x3 neighbourhood; <code class="docutils literal notranslate"><span class="pre">bin_width=25</span></code> matches the GPU page.
 sphinx_gallery_thumbnail_number = 1</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a></a>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><a href="../../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_voxel_texture_slice</span></a></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-function"><a href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-function"><span class="n">extract_voxel_texture</span></a></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_voxel_texture_slice</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-function"><span class="n">extract_voxel_texture</span></a>
 
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a></a> <span class="o">=</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a></a><span class="p">()</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
-<a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a></a><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-<a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">image</span></a></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a><span class="p">)</span>
-<a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask</span></a></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.mask" title="habit.contracts.Subject.mask" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.mask" title="habit.contracts.Subject.mask" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">mask</span></a></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a><span class="p">)</span>
-
-<a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a></a> <span class="o">=</span> <a href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-function"><a href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-function"><span class="n">extract_voxel_texture</span></a></a><span class="p">(</span>
-    <a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">image</span></a></a><span class="p">,</span>
-    <a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask</span></a></a><span class="p">,</span>
-    <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">bin_width</span><span class="o">=</span><span class="mf">25.0</span><span class="p">,</span>
-    <span class="n">feature_classes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;glcm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Contrast&quot;</span><span class="p">]},</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">field</span><span class="o">.</span><span class="n">feature_frame</span></a></a><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
-<a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">field</span><span class="o">.</span><span class="n">feature_frame</span></a></a><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><a href="../../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_voxel_texture_slice</span></a></a><span class="p">(</span>
-    <a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a></a><span class="p">,</span>
-    <span class="n">feature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="n">anatomy</span><span class="o">=</span><a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">image</span></a></a><span class="p">,</span>
-    <span class="n">roi_mask</span><span class="o">=</span><a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask</span></a></a><span class="p">,</span>
-    <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;roi&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a></a><span class="p">(</span><span class="s2">&quot;out/voxel_texture_field.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a></a><span class="p">()</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">()</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">image</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)</span>
+<a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.mask" title="habit.contracts.Subject.mask" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">mask</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span></a><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_07_voxel_texture_001.png" srcset="../../_images/sphx_glr_plot_07_voxel_texture_001.png" alt="original_glcm_Contrast-LAP (orthogonal slices), original_glcm_Contrast-LAP - Axis 0 (axial-like) @ 21, original_glcm_Contrast-LAP - Axis 1 (coronal-like) @ 34, original_glcm_Contrast-LAP - Axis 2 (sagittal-like) @ 28" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>HABIT demo data (cached)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>HABIT demo data (cached)
 DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
 
 On-disk inventory of this folder:
@@ -723,52 +705,133 @@ Then load it with the same call the demos use:
 
 Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
-voxel_radiomics: glcm batch 1/35 0.182s peak=69MiB
-voxel_radiomics: glcm batch 2/35 0.074s peak=70MiB
-voxel_radiomics: glcm batch 3/35 0.072s peak=71MiB
-voxel_radiomics: glcm batch 4/35 0.075s peak=71MiB
-voxel_radiomics: glcm batch 5/35 0.027s peak=72MiB
-voxel_radiomics: glcm batch 6/35 0.018s peak=1MiB
-voxel_radiomics: glcm batch 7/35 0.018s peak=2MiB
-voxel_radiomics: glcm batch 8/35 0.017s peak=3MiB
-voxel_radiomics: glcm batch 9/35 0.016s peak=4MiB
-voxel_radiomics: glcm batch 10/35 0.017s peak=4MiB
-voxel_radiomics: glcm batch 11/35 0.016s peak=5MiB
-voxel_radiomics: glcm batch 12/35 0.017s peak=6MiB
-voxel_radiomics: glcm batch 13/35 0.017s peak=7MiB
-voxel_radiomics: glcm batch 14/35 0.015s peak=8MiB
-voxel_radiomics: glcm batch 15/35 0.016s peak=9MiB
-voxel_radiomics: glcm batch 16/35 0.016s peak=10MiB
-voxel_radiomics: glcm batch 17/35 0.016s peak=11MiB
-voxel_radiomics: glcm batch 18/35 0.015s peak=12MiB
-voxel_radiomics: glcm batch 19/35 0.016s peak=13MiB
-voxel_radiomics: glcm batch 20/35 0.016s peak=13MiB
-voxel_radiomics: glcm batch 21/35 0.016s peak=14MiB
-voxel_radiomics: glcm batch 22/35 0.017s peak=15MiB
-voxel_radiomics: glcm batch 23/35 0.016s peak=16MiB
-voxel_radiomics: glcm batch 24/35 0.016s peak=17MiB
-voxel_radiomics: glcm batch 25/35 0.016s peak=18MiB
-voxel_radiomics: glcm batch 26/35 0.015s peak=19MiB
-voxel_radiomics: glcm batch 27/35 0.014s peak=20MiB
-voxel_radiomics: glcm batch 28/35 0.015s peak=21MiB
-voxel_radiomics: glcm batch 29/35 0.015s peak=22MiB
-voxel_radiomics: glcm batch 30/35 0.015s peak=22MiB
-voxel_radiomics: glcm batch 31/35 0.014s peak=23MiB
-voxel_radiomics: glcm batch 32/35 0.014s peak=24MiB
-voxel_radiomics: glcm batch 33/35 0.014s peak=25MiB
-voxel_radiomics: glcm batch 34/35 0.015s peak=26MiB
-voxel_radiomics: glcm batch 35/35 0.014s peak=27MiB
+subj001
+</pre></div>
+</div>
+</section>
+<section id="extract-glcm-contrast">
+<h2>Extract GLCM Contrast<a class="headerlink" href="#extract-glcm-contrast" title="Link to this heading"></a></h2>
+<p>Radius 1 is a 3×3×3 neighbourhood. <code class="docutils literal notranslate"><span class="pre">bin_width=25</span></code> is the grey-level width.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a> <span class="o">=</span> <a href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-function"><span class="n">extract_voxel_texture</span></a><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">image</span></a><span class="p">,</span>
+    <a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask</span></a><span class="p">,</span>
+    <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">bin_width</span><span class="o">=</span><span class="mf">25.0</span><span class="p">,</span>
+    <span class="n">feature_classes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;glcm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Contrast&quot;</span><span class="p">]},</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> voxels, columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span><span class="o">.</span><span class="n">feature_names</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">field</span><span class="o">.</span><span class="n">feature_frame</span></a><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">field</span><span class="o">.</span><span class="n">feature_frame</span></a><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>voxel_radiomics: glcm batch 1/35 0.350s peak=1MiB
+voxel_radiomics: glcm batch 2/35 0.018s peak=2MiB
+voxel_radiomics: glcm batch 3/35 0.015s peak=3MiB
+voxel_radiomics: glcm batch 4/35 0.015s peak=4MiB
+voxel_radiomics: glcm batch 5/35 0.015s peak=4MiB
+voxel_radiomics: glcm batch 6/35 0.016s peak=5MiB
+voxel_radiomics: glcm batch 7/35 0.015s peak=6MiB
+voxel_radiomics: glcm batch 8/35 0.016s peak=7MiB
+voxel_radiomics: glcm batch 9/35 0.016s peak=8MiB
+voxel_radiomics: glcm batch 10/35 0.015s peak=9MiB
+voxel_radiomics: glcm batch 11/35 0.015s peak=10MiB
+voxel_radiomics: glcm batch 12/35 0.015s peak=11MiB
+voxel_radiomics: glcm batch 13/35 0.015s peak=12MiB
+voxel_radiomics: glcm batch 14/35 0.015s peak=13MiB
+voxel_radiomics: glcm batch 15/35 0.015s peak=13MiB
+voxel_radiomics: glcm batch 16/35 0.016s peak=14MiB
+voxel_radiomics: glcm batch 17/35 0.015s peak=15MiB
+voxel_radiomics: glcm batch 18/35 0.014s peak=16MiB
+voxel_radiomics: glcm batch 19/35 0.014s peak=17MiB
+voxel_radiomics: glcm batch 20/35 0.014s peak=18MiB
+voxel_radiomics: glcm batch 21/35 0.014s peak=19MiB
+voxel_radiomics: glcm batch 22/35 0.014s peak=20MiB
+voxel_radiomics: glcm batch 23/35 0.015s peak=21MiB
+voxel_radiomics: glcm batch 24/35 0.016s peak=22MiB
+voxel_radiomics: glcm batch 25/35 0.014s peak=22MiB
+voxel_radiomics: glcm batch 26/35 0.015s peak=23MiB
+voxel_radiomics: glcm batch 27/35 0.015s peak=24MiB
+voxel_radiomics: glcm batch 28/35 0.015s peak=25MiB
+voxel_radiomics: glcm batch 29/35 0.014s peak=26MiB
+voxel_radiomics: glcm batch 30/35 0.014s peak=27MiB
+voxel_radiomics: glcm batch 31/35 0.014s peak=28MiB
+voxel_radiomics: glcm batch 32/35 0.014s peak=29MiB
+voxel_radiomics: glcm batch 33/35 0.014s peak=30MiB
+voxel_radiomics: glcm batch 34/35 0.014s peak=31MiB
+voxel_radiomics: glcm batch 35/35 0.014s peak=31MiB
+34694 voxels, columns: [&#39;original_glcm_Contrast-LAP&#39;]
    original_glcm_Contrast-LAP
 0                    2.808974
 1                    4.003205
 2                    6.676282
 3                    7.955128
 4                    6.945513
-F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-  direction, spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.022 seconds)</p>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>original_glcm_Contrast-LAP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2.808974</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.003205</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6.676282</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7.955128</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>6.945513</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<br />
+<br /></section>
+<section id="contrast-on-the-arterial-slice">
+<h2>Contrast on the arterial slice<a class="headerlink" href="#contrast-on-the-arterial-slice" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_voxel_texture_slice</span></a><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a><span class="p">,</span>
+    <span class="n">feature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">anatomy</span><span class="o">=</span><a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">image</span></a><span class="p">,</span>
+    <span class="n">roi_mask</span><span class="o">=</span><a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask</span></a><span class="p">,</span>
+    <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;roi&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/voxel_texture_field.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_07_voxel_texture_001.png" srcset="../../_images/sphx_glr_plot_07_voxel_texture_001.png" alt="original_glcm_Contrast-LAP (orthogonal slices), original_glcm_Contrast-LAP - Axis 0 (axial-like) @ 21, original_glcm_Contrast-LAP - Axis 1 (coronal-like) @ 34, original_glcm_Contrast-LAP - Axis 2 (sagittal-like) @ 28" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.049 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-habitat-maps-plot-07-voxel-texture-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/9079b655770e2868cbdf3fd3389b0d14/plot_07_voxel_texture.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_07_voxel_texture.ipynb</span></code></a></p>
@@ -781,6 +844,7 @@ F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geom
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
 </section>
 
 

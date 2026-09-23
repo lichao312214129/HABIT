@@ -9,6 +9,8 @@ Input: a fitted :class:`~habit.contracts.HabitatModel` and one
 """
 
 # %%
+# Load the cohort
+# ---------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
@@ -29,19 +31,44 @@ MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 subject = cohort[0]
+print(f"Cohort: {list(cohort.subject_ids)}")
+print("assigning:", subject.subject_id)
 
+# %%
+# Partition each subject
+# ----------------------
 voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
 slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
 units = [slic(voxel(item)) for item in cohort]
+for one in units:
+    print(f"{one.subject_id}: {len(one.features)} supervoxels")
+
+# %%
+# Fit one shared model
+# --------------------
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 model = fitter.fit(units, cohort=cohort)
+print(model.summary())
 
-# model.assigner() returns a callable that maps one subject's units to
-# a HabitatMap by finding the nearest centroid for each supervoxel.
+# %%
+# Assign the first subject
+# ------------------------
+# ``assigner`` maps one subject's units to a habitat map by the nearest
+# centroid. The second subject's units were used only to fit.
 habitat_map = model.assigner()(units[0])
 print(habitat_map.subject_id)
+counts = [
+    int(np.sum(habitat_map.label_array == habitat_id))
+    for habitat_id in sorted(
+        int(v) for v in np.unique(habitat_map.label_array) if int(v) != 0
+    )
+]
+print("voxels per habitat:", counts)
 
+# %%
+# Overlay
+# -------
 fig = plot_habitat_overlay(
     subject.image(ROI),
     habitat_map,
@@ -52,12 +79,9 @@ Path("out").mkdir(exist_ok=True)
 fig.savefig("out/assigned_habitats.png", dpi=150, bbox_inches="tight")
 plt.show()
 
-counts = [
-    int(np.sum(habitat_map.label_array == habitat_id))
-    for habitat_id in sorted(
-        int(v) for v in np.unique(habitat_map.label_array) if int(v) != 0
-    )
-]
+# %%
+# Voxel counts
+# ------------
 labels = [f"habitat {index + 1}" for index in range(len(counts))]
 fig_bar, ax = plt.subplots(figsize=(6.2, 3.2))
 ax.bar(labels, counts, color=["#4C78A8", "#F58518", "#54A24B"])

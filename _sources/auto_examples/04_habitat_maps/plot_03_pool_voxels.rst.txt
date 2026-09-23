@@ -26,12 +26,14 @@ Input: a cohort of at least two subjects. Output: one shared
 :class:`~habit.contracts.HabitatMap` per subject. Stage: ``pool`` then
 ``fit``. There is no ``partition`` stage.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-14
+.. GENERATED FROM PYTHON SOURCE LINES 12-16
 
+Load the cohort
+---------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-75
+.. GENERATED FROM PYTHON SOURCE LINES 16-33
 
 .. code-block:: Python
 
@@ -52,76 +54,8 @@ sphinx_gallery_thumbnail_number = 1
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     print(f"Cohort: {list(cohort.subject_ids)}")
 
-    # direct_pooling_habitat skips supervoxels. Each ROI voxel is its own
-    # clustering unit, and one model is fit on every subject's voxels.
-    result = direct_pooling_habitat(
-        modalities=MODALITIES,
-        n_habitats=3,
-        habitat_features=("volume",),
-        random_seed=0,
-        roi=ROI,
-    ).fit_predict(cohort)
-    print(result.habitat_model.summary())
-    print(result.features.frame)
-    result.features.frame
-
-    Path("out").mkdir(exist_ok=True)
-    fig_hist, ax = plt.subplots(figsize=(6.2, 3.2))
-    colors = ["#4C78A8", "#F58518", "#54A24B"]
-    for habitat_id in sorted(
-        int(v) for v in np.unique(result.habitat_maps[0].label_array) if int(v) != 0
-    ):
-        # Histogram uses the displayed ROI image (LAP), not a feature column.
-        values = cohort[0].image(ROI).data[
-            result.habitat_maps[0].label_array == habitat_id
-        ]
-        ax.hist(values, bins=30, alpha=0.6, label=f"habitat {habitat_id}", color=colors[habitat_id - 1])
-    ax.set_xlabel(ROI)
-    ax.set_ylabel("voxels")
-    ax.set_title("pooled voxel intensities by habitat")
-    ax.legend()
-    fig_hist.savefig("out/pooling_intensity_hist.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-    for subject, habitat_map in zip(cohort, result.habitat_maps):
-        fig = plot_habitat_overlay(
-            subject.image(ROI),
-            habitat_map,
-            title=f"habitats ({habitat_map.subject_id})",
-            crop_to="labels",
-        )
-        fig.savefig(
-            f"out/pooling_{habitat_map.subject_id}.png",
-            dpi=150,
-            bbox_inches="tight",
-        )
-        plt.show()
 
 
-
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_001.png
-         :alt: pooled voxel intensities by habitat
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_001.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_002.png
-         :alt: habitats (subj001), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_002.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_003.png
-         :alt: habitats (subj002), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 27, Axis 2 (sagittal-like) @ 19
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_003.png
-         :class: sphx-glr-multi-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -151,8 +85,42 @@ sphinx_gallery_thumbnail_number = 1
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort: ['subj001', 'subj002']
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.01s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.01s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.01s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.24it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.15it/s]
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 34-38
+
+Fit one model on every ROI voxel
+--------------------------------
+``direct_pooling_habitat`` skips supervoxels. Each ROI voxel is its
+own clustering unit, and one model is fit on every subject's voxels.
+
+.. GENERATED FROM PYTHON SOURCE LINES 38-49
+
+.. code-block:: Python
+
+    result = direct_pooling_habitat(
+        modalities=MODALITIES,
+        n_habitats=3,
+        habitat_features=("volume",),
+        random_seed=0,
+        roi=ROI,
+    ).fit_predict(cohort)
+    print(result.habitat_model.summary())
+    print(result.features.frame)
+    result.features.frame
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.04it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.01it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.01it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.36it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.33it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.33it/s]
     HabitatModel kmeans-3fb1a8736ca6964a
       habitats           : 3
       features (3)    : pre_contrast, LAP, PVP
@@ -168,10 +136,148 @@ sphinx_gallery_thumbnail_number = 1
     1  subj002  ...                    0.14932
 
     [2 rows x 7 columns]
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>subject</th>
+          <th>habitat_1_voxel_count</th>
+          <th>habitat_1_volume_fraction</th>
+          <th>habitat_2_voxel_count</th>
+          <th>habitat_2_volume_fraction</th>
+          <th>habitat_3_voxel_count</th>
+          <th>habitat_3_volume_fraction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>subj001</td>
+          <td>11618.0</td>
+          <td>0.334871</td>
+          <td>15469.0</td>
+          <td>0.445870</td>
+          <td>7607.0</td>
+          <td>0.21926</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>subj002</td>
+          <td>5626.0</td>
+          <td>0.570704</td>
+          <td>2760.0</td>
+          <td>0.279976</td>
+          <td>1472.0</td>
+          <td>0.14932</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <br />
+    <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 50-53
+
+Intensities inside each habitat
+-------------------------------
+The histogram uses the displayed ROI image, not a feature column.
+
+.. GENERATED FROM PYTHON SOURCE LINES 53-71
+
+.. code-block:: Python
+
+    Path("out").mkdir(exist_ok=True)
+    fig_hist, ax = plt.subplots(figsize=(6.2, 3.2))
+    colors = ["#4C78A8", "#F58518", "#54A24B"]
+    for habitat_id in sorted(
+        int(v) for v in np.unique(result.habitat_maps[0].label_array) if int(v) != 0
+    ):
+        # Histogram uses the displayed ROI image (LAP), not a feature column.
+        values = cohort[0].image(ROI).data[
+            result.habitat_maps[0].label_array == habitat_id
+        ]
+        ax.hist(values, bins=30, alpha=0.6, label=f"habitat {habitat_id}", color=colors[habitat_id - 1])
+    ax.set_xlabel(ROI)
+    ax.set_ylabel("voxels")
+    ax.set_title("pooled voxel intensities by habitat")
+    ax.legend()
+    fig_hist.savefig("out/pooling_intensity_hist.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_001.png
+   :alt: pooled voxel intensities by habitat
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 72-74
+
+One overlay per subject
+-----------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 74-87
+
+.. code-block:: Python
+
+    for subject, habitat_map in zip(cohort, result.habitat_maps):
+        fig = plot_habitat_overlay(
+            subject.image(ROI),
+            habitat_map,
+            title=f"habitats ({habitat_map.subject_id})",
+            crop_to="labels",
+        )
+        fig.savefig(
+            f"out/pooling_{habitat_map.subject_id}.png",
+            dpi=150,
+            bbox_inches="tight",
+        )
+        plt.show()
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_002.png
+         :alt: habitats (subj001), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_003.png
+         :alt: habitats (subj002), Axis 0 (axial-like) @ 86, Axis 1 (coronal-like) @ 233, Axis 2 (sagittal-like) @ 69
+         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_03_pool_voxels_003.png
+         :class: sphx-glr-multi-img
+
 
 
 
@@ -179,7 +285,7 @@ sphinx_gallery_thumbnail_number = 1
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.969 seconds)
+   **Total running time of the script:** (0 minutes 4.689 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_03_pool_voxels.py:

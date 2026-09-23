@@ -9,6 +9,8 @@ Output: a :class:`~habit.contracts.HabitatMap`. Stages:
 """
 
 # %%
+# Load one subject
+# ----------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # Contrast, Correlation, and Idm share one GLCM, so this is one texture
 # pass rather than three.
@@ -30,7 +32,12 @@ ROI = "LAP"
 subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
 image = subject.image(ROI)
 mask = subject.mask(ROI)
+print(subject.subject_id)
 
+# %%
+# Extract three GLCM features in one pass
+# ---------------------------------------
+# Contrast, Correlation, and Idm share one grey-level matrix.
 field = extract_voxel_texture(
     image,
     mask,
@@ -38,6 +45,12 @@ field = extract_voxel_texture(
     bin_width=25.0,
     feature_classes={"glcm": ["Contrast", "Correlation", "Idm"]},
 )
+print(f"{field.values.shape[0]} voxels, columns: {list(field.feature_names)}")
+print(field.feature_frame().head())
+
+# %%
+# Fit and assign on these voxels
+# ------------------------------
 units = voxel_units(field)
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
@@ -45,6 +58,9 @@ model = fitter.fit([units], cohort=Cohort([subject], name="one"))
 habitat_map = model.assigner()(units)
 print(model.summary())
 
+# %%
+# GLCM Contrast
+# -------------
 Path("out").mkdir(exist_ok=True)
 fig_field = plot_voxel_texture_slice(
     field,
@@ -57,6 +73,9 @@ fig_field = plot_voxel_texture_slice(
 fig_field.savefig("out/texture_field.png", dpi=150, bbox_inches="tight")
 plt.show()
 
+# %%
+# Habitats from the texture field
+# -------------------------------
 fig = plot_habitat_overlay(
     image,
     habitat_map,

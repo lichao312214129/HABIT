@@ -11,6 +11,8 @@ GPU paths for the same IBSI texture are in
 """
 
 # %%
+# Load one subject
+# ----------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # Radius 1 is a 3x3x3 neighbourhood; ``bin_width=25`` matches the GPU page.
 # sphinx_gallery_thumbnail_number = 1
@@ -29,7 +31,12 @@ ROI = "LAP"
 subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
 image = subject.image(ROI)
 mask = subject.mask(ROI)
+print(subject.subject_id)
 
+# %%
+# Extract GLCM Contrast
+# ---------------------
+# Radius 1 is a 3×3×3 neighbourhood. ``bin_width=25`` is the grey-level width.
 field = extract_voxel_texture(
     image,
     mask,
@@ -37,9 +44,13 @@ field = extract_voxel_texture(
     bin_width=25.0,
     feature_classes={"glcm": ["Contrast"]},
 )
+print(f"{field.values.shape[0]} voxels, columns: {list(field.feature_names)}")
 print(field.feature_frame().head())
 field.feature_frame().head()
 
+# %%
+# Contrast on the arterial slice
+# ------------------------------
 fig = plot_voxel_texture_slice(
     field,
     feature=0,

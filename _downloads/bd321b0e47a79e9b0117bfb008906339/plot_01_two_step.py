@@ -14,6 +14,8 @@ draws the elbow on the same cohort.
 """
 
 # %%
+# Load the cohort
+# ---------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
@@ -32,7 +34,10 @@ ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(f"Cohort: {list(cohort.subject_ids)}")
 
-# two_step_habitat partitions each ROI into supervoxels. Those
+# %%
+# Fit three shared habitats
+# -------------------------
+# ``two_step_habitat`` partitions each ROI into supervoxels. Those
 # supervoxels are the clustering units: one mean feature vector per
 # supervoxel. The units are then pooled across subjects and one shared
 # habitat model is fit.
@@ -49,6 +54,9 @@ print(result.habitat_model.summary())
 print(result.features.frame)
 result.features.frame
 
+# %%
+# Supervoxels, clustering units, and habitats
+# -------------------------------------------
 fig = plot_partition_triptych(
     cohort[0].image(ROI),
     result.units[0],

@@ -754,9 +754,54 @@ with another <code class="docutils literal notranslate"><span class="pre">crop_t
 
 <section id="examples-using-habit-viz-plot-habitat-overlay">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_overlay</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-habitat-overlay" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: the same cohort, the same two-step design, the same k and seed. The only change is the voxel-feature preprocessor chain."><img alt="" src="../../_images/sphx_glr_plot_11_preprocess_compare_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_11_preprocess_compare.html"><span class="doc">Comparing habitat maps with and without preprocessing</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Comparing habitat maps with and without preprocessing</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. There is no cohort fit stage."><img alt="" src="../../_images/sphx_glr_plot_02_inside_each_subject_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. Stage: pool then fit. There is no partition stage."><img alt="" src="../../_images/sphx_glr_plot_03_pool_voxels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with unenhanced and arterial phases. Output: a HabitatMap. Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid."><img alt="" src="../../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="SerialBackend runs the texture extraction and the habitat assignment in this process, one subject after another. Z-scoring and fitting stay here as well: the scaler is per subject, and the fit has to see every subject. The matching HabitatSpec is on the subject z-score page."><img alt="" src="../../_images/sphx_glr_plot_01_serial_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_serial.html"><span class="doc">Running a cohort serially</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Running a cohort serially</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;continue&quot; keeps the batch. One subject here has no arterial-phase image, so texture extraction raises. The other subject still receives a habitat map. The error is stored on that subject&#x27;s slot."><img alt="" src="../../_images/sphx_glr_plot_02_skip_failed_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_02_skip_failed.html"><span class="doc">Skipping a subject that fails</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Skipping a subject that fails</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend. Texture extraction and habitat assignment run in that pool. Z-scoring and fitting stay in this process. On Windows the map calls sit under __main__ so a worker does not start another pool."><img alt="" src="../../_images/sphx_glr_plot_05_process_pool_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html"><span class="doc">Running subjects in separate processes</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Running subjects in separate processes</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays spawn and import on the first map. with backend.reuse_workers(): keeps those workers for the assignment map that follows. Z-scoring and fitting run in this process while the workers stay up."><img alt="" src="../../_images/sphx_glr_plot_06_reuse_workers_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html"><span class="doc">Reusing workers across passes</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Reusing workers across passes</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Per-subject z-score uses each lesion&#x27;s own mean and standard deviation. The atomic calls and the HabitatSpec below are the same analysis: four DCE series, GLCM / first-order / GLRLM texture, radius 3, binWidth 12, then habitats fit on the pooled voxels."><img alt="" src="../../_images/sphx_glr_plot_08_subject_zscore_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html"><span class="doc">Subject z-score on voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Subject z-score on voxel texture</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Robust scaling centres each column on that subject&#x27;s median and divides by its interquartile range. The texture definition matches the subject z-score page; only the scaler changes."><img alt="" src="../../_images/sphx_glr_plot_09_subject_robust_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html"><span class="doc">Subject robust scaling on voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Subject robust scaling on voxel texture</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Winsorizing clips each column at that subject&#x27;s tail quantiles. It does not rescale the centre of the distribution. The texture definition matches the other pages in this section."><img alt="" src="../../_images/sphx_glr_plot_10_subject_winsorize_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html"><span class="doc">Subject winsorizing on voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Subject winsorizing on voxel texture</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Cohort z-score is fitted once on the pooled training rows and replayed on every subject. A single subject&#x27;s column mean is then not zero: both subjects share the training mean and standard deviation. That fitted state has to travel with the habitat model."><img alt="" src="../../_images/sphx_glr_plot_11_cohort_zscore_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html"><span class="doc">Cohort z-score on voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Cohort z-score on voxel texture</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Bin edges are learned on the pooled training rows. The same bin index then means the same texture range in every subject. This is not a rescaling: the stored values are bin indices."><img alt="" src="../../_images/sphx_glr_plot_12_cohort_binning_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html"><span class="doc">Cohort binning on voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Cohort binning on voxel texture</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="parallel_mode=&quot;isolated&quot; starts a new process for every subject instead of keeping a worker alive. The texture definition and the subject z-score match the persistent process-pool page. Spawn cost is higher; the habitat counts are the same chain."><img alt="" src="../../_images/sphx_glr_plot_13_isolated_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html"><span class="doc">One fresh process per subject</span></a></p>
+  <div class="sphx-glr-thumbnail-title">One fresh process per subject</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

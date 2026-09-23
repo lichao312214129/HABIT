@@ -31,12 +31,14 @@ same study with a different partitioner, not a second habitat definition
 to compare on this page. Fixed ``n_habitats=3`` draws the map. ``"auto"``
 draws the elbow on the same cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-19
+.. GENERATED FROM PYTHON SOURCE LINES 17-21
 
+Load the cohort
+---------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-62
+.. GENERATED FROM PYTHON SOURCE LINES 21-37
 
 .. code-block:: Python
 
@@ -56,40 +58,8 @@ sphinx_gallery_thumbnail_number = 2
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     print(f"Cohort: {list(cohort.subject_ids)}")
 
-    # two_step_habitat partitions each ROI into supervoxels. Those
-    # supervoxels are the clustering units: one mean feature vector per
-    # supervoxel. The units are then pooled across subjects and one shared
-    # habitat model is fit.
-    result = two_step_habitat(
-        modalities=MODALITIES,
-        n_supervoxels=100,
-        n_habitats=3,
-        habitat_features=("volume",),
-        random_seed=0,
-        supervoxel_algorithm="slic",
-        roi=ROI,
-    ).fit_predict(cohort)
-    print(result.habitat_model.summary())
-    print(result.features.frame)
-    result.features.frame
-
-    fig = plot_partition_triptych(
-        cohort[0].image(ROI),
-        result.units[0],
-        result.habitat_maps[0],
-        axis=0,
-    )
-    Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/two_step_triptych.png", dpi=150, bbox_inches="tight")
-    plt.show()
 
 
-
-
-.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_01_two_step_001.png
-   :alt: Two-step partitions, Anatomy, Supervoxels, Habitats
-   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_01_two_step_001.png
-   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -119,8 +89,46 @@ sphinx_gallery_thumbnail_number = 2
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort: ['subj001', 'subj002']
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:23<00:23, 23.26s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:45<00:00, 22.70s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:45<00:00, 22.70s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.45it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.45it/s]
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 38-44
+
+Fit three shared habitats
+-------------------------
+``two_step_habitat`` partitions each ROI into supervoxels. Those
+supervoxels are the clustering units: one mean feature vector per
+supervoxel. The units are then pooled across subjects and one shared
+habitat model is fit.
+
+.. GENERATED FROM PYTHON SOURCE LINES 44-57
+
+.. code-block:: Python
+
+    result = two_step_habitat(
+        modalities=MODALITIES,
+        n_supervoxels=100,
+        n_habitats=3,
+        habitat_features=("volume",),
+        random_seed=0,
+        supervoxel_algorithm="slic",
+        roi=ROI,
+    ).fit_predict(cohort)
+    print(result.habitat_model.summary())
+    print(result.features.frame)
+    result.features.frame
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:22<00:22, 22.68s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:43<00:00, 22.00s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:43<00:00, 22.00s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.38it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.35it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.35it/s]
     HabitatModel kmeans-3fb1a8736ca6964a
       habitats           : 3
       features (3)    : pre_contrast, LAP, PVP
@@ -136,19 +144,104 @@ sphinx_gallery_thumbnail_number = 2
     1  subj002  ...                   0.167174
 
     [2 rows x 7 columns]
-    F:\work\habit_project\habit\viz\habitat_core.py:1106: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <div>
+    <style scoped>
+        .dataframe tbody tr th:only-of-type {
+            vertical-align: middle;
+        }
+
+        .dataframe tbody tr th {
+            vertical-align: top;
+        }
+
+        .dataframe thead th {
+            text-align: right;
+        }
+    </style>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>subject</th>
+          <th>habitat_1_voxel_count</th>
+          <th>habitat_1_volume_fraction</th>
+          <th>habitat_2_voxel_count</th>
+          <th>habitat_2_volume_fraction</th>
+          <th>habitat_3_voxel_count</th>
+          <th>habitat_3_volume_fraction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>subj001</td>
+          <td>7925.0</td>
+          <td>0.228426</td>
+          <td>17345.0</td>
+          <td>0.499942</td>
+          <td>9424.0</td>
+          <td>0.271632</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>subj002</td>
+          <td>5041.0</td>
+          <td>0.511361</td>
+          <td>3169.0</td>
+          <td>0.321465</td>
+          <td>1648.0</td>
+          <td>0.167174</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+    <br />
+    <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 58-60
+
+Supervoxels, clustering units, and habitats
+-------------------------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 60-70
+
+.. code-block:: Python
+
+    fig = plot_partition_triptych(
+        cohort[0].image(ROI),
+        result.units[0],
+        result.habitat_maps[0],
+        axis=0,
+    )
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/two_step_triptych.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-66
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_01_two_step_001.png
+   :alt: Two-step partitions, Anatomy, Supervoxels, Habitats
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_01_two_step_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 71-74
 
 Elbow on the same two-step declaration. The chosen count is the knee,
 not a second overlay. A saved model is
 :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 66-79
+.. GENERATED FROM PYTHON SOURCE LINES 74-87
 
 .. code-block:: Python
 
@@ -178,8 +271,8 @@ not a second overlay. A saved model is
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:22<00:22, 22.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:44<00:00, 22.44s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:44<00:00, 22.44s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.51it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.55it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:21<00:21, 21.91s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:43<00:00, 21.55s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:43<00:00, 21.55s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  5.00it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  5.09it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  5.09it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 4
       features (3)    : pre_contrast, LAP, PVP
@@ -197,7 +290,7 @@ not a second overlay. A saved model is
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 33.219 seconds)
+   **Total running time of the script:** (1 minutes 32.780 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_01_two_step.py:

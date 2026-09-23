@@ -12,11 +12,8 @@ should finish uses a limit on the order of minutes.
 """
 
 # %%
-# Load the cohort and set a short limit
-# -------------------------------------
-# ``auto_retry_rounds=0`` records the timeout once instead of launching
-# the same subject again. ``on_subject_failure="continue"`` keeps the
-# second subject in the batch.
+# Load the cohort
+# ---------------
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
@@ -34,6 +31,12 @@ ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(cohort)
 Path("out").mkdir(exist_ok=True)
+
+# %%
+# Set a 2 second limit and refuse the texture cache
+# -------------------------------------------------
+# A cache hit would finish before the limit. ``workers=1`` runs one
+# subject at a time, so one timeout does not take down the other subject.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -73,13 +76,17 @@ print(
 # %%
 # Both subjects hit the limit
 # ---------------------------
-def main() -> None:
-    """Map texture and print the timeout recorded on each slot."""
+if __name__ == "__main__":
     slots = list(backend.map(texture, cohort))
     for slot in slots:
         print(slot.subject_id, type(slot.error).__name__ if slot.error else "ok")
         if slot.error is not None:
             print(slot.error)
+
+# %%
+# Mark every timed-out slot
+# -------------------------
+if __name__ == "__main__":
     labels = [slot.subject_id for slot in slots]
     timed_out = [
         slot.error is not None and isinstance(slot.error, SubjectTimeoutError)
@@ -95,7 +102,3 @@ def main() -> None:
     ax.set_title("wall-clock limit 2 s")
     fig.savefig("out/wall_clock.png", dpi=150, bbox_inches="tight")
     plt.show()
-
-
-if __name__ == "__main__":
-    main()

@@ -25,12 +25,14 @@ Input: one :class:`~habit.contracts.Subject` with unenhanced and arterial
 phases. Output: a :class:`~habit.contracts.HabitatMap`. Stage:
 ``extract_voxel_features`` with ``expression``, then a per-subject ``fit``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-13
+.. GENERATED FROM PYTHON SOURCE LINES 11-15
 
+Load one subject
+----------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-73
+.. GENERATED FROM PYTHON SOURCE LINES 15-33
 
 .. code-block:: Python
 
@@ -50,69 +52,10 @@ sphinx_gallery_thumbnail_number = 2
     MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
     ROI = "LAP"
     subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
-
-    # ExpressionVoxelFeatures evaluates arithmetic on the raw phases.
-    # Each key becomes one column in the VoxelFeatureField.
-    extractor = ExpressionVoxelFeatures(
-        features={
-            "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
-            "rel_enh_pvp": "(PVP - pre_contrast) / (pre_contrast + eps)",
-            "rel_enh_delay": "(delay_3min - pre_contrast) / (pre_contrast + eps)",
-            "washout": "(LAP - delay_3min) / (LAP + eps)",
-        },
-        roi=ROI,
-    )
-    field = extractor(subject)
-    print(field.feature_frame().head())
-
-    # voxel_units wraps the field as one-voxel Supervoxelization units,
-    # so the fitter sees every voxel as its own clustering unit.
-    units = voxel_units(field)
-    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
-    fitter.set_random_state(0)
-    model = fitter.fit([units], cohort=Cohort([subject], name="one"))
-    habitat_map = model.assigner()(units)
-    print(model.summary())
-
-    Path("out").mkdir(exist_ok=True)
-    fig_field = plot_voxel_texture_slice(
-        field,
-        feature=0,
-        anatomy=subject.image(ROI),
-        roi_mask=subject.mask(ROI),
-        title="relative enhancement (LAP)",
-        crop_to="roi",
-    )
-    fig_field.savefig("out/relative_enhancement.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-    fig = plot_habitat_overlay(
-        subject.image(ROI),
-        habitat_map,
-        title="habitats (derived maps)",
-        crop_to="labels",
-    )
-    fig.savefig("out/derived_map_overlay.png", dpi=150, bbox_inches="tight")
-    plt.show()
+    print(subject.subject_id, sorted(subject.images))
 
 
 
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
-         :alt: relative enhancement (LAP), rel_enh_lap - Axis 0 (axial-like) @ 21, rel_enh_lap - Axis 1 (coronal-like) @ 34, rel_enh_lap - Axis 2 (sagittal-like) @ 28
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_002.png
-         :alt: habitats (derived maps), Axis 0 (axial-like) @ 21, Axis 1 (coronal-like) @ 34, Axis 2 (sagittal-like) @ 28
-         :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_002.png
-         :class: sphx-glr-multi-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -141,12 +84,79 @@ sphinx_gallery_thumbnail_number = 2
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
+    subj001 ['LAP', 'PVP', 'delay_3min', 'pre_contrast']
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 34-38
+
+Build the four derived maps
+---------------------------
+Each key becomes one column. ``eps`` keeps a zero denominator from
+breaking the ratio.
+
+.. GENERATED FROM PYTHON SOURCE LINES 38-51
+
+.. code-block:: Python
+
+    extractor = ExpressionVoxelFeatures(
+        features={
+            "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+            "rel_enh_pvp": "(PVP - pre_contrast) / (pre_contrast + eps)",
+            "rel_enh_delay": "(delay_3min - pre_contrast) / (pre_contrast + eps)",
+            "washout": "(LAP - delay_3min) / (LAP + eps)",
+        },
+        roi=ROI,
+    )
+    field = extractor(subject)
+    print(f"{field.values.shape[0]} voxels, columns: {list(field.feature_names)}")
+    print(field.feature_frame().head())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    34694 voxels, columns: ['rel_enh_lap', 'rel_enh_pvp', 'rel_enh_delay', 'washout']
        rel_enh_lap  rel_enh_pvp  rel_enh_delay   washout
     0     1.388759     1.412178       1.330211  0.024510
     1     1.324201     1.438356       1.269406  0.023576
     2     1.453303     1.478360       1.243736  0.085422
     3     1.353070     1.350877       1.234649  0.050326
     4     1.188559     1.398305       1.175847  0.005808
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 52-55
+
+Fit and assign on these voxels
+------------------------------
+``voxel_units`` makes every ROI voxel its own clustering unit.
+
+.. GENERATED FROM PYTHON SOURCE LINES 55-62
+
+.. code-block:: Python
+
+    units = voxel_units(field)
+    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+    fitter.set_random_state(0)
+    model = fitter.fit([units], cohort=Cohort([subject], name="one"))
+    habitat_map = model.assigner()(units)
+    print(model.summary())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
     HabitatModel kmeans-550300eb7e79e3f6
       habitats           : 3
       features (4)    : rel_enh_lap, rel_enh_pvp, rel_enh_delay, washout
@@ -157,10 +167,68 @@ sphinx_gallery_thumbnail_number = 2
       habit version      : 2.0.0
       random seed        : 0
       preprocessing state: inertia, validation
-    F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      direction, spacing = resolve_display_geometry(
-    F:\work\habit_project\habit\viz\habitat_overlay.py:663: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 63-65
+
+Relative enhancement
+--------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 65-77
+
+.. code-block:: Python
+
+    Path("out").mkdir(exist_ok=True)
+    fig_field = plot_voxel_texture_slice(
+        field,
+        feature=0,
+        anatomy=subject.image(ROI),
+        roi_mask=subject.mask(ROI),
+        title="relative enhancement (LAP)",
+        crop_to="roi",
+    )
+    fig_field.savefig("out/relative_enhancement.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
+   :alt: relative enhancement (LAP), rel_enh_lap - Axis 0 (axial-like) @ 21, rel_enh_lap - Axis 1 (coronal-like) @ 34, rel_enh_lap - Axis 2 (sagittal-like) @ 28
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_001.png
+   :class: sphx-glr-single-img
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 78-80
+
+Habitats from the derived maps
+------------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 80-88
+
+.. code-block:: Python
+
+    fig = plot_habitat_overlay(
+        subject.image(ROI),
+        habitat_map,
+        title="habitats (derived maps)",
+        crop_to="labels",
+    )
+    fig.savefig("out/derived_map_overlay.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+.. image-sg:: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_002.png
+   :alt: habitats (derived maps), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :srcset: /auto_examples/04_habitat_maps/images/sphx_glr_plot_08_derived_map_002.png
+   :class: sphx-glr-single-img
+
 
 
 
@@ -168,7 +236,7 @@ sphinx_gallery_thumbnail_number = 2
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.745 seconds)
+   **Total running time of the script:** (0 minutes 3.283 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_08_derived_map.py:

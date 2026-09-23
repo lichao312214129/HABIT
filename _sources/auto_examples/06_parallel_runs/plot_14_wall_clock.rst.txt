@@ -29,16 +29,13 @@ time in its own process, so the limit is recorded on every slot. Both
 finish as :class:`~habit.execution.SubjectTimeoutError`. A study that
 should finish uses a limit on the order of minutes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-21
+.. GENERATED FROM PYTHON SOURCE LINES 15-18
 
-Load the cohort and set a short limit
--------------------------------------
-``auto_retry_rounds=0`` records the timeout once instead of launching
-the same subject again. ``on_subject_failure="continue"`` keeps the
-second subject in the batch.
+Load the cohort
+---------------
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-73
+.. GENERATED FROM PYTHON SOURCE LINES 18-35
 
 .. code-block:: Python
 
@@ -58,6 +55,53 @@ sphinx_gallery_thumbnail_number = 1
     cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
     print(cohort)
     Path("out").mkdir(exist_ok=True)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HABIT demo data (cached)
+    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
+
+    On-disk inventory of this folder:
+      subjects (5): subj001, subj002, subj003, subj004, subj005
+      image series: LAP, PVP, delay_3min, pre_contrast
+      mask keys:    LAP, PVP, delay_3min, pre_contrast
+      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
+      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
+
+    Your own data must use the same folder tree (change IDs / series names):
+
+      DATA/
+        images/<subject_id>/<modality>/<one image file>
+        masks/<subject_id>/<roi>/<one mask file>
+
+    Then load it with the same call the demos use:
+
+      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
+
+    Swap DATA / modalities / roi to match your tree. Mask key is often the
+    same as one image series (here LAP).
+    Cohort(2 subjects [subj001, subj002])
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 36-40
+
+Set a 2 second limit and refuse the texture cache
+-------------------------------------------------
+A cache hit would finish before the limit. ``workers=1`` runs one
+subject at a time, so one timeout does not take down the other subject.
+
+.. GENERATED FROM PYTHON SOURCE LINES 40-76
+
+.. code-block:: Python
+
     RADIOMICS_PARAMS = {
         "imageType": {"Original": {}},
         "featureClass": {
@@ -102,50 +146,53 @@ sphinx_gallery_thumbnail_number = 1
 
  .. code-block:: none
 
-    HABIT demo data (cached)
-    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
-
-    On-disk inventory of this folder:
-      subjects (5): subj001, subj002, subj003, subj004, subj005
-      image series: LAP, PVP, delay_3min, pre_contrast
-      mask keys:    LAP, PVP, delay_3min, pre_contrast
-      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
-      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
-
-    Your own data must use the same folder tree (change IDs / series names):
-
-      DATA/
-        images/<subject_id>/<modality>/<one image file>
-        masks/<subject_id>/<roi>/<one mask file>
-
-    Then load it with the same call the demos use:
-
-      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
-
-    Swap DATA / modalities / roi to match your tree. Mask key is often the
-    same as one image series (here LAP).
-    Cohort(2 subjects [subj001, subj002])
     ProcessPoolBackend timeout 2.0
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-76
+.. GENERATED FROM PYTHON SOURCE LINES 77-79
 
 Both subjects hit the limit
 ---------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 76-102
+.. GENERATED FROM PYTHON SOURCE LINES 79-86
 
 .. code-block:: Python
 
-    def main() -> None:
-        """Map texture and print the timeout recorded on each slot."""
+    if __name__ == "__main__":
         slots = list(backend.map(texture, cohort))
         for slot in slots:
             print(slot.subject_id, type(slot.error).__name__ if slot.error else "ok")
             if slot.error is not None:
                 print(slot.error)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    subj001 SubjectTimeoutError
+    Subject exceeded its 2.0s wall-clock budget.
+    subj002 SubjectTimeoutError
+    Subject exceeded its 2.0s wall-clock budget.
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 87-89
+
+Mark every timed-out slot
+-------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 89-105
+
+.. code-block:: Python
+
+    if __name__ == "__main__":
         labels = [slot.subject_id for slot in slots]
         timed_out = [
             slot.error is not None and isinstance(slot.error, SubjectTimeoutError)
@@ -163,10 +210,6 @@ Both subjects hit the limit
         plt.show()
 
 
-    if __name__ == "__main__":
-        main()
-
-
 
 .. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_14_wall_clock_001.png
    :alt: wall-clock limit 2 s
@@ -174,22 +217,13 @@ Both subjects hit the limit
    :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    subj001 SubjectTimeoutError
-    Subject exceeded its 2.0s wall-clock budget.
-    subj002 SubjectTimeoutError
-    Subject exceeded its 2.0s wall-clock budget.
-
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 15.251 seconds)
+   **Total running time of the script:** (0 minutes 12.554 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_14_wall_clock.py:

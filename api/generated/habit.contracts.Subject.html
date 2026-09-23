@@ -732,7 +732,7 @@ computation; consumed by downstream modelling and reporting.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.contracts.Subject.mask">
-<span class="sig-name descname"><span class="pre">mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roi_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.image.MaskVolume.html#habit.image.MaskVolume" title="habit.contracts.image.MaskVolume"><span class="pre">MaskVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject.mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject.mask" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roi_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.image.MaskVolume"><span class="pre">MaskVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/contracts/subject.html#Subject.mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.contracts.Subject.mask" title="Link to this definition"></a></dt>
 <dd><p>Materialise one ROI mask.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -761,9 +761,39 @@ exists, that mask is returned.</p>
 
 <section id="examples-using-habit-contracts-subject">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.Subject</span></code><a class="headerlink" href="#examples-using-habit-contracts-subject" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
-<p><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. There is no cohort fit stage."><img alt="" src="../../_images/sphx_glr_plot_02_inside_each_subject_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. Stage: pool then fit. There is no partition stage."><img alt="" src="../../_images/sphx_glr_plot_03_pool_voxels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw."><img alt="" src="../../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture."><img alt="" src="../../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with unenhanced and arterial phases. Output: a HabitatMap. Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid."><img alt="" src="../../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;continue&quot; keeps the batch. One subject here has no arterial-phase image, so texture extraction raises. The other subject still receives a habitat map. The error is stored on that subject&#x27;s slot."><img alt="" src="../../_images/sphx_glr_plot_02_skip_failed_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_02_skip_failed.html"><span class="doc">Skipping a subject that fails</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Skipping a subject that fails</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;fail_fast&quot; re-raises the first subject error and does not run the rest. The incomplete subject is first, so the real extraction of the complete subject never starts."><img alt="" src="../../_images/sphx_glr_plot_03_stop_on_failure_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_03_stop_on_failure.html"><span class="doc">Stopping at the first failure</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Stopping at the first failure</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="A CheckpointStore records each success. The checkpoint key includes the texture specification, so changing the feature list or binWidth does not reuse the old field. The second map returns from_cache=True and does not recompute texture."><img alt="" src="../../_images/sphx_glr_plot_04_resume_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_04_resume.html"><span class="doc">Resuming finished subjects</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Resuming finished subjects</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

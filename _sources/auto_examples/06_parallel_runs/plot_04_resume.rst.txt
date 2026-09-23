@@ -91,13 +91,13 @@ sphinx_gallery_thumbnail_number = 1
 
 .. GENERATED FROM PYTHON SOURCE LINES 34-39
 
-Key the checkpoint on the texture spec
---------------------------------------
-A plain function would be keyed only by class name and subject id.
-``cache_key`` folds in ``texture.spec.fingerprint()``, which changes
-when the series, radius, or ``binWidth`` change.
+Build the extractor
+-------------------
+``cache_key`` below folds in ``texture.spec.fingerprint()``, which
+changes when the series, radius, or ``binWidth`` change. This cell
+does not extract texture.
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-115
+.. GENERATED FROM PYTHON SOURCE LINES 39-80
 
 .. code-block:: Python
 
@@ -139,12 +139,61 @@ when the series, radius, or ``binWidth`` change.
             return f"voxel_radiomics:{digest}:{subject.subject_id}"
 
 
-    store = CheckpointStore(Path(tempfile.mkdtemp(prefix="habit_ckpt_")))
     operator = CachedTexture(texture)
+    print(operator.cache_key(cohort[0]))
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    voxel_radiomics:728af0deb271c775581cec4bcdd427d43ac13fde0776bde4a76cefa202b3a30f:subj001
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 81-84
+
+First pass writes the checkpoint
+--------------------------------
+A new store is empty, so both subjects are computed.
+
+.. GENERATED FROM PYTHON SOURCE LINES 84-89
+
+.. code-block:: Python
+
+    store = CheckpointStore(Path(tempfile.mkdtemp(prefix="habit_ckpt_")))
     backend = SerialBackend()
     first = list(backend.map(operator, cohort, checkpoint=store))
-    second = list(backend.map(operator, cohort, checkpoint=store))
     print("first from_cache:", [slot.from_cache for slot in first])
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    first from_cache: [False, False]
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 90-93
+
+Second pass reads the checkpoint
+--------------------------------
+``from_cache`` is true, and the field is the one stored on the first pass.
+
+.. GENERATED FROM PYTHON SOURCE LINES 93-102
+
+.. code-block:: Python
+
+    second = list(backend.map(operator, cohort, checkpoint=store))
     print("second from_cache:", [slot.from_cache for slot in second])
     for slot in second:
         field = slot.result()
@@ -152,6 +201,30 @@ when the series, radius, or ``binWidth`` change.
             slot.subject_id,
             f"{field.values.shape[0]} voxels, {len(field.feature_names)} columns",
         )
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    second from_cache: [True, True]
+    subj001 34694 voxels, 32 columns
+    subj002 9858 voxels, 32 columns
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 103-105
+
+Computed pass versus cached pass
+--------------------------------
+
+.. GENERATED FROM PYTHON SOURCE LINES 105-129
+
+.. code-block:: Python
 
     labels = [slot.subject_id for slot in second]
     positions = range(len(labels))
@@ -186,22 +259,13 @@ when the series, radius, or ``binWidth`` change.
    :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    first from_cache: [False, False]
-    second from_cache: [True, True]
-    subj001 34694 voxels, 32 columns
-    subj002 9858 voxels, 32 columns
-
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.391 seconds)
+   **Total running time of the script:** (0 minutes 3.890 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_04_resume.py:

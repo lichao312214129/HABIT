@@ -738,9 +738,15 @@ the pipeline to describe the same regions differently.</p>
 
 <section id="examples-using-habit-supervoxel-slicsupervoxelizer">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.supervoxel.SlicSupervoxelizer</span></code><a class="headerlink" href="#examples-using-habit-supervoxel-slicsupervoxelizer" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Supervoxelization per subject. Output: a HabitatModel. Stage: fit."><img alt="" src="../../_images/sphx_glr_plot_13_fit_model_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Fitting a cohort habitat model</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid."><img alt="" src="../../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 
