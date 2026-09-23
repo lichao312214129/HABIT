@@ -48,7 +48,10 @@ output folder; validate with ``habit check-config -c <yaml>``.
 Data
 ----
 
-ROI: NIfTI aligned with images. Layout / path-list YAML:
-:doc:`../examples/data_from_arrays`.
+ROI: NIfTI aligned with images, or resample the mask
+(:doc:`/auto_examples/01_data_in/plot_04_nifti_files`).
+Directory, loose files, SimpleITK, or NumPy:
+:doc:`/auto_examples/01_data_in/index`.
+DICOM: :doc:`../how_to/preprocess`.
 
 Support: |link_github_issues| · lichao19870617@163.com

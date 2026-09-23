@@ -108,6 +108,11 @@ GeometryPolicy modes
    * - ``RESAMPLE_IMAGE``
      - Resample image onto the mask grid (linear); report
        ``compatible=True``, ``action="resample_image"``
+   * - ``HARMONIZE``
+     - When shapes match, copy the image spacing, origin, and direction
+       onto the mask array without resampling
+       (``action="harmonize"``). When shapes differ, fall through to
+       ``RESAMPLE_MASK``.
 
 Exports: ``GeometryPolicy``, ``GeometryReport``, ``ImageVolume``,
 ``MaskVolume``, ``ImageMaskPair``, ``read_image``, ``read_mask``,
