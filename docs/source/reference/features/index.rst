@@ -17,8 +17,8 @@ peers in ``feature_types``. Topology walk-through:
 :doc:`../../examples/graph_features`. CLI / YAML bookmark:
 :doc:`../../how_to/graph_features`.
 
-Voxel-level texture used as **habitat inputs** (``local_entropy``,
-``voxel_radiomics``) is a different product surface — slice figures live under
+Voxel-level texture used as **habitat inputs** (``voxel_radiomics``)
+is a different product surface — slice figures live under
 :doc:`../../examples/voxel_texture`, not as a ``feature_types`` CSV family.
 Registered extractor names (input side and map-side):
 :doc:`../../how_to/habitat_components`.

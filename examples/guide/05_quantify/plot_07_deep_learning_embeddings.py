@@ -8,10 +8,9 @@ feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch
 encoder output with the same ``(C, z, y, x)`` layout).
 """
 
-# sphinx_gallery_thumbnail_number = 1
-
 # %%
 # Habitat map from HABIT, synthetic 64-channel feature volume from a DL model.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 from typing import Dict, Tuple
 

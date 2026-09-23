@@ -22,12 +22,11 @@ biological habitat across the cohort.
 use the full 3-D :class:`~habit.contracts.HabitatMap`.
 """
 
-# sphinx_gallery_thumbnail_number = 3
-
 # %%
 # One-step habitats with a known K so the graph has a fixed number of
 # labels. Graph option fields are passed as flat kwargs — no separate
 # options object is required.
+# sphinx_gallery_thumbnail_number = 3
 from pathlib import Path
 
 import matplotlib.pyplot as plt

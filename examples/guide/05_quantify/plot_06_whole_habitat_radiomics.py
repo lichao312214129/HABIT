@@ -7,10 +7,9 @@ using :class:`~habit.habitat_features.WholeHabitatRadiomicsFeatures`.
 The habitat label image plays both intensity and mask roles.
 """
 
-# sphinx_gallery_thumbnail_number = 2
-
 # %%
 # One-step habitats, then whole-map PyRadiomics on the label field.
+# sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
 from typing import Any, Dict
 
