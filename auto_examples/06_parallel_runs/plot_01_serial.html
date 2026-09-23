@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parallel runs and acceleration &mdash; HABIT Documentation</title>
+  <title>Running a cohort serially &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
@@ -16,7 +16,7 @@
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=211e58f4" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/auto_examples/06_parallel_runs/plot_01_parallel_runs.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/auto_examples/06_parallel_runs/plot_01_serial.html" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -32,7 +32,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="API Reference" href="../../api/index.html" />
+    <link rel="next" title="Skipping a subject that fails" href="plot_02_skip_failed.html" />
     <link rel="prev" title="6. Parallel runs" href="index.html" /> 
 </head>
 
@@ -124,7 +124,13 @@
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">6. Parallel runs</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Parallel runs and acceleration</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Running a cohort serially</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_02_skip_failed.html">Skipping a subject that fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_03_stop_on_failure.html">Stopping at the first failure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_04_resume.html">Resuming finished subjects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_05_process_pool.html">Running subjects in separate processes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_06_reuse_workers.html">Reusing workers across passes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
 </ul>
 </li>
 </ul>
@@ -617,9 +623,9 @@
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Habitat Guide</a></li>
           <li class="breadcrumb-item"><a href="index.html">6. Parallel runs</a></li>
-      <li class="breadcrumb-item active">Parallel runs and acceleration</li>
+      <li class="breadcrumb-item active">Running a cohort serially</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/auto_examples/06_parallel_runs/plot_01_parallel_runs.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/auto_examples/06_parallel_runs/plot_01_serial.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -629,335 +635,53 @@
              
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p><a class="reference internal" href="#sphx-glr-download-auto-examples-06-parallel-runs-plot-01-parallel-runs-py"><span class="std std-ref">Go to the end</span></a>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-06-parallel-runs-plot-01-serial-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="parallel-runs-and-acceleration">
-<span id="sphx-glr-auto-examples-06-parallel-runs-plot-01-parallel-runs-py"></span><h1>Parallel runs and acceleration<a class="headerlink" href="#parallel-runs-and-acceleration" title="Link to this heading"></a></h1>
-<p><a class="reference internal" href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> declares what to compute;
-<a class="reference internal" href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> declares how to schedule it. Pass a
-backend from <a class="reference internal" href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy"><code class="xref py py-func docutils literal notranslate"><span class="pre">backend_from_policy()</span></code></a> into
-<a class="reference internal" href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a>. With a fixed <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>
-the maps match serial execution.</p>
-<p>On a dense 3D voxel-texture cohort, multi-GPU process pools raise
-throughput:</p>
-<ul class="simple">
-<li><p><strong>Single-subject GPU voxel texture:</strong> cuts 3D texture computation
-(90 features across 54,913 ROI voxels) from <strong>19.85s</strong> on pure CPU
-down to <strong>0.71s</strong> with HABIT full GPU (see <a class="reference internal" href="../02_voxel/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>).</p></li>
-<li><p><strong>Multi-GPU cohort:</strong> on a 16-subject cohort (878k ROI voxels, 90 features),
-5 GPUs with persistent workers cut wall time from <strong>263.49s</strong> (CPU serial)
-down to <strong>4.16s</strong> (<strong>231.03 subjects/min</strong>, <strong>63.4× speedup</strong> vs CPU serial,
-<strong>11.8× speedup</strong> vs 8 CPU workers).</p></li>
-</ul>
-<section id="backend-selection-policy">
-<h2>Backend selection policy<a class="headerlink" href="#backend-selection-policy" title="Link to this heading"></a></h2>
-<p><a class="reference internal" href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy"><code class="xref py py-func docutils literal notranslate"><span class="pre">backend_from_policy()</span></code></a> selects
-<a class="reference internal" href="../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a> when any of:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">parallel_mode</span> <span class="pre">==</span> <span class="pre">&quot;isolated&quot;</span></code></p></li>
-</ul>
-<p>A positive <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> alone does <strong>not</strong> force spawn (the
-library default is <code class="docutils literal notranslate"><span class="pre">900.0</span></code>). True in-process serial is simply
-<code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=1,</span> <span class="pre">backend=&quot;serial&quot;)</span></code>.</p>
-</section>
-<section id="production-multi-gpu-configuration">
-<h2>Production multi-GPU configuration<a class="headerlink" href="#production-multi-gpu-configuration" title="Link to this heading"></a></h2>
-<p>To achieve maximum throughput on multi-GPU nodes (e.g. 5× RTX 4080 SUPER),
-pin one worker process per physical GPU card via <code class="docutils literal notranslate"><span class="pre">cap_workers_to_gpu_pool=True</span></code>
-and reuse persistent workers with <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">backend.reuse_workers():</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_from_policy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Study</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">RunPolicy</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span>
+<section class="sphx-glr-example-title" id="running-a-cohort-serially">
+<span id="sphx-glr-auto-examples-06-parallel-runs-plot-01-serial-py"></span><h1>Running a cohort serially<a class="headerlink" href="#running-a-cohort-serially" title="Link to this heading"></a></h1>
+<p>Omit <code class="docutils literal notranslate"><span class="pre">backend</span></code> and the study runs in this process, one subject after
+another. That is the laptop default. Pass the same
+<a class="reference internal" href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cohort</span></code></a> you would pass to <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code>.</p>
+<p>Three subjects stand in for a cohort. The callable only returns the id.
+A habitat study uses the same scheduling with <code class="docutils literal notranslate"><span class="pre">Study(spec).fit_predict(cohort)</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Cohort</span></a></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Subject</span></a></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class"><span class="n">SerialBackend</span></a></a>
 
-<span class="c1"># 1. Pipeline with GPU-accelerated voxel texture extraction</span>
-<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;multi_gpu_cohort_analysis&quot;</span><span class="p">,</span>
-    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">Stage</span><span class="p">(</span>
-            <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
-            <span class="n">Spec</span><span class="p">(</span>
-                <span class="s2">&quot;voxel_radiomics&quot;</span><span class="p">,</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;modality&quot;</span><span class="p">:</span> <span class="s2">&quot;T1&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;use_torch_radiomics&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s2">&quot;use_gpu_matrices&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;setting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;binWidth&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">}},</span>
-                <span class="p">},</span>
-            <span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;slic&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">24</span><span class="p">})),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
-    <span class="p">),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Cohort</span></a></a><span class="p">(</span>
+    <span class="p">[</span>
+        <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Subject</span></a></a><span class="p">(</span><span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="p">{},</span> <span class="n">masks</span><span class="o">=</span><span class="p">{}),</span>
+        <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Subject</span></a></a><span class="p">(</span><span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj002&quot;</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="p">{},</span> <span class="n">masks</span><span class="o">=</span><span class="p">{}),</span>
+        <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Subject</span></a></a><span class="p">(</span><span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj003&quot;</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="p">{},</span> <span class="n">masks</span><span class="o">=</span><span class="p">{}),</span>
+    <span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;serial&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1"># 2. Configure 5 workers pinned across physical GPUs</span>
-<span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
-    <span class="n">workers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
-    <span class="n">cap_workers_to_gpu_pool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">backend_from_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">subject_label</span><span class="p">(</span><span class="n">subject</span><span class="p">:</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Subject</span></a></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the subject id. A study would run the habitat steps here.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span>
 
-<span class="c1"># 3. Process the entire cohort, amortizing worker startup across subjects</span>
-<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="s2">&quot;my_data/preprocessed&quot;</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span>
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="k">with</span> <span class="n">backend</span><span class="o">.</span><span class="n">reuse_workers</span><span class="p">():</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+<span class="k">for</span> <a href="../../api/generated/habit.contracts.SubjectResult.html#habit.contracts.SubjectResult" title="habit.contracts.SubjectResult" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.SubjectResult.html#habit.contracts.SubjectResult" title="habit.contracts.SubjectResult" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">slot</span></a></a> <span class="ow">in</span> <a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class"><a href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-class"><span class="n">SerialBackend</span></a></a><span class="p">()</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">subject_label</span><span class="p">,</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a></a><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">slot</span><span class="o">.</span><span class="n">subject_id</span></a></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.SubjectResult.html#habit.contracts.SubjectResult.result" title="habit.contracts.SubjectResult.result" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../../api/generated/habit.contracts.SubjectResult.html#habit.contracts.SubjectResult.result" title="habit.contracts.SubjectResult.result" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">slot</span><span class="o">.</span><span class="n">result</span></a></a><span class="p">())</span>
 </pre></div>
 </div>
-</section>
-<section id="robust-execution-fault-tolerance-timeout-and-resume">
-<h2>Robust execution: fault tolerance, timeout, and resume<a class="headerlink" href="#robust-execution-fault-tolerance-timeout-and-resume" title="Link to this heading"></a></h2>
-<p>Real-world clinical batches require fault isolation, hanging-process protection,
-and crash recovery:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckpointStore</span><span class="p">,</span> <span class="n">backend_from_policy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span>
-
-<span class="c1"># Configure fault-tolerant policy with 30s timeout and checkpointing</span>
-<span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
-    <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
-    <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span>  <span class="c1"># Skip failed subjects without crashing</span>
-    <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>       <span class="c1"># Terminate hung cases automatically</span>
-    <span class="n">resume</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                    <span class="c1"># Skip already processed cases</span>
-<span class="p">)</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">backend_from_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span>
-<span class="n">store</span> <span class="o">=</span> <span class="n">CheckpointStore</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;results/checkpoints&quot;</span><span class="p">))</span>
-
-<span class="c1"># Run with automatic resume and crash recovery</span>
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>subj001 subj001
+subj002 subj002
+subj003 subj003
 </pre></div>
 </div>
-</section>
-<section id="cloud-benchmark-script-recorded-not-executed-here">
-<h2>Cloud benchmark script (recorded; not executed here)<a class="headerlink" href="#cloud-benchmark-script-recorded-not-executed-here" title="Link to this heading"></a></h2>
-<p>The timings below were measured on AutoDL (2026-09-04): 5× NVIDIA GeForce
-RTX 4080 SUPER (32 GiB each), 144 logical CPUs (2× Intel Xeon Platinum
-8352V), ~503 GiB RAM. Workload: synthetic cohort n=16, shape 80×80×48
-(~54,913 ROI voxels/case, ~878,608 ROI voxels total), 90 voxel-texture
-features (FirstOrder, GLCM, GLRLM, GLSZM, GLDM, NGTDM).</p>
-<p>This page does <strong>not</strong> re-run that workload when the docs are built.
-The snippet is the cloud extract-and-map loop (full driver:
-<code class="docutils literal notranslate"><span class="pre">scripts/run_multi_gpu_cohort_bench.py</span></code>). Warm-pool rows used
-<code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">backend.reuse_workers():</span></code>. On Windows put the <code class="docutils literal notranslate"><span class="pre">map</span></code> call
-inside <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_synthetic_cohort</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolBackend</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features.voxel_radiomics</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelRadiomicsFeatures</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span><span class="n">subject</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">VoxelRadiomicsFeatures</span><span class="p">(</span>
-        <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,),</span>
-        <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;tumor&quot;</span><span class="p">,</span>
-        <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">voxel_batch</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
-        <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">use_gpu_matrices</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">torch_device</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
-    <span class="p">)(</span><span class="n">subject</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span>
-        <span class="n">n_subjects</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">48</span><span class="p">),</span> <span class="n">rng</span><span class="o">=</span><span class="mi">21</span>
-    <span class="p">)</span>
-
-    <span class="c1"># 5-GPU layout; CPU serial used CUDA_VISIBLE_DEVICES=&quot;-1&quot;</span>
-    <span class="c1"># and use_torch_radiomics=False / use_gpu_matrices=False.</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0,1,2,3,4&quot;</span>
-    <span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
-        <span class="n">workers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-        <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
-        <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span><span class="p">,</span>
-        <span class="n">cap_workers_to_gpu_pool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;fail_fast&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">backend</span> <span class="o">=</span> <span class="n">ProcessPoolBackend</span><span class="o">.</span><span class="n">from_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span>
-
-    <span class="c1"># Cold pool: pays spawn + CUDA init on this map()</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">extract</span><span class="p">,</span> <span class="n">cohort</span><span class="p">))</span>
-
-    <span class="c1"># Warm pool: reuse workers / CUDA contexts across the cohort</span>
-    <span class="k">with</span> <span class="n">backend</span><span class="o">.</span><span class="n">reuse_workers</span><span class="p">():</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">extract</span><span class="p">,</span> <span class="n">cohort</span><span class="p">))</span>
-</pre></div>
-</div>
-<p>Architectural notes from that run:</p>
-<ol class="arabic simple">
-<li><p><strong>GPU-bound texture:</strong> single-subject compute is ~0.71s on one GPU.
-CPU serial is <strong>263.49s</strong>; 8 CPU workers <strong>49.16s</strong>; 5 GPUs with a
-warm pool <strong>4.16s</strong> (<strong>63.41×</strong> vs CPU serial, <strong>11.83×</strong> vs 8 CPUs).</p></li>
-<li><p><strong>Cold vs warm pool:</strong> a cold 5-worker start costs ~9.4s (spawn,
-import PyTorch/SimpleITK, five CUDA contexts, join).
-<code class="docutils literal notranslate"><span class="pre">reuse_workers()</span></code> amortizes that fixed cost.</p></li>
-<li><p><strong>Small-cohort cold-pool workers:</strong> on 16 subjects, 2 workers on 5
-GPUs (11.61s) beat 5 workers (14.78s). Extra workers save little
-compute and add spawn / CUDA-init / modulo imbalance (16 is not
-divisible by 5). For large cohorts or a warm pool, use all GPUs.</p></li>
-</ol>
-</section>
-<section id="recorded-autodl-timings">
-<h2>Recorded AutoDL timings<a class="headerlink" href="#recorded-autodl-timings" title="Link to this heading"></a></h2>
-<p>Numbers are copied from the cloud run, not recomputed by this page.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 17.3%" />
-<col style="width: 19.2%" />
-<col style="width: 9.6%" />
-<col style="width: 11.5%" />
-<col style="width: 11.5%" />
-<col style="width: 15.4%" />
-<col style="width: 15.4%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Scenario</p></th>
-<th class="head"><p>Device</p></th>
-<th class="head"><p>Workers</p></th>
-<th class="head"><p>Pool</p></th>
-<th class="head"><p>Wall (s)</p></th>
-<th class="head"><p>Subjects/min</p></th>
-<th class="head"><p>Speedup vs CPU serial</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>0 GPU</p></td>
-<td><p>CUDA=-1 (CPU)</p></td>
-<td><p>1</p></td>
-<td><p>cold</p></td>
-<td><p>263.49</p></td>
-<td><p>3.64</p></td>
-<td><p>1.00×</p></td>
-</tr>
-<tr class="row-odd"><td><p>0 GPU</p></td>
-<td><p>CUDA=-1 (CPU)</p></td>
-<td><p>2</p></td>
-<td><p>cold</p></td>
-<td><p>138.03</p></td>
-<td><p>6.96</p></td>
-<td><p>1.91×</p></td>
-</tr>
-<tr class="row-even"><td><p>0 GPU</p></td>
-<td><p>CUDA=-1 (CPU)</p></td>
-<td><p>4</p></td>
-<td><p>cold</p></td>
-<td><p>79.23</p></td>
-<td><p>12.12</p></td>
-<td><p>3.33×</p></td>
-</tr>
-<tr class="row-odd"><td><p>0 GPU</p></td>
-<td><p>CUDA=-1 (CPU)</p></td>
-<td><p>8</p></td>
-<td><p>cold</p></td>
-<td><p>49.16</p></td>
-<td><p>19.53</p></td>
-<td><p>5.36×</p></td>
-</tr>
-<tr class="row-even"><td><p>1 GPU</p></td>
-<td><p>CUDA=0</p></td>
-<td><p>1</p></td>
-<td><p>cold</p></td>
-<td><p>19.30</p></td>
-<td><p>49.73</p></td>
-<td><p>13.65×</p></td>
-</tr>
-<tr class="row-odd"><td><p>1 GPU</p></td>
-<td><p>CUDA=0</p></td>
-<td><p>2</p></td>
-<td><p>cold</p></td>
-<td><p>17.44</p></td>
-<td><p>55.04</p></td>
-<td><p>15.11×</p></td>
-</tr>
-<tr class="row-even"><td><p>1 GPU</p></td>
-<td><p>CUDA=0</p></td>
-<td><p>4</p></td>
-<td><p>cold</p></td>
-<td><p>24.67</p></td>
-<td><p>38.91</p></td>
-<td><p>10.68×</p></td>
-</tr>
-<tr class="row-odd"><td><p>1 GPU</p></td>
-<td><p>CUDA=0</p></td>
-<td><p>1</p></td>
-<td><p>warm</p></td>
-<td><p>12.41</p></td>
-<td><p>77.33</p></td>
-<td><p>21.22×</p></td>
-</tr>
-<tr class="row-even"><td><p>5 GPUs</p></td>
-<td><p>CUDA=0,1,2,3,4</p></td>
-<td><p>1</p></td>
-<td><p>cold</p></td>
-<td><p>18.47</p></td>
-<td><p>51.96</p></td>
-<td><p>14.27×</p></td>
-</tr>
-<tr class="row-odd"><td><p>5 GPUs</p></td>
-<td><p>CUDA=0,1,2,3,4</p></td>
-<td><p>2</p></td>
-<td><p>cold</p></td>
-<td><p>11.61</p></td>
-<td><p>82.68</p></td>
-<td><p>22.70×</p></td>
-</tr>
-<tr class="row-even"><td><p>5 GPUs</p></td>
-<td><p>CUDA=0,1,2,3,4</p></td>
-<td><p>4</p></td>
-<td><p>cold</p></td>
-<td><p>14.05</p></td>
-<td><p>68.32</p></td>
-<td><p>18.75×</p></td>
-</tr>
-<tr class="row-odd"><td><p>5 GPUs</p></td>
-<td><p>CUDA=0,1,2,3,4</p></td>
-<td><p>5</p></td>
-<td><p>cold</p></td>
-<td><p>14.78</p></td>
-<td><p>64.97</p></td>
-<td><p>17.83×</p></td>
-</tr>
-<tr class="row-even"><td><p>5 GPUs</p></td>
-<td><p>CUDA=0,1,2,3,4</p></td>
-<td><p>5</p></td>
-<td><p>warm</p></td>
-<td><p>4.16</p></td>
-<td><p>231.03</p></td>
-<td><p>63.41×</p></td>
-</tr>
-</tbody>
-</table>
-<figure class="align-default" id="id1">
-<img alt="Multi-GPU cohort wall time versus worker count" src="../../_images/parallel_cloud_speedup.png" />
-<figcaption>
-<p><span class="caption-text">Recorded AutoDL result (16 subjects, 90 features). Stars are warm
-persistent pools. This page does not regenerate the figure at build time.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-parallel-runs-plot-01-parallel-runs-py">
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-parallel-runs-plot-01-serial-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/ee88ab9a660a831119d2d60175d3a865/plot_01_parallel_runs.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_parallel_runs.ipynb</span></code></a></p>
+<p><a class="reference download internal" download="" href="../../_downloads/847782b69056b2b6c9f0cc7035114321/plot_01_serial.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_serial.ipynb</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/1333d0d785b88974745625b2440f723d/plot_01_parallel_runs.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_01_parallel_runs.py</span></code></a></p>
+<p><a class="reference download internal" download="" href="../../_downloads/aefed36bddb7bd6d09f35cdf162e12f0/plot_01_serial.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_01_serial.py</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-zip docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/288b34395dfd8f54a9b11a13260a0624/plot_01_parallel_runs.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_01_parallel_runs.zip</span></code></a></p>
+<p><a class="reference download internal" download="" href="../../_downloads/fc7144ab00304b860d3149d13a2d357b/plot_01_serial.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_01_serial.zip</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
-</section>
 </section>
 
 
@@ -965,7 +689,7 @@ persistent pools. This page does not regenerate the figure at build time.</span>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="6. Parallel runs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../api/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="plot_02_skip_failed.html" class="btn btn-neutral float-right" title="Skipping a subject that fails" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

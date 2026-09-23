@@ -12,7 +12,7 @@ entropy and densified ``voxel_radiomics`` columns (e.g. GLCM) — as publication
 the enabled ``featureClass`` list small for interactive demos.
 
 Walk-through (Guide): :doc:`/auto_examples/02_voxel/plot_03_voxel_texture`.
-For multi-GPU cohort scaling benchmarks and parallel scheduling, see :doc:`/auto_examples/06_parallel_runs/plot_01_parallel_runs`. This page keeps
+For multi-GPU cohort timings, see :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`. Scheduling (serial, skip, resume, process pool) is :doc:`/auto_examples/06_parallel_runs/index`. This page keeps
 runtime / backend notes that the gallery does not repeat.
 
 Who builds the texture matrices

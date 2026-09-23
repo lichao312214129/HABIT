@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:11.231** total execution time for 25 files **from all galleries**:
+**00:05.367** total execution time for 31 files **from all galleries**:
 
 .. container::
 
@@ -32,17 +32,38 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_01_data_in_plot_02_simpleitk.py` (``..\..\examples\guide\01_data_in\plot_02_simpleitk.py``)
-     - 00:06.577
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_07_several_gpus.py` (``..\..\examples\guide\06_parallel_runs\plot_07_several_gpus.py``)
+     - 00:05.351
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_01_data_in_plot_04_nifti_files.py` (``..\..\examples\guide\01_data_in\plot_04_nifti_files.py``)
-     - 00:01.668
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_04_resume.py` (``..\..\examples\guide\06_parallel_runs\plot_04_resume.py``)
+     - 00:00.009
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_serial.py` (``..\..\examples\guide\06_parallel_runs\plot_01_serial.py``)
+     - 00:00.003
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_03_stop_on_failure.py` (``..\..\examples\guide\06_parallel_runs\plot_03_stop_on_failure.py``)
+     - 00:00.001
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_06_reuse_workers.py` (``..\..\examples\guide\06_parallel_runs\plot_06_reuse_workers.py``)
+     - 00:00.001
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_05_process_pool.py` (``..\..\examples\guide\06_parallel_runs\plot_05_process_pool.py``)
+     - 00:00.001
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_02_skip_failed.py` (``..\..\examples\guide\06_parallel_runs\plot_02_skip_failed.py``)
+     - 00:00.001
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_01_directory.py` (``..\..\examples\guide\01_data_in\plot_01_directory.py``)
-     - 00:01.642
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_data_in_plot_02_simpleitk.py` (``..\..\examples\guide\01_data_in\plot_02_simpleitk.py``)
+     - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_03_numpy_arrays.py` (``..\..\examples\guide\01_data_in\plot_03_numpy_arrays.py``)
-     - 00:01.343
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_data_in_plot_04_nifti_files.py` (``..\..\examples\guide\01_data_in\plot_04_nifti_files.py``)
+     - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_02_voxel_plot_01_feature_routes.py` (``..\..\examples\guide\02_voxel\plot_01_feature_routes.py``)
      - 00:00.000
@@ -99,9 +120,6 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_07_deep_learning_embeddings.py` (``..\..\examples\guide\05_quantify\plot_07_deep_learning_embeddings.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_parallel_runs.py` (``..\..\examples\guide\06_parallel_runs\plot_01_parallel_runs.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)

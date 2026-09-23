@@ -573,9 +573,28 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 6. Parallel runs
 ================
 
-Schedule a cohort with RunPolicy and a process-pool backend.
-Checkpoints skip subjects already recorded as success. Dense
-voxel-texture cohorts can use multi-GPU workers.
+:class:`~habit.spec.HabitatSpec` is what to compute.
+:class:`~habit.spec.RunPolicy` is how to schedule it.
+The same cohort and the same ``fit_predict`` call take a different
+backend. A fixed ``random_seed`` keeps the maps aligned with a serial run.
+
+* **One machine, in order** —
+  :doc:`/auto_examples/06_parallel_runs/plot_01_serial`.
+* **One bad case should not stop the batch** —
+  :doc:`/auto_examples/06_parallel_runs/plot_02_skip_failed`.
+* **A bad case should stop the batch** —
+  :doc:`/auto_examples/06_parallel_runs/plot_03_stop_on_failure`.
+* **A crashed run should skip finished subjects** —
+  :doc:`/auto_examples/06_parallel_runs/plot_04_resume`.
+* **Several CPU workers** —
+  :doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`.
+* **Do not pay worker startup twice** —
+  :doc:`/auto_examples/06_parallel_runs/plot_06_reuse_workers`.
+* **One worker per GPU** (recorded timings, not re-run here) —
+  :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`.
+
+A per-subject time limit is enforced only by the process backend.
+It is set on the process-pool page.
 
 
 .. raw:: html
@@ -591,18 +610,120 @@ voxel-texture cohorts can use multi-GPU workers.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="HabitatSpec declares what to compute; RunPolicy declares how to schedule it. Pass a backend from backend_from_policy into fit_predict. With a fixed random_seed the maps match serial execution.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Omit backend and the study runs in this process, one subject after another. That is the laptop default. Pass the same Cohort you would pass to fit_predict.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_01_parallel_runs_thumb.png
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_01_serial_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_parallel_runs/plot_01_parallel_runs`
+  :doc:`/auto_examples/06_parallel_runs/plot_01_serial`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Parallel runs and acceleration</div>
+      <div class="sphx-glr-thumbnail-title">Running a cohort serially</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;continue&quot; keeps the batch. The failed subject is a result slot with error set. The others still finish.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_02_skip_failed_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_02_skip_failed`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Skipping a subject that fails</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;fail_fast&quot; re-raises the first subject error and does not run the rest. Use it when a partial cohort would be misread as a finished study.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_03_stop_on_failure_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_03_stop_on_failure`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Stopping at the first failure</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A CheckpointStore records each success. The next map with the same store and the same callable returns those subjects from the store (``from_cache``) and does not call the function again. Study.fit_predict(..., checkpoint=store) uses this store.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_04_resume_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_04_resume`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Resuming finished subjects</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend. Pass that object as backend= to fit_predict. subject_timeout_sec is enforced only on this backend. On Windows the map call must sit under if __name__ == &quot;__main__&quot;:.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_05_process_pool_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Running subjects in separate processes</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays spawn and import on the first map. with backend.reuse_workers(): keeps those workers for the next map in the same block. Two-step studies use this so partitioning and labelling do not start the pool twice.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_06_reuse_workers_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_06_reuse_workers`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Reusing workers across passes</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This page records a cloud run. It does not repeat that workload when the docs are built.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_07_several_gpus_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Running a cohort on several GPUs</div>
     </div>
 
 
