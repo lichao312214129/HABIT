@@ -22,18 +22,27 @@ from habit.viz import plot_habitat_overlay, plot_voxel_texture_slice
 from habit.voxel_features import ExpressionVoxelFeatures
 
 DATA = fetch_demo()
-MODALITIES = ("pre_contrast", "LAP")
+# All four DCE phases: unenhanced, arterial, portal-venous, delayed.
+MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
 ROI = "LAP"
 subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
 
+# ExpressionVoxelFeatures evaluates arithmetic on the raw phases.
+# Each key becomes one column in the VoxelFeatureField.
 extractor = ExpressionVoxelFeatures(
     features={
-        "relative_enhancement_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+        "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+        "rel_enh_pvp": "(PVP - pre_contrast) / (pre_contrast + eps)",
+        "rel_enh_delay": "(delay_3min - pre_contrast) / (pre_contrast + eps)",
+        "washout": "(LAP - delay_3min) / (LAP + eps)",
     },
     roi=ROI,
 )
 field = extractor(subject)
 print(field.feature_frame().head())
+
+# voxel_units wraps the field as one-voxel Supervoxelization units,
+# so the fitter sees every voxel as its own clustering unit.
 units = voxel_units(field)
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
@@ -44,9 +53,10 @@ print(model.summary())
 Path("out").mkdir(exist_ok=True)
 fig_field = plot_voxel_texture_slice(
     field,
+    feature=0,
     anatomy=subject.image(ROI),
     roi_mask=subject.mask(ROI),
-    title="relative enhancement",
+    title="relative enhancement (LAP)",
     crop_to="roi",
 )
 fig_field.savefig("out/relative_enhancement.png", dpi=150, bbox_inches="tight")
@@ -55,7 +65,7 @@ plt.show()
 fig = plot_habitat_overlay(
     subject.image(ROI),
     habitat_map,
-    title="habitats (relative enhancement)",
+    title="habitats (derived maps)",
     crop_to="labels",
 )
 fig.savefig("out/derived_map_overlay.png", dpi=150, bbox_inches="tight")

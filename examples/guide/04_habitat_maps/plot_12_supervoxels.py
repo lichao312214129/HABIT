@@ -21,11 +21,16 @@ from habit.viz import plot_habitat_overlay
 from habit.voxel_features import RawVoxelFeatures
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
 
 field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
+# SlicSupervoxelizer groups nearby voxels with similar intensity into
+# supervoxels. The result is a Supervoxelization ("units"): one row per
+# supervoxel, with the mean feature vector of its voxels. These units
+# are the smallest clustering element in a two-step habitat study.
 units = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)(field)
 print(f"n_supervoxels={len(units.features)}")
 print(units.features.head())

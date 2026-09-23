@@ -24,7 +24,8 @@ import numpy as np
 from habit.voxel_features import RawVoxelFeatures
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 subject = cohort[0]
@@ -36,6 +37,8 @@ fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 model = fitter.fit(units, cohort=cohort)
 
+# model.assigner() returns a callable that maps one subject's units to
+# a HabitatMap by finding the nearest centroid for each supervoxel.
 habitat_map = model.assigner()(units[0])
 print(habitat_map.subject_id)
 

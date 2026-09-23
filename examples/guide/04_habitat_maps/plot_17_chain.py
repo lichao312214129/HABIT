@@ -25,7 +25,8 @@ from habit.viz import plot_partition_triptych
 from habit.voxel_features import RawVoxelFeatures
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 subject = cohort[0]
@@ -37,6 +38,9 @@ fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 model = fitter.fit(units, cohort=cohort)
 
+# SubjectPipeline chains the three steps: extract voxel features,
+# partition into supervoxels, assign habitat labels. Calling it on one
+# subject runs all three stages without any manual intermediate objects.
 pipe = SubjectPipeline(voxel, slic, model.assigner())
 habitat_map = pipe(subject)
 

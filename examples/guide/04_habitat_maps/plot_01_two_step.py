@@ -26,11 +26,16 @@ from habit.recipes import two_step_habitat
 from habit.viz import plot_cluster_validation_from_report, plot_partition_triptych
 
 DATA = fetch_demo()
-MODALITIES = ("LAP",)
+# Three DCE phases: unenhanced, arterial, and portal-venous.
+MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(f"Cohort: {list(cohort.subject_ids)}")
 
+# two_step_habitat partitions each ROI into supervoxels. Those
+# supervoxels are the clustering units: one mean feature vector per
+# supervoxel. The units are then pooled across subjects and one shared
+# habitat model is fit.
 result = two_step_habitat(
     modalities=MODALITIES,
     n_supervoxels=100,
