@@ -69,12 +69,11 @@ def cli():
     """
     HABIT - Habitat Analysis: Biomedical Imaging Toolkit
 
-    A comprehensive toolkit for medical image analysis including:
-    - Image preprocessing
-    - Habitat analysis and clustering
-    - Feature extraction
-    - Machine learning modeling
-    - Statistical analysis
+    Habitat imaging: partition a tumor into subregions (habitats) from an
+    image and an ROI, then quantify spatial heterogeneity (volume, ITH,
+    graph metrics, radiomics).
+
+    Docs: https://lichao312214129.github.io/HABIT/
     """
     ensure_cli_stdio()
 
