@@ -7,6 +7,8 @@ Output: a :class:`~habit.contracts.HabitatModel`. Stage: ``fit``.
 """
 
 # %%
+# Load the cohort
+# ---------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
@@ -24,21 +26,31 @@ DATA = fetch_demo()
 MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+print(f"Cohort: {list(cohort.subject_ids)}")
 
+# %%
+# Partition each subject
+# ----------------------
+# Each element of ``units`` is one subject's supervoxels. These rows
+# are what the cohort model fits on.
 voxel = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)
 slic = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)
-# slic(voxel(subject)) for each subject: extract raw features, then
-# partition into supervoxels. Each element of `units` is one subject's
-# Supervoxelization -- the clustering units the cohort model will fit on.
 units = [slic(voxel(subject)) for subject in cohort]
-# KMeansHabitatModelFitter pools all subjects' units and learns one
-# shared set of habitat centroids. The same model can then assign
-# labels to any subject processed with the same upstream steps.
+for one in units:
+    print(f"{one.subject_id}: {len(one.features)} supervoxels")
+
+# %%
+# Fit one shared model
+# --------------------
+# The fitter pools every subject's units and learns one set of centroids.
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 model = fitter.fit(units, cohort=cohort)
 print(model.summary())
 
+# %%
+# First feature of each centroid
+# ------------------------------
 fig, ax = plt.subplots(figsize=(6.2, 3.2))
 names = [f"habitat {index + 1}" for index in range(int(model.n_habitats))]
 ax.bar(names, model.centroids[:, 0], color=["#4C78A8", "#F58518", "#54A24B"])

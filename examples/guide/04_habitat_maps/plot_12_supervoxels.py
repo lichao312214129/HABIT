@@ -8,6 +8,8 @@ Input: a :class:`~habit.contracts.VoxelFeatureField`. Output: a
 """
 
 # %%
+# Load one subject
+# ----------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
@@ -25,16 +27,22 @@ DATA = fetch_demo()
 MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+print(subject.subject_id)
 
+# %%
+# Read intensities, then partition
+# --------------------------------
+# SLIC groups nearby voxels with similar intensity. Each row of
+# ``units.features`` is the mean vector of one supervoxel.
 field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
-# SlicSupervoxelizer groups nearby voxels with similar intensity into
-# supervoxels. The result is a Supervoxelization ("units"): one row per
-# supervoxel, with the mean feature vector of its voxels. These units
-# are the smallest clustering element in a two-step habitat study.
+print(f"{field.values.shape[0]} voxels, columns: {list(field.feature_names)}")
 units = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)(field)
 print(f"n_supervoxels={len(units.features)}")
 print(units.features.head())
 
+# %%
+# Supervoxel overlay
+# ------------------
 fig = plot_habitat_overlay(
     subject.image(ROI),
     units,

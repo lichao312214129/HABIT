@@ -112,13 +112,20 @@ fig_hist.savefig("out/cohort_zscore_hist.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# Fit and assign
-# --------------
+# Fit on the pooled voxels
+# ------------------------
+# Fitting stays in this process. It has to see every subject.
+# The scaler state from the cell above is the one this fit uses.
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 units = [voxel_units(field) for field in scaled_fields]
 model = fitter.fit(units, cohort=cohort)
 print(model.summary())
+
+# %%
+# Assign habitats
+# ---------------
+# Assignment reuses these units. It does not extract texture again.
 maps = [slot.result() for slot in backend.map(model.assigner(), units)]
 for habitat_map in maps:
     labels, counts = np.unique(habitat_map.label_array, return_counts=True)

@@ -9,6 +9,8 @@ Input: a cohort of at least two subjects. Output: one shared
 """
 
 # %%
+# Load the cohort
+# ---------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
@@ -28,8 +30,11 @@ ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(f"Cohort: {list(cohort.subject_ids)}")
 
-# direct_pooling_habitat skips supervoxels. Each ROI voxel is its own
-# clustering unit, and one model is fit on every subject's voxels.
+# %%
+# Fit one model on every ROI voxel
+# --------------------------------
+# ``direct_pooling_habitat`` skips supervoxels. Each ROI voxel is its
+# own clustering unit, and one model is fit on every subject's voxels.
 result = direct_pooling_habitat(
     modalities=MODALITIES,
     n_habitats=3,
@@ -41,6 +46,10 @@ print(result.habitat_model.summary())
 print(result.features.frame)
 result.features.frame
 
+# %%
+# Intensities inside each habitat
+# -------------------------------
+# The histogram uses the displayed ROI image, not a feature column.
 Path("out").mkdir(exist_ok=True)
 fig_hist, ax = plt.subplots(figsize=(6.2, 3.2))
 colors = ["#4C78A8", "#F58518", "#54A24B"]
@@ -59,6 +68,9 @@ ax.legend()
 fig_hist.savefig("out/pooling_intensity_hist.png", dpi=150, bbox_inches="tight")
 plt.show()
 
+# %%
+# One overlay per subject
+# -----------------------
 for subject, habitat_map in zip(cohort, result.habitat_maps):
     fig = plot_habitat_overlay(
         subject.image(ROI),

@@ -111,13 +111,20 @@ fig_hist.savefig("out/cohort_binning_hist.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# Fit and assign
-# --------------
+# Fit on the pooled voxels
+# ------------------------
+# Fitting stays in this process. It has to see every subject.
+# Bin indices from the cell above are the values being clustered.
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 units = [voxel_units(field) for field in scaled_fields]
 model = fitter.fit(units, cohort=cohort)
 print(model.summary())
+
+# %%
+# Assign habitats
+# ---------------
+# Assignment reuses these units. It does not extract texture again.
 maps = [slot.result() for slot in backend.map(model.assigner(), units)]
 for habitat_map in maps:
     labels, counts = np.unique(habitat_map.label_array, return_counts=True)

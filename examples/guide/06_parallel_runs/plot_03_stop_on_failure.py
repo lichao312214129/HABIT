@@ -37,10 +37,10 @@ print([subject.subject_id for subject in cohort])
 Path("out").mkdir(exist_ok=True)
 
 # %%
-# Stop on the missing series
-# --------------------------
-# ``seen`` records who actually entered the extractor. The second id is
-# absent, and the exception type is printed.
+# Build the extractor
+# -------------------
+# No cache directory: this page should raise, not reuse a finished field.
+# This cell does not call the extractor.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -60,6 +60,7 @@ texture = VoxelRadiomicsFeatures(
     torch_device="cuda:0",
     use_gpu_matrices=True,
 )
+print("feature classes:", sorted(RADIOMICS_PARAMS["featureClass"]))
 seen: list[str] = []
 
 
@@ -69,6 +70,11 @@ def extract(subject: Subject):
     return texture(subject)
 
 
+# %%
+# Stop on the missing series
+# --------------------------
+# ``seen`` records who actually entered the extractor. The second id is
+# absent, and the exception type is printed.
 try:
     list(SerialBackend(on_subject_failure="fail_fast").map(extract, cohort))
 except Exception as exc:
@@ -76,6 +82,10 @@ except Exception as exc:
     print(exc)
 print("visited:", seen)
 
+# %%
+# Who was visited
+# ---------------
+# Grey is the subject the backend did not start.
 labels = [subject.subject_id for subject in cohort]
 colors = ["#4C78A8" if subject_id in seen else "#D0D0D0" for subject_id in labels]
 fig, ax = plt.subplots(figsize=(6.4, 2.4))

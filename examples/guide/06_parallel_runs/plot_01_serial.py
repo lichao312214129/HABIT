@@ -36,10 +36,10 @@ Path("out").mkdir(exist_ok=True)
 CACHE = str((Path("out") / "voxel_texture_cache").resolve())
 
 # %%
-# Extract, z-score, fit, assign
-# -----------------------------
-# ``SerialBackend.map`` yields one slot per subject, in cohort order.
-# The printed card and the voxel counts are the result of that chain.
+# Build the extractor and the serial backend
+# ------------------------------------------
+# Radius 3 is a 7×7×7 neighbourhood. ``binWidth`` 12 is the PyRadiomics
+# grey-level width. This cell does not extract texture.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -64,16 +64,40 @@ zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 backend = SerialBackend()
+print(type(backend).__name__)
+print("feature classes:", sorted(RADIOMICS_PARAMS["featureClass"]))
 
+# %%
+# Extract texture
+# ---------------
+# ``SerialBackend.map`` yields one slot per subject, in cohort order.
 fields = [slot.result() for slot in backend.map(texture, cohort)]
 for field in fields:
     print(
         f"{field.subject_id}: {field.values.shape[0]} voxels, "
         f"{len(field.feature_names)} columns"
     )
+
+# %%
+# Z-score inside each subject
+# ---------------------------
+# Mean and standard deviation are computed on that subject only.
+column = next(
+    name
+    for name in fields[0].feature_names
+    if "Contrast" in name and name.endswith("-LAP")
+)
 scaled_fields = []
 for field in fields:
     scaled = zscore(field.feature_frame())
+    print(
+        field.subject_id,
+        column,
+        "mean",
+        round(float(scaled[column].mean()), 3),
+        "std",
+        round(float(scaled[column].std()), 3),
+    )
     scaled_fields.append(
         field.with_feature_frame(
             scaled,
@@ -81,9 +105,19 @@ for field in fields:
             spec_fingerprint=zscore.spec.fingerprint(),
         )
     )
+
+# %%
+# Fit on the pooled voxels
+# ------------------------
+# Fitting stays in this process: it has to see every subject.
 units = [voxel_units(field) for field in scaled_fields]
 model = fitter.fit(units, cohort=cohort)
 print(model.summary())
+
+# %%
+# Assign habitats
+# ---------------
+# Assignment reuses these units. It does not extract texture again.
 maps = [slot.result() for slot in backend.map(model.assigner(), units)]
 for habitat_map in maps:
     labels, counts = np.unique(habitat_map.label_array, return_counts=True)

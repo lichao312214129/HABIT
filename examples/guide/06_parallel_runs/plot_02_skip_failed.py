@@ -44,10 +44,10 @@ Path("out").mkdir(exist_ok=True)
 CACHE = str((Path("out") / "voxel_texture_cache").resolve())
 
 # %%
-# Continue after the missing series
-# ---------------------------------
-# The successful slot is a texture field. The failed slot carries the
-# exception. Habitats are fit on the subjects that produced a field.
+# Build the extractor
+# -------------------
+# The same four series are requested for every subject. ``missing_lap``
+# cannot satisfy that request. This cell does not extract texture.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -69,6 +69,13 @@ texture = VoxelRadiomicsFeatures(
     cache_dir=CACHE,
 )
 backend = SerialBackend(on_subject_failure="continue")
+print(type(backend).__name__, backend.on_subject_failure)
+
+# %%
+# Extract, and keep the batch after the failure
+# ---------------------------------------------
+# The successful slot is a texture field. The failed slot carries the
+# exception. Nothing is fit in this cell.
 slots = list(backend.map(texture, cohort))
 ok_fields = []
 ok_subjects = []
@@ -84,21 +91,47 @@ for slot, subject in zip(slots, cohort):
     else:
         print(slot.subject_id, type(slot.error).__name__, slot.error)
 
+# %%
+# Z-score the subjects that produced a field
+# ------------------------------------------
+# The incomplete subject is not in this list.
 zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
+column = next(
+    name
+    for name in ok_fields[0].feature_names
+    if "Contrast" in name and name.endswith("-LAP")
+)
 scaled_fields = []
 for field in ok_fields:
+    scaled = zscore(field.feature_frame())
+    print(
+        field.subject_id,
+        column,
+        "mean",
+        round(float(scaled[column].mean()), 3),
+        "std",
+        round(float(scaled[column].std()), 3),
+    )
     scaled_fields.append(
         field.with_feature_frame(
-            zscore(field.feature_frame()),
+            scaled,
             produced_by="subject_feature_preprocessor",
             spec_fingerprint=zscore.spec.fingerprint(),
         )
     )
+
+# %%
+# Fit on the successful subjects
+# ------------------------------
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 units = [voxel_units(field) for field in scaled_fields]
 model = fitter.fit(units, cohort=Cohort(ok_subjects, name="skip-ok"))
 print(model.summary())
+
+# %%
+# Assign the subject that has every series
+# ----------------------------------------
 habitat_map = model.assigner()(units[0])
 labels, counts = np.unique(habitat_map.label_array, return_counts=True)
 present = {
@@ -108,6 +141,9 @@ present = {
 }
 print(habitat_map.subject_id, "voxels per habitat:", present)
 
+# %%
+# Which slots succeeded
+# ---------------------
 names = [slot.subject_id for slot in slots]
 colors = ["#54A24B" if slot.error is None else "#E45756" for slot in slots]
 fig, ax = plt.subplots(figsize=(6.4, 2.6))
@@ -117,6 +153,9 @@ ax.set_title("continue after a missing series")
 fig.savefig("out/skip_failed.png", dpi=150, bbox_inches="tight")
 plt.show()
 
+# %%
+# Habitat map of the complete subject
+# -----------------------------------
 fig_map = plot_habitat_overlay(
     source.image(ROI),
     habitat_map,

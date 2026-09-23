@@ -12,6 +12,8 @@ labels before comparing people:
 """
 
 # %%
+# Load the cohort
+# ---------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
@@ -29,10 +31,13 @@ DATA = fetch_demo()
 MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
+print(f"Cohort: {list(cohort.subject_ids)}")
 
-# One-step: each subject gets its own private clustering. The integer
-# labels are arbitrary across subjects -- habitat 1 in subj001 is not
-# habitat 1 in subj002.
+# %%
+# Fit a private model inside each subject
+# ---------------------------------------
+# Habitat 1 in the first subject is not habitat 1 in the second.
+# There is no shared centroid.
 result = one_step_habitat(
     modalities=MODALITIES,
     n_habitats=3,

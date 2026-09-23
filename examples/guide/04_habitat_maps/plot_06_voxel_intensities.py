@@ -8,6 +8,8 @@ Input: one :class:`~habit.contracts.Subject`. Output: a
 """
 
 # %%
+# Load one subject
+# ----------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
@@ -24,17 +26,22 @@ DATA = fetch_demo()
 MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+print(subject.subject_id, sorted(subject.images))
 
-# RawVoxelFeatures reads the ROI voxels from each phase and returns a
-# VoxelFeatureField: one row per voxel, one column per modality, plus
-# the 3D grid position of every row so the field can be rendered back
-# into image space.
+# %%
+# Read one row per ROI voxel
+# --------------------------
+# ``RawVoxelFeatures`` returns a field with one column per phase, plus
+# the grid position of every row so the field can be drawn back into
+# the image.
 field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
 print(field.feature_frame().head())
 field.feature_frame().head()
 
-# The slice shows the ROI anatomy (LAP). The table above has one
-# column per phase: pre_contrast, LAP, and PVP.
+# %%
+# Arterial-phase slice
+# --------------------
+# The table above has one column per phase: pre_contrast, LAP, and PVP.
 fig = plot_intensity_slice(
     subject.image(ROI),
     roi_mask=subject.mask(ROI),

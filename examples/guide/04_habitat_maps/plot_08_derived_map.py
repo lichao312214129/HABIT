@@ -8,6 +8,8 @@ phases. Output: a :class:`~habit.contracts.HabitatMap`. Stage:
 """
 
 # %%
+# Load one subject
+# ----------------
 # Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 # sphinx_gallery_thumbnail_number = 2
 from pathlib import Path
@@ -26,9 +28,13 @@ DATA = fetch_demo()
 MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
 ROI = "LAP"
 subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+print(subject.subject_id, sorted(subject.images))
 
-# ExpressionVoxelFeatures evaluates arithmetic on the raw phases.
-# Each key becomes one column in the VoxelFeatureField.
+# %%
+# Build the four derived maps
+# ---------------------------
+# Each key becomes one column. ``eps`` keeps a zero denominator from
+# breaking the ratio.
 extractor = ExpressionVoxelFeatures(
     features={
         "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
@@ -39,10 +45,13 @@ extractor = ExpressionVoxelFeatures(
     roi=ROI,
 )
 field = extractor(subject)
+print(f"{field.values.shape[0]} voxels, columns: {list(field.feature_names)}")
 print(field.feature_frame().head())
 
-# voxel_units wraps the field as one-voxel Supervoxelization units,
-# so the fitter sees every voxel as its own clustering unit.
+# %%
+# Fit and assign on these voxels
+# ------------------------------
+# ``voxel_units`` makes every ROI voxel its own clustering unit.
 units = voxel_units(field)
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
@@ -50,6 +59,9 @@ model = fitter.fit([units], cohort=Cohort([subject], name="one"))
 habitat_map = model.assigner()(units)
 print(model.summary())
 
+# %%
+# Relative enhancement
+# --------------------
 Path("out").mkdir(exist_ok=True)
 fig_field = plot_voxel_texture_slice(
     field,
@@ -62,6 +74,9 @@ fig_field = plot_voxel_texture_slice(
 fig_field.savefig("out/relative_enhancement.png", dpi=150, bbox_inches="tight")
 plt.show()
 
+# %%
+# Habitats from the derived maps
+# ------------------------------
 fig = plot_habitat_overlay(
     subject.image(ROI),
     habitat_map,

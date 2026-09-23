@@ -10,12 +10,9 @@ does not start another pool.
 """
 
 # %%
-# Load the cohort and build the pool
-# ----------------------------------
-# Building the backend does not start workers. ``map`` does.
-# ``subject_timeout_sec`` is enforced only on this backend. The short
-# wall-clock page sets a limit that texture cannot meet; this page leaves
-# the default so both subjects finish.
+# Load the cohort
+# ---------------
+# Building the backend in the next cell does not start workers. ``map`` does.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
@@ -39,6 +36,13 @@ cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(cohort)
 Path("out").mkdir(exist_ok=True)
 CACHE = str((Path("out") / "voxel_texture_cache").resolve())
+
+# %%
+# Build the pool
+# --------------
+# ``subject_timeout_sec`` is enforced only on this backend. The short
+# wall-clock page sets a limit that texture cannot meet; this page leaves
+# the default so both subjects finish. Workers are not started here.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -72,30 +76,60 @@ policy = RunPolicy(
 backend = backend_from_policy(policy)
 print(type(backend).__name__, backend.workers, backend.policy.parallel_mode)
 
-
 # %%
-# Map texture, then map assignment
-# --------------------------------
-def main() -> None:
-    """Run the chain once this file is the original script."""
+# Extract texture in the pool
+# ---------------------------
+# On Windows this guard stops a spawned worker from starting another pool.
+if __name__ == "__main__":
     fields = [slot.result() for slot in backend.map(texture, cohort)]
     for field in fields:
         print(
             f"{field.subject_id}: {field.values.shape[0]} voxels, "
             f"{len(field.feature_names)} columns"
         )
+
+# %%
+# Z-score in this process
+# -----------------------
+# The pool is idle. Each subject is scaled on its own rows.
+if __name__ == "__main__":
+    column = next(
+        name
+        for name in fields[0].feature_names
+        if "Contrast" in name and name.endswith("-LAP")
+    )
     scaled_fields = []
     for field in fields:
+        scaled = zscore(field.feature_frame())
+        print(
+            field.subject_id,
+            column,
+            "mean",
+            round(float(scaled[column].mean()), 3),
+            "std",
+            round(float(scaled[column].std()), 3),
+        )
         scaled_fields.append(
             field.with_feature_frame(
-                zscore(field.feature_frame()),
+                scaled,
                 produced_by="subject_feature_preprocessor",
                 spec_fingerprint=zscore.spec.fingerprint(),
             )
         )
+
+# %%
+# Fit in this process
+# -------------------
+# The fitter has to see every subject, so it does not go through ``map``.
+if __name__ == "__main__":
     units = [voxel_units(field) for field in scaled_fields]
     model = fitter.fit(units, cohort=cohort)
     print(model.summary())
+
+# %%
+# Assign habitats in the pool
+# ---------------------------
+if __name__ == "__main__":
     maps = [slot.result() for slot in backend.map(model.assigner(), units)]
     for habitat_map in maps:
         labels, counts = np.unique(habitat_map.label_array, return_counts=True)
@@ -113,7 +147,3 @@ def main() -> None:
     )
     fig_map.savefig("out/process_pool_habitats.png", dpi=150, bbox_inches="tight")
     plt.show()
-
-
-if __name__ == "__main__":
-    main()

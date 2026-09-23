@@ -9,8 +9,8 @@ higher; the habitat counts are the same chain.
 """
 
 # %%
-# Load the cohort and select isolated mode
-# ----------------------------------------
+# Load the cohort
+# ---------------
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
@@ -34,6 +34,11 @@ cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(cohort)
 Path("out").mkdir(exist_ok=True)
 CACHE = str((Path("out") / "voxel_texture_cache").resolve())
+
+# %%
+# Select one fresh process per subject
+# ------------------------------------
+# ``isolated`` does not keep a worker after a subject finishes.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -66,19 +71,23 @@ policy = RunPolicy(
 backend = backend_from_policy(policy)
 print(type(backend).__name__, backend.policy.parallel_mode)
 
-
 # %%
-# Run one process per subject
-# ---------------------------
-def main() -> None:
-    """Extract texture in isolated children, then assign the same way."""
+# Extract texture, one process per subject
+# ----------------------------------------
+if __name__ == "__main__":
     fields = [slot.result() for slot in backend.map(texture, cohort)]
-    scaled_fields = []
     for field in fields:
         print(
             f"{field.subject_id}: {field.values.shape[0]} voxels, "
             f"{len(field.feature_names)} columns"
         )
+
+# %%
+# Z-score and fit in this process
+# -------------------------------
+if __name__ == "__main__":
+    scaled_fields = []
+    for field in fields:
         scaled_fields.append(
             field.with_feature_frame(
                 zscore(field.feature_frame()),
@@ -89,6 +98,11 @@ def main() -> None:
     units = [voxel_units(field) for field in scaled_fields]
     model = fitter.fit(units, cohort=cohort)
     print(model.summary())
+
+# %%
+# Assign in a fresh process per subject
+# -------------------------------------
+if __name__ == "__main__":
     maps = [slot.result() for slot in backend.map(model.assigner(), units)]
     for habitat_map in maps:
         labels, counts = np.unique(habitat_map.label_array, return_counts=True)
@@ -106,7 +120,3 @@ def main() -> None:
     )
     fig_map.savefig("out/isolated_habitats.png", dpi=150, bbox_inches="tight")
     plt.show()
-
-
-if __name__ == "__main__":
-    main()

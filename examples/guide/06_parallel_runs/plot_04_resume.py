@@ -31,11 +31,11 @@ Path("out").mkdir(exist_ok=True)
 CACHE = str((Path("out") / "voxel_texture_cache").resolve())
 
 # %%
-# Key the checkpoint on the texture spec
-# --------------------------------------
-# A plain function would be keyed only by class name and subject id.
-# ``cache_key`` folds in ``texture.spec.fingerprint()``, which changes
-# when the series, radius, or ``binWidth`` change.
+# Build the extractor
+# -------------------
+# ``cache_key`` below folds in ``texture.spec.fingerprint()``, which
+# changes when the series, radius, or ``binWidth`` change. This cell
+# does not extract texture.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -74,12 +74,23 @@ class CachedTexture:
         return f"voxel_radiomics:{digest}:{subject.subject_id}"
 
 
-store = CheckpointStore(Path(tempfile.mkdtemp(prefix="habit_ckpt_")))
 operator = CachedTexture(texture)
+print(operator.cache_key(cohort[0]))
+
+# %%
+# First pass writes the checkpoint
+# --------------------------------
+# A new store is empty, so both subjects are computed.
+store = CheckpointStore(Path(tempfile.mkdtemp(prefix="habit_ckpt_")))
 backend = SerialBackend()
 first = list(backend.map(operator, cohort, checkpoint=store))
-second = list(backend.map(operator, cohort, checkpoint=store))
 print("first from_cache:", [slot.from_cache for slot in first])
+
+# %%
+# Second pass reads the checkpoint
+# --------------------------------
+# ``from_cache`` is true, and the field is the one stored on the first pass.
+second = list(backend.map(operator, cohort, checkpoint=store))
 print("second from_cache:", [slot.from_cache for slot in second])
 for slot in second:
     field = slot.result()
@@ -88,6 +99,9 @@ for slot in second:
         f"{field.values.shape[0]} voxels, {len(field.feature_names)} columns",
     )
 
+# %%
+# Computed pass versus cached pass
+# --------------------------------
 labels = [slot.subject_id for slot in second]
 positions = range(len(labels))
 fig, ax = plt.subplots(figsize=(6.4, 3.2))
