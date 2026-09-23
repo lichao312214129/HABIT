@@ -3,4 +3,4 @@
 Atomic operators
 ================
 
-Moved to :doc:`/auto_examples/04_habitat_maps/plot_17_chain`.
+Moved to :doc:`/auto_examples/04_habitat_maps/index`.

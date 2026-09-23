@@ -351,12 +351,6 @@ and the :class:`~habit.spec.HabitatSpec` stage.
   :doc:`/auto_examples/04_habitat_maps/plot_13_fit_model`.
 * **Assigning habitat labels** —
   :doc:`/auto_examples/04_habitat_maps/plot_14_assign_labels`.
-* **Clustering habitats inside one subject** —
-  :doc:`/auto_examples/04_habitat_maps/plot_15_one_subject`.
-* **Measuring habitats on a label map** —
-  :doc:`/auto_examples/04_habitat_maps/plot_16_measure_volume`.
-* **Chaining the steps** —
-  :doc:`/auto_examples/04_habitat_maps/plot_17_chain`.
 
 
 .. raw:: html
@@ -605,57 +599,6 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject wrapped as a Cohort. Output: that subject&#x27;s HabitatMap. This is the one-step design with no partition and no pool.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_15_one_subject_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04_habitat_maps/plot_15_one_subject`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Clustering habitats inside one subject</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: a Subject and a HabitatMap. Output: a FeatureTable of voxel counts and volume fractions. Stage: quantify with volume.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_16_measure_volume_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04_habitat_maps/plot_16_measure_volume`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Measuring habitats on a label map</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a HabitatMap. SubjectPipeline runs extract, partition, and assign. Swap RawVoxelFeatures for another extractor to change only the VoxelFeatureField.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_17_chain_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04_habitat_maps/plot_17_chain`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Chaining the steps</div>
     </div>
 
 
