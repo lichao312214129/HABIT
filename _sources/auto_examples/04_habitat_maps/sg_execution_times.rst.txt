@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:15.289** total execution time for 6 files **from auto_examples\04_habitat_maps**:
+**07:04.152** total execution time for 17 files **from auto_examples\04_habitat_maps**:
 
 .. container::
 
@@ -32,21 +32,54 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_01_recipes.py` (``plot_01_recipes.py``)
-     - 00:15.289
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_07_voxel_texture.py` (``plot_07_voxel_texture.py``)
+     - 02:35.976
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_00_supervoxels.py` (``plot_00_supervoxels.py``)
-     - 00:00.000
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_09_texture_habitats.py` (``plot_09_texture_habitats.py``)
+     - 02:32.506
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_02_atomic_ops.py` (``plot_02_atomic_ops.py``)
-     - 00:00.000
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_01_two_step.py` (``plot_01_two_step.py``)
+     - 00:29.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_choose_algorithm.py` (``plot_03_choose_algorithm.py``)
-     - 00:00.000
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_17_chain.py` (``plot_17_chain.py``)
+     - 00:18.350
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_14_assign_labels.py` (``plot_14_assign_labels.py``)
+     - 00:12.032
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_13_fit_model.py` (``plot_13_fit_model.py``)
+     - 00:11.916
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py` (``plot_04_apply_saved_model.py``)
-     - 00:00.000
+     - 00:10.494
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_12_supervoxels.py` (``plot_12_supervoxels.py``)
+     - 00:05.856
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_11_preprocess_compare.py` (``plot_11_preprocess_compare.py``)
+     - 00:05.752
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py` (``plot_05_match_labels.py``)
-     - 00:00.000
+     - 00:05.534
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_02_inside_each_subject.py` (``plot_02_inside_each_subject.py``)
+     - 00:04.160
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_pool_voxels.py` (``plot_03_pool_voxels.py``)
+     - 00:03.307
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_06_voxel_intensities.py` (``plot_06_voxel_intensities.py``)
+     - 00:02.004
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_15_one_subject.py` (``plot_15_one_subject.py``)
+     - 00:01.920
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_10_preprocess_features.py` (``plot_10_preprocess_features.py``)
+     - 00:01.861
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_08_derived_map.py` (``plot_08_derived_map.py``)
+     - 00:01.799
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_16_measure_volume.py` (``plot_16_measure_volume.py``)
+     - 00:01.685
      - 0.0

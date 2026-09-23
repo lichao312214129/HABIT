@@ -1,6 +1,6 @@
 """
-Match habitat labels
-=====================
+Matching habitat labels across fits
+===================================
 
 Independent fits permute integer ids: habitat 1 of subject B need not
 be habitat 1 of subject A. :mod:`habit.kernels.habitat_label_match`

@@ -18,8 +18,8 @@
 .. _sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py:
 
 
-Match habitat labels
-=====================
+Matching habitat labels across fits
+===================================
 
 Independent fits permute integer ids: habitat 1 of subject B need not
 be habitat 1 of subject A. :mod:`habit.kernels.habitat_label_match`
@@ -126,8 +126,8 @@ across patients.
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Subjects: ['subj001', 'subj002']; matching demo uses subj001
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.31s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.31s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.20s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.20s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.27s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.27s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.25s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.25s/it]
 
 
 
@@ -299,7 +299,7 @@ cross-patient operator; overlap cannot name habitats across grids.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.356 seconds)
+   **Total running time of the script:** (0 minutes 5.534 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_05_match_labels.py:

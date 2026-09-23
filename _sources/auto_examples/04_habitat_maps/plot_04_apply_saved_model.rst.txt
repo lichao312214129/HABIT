@@ -18,8 +18,8 @@
 .. _sphx_glr_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py:
 
 
-Apply a saved model
-===================
+Applying a saved habitat model
+==============================
 
 Train a two-step habitat definition, round-trip the
 :class:`~habit.contracts.HabitatModel` through a ``.habitatmodel``
@@ -154,8 +154,8 @@ Fit on the discovery cohort and persist one self-describing archive.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.04s/it]    Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:02<00:01,  1.01s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.00it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.00it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:00<00:01,  1.73it/s]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:01<00:00,  1.74it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:01<00:00,  1.76it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:01<00:00,  1.76it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.15s/it]    Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:02<00:01,  1.07s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03<00:00,  1.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03<00:00,  1.05s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.18s/it]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:01<00:00,  1.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.30it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.30it/s]
     HabitatModel kmeans-8a84cd5253eb126f
       habitats           : 3
       features (1)    : LAP
@@ -214,7 +214,7 @@ Reload and label held-out subjects. No fitting after the reload.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01<00:01,  1.63s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.69s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.69s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01<00:01,  1.67s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.73s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03<00:00,  1.73s/it]
     Applied to ['subj004', 'subj005']
        subject  habitat_1_voxel_count  ...    energy  ith_score
     0  subj004                 2426.0  ...  3.552956   0.814030
@@ -230,7 +230,7 @@ Reload and label held-out subjects. No fitting after the reload.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 9.669 seconds)
+   **Total running time of the script:** (0 minutes 10.494 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py:
