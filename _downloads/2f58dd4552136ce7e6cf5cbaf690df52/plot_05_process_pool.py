@@ -3,58 +3,115 @@ Running subjects in separate processes
 ======================================
 
 ``RunPolicy(workers=2, backend="process")`` builds a
-:class:`~habit.execution.ProcessPoolBackend`. Pass that object as
-``backend=`` to ``fit_predict``. ``subject_timeout_sec`` is enforced
-only on this backend. On Windows the ``map`` call must sit under
-``if __name__ == "__main__":``.
+:class:`~habit.execution.ProcessPoolBackend`. Texture extraction and
+habitat assignment run in that pool. Z-scoring and fitting stay in this
+process. On Windows the ``map`` calls sit under ``__main__`` so a worker
+does not start another pool.
 """
 
 # %%
+# Load the cohort and build the pool
+# ----------------------------------
 # Building the backend does not start workers. ``map`` does.
-# This docs build has no script path, so it stops after printing the backend.
+# ``subject_timeout_sec`` is enforced only on this backend. The short
+# wall-clock page sets a limit that texture cannot meet; this page leaves
+# the default so both subjects finish.
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 
-from habit.contracts import Cohort, Subject
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
 from habit.execution import backend_from_policy
+from habit.feature_preprocessing import SubjectPreprocessingChain, ZScoreScaling
+from habit.habitat_model import KMeansHabitatModelFitter
+from habit.pipeline import voxel_units
 from habit.spec import RunPolicy
+from habit.viz import plot_habitat_overlay
+from habit.voxel_features import VoxelRadiomicsFeatures
 
-cohort = Cohort(
-    [
-        Subject(subject_id="subj001", images={}, masks={}),
-        Subject(subject_id="subj002", images={}, masks={}),
-        Subject(subject_id="subj003", images={}, masks={}),
-    ],
-    name="processes",
+DATA = fetch_demo()
+MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
+ROI = "LAP"
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+print(cohort)
+Path("out").mkdir(exist_ok=True)
+CACHE = str((Path("out") / "voxel_texture_cache").resolve())
+RADIOMICS_PARAMS = {
+    "imageType": {"Original": {}},
+    "featureClass": {
+        "firstorder": ["Mean", "Entropy"],
+        "glcm": ["Contrast", "Correlation", "Idm", "JointEntropy"],
+        "glrlm": ["ShortRunEmphasis", "LongRunEmphasis"],
+    },
+    "setting": {"binWidth": 12},
+}
+texture = VoxelRadiomicsFeatures(
+    modalities=list(MODALITIES),
+    roi=ROI,
+    kernel_radius=3,
+    params=RADIOMICS_PARAMS,
+    voxel_batch=1000,
+    use_torch_radiomics=True,
+    torch_device="cuda:0",
+    use_gpu_matrices=True,
+    cache_dir=CACHE,
 )
+zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
+fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+fitter.set_random_state(0)
+policy = RunPolicy(
+    workers=2,
+    backend="process",
+    parallel_mode="persistent",
+    on_subject_failure="continue",
+    auto_retry_rounds=0,
+)
+backend = backend_from_policy(policy)
+print(type(backend).__name__, backend.workers, backend.policy.parallel_mode)
 
-def subject_label(subject: Subject) -> str:
-    """Return the subject id. Workers re-import this function."""
-    return subject.subject_id
 
+# %%
+# Map texture, then map assignment
+# --------------------------------
 def main() -> None:
-    """Build the pool and, when this file is the script, map the cohort."""
-    policy = RunPolicy(
-        workers=2,
-        backend="process",
-        parallel_mode="persistent",
-        on_subject_failure="continue",
-        subject_timeout_sec=30.0,
+    """Run the chain once this file is the original script."""
+    fields = [slot.result() for slot in backend.map(texture, cohort)]
+    for field in fields:
+        print(
+            f"{field.subject_id}: {field.values.shape[0]} voxels, "
+            f"{len(field.feature_names)} columns"
+        )
+    scaled_fields = []
+    for field in fields:
+        scaled_fields.append(
+            field.with_feature_frame(
+                zscore(field.feature_frame()),
+                produced_by="subject_feature_preprocessor",
+                spec_fingerprint=zscore.spec.fingerprint(),
+            )
+        )
+    units = [voxel_units(field) for field in scaled_fields]
+    model = fitter.fit(units, cohort=cohort)
+    print(model.summary())
+    maps = [slot.result() for slot in backend.map(model.assigner(), units)]
+    for habitat_map in maps:
+        labels, counts = np.unique(habitat_map.label_array, return_counts=True)
+        present = {
+            int(label): int(count)
+            for label, count in zip(labels, counts)
+            if int(label) != 0
+        }
+        print(habitat_map.subject_id, "voxels per habitat:", present)
+    fig_map = plot_habitat_overlay(
+        cohort[0].image(ROI),
+        maps[0],
+        title="habitats (process pool)",
+        crop_to="labels",
     )
-    backend = backend_from_policy(policy)
-    print(type(backend).__name__, backend.workers, backend.policy.subject_timeout_sec)
-    # Workers re-import this file. Only the original script should map.
-    if "__file__" in globals():
-        slots = list(backend.map(subject_label, cohort))
-        print([slot.result() for slot in slots])
-    fig, ax = plt.subplots(figsize=(6.4, 2.6))
-    worker_labels = [f"worker {index + 1}" for index in range(int(backend.workers))]
-    ax.barh(worker_labels, [1] * len(worker_labels), color="#4C78A8")
-    ax.set_xlabel("slot")
-    ax.set_title(f"process pool (timeout {backend.policy.subject_timeout_sec:g} s)")
-    Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/process_pool.png", dpi=150, bbox_inches="tight")
+    fig_map.savefig("out/process_pool_habitats.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 

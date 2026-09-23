@@ -142,6 +142,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
 </ul>
 </li>
 </ul>
@@ -684,16 +691,7 @@ habitat maps. Pass <code class="docutils literal notranslate"><span class="pre">
 
 <section id="examples-using-habit-viz-plot-partition-triptych">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_partition_triptych</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-partition-triptych" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. Stages: partition then pool then fit."><img alt="" src="../../_images/sphx_glr_plot_01_two_step_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject wrapped as a Cohort. Output: that subject&#x27;s HabitatMap. This is the one-step design with no partition and no pool."><img alt="" src="../../_images/sphx_glr_plot_15_one_subject_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_15_one_subject.html"><span class="doc">Clustering habitats inside one subject</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats inside one subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a HabitatMap. SubjectPipeline runs extract, partition, and assign. Swap RawVoxelFeatures for another extractor to change only the VoxelFeatureField."><img alt="" src="../../_images/sphx_glr_plot_17_chain_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_17_chain.html"><span class="doc">Chaining the steps</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Chaining the steps</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
 <p><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a></p>
   <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>
 </div></div><div style="clear:both"></div></section>

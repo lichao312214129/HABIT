@@ -5,10 +5,28 @@
 6. Parallel runs
 ================
 
-:class:`~habit.spec.HabitatSpec` is what to compute.
-:class:`~habit.spec.RunPolicy` is how to schedule it.
-The same cohort and the same ``fit_predict`` call take a different
-backend. A fixed ``random_seed`` keeps the maps aligned with a serial run.
+Voxel texture (four DCE series, radius 3, ``binWidth`` 12) is the
+workload. Feature preprocessing changes the numbers. A backend only
+changes how subjects are scheduled. GPU and ``voxel_batch`` are set on
+the extractor; they do not change the texture definition.
+
+Preprocessing, one method per page. Scheduling on these pages is
+:class:`~habit.execution.SerialBackend`.
+
+* **Subject z-score** (and the matching ``HabitatSpec``) —
+  :doc:`/auto_examples/06_parallel_runs/plot_08_subject_zscore`.
+* **Subject robust scaling** —
+  :doc:`/auto_examples/06_parallel_runs/plot_09_subject_robust`.
+* **Subject winsorizing** —
+  :doc:`/auto_examples/06_parallel_runs/plot_10_subject_winsorize`.
+* **Cohort z-score** —
+  :doc:`/auto_examples/06_parallel_runs/plot_11_cohort_zscore`.
+* **Cohort binning** —
+  :doc:`/auto_examples/06_parallel_runs/plot_12_cohort_binning`.
+
+Scheduling uses the subject z-score chain unless the page is about a
+failure. A fixed ``random_seed`` keeps finished maps aligned with a
+serial run.
 
 * **One machine, in order** —
   :doc:`/auto_examples/06_parallel_runs/plot_01_serial`.
@@ -22,11 +40,12 @@ backend. A fixed ``random_seed`` keeps the maps aligned with a serial run.
   :doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`.
 * **Do not pay worker startup twice** —
   :doc:`/auto_examples/06_parallel_runs/plot_06_reuse_workers`.
+* **One fresh process per subject** —
+  :doc:`/auto_examples/06_parallel_runs/plot_13_isolated`.
+* **Per-subject wall-clock limit** —
+  :doc:`/auto_examples/06_parallel_runs/plot_14_wall_clock`.
 * **One worker per GPU** (recorded timings, not re-run here) —
   :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`.
-
-A per-subject time limit is enforced only by the process backend.
-It is set on the process-pool page.
 
 
 .. raw:: html
@@ -42,7 +61,7 @@ It is set on the process-pool page.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Omit backend and the study runs in this process, one subject after another. That is the laptop default. Pass the same Cohort you would pass to fit_predict.">
+    <div class="sphx-glr-thumbcontainer" tooltip="SerialBackend runs the texture extraction and the habitat assignment in this process, one subject after another. Z-scoring and fitting stay here as well: the scaler is per subject, and the fit has to see every subject. The matching HabitatSpec is on the subject z-score page.">
 
 .. only:: html
 
@@ -59,7 +78,7 @@ It is set on the process-pool page.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;continue&quot; keeps the batch. The failed subject is a result slot with error set. The others still finish.">
+    <div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;continue&quot; keeps the batch. One subject here has no arterial-phase image, so texture extraction raises. The other subject still receives a habitat map. The error is stored on that subject&#x27;s slot.">
 
 .. only:: html
 
@@ -76,7 +95,7 @@ It is set on the process-pool page.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;fail_fast&quot; re-raises the first subject error and does not run the rest. Use it when a partial cohort would be misread as a finished study.">
+    <div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;fail_fast&quot; re-raises the first subject error and does not run the rest. The incomplete subject is first, so the real extraction of the complete subject never starts.">
 
 .. only:: html
 
@@ -93,7 +112,7 @@ It is set on the process-pool page.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A CheckpointStore records each success. The next map with the same store and the same callable returns those subjects from the store (``from_cache``) and does not call the function again. Study.fit_predict(..., checkpoint=store) uses this store.">
+    <div class="sphx-glr-thumbcontainer" tooltip="A CheckpointStore records each success. The checkpoint key includes the texture specification, so changing the feature list or binWidth does not reuse the old field. The second map returns from_cache=True and does not recompute texture.">
 
 .. only:: html
 
@@ -110,7 +129,7 @@ It is set on the process-pool page.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend. Pass that object as backend= to fit_predict. subject_timeout_sec is enforced only on this backend. On Windows the map call must sit under if __name__ == &quot;__main__&quot;:.">
+    <div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend. Texture extraction and habitat assignment run in that pool. Z-scoring and fitting stay in this process. On Windows the map calls sit under __main__ so a worker does not start another pool.">
 
 .. only:: html
 
@@ -127,7 +146,7 @@ It is set on the process-pool page.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays spawn and import on the first map. with backend.reuse_workers(): keeps those workers for the next map in the same block. Two-step studies use this so partitioning and labelling do not start the pool twice.">
+    <div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays spawn and import on the first map. with backend.reuse_workers(): keeps those workers for the assignment map that follows. Z-scoring and fitting run in this process while the workers stay up.">
 
 .. only:: html
 
@@ -159,6 +178,125 @@ It is set on the process-pool page.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Per-subject z-score uses each lesion&#x27;s own mean and standard deviation. The atomic calls and the HabitatSpec below are the same analysis: four DCE series, GLCM / first-order / GLRLM texture, radius 3, binWidth 12, then habitats fit on the pooled voxels.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_08_subject_zscore_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_08_subject_zscore`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Subject z-score on voxel texture</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Robust scaling centres each column on that subject&#x27;s median and divides by its interquartile range. The texture definition matches the subject z-score page; only the scaler changes.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_09_subject_robust_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_09_subject_robust`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Subject robust scaling on voxel texture</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Winsorizing clips each column at that subject&#x27;s tail quantiles. It does not rescale the centre of the distribution. The texture definition matches the other pages in this section.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_10_subject_winsorize_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_10_subject_winsorize`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Subject winsorizing on voxel texture</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Cohort z-score is fitted once on the pooled training rows and replayed on every subject. A single subject&#x27;s column mean is then not zero: both subjects share the training mean and standard deviation. That fitted state has to travel with the habitat model.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_11_cohort_zscore_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_11_cohort_zscore`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Cohort z-score on voxel texture</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Bin edges are learned on the pooled training rows. The same bin index then means the same texture range in every subject. This is not a rescaling: the stored values are bin indices.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_12_cohort_binning_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_12_cohort_binning`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Cohort binning on voxel texture</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="parallel_mode=&quot;isolated&quot; starts a new process for every subject instead of keeping a worker alive. The texture definition and the subject z-score match the persistent process-pool page. Spawn cost is higher; the habitat counts are the same chain.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_13_isolated_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_13_isolated`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">One fresh process per subject</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="subject_timeout_sec is enforced only by the process backend. The limit on this page is 2 seconds, below a real texture extraction, and the extractor is not allowed to read the on-disk texture cache. parallel_mode=&quot;isolated&quot; and workers=1 run one subject at a time in its own process, so the limit is recorded on every slot. Both finish as SubjectTimeoutError. A study that should finish uses a limit on the order of minutes.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_14_wall_clock_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_14_wall_clock`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Per-subject wall-clock limit</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -176,4 +314,11 @@ It is set on the process-pool page.
    /auto_examples/06_parallel_runs/plot_05_process_pool
    /auto_examples/06_parallel_runs/plot_06_reuse_workers
    /auto_examples/06_parallel_runs/plot_07_several_gpus
+   /auto_examples/06_parallel_runs/plot_08_subject_zscore
+   /auto_examples/06_parallel_runs/plot_09_subject_robust
+   /auto_examples/06_parallel_runs/plot_10_subject_winsorize
+   /auto_examples/06_parallel_runs/plot_11_cohort_zscore
+   /auto_examples/06_parallel_runs/plot_12_cohort_binning
+   /auto_examples/06_parallel_runs/plot_13_isolated
+   /auto_examples/06_parallel_runs/plot_14_wall_clock
 

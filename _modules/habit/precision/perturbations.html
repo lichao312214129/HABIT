@@ -495,6 +495,13 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
 </ul>
 </li>
 </ul>
@@ -2228,10 +2235,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    MONAI elastic / B-spline free-form warp of every image and ROI.</span>
 
 <span class="sd">    This is **not** the Prior 2024 / MIRP 1.2.0 simulated-retest chain</span>
-<span class="sd">    (noise → translation → rotation). It is the optional follow-up that</span>
-<span class="sd">    actually changes ROI *shape*: one random 3-D displacement field is</span>
-<span class="sd">    drawn and applied to every modality and mask of the subject so the</span>
-<span class="sd">    contour and the anatomy stay paired.</span>
+<span class="sd">    (noise → translation → rotation). Default behaviour changes ROI</span>
+<span class="sd">    *shape* by applying one random 3-D displacement field to every</span>
+<span class="sd">    modality and mask so the contour and the anatomy stay paired.</span>
+<span class="sd">    ``mask_only=True`` keeps every intensity volume unchanged and warps</span>
+<span class="sd">    only the ROI: same scan, different contour.</span>
 
 <span class="sd">    Implementation (MONAI ``Rand3DElasticd``, optional extra ``monai``):</span>
 
@@ -2278,6 +2286,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        control_spacing: When set, voxels between neighbouring FFD</span>
 <span class="sd">            control points (must be ``&gt; 1``). ``None`` keeps the MONAI</span>
 <span class="sd">            ``Rand3DElasticd`` path.</span>
+<span class="sd">        mask_only: When ``True``, warp every ROI and leave images</span>
+<span class="sd">            untouched (inter-observer contour wobble on a fixed scan).</span>
+<span class="sd">            When ``False``, image and mask share one field.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BSplineDeformPerturbation.__init__">
@@ -2293,6 +2304,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">target_dice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">dice_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">,</span>
         <span class="n">control_spacing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mask_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sigma_range</span> <span class="o">=</span> <span class="n">_pair_range</span><span class="p">(</span><span class="s2">&quot;sigma_range&quot;</span><span class="p">,</span> <span class="n">sigma_range</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span> <span class="o">=</span> <span class="n">_pair_range</span><span class="p">(</span><span class="s2">&quot;magnitude_range&quot;</span><span class="p">,</span> <span class="n">magnitude_range</span><span class="p">)</span>
@@ -2337,7 +2349,8 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;bspline_deform: control_spacing must be &gt; 1 voxel &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;when set; got </span><span class="si">{</span><span class="n">control_spacing</span><span class="si">!r}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">control_spacing</span> <span class="o">=</span> <span class="n">spacing</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control_spacing</span> <span class="o">=</span> <span class="n">spacing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_only</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">mask_only</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -2355,6 +2368,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;target_dice&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_dice</span><span class="p">,</span>
                 <span class="s2">&quot;dice_tolerance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_tolerance</span><span class="p">,</span>
                 <span class="s2">&quot;control_spacing&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_spacing</span><span class="p">,</span>
+                <span class="s2">&quot;mask_only&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_only</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -2650,9 +2664,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                also requires at least one mask.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_only</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">masks</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;bspline_deform: mask_only requires at least one ROI mask.&quot;</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_dice</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warp</span><span class="p">(</span>
-                <span class="n">subject</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">magnitude_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span>
+                <span class="n">subject</span><span class="p">,</span>
+                <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+                <span class="n">magnitude_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span><span class="p">,</span>
+                <span class="n">mask_keys_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_only</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">masks</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
@@ -2660,7 +2681,10 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="n">magnitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magnitude_for_target_dice</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warp</span><span class="p">(</span>
-            <span class="n">subject</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">magnitude_range</span><span class="o">=</span><span class="p">(</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">)</span>
+            <span class="n">subject</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">magnitude_range</span><span class="o">=</span><span class="p">(</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">),</span>
+            <span class="n">mask_keys_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_only</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

@@ -2,53 +2,100 @@
 Resuming finished subjects
 ==========================
 
-A :class:`~habit.execution.CheckpointStore` records each success.
-The next ``map`` with the same store and the same callable returns
-those subjects from the store (``from_cache``) and does not call the
-function again. ``Study.fit_predict(..., checkpoint=store)`` uses this
-store.
+A :class:`~habit.execution.CheckpointStore` records each success. The
+checkpoint key includes the texture specification, so changing the
+feature list or ``binWidth`` does not reuse the old field. The second
+``map`` returns ``from_cache=True`` and does not recompute texture.
 """
 
 # %%
-# The first pass computes three ids. The second pass prints ``True``
-# for every subject and does not print ``compute``.
+# Load the cohort
+# ---------------
+# sphinx_gallery_thumbnail_number = 1
 import tempfile
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-from habit.contracts import Cohort, Subject
+from habit.contracts import Subject, cohort_from_directory
+from habit.datasets import fetch_demo
 from habit.execution import CheckpointStore, SerialBackend
+from habit.voxel_features import VoxelRadiomicsFeatures
 
-cohort = Cohort(
-    [
-        Subject(subject_id="subj001", images={}, masks={}),
-        Subject(subject_id="subj002", images={}, masks={}),
-        Subject(subject_id="subj003", images={}, masks={}),
-    ],
-    name="resume",
+DATA = fetch_demo()
+MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
+ROI = "LAP"
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+print(cohort)
+Path("out").mkdir(exist_ok=True)
+CACHE = str((Path("out") / "voxel_texture_cache").resolve())
+
+# %%
+# Key the checkpoint on the texture spec
+# --------------------------------------
+# A plain function would be keyed only by class name and subject id.
+# ``cache_key`` folds in ``texture.spec.fingerprint()``, which changes
+# when the series, radius, or ``binWidth`` change.
+RADIOMICS_PARAMS = {
+    "imageType": {"Original": {}},
+    "featureClass": {
+        "firstorder": ["Mean", "Entropy"],
+        "glcm": ["Contrast", "Correlation", "Idm", "JointEntropy"],
+        "glrlm": ["ShortRunEmphasis", "LongRunEmphasis"],
+    },
+    "setting": {"binWidth": 12},
+}
+texture = VoxelRadiomicsFeatures(
+    modalities=list(MODALITIES),
+    roi=ROI,
+    kernel_radius=3,
+    params=RADIOMICS_PARAMS,
+    voxel_batch=1000,
+    use_torch_radiomics=True,
+    torch_device="cuda:0",
+    use_gpu_matrices=True,
+    cache_dir=CACHE,
 )
 
-def subject_label(subject: Subject) -> str:
-    """Print when the function actually runs."""
-    print("compute", subject.subject_id)
-    return subject.subject_id
+
+class CachedTexture:
+    """Texture extractor with a spec-scoped checkpoint key."""
+
+    def __init__(self, extractor: VoxelRadiomicsFeatures) -> None:
+        self.extractor = extractor
+
+    def __call__(self, subject: Subject):
+        """Return this subject's voxel-texture field."""
+        return self.extractor(subject)
+
+    def cache_key(self, subject: Subject) -> str:
+        """Return a key that changes when the texture specification changes."""
+        digest = self.extractor.spec.fingerprint()
+        return f"voxel_radiomics:{digest}:{subject.subject_id}"
+
 
 store = CheckpointStore(Path(tempfile.mkdtemp(prefix="habit_ckpt_")))
+operator = CachedTexture(texture)
 backend = SerialBackend()
-first = list(backend.map(subject_label, cohort, checkpoint=store))
-second = list(backend.map(subject_label, cohort, checkpoint=store))
-print([slot.from_cache for slot in second])
-print([slot.result() for slot in second])
+first = list(backend.map(operator, cohort, checkpoint=store))
+second = list(backend.map(operator, cohort, checkpoint=store))
+print("first from_cache:", [slot.from_cache for slot in first])
+print("second from_cache:", [slot.from_cache for slot in second])
+for slot in second:
+    field = slot.result()
+    print(
+        slot.subject_id,
+        f"{field.values.shape[0]} voxels, {len(field.feature_names)} columns",
+    )
 
 labels = [slot.subject_id for slot in second]
-fig, ax = plt.subplots(figsize=(6.4, 3.2))
 positions = range(len(labels))
+fig, ax = plt.subplots(figsize=(6.4, 3.2))
 ax.bar(
     [index - 0.18 for index in positions],
     [0 if slot.from_cache else 1 for slot in first],
     width=0.36,
-    label="first pass",
+    label="computed",
     color="#4C78A8",
 )
 ax.bar(
@@ -60,9 +107,8 @@ ax.bar(
 )
 ax.set_xticks(list(positions))
 ax.set_xticklabels(labels)
-ax.set_ylabel("done")
-ax.set_title("resume skips finished subjects")
+ax.set_ylabel("pass")
+ax.set_title("resume skips finished texture fields")
 ax.legend()
-Path("out").mkdir(exist_ok=True)
 fig.savefig("out/resume.png", dpi=150, bbox_inches="tight")
 plt.show()

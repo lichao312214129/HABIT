@@ -27,14 +27,14 @@ the numbers do not change because of GPU.
 
 Pass :class:`~habit.image.ImageVolume` /
 :class:`~habit.image.MaskVolume` to the plotter (not ``.data``).
+The map on this page is per-voxel GLCM Contrast.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-17
+.. GENERATED FROM PYTHON SOURCE LINES 15-17
 
-Local entropy on one demo subject, zoomed to the ROI bounding box.
-:func:`~habit.kernels.local_entropy_map` returns a volume;
-:func:`~habit.viz.plot_voxel_texture_slice` overlays it.
+One demo subject. Later cells time the same GLCM Contrast definition
+on CPU and on the two GPU runtimes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-48
+.. GENERATED FROM PYTHON SOURCE LINES 17-40
 
 .. code-block:: Python
 
@@ -49,7 +49,6 @@ Local entropy on one demo subject, zoomed to the ROI bounding box.
     import habit.voxel_features  # registers built-in voxel extractors
     from habit.contracts import Subject, VoxelFeatureField, cohort_from_directory
     from habit.datasets import fetch_demo
-    from habit.kernels import local_entropy_map
     from habit.voxel_features import VoxelFeatureExtractorRegistry
     from habit.viz import plot_voxel_texture_slice
 
@@ -60,22 +59,10 @@ Local entropy on one demo subject, zoomed to the ROI bounding box.
     subject = cohort[0]
     image_vol = subject.image(MODALITY)
     mask_vol = subject.mask(ROI)
-
-    entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
-    fig = plot_voxel_texture_slice(
-        entropy, anatomy=image_vol, roi_mask=mask_vol, axis=0, crop_to="roi"
-    )
     Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/voxel_texture_overlay.png", dpi=150, bbox_inches="tight")
-    plt.show()
 
 
 
-
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_001.png
-   :alt: Voxel texture (axis-0, index=21)
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_001.png
-   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -104,13 +91,11 @@ Local entropy on one demo subject, zoomed to the ROI bounding box.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      direction, spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-68
+.. GENERATED FROM PYTHON SOURCE LINES 41-59
 
 Three acceleration runtimes for voxel radiomics
 -----------------------------------------------
@@ -124,15 +109,14 @@ architectures can be used:
 3. **HABIT built-in GPU**: GPU-native matrix building (``gpumatrices``) +
    GPU feature formulas (zero CPU-GPU transfer of intermediate matrices).
 
-Install in the same ``habit`` env. ``local_entropy`` (above) needs neither
-PyRadiomics nor torch. The IBSI rows below need **PyRadiomics**. Rows 2–3
-also need **PyTorch**: ``conda activate habit``, then install from
+Install in the same ``habit`` env. The IBSI rows below need **PyRadiomics**.
+Rows 2–3 also need **PyTorch**: ``conda activate habit``, then install from
 https://pytorch.org/ (Start Locally; pick OS / Pip / CUDA). See
 :doc:`/tutorial/installation` steps 5–6.
 
 Below, we define a unified extraction helper that selects among these runtimes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 68-120
+.. GENERATED FROM PYTHON SOURCE LINES 59-116
 
 .. code-block:: Python
 
@@ -183,7 +167,12 @@ Below, we define a unified extraction helper that selects among these runtimes.
     cpu_field.feature_frame().head()
 
     fig_glcm = plot_voxel_texture_slice(
-        cpu_field, feature=0, anatomy=image_vol, roi_mask=mask_vol
+        cpu_field,
+        feature=0,
+        anatomy=image_vol,
+        roi_mask=mask_vol,
+        axis=0,
+        crop_to="roi",
     )
     fig_glcm.savefig("out/voxel_texture_glcm_contrast.png", dpi=150, bbox_inches="tight")
     plt.show()
@@ -191,9 +180,9 @@ Below, we define a unified extraction helper that selects among these runtimes.
 
 
 
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_002.png
-   :alt: original_glcm_Contrast-LAP (orthogonal slices), original_glcm_Contrast-LAP - Axis 0 (axial-like) @ 96, original_glcm_Contrast-LAP - Axis 1 (coronal-like) @ 165, original_glcm_Contrast-LAP - Axis 2 (sagittal-like) @ 71
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_002.png
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_001.png
+   :alt: original_glcm_Contrast-LAP (axis-0, index=21)
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_001.png
    :class: sphx-glr-single-img
 
 
@@ -214,7 +203,7 @@ Below, we define a unified extraction helper that selects among these runtimes.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-133
+.. GENERATED FROM PYTHON SOURCE LINES 117-129
 
 GPU radiomics and the three-way runtime comparison
 --------------------------------------------------
@@ -229,7 +218,7 @@ We compare the two GPU-accelerated runtimes against baseline CPU:
 On clinical lesions, HABIT GPU eliminates both the CPU single-threaded C loop
 and the host-to-device intermediate array transfers.
 
-.. GENERATED FROM PYTHON SOURCE LINES 133-217
+.. GENERATED FROM PYTHON SOURCE LINES 129-213
 
 .. code-block:: Python
 
@@ -325,76 +314,76 @@ and the host-to-device intermediate array transfers.
 
  .. code-block:: none
 
-    voxel_radiomics: glcm batch 1/35 0.526s peak=184MiB
-    voxel_radiomics: glcm batch 2/35 0.094s peak=184MiB
-    voxel_radiomics: glcm batch 3/35 0.087s peak=184MiB
-    voxel_radiomics: glcm batch 4/35 0.090s peak=184MiB
-    voxel_radiomics: glcm batch 5/35 0.089s peak=184MiB
-    voxel_radiomics: glcm batch 6/35 0.090s peak=184MiB
-    voxel_radiomics: glcm batch 7/35 0.101s peak=184MiB
-    voxel_radiomics: glcm batch 8/35 0.101s peak=184MiB
-    voxel_radiomics: glcm batch 9/35 0.098s peak=184MiB
-    voxel_radiomics: glcm batch 10/35 0.091s peak=184MiB
-    voxel_radiomics: glcm batch 11/35 0.090s peak=184MiB
-    voxel_radiomics: glcm batch 12/35 0.088s peak=184MiB
-    voxel_radiomics: glcm batch 13/35 0.092s peak=184MiB
-    voxel_radiomics: glcm batch 14/35 0.091s peak=184MiB
-    voxel_radiomics: glcm batch 15/35 0.091s peak=184MiB
-    voxel_radiomics: glcm batch 16/35 0.091s peak=184MiB
-    voxel_radiomics: glcm batch 17/35 0.089s peak=184MiB
-    voxel_radiomics: glcm batch 18/35 0.107s peak=184MiB
-    voxel_radiomics: glcm batch 19/35 0.112s peak=184MiB
-    voxel_radiomics: glcm batch 20/35 0.092s peak=184MiB
-    voxel_radiomics: glcm batch 21/35 0.088s peak=184MiB
-    voxel_radiomics: glcm batch 22/35 0.087s peak=184MiB
-    voxel_radiomics: glcm batch 23/35 0.087s peak=184MiB
-    voxel_radiomics: glcm batch 24/35 0.087s peak=184MiB
-    voxel_radiomics: glcm batch 25/35 0.089s peak=184MiB
-    voxel_radiomics: glcm batch 26/35 0.089s peak=184MiB
-    voxel_radiomics: glcm batch 27/35 0.090s peak=184MiB
-    voxel_radiomics: glcm batch 28/35 0.094s peak=184MiB
-    voxel_radiomics: glcm batch 29/35 0.106s peak=184MiB
-    voxel_radiomics: glcm batch 30/35 0.103s peak=184MiB
-    voxel_radiomics: glcm batch 31/35 0.099s peak=184MiB
-    voxel_radiomics: glcm batch 32/35 0.091s peak=184MiB
-    voxel_radiomics: glcm batch 33/35 0.086s peak=184MiB
-    voxel_radiomics: glcm batch 34/35 0.087s peak=184MiB
-    voxel_radiomics: glcm batch 35/35 0.061s peak=127MiB
-    voxel_radiomics: glcm batch 1/35 0.248s peak=1MiB
-    voxel_radiomics: glcm batch 2/35 0.016s peak=2MiB
-    voxel_radiomics: glcm batch 3/35 0.018s peak=3MiB
-    voxel_radiomics: glcm batch 4/35 0.016s peak=4MiB
-    voxel_radiomics: glcm batch 5/35 0.018s peak=4MiB
-    voxel_radiomics: glcm batch 6/35 0.018s peak=5MiB
-    voxel_radiomics: glcm batch 7/35 0.018s peak=6MiB
-    voxel_radiomics: glcm batch 8/35 0.017s peak=7MiB
-    voxel_radiomics: glcm batch 9/35 0.016s peak=8MiB
+    voxel_radiomics: glcm batch 1/35 0.439s peak=184MiB
+    voxel_radiomics: glcm batch 2/35 0.118s peak=184MiB
+    voxel_radiomics: glcm batch 3/35 0.106s peak=184MiB
+    voxel_radiomics: glcm batch 4/35 0.125s peak=184MiB
+    voxel_radiomics: glcm batch 5/35 0.128s peak=184MiB
+    voxel_radiomics: glcm batch 6/35 0.097s peak=184MiB
+    voxel_radiomics: glcm batch 7/35 0.099s peak=184MiB
+    voxel_radiomics: glcm batch 8/35 0.111s peak=184MiB
+    voxel_radiomics: glcm batch 9/35 0.129s peak=184MiB
+    voxel_radiomics: glcm batch 10/35 0.107s peak=184MiB
+    voxel_radiomics: glcm batch 11/35 0.107s peak=184MiB
+    voxel_radiomics: glcm batch 12/35 0.105s peak=184MiB
+    voxel_radiomics: glcm batch 13/35 0.111s peak=184MiB
+    voxel_radiomics: glcm batch 14/35 0.120s peak=184MiB
+    voxel_radiomics: glcm batch 15/35 0.105s peak=184MiB
+    voxel_radiomics: glcm batch 16/35 0.095s peak=184MiB
+    voxel_radiomics: glcm batch 17/35 0.091s peak=184MiB
+    voxel_radiomics: glcm batch 18/35 0.094s peak=184MiB
+    voxel_radiomics: glcm batch 19/35 0.096s peak=184MiB
+    voxel_radiomics: glcm batch 20/35 0.093s peak=184MiB
+    voxel_radiomics: glcm batch 21/35 0.086s peak=184MiB
+    voxel_radiomics: glcm batch 22/35 0.090s peak=184MiB
+    voxel_radiomics: glcm batch 23/35 0.105s peak=184MiB
+    voxel_radiomics: glcm batch 24/35 0.121s peak=184MiB
+    voxel_radiomics: glcm batch 25/35 0.106s peak=184MiB
+    voxel_radiomics: glcm batch 26/35 0.085s peak=184MiB
+    voxel_radiomics: glcm batch 27/35 0.088s peak=184MiB
+    voxel_radiomics: glcm batch 28/35 0.092s peak=184MiB
+    voxel_radiomics: glcm batch 29/35 0.092s peak=184MiB
+    voxel_radiomics: glcm batch 30/35 0.088s peak=184MiB
+    voxel_radiomics: glcm batch 31/35 0.100s peak=184MiB
+    voxel_radiomics: glcm batch 32/35 0.110s peak=184MiB
+    voxel_radiomics: glcm batch 33/35 0.106s peak=184MiB
+    voxel_radiomics: glcm batch 34/35 0.098s peak=184MiB
+    voxel_radiomics: glcm batch 35/35 0.064s peak=127MiB
+    voxel_radiomics: glcm batch 1/35 0.252s peak=1MiB
+    voxel_radiomics: glcm batch 2/35 0.017s peak=2MiB
+    voxel_radiomics: glcm batch 3/35 0.016s peak=3MiB
+    voxel_radiomics: glcm batch 4/35 0.017s peak=4MiB
+    voxel_radiomics: glcm batch 5/35 0.017s peak=4MiB
+    voxel_radiomics: glcm batch 6/35 0.015s peak=5MiB
+    voxel_radiomics: glcm batch 7/35 0.014s peak=6MiB
+    voxel_radiomics: glcm batch 8/35 0.014s peak=7MiB
+    voxel_radiomics: glcm batch 9/35 0.014s peak=8MiB
     voxel_radiomics: glcm batch 10/35 0.016s peak=9MiB
-    voxel_radiomics: glcm batch 11/35 0.017s peak=10MiB
-    voxel_radiomics: glcm batch 12/35 0.016s peak=11MiB
-    voxel_radiomics: glcm batch 13/35 0.016s peak=12MiB
-    voxel_radiomics: glcm batch 14/35 0.017s peak=13MiB
-    voxel_radiomics: glcm batch 15/35 0.016s peak=13MiB
-    voxel_radiomics: glcm batch 16/35 0.018s peak=14MiB
+    voxel_radiomics: glcm batch 11/35 0.015s peak=10MiB
+    voxel_radiomics: glcm batch 12/35 0.015s peak=11MiB
+    voxel_radiomics: glcm batch 13/35 0.015s peak=12MiB
+    voxel_radiomics: glcm batch 14/35 0.015s peak=13MiB
+    voxel_radiomics: glcm batch 15/35 0.017s peak=13MiB
+    voxel_radiomics: glcm batch 16/35 0.017s peak=14MiB
     voxel_radiomics: glcm batch 17/35 0.016s peak=15MiB
-    voxel_radiomics: glcm batch 18/35 0.017s peak=16MiB
-    voxel_radiomics: glcm batch 19/35 0.016s peak=17MiB
-    voxel_radiomics: glcm batch 20/35 0.016s peak=18MiB
+    voxel_radiomics: glcm batch 18/35 0.015s peak=16MiB
+    voxel_radiomics: glcm batch 19/35 0.017s peak=17MiB
+    voxel_radiomics: glcm batch 20/35 0.017s peak=18MiB
     voxel_radiomics: glcm batch 21/35 0.016s peak=19MiB
-    voxel_radiomics: glcm batch 22/35 0.016s peak=20MiB
-    voxel_radiomics: glcm batch 23/35 0.018s peak=21MiB
-    voxel_radiomics: glcm batch 24/35 0.018s peak=22MiB
-    voxel_radiomics: glcm batch 25/35 0.020s peak=22MiB
-    voxel_radiomics: glcm batch 26/35 0.019s peak=23MiB
-    voxel_radiomics: glcm batch 27/35 0.048s peak=24MiB
-    voxel_radiomics: glcm batch 28/35 0.023s peak=25MiB
-    voxel_radiomics: glcm batch 29/35 0.040s peak=26MiB
-    voxel_radiomics: glcm batch 30/35 0.025s peak=27MiB
-    voxel_radiomics: glcm batch 31/35 0.024s peak=28MiB
-    voxel_radiomics: glcm batch 32/35 0.030s peak=29MiB
-    voxel_radiomics: glcm batch 33/35 0.018s peak=30MiB
-    voxel_radiomics: glcm batch 34/35 0.016s peak=31MiB
-    voxel_radiomics: glcm batch 35/35 0.015s peak=31MiB
+    voxel_radiomics: glcm batch 22/35 0.018s peak=20MiB
+    voxel_radiomics: glcm batch 23/35 0.016s peak=21MiB
+    voxel_radiomics: glcm batch 24/35 0.017s peak=22MiB
+    voxel_radiomics: glcm batch 25/35 0.016s peak=22MiB
+    voxel_radiomics: glcm batch 26/35 0.016s peak=23MiB
+    voxel_radiomics: glcm batch 27/35 0.014s peak=24MiB
+    voxel_radiomics: glcm batch 28/35 0.016s peak=25MiB
+    voxel_radiomics: glcm batch 29/35 0.015s peak=26MiB
+    voxel_radiomics: glcm batch 30/35 0.015s peak=27MiB
+    voxel_radiomics: glcm batch 31/35 0.016s peak=28MiB
+    voxel_radiomics: glcm batch 32/35 0.016s peak=29MiB
+    voxel_radiomics: glcm batch 33/35 0.017s peak=30MiB
+    voxel_radiomics: glcm batch 34/35 0.018s peak=31MiB
+    voxel_radiomics: glcm batch 35/35 0.016s peak=31MiB
     GPU voxel_radiomics feature table (HABIT built-in GPU):
        original_glcm_Contrast-LAP
     0                    2.808974
@@ -405,9 +394,9 @@ and the host-to-device intermediate array transfers.
 
     --- Live Runtime Comparison on subj001 (34,694 voxels) ---
                               runtime  seconds speedup_vs_cpu speedup_vs_c_torch  n_voxels  n_features
-               Pure PyRadiomics (CPU)   51.161           1.0x                  -     34694           1
-    C matrices + TorchRadiomics (GPU)    5.166           9.9x               1.0x     34694           1
-                   HABIT Built-in GPU    2.363          21.7x               2.2x     34694           1
+               Pure PyRadiomics (CPU)   56.202           1.0x                  -     34694           1
+    C matrices + TorchRadiomics (GPU)    5.747           9.8x               1.0x     34694           1
+                   HABIT Built-in GPU    2.359          23.8x               2.4x     34694           1
 
 
 .. raw:: html
@@ -443,7 +432,7 @@ and the host-to-device intermediate array transfers.
         <tr>
           <th>0</th>
           <td>Pure PyRadiomics (CPU)</td>
-          <td>51.161</td>
+          <td>56.202</td>
           <td>1.0x</td>
           <td>-</td>
           <td>34694</td>
@@ -452,8 +441,8 @@ and the host-to-device intermediate array transfers.
         <tr>
           <th>1</th>
           <td>C matrices + TorchRadiomics (GPU)</td>
-          <td>5.166</td>
-          <td>9.9x</td>
+          <td>5.747</td>
+          <td>9.8x</td>
           <td>1.0x</td>
           <td>34694</td>
           <td>1</td>
@@ -461,9 +450,9 @@ and the host-to-device intermediate array transfers.
         <tr>
           <th>2</th>
           <td>HABIT Built-in GPU</td>
-          <td>2.363</td>
-          <td>21.7x</td>
-          <td>2.2x</td>
+          <td>2.359</td>
+          <td>23.8x</td>
+          <td>2.4x</td>
           <td>34694</td>
           <td>1</td>
         </tr>
@@ -474,13 +463,13 @@ and the host-to-device intermediate array transfers.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 218-221
+.. GENERATED FROM PYTHON SOURCE LINES 214-217
 
 Numerical parity: GPU must match CPU up to floating-point noise. Report
 max absolute difference and ``numpy.allclose``. A speedup does not
 change the IBSI / PyRadiomics definition.
 
-.. GENERATED FROM PYTHON SOURCE LINES 221-244
+.. GENERATED FROM PYTHON SOURCE LINES 217-240
 
 .. code-block:: Python
 
@@ -521,7 +510,7 @@ change the IBSI / PyRadiomics definition.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 245-276
+.. GENERATED FROM PYTHON SOURCE LINES 241-272
 
 Three tiers of voxel texture acceleration and scientific parity
 ---------------------------------------------------------------
@@ -555,7 +544,7 @@ Scientific parity (54,913 voxels × 90 features, ~4.94M values):
   ~0.00137. ``np.allclose(rtol=1e-4, atol=1e-4)`` holds across all features.
   This is purely float32 summation rounding, not a mathematical definition change.
 
-.. GENERATED FROM PYTHON SOURCE LINES 276-394
+.. GENERATED FROM PYTHON SOURCE LINES 272-390
 
 .. code-block:: Python
 
@@ -680,9 +669,9 @@ Scientific parity (54,913 voxels × 90 features, ~4.94M values):
 
 
 
-.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_003.png
+.. image-sg:: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_002.png
    :alt: Voxel texture extraction wall time (54,913 ROI voxels, 90 features), Acceleration factor vs Pure CPU (higher is faster)
-   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_003.png
+   :srcset: /auto_examples/02_voxel/images/sphx_glr_plot_03_voxel_texture_002.png
    :class: sphx-glr-single-img
 
 
@@ -778,7 +767,7 @@ Scientific parity (54,913 voxels × 90 features, ~4.94M values):
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 23.177 seconds)
+   **Total running time of the script:** (1 minutes 5.570 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_voxel_plot_03_voxel_texture.py:

@@ -142,6 +142,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
 </ul>
 </li>
 </ul>
@@ -777,24 +784,9 @@ supervoxels never redraws them.</p>
 
 <section id="examples-using-habit-contracts-supervoxelization">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.Supervoxelization</span></code><a class="headerlink" href="#examples-using-habit-contracts-supervoxelization" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with unenhanced and arterial phases. Output: a HabitatMap. Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: a HabitatMap built from the preprocessed features. Stage: voxel_feature_preprocessors, then partition, fit, assign."><img alt="" src="../../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_10_preprocess_features.html"><span class="doc">Preprocessing features before clustering</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Preprocessing features before clustering</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Supervoxelization per subject. Output: a HabitatModel. Stage: fit."><img alt="" src="../../_images/sphx_glr_plot_13_fit_model_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Fitting a cohort habitat model</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid."><img alt="" src="../../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Per-subject z-score uses each lesion&#x27;s own mean and standard deviation. The atomic calls and the HabitatSpec below are the same analysis: four DCE series, GLCM / first-order / GLRLM texture, radius 3, binWidth 12, then habitats fit on the pooled voxels."><img alt="" src="../../_images/sphx_glr_plot_08_subject_zscore_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html"><span class="doc">Subject z-score on voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Subject z-score on voxel texture</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

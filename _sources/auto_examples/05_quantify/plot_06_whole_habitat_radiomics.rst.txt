@@ -25,25 +25,12 @@ Quantify the **shape and spatial distribution of the partition map itself**
 using :class:`~habit.habitat_features.WholeHabitatRadiomicsFeatures`.
 The habitat label image plays both intensity and mask roles.
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-11
-
-.. code-block:: Python
-   :dedent: 1
-
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 13-14
+.. GENERATED FROM PYTHON SOURCE LINES 11-13
 
 One-step habitats, then whole-map PyRadiomics on the label field.
+sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-51
+.. GENERATED FROM PYTHON SOURCE LINES 13-50
 
 .. code-block:: Python
 
@@ -114,7 +101,7 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.32s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.32s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.31s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.31s/it]
     Whole-habitat radiomics:
     subject                            subj001
     original_shape_Sphericity         0.719657
@@ -131,13 +118,13 @@ One-step habitats, then whole-map PyRadiomics on the label field.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-55
+.. GENERATED FROM PYTHON SOURCE LINES 51-54
 
 Same objects as the table: habitat IDs are the intensity image.
 First figure: the partition. Second: local entropy of those discrete
 labels (not of the MRI), cropped to the same ROI.
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-86
+.. GENERATED FROM PYTHON SOURCE LINES 54-85
 
 .. code-block:: Python
 
@@ -208,7 +195,7 @@ labels (not of the MRI), cropped to the same ROI.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 23.353 seconds)
+   **Total running time of the script:** (0 minutes 27.146 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_06_whole_habitat_radiomics.py:

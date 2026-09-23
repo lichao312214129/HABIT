@@ -142,6 +142,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
 </ul>
 </li>
 </ul>
@@ -717,9 +724,9 @@ of the distribution.</p>
 
 <section id="examples-using-habit-feature-preprocessing-winsorizing">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.feature_preprocessing.Winsorizing</span></code><a class="headerlink" href="#examples-using-habit-feature-preprocessing-winsorizing" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: a HabitatMap built from the preprocessed features. Stage: voxel_feature_preprocessors, then partition, fit, assign."><img alt="" src="../../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_10_preprocess_features.html"><span class="doc">Preprocessing features before clustering</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Preprocessing features before clustering</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Winsorizing clips each column at that subject&#x27;s tail quantiles. It does not rescale the centre of the distribution. The texture definition matches the other pages in this section."><img alt="" src="../../_images/sphx_glr_plot_10_subject_winsorize_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html"><span class="doc">Subject winsorizing on voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Subject winsorizing on voxel texture</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

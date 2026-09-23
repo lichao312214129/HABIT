@@ -26,25 +26,12 @@ mask per habitat and apply **masked spatial average pooling** on a 3-D
 feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch
 encoder output with the same ``(C, z, y, x)`` layout).
 
-.. GENERATED FROM PYTHON SOURCE LINES 10-12
-
-.. code-block:: Python
-   :dedent: 1
-
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 14-15
+.. GENERATED FROM PYTHON SOURCE LINES 12-14
 
 Habitat map from HABIT, synthetic 64-channel feature volume from a DL model.
+sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-120
+.. GENERATED FROM PYTHON SOURCE LINES 14-119
 
 .. code-block:: Python
 
@@ -183,7 +170,7 @@ Habitat map from HABIT, synthetic 64-channel feature volume from a DL model.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.27s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.27s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.43s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.43s/it]
     Embedding shape: (3, 64) (habitats x 64-D)
                 emb_0  emb_1  emb_2  emb_3  emb_4  emb_5
     habitat_id                                          
@@ -265,11 +252,11 @@ Habitat map from HABIT, synthetic 64-channel feature volume from a DL model.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-122
+.. GENERATED FROM PYTHON SOURCE LINES 120-121
 
 Heatmap of the first 16 embedding dimensions per habitat (English labels only).
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-134
+.. GENERATED FROM PYTHON SOURCE LINES 121-133
 
 .. code-block:: Python
 
@@ -300,7 +287,7 @@ Heatmap of the first 16 embedding dimensions per habitat (English labels only).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 15.396 seconds)
+   **Total running time of the script:** (0 minutes 17.318 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_07_deep_learning_embeddings.py:

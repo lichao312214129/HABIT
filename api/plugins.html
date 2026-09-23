@@ -142,6 +142,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
 </ul>
 </li>
 </ul>
@@ -1954,7 +1961,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">validation</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'bic'</span></code></p></td>
 <td><p>str | Sequence</p></td>
-<td><p>Selection criterion, or a list of criteria that each cast one vote: <code class="docutils literal notranslate"><span class="pre">&quot;bic&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;aic&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;davies_bouldin&quot;</span></code> (minimise), or <code class="docutils literal notranslate"><span class="pre">&quot;silhouette&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;calinski_harabasz&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;gap&quot;</span></code> (maximise).</p></td>
+<td><p>Selection criterion, or a list of criteria that each cast one vote: <code class="docutils literal notranslate"><span class="pre">&quot;bic&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;aic&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;davies_bouldin&quot;</span></code> (minimise), <code class="docutils literal notranslate"><span class="pre">&quot;bic_elbow&quot;</span></code> (Prior 2024 BIC-slope elbow, not minimum BIC), or <code class="docutils literal notranslate"><span class="pre">&quot;silhouette&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;calinski_harabasz&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;gap&quot;</span></code> (maximise).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">covariance_type</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'full'</span></code></p></td>
@@ -2589,7 +2596,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <h4>image_perturbation<a class="headerlink" href="#image-perturbation" title="Link to this heading"></a></h4>
 <dl>
 <dt><strong>bspline_deform</strong></dt><dd><p>MONAI elastic / B-spline free-form warp of every image and ROI.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device,</span> <span class="pre">target_dice,</span> <span class="pre">dice_tolerance,</span> <span class="pre">control_spacing</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device,</span> <span class="pre">target_dice,</span> <span class="pre">dice_tolerance,</span> <span class="pre">control_spacing,</span> <span class="pre">mask_only</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;bspline_deform&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;bspline_deform&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -2651,6 +2658,11 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
 <td><p>float | None</p></td>
 <td><p>When set, voxels between neighbouring FFD control points (must be <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">1</span></code>). <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElasticd</span></code> path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mask_only</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, warp every ROI and leave images untouched (inter-observer contour wobble on a fixed scan). When <code class="docutils literal notranslate"><span class="pre">False</span></code>, image and mask share one field.</p></td>
 </tr>
 </tbody>
 </table>

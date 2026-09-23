@@ -141,6 +141,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
 </ul>
 </li>
 </ul>
@@ -643,12 +650,11 @@
              
   <section id="voxel-texture-feature-maps">
 <h1>Voxel texture feature maps<a class="headerlink" href="#voxel-texture-feature-maps" title="Link to this heading"></a></h1>
-<p>Goal: compute and display <strong>voxel-level texture</strong> maps — local neighbourhood
-entropy and densified <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> columns (e.g. GLCM) — as publication
-2D slices.</p>
-<p><code class="docutils literal notranslate"><span class="pre">local_entropy</span></code> is a built-in extractor (fast; no PyRadiomics).
-<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> uses PyRadiomics / TorchRadiomics for per-voxel maps; keep
-the enabled <code class="docutils literal notranslate"><span class="pre">featureClass</span></code> list small for interactive demos.</p>
+<p>Goal: compute and display <strong>voxel-level texture</strong> maps — densified
+<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> columns (here GLCM Contrast) — as publication 2D slices.</p>
+<p><code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> uses PyRadiomics / TorchRadiomics for per-voxel maps; keep
+the enabled <code class="docutils literal notranslate"><span class="pre">featureClass</span></code> list small for interactive demos. Neighbourhood
+entropy (<code class="docutils literal notranslate"><span class="pre">local_entropy</span></code>) is a separate statistic, not this texture.</p>
 <p>Walk-through (Guide): <a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>.
 For multi-GPU cohort timings, see <a class="reference internal" href="../auto_examples/06_parallel_runs/plot_07_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a>. Scheduling (serial, skip, resume, process pool) is <a class="reference internal" href="../auto_examples/06_parallel_runs/index.html"><span class="doc">6. Parallel runs</span></a>. This page keeps
 runtime / backend notes that the gallery does not repeat.</p>
@@ -693,9 +699,9 @@ siblings) and then <code class="docutils literal notranslate"><span class="pre">
 behind <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>: on when the torch device
 is CUDA). Their README GLCM 636 s → 23.8 s on a <span class="math notranslate nohighlight">\(16^3\)</span> job is the
 middle row vs PyRadiomics (CPU), <strong>not</strong> HABIT CUDA.</p>
-<p><strong>Install in the same</strong> <code class="docutils literal notranslate"><span class="pre">habit</span></code> <strong>env.</strong> <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code> needs neither
-PyRadiomics nor torch. IBSI <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> (all three rows above)
-needs <strong>PyRadiomics</strong> (<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> step 6). The two GPU
+<p><strong>Install in the same</strong> <code class="docutils literal notranslate"><span class="pre">habit</span></code> <strong>env.</strong> IBSI <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> (all
+three rows above) needs <strong>PyRadiomics</strong> (<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> step 6).
+The two GPU
 rows also need <strong>PyTorch</strong> in that env: <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code>, then
 open <a class="reference external" href="https://pytorch.org/">pytorch.org</a> → <strong>Get Started</strong> / <a class="reference external" href="https://pytorch.org/get-started/locally/">Start
 Locally</a>, pick OS / Pip /
@@ -1112,16 +1118,16 @@ startup, all 5 GPUs deliver linear multi-worker scaling (<strong>4.16 s</strong>
 </section>
 <section id="python-api-sklearn-short">
 <h2>Python API (sklearn-short)<a class="headerlink" href="#python-api-sklearn-short" title="Link to this heading"></a></h2>
-<p>The figure below is written by the voxel-texture gallery
-(<a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>). Reproduce it:</p>
+<p>The figure below is written by <code class="docutils literal notranslate"><span class="pre">docs/source/examples/scripts/voxel_texture_demo.py</span></code>.
+Reproduce it:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">voxel_texture_demo</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<p>Or paste the same load + plot the gallery shows:</p>
+<p>Or paste the same load + plot:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_demo</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_entropy_map</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_voxel_texture_slice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_voxel_texture</span>
 
 <span class="c1"># Change DATA / MODALITY / ROI to your preprocessed layout</span>
 <span class="n">DATA</span> <span class="o">=</span> <span class="n">fetch_demo</span><span class="p">()</span>  <span class="c1"># or &quot;demo_data/preprocessed&quot;</span>
@@ -1130,16 +1136,20 @@ startup, all 5 GPUs deliver linear multi-worker scaling (<strong>4.16 s</strong>
 <span class="n">subject</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="n">MODALITY</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">image_vol</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITY</span><span class="p">)</span>
 <span class="n">mask_vol</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span>
-<span class="n">entropy</span> <span class="o">=</span> <span class="n">local_entropy_map</span><span class="p">(</span><span class="n">image_vol</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="n">field</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span>
+    <span class="n">image_vol</span><span class="p">,</span>
+    <span class="n">mask_vol</span><span class="p">,</span>
+    <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">bin_width</span><span class="o">=</span><span class="mf">25.0</span><span class="p">,</span>
+    <span class="n">feature_classes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;glcm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Contrast&quot;</span><span class="p">]},</span>
+<span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
-    <span class="n">entropy</span><span class="p">,</span> <span class="n">anatomy</span><span class="o">=</span><span class="n">image_vol</span><span class="p">,</span> <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask_vol</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">,</span> <span class="n">feature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">anatomy</span><span class="o">=</span><span class="n">image_vol</span><span class="p">,</span> <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask_vol</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>For <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> GLCM columns, create a
-<a class="reference internal" href="../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.habitat.VoxelFeatureField"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code></a> then pass it with
-<code class="docutils literal notranslate"><span class="pre">feature=0</span></code> (or a column name) — see the <a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>
-script. Default <code class="docutils literal notranslate"><span class="pre">mode=&quot;overlay&quot;</span></code> paints <strong>opaque</strong> feature colours inside
+<p><code class="docutils literal notranslate"><span class="pre">feature=0</span></code> is the first column (GLCM Contrast). A column name works too.
+Default <code class="docutils literal notranslate"><span class="pre">mode=&quot;overlay&quot;</span></code> paints <strong>opaque</strong> feature colours inside
 the ROI on greyscale anatomy (optional cyan contour). <code class="docutils literal notranslate"><span class="pre">alpha&lt;1</span></code> is the
 explicit translucent option. <code class="docutils literal notranslate"><span class="pre">mode=&quot;side_by_side&quot;</span></code> adds a sibling anatomy
 panel when you also want the raw image.</p>
@@ -1158,7 +1168,7 @@ matplotlib):</p>
 direction is not dropped). There is no built-in 3D volume renderer for
 texture maps; use ITK-SNAP / 3D Slicer / napari for full volumetric browsing.</p>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/voxel_texture_overlay.png"><img alt="Opaque local-entropy overlay on anatomy" src="../_images/voxel_texture_overlay.png" style="width: 520px;" />
+<a class="reference internal image-reference" href="../_images/voxel_texture_overlay.png"><img alt="Opaque GLCM Contrast overlay on anatomy" src="../_images/voxel_texture_overlay.png" style="width: 520px;" />
 </a>
 <figcaption>
 <p><span class="caption-text">Default <code class="docutils literal notranslate"><span class="pre">overlay</span></code> layout
@@ -1170,7 +1180,7 @@ texture maps; use ITK-SNAP / 3D Slicer / napari for full volumetric browsing.</p
 <h2>Also see<a class="headerlink" href="#also-see" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Examples gallery: <a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a></p></li>
-<li><p>Kernel: <a class="reference internal" href="../api/generated/habit.kernels.local_entropy_map.html#habit.kernels.local_entropy_map" title="habit.kernels.local_entropy_map"><code class="xref py py-func docutils literal notranslate"><span class="pre">local_entropy_map()</span></code></a></p></li>
+<li><p>Extractor: <a class="reference internal" href="../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_voxel_texture()</span></code></a></p></li>
 <li><p>Habitat-map graph figures: <a class="reference internal" href="graph_features.html"><span class="doc">Graph topology features</span></a></p></li>
 </ul>
 </section>

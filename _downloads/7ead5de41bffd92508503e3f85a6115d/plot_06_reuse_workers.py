@@ -3,54 +3,111 @@ Reusing workers across passes
 =============================
 
 A cold process pool pays spawn and import on the first ``map``.
-``with backend.reuse_workers():`` keeps those workers for the next
-``map`` in the same block. Two-step studies use this so partitioning
-and labelling do not start the pool twice.
+``with backend.reuse_workers():`` keeps those workers for the assignment
+``map`` that follows. Z-scoring and fitting run in this process while the
+workers stay up.
 """
 
 # %%
-# Entering the block does not spawn workers. ``map`` does, and only when
-# this file is executed as a script.
+# Load the cohort and build one pool
+# ----------------------------------
+# sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 
-from habit.contracts import Cohort, Subject
+from habit.contracts import cohort_from_directory
+from habit.datasets import fetch_demo
 from habit.execution import backend_from_policy
+from habit.feature_preprocessing import SubjectPreprocessingChain, ZScoreScaling
+from habit.habitat_model import KMeansHabitatModelFitter
+from habit.pipeline import voxel_units
 from habit.spec import RunPolicy
+from habit.viz import plot_habitat_overlay
+from habit.voxel_features import VoxelRadiomicsFeatures
 
-cohort = Cohort(
-    [
-        Subject(subject_id="subj001", images={}, masks={}),
-        Subject(subject_id="subj002", images={}, masks={}),
-    ],
-    name="reuse",
+DATA = fetch_demo()
+MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
+ROI = "LAP"
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+print(cohort)
+Path("out").mkdir(exist_ok=True)
+CACHE = str((Path("out") / "voxel_texture_cache").resolve())
+RADIOMICS_PARAMS = {
+    "imageType": {"Original": {}},
+    "featureClass": {
+        "firstorder": ["Mean", "Entropy"],
+        "glcm": ["Contrast", "Correlation", "Idm", "JointEntropy"],
+        "glrlm": ["ShortRunEmphasis", "LongRunEmphasis"],
+    },
+    "setting": {"binWidth": 12},
+}
+texture = VoxelRadiomicsFeatures(
+    modalities=list(MODALITIES),
+    roi=ROI,
+    kernel_radius=3,
+    params=RADIOMICS_PARAMS,
+    voxel_batch=1000,
+    use_torch_radiomics=True,
+    torch_device="cuda:0",
+    use_gpu_matrices=True,
+    cache_dir=CACHE,
 )
+zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
+fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+fitter.set_random_state(0)
+policy = RunPolicy(
+    workers=2,
+    backend="process",
+    parallel_mode="persistent",
+    auto_retry_rounds=0,
+)
+backend = backend_from_policy(policy)
+print(type(backend).__name__, backend.policy.parallel_mode)
 
-def subject_label(subject: Subject) -> str:
-    """Return the subject id. Workers re-import this function."""
-    return subject.subject_id
 
+# %%
+# Two maps, one pool
+# ------------------
 def main() -> None:
-    """Keep one pool open for two maps when this file is the script."""
-    policy = RunPolicy(
-        workers=2,
-        backend="process",
-        parallel_mode="persistent",
-    )
-    backend = backend_from_policy(policy)
-    print(type(backend).__name__, backend.policy.parallel_mode)
+    """Keep the workers alive from texture extraction through assignment."""
     with backend.reuse_workers():
-        print("workers stay up for every map in this block")
-        if "__file__" in globals():
-            print([slot.result() for slot in backend.map(subject_label, cohort)])
-            print([slot.result() for slot in backend.map(subject_label, cohort)])
+        fields = [slot.result() for slot in backend.map(texture, cohort)]
+        scaled_fields = []
+        for field in fields:
+            scaled_fields.append(
+                field.with_feature_frame(
+                    zscore(field.feature_frame()),
+                    produced_by="subject_feature_preprocessor",
+                    spec_fingerprint=zscore.spec.fingerprint(),
+                )
+            )
+        units = [voxel_units(field) for field in scaled_fields]
+        model = fitter.fit(units, cohort=cohort)
+        print(model.summary())
+        maps = [slot.result() for slot in backend.map(model.assigner(), units)]
+    for habitat_map in maps:
+        labels, counts = np.unique(habitat_map.label_array, return_counts=True)
+        present = {
+            int(label): int(count)
+            for label, count in zip(labels, counts)
+            if int(label) != 0
+        }
+        print(habitat_map.subject_id, "voxels per habitat:", present)
     fig, ax = plt.subplots(figsize=(6.4, 3.2))
-    ax.bar(["map 1", "map 2"], [backend.workers, backend.workers], color="#4C78A8")
+    ax.bar(["texture map", "assign map"], [backend.workers, backend.workers], color="#4C78A8")
     ax.set_ylabel("workers")
-    ax.set_title("workers stay up")
-    Path("out").mkdir(exist_ok=True)
+    ax.set_title("workers stay up across both maps")
     fig.savefig("out/reuse_workers.png", dpi=150, bbox_inches="tight")
+    plt.show()
+    fig_map = plot_habitat_overlay(
+        cohort[0].image(ROI),
+        maps[0],
+        title="habitats (reused workers)",
+        crop_to="labels",
+    )
+    fig_map.savefig("out/reuse_workers_habitats.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 

@@ -142,6 +142,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
 </ul>
 </li>
 </ul>
@@ -890,61 +897,10 @@ file when plotly is installed.</p></li>
 
 </dd></dl>
 
-<section id="examples-using-habit-recipes-studyresult">
-<h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.recipes.StudyResult</span></code><a class="headerlink" href="#examples-using-habit-recipes-studyresult" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/03_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. Stages: partition then pool then fit."><img alt="" src="../../_images/sphx_glr_plot_01_two_step_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. There is no cohort fit stage."><img alt="" src="../../_images/sphx_glr_plot_02_inside_each_subject_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. Stage: pool then fit. There is no partition stage."><img alt="" src="../../_images/sphx_glr_plot_03_pool_voxels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html"><span class="doc">Applying a saved habitat model</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Applying a saved habitat model</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Independent fits permute integer ids: habitat 1 of subject B need not be habitat 1 of subject A. habit.kernels.habitat_label_match recovers a {moving_id: reference_id} map."><img alt="" src="../../_images/sphx_glr_plot_05_match_labels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html"><span class="doc">Matching habitat labels across fits</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Matching habitat labels across fits</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: the same cohort, the same two-step design, the same k and seed. Output: two HabitatMap overlays. The only change is voxel_feature_preprocessors."><img alt="" src="../../_images/sphx_glr_plot_11_preprocess_compare_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_11_preprocess_compare.html"><span class="doc">Comparing habitat maps with and without preprocessing</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Comparing habitat maps with and without preprocessing</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject wrapped as a Cohort. Output: that subject&#x27;s HabitatMap. This is the one-step design with no partition and no pool."><img alt="" src="../../_images/sphx_glr_plot_15_one_subject_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_15_one_subject.html"><span class="doc">Clustering habitats inside one subject</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats inside one subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a Subject and a HabitatMap. Output: a FeatureTable of voxel counts and volume fractions. Stage: quantify with volume."><img alt="" src="../../_images/sphx_glr_plot_16_measure_volume_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_16_measure_volume.html"><span class="doc">Measuring habitats on a label map</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Measuring habitats on a label map</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats."><img alt="" src="../../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_01_volume_fractions.html"><span class="doc">Volume and fractions</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix."><img alt="" src="../../_images/sphx_glr_plot_02_msi_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_02_msi.html"><span class="doc">Multiregional spatial interaction (MSI)</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Multiregional spatial interaction (MSI)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic ITH metrics from a habitat label map: ith_score and habitat_ith_dispersion."><img alt="" src="../../_images/sphx_glr_plot_03_ith_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_03_ith.html"><span class="doc">Intratumoral heterogeneity (ITH)</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Intratumoral heterogeneity (ITH)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_04_graph_features.html"><span class="doc">Graph features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Graph features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Quantify the shape and spatial distribution of the partition map itself using WholeHabitatRadiomicsFeatures. The habitat label image plays both intensity and mask roles."><img alt="" src="../../_images/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_06_whole_habitat_radiomics.html"><span class="doc">Whole-habitat radiomics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Whole-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Bridge HABIT habitat maps to deep-learning pipelines: extract a binary mask per habitat and apply masked spatial average pooling on a 3-D feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch encoder output with the same (C, z, y, x) layout)."><img alt="" src="../../_images/sphx_glr_plot_07_deep_learning_embeddings_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html"><span class="doc">Deep-learning habitat embeddings</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Deep-learning habitat embeddings</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
+<div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
 <p><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a></p>
   <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>
 </div></div><div style="clear:both"></div></section>
-</section>
 
 
            </div>

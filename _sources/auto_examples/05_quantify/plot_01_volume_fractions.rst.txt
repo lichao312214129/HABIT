@@ -25,25 +25,12 @@ Atomic volume metrics from a habitat label map:
 :func:`~habit.kernels.habitat_volume_fractions` and
 :func:`~habit.kernels.habitat_region_stats`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-11
-
-.. code-block:: Python
-   :dedent: 1
-
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 13-14
+.. GENERATED FROM PYTHON SOURCE LINES 11-13
 
 One-step habitats give a map to quantify.
+sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-35
+.. GENERATED FROM PYTHON SOURCE LINES 13-34
 
 .. code-block:: Python
 
@@ -98,16 +85,16 @@ One-step habitats give a map to quantify.
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.25s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.25s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.37s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.37s/it]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-37
+.. GENERATED FROM PYTHON SOURCE LINES 35-36
 
 Volume fractions and connected-component stats per habitat id.
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-64
+.. GENERATED FROM PYTHON SOURCE LINES 36-63
 
 .. code-block:: Python
 
@@ -176,7 +163,7 @@ Volume fractions and connected-component stats per habitat id.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.322 seconds)
+   **Total running time of the script:** (0 minutes 7.797 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_01_volume_fractions.py:

@@ -40,27 +40,14 @@ biological habitat across the cohort.
 2-D network figures are display-only (one representative slice). Tables
 use the full 3-D :class:`~habit.contracts.HabitatMap`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 24-26
-
-.. code-block:: Python
-   :dedent: 1
-
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 28-31
+.. GENERATED FROM PYTHON SOURCE LINES 26-30
 
 One-step habitats with a known K so the graph has a fixed number of
 labels. Graph option fields are passed as flat kwargs — no separate
 options object is required.
+sphinx_gallery_thumbnail_number = 3
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-69
+.. GENERATED FROM PYTHON SOURCE LINES 30-68
 
 .. code-block:: Python
 
@@ -133,7 +120,7 @@ options object is required.
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort: ['subj001', 'subj002']
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01<00:01,  1.85s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.64s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.64s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:02<00:02,  2.40s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.10s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.10s/it]
     Study graph columns before cross-tumour alignment (head):
        subject  ...  pair_h2_h3_contact_voxels_sum_per_pair_area_scale
     0  subj001  ...                                                0.0
@@ -423,7 +410,7 @@ options object is required.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-75
+.. GENERATED FROM PYTHON SOURCE LINES 69-74
 
 Align every moving subject onto subject 0 so habitat integers share one
 phenotype naming. ``method="features"`` uses unscaled habitat summaries
@@ -431,7 +418,7 @@ phenotype naming. ``method="features"`` uses unscaled habitat summaries
 mean-intensity / centroid alternative when feature means are unavailable.
 ``force=True`` is safe when independent ``one_step`` digests collide.
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-93
+.. GENERATED FROM PYTHON SOURCE LINES 74-92
 
 .. code-block:: Python
 
@@ -466,14 +453,14 @@ mean-intensity / centroid alternative when feature means are unavailable.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 94-98
+.. GENERATED FROM PYTHON SOURCE LINES 93-97
 
 Two idiomatic extraction paths on the **aligned** full 3-D label arrays.
 Do not extract from a 2-D slice — the network figure is display-only.
 
 1) Direct kernel function with flat kwargs (sklearn-style keyword API):
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-112
+.. GENERATED FROM PYTHON SOURCE LINES 97-111
 
 .. code-block:: Python
 
@@ -788,11 +775,11 @@ Do not extract from a 2-D slice — the network figure is display-only.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-114
+.. GENERATED FROM PYTHON SOURCE LINES 112-113
 
 2) Scikit-learn style component — construct once, call per subject:
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-127
+.. GENERATED FROM PYTHON SOURCE LINES 113-126
 
 .. code-block:: Python
 
@@ -1106,12 +1093,12 @@ Do not extract from a 2-D slice — the network figure is display-only.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 128-130
+.. GENERATED FROM PYTHON SOURCE LINES 127-129
 
 Overlay, lattice slice, and 2-D network — also flat kwargs, no options object.
 ``block_size=8`` is the library default for both extraction and display.
 
-.. GENERATED FROM PYTHON SOURCE LINES 130-158
+.. GENERATED FROM PYTHON SOURCE LINES 129-157
 
 .. code-block:: Python
 
@@ -1184,7 +1171,7 @@ Overlay, lattice slice, and 2-D network — also flat kwargs, no options object.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 8.510 seconds)
+   **Total running time of the script:** (0 minutes 10.527 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_quantify_plot_04_graph_features.py:

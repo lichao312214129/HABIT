@@ -71,33 +71,14 @@ Pass the backend into a recipe or into :meth:`~habit.contracts.Cohort.map`::
    backend = backend_from_policy(policy)
    result = study.fit_predict(cohort, backend=backend)
 
-Atomic path (no ``Study``) — ``pipe`` is an apply-time
-:class:`~habit.pipeline.SubjectPipeline` (see
-:doc:`../examples/habitat_atomic_ops`)::
+Atomic path (no ``Study``): extract texture, preprocess, fit in this
+process, then ``backend.map`` the assigner on units already in memory.
+The subject z-score page runs that chain and the equivalent
+``HabitatSpec``. Serial scheduling of the same chain is the first
+gallery page.
 
-   from habit.contracts import cohort_from_directory
-   from habit.datasets import fetch_demo
-   from habit.execution import SerialBackend
-   from habit.habitat_model import KMeansHabitatModelFitter
-   from habit.pipeline import SubjectPipeline
-   from habit.supervoxel import KMeansSupervoxelizer
-   from habit.voxel_features import RawVoxelFeatures
-
-   # Change DATA / MODALITIES / ROI to your preprocessed layout
-   DATA = fetch_demo()  # or "demo_data/preprocessed"
-   MODALITIES = ("LAP",)
-   ROI = "LAP"
-   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
-   voxel = RawVoxelFeatures(modalities=list(MODALITIES))
-   svx = KMeansSupervoxelizer(n_supervoxels=8, n_init=3)
-   svx.set_random_state(7)
-   fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=5)
-   fitter.set_random_state(7)
-   model = fitter.fit([svx(voxel(subject)) for subject in cohort], cohort=cohort)
-   pipe = SubjectPipeline(voxel, svx, model.assigner())
-   maps = cohort.map(pipe, backend=SerialBackend())
-
-One subject does not need a backend: ``habitat_map = pipe(subject)``.
+* :doc:`/auto_examples/06_parallel_runs/plot_08_subject_zscore`
+* :doc:`/auto_examples/06_parallel_runs/plot_01_serial`
 
 Failure policy
 --------------
@@ -111,17 +92,15 @@ Both backends accept ``on_subject_failure``:
 :meth:`~habit.contracts.Cohort.map` still raises
 :class:`~habit.exceptions.ProcessingError` when any slot failed, **even
 if** the backend used ``continue``. Recipes / CLI pass
-``raise_on_failure=False`` so a partial cohort can finish. Embedders who
-want the same (uses ``cohort`` / ``pipe`` from the atomic path)::
+``raise_on_failure=False`` so a partial cohort can finish. Calling
+``backend.map`` directly leaves the exception on ``slot.error``.
 
-   from habit.execution import SerialBackend
-
-   slots = cohort.map(pipe, backend=SerialBackend(), raise_on_failure=False)
-
-Or call ``backend.map(pipe, cohort)`` and read ``slot.error``.
+* Continue: :doc:`/auto_examples/06_parallel_runs/plot_02_skip_failed`
+* Stop at the first subject: :doc:`/auto_examples/06_parallel_runs/plot_03_stop_on_failure`
 
 Per-subject wall-clock cap: ``subject_timeout_sec`` (ProcessPool only).
-Expiry raises ``SubjectTimeoutError`` (isolated under ``continue``).
+Expiry raises ``SubjectTimeoutError``.
+See :doc:`/auto_examples/06_parallel_runs/plot_14_wall_clock`.
 
 In-run retries of flaky subjects: ``auto_retry_rounds`` (ProcessPool).
 After a fatal ``MemoryError``, ``oom_backoff=True`` reduces ``workers``.
@@ -130,17 +109,9 @@ Resume and checkpoints
 ----------------------
 
 Attach a :class:`~habit.execution.CheckpointStore` so a second run skips
-subjects already recorded as success (uses ``cohort`` / ``pipe`` from the
-atomic path above)::
-
-   from habit.execution import CheckpointStore, SerialBackend
-
-   store = CheckpointStore("out/run/.habitat_checkpoint")
-   maps = cohort.map(
-       pipe,
-       backend=SerialBackend(),
-       checkpoint=store,
-   )
+subjects already recorded as success. The texture page keys that store
+with the extractor fingerprint:
+:doc:`/auto_examples/06_parallel_runs/plot_04_resume`.
 
 Recorded **failures** stay skipped unless ``retry_failed_subjects=True``.
 Force a few IDs with ``force_rerun_subjects``.

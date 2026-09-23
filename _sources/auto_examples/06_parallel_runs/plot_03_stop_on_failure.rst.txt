@@ -21,61 +21,132 @@
 Stopping at the first failure
 =============================
 
-``on_subject_failure="fail_fast"`` re-raises the first subject error
-and does not run the rest. Use it when a partial cohort would be
-misread as a finished study.
+``on_subject_failure="fail_fast"`` re-raises the first subject error and
+does not run the rest. The incomplete subject is first, so the real
+extraction of the complete subject never starts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-12
+.. GENERATED FROM PYTHON SOURCE LINES 11-16
 
-``subj002`` raises. ``subj003`` is not visited.
+Put the incomplete subject first
+--------------------------------
+Dropping ``LAP`` makes texture extraction raise as soon as that series
+is requested. The complete subject is second and must stay unvisited.
+sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-57
+.. GENERATED FROM PYTHON SOURCE LINES 16-39
 
 .. code-block:: Python
 
+    import dataclasses
     from pathlib import Path
 
     import matplotlib.pyplot as plt
 
-    from habit.contracts import Cohort, Subject
+    from habit.contracts import Cohort, Subject, cohort_from_directory
+    from habit.datasets import fetch_demo
     from habit.execution import SerialBackend
+    from habit.voxel_features import VoxelRadiomicsFeatures
 
-    cohort = Cohort(
-        [
-            Subject(subject_id="subj001", images={}, masks={}),
-            Subject(subject_id="subj002", images={}, masks={}),
-            Subject(subject_id="subj003", images={}, masks={}),
-        ],
-        name="stop",
+    DATA = fetch_demo()
+    MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
+    ROI = "LAP"
+    source = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
+    missing_lap = dataclasses.replace(
+        source,
+        subject_id="missing_lap",
+        images={name: ref for name, ref in source.images.items() if name != "LAP"},
     )
+    cohort = Cohort([missing_lap, source], name="stop")
+    print([subject.subject_id for subject in cohort])
+    Path("out").mkdir(exist_ok=True)
 
-    def subject_label(subject: Subject) -> str:
-        """Fail one known id so the run stops at that subject."""
-        if subject.subject_id == "subj002":
-            raise RuntimeError("unreadable series")
-        return subject.subject_id
 
-    seen = []
 
-    def record(subject: Subject) -> str:
-        """Record who actually ran, then apply the failing operation."""
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HABIT demo data (cached)
+    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
+
+    On-disk inventory of this folder:
+      subjects (5): subj001, subj002, subj003, subj004, subj005
+      image series: LAP, PVP, delay_3min, pre_contrast
+      mask keys:    LAP, PVP, delay_3min, pre_contrast
+      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
+      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
+
+    Your own data must use the same folder tree (change IDs / series names):
+
+      DATA/
+        images/<subject_id>/<modality>/<one image file>
+        masks/<subject_id>/<roi>/<one mask file>
+
+    Then load it with the same call the demos use:
+
+      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
+
+    Swap DATA / modalities / roi to match your tree. Mask key is often the
+    same as one image series (here LAP).
+    ['missing_lap', 'subj001']
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 40-44
+
+Stop on the missing series
+--------------------------
+``seen`` records who actually entered the extractor. The second id is
+absent, and the exception type is printed.
+
+.. GENERATED FROM PYTHON SOURCE LINES 44-87
+
+.. code-block:: Python
+
+    RADIOMICS_PARAMS = {
+        "imageType": {"Original": {}},
+        "featureClass": {
+            "firstorder": ["Mean", "Entropy"],
+            "glcm": ["Contrast", "Correlation", "Idm", "JointEntropy"],
+            "glrlm": ["ShortRunEmphasis", "LongRunEmphasis"],
+        },
+        "setting": {"binWidth": 12},
+    }
+    texture = VoxelRadiomicsFeatures(
+        modalities=list(MODALITIES),
+        roi=ROI,
+        kernel_radius=3,
+        params=RADIOMICS_PARAMS,
+        voxel_batch=1000,
+        use_torch_radiomics=True,
+        torch_device="cuda:0",
+        use_gpu_matrices=True,
+    )
+    seen: list[str] = []
+
+
+    def extract(subject: Subject):
+        """Record the id, then run the real texture extractor."""
         seen.append(subject.subject_id)
-        return subject_label(subject)
+        return texture(subject)
+
 
     try:
-        list(SerialBackend(on_subject_failure="fail_fast").map(record, cohort))
-    except RuntimeError as exc:
+        list(SerialBackend(on_subject_failure="fail_fast").map(extract, cohort))
+    except Exception as exc:
         print(type(exc).__name__)
-    print(seen)
+        print(exc)
+    print("visited:", seen)
 
     labels = [subject.subject_id for subject in cohort]
-    visited = [subject_id in seen for subject_id in labels]
+    colors = ["#4C78A8" if subject_id in seen else "#D0D0D0" for subject_id in labels]
     fig, ax = plt.subplots(figsize=(6.4, 2.4))
-    colors = ["#4C78A8" if flag else "#D0D0D0" for flag in visited]
-    ax.barh(list(reversed(labels)), [1, 1, 1], color=list(reversed(colors)))
+    ax.barh(list(reversed(labels)), [1, 1], color=list(reversed(colors)))
     ax.set_xlabel("visited")
     ax.set_title("stop at the first failure")
-    Path("out").mkdir(exist_ok=True)
     fig.savefig("out/stop_on_failure.png", dpi=150, bbox_inches="tight")
     plt.show()
 
@@ -91,8 +162,9 @@ misread as a finished study.
 
  .. code-block:: none
 
-    RuntimeError
-    ['subj001', 'subj002']
+    HABITAPIError
+    voxel_radiomics: subject 'missing_lap' does not provide modalities ['LAP']; available: ['PVP', 'delay_3min', 'pre_contrast'].
+    visited: ['missing_lap']
 
 
 

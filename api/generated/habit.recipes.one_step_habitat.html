@@ -142,6 +142,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
 </ul>
 </li>
 </ul>
@@ -676,16 +683,7 @@ function signature, and not how to use it. Please refer to the
 
 <section id="examples-using-habit-recipes-one-step-habitat">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.recipes.one_step_habitat</span></code><a class="headerlink" href="#examples-using-habit-recipes-one-step-habitat" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. There is no cohort fit stage."><img alt="" src="../../_images/sphx_glr_plot_02_inside_each_subject_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Independent fits permute integer ids: habitat 1 of subject B need not be habitat 1 of subject A. habit.kernels.habitat_label_match recovers a {moving_id: reference_id} map."><img alt="" src="../../_images/sphx_glr_plot_05_match_labels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html"><span class="doc">Matching habitat labels across fits</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Matching habitat labels across fits</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject wrapped as a Cohort. Output: that subject&#x27;s HabitatMap. This is the one-step design with no partition and no pool."><img alt="" src="../../_images/sphx_glr_plot_15_one_subject_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_15_one_subject.html"><span class="doc">Clustering habitats inside one subject</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats inside one subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats."><img alt="" src="../../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats."><img alt="" src="../../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/05_quantify/plot_01_volume_fractions.html"><span class="doc">Volume and fractions</span></a></p>
   <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix."><img alt="" src="../../_images/sphx_glr_plot_02_msi_thumb.png" />
