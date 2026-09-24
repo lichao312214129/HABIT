@@ -133,7 +133,11 @@ def test_load_plugins_strict_true_raises_first_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """strict=True aborts plugin discovery on the first broken entry point."""
-    from habit import plugins
+    # ``habit.plugins`` only re-exports the public API; the discovery globals
+    # that ``load_plugins`` reads at call time live in ``habit.plugins.catalog``.
+    import importlib
+
+    plugins = importlib.import_module("habit.plugins.catalog")
 
     class BrokenEntryPoint:
         """Minimal entry point whose load() always raises."""

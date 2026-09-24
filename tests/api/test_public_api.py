@@ -23,7 +23,7 @@ def test_package_root_exposes_only_version_metadata() -> None:
     assert habit.__all__ == ["__version__"]
     assert PUBLIC_API_SYMBOLS == ()
     assert isinstance(habit.__version__, str)
-    assert habit.__version__ == "2.0.0"
+    assert habit.__version__ == "3.0.0"
     assert not hasattr(habit, "RawVoxelFeatures")
 
 
