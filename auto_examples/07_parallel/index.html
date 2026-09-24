@@ -687,12 +687,11 @@
              
   <section id="parallel-runs">
 <span id="sphx-glr-auto-examples-07-parallel"></span><h1>7. Parallel runs<a class="headerlink" href="#parallel-runs" title="Link to this heading"></a></h1>
-<p>One study, four ways to schedule it. The stage list is the complete
-analysis with a fixed habitat count. <code class="docutils literal notranslate"><span class="pre">backend</span></code> is <code class="docutils literal notranslate"><span class="pre">serial</span></code> or
-<code class="docutils literal notranslate"><span class="pre">process</span></code>. A persistent pool, a fresh process per subject, and one
-worker per GPU are settings of the process backend.</p>
+<p>One study, serial vs process backends. The page shows why a tiny cohort
+can make serial faster than a process pool (spawn cost), then fault
+tolerance (<code class="docutils literal notranslate"><span class="pre">on_subject_failure</span></code>) and checkpoint resume.</p>
 <p><a class="reference internal" href="plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a></p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The study is the two-step list from /auto_examples/00_full_pipeline/plot_01_full_pipeline, with the habitat count fixed at 3 so this page can refit it on every backend. Only backend= changes. Habitat labels must match."><img alt="" src="../../_images/sphx_glr_plot_01_backends_thumb.png" />
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The study is the two-step list from /auto_examples/00_full_pipeline/plot_01_full_pipeline, with the habitat count fixed at 3 so this page can refit it on every backend. Only backend= / RunPolicy settings change. Habitat labels must match."><img alt="" src="../../_images/sphx_glr_plot_01_backends_thumb.png" />
 <p><a class="reference internal" href="plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a></p>
   <div class="sphx-glr-thumbnail-title">Running the same study on each backend</div>
 </div></div><div class="toctree-wrapper compound">

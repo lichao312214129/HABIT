@@ -973,10 +973,9 @@ literature: :doc:`/reference/habitat_matching`.
 7. Parallel runs
 ================
 
-One study, four ways to schedule it. The stage list is the complete
-analysis with a fixed habitat count. ``backend`` is ``serial`` or
-``process``. A persistent pool, a fresh process per subject, and one
-worker per GPU are settings of the process backend.
+One study, serial vs process backends. The page shows why a tiny cohort
+can make serial faster than a process pool (spawn cost), then fault
+tolerance (``on_subject_failure``) and checkpoint resume.
 
 :doc:`/auto_examples/07_parallel/plot_01_backends`
 
@@ -994,7 +993,7 @@ worker per GPU are settings of the process backend.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The study is the two-step list from /auto_examples/00_full_pipeline/plot_01_full_pipeline, with the habitat count fixed at 3 so this page can refit it on every backend. Only backend= changes. Habitat labels must match.">
+    <div class="sphx-glr-thumbcontainer" tooltip="The study is the two-step list from /auto_examples/00_full_pipeline/plot_01_full_pipeline, with the habitat count fixed at 3 so this page can refit it on every backend. Only backend= / RunPolicy settings change. Habitat labels must match.">
 
 .. only:: html
 
@@ -1022,6 +1021,11 @@ Repeatability and reproducibility screening (Prior et al., 2024):
 simulated image retest perturbation (noise, translation, rotation) and
 ROI contour edge perturbation, evaluated across kernel radii and bin
 widths with multi-panel ICC forest plots.
+
+The main gallery page also clusters habitats on the same subject with and
+without the precise whitelist under the Appendix S2 retest: without
+precise, original and perturbed habitat maps disagree; with precise, mean
+Dice rises and labelled-voxel disagreement falls on this demo (modestly).
 
 
 .. raw:: html

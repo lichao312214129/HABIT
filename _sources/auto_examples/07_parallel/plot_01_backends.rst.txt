@@ -24,7 +24,7 @@ Running the same study on each backend
 The study is the two-step list from
 :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`, with the
 habitat count fixed at 3 so this page can refit it on every backend.
-Only ``backend=`` changes. Habitat labels must match.
+Only ``backend=`` / ``RunPolicy`` settings change. Habitat labels must match.
 
 =========================================  ==========================================
 Where the work runs                        What to pass
@@ -161,9 +161,9 @@ the other backends must match.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.12s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.76s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.76s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.37it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.28it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.27it/s]
-    serial: 4.2 s, backend SerialBackend
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:05<00:05,  5.79s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07<00:00,  3.65s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07<00:00,  3.65s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.80it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.95it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.94it/s]
+    serial: 8.1 s, backend SerialBackend
        subject  ...  habitat_3_volume_fraction
     0  subj001  ...                   0.331844
     1  subj002  ...                   0.569182
@@ -173,14 +173,15 @@ the other backends must match.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-96
+.. GENERATED FROM PYTHON SOURCE LINES 92-97
 
 Process backend, persistent workers
 -----------------------------------
-``workers=2`` is one process per subject. ``reuse_workers()`` keeps
-those processes up; the first call pays the spawn cost.
+``workers=2`` asks for one process per subject.
+``reuse_workers()`` keeps those interpreters warm after spawn;
+the first call still pays the Windows spawn + import cost.
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-110
+.. GENERATED FROM PYTHON SOURCE LINES 97-112
 
 .. code-block:: Python
 
@@ -192,6 +193,7 @@ those processes up; the first call pays the spawn cost.
             start = time.perf_counter()
             pooled = study.fit_predict(cohort, backend=pool)
             timings["process, persistent"] = time.perf_counter() - start
+        print(f"process, persistent: {timings['process, persistent']:.1f} s")
         for left, right in zip(serial.habitat_maps, pooled.habitat_maps):
             print(
                 f"{left.subject_id}: serial == persistent: "
@@ -207,22 +209,23 @@ those processes up; the first call pays the spawn cost.
  .. code-block:: none
 
     ProcessPoolBackend workers 2 mode persistent
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:10<00:10, 10.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:11<00:00,  5.73s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:11<00:00,  5.73s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.92it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.17it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.17it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:07<00:07,  7.77s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09<00:00,  4.56s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09<00:00,  4.56s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.23it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.10it/s]
+    process, persistent: 9.8 s
     subj001: serial == persistent: True
     subj002: serial == persistent: True
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-115
+.. GENERATED FROM PYTHON SOURCE LINES 113-117
 
 Process backend, one process per subject
 ----------------------------------------
 ``parallel_mode="isolated"`` still uses ``backend="process"``. Each
 subject gets a new interpreter. Same labels, more start-up.
 
-.. GENERATED FROM PYTHON SOURCE LINES 115-137
+.. GENERATED FROM PYTHON SOURCE LINES 117-131
 
 .. code-block:: Python
 
@@ -233,18 +236,62 @@ subject gets a new interpreter. Same labels, more start-up.
         start = time.perf_counter()
         isolated_result = study.fit_predict(cohort, backend=isolated)
         timings["process, isolated"] = time.perf_counter() - start
+        print(f"process, isolated: {timings['process, isolated']:.1f} s")
         for left, right in zip(serial.habitat_maps, isolated_result.habitat_maps):
             print(
                 f"{left.subject_id}: serial == isolated: "
                 f"{np.array_equal(left.label_array, right.label_array)}"
             )
 
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    ProcessPoolBackend mode isolated
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:08<00:08,  8.42s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09<00:00,  4.55s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09<00:00,  4.55s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.06it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.06it/s]
+    process, isolated: 9.8 s
+    subj001: serial == isolated: True
+    subj002: serial == isolated: True
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 132-147
+
+Why serial can win on this tiny cohort
+--------------------------------------
+This demo uses only two subjects and a small fixed ``kmeans`` fit.
+On Windows the process backend uses spawn: each worker starts a new
+interpreter and imports HABIT. That start-up is often larger than the
+fit itself. Isolated mode pays spawn again for every subject.
+On a single GPU, ``cap_workers_to_gpu_pool=True`` leaves one worker,
+so "parallel" is not actually parallel.
+
+The bar below is a **cost demonstration**, not a claim that serial is
+always faster. The scientific definition is unchanged: same
+``HabitatSpec``, same habitat labels. The timing gap is overhead.
+Process workers win when there are many subjects, each subject is
+expensive, and ``workers`` stays greater than 1 — see the recorded
+multi-GPU table further down.
+
+.. GENERATED FROM PYTHON SOURCE LINES 147-159
+
+.. code-block:: Python
+
+    if __name__ == "__main__":
+        for name, seconds in timings.items():
+            print(f"{name}: {seconds:.1f} s")
         Path("out").mkdir(exist_ok=True)
         fig, ax = plt.subplots(figsize=(6.8, 2.8), constrained_layout=True)
         ax.barh(list(timings), list(timings.values()), color="#4C78A8")
         ax.invert_yaxis()
         ax.set_xlabel(f"wall-clock seconds ({len(cohort)} subjects)")
-        ax.set_title("serial vs process pool vs isolated")
+        ax.set_title("serial vs process pool vs isolated (tiny cohort)")
         fig.savefig("out/backends_timing.png", dpi=150, bbox_inches="tight")
         plt.show()
 
@@ -252,7 +299,7 @@ subject gets a new interpreter. Same labels, more start-up.
 
 
 .. image-sg:: /auto_examples/07_parallel/images/sphx_glr_plot_01_backends_001.png
-   :alt: serial vs process pool vs isolated
+   :alt: serial vs process pool vs isolated (tiny cohort)
    :srcset: /auto_examples/07_parallel/images/sphx_glr_plot_01_backends_001.png
    :class: sphx-glr-single-img
 
@@ -261,19 +308,17 @@ subject gets a new interpreter. Same labels, more start-up.
 
  .. code-block:: none
 
-    ProcessPoolBackend mode isolated
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:08<00:08,  8.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09<00:00,  4.57s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09<00:00,  4.57s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.06it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.21it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.21it/s]
-    subj001: serial == isolated: True
-    subj002: serial == isolated: True
+    serial: 8.1 s
+    process, persistent: 9.8 s
+    process, isolated: 9.8 s
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 138-147
+.. GENERATED FROM PYTHON SOURCE LINES 160-169
 
-Several GPUs
-------------
+Cap workers to the GPU pool
+---------------------------
 Still ``backend="process"``. ``cap_workers_to_gpu_pool=True`` clamps
 ``workers`` to the visible cards, one worker per card. Building the
 policy does not launch a job. Set ``CUDA_VISIBLE_DEVICES`` before
@@ -282,7 +327,7 @@ Python starts, for example ``0,1,2,3,4``, and leave
 (this machine is not asked to repeat it). Driver:
 ``scripts/run_multi_gpu_cohort_bench.py``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 147-163
+.. GENERATED FROM PYTHON SOURCE LINES 169-185
 
 .. code-block:: Python
 
@@ -315,7 +360,7 @@ Python starts, for example ``0,1,2,3,4``, and leave
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 164-216
+.. GENERATED FROM PYTHON SOURCE LINES 186-238
 
 .. list-table::
    :header-rows: 1
@@ -370,16 +415,18 @@ Python starts, for example ``0,1,2,3,4``, and leave
    Recorded AutoDL result (16 subjects, 90 features, 2026-09-04).
    Stars are warm persistent pools. This page does not regenerate it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 218-224
+.. GENERATED FROM PYTHON SOURCE LINES 240-248
 
-When one subject cannot be read
--------------------------------
-``on_subject_failure`` is a policy on the backend you already chose.
-``"continue"`` (the default) keeps the subjects that worked.
-``"fail_fast"`` stops at the first failure. The fourth demo subject
-is copied without its portal-venous series, so ``extract`` raises.
+Fault tolerance: continue vs fail_fast
+--------------------------------------
+``on_subject_failure`` is a ``RunPolicy`` / backend setting, not a
+separate backend. ``"continue"`` (the default) records the failed
+subject and still returns habitat maps for the subjects that worked.
+``"fail_fast"`` raises at the first failure. Below, the fourth demo
+subject is copied without its portal-venous series, so ``extract``
+cannot find ``PVP``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 224-255
+.. GENERATED FROM PYTHON SOURCE LINES 248-279
 
 .. code-block:: Python
 
@@ -427,12 +474,12 @@ is copied without its portal-venous series, so ``extract`` raises.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.01s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.73s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04<00:01,  1.58s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05<00:00,  1.40s/it][habitat.units] subject subj004_no_PVP failed: KeyError: "Subject 'subj004_no_PVP' has no modality 'PVP'. Available: ['LAP', 'delay_3min', 'pre_contrast']."
-    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05<00:00,  1.40s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:00<00:00,  3.26it/s]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:00<00:00,  3.20it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:00<00:00,  3.24it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:00<00:00,  3.24it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.10s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.75s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04<00:01,  1.60s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05<00:00,  1.44s/it][habitat.units] subject subj004_no_PVP failed: KeyError: "Subject 'subj004_no_PVP' has no modality 'PVP'. Available: ['LAP', 'delay_3min', 'pre_contrast']."
+    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05<00:00,  1.44s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:00<00:00,  3.21it/s]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:00<00:00,  3.13it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:00<00:00,  3.13it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:00<00:00,  3.13it/s]
     maps: ['subj001', 'subj002', 'subj003']
     outcomes: {'subj001': 'success', 'subj002': 'success', 'subj003': 'success', 'subj004_no_PVP': 'KeyError: "Subject \'subj004_no_PVP\' has no modality \'PVP\'. Available: [\'LAP\', \'delay_3min\', \'pre_contrast\']."'}
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:01<00:05,  1.95s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.65s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04<00:01,  1.49s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.77s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.07s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.76s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04<00:01,  1.59s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.89s/it]
     stopped: "Subject 'subj004_no_PVP' has no modality 'PVP'. Available: ['LAP', 'delay_3min', 'pre_contrast']."
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
@@ -440,16 +487,16 @@ is copied without its portal-venous series, so ``extract`` raises.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 256-262
+.. GENERATED FROM PYTHON SOURCE LINES 280-286
 
-Resume, and a per-subject time limit
-------------------------------------
-A checkpoint stores finished subjects. The second call reads them
-back. ``subject_timeout_sec`` is enforced only by the process
-backend; the policy below is the one you would pass to
-``backend_from_policy`` on a long cohort.
+Checkpoint resume
+-----------------
+``CheckpointStore`` writes finished subjects to disk. The first call
+runs the study and stores maps; the second call hits those checkpoints
+and finishes faster. Resume skips subjects already stored — it does
+**not** change habitat labels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-276
+.. GENERATED FROM PYTHON SOURCE LINES 286-293
 
 .. code-block:: Python
 
@@ -460,6 +507,38 @@ backend; the policy below is the one you would pass to
             study.fit_predict(cohort, checkpoint=store)
             print(f"{attempt}: {time.perf_counter() - start:.1f} s")
 
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.27s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.19s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.19s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.92it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.90it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.90it/s]
+    first run: 5.5 s
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00, 22.23it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 23.45it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 23.45it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00, 11.36it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00, 11.94it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00, 11.94it/s]
+    rerun: 0.4 s
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 294-300
+
+Per-subject timeout
+-------------------
+``subject_timeout_sec`` is a ``RunPolicy`` field. It is enforced only
+by the process backend (serial has no child to kill). The print below
+shows the policy object you would pass to ``backend_from_policy`` on a
+long cohort; this page does not wait for a real timeout.
+
+.. GENERATED FROM PYTHON SOURCE LINES 300-308
+
+.. code-block:: Python
+
+    if __name__ == "__main__":
         timeout = RunPolicy(
             workers=2,
             backend="process",
@@ -475,12 +554,6 @@ backend; the policy below is the one you would pass to
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.76s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.76s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.13it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.06it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.06it/s]
-    first run: 4.6 s
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00<00:00, 30.23it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 30.42it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00<00:00, 29.95it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00, 13.63it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00, 14.83it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00, 14.83it/s]
-    rerun: 0.3 s
     timeout_sec 600 on_failure continue
 
 
@@ -489,7 +562,7 @@ backend; the policy below is the one you would pass to
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 45.102 seconds)
+   **Total running time of the script:** (0 minutes 51.330 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07_parallel_plot_01_backends.py:

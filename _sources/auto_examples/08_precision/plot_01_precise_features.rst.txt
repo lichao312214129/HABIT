@@ -27,23 +27,27 @@ those robust features. This is the Prior et al. precision screen (*Radiol Artif 
 
 Evaluating stability under perturbation
 ---------------------------------------
-The core scientific value of Precise features is **stability under perturbation**:
-when image acquisition has minor variations (simulated retest: noise, shift, rotation),
-habitats defined on all texture features may undergo unpredictable partition shifts.
-Filtering features through repeatability and reproducibility ICC panels yields
-a robust whitelist that produces significantly more stable habitat maps (higher Dice
-and ARI between original and perturbed scans).
+The scientific claim of precise features is **stability under the same
+simulated retest the method was designed for** (Appendix S2: Gaussian
+noise, sub-voxel translation, small in-plane rotation). This page clusters
+habitats twice on one subject -- once with **all** texture features, once
+with the **precise** whitelist -- and scores original vs perturbed maps
+with :func:`~habit.precision.habitat_stability` (mean Dice) plus the
+voxel-wise disagreement panel of
+:func:`~habit.viz.plot_habitat_label_compare`. Read the printed numbers:
+precise is only "more stable" on this demo when those scores improve.
 
-In addition, an elastic ROI edge perturbation (MONAI ``bspline_deform``) is demonstrated
-to inspect contour and anatomy deformations.
+An optional MONAI ``bspline_deform`` ROI edge perturbation is shown later
+to inspect contour deformations; that is separate from the Appendix S2
+retest used for the habitat stability comparison.
 
-.. GENERATED FROM PYTHON SOURCE LINES 23-26
+.. GENERATED FROM PYTHON SOURCE LINES 27-30
 
 Load one demo subject. ``extract_voxel_texture`` crops to the ROI box
 internally (``crop_to_roi=True``).
 sphinx_gallery_thumbnail_number = 5
 
-.. GENERATED FROM PYTHON SOURCE LINES 26-69
+.. GENERATED FROM PYTHON SOURCE LINES 30-69
 
 .. code-block:: Python
 
@@ -58,17 +62,13 @@ sphinx_gallery_thumbnail_number = 5
 
     from habit.contracts import Cohort, Subject, cohort_from_directory
     from habit.datasets import fetch_demo
-    from habit.kernels.habitat_label_match import (
-        adjusted_rand_index,
-        habitat_dice_from_mapping,
-        match_labels_by_overlap,
-        present_habitat_ids,
-        remap_label_array,
-    )
+    from habit.kernels.habitat_label_match import adjusted_rand_index
     from habit.kernels.image_perturbation import binary_mask_dice
     from habit.precision import (
         ImagePerturbationRegistry,
         aggregate_panels,
+        align_habitat_map,
+        habitat_stability,
         identify_precise_features,
         perturb_image,
         precision_panel,
@@ -89,40 +89,6 @@ sphinx_gallery_thumbnail_number = 5
     mask = subject.mask(ROI)
     Path("out").mkdir(exist_ok=True)
     print(f"Grid shape: {image.data.shape}")
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    HABIT demo data (cached)
-    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
-
-    On-disk inventory of this folder:
-      subjects (5): subj001, subj002, subj003, subj004, subj005
-      image series: LAP, PVP, delay_3min, pre_contrast
-      mask keys:    LAP, PVP, delay_3min, pre_contrast
-      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
-      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
-
-    Your own data must use the same folder tree (change IDs / series names):
-
-      DATA/
-        images/<subject_id>/<modality>/<one image file>
-        masks/<subject_id>/<roi>/<one mask file>
-
-    Then load it with the same call the demos use:
-
-      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
-
-    Swap DATA / modalities / roi to match your tree. Mask key is often the
-    same as one image series (here LAP).
-    Grid shape: (200, 360, 360)
-
-
 
 
 .. GENERATED FROM PYTHON SOURCE LINES 70-72
@@ -154,25 +120,6 @@ Sequentially applies Gaussian noise -> translation -> rotation.
     )
     fig_s2.savefig("out/precise_features_perturb_methods.png", dpi=150, bbox_inches="tight")
     plt.show()
-
-
-
-
-.. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_001.png
-   :alt: Appendix S2 chain (original vs perturbed), Original, + noise / shift / rotation
-   :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_001.png
-   :class: sphx-glr-single-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    Appendix S2: gaussian_noise -> translation -> rotation
-    F:\work\habit_project\habit\viz\intensity.py:616: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-
-
 
 
 .. GENERATED FROM PYTHON SOURCE LINES 94-95
@@ -209,402 +156,6 @@ Extract texture features at base R3/B12 and the two reproducibility contrasts.
     feat_r3.feature_frame().head()
 
 
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    voxel_radiomics: firstorder batch 1/35 0.072s peak=13MiB
-    voxel_radiomics: firstorder batch 2/35 0.013s peak=13MiB
-    voxel_radiomics: firstorder batch 3/35 0.056s peak=13MiB
-    voxel_radiomics: firstorder batch 4/35 0.007s peak=13MiB
-    voxel_radiomics: firstorder batch 5/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 6/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 7/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 8/35 0.012s peak=13MiB
-    voxel_radiomics: firstorder batch 9/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 10/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 11/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 12/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 13/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 14/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 15/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 16/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 17/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 18/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 19/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 20/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 21/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 22/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 23/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 24/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 25/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 26/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 27/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 28/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 29/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 30/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 31/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 32/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 33/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 34/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 35/35 0.006s peak=13MiB
-    voxel_radiomics: glcm batch 1/35 0.065s peak=12MiB
-    voxel_radiomics: glcm batch 2/35 0.027s peak=13MiB
-    voxel_radiomics: glcm batch 3/35 0.022s peak=13MiB
-    voxel_radiomics: glcm batch 4/35 0.020s peak=14MiB
-    voxel_radiomics: glcm batch 5/35 0.022s peak=15MiB
-    voxel_radiomics: glcm batch 6/35 0.026s peak=16MiB
-    voxel_radiomics: glcm batch 7/35 0.023s peak=17MiB
-    voxel_radiomics: glcm batch 8/35 0.022s peak=18MiB
-    voxel_radiomics: glcm batch 9/35 0.020s peak=19MiB
-    voxel_radiomics: glcm batch 10/35 0.023s peak=20MiB
-    voxel_radiomics: glcm batch 11/35 0.022s peak=21MiB
-    voxel_radiomics: glcm batch 12/35 0.020s peak=22MiB
-    voxel_radiomics: glcm batch 13/35 0.020s peak=22MiB
-    voxel_radiomics: glcm batch 14/35 0.019s peak=23MiB
-    voxel_radiomics: glcm batch 15/35 0.017s peak=24MiB
-    voxel_radiomics: glcm batch 16/35 0.018s peak=25MiB
-    voxel_radiomics: glcm batch 17/35 0.018s peak=26MiB
-    voxel_radiomics: glcm batch 18/35 0.022s peak=27MiB
-    voxel_radiomics: glcm batch 19/35 0.018s peak=28MiB
-    voxel_radiomics: glcm batch 20/35 0.018s peak=29MiB
-    voxel_radiomics: glcm batch 21/35 0.019s peak=30MiB
-    voxel_radiomics: glcm batch 22/35 0.020s peak=31MiB
-    voxel_radiomics: glcm batch 23/35 0.019s peak=31MiB
-    voxel_radiomics: glcm batch 24/35 0.022s peak=32MiB
-    voxel_radiomics: glcm batch 25/35 0.019s peak=33MiB
-    voxel_radiomics: glcm batch 26/35 0.020s peak=34MiB
-    voxel_radiomics: glcm batch 27/35 0.018s peak=35MiB
-    voxel_radiomics: glcm batch 28/35 0.019s peak=36MiB
-    voxel_radiomics: glcm batch 29/35 0.018s peak=37MiB
-    voxel_radiomics: glcm batch 30/35 0.018s peak=38MiB
-    voxel_radiomics: glcm batch 31/35 0.019s peak=39MiB
-    voxel_radiomics: glcm batch 32/35 0.019s peak=40MiB
-    voxel_radiomics: glcm batch 33/35 0.018s peak=40MiB
-    voxel_radiomics: glcm batch 34/35 0.018s peak=41MiB
-    voxel_radiomics: glcm batch 35/35 0.018s peak=42MiB
-    voxel_radiomics: firstorder batch 1/35 0.015s peak=48MiB
-    voxel_radiomics: firstorder batch 2/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 3/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 4/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 5/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 6/35 0.007s peak=48MiB
-    voxel_radiomics: firstorder batch 7/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 8/35 0.007s peak=48MiB
-    voxel_radiomics: firstorder batch 9/35 0.007s peak=48MiB
-    voxel_radiomics: firstorder batch 10/35 0.007s peak=48MiB
-    voxel_radiomics: firstorder batch 11/35 0.007s peak=48MiB
-    voxel_radiomics: firstorder batch 12/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 13/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 14/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 15/35 0.005s peak=48MiB
-    voxel_radiomics: firstorder batch 16/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 17/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 18/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 19/35 0.007s peak=48MiB
-    voxel_radiomics: firstorder batch 20/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 21/35 0.007s peak=48MiB
-    voxel_radiomics: firstorder batch 22/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 23/35 0.008s peak=48MiB
-    voxel_radiomics: firstorder batch 24/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 25/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 26/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 27/35 0.005s peak=48MiB
-    voxel_radiomics: firstorder batch 28/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 29/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 30/35 0.005s peak=48MiB
-    voxel_radiomics: firstorder batch 31/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 32/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 33/35 0.006s peak=48MiB
-    voxel_radiomics: firstorder batch 34/35 0.008s peak=48MiB
-    voxel_radiomics: firstorder batch 35/35 0.006s peak=47MiB
-    voxel_radiomics: glcm batch 1/35 0.057s peak=43MiB
-    voxel_radiomics: glcm batch 2/35 0.053s peak=45MiB
-    voxel_radiomics: glcm batch 3/35 0.059s peak=46MiB
-    voxel_radiomics: glcm batch 4/35 0.054s peak=47MiB
-    voxel_radiomics: glcm batch 5/35 0.059s peak=48MiB
-    voxel_radiomics: glcm batch 6/35 0.057s peak=49MiB
-    voxel_radiomics: glcm batch 7/35 0.057s peak=50MiB
-    voxel_radiomics: glcm batch 8/35 0.056s peak=51MiB
-    voxel_radiomics: glcm batch 9/35 0.055s peak=53MiB
-    voxel_radiomics: glcm batch 10/35 0.058s peak=54MiB
-    voxel_radiomics: glcm batch 11/35 0.056s peak=55MiB
-    voxel_radiomics: glcm batch 12/35 0.058s peak=56MiB
-    voxel_radiomics: glcm batch 13/35 0.058s peak=57MiB
-    voxel_radiomics: glcm batch 14/35 0.061s peak=58MiB
-    voxel_radiomics: glcm batch 15/35 0.057s peak=59MiB
-    voxel_radiomics: glcm batch 16/35 0.058s peak=61MiB
-    voxel_radiomics: glcm batch 17/35 0.055s peak=62MiB
-    voxel_radiomics: glcm batch 18/35 0.055s peak=1MiB
-    voxel_radiomics: glcm batch 19/35 0.056s peak=2MiB
-    voxel_radiomics: glcm batch 20/35 0.060s peak=3MiB
-    voxel_radiomics: glcm batch 21/35 0.057s peak=5MiB
-    voxel_radiomics: glcm batch 22/35 0.054s peak=6MiB
-    voxel_radiomics: glcm batch 23/35 0.053s peak=7MiB
-    voxel_radiomics: glcm batch 24/35 0.053s peak=8MiB
-    voxel_radiomics: glcm batch 25/35 0.054s peak=9MiB
-    voxel_radiomics: glcm batch 26/35 0.052s peak=10MiB
-    voxel_radiomics: glcm batch 27/35 0.054s peak=11MiB
-    voxel_radiomics: glcm batch 28/35 0.054s peak=13MiB
-    voxel_radiomics: glcm batch 29/35 0.051s peak=14MiB
-    voxel_radiomics: glcm batch 30/35 0.051s peak=15MiB
-    voxel_radiomics: glcm batch 31/35 0.048s peak=16MiB
-    voxel_radiomics: glcm batch 32/35 0.050s peak=17MiB
-    voxel_radiomics: glcm batch 33/35 0.047s peak=18MiB
-    voxel_radiomics: glcm batch 34/35 0.043s peak=20MiB
-    voxel_radiomics: glcm batch 35/35 0.029s peak=21MiB
-    voxel_radiomics: firstorder batch 1/35 0.009s peak=26MiB
-    voxel_radiomics: firstorder batch 2/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 3/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 4/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 5/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 6/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 7/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 8/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 9/35 0.005s peak=26MiB
-    voxel_radiomics: firstorder batch 10/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 11/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 12/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 13/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 14/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 15/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 16/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 17/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 18/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 19/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 20/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 21/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 22/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 23/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 24/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 25/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 26/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 27/35 0.005s peak=26MiB
-    voxel_radiomics: firstorder batch 28/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 29/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 30/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 31/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 32/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 33/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 34/35 0.004s peak=26MiB
-    voxel_radiomics: firstorder batch 35/35 0.003s peak=26MiB
-    voxel_radiomics: glcm batch 1/35 0.038s peak=22MiB
-    voxel_radiomics: glcm batch 2/35 0.031s peak=23MiB
-    voxel_radiomics: glcm batch 3/35 0.032s peak=24MiB
-    voxel_radiomics: glcm batch 4/35 0.033s peak=25MiB
-    voxel_radiomics: glcm batch 5/35 0.032s peak=26MiB
-    voxel_radiomics: glcm batch 6/35 0.034s peak=28MiB
-    voxel_radiomics: glcm batch 7/35 0.032s peak=29MiB
-    voxel_radiomics: glcm batch 8/35 0.033s peak=30MiB
-    voxel_radiomics: glcm batch 9/35 0.032s peak=31MiB
-    voxel_radiomics: glcm batch 10/35 0.032s peak=32MiB
-    voxel_radiomics: glcm batch 11/35 0.031s peak=33MiB
-    voxel_radiomics: glcm batch 12/35 0.033s peak=34MiB
-    voxel_radiomics: glcm batch 13/35 0.031s peak=36MiB
-    voxel_radiomics: glcm batch 14/35 0.033s peak=37MiB
-    voxel_radiomics: glcm batch 15/35 0.032s peak=38MiB
-    voxel_radiomics: glcm batch 16/35 0.033s peak=39MiB
-    voxel_radiomics: glcm batch 17/35 0.032s peak=40MiB
-    voxel_radiomics: glcm batch 18/35 0.034s peak=41MiB
-    voxel_radiomics: glcm batch 19/35 0.031s peak=43MiB
-    voxel_radiomics: glcm batch 20/35 0.034s peak=44MiB
-    voxel_radiomics: glcm batch 21/35 0.031s peak=45MiB
-    voxel_radiomics: glcm batch 22/35 0.031s peak=46MiB
-    voxel_radiomics: glcm batch 23/35 0.031s peak=47MiB
-    voxel_radiomics: glcm batch 24/35 0.031s peak=48MiB
-    voxel_radiomics: glcm batch 25/35 0.031s peak=49MiB
-    voxel_radiomics: glcm batch 26/35 0.031s peak=51MiB
-    voxel_radiomics: glcm batch 27/35 0.033s peak=52MiB
-    voxel_radiomics: glcm batch 28/35 0.032s peak=53MiB
-    voxel_radiomics: glcm batch 29/35 0.031s peak=54MiB
-    voxel_radiomics: glcm batch 30/35 0.029s peak=55MiB
-    voxel_radiomics: glcm batch 31/35 0.028s peak=56MiB
-    voxel_radiomics: glcm batch 32/35 0.029s peak=57MiB
-    voxel_radiomics: glcm batch 33/35 0.026s peak=59MiB
-    voxel_radiomics: glcm batch 34/35 0.025s peak=60MiB
-    voxel_radiomics: glcm batch 35/35 0.021s peak=61MiB
-    voxel_radiomics: firstorder batch 1/35 0.015s peak=67MiB
-    voxel_radiomics: firstorder batch 2/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 3/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 4/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 5/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 6/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 7/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 8/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 9/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 10/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 11/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 12/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 13/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 14/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 15/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 16/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 17/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 18/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 19/35 0.015s peak=67MiB
-    voxel_radiomics: firstorder batch 20/35 0.008s peak=67MiB
-    voxel_radiomics: firstorder batch 21/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 22/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 23/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 24/35 0.008s peak=67MiB
-    voxel_radiomics: firstorder batch 25/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 26/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 27/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 28/35 0.005s peak=67MiB
-    voxel_radiomics: firstorder batch 29/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 30/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 31/35 0.009s peak=67MiB
-    voxel_radiomics: firstorder batch 32/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 33/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 34/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 35/35 0.006s peak=66MiB
-    voxel_radiomics: glcm batch 1/35 0.058s peak=62MiB
-    voxel_radiomics: glcm batch 2/35 0.074s peak=63MiB
-    voxel_radiomics: glcm batch 3/35 0.071s peak=64MiB
-    voxel_radiomics: glcm batch 4/35 0.058s peak=66MiB
-    voxel_radiomics: glcm batch 5/35 0.062s peak=67MiB
-    voxel_radiomics: glcm batch 6/35 0.056s peak=68MiB
-    voxel_radiomics: glcm batch 7/35 0.057s peak=69MiB
-    voxel_radiomics: glcm batch 8/35 0.057s peak=70MiB
-    voxel_radiomics: glcm batch 9/35 0.055s peak=71MiB
-    voxel_radiomics: glcm batch 10/35 0.059s peak=72MiB
-    voxel_radiomics: glcm batch 11/35 0.059s peak=74MiB
-    voxel_radiomics: glcm batch 12/35 0.059s peak=1MiB
-    voxel_radiomics: glcm batch 13/35 0.056s peak=2MiB
-    voxel_radiomics: glcm batch 14/35 0.057s peak=3MiB
-    voxel_radiomics: glcm batch 15/35 0.058s peak=5MiB
-    voxel_radiomics: glcm batch 16/35 0.058s peak=6MiB
-    voxel_radiomics: glcm batch 17/35 0.056s peak=7MiB
-    voxel_radiomics: glcm batch 18/35 0.058s peak=8MiB
-    voxel_radiomics: glcm batch 19/35 0.060s peak=9MiB
-    voxel_radiomics: glcm batch 20/35 0.057s peak=10MiB
-    voxel_radiomics: glcm batch 21/35 0.056s peak=11MiB
-    voxel_radiomics: glcm batch 22/35 0.056s peak=13MiB
-    voxel_radiomics: glcm batch 23/35 0.057s peak=14MiB
-    voxel_radiomics: glcm batch 24/35 0.057s peak=15MiB
-    voxel_radiomics: glcm batch 25/35 0.055s peak=16MiB
-    voxel_radiomics: glcm batch 26/35 0.056s peak=17MiB
-    voxel_radiomics: glcm batch 27/35 0.054s peak=18MiB
-    voxel_radiomics: glcm batch 28/35 0.055s peak=20MiB
-    voxel_radiomics: glcm batch 29/35 0.054s peak=21MiB
-    voxel_radiomics: glcm batch 30/35 0.054s peak=22MiB
-    voxel_radiomics: glcm batch 31/35 0.052s peak=23MiB
-    voxel_radiomics: glcm batch 32/35 0.051s peak=24MiB
-    voxel_radiomics: glcm batch 33/35 0.049s peak=25MiB
-    voxel_radiomics: glcm batch 34/35 0.046s peak=26MiB
-    voxel_radiomics: glcm batch 35/35 0.030s peak=28MiB
-    Texture features (10): ['original_firstorder_Entropy-LAP', 'original_firstorder_Mean-LAP', 'original_firstorder_Variance-LAP', 'original_firstorder_Skewness-LAP', 'original_firstorder_Kurtosis-LAP', 'original_glcm_Contrast-LAP', 'original_glcm_Correlation-LAP', 'original_glcm_JointEntropy-LAP', 'original_glcm_Idm-LAP', 'original_glcm_DifferenceEntropy-LAP']
-
-
-.. raw:: html
-
-    <div class="output_subarea output_html rendered_html output_result">
-    <div>
-    <style scoped>
-        .dataframe tbody tr th:only-of-type {
-            vertical-align: middle;
-        }
-
-        .dataframe tbody tr th {
-            vertical-align: top;
-        }
-
-        .dataframe thead th {
-            text-align: right;
-        }
-    </style>
-    <table border="1" class="dataframe">
-      <thead>
-        <tr style="text-align: right;">
-          <th></th>
-          <th>original_firstorder_Entropy-LAP</th>
-          <th>original_firstorder_Mean-LAP</th>
-          <th>original_firstorder_Variance-LAP</th>
-          <th>original_firstorder_Skewness-LAP</th>
-          <th>original_firstorder_Kurtosis-LAP</th>
-          <th>original_glcm_Contrast-LAP</th>
-          <th>original_glcm_Correlation-LAP</th>
-          <th>original_glcm_JointEntropy-LAP</th>
-          <th>original_glcm_Idm-LAP</th>
-          <th>original_glcm_DifferenceEntropy-LAP</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>0</th>
-          <td>4.718153</td>
-          <td>929.454529</td>
-          <td>12038.679688</td>
-          <td>-0.699590</td>
-          <td>2.493581</td>
-          <td>56.511631</td>
-          <td>0.625842</td>
-          <td>6.420918</td>
-          <td>0.135775</td>
-          <td>3.413918</td>
-        </tr>
-        <tr>
-          <th>1</th>
-          <td>4.806128</td>
-          <td>921.260437</td>
-          <td>11553.838867</td>
-          <td>-0.538379</td>
-          <td>2.362133</td>
-          <td>57.619049</td>
-          <td>0.611088</td>
-          <td>6.634685</td>
-          <td>0.130166</td>
-          <td>3.519294</td>
-        </tr>
-        <tr>
-          <th>2</th>
-          <td>4.806798</td>
-          <td>912.686279</td>
-          <td>10351.136719</td>
-          <td>-0.464142</td>
-          <td>2.460896</td>
-          <td>53.160828</td>
-          <td>0.590710</td>
-          <td>6.729667</td>
-          <td>0.133862</td>
-          <td>3.503174</td>
-        </tr>
-        <tr>
-          <th>3</th>
-          <td>4.804531</td>
-          <td>892.990356</td>
-          <td>9296.740234</td>
-          <td>-0.342551</td>
-          <td>2.415731</td>
-          <td>48.151569</td>
-          <td>0.581126</td>
-          <td>6.735334</td>
-          <td>0.137630</td>
-          <td>3.421005</td>
-        </tr>
-        <tr>
-          <th>4</th>
-          <td>4.876184</td>
-          <td>900.432678</td>
-          <td>10488.726562</td>
-          <td>-0.158403</td>
-          <td>2.576256</td>
-          <td>60.333549</td>
-          <td>0.529127</td>
-          <td>6.760901</td>
-          <td>0.117845</td>
-          <td>3.530011</td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    </div>
-    <br />
-    <br />
-
 .. GENERATED FROM PYTHON SOURCE LINES 121-122
 
 Precise screening = Lower Confidence Limit (LCL) >= 0.5 across all 3 ICC experiments.
@@ -634,355 +185,6 @@ Precise screening = Lower Confidence Limit (LCL) >= 0.5 across all 3 ICC experim
     print(f"Dropped features ({len(dropped)}): {dropped}")
     evidence
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    Kept features (7): ['original_firstorder_Entropy-LAP', 'original_firstorder_Mean-LAP', 'original_firstorder_Variance-LAP', 'original_glcm_Contrast-LAP', 'original_glcm_JointEntropy-LAP', 'original_glcm_Idm-LAP', 'original_glcm_DifferenceEntropy-LAP']
-    Dropped features (3): ['original_firstorder_Skewness-LAP', 'original_firstorder_Kurtosis-LAP', 'original_glcm_Correlation-LAP']
-
-
-.. raw:: html
-
-    <div class="output_subarea output_html rendered_html output_result">
-    <div>
-    <style scoped>
-        .dataframe tbody tr th:only-of-type {
-            vertical-align: middle;
-        }
-
-        .dataframe tbody tr th {
-            vertical-align: top;
-        }
-
-        .dataframe thead th {
-            text-align: right;
-        }
-    </style>
-    <table border="1" class="dataframe">
-      <thead>
-        <tr style="text-align: right;">
-          <th></th>
-          <th>experiment</th>
-          <th>feature</th>
-          <th>value</th>
-          <th>lcl</th>
-          <th>ucl</th>
-          <th>n_voxels</th>
-          <th>precise</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>0</th>
-          <td>repeatability</td>
-          <td>original_firstorder_Entropy-LAP</td>
-          <td>0.868</td>
-          <td>0.865</td>
-          <td>0.871</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>1</th>
-          <td>repeatability</td>
-          <td>original_firstorder_Mean-LAP</td>
-          <td>0.963</td>
-          <td>0.963</td>
-          <td>0.964</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>2</th>
-          <td>repeatability</td>
-          <td>original_firstorder_Variance-LAP</td>
-          <td>0.869</td>
-          <td>0.866</td>
-          <td>0.871</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>3</th>
-          <td>repeatability</td>
-          <td>original_firstorder_Skewness-LAP</td>
-          <td>0.719</td>
-          <td>0.714</td>
-          <td>0.724</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>4</th>
-          <td>repeatability</td>
-          <td>original_firstorder_Kurtosis-LAP</td>
-          <td>0.551</td>
-          <td>0.544</td>
-          <td>0.559</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>5</th>
-          <td>repeatability</td>
-          <td>original_glcm_Contrast-LAP</td>
-          <td>0.898</td>
-          <td>0.896</td>
-          <td>0.900</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>6</th>
-          <td>repeatability</td>
-          <td>original_glcm_Correlation-LAP</td>
-          <td>0.675</td>
-          <td>0.669</td>
-          <td>0.681</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>7</th>
-          <td>repeatability</td>
-          <td>original_glcm_JointEntropy-LAP</td>
-          <td>0.921</td>
-          <td>0.919</td>
-          <td>0.923</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>8</th>
-          <td>repeatability</td>
-          <td>original_glcm_Idm-LAP</td>
-          <td>0.881</td>
-          <td>0.878</td>
-          <td>0.883</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>9</th>
-          <td>repeatability</td>
-          <td>original_glcm_DifferenceEntropy-LAP</td>
-          <td>0.907</td>
-          <td>0.905</td>
-          <td>0.909</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>10</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_firstorder_Entropy-LAP</td>
-          <td>0.640</td>
-          <td>0.634</td>
-          <td>0.646</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>11</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_firstorder_Mean-LAP</td>
-          <td>0.947</td>
-          <td>0.946</td>
-          <td>0.948</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>12</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_firstorder_Variance-LAP</td>
-          <td>0.668</td>
-          <td>0.662</td>
-          <td>0.674</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>13</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_firstorder_Skewness-LAP</td>
-          <td>0.376</td>
-          <td>0.367</td>
-          <td>0.385</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>14</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_firstorder_Kurtosis-LAP</td>
-          <td>0.201</td>
-          <td>0.191</td>
-          <td>0.211</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>15</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_glcm_Contrast-LAP</td>
-          <td>0.554</td>
-          <td>0.547</td>
-          <td>0.561</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>16</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_glcm_Correlation-LAP</td>
-          <td>0.406</td>
-          <td>0.397</td>
-          <td>0.415</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>17</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_glcm_JointEntropy-LAP</td>
-          <td>0.711</td>
-          <td>0.706</td>
-          <td>0.716</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>18</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_glcm_Idm-LAP</td>
-          <td>0.659</td>
-          <td>0.653</td>
-          <td>0.665</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>19</th>
-          <td>reproducibility_kernel_radius</td>
-          <td>original_glcm_DifferenceEntropy-LAP</td>
-          <td>0.570</td>
-          <td>0.563</td>
-          <td>0.578</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>20</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_firstorder_Entropy-LAP</td>
-          <td>0.997</td>
-          <td>0.997</td>
-          <td>0.997</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>21</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_firstorder_Mean-LAP</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>22</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_firstorder_Variance-LAP</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>23</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_firstorder_Skewness-LAP</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>24</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_firstorder_Kurtosis-LAP</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>25</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_glcm_Contrast-LAP</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>1.000</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>26</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_glcm_Correlation-LAP</td>
-          <td>0.999</td>
-          <td>0.999</td>
-          <td>0.999</td>
-          <td>34694.0</td>
-          <td>False</td>
-        </tr>
-        <tr>
-          <th>27</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_glcm_JointEntropy-LAP</td>
-          <td>0.927</td>
-          <td>0.926</td>
-          <td>0.929</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>28</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_glcm_Idm-LAP</td>
-          <td>0.988</td>
-          <td>0.988</td>
-          <td>0.988</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-        <tr>
-          <th>29</th>
-          <td>reproducibility_bin_width</td>
-          <td>original_glcm_DifferenceEntropy-LAP</td>
-          <td>0.997</td>
-          <td>0.997</td>
-          <td>0.997</td>
-          <td>34694.0</td>
-          <td>True</td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    </div>
-    <br />
-    <br />
 
 .. GENERATED FROM PYTHON SOURCE LINES 144-145
 
@@ -1018,42 +220,14 @@ Plot one ICC forest per experiment to inspect lower confidence limits.
         plt.show()
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 171-175
 
+Same subject, same Appendix S2 perturbation, same k / seed: only the
+feature set changes. Without precise, habitats can shift under the
+retest; with the precise whitelist they should agree more -- check the
+printed mean Dice and labelled-voxel disagreement before claiming that.
 
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_002.png
-         :alt: Repeatability ICC
-         :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_002.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_003.png
-         :alt: Kernel-radius reproducibility ICC
-         :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_003.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_004.png
-         :alt: Bin-width reproducibility ICC
-         :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_004.png
-         :class: sphx-glr-multi-img
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 171-173
-
-Cluster habitats using all texture features vs precise whitelist.
-Compare the stability of habitats between the original image and perturbed image.
-
-.. GENERATED FROM PYTHON SOURCE LINES 173-235
+.. GENERATED FROM PYTHON SOURCE LINES 175-259
 
 .. code-block:: Python
 
@@ -1066,6 +240,7 @@ Compare the stability of habitats between the original image and perturbed image
         "voxel_radiomics",
         {"modalities": list(MODALITIES), "kernel_radius": 3, "params": texture_params},
     )
+    # Same fitter on both arms (n_habitats / n_init) so only the feature set differs.
     fitter_spec = Spec(
         "kmeans",
         {"n_habitats": 3, "n_init": 3},
@@ -1079,7 +254,19 @@ Compare the stability of habitats between the original image and perturbed image
     demo = Cohort(subjects=(subject,))
     demo_pert = Cohort(subjects=(subject_pert,))
 
-    # --- Experiment A: All texture features under perturbation ---
+
+    def _labelled_disagreement(reference_map, aligned_map) -> float:
+        """Fraction of labelled voxels whose ids differ after overlap matching."""
+        ref = np.asarray(reference_map.label_array)
+        mov = np.asarray(aligned_map.label_array)
+        labelled = (ref > 0) | (mov > 0)
+        if not np.any(labelled):
+            return float("nan")
+        return float(np.mean(ref[labelled] != mov[labelled]))
+
+
+    # --- Without precise: all texture features ---
+    # No whitelist preprocessor -- every extracted texture column enters clustering.
     spec_all = HabitatSpec(
         name="all_texture_one_step",
         voxel_feature_extractor=extractor_spec,
@@ -1091,209 +278,59 @@ Compare the stability of habitats between the original image and perturbed image
     )
     result_all_orig = Study(spec_all).fit_predict(demo)
     result_all_pert = Study(spec_all).fit_predict(demo_pert)
-
-    ref_all = np.asarray(result_all_orig.habitat_maps[0].label_array)
-    mov_all = np.asarray(result_all_pert.habitat_maps[0].label_array)
-    map_all = match_labels_by_overlap(ref_all, mov_all)
-    aligned_all = remap_label_array(
-        mov_all, map_all, reserved_ids=[int(v) for v in present_habitat_ids(ref_all)]
+    map_all_orig = result_all_orig.habitat_maps[0]
+    map_all_pert = result_all_pert.habitat_maps[0]
+    # habitat_stability pairs ids by voxel overlap (Prior Hungarian step) then Dice.
+    stab_all = habitat_stability(map_all_orig, [map_all_pert])
+    mean_dice_all = float(stab_all["dice"].mean())
+    ari_all = float(
+        adjusted_rand_index(
+            np.asarray(map_all_orig.label_array),
+            np.asarray(map_all_pert.label_array),
+        )
     )
-    dice_all = [float(d) for _, _, d, _, _ in habitat_dice_from_mapping(ref_all, mov_all, map_all)]
-    mean_dice_all = float(np.mean(dice_all)) if dice_all else float("nan")
-    ari_all = float(adjusted_rand_index(ref_all, mov_all))
-    print(f"All texture features under perturbation: mean Dice={mean_dice_all:.3f}, ARI={ari_all:.3f}")
+    # force=True: independent one_step runs share model_id by subject+spec, not image content.
+    aligned_all = align_habitat_map(map_all_orig, map_all_pert, force=True)
+    disagree_all = _labelled_disagreement(map_all_orig, aligned_all)
+    print(
+        "Without precise (all texture features): "
+        f"mean Dice={mean_dice_all:.3f}, "
+        f"labelled-voxel disagreement={disagree_all:.3f}, "
+        f"ARI={ari_all:.3f}"
+    )
 
-    # Label comparison for all texture features: Original scan vs Perturbed scan
-    # (zoomed to the habitat bounding box).
+    # Original vs perturbed habitats + disagreement panel (same anatomy image).
     fig_cmp_all = plot_habitat_label_compare(
         image,
-        result_all_orig.habitat_maps[0],
+        map_all_orig,
         aligned_all,
         titles=(
-            "All features: original image",
-            f"All features: perturbed image (Dice={mean_dice_all:.3f})",
+            "Without precise: original",
+            f"Without precise: perturbed (mean Dice={mean_dice_all:.3f})",
         ),
         align_labels=False,
+        show_disagreement=True,
         crop_to="labels",
     )
     fig_cmp_all.savefig("out/precise_features_all_orig_vs_pert.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 260-261
 
+--- With precise: whitelist only (precise on) ---
 
-.. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_005.png
-   :alt: Habitat label compare, All features: original image, All features: perturbed image (Dice=0.787), Disagreement
-   :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_005.png
-   :class: sphx-glr-single-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    F:\work\habit_project\examples\guide\08_precision\plot_01_precise_features.py:196: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
-      spec_all = HabitatSpec(
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.029s peak=34MiB
-    voxel_radiomics: firstorder batch 2/35 0.020s peak=34MiB
-    voxel_radiomics: firstorder batch 3/35 0.014s peak=34MiB
-    voxel_radiomics: firstorder batch 4/35 0.017s peak=34MiB
-    voxel_radiomics: firstorder batch 5/35 0.017s peak=34MiB
-    voxel_radiomics: firstorder batch 6/35 0.019s peak=34MiB
-    voxel_radiomics: firstorder batch 7/35 0.015s peak=34MiB
-    voxel_radiomics: firstorder batch 8/35 0.013s peak=34MiB
-    voxel_radiomics: firstorder batch 9/35 0.013s peak=34MiB
-    voxel_radiomics: firstorder batch 10/35 0.013s peak=34MiB
-    voxel_radiomics: firstorder batch 11/35 0.015s peak=34MiB
-    voxel_radiomics: firstorder batch 12/35 0.011s peak=34MiB
-    voxel_radiomics: firstorder batch 13/35 0.014s peak=34MiB
-    voxel_radiomics: firstorder batch 14/35 0.014s peak=34MiB
-    voxel_radiomics: firstorder batch 15/35 0.015s peak=34MiB
-    voxel_radiomics: firstorder batch 16/35 0.011s peak=34MiB
-    voxel_radiomics: firstorder batch 17/35 0.015s peak=34MiB
-    voxel_radiomics: firstorder batch 18/35 0.014s peak=34MiB
-    voxel_radiomics: firstorder batch 19/35 0.011s peak=34MiB
-    voxel_radiomics: firstorder batch 20/35 0.010s peak=34MiB
-    voxel_radiomics: firstorder batch 21/35 0.007s peak=34MiB
-    voxel_radiomics: firstorder batch 22/35 0.006s peak=34MiB
-    voxel_radiomics: firstorder batch 23/35 0.006s peak=34MiB
-    voxel_radiomics: firstorder batch 24/35 0.007s peak=34MiB
-    voxel_radiomics: firstorder batch 25/35 0.006s peak=34MiB
-    voxel_radiomics: firstorder batch 26/35 0.007s peak=34MiB
-    voxel_radiomics: firstorder batch 27/35 0.006s peak=34MiB
-    voxel_radiomics: firstorder batch 28/35 0.007s peak=34MiB
-    voxel_radiomics: firstorder batch 29/35 0.006s peak=34MiB
-    voxel_radiomics: firstorder batch 30/35 0.007s peak=34MiB
-    voxel_radiomics: firstorder batch 31/35 0.008s peak=34MiB
-    voxel_radiomics: firstorder batch 32/35 0.006s peak=34MiB
-    voxel_radiomics: firstorder batch 33/35 0.007s peak=34MiB
-    voxel_radiomics: firstorder batch 34/35 0.006s peak=34MiB
-    voxel_radiomics: firstorder batch 35/35 0.005s peak=33MiB
-    voxel_radiomics: glcm batch 1/35 0.064s peak=29MiB
-    voxel_radiomics: glcm batch 2/35 0.058s peak=30MiB
-    voxel_radiomics: glcm batch 3/35 0.055s peak=31MiB
-    voxel_radiomics: glcm batch 4/35 0.055s peak=32MiB
-    voxel_radiomics: glcm batch 5/35 0.058s peak=33MiB
-    voxel_radiomics: glcm batch 6/35 0.059s peak=34MiB
-    voxel_radiomics: glcm batch 7/35 0.058s peak=36MiB
-    voxel_radiomics: glcm batch 8/35 0.058s peak=37MiB
-    voxel_radiomics: glcm batch 9/35 0.057s peak=38MiB
-    voxel_radiomics: glcm batch 10/35 0.058s peak=39MiB
-    voxel_radiomics: glcm batch 11/35 0.057s peak=40MiB
-    voxel_radiomics: glcm batch 12/35 0.059s peak=41MiB
-    voxel_radiomics: glcm batch 13/35 0.058s peak=43MiB
-    voxel_radiomics: glcm batch 14/35 0.058s peak=44MiB
-    voxel_radiomics: glcm batch 15/35 0.057s peak=45MiB
-    voxel_radiomics: glcm batch 16/35 0.059s peak=46MiB
-    voxel_radiomics: glcm batch 17/35 0.056s peak=47MiB
-    voxel_radiomics: glcm batch 18/35 0.058s peak=48MiB
-    voxel_radiomics: glcm batch 19/35 0.060s peak=49MiB
-    voxel_radiomics: glcm batch 20/35 0.058s peak=51MiB
-    voxel_radiomics: glcm batch 21/35 0.057s peak=52MiB
-    voxel_radiomics: glcm batch 22/35 0.057s peak=53MiB
-    voxel_radiomics: glcm batch 23/35 0.056s peak=54MiB
-    voxel_radiomics: glcm batch 24/35 0.052s peak=55MiB
-    voxel_radiomics: glcm batch 25/35 0.071s peak=56MiB
-    voxel_radiomics: glcm batch 26/35 0.063s peak=57MiB
-    voxel_radiomics: glcm batch 27/35 0.055s peak=59MiB
-    voxel_radiomics: glcm batch 28/35 0.059s peak=60MiB
-    voxel_radiomics: glcm batch 29/35 0.053s peak=61MiB
-    voxel_radiomics: glcm batch 30/35 0.051s peak=62MiB
-    voxel_radiomics: glcm batch 31/35 0.051s peak=63MiB
-    voxel_radiomics: glcm batch 32/35 0.054s peak=64MiB
-    voxel_radiomics: glcm batch 33/35 0.052s peak=66MiB
-    voxel_radiomics: glcm batch 34/35 0.046s peak=67MiB
-    voxel_radiomics: glcm batch 35/35 0.031s peak=68MiB
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.37s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.37s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.014s peak=74MiB
-    voxel_radiomics: firstorder batch 2/35 0.005s peak=74MiB
-    voxel_radiomics: firstorder batch 3/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 4/35 0.005s peak=74MiB
-    voxel_radiomics: firstorder batch 5/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 6/35 0.008s peak=74MiB
-    voxel_radiomics: firstorder batch 7/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 8/35 0.008s peak=74MiB
-    voxel_radiomics: firstorder batch 9/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 10/35 0.008s peak=74MiB
-    voxel_radiomics: firstorder batch 11/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 12/35 0.008s peak=74MiB
-    voxel_radiomics: firstorder batch 13/35 0.008s peak=74MiB
-    voxel_radiomics: firstorder batch 14/35 0.009s peak=74MiB
-    voxel_radiomics: firstorder batch 15/35 0.008s peak=74MiB
-    voxel_radiomics: firstorder batch 16/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 17/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 18/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 19/35 0.008s peak=74MiB
-    voxel_radiomics: firstorder batch 20/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 21/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 22/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 23/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 24/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 25/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 26/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 27/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 28/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 29/35 0.006s peak=74MiB
-    voxel_radiomics: firstorder batch 30/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 31/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 32/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 33/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 34/35 0.007s peak=74MiB
-    voxel_radiomics: firstorder batch 35/35 0.005s peak=73MiB
-    voxel_radiomics: glcm batch 1/35 0.054s peak=69MiB
-    voxel_radiomics: glcm batch 2/35 0.053s peak=70MiB
-    voxel_radiomics: glcm batch 3/35 0.054s peak=71MiB
-    voxel_radiomics: glcm batch 4/35 0.055s peak=72MiB
-    voxel_radiomics: glcm batch 5/35 0.056s peak=74MiB
-    voxel_radiomics: glcm batch 6/35 0.057s peak=1MiB
-    voxel_radiomics: glcm batch 7/35 0.058s peak=2MiB
-    voxel_radiomics: glcm batch 8/35 0.056s peak=3MiB
-    voxel_radiomics: glcm batch 9/35 0.055s peak=5MiB
-    voxel_radiomics: glcm batch 10/35 0.059s peak=6MiB
-    voxel_radiomics: glcm batch 11/35 0.057s peak=7MiB
-    voxel_radiomics: glcm batch 12/35 0.059s peak=8MiB
-    voxel_radiomics: glcm batch 13/35 0.056s peak=9MiB
-    voxel_radiomics: glcm batch 14/35 0.065s peak=10MiB
-    voxel_radiomics: glcm batch 15/35 0.060s peak=11MiB
-    voxel_radiomics: glcm batch 16/35 0.057s peak=13MiB
-    voxel_radiomics: glcm batch 17/35 0.055s peak=14MiB
-    voxel_radiomics: glcm batch 18/35 0.057s peak=15MiB
-    voxel_radiomics: glcm batch 19/35 0.059s peak=16MiB
-    voxel_radiomics: glcm batch 20/35 0.059s peak=17MiB
-    voxel_radiomics: glcm batch 21/35 0.056s peak=18MiB
-    voxel_radiomics: glcm batch 22/35 0.055s peak=20MiB
-    voxel_radiomics: glcm batch 23/35 0.056s peak=21MiB
-    voxel_radiomics: glcm batch 24/35 0.055s peak=22MiB
-    voxel_radiomics: glcm batch 25/35 0.056s peak=23MiB
-    voxel_radiomics: glcm batch 26/35 0.054s peak=24MiB
-    voxel_radiomics: glcm batch 27/35 0.055s peak=25MiB
-    voxel_radiomics: glcm batch 28/35 0.056s peak=26MiB
-    voxel_radiomics: glcm batch 29/35 0.053s peak=28MiB
-    voxel_radiomics: glcm batch 30/35 0.051s peak=29MiB
-    voxel_radiomics: glcm batch 31/35 0.051s peak=30MiB
-    voxel_radiomics: glcm batch 32/35 0.052s peak=31MiB
-    voxel_radiomics: glcm batch 33/35 0.052s peak=32MiB
-    voxel_radiomics: glcm batch 34/35 0.045s peak=33MiB
-    voxel_radiomics: glcm batch 35/35 0.031s peak=34MiB
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.05s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.05s/it]
-    All texture features under perturbation: mean Dice=0.787, ARI=0.442
-    F:\work\habit_project\habit\viz\habitat_core.py:948: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 236-237
-
---- Experiment B: Precise whitelist under perturbation ---
-
-.. GENERATED FROM PYTHON SOURCE LINES 237-308
+.. GENERATED FROM PYTHON SOURCE LINES 261-376
 
 .. code-block:: Python
 
     if not kept:
         print("No feature passed every experiment; skip precise habitats")
+        mean_dice_p = float("nan")
+        disagree_p = float("nan")
+        ari_p = float("nan")
     else:
+        # precise.on: insert the ICC whitelist before minmax; fitter/seed unchanged.
         whitelist = precise.preprocessor()
         spec_precise = HabitatSpec(
             name="precise_one_step",
@@ -1306,249 +343,110 @@ Compare the stability of habitats between the original image and perturbed image
         )
         result_precise_orig = Study(spec_precise).fit_predict(demo)
         result_precise_pert = Study(spec_precise).fit_predict(demo_pert)
-
-        ref_p = np.asarray(result_precise_orig.habitat_maps[0].label_array)
-        mov_p = np.asarray(result_precise_pert.habitat_maps[0].label_array)
-        map_p = match_labels_by_overlap(ref_p, mov_p)
-        aligned_p = remap_label_array(
-            mov_p, map_p, reserved_ids=[int(v) for v in present_habitat_ids(ref_p)]
+        map_p_orig = result_precise_orig.habitat_maps[0]
+        map_p_pert = result_precise_pert.habitat_maps[0]
+        stab_p = habitat_stability(map_p_orig, [map_p_pert])
+        mean_dice_p = float(stab_p["dice"].mean())
+        ari_p = float(
+            adjusted_rand_index(
+                np.asarray(map_p_orig.label_array),
+                np.asarray(map_p_pert.label_array),
+            )
         )
-        dice_p = [float(d) for _, _, d, _, _ in habitat_dice_from_mapping(ref_p, mov_p, map_p)]
-        mean_dice_p = float(np.mean(dice_p)) if dice_p else float("nan")
-        ari_p = float(adjusted_rand_index(ref_p, mov_p))
-        print(f"Precise whitelist under perturbation: mean Dice={mean_dice_p:.3f}, ARI={ari_p:.3f}")
+        aligned_p = align_habitat_map(map_p_orig, map_p_pert, force=True)
+        disagree_p = _labelled_disagreement(map_p_orig, aligned_p)
+        print(
+            "With precise (whitelist only): "
+            f"mean Dice={mean_dice_p:.3f}, "
+            f"labelled-voxel disagreement={disagree_p:.3f}, "
+            f"ARI={ari_p:.3f}"
+        )
 
-        # Label comparison for precise features: Original scan vs Perturbed scan
         fig_cmp_p = plot_habitat_label_compare(
             image,
-            result_precise_orig.habitat_maps[0],
+            map_p_orig,
             aligned_p,
             titles=(
-                "Precise whitelist: original image",
-                f"Precise whitelist: perturbed image (Dice={mean_dice_p:.3f})",
+                "With precise: original",
+                f"With precise: perturbed (mean Dice={mean_dice_p:.3f})",
             ),
             align_labels=False,
+            show_disagreement=True,
+            crop_to="labels",
         )
         fig_cmp_p.savefig(
             "out/precise_features_precise_orig_vs_pert.png", dpi=150, bbox_inches="tight"
         )
         plt.show()
 
-        # Quantitative stability summary comparison table and bar chart
         stability = pd.DataFrame(
             [
-                {"feature_set": "All texture features", "mean_dice": mean_dice_all, "ari": ari_all},
-                {"feature_set": "Precise whitelist only", "mean_dice": mean_dice_p, "ari": ari_p},
+                {
+                    "feature_set": "Without precise (all texture)",
+                    "mean_dice": mean_dice_all,
+                    "disagreement": disagree_all,
+                    "ari": ari_all,
+                },
+                {
+                    "feature_set": "With precise (whitelist)",
+                    "mean_dice": mean_dice_p,
+                    "disagreement": disagree_p,
+                    "ari": ari_p,
+                },
             ]
         )
-        print("Stability under perturbation (Original vs Perturbed):")
+        print("Stability under Appendix S2 perturbation (original vs perturbed):")
         print(stability.to_string(index=False))
+        if mean_dice_p > mean_dice_all and disagree_p < disagree_all:
+            print(
+                "On this demo subject, precise lowers disagreement "
+                f"({disagree_all:.3f} -> {disagree_p:.3f}) and raises mean Dice "
+                f"({mean_dice_all:.3f} -> {mean_dice_p:.3f})."
+            )
+        else:
+            print(
+                "On this demo subject, precise did not improve both scores; "
+                "report the measured mean Dice and disagreement as printed above."
+            )
 
         with use_style("radiology"):
             fig_stab, ax_s = plt.subplots(figsize=(5.5, 3.8), constrained_layout=True)
             x_indices = np.arange(2)
             bar_width = 0.35
             dices = [mean_dice_all, mean_dice_p]
-            aris = [ari_all, ari_p]
-            ax_s.bar(x_indices - bar_width / 2, dices, bar_width, label="Mean Dice", color="#0072B2")
-            ax_s.bar(x_indices + bar_width / 2, aris, bar_width, label="Adjusted Rand Index", color="#E69F00")
+            disagrees = [disagree_all, disagree_p]
+            ax_s.bar(
+                x_indices - bar_width / 2,
+                dices,
+                bar_width,
+                label="Mean Dice",
+                color="#0072B2",
+            )
+            ax_s.bar(
+                x_indices + bar_width / 2,
+                disagrees,
+                bar_width,
+                label="Labelled-voxel disagreement",
+                color="#E69F00",
+            )
             ax_s.set_xticks(x_indices)
-            ax_s.set_xticklabels(["All features", "Precise only"])
+            ax_s.set_xticklabels(["Without precise", "With precise"])
             ax_s.set_ylim(0.0, 1.05)
-            ax_s.set_ylabel("Stability score")
-            ax_s.set_title(sanitize_label("Habitat stability under image perturbation"))
-            ax_s.legend(loc="lower right", frameon=True)
+            ax_s.set_ylabel("Score")
+            ax_s.set_title(sanitize_label("Habitat stability under Appendix S2 perturbation"))
+            ax_s.legend(loc="best", frameon=True)
         fig_stab.savefig("out/precise_features_stability_bar.png", dpi=150, bbox_inches="tight")
         plt.show()
         stability
 
 
-
-
-.. rst-class:: sphx-glr-horizontal
-
-
-    *
-
-      .. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_006.png
-         :alt: Habitat label compare, Precise whitelist: original image, Precise whitelist: perturbed image (Dice=0.792), Disagreement
-         :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_006.png
-         :class: sphx-glr-multi-img
-
-    *
-
-      .. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_007.png
-         :alt: Habitat stability under image perturbation
-         :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_007.png
-         :class: sphx-glr-multi-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    F:\work\habit_project\examples\guide\08_precision\plot_01_precise_features.py:241: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
-      spec_precise = HabitatSpec(
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.028s peak=41MiB
-    voxel_radiomics: firstorder batch 2/35 0.011s peak=41MiB
-    voxel_radiomics: firstorder batch 3/35 0.016s peak=41MiB
-    voxel_radiomics: firstorder batch 4/35 0.022s peak=41MiB
-    voxel_radiomics: firstorder batch 5/35 0.020s peak=41MiB
-    voxel_radiomics: firstorder batch 6/35 0.018s peak=41MiB
-    voxel_radiomics: firstorder batch 7/35 0.017s peak=41MiB
-    voxel_radiomics: firstorder batch 8/35 0.015s peak=41MiB
-    voxel_radiomics: firstorder batch 9/35 0.023s peak=41MiB
-    voxel_radiomics: firstorder batch 10/35 0.015s peak=41MiB
-    voxel_radiomics: firstorder batch 11/35 0.013s peak=41MiB
-    voxel_radiomics: firstorder batch 12/35 0.013s peak=41MiB
-    voxel_radiomics: firstorder batch 13/35 0.012s peak=41MiB
-    voxel_radiomics: firstorder batch 14/35 0.008s peak=41MiB
-    voxel_radiomics: firstorder batch 15/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 16/35 0.006s peak=41MiB
-    voxel_radiomics: firstorder batch 17/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 18/35 0.008s peak=41MiB
-    voxel_radiomics: firstorder batch 19/35 0.006s peak=41MiB
-    voxel_radiomics: firstorder batch 20/35 0.006s peak=41MiB
-    voxel_radiomics: firstorder batch 21/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 22/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 23/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 24/35 0.006s peak=41MiB
-    voxel_radiomics: firstorder batch 25/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 26/35 0.006s peak=41MiB
-    voxel_radiomics: firstorder batch 27/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 28/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 29/35 0.007s peak=41MiB
-    voxel_radiomics: firstorder batch 30/35 0.006s peak=41MiB
-    voxel_radiomics: firstorder batch 31/35 0.008s peak=41MiB
-    voxel_radiomics: firstorder batch 32/35 0.006s peak=41MiB
-    voxel_radiomics: firstorder batch 33/35 0.006s peak=41MiB
-    voxel_radiomics: firstorder batch 34/35 0.008s peak=41MiB
-    voxel_radiomics: firstorder batch 35/35 0.005s peak=40MiB
-    voxel_radiomics: glcm batch 1/35 0.062s peak=36MiB
-    voxel_radiomics: glcm batch 2/35 0.056s peak=37MiB
-    voxel_radiomics: glcm batch 3/35 0.056s peak=38MiB
-    voxel_radiomics: glcm batch 4/35 0.055s peak=39MiB
-    voxel_radiomics: glcm batch 5/35 0.058s peak=40MiB
-    voxel_radiomics: glcm batch 6/35 0.057s peak=41MiB
-    voxel_radiomics: glcm batch 7/35 0.056s peak=43MiB
-    voxel_radiomics: glcm batch 8/35 0.060s peak=44MiB
-    voxel_radiomics: glcm batch 9/35 0.059s peak=45MiB
-    voxel_radiomics: glcm batch 10/35 0.060s peak=46MiB
-    voxel_radiomics: glcm batch 11/35 0.057s peak=47MiB
-    voxel_radiomics: glcm batch 12/35 0.060s peak=48MiB
-    voxel_radiomics: glcm batch 13/35 0.057s peak=49MiB
-    voxel_radiomics: glcm batch 14/35 0.059s peak=51MiB
-    voxel_radiomics: glcm batch 15/35 0.058s peak=52MiB
-    voxel_radiomics: glcm batch 16/35 0.058s peak=53MiB
-    voxel_radiomics: glcm batch 17/35 0.061s peak=54MiB
-    voxel_radiomics: glcm batch 18/35 0.061s peak=55MiB
-    voxel_radiomics: glcm batch 19/35 0.059s peak=56MiB
-    voxel_radiomics: glcm batch 20/35 0.058s peak=57MiB
-    voxel_radiomics: glcm batch 21/35 0.057s peak=59MiB
-    voxel_radiomics: glcm batch 22/35 0.058s peak=60MiB
-    voxel_radiomics: glcm batch 23/35 0.056s peak=61MiB
-    voxel_radiomics: glcm batch 24/35 0.056s peak=62MiB
-    voxel_radiomics: glcm batch 25/35 0.048s peak=63MiB
-    voxel_radiomics: glcm batch 26/35 0.058s peak=64MiB
-    voxel_radiomics: glcm batch 27/35 0.059s peak=66MiB
-    voxel_radiomics: glcm batch 28/35 0.057s peak=67MiB
-    voxel_radiomics: glcm batch 29/35 0.050s peak=68MiB
-    voxel_radiomics: glcm batch 30/35 0.054s peak=69MiB
-    voxel_radiomics: glcm batch 31/35 0.052s peak=70MiB
-    voxel_radiomics: glcm batch 32/35 0.054s peak=71MiB
-    voxel_radiomics: glcm batch 33/35 0.052s peak=72MiB
-    voxel_radiomics: glcm batch 34/35 0.049s peak=74MiB
-    voxel_radiomics: glcm batch 35/35 0.034s peak=1MiB
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.40s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.40s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.029s peak=7MiB
-    voxel_radiomics: firstorder batch 2/35 0.014s peak=7MiB
-    voxel_radiomics: firstorder batch 3/35 0.016s peak=7MiB
-    voxel_radiomics: firstorder batch 4/35 0.016s peak=7MiB
-    voxel_radiomics: firstorder batch 5/35 0.013s peak=7MiB
-    voxel_radiomics: firstorder batch 6/35 0.013s peak=7MiB
-    voxel_radiomics: firstorder batch 7/35 0.014s peak=7MiB
-    voxel_radiomics: firstorder batch 8/35 0.014s peak=7MiB
-    voxel_radiomics: firstorder batch 9/35 0.013s peak=7MiB
-    voxel_radiomics: firstorder batch 10/35 0.014s peak=7MiB
-    voxel_radiomics: firstorder batch 11/35 0.012s peak=7MiB
-    voxel_radiomics: firstorder batch 12/35 0.008s peak=7MiB
-    voxel_radiomics: firstorder batch 13/35 0.010s peak=7MiB
-    voxel_radiomics: firstorder batch 14/35 0.009s peak=7MiB
-    voxel_radiomics: firstorder batch 15/35 0.012s peak=7MiB
-    voxel_radiomics: firstorder batch 16/35 0.008s peak=7MiB
-    voxel_radiomics: firstorder batch 17/35 0.010s peak=7MiB
-    voxel_radiomics: firstorder batch 18/35 0.009s peak=7MiB
-    voxel_radiomics: firstorder batch 19/35 0.007s peak=7MiB
-    voxel_radiomics: firstorder batch 20/35 0.008s peak=7MiB
-    voxel_radiomics: firstorder batch 21/35 0.011s peak=7MiB
-    voxel_radiomics: firstorder batch 22/35 0.008s peak=7MiB
-    voxel_radiomics: firstorder batch 23/35 0.012s peak=7MiB
-    voxel_radiomics: firstorder batch 24/35 0.007s peak=7MiB
-    voxel_radiomics: firstorder batch 25/35 0.008s peak=7MiB
-    voxel_radiomics: firstorder batch 26/35 0.011s peak=7MiB
-    voxel_radiomics: firstorder batch 27/35 0.008s peak=7MiB
-    voxel_radiomics: firstorder batch 28/35 0.011s peak=7MiB
-    voxel_radiomics: firstorder batch 29/35 0.008s peak=7MiB
-    voxel_radiomics: firstorder batch 30/35 0.009s peak=7MiB
-    voxel_radiomics: firstorder batch 31/35 0.011s peak=7MiB
-    voxel_radiomics: firstorder batch 32/35 0.007s peak=7MiB
-    voxel_radiomics: firstorder batch 33/35 0.006s peak=7MiB
-    voxel_radiomics: firstorder batch 34/35 0.006s peak=7MiB
-    voxel_radiomics: firstorder batch 35/35 0.005s peak=6MiB
-    voxel_radiomics: glcm batch 1/35 0.062s peak=2MiB
-    voxel_radiomics: glcm batch 2/35 0.060s peak=3MiB
-    voxel_radiomics: glcm batch 3/35 0.062s peak=5MiB
-    voxel_radiomics: glcm batch 4/35 0.057s peak=6MiB
-    voxel_radiomics: glcm batch 5/35 0.057s peak=7MiB
-    voxel_radiomics: glcm batch 6/35 0.058s peak=8MiB
-    voxel_radiomics: glcm batch 7/35 0.058s peak=9MiB
-    voxel_radiomics: glcm batch 8/35 0.059s peak=10MiB
-    voxel_radiomics: glcm batch 9/35 0.058s peak=11MiB
-    voxel_radiomics: glcm batch 10/35 0.060s peak=13MiB
-    voxel_radiomics: glcm batch 11/35 0.061s peak=14MiB
-    voxel_radiomics: glcm batch 12/35 0.061s peak=15MiB
-    voxel_radiomics: glcm batch 13/35 0.057s peak=16MiB
-    voxel_radiomics: glcm batch 14/35 0.060s peak=17MiB
-    voxel_radiomics: glcm batch 15/35 0.059s peak=18MiB
-    voxel_radiomics: glcm batch 16/35 0.061s peak=20MiB
-    voxel_radiomics: glcm batch 17/35 0.057s peak=21MiB
-    voxel_radiomics: glcm batch 18/35 0.059s peak=22MiB
-    voxel_radiomics: glcm batch 19/35 0.059s peak=23MiB
-    voxel_radiomics: glcm batch 20/35 0.062s peak=24MiB
-    voxel_radiomics: glcm batch 21/35 0.058s peak=25MiB
-    voxel_radiomics: glcm batch 22/35 0.055s peak=26MiB
-    voxel_radiomics: glcm batch 23/35 0.056s peak=28MiB
-    voxel_radiomics: glcm batch 24/35 0.055s peak=29MiB
-    voxel_radiomics: glcm batch 25/35 0.055s peak=30MiB
-    voxel_radiomics: glcm batch 26/35 0.056s peak=31MiB
-    voxel_radiomics: glcm batch 27/35 0.057s peak=32MiB
-    voxel_radiomics: glcm batch 28/35 0.057s peak=33MiB
-    voxel_radiomics: glcm batch 29/35 0.055s peak=34MiB
-    voxel_radiomics: glcm batch 30/35 0.055s peak=36MiB
-    voxel_radiomics: glcm batch 31/35 0.053s peak=37MiB
-    voxel_radiomics: glcm batch 32/35 0.054s peak=38MiB
-    voxel_radiomics: glcm batch 33/35 0.051s peak=39MiB
-    voxel_radiomics: glcm batch 34/35 0.046s peak=40MiB
-    voxel_radiomics: glcm batch 35/35 0.032s peak=41MiB
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.44s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.44s/it]
-    Precise whitelist under perturbation: mean Dice=0.792, ARI=0.449
-    F:\work\habit_project\habit\viz\habitat_core.py:948: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-    Stability under perturbation (Original vs Perturbed):
-               feature_set  mean_dice      ari
-      All texture features   0.786672 0.442492
-    Precise whitelist only   0.791963 0.448918
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 309-312
+.. GENERATED FROM PYTHON SOURCE LINES 377-380
 
 MONAI elastic / B-spline deformation of image and ROI mask.
 A realistic displacement field (magnitude_range=(35.0, 50.0) voxels) models
 anatomical and contour variation across repeat acquisitions or observer differences.
 
-.. GENERATED FROM PYTHON SOURCE LINES 312-348
+.. GENERATED FROM PYTHON SOURCE LINES 380-416
 
 .. code-block:: Python
 
@@ -1589,79 +487,11 @@ anatomical and contour variation across repeat acquisitions or observer differen
     overlap
 
 
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    MONAI bspline_deform ROI overlap metrics:
-                 metric      value
-                   dice     0.9454
-                jaccard     0.8965
-    intersection_voxels 32845.0000
-           union_voxels 36637.0000
-
-
-.. raw:: html
-
-    <div class="output_subarea output_html rendered_html output_result">
-    <div>
-    <style scoped>
-        .dataframe tbody tr th:only-of-type {
-            vertical-align: middle;
-        }
-
-        .dataframe tbody tr th {
-            vertical-align: top;
-        }
-
-        .dataframe thead th {
-            text-align: right;
-        }
-    </style>
-    <table border="1" class="dataframe">
-      <thead>
-        <tr style="text-align: right;">
-          <th></th>
-          <th>metric</th>
-          <th>value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>0</th>
-          <td>dice</td>
-          <td>0.945425</td>
-        </tr>
-        <tr>
-          <th>1</th>
-          <td>jaccard</td>
-          <td>0.896498</td>
-        </tr>
-        <tr>
-          <th>2</th>
-          <td>intersection_voxels</td>
-          <td>32845.000000</td>
-        </tr>
-        <tr>
-          <th>3</th>
-          <td>union_voxels</td>
-          <td>36637.000000</td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    </div>
-    <br />
-    <br />
-
-.. GENERATED FROM PYTHON SOURCE LINES 349-350
+.. GENERATED FROM PYTHON SOURCE LINES 417-418
 
 Anatomy slice before and after the elastic deformation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 350-362
+.. GENERATED FROM PYTHON SOURCE LINES 418-430
 
 .. code-block:: Python
 
@@ -1678,29 +508,11 @@ Anatomy slice before and after the elastic deformation.
     plt.show()
 
 
-
-
-.. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_008.png
-   :alt: MONAI Rand3DElastic (image + ROI share one field), Original, bspline_deform
-   :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_008.png
-   :class: sphx-glr-single-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    F:\work\habit_project\habit\viz\intensity.py:616: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
-      resolved_direction, resolved_spacing = resolve_display_geometry(
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 363-364
+.. GENERATED FROM PYTHON SOURCE LINES 431-432
 
 Zoomed edge perturbation figure: Original vs Deformed ROI with XOR contour difference.
 
-.. GENERATED FROM PYTHON SOURCE LINES 364-409
+.. GENERATED FROM PYTHON SOURCE LINES 432-477
 
 .. code-block:: Python
 
@@ -1749,22 +561,6 @@ Zoomed edge perturbation figure: Original vs Deformed ROI with XOR contour diffe
         )
     fig_c.savefig("out/precise_features_bspline_contours.png", dpi=150, bbox_inches="tight")
     plt.show()
-
-
-
-.. image-sg:: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_009.png
-   :alt: MONAI Elastic Edge Perturbation (ROI Zoom)
-   :srcset: /auto_examples/08_precision/images/sphx_glr_plot_01_precise_features_009.png
-   :class: sphx-glr-single-img
-
-
-
-
-
-
-.. rst-class:: sphx-glr-timing
-
-   **Total running time of the script:** (1 minutes 24.052 seconds)
 
 
 .. _sphx_glr_download_auto_examples_08_precision_plot_01_precise_features.py:

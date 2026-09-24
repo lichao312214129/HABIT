@@ -740,12 +740,9 @@ already match and <code class="docutils literal notranslate"><span class="pre">f
 
 <section id="examples-using-habit-precision-align-habitat-map">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.precision.align_habitat_map</span></code><a class="headerlink" href="#examples-using-habit-precision-align-habitat-map" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Cluster the same tumour twice with the same features and the same k, changing only the k-means random seed. The two maps describe the same tissue, but k-means numbers its clusters in arbitrary order, so habitat 1 of one run is habitat 2 or 3 of the other. This is label switching. Comparing the maps by raw id reports disagreement that is not there."><img alt="" src="../../_images/sphx_glr_plot_01_label_switching_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_matching/plot_01_label_switching.html"><span class="doc">Why habitat ids must be matched</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Why habitat ids must be matched</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel overlap is the matcher whenever two maps label the same voxels: a k-means restart, another k, another feature set, a perturbed image, a second reader. It needs no features at all, only the two label images, so it also works when the two fits live in different feature spaces."><img alt="" src="../../_images/sphx_glr_plot_02_overlap_cases_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_matching/plot_02_overlap_cases.html"><span class="doc">Matching maps of the same voxels by overlap</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Matching maps of the same voxels by overlap</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/08_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 
