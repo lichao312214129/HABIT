@@ -19,7 +19,7 @@ A habitat is described by the fitted clustering centroids by default
 (``features=``) or your own matrices (``centroids=``) also work.
 Method, worked numbers, and literature: :doc:`/reference/habitat_matching`.
 Step-by-step pages (overlap cases, the prototype loop, distances, frozen
-prototypes, effect on cohort tables): :doc:`/auto_examples/07_habitat_matching/index`.
+prototypes, effect on cohort tables): :doc:`/auto_examples/06_matching/index`.
 A shared cohort model (two-step, direct pooling) already uses one id
 space and does not need this step.
 """

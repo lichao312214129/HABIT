@@ -72,17 +72,23 @@ plt.show()
 spec = HabitatSpec(
     name="quickstart_two_step",
     stages=(
+        # extract: one intensity column per DCE phase, inside the ROI.
         Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+        # partition: 30 supervoxels per tumour; these rows are clustered.
         Stage("partition", Spec("kmeans", {"n_supervoxels": 30})),
+        # pool: one matrix for every training subject, then one fit.
         Stage("pool", Spec("pool")),
+        # fit: search 2..10 habitats and keep the elbow. n_init=10 restarts.
         Stage("fit", Spec("kmeans", {"min_habitats": 2, "max_habitats": 10, "validation": "elbow", "n_init": 10})),
+        # assign: nearest centroid writes the shared habitat ids.
         Stage("assign", Spec("nearest_centroid")),
-        # Per-subject feature tables: volume fractions, MSI, ITH, graph.
+        # quantify: one row per subject. Spec name is the feature family.
         Stage("volume", Spec("volume")),
         Stage("msi", Spec("msi")),
         Stage("ith", Spec("ith_score")),
         Stage("graph", Spec("graph", {"include_extended_metrics": False})),
     ),
+    # Seeds partition and fit. It is not a RunPolicy setting.
     random_seed=0,
 )
 result = Study(spec).fit_predict(train)
@@ -186,9 +192,8 @@ plt.show()
 # ----------------
 # * The same analysis from a YAML file:
 #   :doc:`/auto_quickstart/plot_quickstart_yaml`.
-# * Other habitat designs, texture features, custom stages: the Guide
-#   sections :doc:`/auto_examples/04_habitat_maps/index` and
-#   :doc:`/auto_examples/05_quantify/index`.
+# * The same stages, then each one opened up:
+#   :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
 # * Interactive 3-D view (``pip install "habitat-analysis[view]"``)::
 #
 #     from habit.viz import view_habitat_napari

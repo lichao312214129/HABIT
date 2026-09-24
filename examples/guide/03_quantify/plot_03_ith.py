@@ -8,7 +8,12 @@ Atomic ITH metrics from a habitat label map:
 """
 
 # %%
-# One-step habitats, then ITH scalar plus per-habitat dispersion.
+# One-step habitats
+# -----------------
+# Same idea as the complete analysis, without partition or pool, so one
+# subject is enough. ``one_step_habitat`` builds these stages:
+# extract ``Spec("raw")``, fit ``Spec("kmeans", {"n_habitats": 3})``,
+# assign ``Spec("nearest_centroid")``.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
@@ -30,6 +35,9 @@ result = one_step_habitat(
 ).fit_predict(cohort)
 labels = result.habitat_maps[0].label_array
 
+# %%
+# ITH score and per-habitat dispersion
+# ------------------------------------
 ith = float(ith_score(labels))
 dispersion = habitat_ith_dispersion(labels)
 ith_table = pd.DataFrame(

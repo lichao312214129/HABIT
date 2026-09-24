@@ -16,7 +16,7 @@ name habitats (especially graph columns ``single_h*``, ``pair_h*_*``),
 name every subject against shared prototypes with
 :func:`~habit.precision.align_habitat_maps_to_prototypes`. Only then does
 ``single_h1`` mean the same habitat across the cohort. Method and
-caveats: :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels` and
+caveats: :doc:`/auto_examples/06_matching/plot_07_match_labels` and
 :doc:`/reference/habitat_matching`.
 
 2-D network figures are display-only (one representative slice). Tables

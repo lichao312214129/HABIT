@@ -10,10 +10,10 @@ comes from.
 Code: :mod:`habit.precision` (:func:`~habit.precision.align_habitat_map`,
 :func:`~habit.precision.align_habitat_maps_to_prototypes`) on top of the
 L0 kernel :mod:`habit.kernels.habitat_label_match`. Runnable gallery page:
-:doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`. Worked, visual
+:doc:`/auto_examples/06_matching/plot_07_match_labels`. Worked, visual
 pages for every case (label switching, overlap cases, the prototype loop
 round by round, the four distances, frozen prototypes, effect on cohort
-tables): :doc:`/auto_examples/07_habitat_matching/index`. Figures:
+tables): :doc:`/auto_examples/06_matching/index`. Figures:
 :func:`~habit.viz.plot_label_overlap_matrix`,
 :func:`~habit.viz.plot_prototype_matching`.
 
@@ -424,7 +424,7 @@ route and is not implemented.
 Usage
 -----
 
-Same calls as :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
+Same calls as :doc:`/auto_examples/06_matching/plot_07_match_labels`.
 Each subject chooses its own habitat count (demo: 3, 2, 2, 2, 2):
 
 .. code-block:: python

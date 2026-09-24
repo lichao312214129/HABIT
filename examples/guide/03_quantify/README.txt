@@ -1,5 +1,10 @@
-5. Habitat Quantification
+3. Habitat Quantification
 =========================
+
+These metrics are the quantify stages of the
+:doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
+(volume, MSI, ITH, graph). Each page refits a small cohort so it can be
+copied on its own, then computes one family from the label map.
 
 Quantify habitats with atomic functions: volume and fractions,
 multiregional spatial interaction (MSI, Wu et al. 2018), intratumoral

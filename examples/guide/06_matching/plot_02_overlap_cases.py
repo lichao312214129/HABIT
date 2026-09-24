@@ -17,7 +17,7 @@ Three cases on one subject:
 
 Overlap is **not** usable between two patients: their voxels are
 different tissue. See
-:doc:`/auto_examples/07_habitat_matching/plot_03_prototype_steps`.
+:doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
 """
 
 # %%

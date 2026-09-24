@@ -8,7 +8,7 @@ per formula. Names in the formula are modality keys on the subject
 breaking a ratio.
 
 Clustering those columns is a later page
-(:doc:`/auto_examples/04_habitat_maps/plot_08_derived_map`).
+(:doc:`/auto_examples/02_stages/plot_08_derived_map`).
 """
 
 # %%

@@ -37,7 +37,10 @@ print(f"Cohort: {len(cohort)} subjects -> {list(cohort.subject_ids)}")
 # feature preprocessor).
 raw_spec = HabitatSpec(
     name="route_raw",
+    # extract: one column per series. Named fields are the same components
+    # a Stage list would declare; the complete analysis writes them as stages.
     voxel_feature_extractor=Spec("raw", {"modalities": list(MODALITIES)}),
+    # partition: few supervoxels, only so this page can show a map.
     supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 3}),
     habitat_model_fitter=Spec(
         "kmeans",

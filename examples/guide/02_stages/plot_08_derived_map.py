@@ -5,7 +5,7 @@ Clustering habitats from a derived map
 Input: one :class:`~habit.contracts.Subject` with the four DCE phases.
 Output: a :class:`~habit.contracts.HabitatMap`. The voxel field is
 :class:`~habit.voxel_features.ExpressionVoxelFeatures` (see
-:doc:`/auto_examples/02_voxel/plot_02_expression`). Stage:
+:doc:`/auto_examples/02_stages/plot_02_expression`). Stage:
 ``extract_voxel_features`` with ``expression``, then a per-subject ``fit``.
 """
 

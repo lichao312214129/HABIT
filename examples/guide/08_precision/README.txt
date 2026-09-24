@@ -1,4 +1,4 @@
-3. Precise Feature Screening
+8. Precise Feature Screening
 ============================
 
 Repeatability and reproducibility screening (Prior et al., 2024):

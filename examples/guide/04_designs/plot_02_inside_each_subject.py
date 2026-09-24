@@ -10,7 +10,7 @@ shortcut that builds the same stage list.
 
 Habitat 1 in the first subject is not habitat 1 in the second. Match
 labels before comparing people:
-:doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
+:doc:`/auto_examples/06_matching/plot_07_match_labels`.
 """
 
 # %%
@@ -45,8 +45,11 @@ print(f"Cohort: {list(cohort.subject_ids)}")
 spec = HabitatSpec(
     name="one_step",
     stages=(
+        # extract: one intensity column per DCE phase, inside the ROI.
         Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+        # No partition and no pool: fit runs on this subject's voxels only.
         Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 10})),
+        # assign: nearest centroid of THIS subject's model, not a shared one.
         Stage("assign", Spec("nearest_centroid")),
         Stage("volume", Spec("volume")),
     ),

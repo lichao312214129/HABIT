@@ -36,18 +36,23 @@ print(f"Train: {list(train_cohort.subject_ids)}; apply: {list(new_cohort.subject
 spec = HabitatSpec(
     name="habitat_two_step",
     stages=(
+        # extract: raw intensities. The stage label can be any unique string.
         Stage("extract_voxel_features", Spec("raw", {"modalities": list(MODALITIES)})),
+        # preprocess: per-subject winsorize, then min-max. Statistics are
+        # refit on each subject; they are not part of the saved centroids.
         Stage(
             "preprocess1",
             Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
         ),
         Stage("preprocess2", Spec("minmax", {"across_features": False})),
+        # partition + pool + fit: the shared definition that gets saved.
         Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 5})),
         Stage("pool", Spec("pool")),
         Stage(
             "fit",
             Spec("kmeans", {"n_habitats": 3, "n_init": 5}),
         ),
+        # assign and quantify run again at predict time, using the loaded model.
         Stage("assign", Spec("nearest_centroid")),
         Stage("quantify", Spec("volume")),
         Stage("quantify2", Spec("msi")),

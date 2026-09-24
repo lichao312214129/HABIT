@@ -40,8 +40,11 @@ print(f"Cohort: {list(cohort.subject_ids)}")
 spec = HabitatSpec(
     name="direct_pooling",
     stages=(
+        # extract: one intensity column per DCE phase, inside the ROI.
         Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+        # No partition. pool stacks every subject's ROI voxels.
         Stage("pool", Spec("pool")),
+        # fit: one shared k-means on those voxels. Count fixed at 3.
         Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 10})),
         Stage("assign", Spec("nearest_centroid")),
         Stage("volume", Spec("volume")),

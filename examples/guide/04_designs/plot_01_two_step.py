@@ -44,17 +44,24 @@ print(f"Cohort: {list(cohort.subject_ids)}")
 # puts the units of all subjects together and ``fit`` learns one shared
 # habitat model on them.
 first_stages = (
+    # extract: one intensity column per DCE phase, voxels inside the ROI.
     Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+    # partition: SLIC supervoxels. These rows, not voxels, are clustered.
     Stage("partition", Spec("slic", {"n_supervoxels": 100})),
+    # pool: stack every subject's supervoxels before a single fit.
     Stage("pool", Spec("pool")),
 )
 spec = HabitatSpec(
     name="two_step_slic",
     stages=first_stages + (
+        # fit: one shared k-means. n_init=10 restarts; count is fixed at 3.
         Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 10})),
+        # assign: nearest centroid paints habitat ids back onto voxels.
         Stage("assign", Spec("nearest_centroid")),
+        # quantify: per-subject volume fractions of those ids.
         Stage("volume", Spec("volume")),
     ),
+    # Seeds partition and fit so a rerun paints the same map.
     random_seed=0,
 )
 result = Study(spec).fit_predict(cohort)
@@ -78,7 +85,7 @@ plt.show()
 # %%
 # Elbow on the same stages, with ``fit`` searching 2-10 habitats. The
 # chosen count is the knee, not a second overlay. A saved model is
-# :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
+# :doc:`/auto_examples/05_apply/plot_04_apply_saved_model`.
 elbow_spec = HabitatSpec(
     name="two_step_slic_elbow",
     stages=first_stages + (

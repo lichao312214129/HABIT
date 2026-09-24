@@ -6,6 +6,11 @@ Three liver DCE maps: arterial relative enhancement, arterial-to-portal
 wash-out, and arterial-to-delayed wash-out.
 """
 
+# %%
+# Register the DCE extractor
+# --------------------------
+# Three formulas become the columns clustering sees. The class is
+# registered under the name used by ``Spec("dce_hemodynamics")`` below.
 from pathlib import Path
 from typing import Optional, Sequence, Tuple
 
@@ -18,7 +23,7 @@ from habit.datasets import fetch_demo
 from habit.feature_preprocessing import ZScoreScaling
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.specs import Spec as ComponentSpec
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_habitat_overlay, plot_voxel_texture_slice
 from habit.voxel_features import (
     VoxelFeatureExtractorRegistry,
     aligned_image,
@@ -93,16 +98,18 @@ class DCEHemodynamics:
         )
 
 
+# %%
+# Load two subjects
+# -----------------
 DATA = fetch_demo()
 cohort = cohort_from_directory(DATA, modalities=PHASES, roi=ROI)[:2]
 subject = cohort[0]
 
 # %%
-# The arterial-enhancement map clustering sees, zoomed to the ROI. The
-# extractor returns a :class:`~habit.contracts.VoxelFeatureField`, which
-# :func:`~habit.viz.plot_voxel_texture_slice` draws directly.
-from habit.viz import plot_voxel_texture_slice
-
+# Arterial enhancement map
+# ------------------------
+# The extractor returns a :class:`~habit.contracts.VoxelFeatureField`,
+# which :func:`~habit.viz.plot_voxel_texture_slice` draws directly.
 dce_field = DCEHemodynamics(phases=PHASES, roi=ROI)(subject)
 fig_map = plot_voxel_texture_slice(
     dce_field,
@@ -128,14 +135,22 @@ print("after zscore (mean / std):")
 print(after.agg(["mean", "std"]).round(4))
 print(after.head())
 
+# %%
+# Cluster the three DCE maps
+# --------------------------
+# extract uses the extractor registered above. preprocess is per-subject
+# z-score. There is no pool, so fit runs inside each subject.
 spec = HabitatSpec(
     name="dce_hemodynamics_demo",
     stages=(
+        # extract: the three formulas registered as dce_hemodynamics.
         Stage(
             "extract_voxel_features",
             Spec("dce_hemodynamics", {"phases": list(PHASES), "roi": ROI}),
         ),
+        # preprocess: z-score each column on this subject.
         Stage("preprocess", Spec("zscore", {"across_features": False})),
+        # fit: elbow between 2 and 5 habitats, per subject (no pool).
         Stage(
             "fit",
             Spec(

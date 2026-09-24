@@ -7,7 +7,7 @@ Input: one :class:`~habit.contracts.Subject`. Output: a
 Stage: :func:`~habit.voxel_features.extract_voxel_texture`.
 
 GPU paths for the same IBSI texture are in
-:doc:`/auto_examples/02_voxel/plot_03_voxel_texture`.
+:doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
 """
 
 # %%

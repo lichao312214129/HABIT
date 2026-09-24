@@ -18,7 +18,7 @@ the same features and matching settings.
 # Per-subject habitats for five subjects
 # --------------------------------------
 # Relative enhancement, each subject chooses its own ``k`` (silhouette
-# over 2..5), as in :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
+# over 2..5), as in :doc:`/auto_examples/06_matching/plot_07_match_labels`.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
@@ -93,7 +93,7 @@ plt.show()
 # a new habitat far from every prototype resembles no training habitat,
 # yet it gets the nearest free name. ``max_distance`` can leave such
 # habitats unnamed instead
-# (:doc:`/auto_examples/07_habitat_matching/plot_06_downstream_tables`).
+# (:doc:`/auto_examples/06_matching/plot_06_downstream_tables`).
 #
 # A new subject's map in training ids. Habitat ``k`` has the colour of
 # prototype ``Pk`` above.

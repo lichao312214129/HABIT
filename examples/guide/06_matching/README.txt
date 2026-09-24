@@ -1,5 +1,9 @@
-7. Matching Habitat Labels
+6. Matching Habitat Labels
 ==========================
+
+Calling it on a fitted study:
+:doc:`/auto_examples/06_matching/plot_07_match_labels`.
+The pages below show why ids switch and how each matcher works.
 
 Habitat ids from independent clusterings are arbitrary: habitat 1 of one
 fit can be habitat 3 of another. Anything that compares habitats by id

@@ -9,7 +9,7 @@
 .. currentmodule:: habit.habitat_model
 
 **User guide:** :doc:`domain_habitat` · Habitat Guide
-:doc:`../auto_examples/04_habitat_maps/plot_13_fit_model`.
+:doc:`../auto_examples/02_stages/plot_13_fit_model`.
 Component names: :doc:`../how_to/habitat_components`.
 
 Classes

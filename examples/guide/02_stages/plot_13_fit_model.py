@@ -2,8 +2,14 @@
 Fitting a cohort habitat model
 ==============================
 
+The ``fit`` stage of
+:doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
 Input: one :class:`~habit.contracts.Supervoxelization` per subject.
-Output: a :class:`~habit.contracts.HabitatModel`. Stage: ``fit``.
+Output: a :class:`~habit.contracts.HabitatModel`.
+
+The calls below are that stage without a ``HabitatSpec``. Inside a spec
+they are ``Stage("partition", Spec("slic", {"n_supervoxels": 100}))``
+then ``Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 3}))``.
 """
 
 # %%

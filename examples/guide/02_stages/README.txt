@@ -1,9 +1,23 @@
-2. Voxel Representation
-=======================
+2. Each stage
+=============
 
-Define the voxel field that clustering sees: raw intensities, custom
-formulas, expression maps
-(:doc:`/auto_examples/02_voxel/plot_02_expression`), texture maps
-(CPU vs GPU), clustering-feature preprocessor chains, supervoxel
-feature extraction and acceleration, and subject- versus cohort-level
-preprocessing of voxel texture.
+These pages open the stage list of the
+:doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`.
+``Stage``'s first argument is a label. ``Spec`` names the component.
+
+* **extract** — :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`,
+  :doc:`/auto_examples/02_stages/plot_01_feature_routes`,
+  :doc:`/auto_examples/02_stages/plot_02_expression`,
+  :doc:`/auto_examples/02_stages/plot_02_custom_features`,
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`,
+  :doc:`/auto_examples/02_stages/plot_07_voxel_texture`,
+  :doc:`/auto_examples/02_stages/plot_08_derived_map`,
+  :doc:`/auto_examples/02_stages/plot_09_texture_habitats`.
+* **preprocess** — :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`,
+  :doc:`/auto_examples/02_stages/plot_10_preprocess_features`,
+  :doc:`/auto_examples/02_stages/plot_11_preprocess_compare`,
+  :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`.
+* **partition** — :doc:`/auto_examples/02_stages/plot_12_supervoxels`,
+  :doc:`/auto_examples/02_stages/plot_05_supervoxel_features`.
+* **fit** — :doc:`/auto_examples/02_stages/plot_13_fit_model`.
+* **assign** — :doc:`/auto_examples/02_stages/plot_14_assign_labels`.
