@@ -873,7 +873,7 @@ class HabitatSpec:
                     "HabitatSpec named-field constructor",
                     "2.0.0",
                     alternative="HabitatSpec(..., stages=(Stage(...), ...))",
-                    removed_in="3.0.0",
+                    removed_in="4.0.0",
                 )
                 + " Named-field YAML / from_dict payloads still load and "
                 "keep their historical fingerprints.",

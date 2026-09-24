@@ -162,10 +162,10 @@ Named-field constructor (deprecated)
 
 The classic named fields (``voxel_feature_extractor``, ``supervoxelizer``,
 ``habitat_model_fitter``, ``*_preprocessors``, …) and the ``pooling``
-declaration remain a **deprecated constructor** through v2.x: they expand
+declaration remain a **deprecated constructor** through v3.x: they expand
 to the same internal stage list and keep historical fingerprints.
 ``HabitatSpec.from_dict`` still loads named-field YAML. New Python and new
-YAML should declare ``stages`` only. Removal is scheduled for v3.0.0.
+YAML should declare ``stages`` only. Removal is scheduled for v4.0.0.
 
 Derived views: a ``pool`` stage ⇒ ``pooling="cohort"`` /
 ``definition_level="cohort"``; otherwise ``"none"`` / ``"subject"``.
