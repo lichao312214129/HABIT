@@ -18,25 +18,31 @@
 .. _sphx_glr_auto_quickstart_plot_quickstart_yaml.py:
 
 
-Load a habitat analysis from YAML
-=================================
+Quickstart: YAML
+================
 
-:func:`habit.recipes.run_from_yaml` is the Python call behind
-``habit get-habitat --config``. The document below is a v1 file:
-``version``, ``workflow``, ``spec`` (the stage list), ``data``, and
-``policy``. Paths in ``data.source`` are used as written.
+The same two-step analysis as :doc:`plot_quickstart_python`, written as a
+YAML file. ``habit get-habitat --config <file>`` runs it from the shell;
+:func:`habit.recipes.run_from_yaml` is the Python call behind that
+command. The ``spec.stages`` list is the stage list of the Python page,
+one entry per stage.
 
-Change ``DATA`` to your preprocessed root, and the modality names to
-the series folders under ``images/<subject>/``. The first modality is
-the ROI mask folder this loader uses.
+Change ``source`` to your preprocessed root, and the modality names to
+the series folders under ``images/<subject>/``. The YAML loader reads the
+ROI mask from the folder of the **first** modality, so ``LAP`` (the
+series the tumour was drawn on) is listed first.
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-19
+.. GENERATED FROM PYTHON SOURCE LINES 18-25
 
-Write a short two-step document next to the script output, then run it.
-``save=False`` keeps the :class:`~habit.recipes.StudyResult` in memory.
+Write the file and run it
+-------------------------
+The YAML runs every subject under ``source`` (all five demo lesions),
+so the habitat count can differ from the Python page, which fits on
+four. ``save=False`` keeps the result in memory instead of writing
+``out_dir``.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-90
+.. GENERATED FROM PYTHON SOURCE LINES 25-76
 
 .. code-block:: Python
 
@@ -44,72 +50,52 @@ sphinx_gallery_thumbnail_number = 1
 
     import matplotlib.pyplot as plt
 
+    import habit.recipes as recipes
+    from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.viz import plot_habitat_overlay
-    import habit.recipes as recipes
 
-    DATA = fetch_demo()
-    MODALITIES = ("LAP", "PVP")
-    OUT = Path("out")
-    OUT.mkdir(exist_ok=True)
-    yaml_path = OUT / "quickstart_two_step.yaml"
+    DATA = Path(fetch_demo()).as_posix()
+    Path("out").mkdir(exist_ok=True)
+    yaml_path = Path("out/quickstart.yaml")
     yaml_path.write_text(
-        "\n".join(
-            [
-                "version: '1.0'",
-                "workflow: habitat",
-                "mode: train",
-                "spec:",
-                "  name: habitat_two_step",
-                "  stages:",
-                "    - name: extract_voxel_features",
-                "      component:",
-                "        name: raw",
-                "        params:",
-                "          modalities: [" + ", ".join(MODALITIES) + "]",
-                "    - name: partition",
-                "      component:",
-                "        name: kmeans",
-                "        params:",
-                "          n_supervoxels: 12",
-                "          n_init: 3",
-                "    - name: pool",
-                "      component:",
-                "        name: pool",
-                "    - name: fit",
-                "      component:",
-                "        name: kmeans",
-                "        params:",
-                "          n_habitats: 3",
-                "          n_init: 3",
-                "    - name: assign",
-                "      component:",
-                "        name: nearest_centroid",
-                "    - name: quantify",
-                "      component:",
-                "        name: volume",
-                "  random_seed: 0",
-                "data:",
-                f"  source: {Path(DATA).as_posix()}",
-                "policy:",
-                "  workers: 1",
-                "  backend: serial",
-                "  resume: false",
-                "output:",
-                "  out_dir: out/quickstart_yaml",
-                "  save_images: false",
-                "  plot_curves: false",
-                "",
-            ]
-        ),
+        f"""\
+    version: '1.0'
+    workflow: habitat
+    mode: train
+    spec:
+      name: quickstart_two_step
+      random_seed: 0
+      stages:
+        - name: extract
+          component: {{name: raw, params: {{modalities: [LAP, pre_contrast, PVP, delay_3min], roi: LAP}}}}
+        - name: partition
+          component: {{name: kmeans, params: {{n_supervoxels: 30}}}}
+        - name: pool
+          component: {{name: pool}}
+        - name: fit
+          component: {{name: kmeans, params: {{min_habitats: 2, max_habitats: 10, validation: elbow, n_init: 10}}}}
+        - name: assign
+          component: {{name: nearest_centroid}}
+        - name: volume
+          component: {{name: volume}}
+        - name: msi
+          component: {{name: msi}}
+        - name: ith
+          component: {{name: ith_score}}
+    data:
+      source: {DATA}
+    output:
+      out_dir: out/quickstart_yaml
+    """,
         encoding="utf-8",
     )
     print(yaml_path.read_text(encoding="utf-8"))
 
     result = recipes.run_from_yaml(yaml_path, workflow="habitat", save=False)
     print(result.habitat_model.summary())
-    subject_id = result.habitat_maps[0].subject_id
-    print("labelled:", [habitat_map.subject_id for habitat_map in result.habitat_maps])
+    table = result.features.frame.set_index("subject")
+    print(table[[c for c in table.columns if c.endswith("_volume_fraction")] + ["ith_score"]].round(3).to_string())
 
 
 
@@ -145,88 +131,80 @@ sphinx_gallery_thumbnail_number = 1
     workflow: habitat
     mode: train
     spec:
-      name: habitat_two_step
-      stages:
-        - name: extract_voxel_features
-          component:
-            name: raw
-            params:
-              modalities: [LAP, PVP]
-        - name: partition
-          component:
-            name: kmeans
-            params:
-              n_supervoxels: 12
-              n_init: 3
-        - name: pool
-          component:
-            name: pool
-        - name: fit
-          component:
-            name: kmeans
-            params:
-              n_habitats: 3
-              n_init: 3
-        - name: assign
-          component:
-            name: nearest_centroid
-        - name: quantify
-          component:
-            name: volume
+      name: quickstart_two_step
       random_seed: 0
+      stages:
+        - name: extract
+          component: {name: raw, params: {modalities: [LAP, pre_contrast, PVP, delay_3min], roi: LAP}}
+        - name: partition
+          component: {name: kmeans, params: {n_supervoxels: 30}}
+        - name: pool
+          component: {name: pool}
+        - name: fit
+          component: {name: kmeans, params: {min_habitats: 2, max_habitats: 10, validation: elbow, n_init: 10}}
+        - name: assign
+          component: {name: nearest_centroid}
+        - name: volume
+          component: {name: volume}
+        - name: msi
+          component: {name: msi}
+        - name: ith
+          component: {name: ith_score}
     data:
       source: C:/Users/dongm/.habit_data/demo-data-v1/preprocessed
-    policy:
-      workers: 1
-      backend: serial
-      resume: false
     output:
       out_dir: out/quickstart_yaml
-      save_images: false
-      plot_curves: false
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:01<00:05,  1.35s/it]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:02<00:03,  1.32s/it]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:03<00:02,  1.24s/it]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:04<00:01,  1.20s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:06<00:00,  1.22s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:06<00:00,  1.22s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:02,  1.92it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:01<00:01,  1.93it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:01<00:01,  1.95it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:02<00:00,  1.97it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  1.93it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:02<00:00,  1.93it/s]
-    HabitatModel kmeans-2f04aab200b7b237
-      habitats           : 3
-      features (2)    : LAP, PVP
+    Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored='2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160', current='61f6e8d3d7ec436881357ce5cc68b1f62ac51070c0d01dad8703deba121f093a'. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:00<00:00, 11.26it/s]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:00<00:00, 11.33it/s]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:00<00:00, 11.22it/s]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:00<00:00, 11.36it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 10.64it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 10.63it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:00,  5.85it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:00,  5.56it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00<00:00,  5.45it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:00<00:00,  5.18it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  4.98it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  4.97it/s]
+    HabitatModel kmeans-b116f5fc90857e1b
+      habitats           : 4
+      features (4)    : LAP, pre_contrast, PVP, delay_3min
       defining cohort    : n=5
-      modalities         : LAP, PVP
+      modalities         : LAP, pre_contrast, PVP, delay_3min
       cohort digest      : 29bb088d9c7c93b8...
       produced by        : habitat_model_fitter.kmeans
       habit version      : 2.0.0
       random seed        : 0
-      preprocessing state: inertia, validation
-    labelled: ['subj001', 'subj002', 'subj003', 'subj004', 'subj005']
+      preprocessing state: inertia, selection_report, validation
+             habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  ith_score
+    subject                                                                                                                       
+    subj001                      0.047                      0.450                       0.00                      0.503      0.913
+    subj002                      0.000                      0.270                       0.00                      0.730      0.833
+    subj003                      0.000                      0.898                       0.00                      0.102      0.726
+    subj004                      0.117                      0.054                       0.00                      0.829      0.557
+    subj005                      0.518                      0.000                       0.27                      0.211      0.965
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-93
+.. GENERATED FROM PYTHON SOURCE LINES 77-80
 
-Overlay the first subject's map. Anatomy is loaded from the same root
-the YAML named.
+Look at one habitat map
+-----------------------
+The anatomy comes from the same folder the YAML named.
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-104
+.. GENERATED FROM PYTHON SOURCE LINES 80-91
 
 .. code-block:: Python
 
-    from habit.contracts import cohort_from_directory
-
-    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=MODALITIES[0])
-    subject = next(item for item in cohort if item.subject_id == subject_id)
+    habitat_map = result.habitat_maps[0]
+    cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
+    subject = next(s for s in cohort if s.subject_id == habitat_map.subject_id)
     fig = plot_habitat_overlay(
-        subject.image(MODALITIES[0]),
-        result.habitat_maps[0],
-        title="habitats",
+        subject.image("LAP"),
+        habitat_map,
+        title=f"{subject.subject_id}: habitats (YAML)",
+        crop_to="labels",
     )
-    fig.savefig(OUT / "quickstart_yaml_overlay.png", dpi=150, bbox_inches="tight")
+    fig.savefig("out/quickstart_yaml_overlay.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
 
 .. image-sg:: /auto_quickstart/images/sphx_glr_plot_quickstart_yaml_001.png
-   :alt: habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :alt: subj001: habitats (YAML), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
    :srcset: /auto_quickstart/images/sphx_glr_plot_quickstart_yaml_001.png
    :class: sphx-glr-single-img
 
@@ -235,7 +213,7 @@ the YAML named.
 
  .. code-block:: none
 
-    F:\work\habit_project\habit\viz\habitat_overlay.py:801: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+    F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
@@ -244,7 +222,7 @@ the YAML named.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 10.019 seconds)
+   **Total running time of the script:** (0 minutes 2.694 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_yaml.py:

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:22.251** total execution time for 50 files **from all galleries**:
+**03:42.683** total execution time for 44 files **from all galleries**:
 
 .. container::
 
@@ -32,8 +32,32 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_06_reuse_workers.py` (``..\..\examples\guide\06_parallel_runs\plot_06_reuse_workers.py``)
-     - 00:22.251
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_01_two_step.py` (``..\..\examples\guide\04_habitat_maps\plot_01_two_step.py``)
+     - 01:40.391
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_run_a_cohort.py` (``..\..\examples\guide\06_parallel_runs\plot_01_run_a_cohort.py``)
+     - 00:43.158
+     - 0.0
+   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)
+     - 00:31.119
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_02_when_a_subject_fails.py` (``..\..\examples\guide\06_parallel_runs\plot_02_when_a_subject_fails.py``)
+     - 00:20.652
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_03_prototype_steps.py` (``..\..\examples\guide\07_habitat_matching\plot_03_prototype_steps.py``)
+     - 00:08.484
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_02_inside_each_subject.py` (``..\..\examples\guide\04_habitat_maps\plot_02_inside_each_subject.py``)
+     - 00:07.867
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_pool_voxels.py` (``..\..\examples\guide\04_habitat_maps\plot_03_pool_voxels.py``)
+     - 00:05.163
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_03_several_gpus.py` (``..\..\examples\guide\06_parallel_runs\plot_03_several_gpus.py``)
+     - 00:03.154
+     - 0.0
+   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_yaml.py` (``..\..\examples\quickstart\plot_quickstart_yaml.py``)
+     - 00:02.694
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_01_directory.py` (``..\..\examples\guide\01_data_in\plot_01_directory.py``)
      - 00:00.000
@@ -69,15 +93,6 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03_precision_plot_01_precise_features.py` (``..\..\examples\guide\03_precision\plot_01_precise_features.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_01_two_step.py` (``..\..\examples\guide\04_habitat_maps\plot_01_two_step.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_02_inside_each_subject.py` (``..\..\examples\guide\04_habitat_maps\plot_02_inside_each_subject.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_pool_voxels.py` (``..\..\examples\guide\04_habitat_maps\plot_03_pool_voxels.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py` (``..\..\examples\guide\04_habitat_maps\plot_04_apply_saved_model.py``)
@@ -134,37 +149,10 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_05_quantify_plot_07_deep_learning_embeddings.py` (``..\..\examples\guide\05_quantify\plot_07_deep_learning_embeddings.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_serial.py` (``..\..\examples\guide\06_parallel_runs\plot_01_serial.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_02_skip_failed.py` (``..\..\examples\guide\06_parallel_runs\plot_02_skip_failed.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_03_stop_on_failure.py` (``..\..\examples\guide\06_parallel_runs\plot_03_stop_on_failure.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_04_resume.py` (``..\..\examples\guide\06_parallel_runs\plot_04_resume.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_05_process_pool.py` (``..\..\examples\guide\06_parallel_runs\plot_05_process_pool.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_07_isolated.py` (``..\..\examples\guide\06_parallel_runs\plot_07_isolated.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_08_wall_clock.py` (``..\..\examples\guide\06_parallel_runs\plot_08_wall_clock.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_09_several_gpus.py` (``..\..\examples\guide\06_parallel_runs\plot_09_several_gpus.py``)
-     - 00:00.000
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_01_label_switching.py` (``..\..\examples\guide\07_habitat_matching\plot_01_label_switching.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_02_overlap_cases.py` (``..\..\examples\guide\07_habitat_matching\plot_02_overlap_cases.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_03_prototype_steps.py` (``..\..\examples\guide\07_habitat_matching\plot_03_prototype_steps.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_04_prototype_metrics.py` (``..\..\examples\guide\07_habitat_matching\plot_04_prototype_metrics.py``)
@@ -174,11 +162,5 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_06_downstream_tables.py` (``..\..\examples\guide\07_habitat_matching\plot_06_downstream_tables.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_yaml.py` (``..\..\examples\quickstart\plot_quickstart_yaml.py``)
      - 00:00.000
      - 0.0

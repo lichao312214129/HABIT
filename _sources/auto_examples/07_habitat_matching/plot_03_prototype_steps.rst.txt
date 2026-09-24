@@ -38,11 +38,12 @@ relabelling algorithm, i.e. k-means with a cannot-link constraint inside
 each subject.
 
 This page runs the loop by hand on five synthetic subjects with 2-4
-habitats, shows each round, and checks it against the one-line call. It
-ends with the two-subject case, where the method reduces to pairwise
-Hungarian matching on squared distance.
+habitats, shows each round, and checks it against the one-line call.
+Then the two-subject case, where the method reduces to pairwise
+Hungarian matching on squared distance, and finally three real tumours
+before and after matching.
 
-.. GENERATED FROM PYTHON SOURCE LINES 28-35
+.. GENERATED FROM PYTHON SOURCE LINES 29-36
 
 Five subjects, 2-4 habitats each
 --------------------------------
@@ -52,7 +53,7 @@ them in a clean form, and the noise is large enough that the first
 guess is wrong.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-54
+.. GENERATED FROM PYTHON SOURCE LINES 36-55
 
 .. code-block:: Python
 
@@ -92,7 +93,7 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-61
+.. GENERATED FROM PYTHON SOURCE LINES 56-62
 
 The loop by hand
 ----------------
@@ -101,7 +102,7 @@ assign step is :func:`~habit.kernels.habitat_label_match.match_rows_to_prototype
 with ``prototypes=`` fixed (one assignment pass, no update); the update
 step is a plain mean.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-84
+.. GENERATED FROM PYTHON SOURCE LINES 62-85
 
 .. code-block:: Python
 
@@ -142,13 +143,13 @@ step is a plain mean.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-88
+.. GENERATED FROM PYTHON SOURCE LINES 86-89
 
 Each panel is one assign step: colours are the names given, crosses
 the prototypes they were matched to. Watch habitats change colour as the
 prototypes move toward the true groups.
 
-.. GENERATED FROM PYTHON SOURCE LINES 88-105
+.. GENERATED FROM PYTHON SOURCE LINES 89-106
 
 .. code-block:: Python
 
@@ -181,7 +182,7 @@ prototypes move toward the true groups.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-112
+.. GENERATED FROM PYTHON SOURCE LINES 107-113
 
 The one-line call
 -----------------
@@ -190,7 +191,7 @@ runs the same loop from **every** subject with ``K`` habitats and keeps
 the lowest objective, so the result does not depend on who starts.
 Prototypes are then sorted by feature 1 (then 2) for stable numbering.
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-124
+.. GENERATED FROM PYTHON SOURCE LINES 113-125
 
 .. code-block:: Python
 
@@ -226,7 +227,7 @@ Prototypes are then sorted by feature 1 (then 2) for stable numbering.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 125-131
+.. GENERATED FROM PYTHON SOURCE LINES 126-132
 
 Two subjects: a special case
 ----------------------------
@@ -235,7 +236,7 @@ squared distance to its midpoint is :math:`\tfrac12\lVert a-b\rVert^2`.
 Minimising the objective is therefore pairwise Hungarian on **squared**
 distance -- and the loop reaches that global optimum.
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-144
+.. GENERATED FROM PYTHON SOURCE LINES 132-145
 
 .. code-block:: Python
 
@@ -268,20 +269,21 @@ distance -- and the loop reaches that global optimum.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-149
+.. GENERATED FROM PYTHON SOURCE LINES 146-150
 
 Plain distance prefers a different pairing here: it tolerates one long
 link to keep two short ones, squared distance penalises the long link.
 The two agree in most cohorts; when they disagree, the prototype method
 follows squared distance.
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-152
+.. GENERATED FROM PYTHON SOURCE LINES 150-154
 
 .. code-block:: Python
 
     fig = plot_prototype_matching([a, b], pair, block_names=["A", "B"])
     fig.savefig("out/prototype_two_subjects.png", dpi=150, bbox_inches="tight")
     plt.show()
+
 
 
 
@@ -294,10 +296,164 @@ follows squared distance.
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 155-163
+
+The same on real tumours
+------------------------
+Three demo lesions, each clustered on its own into 3 habitats on
+relative arterial and portal-venous enhancement. Before matching,
+"habitat 1" is whatever k-means numbered first in that tumour. After
+:func:`~habit.precision.align_habitat_maps_to_prototypes`, habitat ``k``
+is prototype ``Pk`` in every tumour, so a colour means the same
+enhancement pattern across the three figures below.
+
+.. GENERATED FROM PYTHON SOURCE LINES 163-195
+
+.. code-block:: Python
+
+    from habit.contracts import Cohort, cohort_from_directory
+    from habit.datasets import fetch_demo
+    from habit.habitat_model import KMeansHabitatModelFitter
+    from habit.pipeline import voxel_units
+    from habit.precision import align_habitat_maps_to_prototypes
+    from habit.viz import plot_habitat_label_compare
+    from habit.voxel_features import ExpressionVoxelFeatures
+
+    # Change DATA / MODALITIES / ROI and the expressions to your own layout.
+    DATA = fetch_demo()
+    MODALITIES = ("pre_contrast", "LAP", "PVP")
+    ROI = "LAP"
+    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
+    extractor = ExpressionVoxelFeatures(
+        features={
+            "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+            "rel_enh_pvp": "(PVP - pre_contrast) / (pre_contrast + eps)",
+        },
+        roi=ROI,
+    )
+    raw_maps, models = [], []
+    for subject in cohort:
+        units = voxel_units(extractor(subject))
+        fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+        fitter.set_random_state(0)
+        model = fitter.fit([units], cohort=Cohort([subject], name=subject.subject_id))
+        raw_maps.append(model.assigner()(units))
+        models.append(model)
+
+    matched = align_habitat_maps_to_prototypes(raw_maps, models=models)
+    print(matched.assignments.to_string(index=False))
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HABIT demo data (cached)
+    DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
+
+    On-disk inventory of this folder:
+      subjects (5): subj001, subj002, subj003, subj004, subj005
+      image series: LAP, PVP, delay_3min, pre_contrast
+      mask keys:    LAP, PVP, delay_3min, pre_contrast
+      example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
+      example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
+
+    Your own data must use the same folder tree (change IDs / series names):
+
+      DATA/
+        images/<subject_id>/<modality>/<one image file>
+        masks/<subject_id>/<roi>/<one mask file>
+
+    Then load it with the same call the demos use:
+
+      cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
+
+    Swap DATA / modalities / roi to match your tree. Mask key is often the
+    same as one image series (here LAP).
+    subject_id  habitat_id  prototype_id  distance
+       subj001           1             2  0.526603
+       subj001           2             1  0.403619
+       subj001           3             3  0.093150
+       subj002           1             3  0.930038
+       subj002           2             1  0.140044
+       subj002           3             2  0.456106
+       subj003           1             1  0.432891
+       subj003           2             3  0.917792
+       subj003           3             2  0.862670
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 196-198
+
+Left: the tumour's own k-means ids. Right: the same voxels renamed onto
+the shared prototypes. Compare the right-hand panels across tumours.
+
+.. GENERATED FROM PYTHON SOURCE LINES 198-210
+
+.. code-block:: Python
+
+    for subject, raw, named in zip(cohort, raw_maps, matched.habitat_maps):
+        fig = plot_habitat_label_compare(
+            subject.image(ROI),
+            raw,
+            named,
+            titles=(f"{subject.subject_id}: own ids", f"{subject.subject_id}: prototype ids"),
+            align_labels=False,
+            show_disagreement=False,
+            crop_to="labels",
+        )
+        fig.savefig(f"out/prototype_real_{subject.subject_id}.png", dpi=150, bbox_inches="tight")
+        plt.show()
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/07_habitat_matching/images/sphx_glr_plot_03_prototype_steps_004.png
+         :alt: Habitat label compare, subj001: own ids, subj001: prototype ids
+         :srcset: /auto_examples/07_habitat_matching/images/sphx_glr_plot_03_prototype_steps_004.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07_habitat_matching/images/sphx_glr_plot_03_prototype_steps_005.png
+         :alt: Habitat label compare, subj002: own ids, subj002: prototype ids
+         :srcset: /auto_examples/07_habitat_matching/images/sphx_glr_plot_03_prototype_steps_005.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/07_habitat_matching/images/sphx_glr_plot_03_prototype_steps_006.png
+         :alt: Habitat label compare, subj003: own ids, subj003: prototype ids
+         :srcset: /auto_examples/07_habitat_matching/images/sphx_glr_plot_03_prototype_steps_006.png
+         :class: sphx-glr-multi-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\habitat_core.py:948: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+    F:\work\habit_project\habit\viz\habitat_core.py:948: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+    F:\work\habit_project\habit\viz\habitat_core.py:948: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
+
+
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.820 seconds)
+   **Total running time of the script:** (0 minutes 8.484 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07_habitat_matching_plot_03_prototype_steps.py:

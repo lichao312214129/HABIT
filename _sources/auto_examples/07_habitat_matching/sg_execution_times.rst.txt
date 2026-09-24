@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**01:22.751** total execution time for 6 files **from auto_examples\07_habitat_matching**:
+**00:08.484** total execution time for 6 files **from auto_examples\07_habitat_matching**:
 
 .. container::
 
@@ -32,21 +32,21 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_05_frozen_prototypes.py` (``plot_05_frozen_prototypes.py``)
-     - 00:33.875
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_06_downstream_tables.py` (``plot_06_downstream_tables.py``)
-     - 00:33.025
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_02_overlap_cases.py` (``plot_02_overlap_cases.py``)
-     - 00:07.009
+   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_03_prototype_steps.py` (``plot_03_prototype_steps.py``)
+     - 00:08.484
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_01_label_switching.py` (``plot_01_label_switching.py``)
-     - 00:03.929
+     - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_03_prototype_steps.py` (``plot_03_prototype_steps.py``)
-     - 00:02.820
+   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_02_overlap_cases.py` (``plot_02_overlap_cases.py``)
+     - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_04_prototype_metrics.py` (``plot_04_prototype_metrics.py``)
-     - 00:02.092
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_05_frozen_prototypes.py` (``plot_05_frozen_prototypes.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_06_downstream_tables.py` (``plot_06_downstream_tables.py``)
+     - 00:00.000
      - 0.0

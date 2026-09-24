@@ -73,8 +73,22 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#load-the-images">Load the images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#build-the-analysis-step-by-step">Build the analysis step by step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#how-many-habitats-and-why">How many habitats, and why</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#habitat-maps">Habitat maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#the-feature-table">The feature table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#what-those-numbers-look-like-for-one-subject">What those numbers look like for one subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#reuse-the-model-on-a-new-patient">Reuse the model on a new patient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html">Quickstart: YAML</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html#write-the-file-and-run-it">Write the file and run it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html#look-at-one-habitat-map">Look at one habitat map</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -136,15 +150,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="06_parallel_runs/index.html">6. Parallel runs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_01_serial.html">Running a cohort serially</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_02_skip_failed.html">Skipping a subject that fails</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_03_stop_on_failure.html">Stopping at the first failure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_04_resume.html">Resuming finished subjects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_07_isolated.html">One fresh process per subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_08_wall_clock.html">Per-subject wall-clock limit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_09_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_01_run_a_cohort.html">Running a cohort in parallel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_02_when_a_subject_fails.html">When a subject fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_03_several_gpus.html">Running a cohort on several GPUs</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
@@ -772,8 +780,38 @@ pages until labels have been matched.</p>
 </section>
 <section id="choosing-how-habitats-are-defined">
 <h2>Choosing how habitats are defined<a class="headerlink" href="#choosing-how-habitats-are-defined" title="Link to this heading"></a></h2>
-<p>Same modalities (<code class="docutils literal notranslate"><span class="pre">LAP</span></code>), fixed <code class="docutils literal notranslate"><span class="pre">n_habitats=3</span></code>, one overlay and one
-volume table on each page.</p>
+<p>The design is the stage list of the <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>.
+The three designs differ only in whether <code class="docutils literal notranslate"><span class="pre">partition</span></code> and <code class="docutils literal notranslate"><span class="pre">pool</span></code> are
+present:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Design</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">partition</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">pool</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">fit</span></code> runs on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>two-step</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>supervoxels, cohort</p></td>
+</tr>
+<tr class="row-odd"><td><p>inside each subject</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+<td><p>voxels, one subject</p></td>
+</tr>
+<tr class="row-even"><td><p>pooling voxels</p></td>
+<td><p>no</p></td>
+<td><p>yes</p></td>
+<td><p>voxels, cohort</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">two_step_habitat</span></code>, <code class="docutils literal notranslate"><span class="pre">one_step_habitat</span></code> and <code class="docutils literal notranslate"><span class="pre">direct_pooling_habitat</span></code>
+are shortcuts that build these stage lists. Each page uses the same three
+DCE phases, a fixed count of 3 habitats, one overlay and one volume table.</p>
 <ul class="simple">
 <li><p><strong>Defining habitats in two steps</strong> (partition, then a shared model) —
 <a class="reference internal" href="04_habitat_maps/plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a>.</p></li>
@@ -814,13 +852,13 @@ and the <a class="reference internal" href="../api/generated/habit.spec.HabitatS
 <li><p><strong>Assigning habitat labels</strong> —
 <a class="reference internal" href="04_habitat_maps/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a>.</p></li>
 </ul>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. Stages: partition then pool then fit."><img alt="" src="../_images/sphx_glr_plot_01_two_step_thumb.png" />
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. The design is the stage list: partition then pool then fit."><img alt="" src="../_images/sphx_glr_plot_01_two_step_thumb.png" />
 <p><a class="reference internal" href="04_habitat_maps/plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a></p>
   <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. There is no cohort fit stage."><img alt="" src="../_images/sphx_glr_plot_02_inside_each_subject_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. The stage list has no pool, so fit runs inside each subject instead of on the cohort. one_step_habitat(...) is a shortcut that builds the same stage list."><img alt="" src="../_images/sphx_glr_plot_02_inside_each_subject_thumb.png" />
 <p><a class="reference internal" href="04_habitat_maps/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a></p>
   <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. Stage: pool then fit. There is no partition stage."><img alt="" src="../_images/sphx_glr_plot_03_pool_voxels_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. The stage list is pool then fit, with no partition. direct_pooling_habitat(...) is a shortcut that builds the same stage list."><img alt="" src="../_images/sphx_glr_plot_03_pool_voxels_thumb.png" />
 <p><a class="reference internal" href="04_habitat_maps/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a></p>
   <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
@@ -887,71 +925,29 @@ whole-habitat radiomics, and deep-learning masked embeddings.</p>
 </div></div></section>
 <section id="parallel-runs">
 <h2>6. Parallel runs<a class="headerlink" href="#parallel-runs" title="Link to this heading"></a></h2>
-<p>These pages only change how subjects are scheduled. The texture, the
-preprocessing and the habitat model stay the same, so a finished map
-matches a serial run of the same chain. That check is on the process-pool
-page. Preprocessing of the texture itself is
-<a class="reference internal" href="02_voxel/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a>.</p>
-</section>
-<section id="which-backend">
-<h2>Which backend<a class="headerlink" href="#which-backend" title="Link to this heading"></a></h2>
+<p>These pages only change how subjects are scheduled. The study is the one
+from the Python quickstart, so a pooled run gives the same habitat maps
+as a serial run; the first page checks that voxel by voxel.</p>
 <ul class="simple">
-<li><p><strong>One process, subjects in order.</strong> Use this to debug a single case.
-<a class="reference internal" href="06_parallel_runs/plot_01_serial.html"><span class="doc">Running a cohort serially</span></a>.</p></li>
-<li><p><strong>A pool of worker processes.</strong> On a CPU machine the subjects run side
-by side. On one GPU only the first worker gets the card and the others
-run on CPU, so the pool is slower; <code class="docutils literal notranslate"><span class="pre">HABIT_GPU_OVERSUBSCRIBE=wrap</span></code>
-shares that card instead. Several GPUs are one worker per card.
-<a class="reference internal" href="06_parallel_runs/plot_05_process_pool.html"><span class="doc">Running subjects in separate processes</span></a>.</p></li>
-<li><p><strong>Keep those workers up between passes.</strong> A cold pool pays spawn and
-imports on every <code class="docutils literal notranslate"><span class="pre">map</span></code>. <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">backend.reuse_workers():</span></code> pays it once.
-<a class="reference internal" href="06_parallel_runs/plot_06_reuse_workers.html"><span class="doc">Reusing workers across passes</span></a>.</p></li>
-<li><p><strong>One fresh process per subject.</strong> Same results, higher spawn cost.
-<a class="reference internal" href="06_parallel_runs/plot_07_isolated.html"><span class="doc">One fresh process per subject</span></a>.</p></li>
-<li><p><strong>One worker per GPU.</strong> The call is on the page. The timing table is a
-recorded 5-GPU run, because this machine has one GPU.
-<a class="reference internal" href="06_parallel_runs/plot_09_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a>.</p></li>
+<li><p><strong>Running a cohort in parallel.</strong> Serial versus a pool of four worker
+processes, with real timings, and which backend to use on CPU, one GPU
+or several GPUs.
+<a class="reference internal" href="06_parallel_runs/plot_01_run_a_cohort.html"><span class="doc">Running a cohort in parallel</span></a>.</p></li>
+<li><p><strong>When a subject fails.</strong> Continue or stop at the first failure,
+resume from a checkpoint, and a per-subject time limit.
+<a class="reference internal" href="06_parallel_runs/plot_02_when_a_subject_fails.html"><span class="doc">When a subject fails</span></a>.</p></li>
+<li><p><strong>Several GPUs.</strong> One worker per card. The timing table is a recorded
+5-GPU run.
+<a class="reference internal" href="06_parallel_runs/plot_03_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a>.</p></li>
 </ul>
-</section>
-<section id="when-a-subject-fails">
-<h2>When a subject fails<a class="headerlink" href="#when-a-subject-fails" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Keep the batch and record the exception:
-<a class="reference internal" href="06_parallel_runs/plot_02_skip_failed.html"><span class="doc">Skipping a subject that fails</span></a>.</p></li>
-<li><p>Stop at the first failure:
-<a class="reference internal" href="06_parallel_runs/plot_03_stop_on_failure.html"><span class="doc">Stopping at the first failure</span></a>.</p></li>
-<li><p>Skip subjects that already finished:
-<a class="reference internal" href="06_parallel_runs/plot_04_resume.html"><span class="doc">Resuming finished subjects</span></a>.</p></li>
-<li><p>Give each subject a wall-clock limit. Only the process backend enforces
-it:
-<a class="reference internal" href="06_parallel_runs/plot_08_wall_clock.html"><span class="doc">Per-subject wall-clock limit</span></a>.</p></li>
-</ul>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="SerialBackend runs the texture extraction and the habitat assignment in this process, one subject after another. Z-scoring and fitting stay here as well: the scaler is per subject, and the fit has to see every subject. The same chain written as a HabitatSpec is /auto_examples/02_voxel/plot_06_texture_preprocessing."><img alt="" src="../_images/sphx_glr_plot_01_serial_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_01_serial.html"><span class="doc">Running a cohort serially</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Running a cohort serially</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;continue&quot; keeps the batch. One subject here has no arterial-phase image, so texture extraction raises. The other subject still receives a habitat map. The error is stored on that subject&#x27;s slot."><img alt="" src="../_images/sphx_glr_plot_02_skip_failed_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_02_skip_failed.html"><span class="doc">Skipping a subject that fails</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Skipping a subject that fails</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;fail_fast&quot; re-raises the first subject error and does not run the rest. The incomplete subject is first, so the real extraction of the complete subject never starts."><img alt="" src="../_images/sphx_glr_plot_03_stop_on_failure_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_03_stop_on_failure.html"><span class="doc">Stopping at the first failure</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Stopping at the first failure</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A CheckpointStore records each success. The checkpoint key includes the texture specification, so changing the feature list or binWidth does not reuse the old field. The second map returns from_cache=True and does not recompute texture."><img alt="" src="../_images/sphx_glr_plot_04_resume_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_04_resume.html"><span class="doc">Resuming finished subjects</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Resuming finished subjects</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend: each subject is sent to one of two worker processes. This page runs the same texture extraction and habitat assignment serially and in the pool, checks that the results agree, and times both."><img alt="" src="../_images/sphx_glr_plot_05_process_pool_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_05_process_pool.html"><span class="doc">Running subjects in separate processes</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Running subjects in separate processes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays process spawn and imports on every map. with backend.reuse_workers(): starts the workers once and keeps them for every map inside the block. Leaving the block stops them."><img alt="" src="../_images/sphx_glr_plot_06_reuse_workers_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_06_reuse_workers.html"><span class="doc">Reusing workers across passes</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Reusing workers across passes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="parallel_mode=&quot;isolated&quot; starts a new process for every subject instead of keeping a worker alive. The texture definition and the subject z-score match the persistent process-pool page. Spawn cost is higher; the habitat counts are the same chain."><img alt="" src="../_images/sphx_glr_plot_07_isolated_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_07_isolated.html"><span class="doc">One fresh process per subject</span></a></p>
-  <div class="sphx-glr-thumbnail-title">One fresh process per subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="subject_timeout_sec is enforced only by the process backend. The limit on this page is 2 seconds, below a real texture extraction, and the extractor is not allowed to read the on-disk texture cache. parallel_mode=&quot;isolated&quot; and workers=1 run one subject at a time in its own process, so the limit is recorded on every slot. Both finish as SubjectTimeoutError. A study that should finish uses a limit on the order of minutes."><img alt="" src="../_images/sphx_glr_plot_08_wall_clock_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_08_wall_clock.html"><span class="doc">Per-subject wall-clock limit</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Per-subject wall-clock limit</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This machine has one GPU, so the recorded 5-GPU timings below are from a cloud run and this page does not repeat that workload. The call itself is in the next cell."><img alt="" src="../_images/sphx_glr_plot_09_several_gpus_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_09_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a></p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The study is the one from /auto_quickstart/plot_quickstart_python. Only the backend= argument changes: serially, subjects run one after the other in this process; with RunPolicy(workers=4, backend=&quot;process&quot;) four worker processes take subjects side by side. The habitat maps must be identical either way, and this page checks that."><img alt="" src="../_images/sphx_glr_plot_01_run_a_cohort_thumb.png" />
+<p><a class="reference internal" href="06_parallel_runs/plot_01_run_a_cohort.html"><span class="doc">Running a cohort in parallel</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Running a cohort in parallel</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="One subject in this cohort has no portal-venous (``PVP``) series, so voxel extraction raises for it. What happens next is set on the backend:"><img alt="" src="../_images/sphx_glr_plot_02_when_a_subject_fails_thumb.png" />
+<p><a class="reference internal" href="06_parallel_runs/plot_02_when_a_subject_fails.html"><span class="doc">When a subject fails</span></a></p>
+  <div class="sphx-glr-thumbnail-title">When a subject fails</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This machine has one GPU, so the recorded 5-GPU timings below are from a cloud run and this page does not repeat that workload. The call itself is in the next cell."><img alt="" src="../_images/sphx_glr_plot_03_several_gpus_thumb.png" />
+<p><a class="reference internal" href="06_parallel_runs/plot_03_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a></p>
   <div class="sphx-glr-thumbnail-title">Running a cohort on several GPUs</div>
 </div></div></section>
 <section id="matching-habitat-labels">

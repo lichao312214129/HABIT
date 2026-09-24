@@ -19,9 +19,10 @@ relabelling algorithm, i.e. k-means with a cannot-link constraint inside
 each subject.
 
 This page runs the loop by hand on five synthetic subjects with 2-4
-habitats, shows each round, and checks it against the one-line call. It
-ends with the two-subject case, where the method reduces to pairwise
-Hungarian matching on squared distance.
+habitats, shows each round, and checks it against the one-line call.
+Then the two-subject case, where the method reduces to pairwise
+Hungarian matching on squared distance, and finally three real tumours
+before and after matching.
 """
 
 # %%
@@ -149,3 +150,60 @@ print("  prototype matching:         ", pairs_prototype)
 fig = plot_prototype_matching([a, b], pair, block_names=["A", "B"])
 fig.savefig("out/prototype_two_subjects.png", dpi=150, bbox_inches="tight")
 plt.show()
+
+# %%
+# The same on real tumours
+# ------------------------
+# Three demo lesions, each clustered on its own into 3 habitats on
+# relative arterial and portal-venous enhancement. Before matching,
+# "habitat 1" is whatever k-means numbered first in that tumour. After
+# :func:`~habit.precision.align_habitat_maps_to_prototypes`, habitat ``k``
+# is prototype ``Pk`` in every tumour, so a colour means the same
+# enhancement pattern across the three figures below.
+from habit.contracts import Cohort, cohort_from_directory
+from habit.datasets import fetch_demo
+from habit.habitat_model import KMeansHabitatModelFitter
+from habit.pipeline import voxel_units
+from habit.precision import align_habitat_maps_to_prototypes
+from habit.viz import plot_habitat_label_compare
+from habit.voxel_features import ExpressionVoxelFeatures
+
+# Change DATA / MODALITIES / ROI and the expressions to your own layout.
+DATA = fetch_demo()
+MODALITIES = ("pre_contrast", "LAP", "PVP")
+ROI = "LAP"
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
+extractor = ExpressionVoxelFeatures(
+    features={
+        "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+        "rel_enh_pvp": "(PVP - pre_contrast) / (pre_contrast + eps)",
+    },
+    roi=ROI,
+)
+raw_maps, models = [], []
+for subject in cohort:
+    units = voxel_units(extractor(subject))
+    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+    fitter.set_random_state(0)
+    model = fitter.fit([units], cohort=Cohort([subject], name=subject.subject_id))
+    raw_maps.append(model.assigner()(units))
+    models.append(model)
+
+matched = align_habitat_maps_to_prototypes(raw_maps, models=models)
+print(matched.assignments.to_string(index=False))
+
+# %%
+# Left: the tumour's own k-means ids. Right: the same voxels renamed onto
+# the shared prototypes. Compare the right-hand panels across tumours.
+for subject, raw, named in zip(cohort, raw_maps, matched.habitat_maps):
+    fig = plot_habitat_label_compare(
+        subject.image(ROI),
+        raw,
+        named,
+        titles=(f"{subject.subject_id}: own ids", f"{subject.subject_id}: prototype ids"),
+        align_labels=False,
+        show_disagreement=False,
+        crop_to="labels",
+    )
+    fig.savefig(f"out/prototype_real_{subject.subject_id}.png", dpi=150, bbox_inches="tight")
+    plt.show()

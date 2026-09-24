@@ -21,7 +21,7 @@ analysis from a v1 YAML document. CLI twin: :doc:`/tutorial/quickstart`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML.">
+    <div class="sphx-glr-thumbcontainer" tooltip="A short list of stages declares the analysis; one call fits it on a cohort. Everything after that is looking at the result: the habitat map, the per-habitat features a paper would report, and reusing the fitted model on a new patient. No YAML.">
 
 .. only:: html
 
@@ -38,7 +38,7 @@ analysis from a v1 YAML document. CLI twin: :doc:`/tutorial/quickstart`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="habit.recipes.run_from_yaml is the Python call behind habit get-habitat --config. The document below is a v1 file: version, workflow, spec (the stage list), data, and policy. Paths in data.source are used as written.">
+    <div class="sphx-glr-thumbcontainer" tooltip="The same two-step analysis as plot_quickstart_python, written as a YAML file. habit get-habitat --config &lt;file&gt; runs it from the shell; habit.recipes.run_from_yaml is the Python call behind that command. The spec.stages list is the stage list of the Python page, one entry per stage.">
 
 .. only:: html
 
@@ -49,7 +49,7 @@ analysis from a v1 YAML document. CLI twin: :doc:`/tutorial/quickstart`.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Load a habitat analysis from YAML</div>
+      <div class="sphx-glr-thumbnail-title">Quickstart: YAML</div>
     </div>
 
 

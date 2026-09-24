@@ -2,135 +2,194 @@
 Quickstart: Python API
 ======================
 
-Install first (:doc:`/tutorial/installation`). Construct a cohort, a
-:class:`~habit.spec.HabitatSpec`, and call :mod:`habit.recipes`. No YAML.
+A short list of stages declares the analysis; one call fits it on a
+cohort. Everything after that is looking at the result: the habitat map,
+the per-habitat features a paper would report, and reusing the fitted
+model on a new patient. No YAML.
 
-This page uses the official demo pack. Change ``DATA`` / ``MODALITIES`` /
-``ROI`` to your preprocessed tree.
+Install first (:doc:`/tutorial/installation`). This page uses the
+official demo pack (five liver lesions, four DCE phases). Change ``DATA``
+/ ``MODALITIES`` / ``ROI`` to your own preprocessed tree.
 """
 
 # %%
-# Load the official imaging pack (downloads once) and take two subjects
-# so the run stays short. Drop the slice to use the full pack.
-# sphinx_gallery_thumbnail_number = 2
+# Load the images
+# ---------------
+# Four subjects define the habitats; the fifth plays a new patient later.
+# The downloaded pack is cached after the first run.
+# sphinx_gallery_thumbnail_number = 4
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from habit.contracts import HabitatModel, cohort_from_directory
 from habit.datasets import fetch_demo
-from habit.pipeline.assembly import build_habitat_components
+from habit.kernels import habitat_ith_dispersion, ith_score, spatial_interaction_matrix
+from habit.recipes import Study, two_step_habitat
 from habit.spec import HabitatSpec, Spec, Stage
-from habit.viz import plot_habitat_overlay, plot_partition_triptych
-import habit.recipes as recipes
+from habit.viz import (
+    plot_cluster_validation_from_report,
+    plot_habitat_graph_slice,
+    plot_habitat_overlay,
+    plot_habitat_volume_fractions,
+    plot_intensity_slice,
+    plot_ith_summary,
+    plot_msi_matrix,
+    plot_partition_triptych,
+)
 
+# Change DATA / MODALITIES / ROI to your preprocessed layout.
 DATA = fetch_demo()
 MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
-ROI = "pre_contrast"
-cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
+ROI = "LAP"
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
+train, new_patient = cohort[:4], cohort[4:]
 print(cohort)
-print("subject_ids:", list(cohort.subject_ids))
 
-# %%
-# Two-step spec as an ordered stage list. Preprocess stages before
-# ``partition`` are per subject. The preprocess stage after ``pool`` is
-# fit once on the cohort. ``partition`` plus ``pool`` selects two-step.
-spec = HabitatSpec(
-    name="habitat_two_step",
-    stages=(
-        Stage("extract_voxel_features", Spec("raw", {"modalities": list(MODALITIES)})),
-        Stage(
-            "preprocess_voxels",
-            Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
-        ),
-        Stage("preprocess_voxels_2", Spec("minmax", {"across_features": False})),
-        Stage(
-            "partition",
-            Spec("kmeans", {"n_supervoxels": 12, "max_iter": 300, "n_init": 5}),
-        ),
-        Stage("pool", Spec("pool")),
-        Stage(
-            "preprocess_cohort",
-            Spec(
-                "binning",
-                {"n_bins": 10, "bin_strategy": "uniform", "across_features": False},
-            ),
-        ),
-        Stage(
-            "fit",
-            Spec(
-                "kmeans",
-                {
-                    "min_habitats": 2,
-                    "max_habitats": 10,
-                    "validation": "elbow",
-                    "max_iter": 300,
-                    "n_init": 5,
-                },
-            ),
-        ),
-        Stage("assign", Spec("nearest_centroid")),
-        Stage("quantify", Spec("volume")),
-        Stage("quantify_msi", Spec("msi")),
-        Stage("quantify_ith", Spec("ith_score")),
-    ),
-    random_seed=42,
-)
-print(f"Spec fingerprint: {spec.fingerprint()[:16]}...")
-
-# %%
-# Clustering-feature tables **before** the voxel preprocessor chain.
-# Same rows after winsorize + minmax. This is not image resampling.
-pipe = build_habitat_components(spec).pipeline(assigner=None)
-subject = cohort[0]
-raw = pipe.voxel_feature_extractor(subject).feature_frame()
-print("Voxel features before preprocessing:")
-print(raw.head())
-raw.head()
-
-# %%
-# Same voxel rows after the subject-level chain
-# (:attr:`~habit.spec.HabitatSpec.voxel_feature_preprocessors`).
-processed = pipe.voxel_feature_preprocessor(raw)
-print("Voxel features after winsorize + minmax:")
-print(processed.head())
-processed.head()
-
-# %%
-# Fit habitats on the cohort and write maps. Overlay uses
-# :func:`~habit.viz.plot_habitat_overlay` with volume objects, not ``.data``.
-result = recipes.Study(spec=spec).fit_predict(cohort)
-out_dir = Path("out/habitat_two_step")
-result.save(out_dir, write_maps=True, write_units_table=True)
-print(result.habitat_model.summary())
-print("Habitat feature table:")
-print(result.features.frame.head())
-result.features.frame.head()
-
-fig = plot_habitat_overlay(
-    subject.image("LAP"),
-    result.habitat_maps[0],
-    title="habitats",
-)
+subject = train[0]
 Path("out").mkdir(exist_ok=True)
-fig.savefig("out/quickstart_overlay.png", dpi=150, bbox_inches="tight")
-plt.show()
-
-fig_tri = plot_partition_triptych(
-    subject.image(ROI),
-    result.units[0],
-    result.habitat_maps[0],
-    axis=0,
+fig = plot_intensity_slice(
+    subject.image("LAP"),
+    roi_mask=subject.mask(ROI),
+    roi_contour=True,
+    image_label="LAP",
+    title=f"{subject.subject_id}: arterial phase and ROI",
 )
-fig_tri.savefig("out/quickstart_triptych.png", dpi=150, bbox_inches="tight")
+fig.savefig("out/quickstart_input.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# Reload the ``.habitatmodel`` and label the same cohort. Optional napari
-# view (needs the ``view`` extra)::
+# Build the analysis step by step
+# -------------------------------
+# A habitat analysis is a list of stages. This is the two-step design:
+# each tumour is split into 30 supervoxels (``partition``), the
+# supervoxels of all subjects are put together (``pool``) and clustered
+# once (``fit``), so habitat 2 means the same enhancement pattern in every
+# patient. Drop ``pool`` and every subject is clustered on its own
+# (one-step); drop ``partition`` and voxels are clustered directly
+# (direct pooling). The fitter tries 2 to 10 habitats and keeps the elbow.
+spec = HabitatSpec(
+    name="quickstart_two_step",
+    stages=(
+        Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+        Stage("partition", Spec("kmeans", {"n_supervoxels": 30})),
+        Stage("pool", Spec("pool")),
+        Stage("fit", Spec("kmeans", {"min_habitats": 2, "max_habitats": 10, "validation": "elbow", "n_init": 10})),
+        Stage("assign", Spec("nearest_centroid")),
+        # Per-subject feature tables: volume fractions, MSI, ITH, graph.
+        Stage("volume", Spec("volume")),
+        Stage("msi", Spec("msi")),
+        Stage("ith", Spec("ith_score")),
+        Stage("graph", Spec("graph", {"include_extended_metrics": False})),
+    ),
+    random_seed=0,
+)
+result = Study(spec).fit_predict(train)
+print(result.habitat_model.summary())
+
+# %%
+# ``two_step_habitat(modalities=..., roi=..., n_supervoxels=30,
+# habitat_features=[...], random_seed=0)`` is a shortcut for the same
+# spec; ``one_step_habitat`` and ``direct_pooling_habitat`` do the same for
+# the other designs. Both give the same habitat maps:
+shortcut = two_step_habitat(modalities=MODALITIES, roi=ROI, n_supervoxels=30, random_seed=0).fit_predict(train)
+same = all(np.array_equal(a.label_array, b.label_array) for a, b in zip(result.habitat_maps, shortcut.habitat_maps))
+print("stages == shortcut:", same)
+
+# %%
+# How many habitats, and why
+# --------------------------
+# The fitter scores every candidate count; the marked point is the one
+# kept. The report travels inside the model, so the choice is auditable.
+report = result.habitat_model.preprocessing_state["selection_report"]
+fig = plot_cluster_validation_from_report(report)
+fig.savefig("out/quickstart_elbow.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+# %%
+# Habitat maps
+# ------------
+# From supervoxels to habitats on one slice, then the habitat map of two
+# patients. Same colour, same habitat, in both.
+habitat_map = result.habitat_maps[0]
+fig = plot_partition_triptych(subject.image("LAP"), result.units[0], habitat_map, axis=0)
+fig.savefig("out/quickstart_triptych.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+for other in (0, 1):
+    fig = plot_habitat_overlay(
+        train[other].image("LAP"),
+        result.habitat_maps[other],
+        title=f"{train[other].subject_id}: habitats",
+        crop_to="labels",
+    )
+    fig.savefig(f"out/quickstart_habitats_{train[other].subject_id}.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+# %%
+# The feature table
+# -----------------
+# One row per subject, ready for statistics: volume fractions, the MSI
+# (how habitats touch each other), the ITH score (how fragmented the
+# tumour is) and graph topology. A few of the columns:
+table = result.features.frame.set_index("subject")
+print(table.shape[1], "columns")
+columns = [c for c in table.columns if c.endswith("_volume_fraction")] + ["ith_score", "contrast", "graph_num_nodes_total"]
+print(table[columns].round(3).to_string())
+
+# %%
+# What those numbers look like for one subject
+# --------------------------------------------
+# Volume fractions come straight from the table. MSI and ITH are drawn from
+# the same label map with the kernels the table uses.
+labels = habitat_map.label_array
+fractions = {hid: float(table.loc[subject.subject_id, f"habitat_{hid}_volume_fraction"]) for hid in habitat_map.habitat_ids}
+fig = plot_habitat_volume_fractions(fractions, title=f"{subject.subject_id}: volume fractions")
+fig.savefig("out/quickstart_volume_fractions.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+n_classes = max(habitat_map.habitat_ids) + 1
+fig = plot_msi_matrix(spatial_interaction_matrix(labels, n_classes=n_classes), habitat_ids=habitat_map.habitat_ids)
+fig.savefig("out/quickstart_msi.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+fig = plot_ith_summary(float(ith_score(labels)), dispersion=habitat_ith_dispersion(labels))
+fig.savefig("out/quickstart_ith.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+# The graph features cut the tumour into 8-voxel cubes (the grid); each
+# cube is a node coloured by its habitat, and touching cubes share an edge.
+fig = plot_habitat_graph_slice(labels, block_size=8)
+fig.savefig("out/quickstart_graph.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+# %%
+# Reuse the model on a new patient
+# --------------------------------
+# The ``.habitatmodel`` file is the habitat definition: load it anywhere
+# and the new patient gets the same habitat names. Nothing is refitted.
+result.save("out/quickstart", write_maps=True)
+model = HabitatModel.load("out/quickstart/habitat_model.habitatmodel")
+prediction = Study.from_model(model).predict(new_patient)
+fig = plot_habitat_overlay(
+    new_patient[0].image("LAP"),
+    prediction.habitat_maps[0],
+    title=f"{new_patient[0].subject_id}: habitats from the saved model",
+    crop_to="labels",
+)
+fig.savefig("out/quickstart_new_patient.png", dpi=150, bbox_inches="tight")
+plt.show()
+
+# %%
+# Where to go next
+# ----------------
+# * The same analysis from a YAML file:
+#   :doc:`/auto_quickstart/plot_quickstart_yaml`.
+# * Other habitat designs, texture features, custom stages: the Guide
+#   sections :doc:`/auto_examples/04_habitat_maps/index` and
+#   :doc:`/auto_examples/05_quantify/index`.
+# * Interactive 3-D view (``pip install "habitat-analysis[view]"``)::
 #
-#    from habit.viz import view_habitat_napari
-#    view_habitat_napari(subject.image("LAP"), result.habitat_maps[0])
-model = HabitatModel.load(out_dir / "habitat_model.habitatmodel")
-prediction = recipes.Study.from_model(model, spec).predict(cohort)
-print(len(prediction.habitat_maps), "subjects labelled")
+#     from habit.viz import view_habitat_napari
+#     view_habitat_napari(subject.image("LAP"), habitat_map)

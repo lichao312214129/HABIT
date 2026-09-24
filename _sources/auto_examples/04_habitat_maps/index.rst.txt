@@ -17,8 +17,21 @@ pages until labels have been matched.
 Choosing how habitats are defined
 ----------------------------------
 
-Same modalities (``LAP``), fixed ``n_habitats=3``, one overlay and one
-volume table on each page.
+The design is the stage list of the :class:`~habit.spec.HabitatSpec`.
+The three designs differ only in whether ``partition`` and ``pool`` are
+present:
+
+====================  =============  ========  =====================
+Design                ``partition``  ``pool``  ``fit`` runs on
+====================  =============  ========  =====================
+two-step              yes            yes       supervoxels, cohort
+inside each subject   no             no        voxels, one subject
+pooling voxels        no             yes       voxels, cohort
+====================  =============  ========  =====================
+
+``two_step_habitat``, ``one_step_habitat`` and ``direct_pooling_habitat``
+are shortcuts that build these stage lists. Each page uses the same three
+DCE phases, a fixed count of 3 habitats, one overlay and one volume table.
 
 * **Defining habitats in two steps** (partition, then a shared model) —
   :doc:`/auto_examples/04_habitat_maps/plot_01_two_step`.
@@ -73,7 +86,7 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. Stages: partition then pool then fit.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. The design is the stage list: partition then pool then fit.">
 
 .. only:: html
 
@@ -90,7 +103,7 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. There is no cohort fit stage.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. The stage list has no pool, so fit runs inside each subject instead of on the cohort. one_step_habitat(...) is a shortcut that builds the same stage list.">
 
 .. only:: html
 
@@ -107,7 +120,7 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. Stage: pool then fit. There is no partition stage.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. The stage list is pool then fit, with no partition. direct_pooling_habitat(...) is a shortcut that builds the same stage list.">
 
 .. only:: html
 

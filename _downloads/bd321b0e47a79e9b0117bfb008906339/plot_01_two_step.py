@@ -4,13 +4,14 @@ Defining habitats in two steps
 
 Input: a cohort of at least two subjects. Output: one shared
 :class:`~habit.contracts.HabitatModel` and one
-:class:`~habit.contracts.HabitatMap` per subject. Stages: ``partition``
-then ``pool`` then ``fit``.
+:class:`~habit.contracts.HabitatMap` per subject. The design is the
+stage list: ``partition`` then ``pool`` then ``fit``.
 
-SLIC is the partitioner here. ``supervoxel_algorithm="kmeans"`` is the
-same study with a different partitioner, not a second habitat definition
-to compare on this page. Fixed ``n_habitats=3`` draws the map. ``"auto"``
-draws the elbow on the same cohort.
+SLIC is the partitioner here. ``Spec("kmeans", ...)`` in the
+``partition`` stage is the same study with a different partitioner, not
+a second habitat definition to compare on this page. A fixed count of 3
+draws the map; a 2-10 search draws the elbow on the same cohort.
+``two_step_habitat(...)`` is a shortcut that builds the same stage list.
 """
 
 # %%
@@ -24,7 +25,8 @@ import matplotlib.pyplot as plt
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
-from habit.recipes import two_step_habitat
+from habit.recipes import Study
+from habit.spec import HabitatSpec, Spec, Stage
 from habit.viz import plot_cluster_validation_from_report, plot_partition_triptych
 
 DATA = fetch_demo()
@@ -37,19 +39,25 @@ print(f"Cohort: {list(cohort.subject_ids)}")
 # %%
 # Fit three shared habitats
 # -------------------------
-# ``two_step_habitat`` partitions each ROI into supervoxels. Those
-# supervoxels are the clustering units: one mean feature vector per
-# supervoxel. The units are then pooled across subjects and one shared
-# habitat model is fit.
-result = two_step_habitat(
-    modalities=MODALITIES,
-    n_supervoxels=100,
-    n_habitats=3,
-    habitat_features=("volume",),
+# ``partition`` splits each ROI into supervoxels. Those supervoxels are
+# the clustering units: one mean feature vector per supervoxel. ``pool``
+# puts the units of all subjects together and ``fit`` learns one shared
+# habitat model on them.
+first_stages = (
+    Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+    Stage("partition", Spec("slic", {"n_supervoxels": 100})),
+    Stage("pool", Spec("pool")),
+)
+spec = HabitatSpec(
+    name="two_step_slic",
+    stages=first_stages + (
+        Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 10})),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("volume", Spec("volume")),
+    ),
     random_seed=0,
-    supervoxel_algorithm="slic",
-    roi=ROI,
-).fit_predict(cohort)
+)
+result = Study(spec).fit_predict(cohort)
 print(result.habitat_model.summary())
 print(result.features.frame)
 result.features.frame
@@ -68,17 +76,18 @@ fig.savefig("out/two_step_triptych.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# Elbow on the same two-step declaration. The chosen count is the knee,
-# not a second overlay. A saved model is
+# Elbow on the same stages, with ``fit`` searching 2-10 habitats. The
+# chosen count is the knee, not a second overlay. A saved model is
 # :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
-elbow = two_step_habitat(
-    modalities=MODALITIES,
-    n_supervoxels=100,
-    n_habitats="auto",
+elbow_spec = HabitatSpec(
+    name="two_step_slic_elbow",
+    stages=first_stages + (
+        Stage("fit", Spec("kmeans", {"min_habitats": 2, "max_habitats": 10, "validation": "elbow", "n_init": 10})),
+        Stage("assign", Spec("nearest_centroid")),
+    ),
     random_seed=0,
-    supervoxel_algorithm="slic",
-    roi=ROI,
-).fit_predict(cohort)
+)
+elbow = Study(elbow_spec).fit_predict(cohort)
 report = (elbow.habitat_model.preprocessing_state or {}).get("selection_report")
 print(elbow.habitat_model.summary())
 fig_k = plot_cluster_validation_from_report(report)

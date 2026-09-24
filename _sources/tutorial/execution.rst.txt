@@ -76,10 +76,11 @@ process, then ``backend.map`` the assigner on units already in memory.
 Subject versus cohort preprocessing of that texture, and the equivalent
 ``HabitatSpec``, is
 :doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`.
-Serial scheduling of the same chain is the first gallery page.
+Serial versus pooled runs of one study, with timings, are on the first
+gallery page.
 
 * :doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`
-* :doc:`/auto_examples/06_parallel_runs/plot_01_serial`
+* :doc:`/auto_examples/06_parallel_runs/plot_01_run_a_cohort`
 
 Failure policy
 --------------
@@ -96,12 +97,11 @@ if** the backend used ``continue``. Recipes / CLI pass
 ``raise_on_failure=False`` so a partial cohort can finish. Calling
 ``backend.map`` directly leaves the exception on ``slot.error``.
 
-* Continue: :doc:`/auto_examples/06_parallel_runs/plot_02_skip_failed`
-* Stop at the first subject: :doc:`/auto_examples/06_parallel_runs/plot_03_stop_on_failure`
+Both, on a study with one incomplete subject:
+:doc:`/auto_examples/06_parallel_runs/plot_02_when_a_subject_fails`.
 
 Per-subject wall-clock cap: ``subject_timeout_sec`` (ProcessPool only).
 Expiry raises ``SubjectTimeoutError``.
-See :doc:`/auto_examples/06_parallel_runs/plot_08_wall_clock`.
 
 In-run retries of flaky subjects: ``auto_retry_rounds`` (ProcessPool).
 After a fatal ``MemoryError``, ``oom_backoff=True`` reduces ``workers``.
@@ -110,9 +110,8 @@ Resume and checkpoints
 ----------------------
 
 Attach a :class:`~habit.execution.CheckpointStore` so a second run skips
-subjects already recorded as success. The texture page keys that store
-with the extractor fingerprint:
-:doc:`/auto_examples/06_parallel_runs/plot_04_resume`.
+subjects already recorded as success:
+:doc:`/auto_examples/06_parallel_runs/plot_02_when_a_subject_fails`.
 
 Recorded **failures** stay skipped unless ``retry_failed_subjects=True``.
 Force a few IDs with ``force_rerun_subjects``.

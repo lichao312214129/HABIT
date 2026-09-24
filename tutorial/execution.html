@@ -70,8 +70,22 @@
 <li class="toctree-l2"><a class="reference internal" href="installation.html#problems">Problems?</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#load-the-images">Load the images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#build-the-analysis-step-by-step">Build the analysis step by step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#how-many-habitats-and-why">How many habitats, and why</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#habitat-maps">Habitat maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#the-feature-table">The feature table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#what-those-numbers-look-like-for-one-subject">What those numbers look like for one subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#reuse-the-model-on-a-new-patient">Reuse the model on a new patient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html">Quickstart: YAML</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html#write-the-file-and-run-it">Write the file and run it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html#look-at-one-habitat-map">Look at one habitat map</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -133,15 +147,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_serial.html">Running a cohort serially</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_skip_failed.html">Skipping a subject that fails</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_03_stop_on_failure.html">Stopping at the first failure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_04_resume.html">Resuming finished subjects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_07_isolated.html">One fresh process per subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_08_wall_clock.html">Per-subject wall-clock limit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_09_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_run_a_cohort.html">Running a cohort in parallel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_when_a_subject_fails.html">When a subject fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_03_several_gpus.html">Running a cohort on several GPUs</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
@@ -764,10 +772,11 @@ process, then <code class="docutils literal notranslate"><span class="pre">backe
 Subject versus cohort preprocessing of that texture, and the equivalent
 <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code>, is
 <a class="reference internal" href="../auto_examples/02_voxel/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a>.
-Serial scheduling of the same chain is the first gallery page.</p>
+Serial versus pooled runs of one study, with timings, are on the first
+gallery page.</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../auto_examples/02_voxel/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a></p></li>
-<li><p><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_serial.html"><span class="doc">Running a cohort serially</span></a></p></li>
+<li><p><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_run_a_cohort.html"><span class="doc">Running a cohort in parallel</span></a></p></li>
 </ul>
 </section>
 <section id="failure-policy">
@@ -783,22 +792,18 @@ and keep going</p></li>
 if</strong> the backend used <code class="docutils literal notranslate"><span class="pre">continue</span></code>. Recipes / CLI pass
 <code class="docutils literal notranslate"><span class="pre">raise_on_failure=False</span></code> so a partial cohort can finish. Calling
 <code class="docutils literal notranslate"><span class="pre">backend.map</span></code> directly leaves the exception on <code class="docutils literal notranslate"><span class="pre">slot.error</span></code>.</p>
-<ul class="simple">
-<li><p>Continue: <a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_skip_failed.html"><span class="doc">Skipping a subject that fails</span></a></p></li>
-<li><p>Stop at the first subject: <a class="reference internal" href="../auto_examples/06_parallel_runs/plot_03_stop_on_failure.html"><span class="doc">Stopping at the first failure</span></a></p></li>
-</ul>
+<p>Both, on a study with one incomplete subject:
+<a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_when_a_subject_fails.html"><span class="doc">When a subject fails</span></a>.</p>
 <p>Per-subject wall-clock cap: <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> (ProcessPool only).
-Expiry raises <code class="docutils literal notranslate"><span class="pre">SubjectTimeoutError</span></code>.
-See <a class="reference internal" href="../auto_examples/06_parallel_runs/plot_08_wall_clock.html"><span class="doc">Per-subject wall-clock limit</span></a>.</p>
+Expiry raises <code class="docutils literal notranslate"><span class="pre">SubjectTimeoutError</span></code>.</p>
 <p>In-run retries of flaky subjects: <code class="docutils literal notranslate"><span class="pre">auto_retry_rounds</span></code> (ProcessPool).
 After a fatal <code class="docutils literal notranslate"><span class="pre">MemoryError</span></code>, <code class="docutils literal notranslate"><span class="pre">oom_backoff=True</span></code> reduces <code class="docutils literal notranslate"><span class="pre">workers</span></code>.</p>
 </section>
 <section id="resume-and-checkpoints">
 <h2>Resume and checkpoints<a class="headerlink" href="#resume-and-checkpoints" title="Link to this heading"></a></h2>
 <p>Attach a <a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> so a second run skips
-subjects already recorded as success. The texture page keys that store
-with the extractor fingerprint:
-<a class="reference internal" href="../auto_examples/06_parallel_runs/plot_04_resume.html"><span class="doc">Resuming finished subjects</span></a>.</p>
+subjects already recorded as success:
+<a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_when_a_subject_fails.html"><span class="doc">When a subject fails</span></a>.</p>
 <p>Recorded <strong>failures</strong> stay skipped unless <code class="docutils literal notranslate"><span class="pre">retry_failed_subjects=True</span></code>.
 Force a few IDs with <code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code>.</p>
 <p>On the habitat recipe / CLI path, cache keys embed the spec fingerprint.

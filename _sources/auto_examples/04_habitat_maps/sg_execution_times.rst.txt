@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:40.339** total execution time for 14 files **from auto_examples\04_habitat_maps**:
+**01:53.421** total execution time for 14 files **from auto_examples\04_habitat_maps**:
 
 .. container::
 
@@ -32,19 +32,19 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py` (``plot_05_match_labels.py``)
-     - 00:40.339
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_01_two_step.py` (``plot_01_two_step.py``)
-     - 00:00.000
+     - 01:40.391
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_02_inside_each_subject.py` (``plot_02_inside_each_subject.py``)
-     - 00:00.000
+     - 00:07.867
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_pool_voxels.py` (``plot_03_pool_voxels.py``)
-     - 00:00.000
+     - 00:05.163
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py` (``plot_04_apply_saved_model.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py` (``plot_05_match_labels.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_06_voxel_intensities.py` (``plot_06_voxel_intensities.py``)

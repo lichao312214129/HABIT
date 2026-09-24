@@ -70,8 +70,22 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="plot_quickstart_python.html">Quickstart: Python API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_quickstart_python.html">Quickstart: Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#load-the-images">Load the images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#build-the-analysis-step-by-step">Build the analysis step by step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#how-many-habitats-and-why">How many habitats, and why</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#habitat-maps">Habitat maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#the-feature-table">The feature table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#what-those-numbers-look-like-for-one-subject">What those numbers look like for one subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#reuse-the-model-on-a-new-patient">Reuse the model on a new patient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plot_quickstart_yaml.html">Quickstart: YAML</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_yaml.html#write-the-file-and-run-it">Write the file and run it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_yaml.html#look-at-one-habitat-map">Look at one habitat map</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -133,15 +147,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_serial.html">Running a cohort serially</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_skip_failed.html">Skipping a subject that fails</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_03_stop_on_failure.html">Stopping at the first failure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_04_resume.html">Resuming finished subjects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_07_isolated.html">One fresh process per subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_08_wall_clock.html">Per-subject wall-clock limit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_09_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_run_a_cohort.html">Running a cohort in parallel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_when_a_subject_fails.html">When a subject fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_03_several_gpus.html">Running a cohort on several GPUs</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
@@ -674,12 +682,12 @@
 <p>First habitat map from the official demo pack. Install HABIT first
 (<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a>). The next page loads the same kind of
 analysis from a v1 YAML document. CLI twin: <a class="reference internal" href="../tutorial/quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Install first (/tutorial/installation). Construct a cohort, a HabitatSpec, and call habit.recipes. No YAML."><img alt="" src="../_images/sphx_glr_plot_quickstart_python_thumb.png" />
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="A short list of stages declares the analysis; one call fits it on a cohort. Everything after that is looking at the result: the habitat map, the per-habitat features a paper would report, and reusing the fitted model on a new patient. No YAML."><img alt="" src="../_images/sphx_glr_plot_quickstart_python_thumb.png" />
 <p><a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a></p>
   <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="habit.recipes.run_from_yaml is the Python call behind habit get-habitat --config. The document below is a v1 file: version, workflow, spec (the stage list), data, and policy. Paths in data.source are used as written."><img alt="" src="../_images/sphx_glr_plot_quickstart_yaml_thumb.png" />
-<p><a class="reference internal" href="plot_quickstart_yaml.html"><span class="doc">Load a habitat analysis from YAML</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Load a habitat analysis from YAML</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The same two-step analysis as plot_quickstart_python, written as a YAML file. habit get-habitat --config &lt;file&gt; runs it from the shell; habit.recipes.run_from_yaml is the Python call behind that command. The spec.stages list is the stage list of the Python page, one entry per stage."><img alt="" src="../_images/sphx_glr_plot_quickstart_yaml_thumb.png" />
+<p><a class="reference internal" href="plot_quickstart_yaml.html"><span class="doc">Quickstart: YAML</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Quickstart: YAML</div>
 </div></div><div class="toctree-wrapper compound">
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>

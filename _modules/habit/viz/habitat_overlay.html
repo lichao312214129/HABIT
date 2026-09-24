@@ -425,7 +425,22 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#problems">Problems?</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html#load-the-images">Load the images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html#build-the-analysis-step-by-step">Build the analysis step by step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html#how-many-habitats-and-why">How many habitats, and why</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html#habitat-maps">Habitat maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html#the-feature-table">The feature table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html#what-those-numbers-look-like-for-one-subject">What those numbers look like for one subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html#reuse-the-model-on-a-new-patient">Reuse the model on a new patient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">Quickstart: YAML</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_yaml.html#write-the-file-and-run-it">Write the file and run it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_yaml.html#look-at-one-habitat-map">Look at one habitat map</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -448,9 +463,11 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_expression.html">Expression voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -462,7 +479,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
@@ -485,20 +502,18 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_01_serial.html">Running a cohort serially</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_02_skip_failed.html">Skipping a subject that fails</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_03_stop_on_failure.html">Stopping at the first failure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_04_resume.html">Resuming finished subjects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_01_run_a_cohort.html">Running a cohort in parallel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_02_when_a_subject_fails.html">When a subject fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/06_parallel_runs/plot_03_several_gpus.html">Running a cohort on several GPUs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/07_habitat_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/07_habitat_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/07_habitat_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/07_habitat_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/07_habitat_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/07_habitat_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
 </ul>
 </li>
 </ul>
@@ -850,6 +865,24 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/habitat_matching.html">Matching habitat labels across fits and subjects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#when-matching-is-needed">When matching is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#choosing-a-method">Choosing a method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#what-describes-a-habitat">What describes a habitat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#distance-metrics">Distance metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#different-habitat-counts">Different habitat counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#assumptions-and-limitations">Assumptions and limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration/index.html">CLI and YAML</a><ul>
@@ -1208,16 +1241,18 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Map each habitat ID to a stable RGB triple.</span>
 
-<span class="sd">    Colour index follows the sorted-ID order so every panel that shares</span>
-<span class="sd">    the same ID list paints habitat ``k`` with the same colour (a slice</span>
-<span class="sd">    that happens to miss an ID does not re-index the palette).</span>
+<span class="sd">    With the default palette the colour is keyed by the ID itself: habitat</span>
+<span class="sd">    ``k`` takes bank entry ``k - 1`` whichever other IDs are present. A</span>
+<span class="sd">    map that has no habitat 1 therefore still paints habitat 2 with the</span>
+<span class="sd">    second colour, so two subjects labelled by one cohort model share</span>
+<span class="sd">    colours. Maps whose IDs are ``1..K`` get the same colours as before.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        habitat_ids: Positive integer habitat IDs (already unique).</span>
 <span class="sd">        colors: Optional RGB triples. When omitted, HABIT assigns one</span>
 <span class="sd">            distinct colour per ID from the Radiology-safe bank (no</span>
-<span class="sd">            silent 8-colour wrap). A caller-supplied list still cycles</span>
-<span class="sd">            if it is shorter than the ID list.</span>
+<span class="sd">            silent 8-colour wrap). A caller-supplied list is aligned with</span>
+<span class="sd">            the sorted ``habitat_ids`` and cycles if it is shorter.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``habitat_id → (r, g, b)`` in ``[0, 1]``.</span>
@@ -1226,6 +1261,9 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ordered</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">ordered</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">bank_by_id</span> <span class="o">=</span> <span class="n">habitat_rgb_colors</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ordered</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">habitat_id</span><span class="p">:</span> <span class="n">bank_by_id</span><span class="p">[</span><span class="n">habitat_id</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">ordered</span><span class="p">}</span>
         <span class="n">face</span> <span class="o">=</span> <span class="n">habitat_rgb_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">bank</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
