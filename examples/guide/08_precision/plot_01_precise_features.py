@@ -8,15 +8,19 @@ those robust features. This is the Prior et al. precision screen (*Radiol Artif 
 
 Evaluating stability under perturbation
 ---------------------------------------
-The core scientific value of Precise features is **stability under perturbation**:
-when image acquisition has minor variations (simulated retest: noise, shift, rotation),
-habitats defined on all texture features may undergo unpredictable partition shifts.
-Filtering features through repeatability and reproducibility ICC panels yields
-a robust whitelist that produces significantly more stable habitat maps (higher Dice
-and ARI between original and perturbed scans).
+The scientific claim of precise features is **stability under the same
+simulated retest the method was designed for** (Appendix S2: Gaussian
+noise, sub-voxel translation, small in-plane rotation). This page clusters
+habitats twice on one subject -- once with **all** texture features, once
+with the **precise** whitelist -- and scores original vs perturbed maps
+with :func:`~habit.precision.habitat_stability` (mean Dice) plus the
+voxel-wise disagreement panel of
+:func:`~habit.viz.plot_habitat_label_compare`. Read the printed numbers:
+precise is only "more stable" on this demo when those scores improve.
 
-In addition, an elastic ROI edge perturbation (MONAI ``bspline_deform``) is demonstrated
-to inspect contour and anatomy deformations.
+An optional MONAI ``bspline_deform`` ROI edge perturbation is shown later
+to inspect contour deformations; that is separate from the Appendix S2
+retest used for the habitat stability comparison.
 """
 
 # %%
@@ -34,17 +38,13 @@ from matplotlib.patches import Patch
 
 from habit.contracts import Cohort, Subject, cohort_from_directory
 from habit.datasets import fetch_demo
-from habit.kernels.habitat_label_match import (
-    adjusted_rand_index,
-    habitat_dice_from_mapping,
-    match_labels_by_overlap,
-    present_habitat_ids,
-    remap_label_array,
-)
+from habit.kernels.habitat_label_match import adjusted_rand_index
 from habit.kernels.image_perturbation import binary_mask_dice
 from habit.precision import (
     ImagePerturbationRegistry,
     aggregate_panels,
+    align_habitat_map,
+    habitat_stability,
     identify_precise_features,
     perturb_image,
     precision_panel,
@@ -168,8 +168,10 @@ for experiment, fname, title in (
     plt.show()
 
 # %%
-# Cluster habitats using all texture features vs precise whitelist.
-# Compare the stability of habitats between the original image and perturbed image.
+# Same subject, same Appendix S2 perturbation, same k / seed: only the
+# feature set changes. Without precise, habitats can shift under the
+# retest; with the precise whitelist they should agree more -- check the
+# printed mean Dice and labelled-voxel disagreement before claiming that.
 texture_params = {
     "imageType": {"Original": {}},
     "featureClass": {k: list(v) for k, v in FEATURE_CLASSES.items()},
@@ -179,6 +181,7 @@ extractor_spec = Spec(
     "voxel_radiomics",
     {"modalities": list(MODALITIES), "kernel_radius": 3, "params": texture_params},
 )
+# Same fitter on both arms (n_habitats / n_init) so only the feature set differs.
 fitter_spec = Spec(
     "kmeans",
     {"n_habitats": 3, "n_init": 3},
@@ -192,7 +195,19 @@ subject_pert = Subject(
 demo = Cohort(subjects=(subject,))
 demo_pert = Cohort(subjects=(subject_pert,))
 
-# --- Experiment A: All texture features under perturbation ---
+
+def _labelled_disagreement(reference_map, aligned_map) -> float:
+    """Fraction of labelled voxels whose ids differ after overlap matching."""
+    ref = np.asarray(reference_map.label_array)
+    mov = np.asarray(aligned_map.label_array)
+    labelled = (ref > 0) | (mov > 0)
+    if not np.any(labelled):
+        return float("nan")
+    return float(np.mean(ref[labelled] != mov[labelled]))
+
+
+# --- Without precise: all texture features ---
+# No whitelist preprocessor -- every extracted texture column enters clustering.
 spec_all = HabitatSpec(
     name="all_texture_one_step",
     voxel_feature_extractor=extractor_spec,
@@ -204,39 +219,52 @@ spec_all = HabitatSpec(
 )
 result_all_orig = Study(spec_all).fit_predict(demo)
 result_all_pert = Study(spec_all).fit_predict(demo_pert)
-
-ref_all = np.asarray(result_all_orig.habitat_maps[0].label_array)
-mov_all = np.asarray(result_all_pert.habitat_maps[0].label_array)
-map_all = match_labels_by_overlap(ref_all, mov_all)
-aligned_all = remap_label_array(
-    mov_all, map_all, reserved_ids=[int(v) for v in present_habitat_ids(ref_all)]
+map_all_orig = result_all_orig.habitat_maps[0]
+map_all_pert = result_all_pert.habitat_maps[0]
+# habitat_stability pairs ids by voxel overlap (Prior Hungarian step) then Dice.
+stab_all = habitat_stability(map_all_orig, [map_all_pert])
+mean_dice_all = float(stab_all["dice"].mean())
+ari_all = float(
+    adjusted_rand_index(
+        np.asarray(map_all_orig.label_array),
+        np.asarray(map_all_pert.label_array),
+    )
 )
-dice_all = [float(d) for _, _, d, _, _ in habitat_dice_from_mapping(ref_all, mov_all, map_all)]
-mean_dice_all = float(np.mean(dice_all)) if dice_all else float("nan")
-ari_all = float(adjusted_rand_index(ref_all, mov_all))
-print(f"All texture features under perturbation: mean Dice={mean_dice_all:.3f}, ARI={ari_all:.3f}")
+# force=True: independent one_step runs share model_id by subject+spec, not image content.
+aligned_all = align_habitat_map(map_all_orig, map_all_pert, force=True)
+disagree_all = _labelled_disagreement(map_all_orig, aligned_all)
+print(
+    "Without precise (all texture features): "
+    f"mean Dice={mean_dice_all:.3f}, "
+    f"labelled-voxel disagreement={disagree_all:.3f}, "
+    f"ARI={ari_all:.3f}"
+)
 
-# Label comparison for all texture features: Original scan vs Perturbed scan
-# (zoomed to the habitat bounding box).
+# Original vs perturbed habitats + disagreement panel (same anatomy image).
 fig_cmp_all = plot_habitat_label_compare(
     image,
-    result_all_orig.habitat_maps[0],
+    map_all_orig,
     aligned_all,
     titles=(
-        "All features: original image",
-        f"All features: perturbed image (Dice={mean_dice_all:.3f})",
+        "Without precise: original",
+        f"Without precise: perturbed (mean Dice={mean_dice_all:.3f})",
     ),
     align_labels=False,
+    show_disagreement=True,
     crop_to="labels",
 )
 fig_cmp_all.savefig("out/precise_features_all_orig_vs_pert.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# --- Experiment B: Precise whitelist under perturbation ---
+# --- With precise: whitelist only (precise on) ---
 if not kept:
     print("No feature passed every experiment; skip precise habitats")
+    mean_dice_p = float("nan")
+    disagree_p = float("nan")
+    ari_p = float("nan")
 else:
+    # precise.on: insert the ICC whitelist before minmax; fitter/seed unchanged.
     whitelist = precise.preprocessor()
     spec_precise = HabitatSpec(
         name="precise_one_step",
@@ -249,58 +277,98 @@ else:
     )
     result_precise_orig = Study(spec_precise).fit_predict(demo)
     result_precise_pert = Study(spec_precise).fit_predict(demo_pert)
-
-    ref_p = np.asarray(result_precise_orig.habitat_maps[0].label_array)
-    mov_p = np.asarray(result_precise_pert.habitat_maps[0].label_array)
-    map_p = match_labels_by_overlap(ref_p, mov_p)
-    aligned_p = remap_label_array(
-        mov_p, map_p, reserved_ids=[int(v) for v in present_habitat_ids(ref_p)]
+    map_p_orig = result_precise_orig.habitat_maps[0]
+    map_p_pert = result_precise_pert.habitat_maps[0]
+    stab_p = habitat_stability(map_p_orig, [map_p_pert])
+    mean_dice_p = float(stab_p["dice"].mean())
+    ari_p = float(
+        adjusted_rand_index(
+            np.asarray(map_p_orig.label_array),
+            np.asarray(map_p_pert.label_array),
+        )
     )
-    dice_p = [float(d) for _, _, d, _, _ in habitat_dice_from_mapping(ref_p, mov_p, map_p)]
-    mean_dice_p = float(np.mean(dice_p)) if dice_p else float("nan")
-    ari_p = float(adjusted_rand_index(ref_p, mov_p))
-    print(f"Precise whitelist under perturbation: mean Dice={mean_dice_p:.3f}, ARI={ari_p:.3f}")
+    aligned_p = align_habitat_map(map_p_orig, map_p_pert, force=True)
+    disagree_p = _labelled_disagreement(map_p_orig, aligned_p)
+    print(
+        "With precise (whitelist only): "
+        f"mean Dice={mean_dice_p:.3f}, "
+        f"labelled-voxel disagreement={disagree_p:.3f}, "
+        f"ARI={ari_p:.3f}"
+    )
 
-    # Label comparison for precise features: Original scan vs Perturbed scan
     fig_cmp_p = plot_habitat_label_compare(
         image,
-        result_precise_orig.habitat_maps[0],
+        map_p_orig,
         aligned_p,
         titles=(
-            "Precise whitelist: original image",
-            f"Precise whitelist: perturbed image (Dice={mean_dice_p:.3f})",
+            "With precise: original",
+            f"With precise: perturbed (mean Dice={mean_dice_p:.3f})",
         ),
         align_labels=False,
+        show_disagreement=True,
+        crop_to="labels",
     )
     fig_cmp_p.savefig(
         "out/precise_features_precise_orig_vs_pert.png", dpi=150, bbox_inches="tight"
     )
     plt.show()
 
-    # Quantitative stability summary comparison table and bar chart
     stability = pd.DataFrame(
         [
-            {"feature_set": "All texture features", "mean_dice": mean_dice_all, "ari": ari_all},
-            {"feature_set": "Precise whitelist only", "mean_dice": mean_dice_p, "ari": ari_p},
+            {
+                "feature_set": "Without precise (all texture)",
+                "mean_dice": mean_dice_all,
+                "disagreement": disagree_all,
+                "ari": ari_all,
+            },
+            {
+                "feature_set": "With precise (whitelist)",
+                "mean_dice": mean_dice_p,
+                "disagreement": disagree_p,
+                "ari": ari_p,
+            },
         ]
     )
-    print("Stability under perturbation (Original vs Perturbed):")
+    print("Stability under Appendix S2 perturbation (original vs perturbed):")
     print(stability.to_string(index=False))
+    if mean_dice_p > mean_dice_all and disagree_p < disagree_all:
+        print(
+            "On this demo subject, precise lowers disagreement "
+            f"({disagree_all:.3f} -> {disagree_p:.3f}) and raises mean Dice "
+            f"({mean_dice_all:.3f} -> {mean_dice_p:.3f})."
+        )
+    else:
+        print(
+            "On this demo subject, precise did not improve both scores; "
+            "report the measured mean Dice and disagreement as printed above."
+        )
 
     with use_style("radiology"):
         fig_stab, ax_s = plt.subplots(figsize=(5.5, 3.8), constrained_layout=True)
         x_indices = np.arange(2)
         bar_width = 0.35
         dices = [mean_dice_all, mean_dice_p]
-        aris = [ari_all, ari_p]
-        ax_s.bar(x_indices - bar_width / 2, dices, bar_width, label="Mean Dice", color="#0072B2")
-        ax_s.bar(x_indices + bar_width / 2, aris, bar_width, label="Adjusted Rand Index", color="#E69F00")
+        disagrees = [disagree_all, disagree_p]
+        ax_s.bar(
+            x_indices - bar_width / 2,
+            dices,
+            bar_width,
+            label="Mean Dice",
+            color="#0072B2",
+        )
+        ax_s.bar(
+            x_indices + bar_width / 2,
+            disagrees,
+            bar_width,
+            label="Labelled-voxel disagreement",
+            color="#E69F00",
+        )
         ax_s.set_xticks(x_indices)
-        ax_s.set_xticklabels(["All features", "Precise only"])
+        ax_s.set_xticklabels(["Without precise", "With precise"])
         ax_s.set_ylim(0.0, 1.05)
-        ax_s.set_ylabel("Stability score")
-        ax_s.set_title(sanitize_label("Habitat stability under image perturbation"))
-        ax_s.legend(loc="lower right", frameon=True)
+        ax_s.set_ylabel("Score")
+        ax_s.set_title(sanitize_label("Habitat stability under Appendix S2 perturbation"))
+        ax_s.legend(loc="best", frameon=True)
     fig_stab.savefig("out/precise_features_stability_bar.png", dpi=150, bbox_inches="tight")
     plt.show()
     stability
