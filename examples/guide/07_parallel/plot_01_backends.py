@@ -5,7 +5,7 @@ Running the same study on each backend
 The study is the two-step list from
 :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`, with the
 habitat count fixed at 3 so this page can refit it on every backend.
-Only ``backend=`` changes. Habitat labels must match.
+Only ``backend=`` / ``RunPolicy`` settings change. Habitat labels must match.
 
 =========================================  ==========================================
 Where the work runs                        What to pass
@@ -91,8 +91,9 @@ if __name__ == "__main__":
 # %%
 # Process backend, persistent workers
 # -----------------------------------
-# ``workers=2`` is one process per subject. ``reuse_workers()`` keeps
-# those processes up; the first call pays the spawn cost.
+# ``workers=2`` asks for one process per subject.
+# ``reuse_workers()`` keeps those interpreters warm after spawn;
+# the first call still pays the Windows spawn + import cost.
 if __name__ == "__main__":
     persistent = RunPolicy(workers=2, backend="process", parallel_mode="persistent")
     pool = backend_from_policy(persistent)
@@ -101,6 +102,7 @@ if __name__ == "__main__":
         start = time.perf_counter()
         pooled = study.fit_predict(cohort, backend=pool)
         timings["process, persistent"] = time.perf_counter() - start
+    print(f"process, persistent: {timings['process, persistent']:.1f} s")
     for left, right in zip(serial.habitat_maps, pooled.habitat_maps):
         print(
             f"{left.subject_id}: serial == persistent: "
@@ -119,24 +121,44 @@ if __name__ == "__main__":
     start = time.perf_counter()
     isolated_result = study.fit_predict(cohort, backend=isolated)
     timings["process, isolated"] = time.perf_counter() - start
+    print(f"process, isolated: {timings['process, isolated']:.1f} s")
     for left, right in zip(serial.habitat_maps, isolated_result.habitat_maps):
         print(
             f"{left.subject_id}: serial == isolated: "
             f"{np.array_equal(left.label_array, right.label_array)}"
         )
 
+# %%
+# Why serial can win on this tiny cohort
+# --------------------------------------
+# This demo uses only two subjects and a small fixed ``kmeans`` fit.
+# On Windows the process backend uses spawn: each worker starts a new
+# interpreter and imports HABIT. That start-up is often larger than the
+# fit itself. Isolated mode pays spawn again for every subject.
+# On a single GPU, ``cap_workers_to_gpu_pool=True`` leaves one worker,
+# so "parallel" is not actually parallel.
+#
+# The bar below is a **cost demonstration**, not a claim that serial is
+# always faster. The scientific definition is unchanged: same
+# ``HabitatSpec``, same habitat labels. The timing gap is overhead.
+# Process workers win when there are many subjects, each subject is
+# expensive, and ``workers`` stays greater than 1. See the recorded
+# multi-GPU table further down.
+if __name__ == "__main__":
+    for name, seconds in timings.items():
+        print(f"{name}: {seconds:.1f} s")
     Path("out").mkdir(exist_ok=True)
     fig, ax = plt.subplots(figsize=(6.8, 2.8), constrained_layout=True)
     ax.barh(list(timings), list(timings.values()), color="#4C78A8")
     ax.invert_yaxis()
     ax.set_xlabel(f"wall-clock seconds ({len(cohort)} subjects)")
-    ax.set_title("serial vs process pool vs isolated")
+    ax.set_title("serial vs process pool vs isolated (tiny cohort)")
     fig.savefig("out/backends_timing.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 # %%
-# Several GPUs
-# ------------
+# Cap workers to the GPU pool
+# ---------------------------
 # Still ``backend="process"``. ``cap_workers_to_gpu_pool=True`` clamps
 # ``workers`` to the visible cards, one worker per card. Building the
 # policy does not launch a job. Set ``CUDA_VISIBLE_DEVICES`` before
@@ -215,12 +237,14 @@ if __name__ == "__main__":
 #    Stars are warm persistent pools. This page does not regenerate it.
 
 # %%
-# When one subject cannot be read
-# -------------------------------
-# ``on_subject_failure`` is a policy on the backend you already chose.
-# ``"continue"`` (the default) keeps the subjects that worked.
-# ``"fail_fast"`` stops at the first failure. The fourth demo subject
-# is copied without its portal-venous series, so ``extract`` raises.
+# Fault tolerance: continue vs fail_fast
+# --------------------------------------
+# ``on_subject_failure`` is a ``RunPolicy`` / backend setting, not a
+# separate backend. ``"continue"`` (the default) records the failed
+# subject and still returns habitat maps for the subjects that worked.
+# ``"fail_fast"`` raises at the first failure. Below, the fourth demo
+# subject is copied without its portal-venous series, so ``extract``
+# cannot find ``PVP``.
 if __name__ == "__main__":
     sources = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:4]
     broken = dataclasses.replace(
@@ -253,12 +277,12 @@ if __name__ == "__main__":
     plt.show()
 
 # %%
-# Resume, and a per-subject time limit
-# ------------------------------------
-# A checkpoint stores finished subjects. The second call reads them
-# back. ``subject_timeout_sec`` is enforced only by the process
-# backend; the policy below is the one you would pass to
-# ``backend_from_policy`` on a long cohort.
+# Checkpoint resume
+# -----------------
+# ``CheckpointStore`` writes finished subjects to disk. The first call
+# runs the study and stores maps; the second call hits those checkpoints
+# and finishes faster. Resume skips subjects already stored — it does
+# **not** change habitat labels.
 if __name__ == "__main__":
     store = CheckpointStore(Path(tempfile.mkdtemp(prefix="habit_ckpt_")))
     for attempt in ("first run", "rerun"):
@@ -266,6 +290,14 @@ if __name__ == "__main__":
         study.fit_predict(cohort, checkpoint=store)
         print(f"{attempt}: {time.perf_counter() - start:.1f} s")
 
+# %%
+# Per-subject timeout
+# -------------------
+# ``subject_timeout_sec`` is a ``RunPolicy`` field. It is enforced only
+# by the process backend (serial has no child to kill). The print below
+# shows the policy object you would pass to ``backend_from_policy`` on a
+# long cohort; this page does not wait for a real timeout.
+if __name__ == "__main__":
     timeout = RunPolicy(
         workers=2,
         backend="process",
