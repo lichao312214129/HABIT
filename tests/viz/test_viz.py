@@ -99,10 +99,16 @@ def test_unknown_style_raises_with_hint() -> None:
 
 
 def test_style_figsize_matches_journal_columns() -> None:
-    """89 mm single-column is the Radiology/Nature width (3.5 inches)."""
-    spec = get_style("radiology")
-    width_in, _ = spec.figsize(columns=1)
-    assert abs(width_in - 89.0 / 25.4) < 1e-6
+    """Widths follow the cited author guides (see ``habit.viz.style``).
+
+    RSNA Radiology: imaging panels 3-7 inches wide. Nature: 89 / 183 mm.
+    """
+    radiology = get_style("radiology")
+    assert abs(radiology.figsize(columns=1)[0] - 3.0) < 1e-6
+    assert abs(radiology.figsize(columns=2)[0] - 7.0) < 1e-6
+    nature = get_style("nature")
+    assert abs(nature.figsize(columns=1)[0] - 89.0 / 25.4) < 1e-6
+    assert abs(nature.figsize(columns=2)[0] - 183.0 / 25.4) < 1e-6
 
 
 # ---------------------------------------------------------------------------

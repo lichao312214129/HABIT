@@ -21,17 +21,24 @@ import pytest
 
 from habit.kernels.habitat_label_match import (
     adjusted_rand_index,
-    align_label_array,
     fit_feature_match_scale,
     habitat_dice_from_mapping,
     habitat_intensity_centroids,
-    match_label_ids,
-    match_labels_by_centroid,
-    match_labels_by_features,
     match_labels_by_overlap,
+    match_rows_to_prototypes,
     overlap_count_table,
+    present_habitat_ids,
     remap_label_array,
 )
+
+
+def _align(reference: np.ndarray, moving: np.ndarray) -> np.ndarray:
+    """Overlap pairing + collision-safe remap (what align_habitat_map does)."""
+    return remap_label_array(
+        moving,
+        match_labels_by_overlap(reference, moving),
+        reserved_ids=present_habitat_ids(reference).tolist(),
+    )
 
 
 def _two_block_labels() -> np.ndarray:
@@ -58,21 +65,6 @@ def test_overlap_recovers_swapped_ids() -> None:
     assert mapping == {1: 2, 2: 1}
 
 
-def test_match_label_ids_centroid_uses_mean_intensity() -> None:
-    """Mean intensity, not overlap, drives the Hungarian pairing."""
-    reference = _two_block_labels()
-    moving = _swap_ids(reference)
-    image = np.zeros(reference.shape, dtype=np.float64)
-    image[reference == 1] = 1.0
-    image[reference == 2] = 10.0
-    mapping = match_label_ids(
-        reference, moving, method="centroid", image=image
-    )
-    assert mapping == {1: 2, 2: 1}
-    aligned = align_label_array(reference, moving, method="centroid", image=image)
-    assert np.array_equal(aligned, reference)
-
-
 def _three_block_labels() -> np.ndarray:
     """Habitats 1 / 2 / 3 as three adjacent 2x2x2 blocks on a 6x4x4 grid."""
     labels = np.zeros((6, 4, 4), dtype=np.int32)
@@ -97,36 +89,13 @@ def test_overlap_recovers_habitat_2_3_swap_on_moving_only() -> None:
     moving = _swap_ids_2_3(reference)
     mapping = match_labels_by_overlap(reference, moving)
     assert mapping == {1: 1, 2: 3, 3: 2}
-    aligned = align_label_array(reference, moving, method="overlap")
+    aligned = _align(reference, moving)
     assert np.array_equal(aligned, reference)
     assert np.array_equal(reference, _three_block_labels())
     raw_disagree = (moving != reference) & ((moving > 0) | (reference > 0))
     aligned_disagree = (aligned != reference) & ((aligned > 0) | (reference > 0))
     assert int(np.count_nonzero(raw_disagree)) > 0
     assert int(np.count_nonzero(aligned_disagree)) == 0
-
-
-def test_centroid_recovers_swapped_ids() -> None:
-    """Distinct intensity centroids recover a swapped labelling."""
-    reference = _two_block_labels()
-    image = np.zeros((4, 4, 4), dtype=np.float64)
-    image[0:2, 0:2, 0:2] = 1.0
-    image[2:4, 0:2, 0:2] = 10.0
-    aligned = align_label_array(
-        reference, _swap_ids(reference), image=image, method="centroid"
-    )
-    assert np.array_equal(aligned, reference)
-
-
-def test_explicit_centroids_swap() -> None:
-    """Cluster-centre matrices (row i = habitat i+1) drive the assignment."""
-    mapping = match_labels_by_centroid(
-        np.array([1, 2]),
-        np.array([[0.0], [10.0]]),
-        np.array([1, 2]),
-        np.array([[10.0], [0.0]]),
-    )
-    assert mapping == {1: 2, 2: 1}
 
 
 def test_remap_swap_is_collision_safe() -> None:
@@ -162,7 +131,7 @@ def test_align_extra_moving_habitat_gets_fresh_id() -> None:
     moving[0:2, 0:2, 0:2] = 1
     moving[2:4, 0:2, 0:2] = 2
     moving[0:2, 2:4, 0:2] = 3
-    aligned = align_label_array(reference, moving, method="overlap")
+    aligned = _align(reference, moving)
     # Overlap pairs moving 1->1 and 2->2; leftover 3 becomes 3
     # (max(reference ids)=2, then +1). Ids 1 and 2 stay spatially distinct.
     assert np.all(aligned[moving == 1] == 1)
@@ -180,7 +149,7 @@ def test_align_leftover_original_id_does_not_merge() -> None:
     moving[0:2, 2:4, 2:4] = 1
     moving[0:2, 0:2, 0:2] = 2
     moving[2:4, 0:2, 0:2] = 3
-    aligned = align_label_array(reference, moving, method="overlap")
+    aligned = _align(reference, moving)
     assert np.all(aligned[moving == 2] == 1)
     assert np.all(aligned[moving == 3] == 2)
     leftover_id = int(aligned[moving == 1][0])
@@ -190,15 +159,9 @@ def test_align_leftover_original_id_does_not_merge() -> None:
 
 
 def test_align_identity_when_already_matched() -> None:
-    """Already-aligned maps stay unchanged under both matchers."""
+    """Already-aligned maps stay unchanged."""
     reference = _two_block_labels()
-    image = np.zeros((4, 4, 4), dtype=np.float64)
-    image[reference == 1] = 1.0
-    image[reference == 2] = 10.0
-    by_centroid = align_label_array(reference, reference, image=image)
-    by_overlap = align_label_array(reference, reference, method="overlap")
-    assert np.array_equal(by_centroid, reference)
-    assert np.array_equal(by_overlap, reference)
+    assert np.array_equal(_align(reference, reference), reference)
 
 
 def test_intensity_centroids_are_means() -> None:
@@ -213,113 +176,14 @@ def test_intensity_centroids_are_means() -> None:
     assert centroids[1, 0] == pytest.approx(8.0)
 
 
-def test_unknown_method_raises() -> None:
-    """Only centroid, features, and overlap are accepted."""
-    labels = _two_block_labels()
-    with pytest.raises(ValueError, match="method"):
-        align_label_array(labels, labels, method="hungarian")
-
-
-def test_feature_match_zscore_recovers_energy_shift() -> None:
-    """Unscaled habitat means + cohort z-score survive a global Energy shift.
-
-    Patient A: habitat 1 = (8e6, 0.12), habitat 2 = (2e7, 0.03).
-    Patient B is the same pair with Energy += 1.5e7 and ids swapped.
-    A global Energy offset makes raw Euclidean costs nearly tied
-    (1-D translation invariance). After column z-score, Coarseness
-    has equal weight and the swapped ids are recovered uniquely.
-    """
-    reference_ids = np.array([1, 2], dtype=np.int64)
-    moving_ids = np.array([1, 2], dtype=np.int64)
-    # Rows: habitat 1, habitat 2. Columns: Energy, Coarseness.
-    reference = np.array([[8.0e6, 0.12], [2.0e7, 0.03]], dtype=np.float64)
-    # Moving id 1 is the bright habitat, id 2 is the dark one, plus shift.
-    moving = np.array([[2.0e7 + 1.5e7, 0.03], [8.0e6 + 1.5e7, 0.12]], dtype=np.float64)
-    named = match_labels_by_features(reference_ids, reference, moving_ids, moving)
-    assert named == {1: 2, 2: 1}
-
-
-def test_feature_match_not_per_tumor_minmax() -> None:
-    """Per-tumour MinMax moves a habitat when that tumour's own range changes.
-
-    Unscaled means of the dark habitat stay close (8e6 vs 9e6). After
-    each tumour MinMax, a wider Energy max on B pulls the same biology
-    from 0.26 down to 0.11. Cohort z-score on the unscaled rows still
-    pairs dark-to-dark / bright-to-bright.
-    """
-    reference_ids = np.array([1, 2], dtype=np.int64)
-    moving_ids = np.array([1, 2], dtype=np.int64)
-    reference_raw = np.array([[8.0e6, 0.12], [2.0e7, 0.03]], dtype=np.float64)
-    moving_raw = np.array([[2.2e7, 0.04], [9.0e6, 0.11]], dtype=np.float64)
-    a_energy = (8.0e6 - 2.0e6) / (2.5e7 - 2.0e6)
-    b_energy_wide = (9.0e6 - 5.0e6) / (4.0e7 - 5.0e6)
-    b_energy_narrow = (9.0e6 - 5.0e6) / (2.8e7 - 5.0e6)
-    assert abs(a_energy - b_energy_wide) > abs(a_energy - b_energy_narrow)
-    named = match_labels_by_features(
-        reference_ids, reference_raw, moving_ids, moving_raw
-    )
-    assert named == {1: 2, 2: 1}
-
-
-def test_feature_match_volume_is_tiebreak_only() -> None:
-    """Equal feature rows: volume fraction breaks the remaining tie."""
-    reference_ids = np.array([1, 2], dtype=np.int64)
-    moving_ids = np.array([1, 2], dtype=np.int64)
-    # Identical feature profiles; Hungarian needs a secondary key.
-    features = np.array([[0.0, 1.0], [0.0, 1.0]], dtype=np.float64)
-    mapping = match_labels_by_features(
-        reference_ids,
-        features,
-        moving_ids,
-        features,
-        standardize="none",
-        reference_volumes=np.array([0.8, 0.2]),
-        moving_volumes=np.array([0.25, 0.75]),
-    )
-    assert mapping == {1: 2, 2: 1}
-
-
-def test_feature_match_pearson_after_zscore() -> None:
-    """Pearson cost after cohort z-score still recovers a swapped pair."""
-    reference_ids = np.array([1, 2], dtype=np.int64)
-    moving_ids = np.array([1, 2], dtype=np.int64)
-    reference = np.array(
-        [[8.0e6, 0.12, 1.0], [2.0e7, 0.03, 8.0]], dtype=np.float64
-    )
-    moving = np.array(
-        [[2.0e7, 0.03, 8.0], [8.0e6, 0.12, 1.0]], dtype=np.float64
-    )
-    mapping = match_labels_by_features(
-        reference_ids, reference, moving_ids, moving, metric="pearson"
-    )
-    assert mapping == {1: 2, 2: 1}
-
-
-def test_feature_match_hungarian_is_one_to_one() -> None:
-    """Two moving habitats cannot claim the same reference id."""
-    reference_ids = np.array([1, 2], dtype=np.int64)
-    moving_ids = np.array([1, 2], dtype=np.int64)
-    # Both moving rows are closer to reference 1 than to reference 2.
-    reference = np.array([[0.0, 0.0], [10.0, 10.0]], dtype=np.float64)
-    moving = np.array([[0.1, 0.1], [0.2, 0.2]], dtype=np.float64)
-    mapping = match_labels_by_features(
-        reference_ids, reference, moving_ids, moving, standardize="none"
-    )
-    assert mapping == {1: 1, 2: 2}
-    assert len(set(mapping.values())) == 2
-
-
-def test_locked_cohort_scaler_matches_pairwise_zscore() -> None:
-    """A scaler fit on stacked rows equals the pairwise default."""
+def test_cohort_scaler_is_pooled_zscore() -> None:
+    """fit_feature_match_scale = mean / population std of the stacked rows."""
     reference = np.array([[8.0e6, 0.12], [2.0e7, 0.03]], dtype=np.float64)
     moving = np.array([[9.0e6, 0.11], [2.2e7, 0.04]], dtype=np.float64)
-    ids = np.array([1, 2], dtype=np.int64)
     location, scale = fit_feature_match_scale((reference, moving))
-    locked = match_labels_by_features(
-        ids, reference, ids, moving, location=location, scale=scale
-    )
-    pairwise = match_labels_by_features(ids, reference, ids, moving)
-    assert locked == pairwise == {1: 1, 2: 2}
+    stacked = np.vstack((reference, moving))
+    np.testing.assert_allclose(location, stacked.mean(axis=0))
+    np.testing.assert_allclose(scale, stacked.std(axis=0, ddof=0))
 
 
 def test_median_reduction_is_robust_to_one_outlier_voxel() -> None:
@@ -434,3 +298,138 @@ def test_adjusted_rand_index_empty_is_nan() -> None:
     """Fewer than two jointly labelled voxels yield NaN, not a fake 1."""
     empty = np.zeros((3, 3, 3), dtype=np.int32)
     assert np.isnan(adjusted_rand_index(empty, empty))
+
+
+def _brute_force_prototype_objective(blocks) -> float:
+    """Exhaustive minimum of the within-group sum of squares (block 0 fixed)."""
+    import itertools
+
+    k = blocks[0].shape[0]
+    best = np.inf
+    for perms in itertools.product(
+        itertools.permutations(range(k)), repeat=len(blocks) - 1
+    ):
+        groups = [[blocks[0][j]] for j in range(k)]
+        for block, perm in zip(blocks[1:], perms):
+            for row, proto in enumerate(perm):
+                groups[proto].append(block[row])
+        cost = sum(
+            float(np.sum((np.array(g) - np.mean(g, axis=0)) ** 2)) for g in groups
+        )
+        best = min(best, cost)
+    return best
+
+
+def test_prototype_matching_reaches_brute_force_optimum() -> None:
+    """Well-separated cohorts: multi-start search equals exhaustive search."""
+    rng = np.random.default_rng(7)
+    for _ in range(20):
+        centres = rng.normal(size=(3, 2)) * 4
+        blocks = [
+            (centres + rng.normal(scale=0.5, size=(3, 2)))[rng.permutation(3)]
+            for _ in range(4)
+        ]
+        found = match_rows_to_prototypes(blocks)
+        assert found.converged
+        assert found.objective == pytest.approx(
+            _brute_force_prototype_objective(blocks), rel=1e-9
+        )
+
+
+def test_prototype_matching_one_row_per_prototype_per_block() -> None:
+    """Cannot-link: a block never uses the same prototype twice (any metric)."""
+    rng = np.random.default_rng(3)
+    blocks = [rng.normal(size=(3, 4)) + 5.0 for _ in range(6)]
+    for metric in ("sqeuclidean", "manhattan", "cosine", "correlation"):
+        found = match_rows_to_prototypes(blocks, metric=metric)
+        assert found.metric == metric
+        assert found.converged
+        for assignment in found.assignments:
+            matched = assignment[assignment >= 0]
+            assert matched.size == np.unique(matched).size == 3
+
+
+def test_two_subjects_equal_pairwise_squared_hungarian() -> None:
+    """Two blocks: prototype grouping = pairwise Hungarian on squared distance."""
+    import itertools
+
+    rng = np.random.default_rng(11)
+    for _ in range(30):
+        a = rng.normal(size=(4, 3))
+        b = rng.normal(size=(4, 3))
+        # Exhaustive pairwise optimum on squared Euclidean distance.
+        best_perm = min(
+            itertools.permutations(range(4)),
+            key=lambda perm: float(np.sum((a - b[list(perm)]) ** 2)),
+        )
+        found = match_rows_to_prototypes([a, b])
+        pairs = {
+            int(found.assignments[0][i]): int(found.assignments[1][best_perm[i]])
+            for i in range(4)
+        }
+        assert all(key == value for key, value in pairs.items())
+
+
+def test_objective_decreases_for_every_metric() -> None:
+    """The fitted objective is never above the seed-only assignment cost."""
+    rng = np.random.default_rng(5)
+    blocks = [rng.normal(size=(3, 5)) + 3.0 for _ in range(8)]
+    for metric in ("sqeuclidean", "manhattan", "cosine", "correlation"):
+        fitted = match_rows_to_prototypes(blocks, metric=metric)
+        seed = blocks[fitted.init_block]
+        frozen = match_rows_to_prototypes(blocks, metric=metric, prototypes=seed)
+        assert fitted.objective <= frozen.objective + 1e-12
+
+
+def test_manhattan_prototype_is_median() -> None:
+    """k-medians update: one outlying habitat does not drag the prototype."""
+    blocks = [np.array([[0.0], [10.0]]) + shift for shift in (0.0, 0.1, 0.2)]
+    blocks.append(np.array([[0.3], [100.0]]))
+    found = match_rows_to_prototypes(blocks, metric="manhattan")
+    np.testing.assert_allclose(found.prototypes.ravel(), [0.15, 10.15])
+
+
+def test_cosine_ignores_magnitude() -> None:
+    """Cosine pairs by direction: (0.5, 0.6) and (2.0, 2.4) are one habitat.
+
+    Euclidean pairs the two weak habitats (0.5, 0.6) / (0.4, 0.05) instead,
+    because it compares values, not ratios.
+    """
+    a = np.array([[0.5, 0.6], [2.0, 0.2]])
+    b = np.array([[0.4, 0.05], [2.0, 2.4]])
+    cos = match_rows_to_prototypes([a, b], metric="cosine")
+    assert cos.assignments[0][0] == cos.assignments[1][1]
+    assert cos.distances[1][1] == pytest.approx(0.0, abs=1e-12)
+    euc = match_rows_to_prototypes([a, b])
+    assert euc.assignments[0][0] == euc.assignments[1][0]
+
+
+def test_correlation_rejects_constant_rows() -> None:
+    """Pearson r is undefined for one feature / a flat profile."""
+    with pytest.raises(ValueError, match="constant across features"):
+        match_rows_to_prototypes(
+            [np.array([[1.0], [2.0]]), np.array([[3.0], [4.0]])],
+            metric="correlation",
+        )
+    with pytest.raises(ValueError, match="all zeros"):
+        match_rows_to_prototypes(
+            [np.array([[0.0, 0.0], [1.0, 2.0]])], metric="cosine"
+        )
+
+
+def test_frozen_prototypes_keep_order_and_leave_extras_unmatched() -> None:
+    """Frozen prototypes: no refit, given order, extra habitats unnamed."""
+    trained = np.array([[5.0], [1.0]])
+    new = [np.array([[0.9], [5.2], [20.0]]), np.array([[1.1]])]
+    found = match_rows_to_prototypes(new, prototypes=trained)
+    np.testing.assert_array_equal(found.prototypes, trained)
+    assert found.init_block == -1
+    # Hungarian on 3 rows vs 2 prototypes leaves the farthest row out.
+    assert found.assignments[0].tolist() == [1, 0, -1]
+    assert found.assignments[1].tolist() == [1]
+    assert np.isnan(found.distances[0][2])
+
+
+def test_unknown_prototype_metric_raises() -> None:
+    with pytest.raises(ValueError, match="metric"):
+        match_rows_to_prototypes([np.zeros((2, 2))], metric="chebyshev")  # type: ignore[arg-type]

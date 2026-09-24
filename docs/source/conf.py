@@ -174,6 +174,9 @@ templates_path = ["_templates"]
 
 # Static asset paths.
 html_static_path = ["_static"]
+# Meta-refresh HTML for gallery URLs that moved. Copied onto the site root
+# after the build, so old links resolve to the new pages.
+html_extra_path = ["_redirects"]
 html_css_files = ["custom.css"]
 
 html_show_sourcelink = True

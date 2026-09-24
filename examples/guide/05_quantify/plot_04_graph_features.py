@@ -13,10 +13,11 @@ is clustered independently, so integer habitat ids are permuted across
 patients: cluster 1 in subject A need not be the same phenotype as
 cluster 1 in subject B. Before extracting subject-level features that
 name habitats (especially graph columns ``single_h*``, ``pair_h*_*``),
-remap moving maps onto a reference subject with
-:func:`~habit.precision.align_habitat_map` (``method="features"`` or
-``method="centroid"``). Only then does ``single_h1`` mean the same
-biological habitat across the cohort.
+name every subject against shared prototypes with
+:func:`~habit.precision.align_habitat_maps_to_prototypes`. Only then does
+``single_h1`` mean the same habitat across the cohort. Method and
+caveats: :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels` and
+:doc:`/reference/habitat_matching`.
 
 2-D network figures are display-only (one representative slice). Tables
 use the full 3-D :class:`~habit.contracts.HabitatMap`.
@@ -36,7 +37,7 @@ from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.habitat_features import GraphHabitatFeatures
 from habit.kernels import extract_graph_features
-from habit.precision import align_habitat_map
+from habit.precision import align_habitat_maps_to_prototypes
 from habit.recipes import one_step_habitat
 from habit.spec import Spec
 from habit.viz import (
@@ -66,28 +67,17 @@ print(result.features.frame.head())
 result.features.frame.head()
 
 # %%
-# Align every moving subject onto subject 0 so habitat integers share one
-# phenotype naming. ``method="features"`` uses unscaled habitat summaries
-# (Hungarian after cohort z-score). ``method="centroid"`` is the
-# mean-intensity / centroid alternative when feature means are unavailable.
-# ``force=True`` is safe when independent ``one_step`` digests collide.
-reference_map = result.habitat_maps[0]
-reference_image = cohort[0].image(MODALITIES[0])
-aligned_maps = [reference_map]
-for subject, habitat_map in zip(cohort[1:], result.habitat_maps[1:]):
-    aligned = align_habitat_map(
-        reference_map,
-        habitat_map,
-        method="features",
-        image=reference_image,
-        moving_image=subject.image(MODALITIES[0]),
-        force=True,
-    )
-    aligned_maps.append(aligned)
-    print(
-        f"Aligned {subject.subject_id} onto {cohort[0].subject_id}: "
-        f"ids {list(habitat_map.habitat_ids)} -> {list(aligned.habitat_ids)}"
-    )
+# Name every subject's habitats against shared prototypes so habitat
+# integers mean one phenotype across the cohort. ``models=`` reads each
+# subject's fitted clustering centroids. This demo clusters raw LAP to
+# stay short; in a real study cluster on features that are comparable
+# across patients (see the matching page).
+matched = align_habitat_maps_to_prototypes(
+    list(result.habitat_maps),
+    models=[result.subject_models[subject.subject_id] for subject in cohort],
+)
+aligned_maps = list(matched.habitat_maps)
+print(matched.assignments)
 
 # %%
 # Two idiomatic extraction paths on the **aligned** full 3-D label arrays.
@@ -131,7 +121,7 @@ labels = aligned_maps[0].label_array
 fig = plot_habitat_overlay(
     cohort[0].image(MODALITIES[0]),
     aligned_maps[0],
-    title="One-step habitats (K=3, reference subject)",
+    title="One-step habitats (K=3, prototype ids)",
 )
 fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
 plt.show()

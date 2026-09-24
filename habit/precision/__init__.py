@@ -27,8 +27,10 @@ Intell 2024;6(2):e230118) as composable domain components:
 * :func:`identify_precise_features` applying the LCL screen across
   experiments and returning the serialisable :class:`PreciseFeatureSet`;
 * :func:`habitat_stability` scoring habitat maps under perturbation;
-* :func:`align_habitat_map` remapping independently clustered labels onto
-  a reference (centroid / test-retest matcher, or overlap Hungarian).
+* :func:`align_habitat_map` remapping independently clustered labels of
+  the same voxels onto a reference (overlap Hungarian);
+* :func:`align_habitat_maps_to_prototypes` naming habitats across
+  subjects by iterative matching to shared (or frozen) prototypes.
 """
 
 from __future__ import annotations
@@ -53,7 +55,12 @@ from habit.precision.perturbations import (
 )
 from habit.precision.precise_set import PreciseFeatureSet
 from habit.precision.registry import ImagePerturbationRegistry
-from habit.precision.stability import align_habitat_map, habitat_stability
+from habit.precision.stability import (
+    HabitatPrototypeAlignment,
+    align_habitat_map,
+    align_habitat_maps_to_prototypes,
+    habitat_stability,
+)
 
 from habit._protocols import ImagePerturbation
 
@@ -70,8 +77,10 @@ __all__ = [
     "RotationPerturbation",
     "SliceExtentPerturbation",
     "TranslationPerturbation",
+    "HabitatPrototypeAlignment",
     "aggregate_panels",
     "align_habitat_map",
+    "align_habitat_maps_to_prototypes",
     "habitat_stability",
     "identify_precise_features",
     "perturb_image",

@@ -1,142 +1,175 @@
 """
-Matching habitat labels across fits
-===================================
+Matching habitat labels across subjects
+=======================================
 
-Independent fits permute integer ids: habitat 1 of subject B need not
-be habitat 1 of subject A. :mod:`habit.kernels.habitat_label_match`
-recovers a ``{moving_id: reference_id}`` map.
+With ``one_step`` habitats every subject is clustered on its own, so
+habitat 1 of one patient need not be habitat 1 of another, and patients
+may even have different habitat counts.
+:func:`~habit.precision.align_habitat_maps_to_prototypes` gives every
+subject one shared set of names:
 
-This is **not** :class:`~habit.contracts.HabitatModel` apply. A shared
-cohort model (the Apply page) already uses one id space. Matching is
-for two independent clusterings that must be named after the fact.
+* ``K`` shared prototypes, ``K`` = the largest habitat count in the cohort;
+* each subject is matched **one-to-one** onto the prototypes, so no
+  habitat is merged, dropped, or renamed twice;
+* prototypes move to the mean of their matched habitats, and the two
+  steps repeat until nothing changes. No reference subject is chosen.
 
-* :func:`~habit.kernels.habitat_label_match.match_labels_by_features` —
-  cross-patient (or two seeds) using unscaled **habitat summary
-  features** (means / medians of any shared voxel field: raw
-  multimodality, constructed maps, or texture channels).
-* :func:`~habit.kernels.habitat_label_match.match_labels_by_overlap` —
-  same tumour, two masks on one grid (two observers).
+A habitat is described by the fitted clustering centroids by default
+(``models=``); per-habitat means of a voxel feature field
+(``features=``) or your own matrices (``centroids=``) also work.
+Method, worked numbers, and literature: :doc:`/reference/habitat_matching`.
+Step-by-step pages (overlap cases, the prototype loop, distances, frozen
+prototypes, effect on cohort tables): :doc:`/auto_examples/07_habitat_matching/index`.
+A shared cohort model (two-step, direct pooling) already uses one id
+space and does not need this step.
 """
 
 # %%
-# Two independent one-step fits on the same subject (different seeds).
-# Same grid, so we can overlay before/after alignment. A second subject
-# would use the same feature matcher; overlap matching would not apply
-# across patients.
+# One-step habitats on comparable features
+# ----------------------------------------
+# Relative enhancement is a ratio to the unenhanced phase, so its values
+# can be compared across patients; raw MRI signal cannot. Each subject
+# picks its own habitat count (silhouette over 2..5), as ``one_step`` with
+# ``n_habitats="auto"`` does.
 # sphinx_gallery_thumbnail_number = 1
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
-from habit.contracts import cohort_from_directory
+from habit.contracts import Cohort, cohort_from_directory
 from habit.datasets import fetch_demo
-from habit.kernels.habitat_label_match import (
-    habitat_intensity_centroids,
-    match_labels_by_features,
-    match_labels_by_overlap,
-    remap_label_array,
-)
-from habit.recipes import one_step_habitat
-from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
+from habit.habitat_model import KMeansHabitatModelFitter
+from habit.pipeline import voxel_units
+from habit.precision import align_habitat_maps_to_prototypes
+from habit.voxel_features import ExpressionVoxelFeatures
 
+# Change DATA / MODALITIES / ROI and the expressions to your own layout.
 DATA = fetch_demo()
-# Three DCE phases: unenhanced, arterial, and portal-venous.
 MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
-cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
-subject = cohort[0]
-print(f"Subjects: {list(cohort.subject_ids)}; matching demo uses {subject.subject_id}")
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
+extractor = ExpressionVoxelFeatures(
+    features={
+        "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",
+        "rel_enh_pvp": "(PVP - pre_contrast) / (pre_contrast + eps)",
+    },
+    roi=ROI,
+)
 
-result_a = one_step_habitat(
-    modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
-).fit_predict(cohort[:1])
-result_b = one_step_habitat(
-    modalities=MODALITIES, n_habitats=3, random_seed=1, roi=ROI
-).fit_predict(cohort[:1])
-map_a = result_a.habitat_maps[0]
-map_b = result_b.habitat_maps[0]
-image = subject.image(ROI)
+maps, models, fields = [], [], []
+for subject in cohort:
+    field = extractor(subject)
+    units = voxel_units(field)
+    fitter = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=5, validation="silhouette", n_init=3
+    )
+    fitter.set_random_state(0)
+    model = fitter.fit([units], cohort=Cohort([subject], name=subject.subject_id))
+    maps.append(model.assigner()(units))
+    models.append(model)
+    fields.append(field)
+    print(f"{subject.subject_id}: {model.n_habitats} habitats")
 
 # %%
-# Feature matcher: unscaled habitat summary means (here: LAP intensity),
-# then Hungarian assignment after a column z-score. Multimodal / texture
-# fields work the same way — pass a volume with a trailing feature axis
-# into :func:`~habit.kernels.habitat_label_match.habitat_intensity_centroids`,
-# or build your own ``(n_habitats, n_features)`` matrix. Do not pass
-# per-tumour MinMax centres — those axes are not comparable across fits.
-ids_a, feat_a = habitat_intensity_centroids(image.data, map_a.label_array)
-ids_b, feat_b = habitat_intensity_centroids(image.data, map_b.label_array)
-mapping = match_labels_by_features(
-    ids_a,
-    feat_a,
-    ids_b,
-    feat_b,
-    metric="euclidean",
-    standardize="zscore",
-)
-mapping_table = pd.DataFrame(
-    [{"moving_id": int(src), "reference_id": int(dst)} for src, dst in mapping.items()]
-)
-print("match_labels_by_features (seed=1 -> seed=0):")
-print(mapping_table.to_string(index=False))
-mapping_table
-
-aligned_b = remap_label_array(
-    map_b.label_array, mapping, reserved_ids=ids_a.tolist()
+# Name every subject against shared prototypes
+# --------------------------------------------
+# ``models=`` reads each fitted ``HabitatModel.centroids``: the habitats are
+# named by the same features that defined them.
+matched = align_habitat_maps_to_prototypes(maps, models=models)
+print(f"K = {matched.prototypes.shape[0]} prototypes, features {matched.feature_names}")
+print(matched.prototypes.round(3))
+print(matched.assignments)
+print(
+    f"converged={matched.converged} after {matched.n_iter} rounds; "
+    f"objective={matched.objective:.4f}"
 )
 
 # %%
-# Before: raw integer ids (``align_labels=False``). After: remapped B.
-# Independent one-step maps can share a model_id digest; force no extra
-# overlap alignment so the figure shows *this* mapping only.
+# Every subject keeps its habitat count; ids now share one meaning.
+for subject_id, rows in matched.assignments.groupby("subject_id"):
+    renames = ", ".join(
+        f"{old}->{new}" for old, new in zip(rows.habitat_id, rows.prototype_id)
+    )
+    print(f"{subject_id}: {renames}")
+
+# %%
+# Same call with voxel features instead of fitted centroids
+# ---------------------------------------------------------
+# ``features=`` averages each habitat's voxels of the given field. Here it
+# is the clustering field itself, so the prototypes agree with the
+# ``models=`` result up to k-means convergence.
+from_features = align_habitat_maps_to_prototypes(maps, features=fields)
+gap = float(np.max(np.abs(from_features.prototypes - matched.prototypes)))
+print(f"largest prototype difference, features= vs models=: {gap:.2e}")
+
+# %%
+# Centroids before and after naming
+# ---------------------------------
 Path("out").mkdir(exist_ok=True)
-fig_before = plot_habitat_label_compare(
-    image,
-    map_a.label_array,
-    map_b.label_array,
-    titles=("Fit A (seed=0)", "Fit B (seed=1)"),
-    align_labels=False,
-    crop_to="labels",
+table = matched.assignments
+points = np.vstack([np.asarray(m.centroids) for m in models])
+colours = plt.get_cmap("tab10")
+fig, axes = plt.subplots(1, 2, figsize=(9, 4), sharex=True, sharey=True)
+for axis, column, title in (
+    (axes[0], "habitat_id", "Per-subject ids"),
+    (axes[1], "prototype_id", "Prototype ids"),
+):
+    ids = table[column].to_numpy()
+    for habitat_id in sorted(set(int(v) for v in ids)):
+        chosen = ids == habitat_id
+        axis.scatter(
+            points[chosen, 0],
+            points[chosen, 1],
+            color=colours(habitat_id - 1),
+            label=f"habitat {habitat_id}",
+        )
+    axis.set_title(title)
+    axis.set_xlabel(matched.feature_names[0])
+axes[1].scatter(
+    matched.prototypes[:, 0],
+    matched.prototypes[:, 1],
+    marker="x",
+    s=120,
+    color="black",
+    label="prototype",
 )
-fig_before.savefig("out/match_labels_before.png", dpi=150, bbox_inches="tight")
-plt.show()
-
-fig_after = plot_habitat_label_compare(
-    image,
-    map_a.label_array,
-    aligned_b,
-    titles=("Fit A", "Fit B remapped"),
-    align_labels=False,
-    crop_to="labels",
-)
-fig_after.savefig("out/match_labels_after.png", dpi=150, bbox_inches="tight")
+axes[0].set_ylabel(matched.feature_names[1])
+axes[1].legend(loc="best", fontsize=8)
+fig.suptitle("Subject habitat centroids before and after prototype naming")
+fig.savefig("out/match_labels_prototypes.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# Same-tumour two observers: permute ids on one map and recover them
-# with overlap (Hungarian on voxel counts). Feature matching is the
-# cross-patient operator; overlap cannot name habitats across grids.
-rng = np.random.default_rng(3)
-present = [int(v) for v in ids_a]
-shuffled = list(present)
-rng.shuffle(shuffled)
-observer_map = {src: int(dst) for src, dst in zip(present, shuffled)}
-observer_labels = remap_label_array(
-    map_a.label_array, observer_map, reserved_ids=present
-)
-recovered = match_labels_by_overlap(map_a.label_array, observer_labels)
-overlap_table = pd.DataFrame(
-    [
-        {"moving_id": int(src), "reference_id": int(dst)}
-        for src, dst in recovered.items()
-    ]
-)
-print("match_labels_by_overlap (permuted observer -> original):")
-print(overlap_table.to_string(index=False))
-overlap_table
+# Optional: refuse far matches
+# ----------------------------
+# By default every habitat is named. ``max_distance`` (feature units) leaves
+# a habitat unnamed when every free prototype is farther than that; its
+# ``prototype_id`` is NA and its voxels get a subject-local id above K.
+# Keep it off when the aligned maps feed a cohort feature table.
+partial = align_habitat_maps_to_prototypes(maps, models=models, max_distance=1.0)
+print(partial.assignments[partial.assignments.prototype_id.isna()])
 
-fig_ref = plot_habitat_overlay(image, map_a, title="reference (fit A)")
-fig_ref.savefig("out/match_labels_reference.png", dpi=150, bbox_inches="tight")
-plt.show()
+# %%
+# Name new subjects with frozen prototypes
+# ----------------------------------------
+# A validation cohort must be named with the training definition, not
+# refitted together with it. Fit prototypes on the first three subjects,
+# then pass that result as ``prototypes=``: the last two subjects are
+# assigned to the stored prototypes and share the training ``model_id``.
+trained = align_habitat_maps_to_prototypes(maps[:3], models=models[:3])
+named = align_habitat_maps_to_prototypes(maps[3:], models=models[3:], prototypes=trained)
+print(f"trained K = {trained.prototypes.shape[0]}, model_id {trained.model_id}")
+print(f"new maps model_id {named.habitat_maps[0].model_id}")
+print(named.assignments)
+
+# %%
+# Other distances
+# ---------------
+# ``metric="manhattan"`` (median prototypes) is less pulled by one outlying
+# habitat. ``"cosine"`` / ``"correlation"`` compare only the direction /
+# shape of the feature vector and ignore its level, which for two
+# enhancement features would merge weak and strong habitats; keep the
+# default ``"sqeuclidean"`` for such features.
+robust = align_habitat_maps_to_prototypes(maps, models=models, metric="manhattan")
+print(robust.prototypes.round(3))

@@ -106,6 +106,7 @@ from habit.viz.habitat_core import (
     plot_partition_triptych,
     plot_precision_icc,
 )
+from habit.viz.habitat_matching import plot_label_overlap_matrix, plot_prototype_matching
 from habit.viz.habitat_overlay import plot_habitat_overlay
 from habit.viz.habitat_napari import view_habitat_napari
 from habit.viz.diagrams import (
@@ -183,6 +184,8 @@ __all__ = [
     "plot_msi_matrix",
     "plot_ith_summary",
     "plot_habitat_label_compare",
+    "plot_label_overlap_matrix",
+    "plot_prototype_matching",
     "plot_partition_triptych",
     "plot_precision_icc",
     "plot_habitat_feature_heatmap",

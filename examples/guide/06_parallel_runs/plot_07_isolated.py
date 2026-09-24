@@ -54,9 +54,6 @@ texture = VoxelRadiomicsFeatures(
     kernel_radius=3,
     params=RADIOMICS_PARAMS,
     voxel_batch=1000,
-    use_torch_radiomics=True,
-    torch_device="cuda:0",
-    use_gpu_matrices=True,
     cache_dir=CACHE,
 )
 zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
@@ -72,8 +69,10 @@ backend = backend_from_policy(policy)
 print(type(backend).__name__, backend.policy.parallel_mode)
 
 # %%
-# Extract texture, one process per subject
-# ----------------------------------------
+# Extract, fit here, assign in a fresh process per subject
+# --------------------------------------------------------
+# On Windows the pool is started under ``__main__`` so a spawned worker
+# does not start another pool. Copy this cell together with the two above.
 if __name__ == "__main__":
     fields = [slot.result() for slot in backend.map(texture, cohort)]
     for field in fields:
@@ -81,11 +80,6 @@ if __name__ == "__main__":
             f"{field.subject_id}: {field.values.shape[0]} voxels, "
             f"{len(field.feature_names)} columns"
         )
-
-# %%
-# Z-score and fit in this process
-# -------------------------------
-if __name__ == "__main__":
     scaled_fields = []
     for field in fields:
         scaled_fields.append(
@@ -98,13 +92,10 @@ if __name__ == "__main__":
     units = [voxel_units(field) for field in scaled_fields]
     model = fitter.fit(units, cohort=cohort)
     print(model.summary())
-
-# %%
-# Assign in a fresh process per subject
-# -------------------------------------
-if __name__ == "__main__":
-    maps = [slot.result() for slot in backend.map(model.assigner(), units)]
-    for habitat_map in maps:
+    # Completion order is not cohort order.
+    maps = {item.subject_id: item for item in (slot.result() for slot in backend.map(model.assigner(), units))}
+    for subject in cohort:
+        habitat_map = maps[subject.subject_id]
         labels, counts = np.unique(habitat_map.label_array, return_counts=True)
         present = {
             int(label): int(count)
@@ -114,7 +105,7 @@ if __name__ == "__main__":
         print(habitat_map.subject_id, "voxels per habitat:", present)
     fig_map = plot_habitat_overlay(
         cohort[0].image(ROI),
-        maps[0],
+        maps[cohort[0].subject_id],
         title="habitats (isolated processes)",
         crop_to="labels",
     )

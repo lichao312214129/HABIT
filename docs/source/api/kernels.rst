@@ -310,43 +310,47 @@ Habitat label matching
 ----------------------
 
 Independently clustered maps permute integer ids. Import the kernel
-directly (it is not re-exported from :mod:`habit.kernels`).
+directly (it is not re-exported from :mod:`habit.kernels`). There are
+two matchers, chosen by what the maps share:
 
-* **overlap** — same grid, Hungarian on voxel overlap (observers /
-  test–retest of one tumour).
-* **features** — unscaled habitat means, cohort z-score, then
-  Hungarian (cross-patient naming). Lock ``location`` / ``scale`` from
+* **overlap** — the maps label the same voxels (observers, test–retest,
+  perturbation, another preprocessing chain): Hungarian on voxel
+  overlap, :func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`.
+  Domain wrappers: :func:`~habit.precision.align_habitat_map`,
+  :func:`~habit.precision.habitat_stability`.
+* **prototypes** — the maps label different patients:
+  :func:`~habit.kernels.habitat_label_match.match_rows_to_prototypes`
+  (K = largest habitat count, iterative assign / update, one habitat per
+  prototype per subject). ``metric`` is ``"sqeuclidean"`` (default,
+  mean update), ``"manhattan"`` (median), ``"cosine"`` or
+  ``"correlation"`` (unit-vector mean); ``max_distance`` (off by
+  default) allows partial assignment; ``prototypes=`` freezes a trained
+  set. Two subjects are the special case of pairwise Hungarian on
+  squared Euclidean distance. Rescale columns first with
   :func:`~habit.kernels.habitat_label_match.fit_feature_match_scale`
-  so every subject uses the same ruler.
-* **centroid** — raw Euclidean, no cohort scale. Same-image intensity
-  or an already-commensurate space only.
+  when features have different units. Domain wrapper:
+  :func:`~habit.precision.align_habitat_maps_to_prototypes`. Method and
+  references: :doc:`../reference/habitat_matching`.
 
 Copy-ready walkthrough: :doc:`../examples/habitat_label_match`.
 
 .. code-block:: python
 
    from habit.kernels.habitat_label_match import (
-       fit_feature_match_scale,
-       match_labels_by_features,
        match_labels_by_overlap,
+       match_rows_to_prototypes,
    )
 
    # Same tumour, two observers: overlap.
    mapping = match_labels_by_overlap(physician2_labels, other_labels)
 
-   # Different patients: unscaled means (n_habitats, n_features).
-   location, scale = fit_feature_match_scale([patient_a, patient_b, patient_c])
-   mapping = match_labels_by_features(
-       atlas_ids, patient_a,
-       moving_ids, patient_b,
-       metric="euclidean",
-       standardize="zscore",
-       location=location,
-       scale=scale,
-   )
+   # Different patients: one (n_habitats, n_features) block per patient,
+   # habitat counts may differ. result.assignments[s][i] is the prototype
+   # index of habitat row i of patient s.
+   result = match_rows_to_prototypes([patient_a, patient_b, patient_c])
 
-:func:`~habit.precision.align_habitat_map` accepts ``method="overlap"``,
-``"centroid"``, or ``"features"``.
+   # A new patient named with the trained prototypes (no refit).
+   new = match_rows_to_prototypes([patient_d], prototypes=result.prototypes)
 
 Stability
 ---------

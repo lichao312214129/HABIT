@@ -24,8 +24,10 @@ volume table on each page.
   :doc:`/auto_examples/04_habitat_maps/plot_03_pool_voxels`.
 * **Applying a saved habitat model** —
   :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
-* **Matching habitat labels across fits** —
-  :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
+* **Matching habitat labels across subjects** (shared or frozen
+  prototypes) — :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
+  Which matcher to use and why: :doc:`/reference/habitat_matching`;
+  worked, visual pages: :doc:`/auto_examples/07_habitat_matching/index`.
 
 Building a habitat map step by step
 ------------------------------------

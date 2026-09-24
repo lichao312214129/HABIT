@@ -266,9 +266,19 @@ def test_label_compare_aligns_permuted_ids_by_default() -> None:
     fig = plot_habitat_label_compare(image, labels_a, labels_b, axis=0)
     fig.canvas.draw()
     plt.close(fig)
-    from habit.kernels.habitat_label_match import align_label_array
+    from habit.kernels.habitat_label_match import (
+        match_labels_by_overlap,
+        remap_label_array,
+    )
 
-    aligned = align_label_array(labels_a, labels_b, method="overlap")
+    def align_label_array(reference: np.ndarray, moving: np.ndarray) -> np.ndarray:
+        return remap_label_array(
+            moving,
+            match_labels_by_overlap(reference, moving),
+            reserved_ids=np.unique(reference[reference > 0]).tolist(),
+        )
+
+    aligned = align_label_array(labels_a, labels_b)
     disagree = (aligned != labels_a) & ((aligned > 0) | (labels_a > 0))
     assert int(np.count_nonzero(disagree)) == 0
 
@@ -278,7 +288,17 @@ def test_label_compare_disagreement_ignores_2_3_swap() -> None:
     """Default overlap remap of a 2<->3 swap on panel 2 yields no disagreement."""
     import matplotlib.pyplot as plt
 
-    from habit.kernels.habitat_label_match import align_label_array
+    from habit.kernels.habitat_label_match import (
+        match_labels_by_overlap,
+        remap_label_array,
+    )
+
+    def align_label_array(reference: np.ndarray, moving: np.ndarray) -> np.ndarray:
+        return remap_label_array(
+            moving,
+            match_labels_by_overlap(reference, moving),
+            reserved_ids=np.unique(reference[reference > 0]).tolist(),
+        )
 
     labels_a = np.zeros((6, 4, 4), dtype=np.int32)
     labels_a[0:2, 0:2, 0:2] = 1
@@ -294,7 +314,7 @@ def test_label_compare_disagreement_ignores_2_3_swap() -> None:
     fig = plot_habitat_label_compare(image, labels_a, labels_b, axis=0)
     fig.canvas.draw()
     plt.close(fig)
-    aligned = align_label_array(labels_a, labels_b, method="overlap")
+    aligned = align_label_array(labels_a, labels_b)
     assert np.array_equal(aligned, labels_a)
     disagree = (aligned != labels_a) & ((aligned > 0) | (labels_a > 0))
     assert int(np.count_nonzero(disagree)) == 0
@@ -346,7 +366,17 @@ def test_label_compare_skips_align_when_model_ids_match() -> None:
 def test_label_compare_force_align_ignores_2_3_swap() -> None:
     """align_labels=True remaps a 2<->3 swap even when model_ids match."""
     from habit.contracts import Geometry, HabitatMap, Provenance
-    from habit.kernels.habitat_label_match import align_label_array
+    from habit.kernels.habitat_label_match import (
+        match_labels_by_overlap,
+        remap_label_array,
+    )
+
+    def align_label_array(reference: np.ndarray, moving: np.ndarray) -> np.ndarray:
+        return remap_label_array(
+            moving,
+            match_labels_by_overlap(reference, moving),
+            reserved_ids=np.unique(reference[reference > 0]).tolist(),
+        )
 
     labels_a = np.zeros((6, 4, 4), dtype=np.int32)
     labels_a[0:2, 0:2, 0:2] = 1
@@ -382,7 +412,7 @@ def test_label_compare_force_align_ignores_2_3_swap() -> None:
     )
     fig.canvas.draw()
     plt.close(fig)
-    aligned = align_label_array(labels_a, labels_b, method="overlap")
+    aligned = align_label_array(labels_a, labels_b)
     assert np.array_equal(aligned, labels_a)
     raw_disagree = (labels_a != labels_b) & ((labels_a > 0) | (labels_b > 0))
     aligned_disagree = (aligned != labels_a) & ((aligned > 0) | (labels_a > 0))

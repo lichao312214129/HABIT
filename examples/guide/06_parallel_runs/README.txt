@@ -1,44 +1,40 @@
 6. Parallel runs
 ================
 
-Voxel texture (four DCE series, radius 3, ``binWidth`` 12) is the
-workload. Feature preprocessing changes the numbers. A backend only
-changes how subjects are scheduled. GPU and ``voxel_batch`` are set on
-the extractor; they do not change the texture definition.
+These pages only change how subjects are scheduled. The texture, the
+preprocessing and the habitat model stay the same, so a finished map
+matches a serial run of the same chain. That check is on the process-pool
+page. Preprocessing of the texture itself is
+:doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`.
 
-Preprocessing, one method per page. Scheduling on these pages is
-:class:`~habit.execution.SerialBackend`.
+Which backend
+-------------
 
-* **Subject z-score** (and the matching ``HabitatSpec``) —
-  :doc:`/auto_examples/06_parallel_runs/plot_08_subject_zscore`.
-* **Subject robust scaling** —
-  :doc:`/auto_examples/06_parallel_runs/plot_09_subject_robust`.
-* **Subject winsorizing** —
-  :doc:`/auto_examples/06_parallel_runs/plot_10_subject_winsorize`.
-* **Cohort z-score** —
-  :doc:`/auto_examples/06_parallel_runs/plot_11_cohort_zscore`.
-* **Cohort binning** —
-  :doc:`/auto_examples/06_parallel_runs/plot_12_cohort_binning`.
-
-Scheduling uses the subject z-score chain unless the page is about a
-failure. A fixed ``random_seed`` keeps finished maps aligned with a
-serial run.
-
-* **One machine, in order** —
+* **One process, subjects in order.** Use this to debug a single case.
   :doc:`/auto_examples/06_parallel_runs/plot_01_serial`.
-* **One bad case should not stop the batch** —
-  :doc:`/auto_examples/06_parallel_runs/plot_02_skip_failed`.
-* **A bad case should stop the batch** —
-  :doc:`/auto_examples/06_parallel_runs/plot_03_stop_on_failure`.
-* **A crashed run should skip finished subjects** —
-  :doc:`/auto_examples/06_parallel_runs/plot_04_resume`.
-* **Several CPU workers** —
+* **A pool of worker processes.** On a CPU machine the subjects run side
+  by side. On one GPU only the first worker gets the card and the others
+  run on CPU, so the pool is slower; ``HABIT_GPU_OVERSUBSCRIBE=wrap``
+  shares that card instead. Several GPUs are one worker per card.
   :doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`.
-* **Do not pay worker startup twice** —
+* **Keep those workers up between passes.** A cold pool pays spawn and
+  imports on every ``map``. ``with backend.reuse_workers():`` pays it once.
   :doc:`/auto_examples/06_parallel_runs/plot_06_reuse_workers`.
-* **One fresh process per subject** —
-  :doc:`/auto_examples/06_parallel_runs/plot_13_isolated`.
-* **Per-subject wall-clock limit** —
-  :doc:`/auto_examples/06_parallel_runs/plot_14_wall_clock`.
-* **One worker per GPU** (recorded timings, not re-run here) —
-  :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`.
+* **One fresh process per subject.** Same results, higher spawn cost.
+  :doc:`/auto_examples/06_parallel_runs/plot_07_isolated`.
+* **One worker per GPU.** The call is on the page. The timing table is a
+  recorded 5-GPU run, because this machine has one GPU.
+  :doc:`/auto_examples/06_parallel_runs/plot_09_several_gpus`.
+
+When a subject fails
+--------------------
+
+* Keep the batch and record the exception:
+  :doc:`/auto_examples/06_parallel_runs/plot_02_skip_failed`.
+* Stop at the first failure:
+  :doc:`/auto_examples/06_parallel_runs/plot_03_stop_on_failure`.
+* Skip subjects that already finished:
+  :doc:`/auto_examples/06_parallel_runs/plot_04_resume`.
+* Give each subject a wall-clock limit. Only the process backend enforces
+  it:
+  :doc:`/auto_examples/06_parallel_runs/plot_08_wall_clock`.

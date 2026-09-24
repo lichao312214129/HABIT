@@ -6,6 +6,62 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+**BREAKING (next release: 3.0.0).** Habitat label matching is reduced to
+two operators: voxel overlap for maps of the same voxels, and shared
+prototypes for different subjects. Method, metrics, and literature:
+``docs/source/reference/habitat_matching.rst``.
+
+### Added
+
+- ``habit.kernels.habitat_label_match.match_rows_to_prototypes`` /
+  ``PrototypeMatch`` / ``PROTOTYPE_METRICS``: one-to-one matching of each subject's habitats onto
+  ``K`` shared prototypes (``K`` = largest habitat count), iterated until
+  stable (Stephens 2000 relabelling). Two subjects reduce to pairwise
+  Hungarian on squared Euclidean distance.
+- ``metric=`` on the prototype matcher and on
+  ``align_habitat_maps_to_prototypes``: ``"sqeuclidean"`` (default, mean
+  prototypes), ``"manhattan"`` (median prototypes), ``"cosine"`` (spherical
+  k-means), ``"correlation"`` (row-centred cosine). Cosine / correlation do
+  not raise for fewer than 3 features but degenerate there (documented);
+  zero-norm or constant rows raise.
+- Frozen prototypes: ``align_habitat_maps_to_prototypes(..., prototypes=trained)``
+  names a new cohort with a stored ``HabitatPrototypeAlignment`` (no update,
+  same ``model_id``; mismatched features or settings raise ``HABITAPIError``).
+- ``HabitatPrototypeAlignment`` fields ``metric``, ``standardize``,
+  ``reduction``, ``location``, ``scale``, ``match_prototypes``, ``model_id``.
+
+- ``habit.viz.plot_label_overlap_matrix`` (overlap table with the Hungarian
+  pairs outlined) and ``habit.viz.plot_prototype_matching`` (habitat
+  summaries coloured by their shared prototype; accepts a ``PrototypeMatch``
+  or a ``HabitatPrototypeAlignment``).
+- Habitat Guide section "7. Matching Habitat Labels": six executed pages
+  (label switching, overlap cases, prototype loop, distances, frozen
+  prototypes, cohort tables and ``max_distance``).
+
+### Removed
+
+- ``align_habitat_map`` / ``habitat_stability``: ``method=``, ``image=`` and
+  centroid keyword arguments. Both always match by voxel overlap.
+- ``plot_habitat_label_compare``: ``align_method=`` (it always used overlap).
+- ``habit.kernels.habitat_label_match``: ``align_label_array``, ``match_label_ids``,
+  ``match_labels_by_centroid``, ``match_labels_by_features``,
+  ``feature_match_cost_matrix``, ``standardize_feature_rows``,
+  ``habitat_spatial_centroids``, ``habitat_volume_fraction_vector``,
+  ``FEATURE_MATCH_METRICS``, ``FEATURE_MATCH_SCALES``. Pairwise centroid or
+  feature matching is the two-subject case of the prototype matcher.
+
+### Changed
+
+- Precise-feature and screening examples match perturbed habitats by voxel
+  overlap instead of mean-intensity centroids; their habitat Dice values
+  change accordingly.
+- Preprocessing-comparison gallery matches habitat ids by pooled voxel
+  overlap before comparing volume fractions.
+- Guide section "6. Parallel runs" is scheduling only. The five texture
+  preprocessing pages moved to
+  ``examples/guide/02_voxel/plot_06_texture_preprocessing.py``. Process-pool
+  pages leave the compute device at ``"auto"`` and check serial results.
+
 ## [2.0.0] - 2026-09-03
 
 Capability-named packages are now the public import path

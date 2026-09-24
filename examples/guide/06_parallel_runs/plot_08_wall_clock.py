@@ -53,9 +53,6 @@ texture = VoxelRadiomicsFeatures(
     kernel_radius=3,
     params=RADIOMICS_PARAMS,
     voxel_batch=1000,
-    use_torch_radiomics=True,
-    torch_device="cuda:0",
-    use_gpu_matrices=True,
 )
 policy = RunPolicy(
     workers=1,
@@ -76,17 +73,14 @@ print(
 # %%
 # Both subjects hit the limit
 # ---------------------------
+# On Windows the pool is started under ``__main__``. Copy this cell
+# together with the two above.
 if __name__ == "__main__":
     slots = list(backend.map(texture, cohort))
     for slot in slots:
         print(slot.subject_id, type(slot.error).__name__ if slot.error else "ok")
         if slot.error is not None:
             print(slot.error)
-
-# %%
-# Mark every timed-out slot
-# -------------------------
-if __name__ == "__main__":
     labels = [slot.subject_id for slot in slots]
     timed_out = [
         slot.error is not None and isinstance(slot.error, SubjectTimeoutError)

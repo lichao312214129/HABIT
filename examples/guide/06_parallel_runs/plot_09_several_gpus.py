@@ -4,8 +4,9 @@ Running a cohort on several GPUs
 
 ``cap_workers_to_gpu_pool=True`` clamps ``workers`` to the visible GPU
 count, one worker per card. Pair it with ``reuse_workers()`` so CUDA
-startup is paid once. This page records a cloud run. It does not
-repeat that workload when the docs are built.
+startup is paid once. This machine has one GPU, so the recorded 5-GPU
+timings below are from a cloud run and this page does not repeat that
+workload. The call itself is in the next cell.
 """
 
 # %%
@@ -26,7 +27,39 @@ print(
     type(backend).__name__,
     "requested_workers=5",
     f"cap={backend.policy.cap_workers_to_gpu_pool}",
+    f"workers_after_cap={backend.workers}",
 )
+
+# %%
+# The call on a multi-GPU machine
+# -------------------------------
+# Set ``CUDA_VISIBLE_DEVICES`` to the cards before Python starts, for
+# example ``0,1,2,3,4``. Leave ``HABIT_GPU_OVERSUBSCRIBE`` unset: each
+# worker then keeps one card. On a single GPU the cap leaves one worker;
+# extra workers without the cap are sent to CPU
+# (:doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`).
+#
+# ``extractor`` is any per-subject operator, for example
+# ``VoxelRadiomicsFeatures``. Do not pin ``torch_device`` to one card:
+# a worker reads its slot and takes one visible GPU. The driver for the
+# table below is ``scripts/run_multi_gpu_cohort_bench.py``.
+
+
+def run_on_the_pool(extractor: object, subjects: object) -> list[object]:
+    """Map ``extractor`` once per subject, workers kept up across maps.
+
+    Args:
+        extractor: Per-subject callable, for example ``VoxelRadiomicsFeatures``.
+        subjects: Cohort or any sequence ``backend.map`` accepts.
+
+    Returns:
+        One slot per subject. Workers stay up for every ``map`` in the block.
+    """
+    with backend.reuse_workers():
+        return list(backend.map(extractor, subjects))
+
+
+print("defined run_on_the_pool; workers after the GPU cap:", backend.workers)
 
 # %%
 # Recorded AutoDL timings (2026-09-04)

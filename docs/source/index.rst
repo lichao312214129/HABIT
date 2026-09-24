@@ -13,8 +13,9 @@ Start here
 
 1. :doc:`tutorial/installation` — install
 2. :doc:`auto_quickstart/plot_quickstart_python` — first habitat map (Python)
-3. :doc:`tutorial/quickstart` — first habitat map (CLI / YAML)
-4. :doc:`auto_examples/index` — **Habitat Guide** (one task per page)
+3. :doc:`auto_quickstart/plot_quickstart_yaml` — load that analysis from YAML
+4. :doc:`tutorial/quickstart` — first habitat map (CLI)
+5. :doc:`auto_examples/index` — **Habitat Guide** (one task per page)
 
 Stuck: :doc:`troubleshooting/faq`.
 Signatures and defaults: :doc:`api/index`.
@@ -27,6 +28,7 @@ Scientific definitions: :doc:`reference/features/index`.
 
    tutorial/installation
    auto_quickstart/plot_quickstart_python
+   auto_quickstart/plot_quickstart_yaml
    tutorial/quickstart
 
 .. toctree::
@@ -43,6 +45,7 @@ Scientific definitions: :doc:`reference/features/index`.
    api/index
    how_to/habitat_components
    reference/features/index
+   reference/habitat_matching
    configuration/index
    reference/cli
    troubleshooting/faq

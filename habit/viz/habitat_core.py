@@ -836,7 +836,6 @@ def plot_habitat_label_compare(
     colorbar: ColorbarSpec = True,
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
     align_labels: Optional[bool] = None,
-    align_method: str = "overlap",
     crop_to: str = "none",
     crop_pad: int = 6,
 ) -> "Figure":
@@ -846,15 +845,14 @@ def plot_habitat_label_compare(
     Independently clustered maps permute integer ids. By default this
     remaps ``labels_b`` (panel 2 only) onto ``labels_a`` by maximal voxel
     overlap -- the same Hungarian pairing
-    ``habitat_stability(..., method="overlap")`` uses --
+    :func:`~habit.precision.habitat_stability` uses --
     before colouring and before the disagreement panel. Habitat 2 on the
     left is then the same spatial region as habitat 2 on the right.
     Disagreement is ``aligned_b != a`` on labelled voxels, not raw id
-    inequality. Maps that already share a ``model_id`` (apply-saved-model)
-    are left unchanged -- those ids are already the same definition.
-
-    Use ``align_method="centroid"`` when the maps are not co-registered
-    and overlap is not meaningful (feature-space / intensity centroids).
+    inequality. Maps that already share a ``model_id`` (apply-saved-model,
+    or maps renamed by
+    :func:`~habit.precision.align_habitat_maps_to_prototypes`) are left
+    unchanged -- those ids are already the same definition.
 
     Args:
         image: Anatomy volume ``(z, y, x)`` or 2D.
@@ -876,8 +874,6 @@ def plot_habitat_label_compare(
             ``model_id``; ``True`` always aligns; ``False`` never aligns.
             Independent ``one_step`` fits on the same subject share a
             model_id (spec + subject-id digest) and need ``True``.
-        align_method: ``"overlap"`` (default, same-grid visual compare) or
-            ``"centroid"`` (feature / intensity centroids).
         crop_to: ``"none"`` (default) draws the full field of view;
             ``"labels"`` zooms every panel to the bounding box of the union
             of non-background voxels in both maps so a small tumour fills
@@ -909,10 +905,18 @@ def plot_habitat_label_compare(
         else not _shared_habitat_model_id(labels_a, labels_b)
     )
     if should_align:
-        from habit.kernels.habitat_label_match import align_label_array
+        from habit.kernels.habitat_label_match import (
+            match_labels_by_overlap,
+            present_habitat_ids,
+            remap_label_array,
+        )
 
         try:
-            b = align_label_array(a, b, image=image_vol, method=align_method)
+            b = remap_label_array(
+                b,
+                match_labels_by_overlap(a, b),
+                reserved_ids=present_habitat_ids(a).tolist(),
+            )
         except ValueError as exc:
             raise HABITAPIError(f"plot_habitat_label_compare: {exc}") from exc
     if image_vol.shape != a.shape or image_vol.shape != b.shape:

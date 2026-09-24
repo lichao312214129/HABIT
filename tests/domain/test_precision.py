@@ -23,6 +23,7 @@ pairwise-complete NaN handling.
 from __future__ import annotations
 
 import dataclasses
+from types import SimpleNamespace
 from typing import Tuple
 
 import numpy as np
@@ -50,6 +51,7 @@ from habit.precision import (
     TranslationPerturbation,
     aggregate_panels,
     align_habitat_map,
+    align_habitat_maps_to_prototypes,
     habitat_stability,
     identify_precise_features,
     precision_panel,
@@ -1022,36 +1024,6 @@ class TestHabitatStability:
         with pytest.raises(HABITAPIError, match="at least one"):
             habitat_stability(make_habitat_map("P1"), [])
 
-    def test_centroid_mean_intensity_recovers_swapped_ids(self) -> None:
-        """Mean-intensity Hungarian pairing, then ordinary Dice on that pair."""
-        reference = make_habitat_map("P1")
-        swapped_array = np.asarray(reference.label_array).copy()
-        swapped_array[swapped_array == 1] = 9
-        swapped_array[swapped_array == 2] = 1
-        swapped_array[swapped_array == 9] = 2
-        swapped = HabitatMap(
-            subject_id="P1",
-            label_array=swapped_array,
-            geometry=reference.geometry,
-            model_id="other-model",
-            habitat_ids=(1, 2),
-            provenance=provenance(),
-        )
-        image = np.zeros(reference.label_array.shape, dtype=np.float64)
-        image[reference.label_array == 1] = 1.0
-        image[reference.label_array == 2] = 10.0
-        frame = habitat_stability(
-            reference, [swapped], method="centroid", image=image
-        )
-        assert set(frame["dice"]) == {1.0}
-        matched = frame.set_index("habitat_id")["matched_id"].to_dict()
-        assert matched == {1: 2, 2: 1}
-
-    def test_unknown_method_raises(self) -> None:
-        reference = make_habitat_map("P1")
-        with pytest.raises(HABITAPIError, match="method"):
-            habitat_stability(reference, [reference], method="dice")  # type: ignore[arg-type]
-
 
 class TestAlignHabitatMap:
     def test_permuted_labels_become_comparable(self) -> None:
@@ -1072,7 +1044,7 @@ class TestAlignHabitatMap:
         image = np.zeros(reference.label_array.shape, dtype=np.float64)
         image[reference.label_array == 1] = 1.0
         image[reference.label_array == 2] = 10.0
-        aligned = align_habitat_map(reference, moving, image=image)
+        aligned = align_habitat_map(reference, moving)
         assert np.array_equal(aligned.label_array, reference.label_array)
         assert aligned.model_id == reference.model_id
         # After remap, raw pixel disagreement is spatial, not an id swap.
@@ -1081,29 +1053,6 @@ class TestAlignHabitatMap:
             & ((aligned.label_array > 0) | (reference.label_array > 0))
         )
         assert int(np.count_nonzero(disagree)) == 0
-
-    def test_explicit_centroids_recover_permutation(self) -> None:
-        """Cluster centres from two fits drive the test-retest assignment."""
-        reference = make_habitat_map("P1")
-        swapped_array = np.asarray(reference.label_array).copy()
-        swapped_array[swapped_array == 1] = 9
-        swapped_array[swapped_array == 2] = 1
-        swapped_array[swapped_array == 9] = 2
-        moving = HabitatMap(
-            subject_id="P1",
-            label_array=swapped_array,
-            geometry=reference.geometry,
-            model_id="other-model",
-            habitat_ids=(1, 2),
-            provenance=provenance(),
-        )
-        aligned = align_habitat_map(
-            reference,
-            moving,
-            reference_centroids=np.array([[0.0], [10.0]]),
-            moving_centroids=np.array([[10.0], [0.0]]),
-        )
-        assert np.array_equal(aligned.label_array, reference.label_array)
 
     def test_same_model_id_is_identity(self) -> None:
         """Apply-same-model maps keep their labels even if ids look swapped."""
@@ -1123,7 +1072,7 @@ class TestAlignHabitatMap:
         image = np.zeros(reference.label_array.shape, dtype=np.float64)
         image[reference.label_array == 1] = 1.0
         image[reference.label_array == 2] = 10.0
-        aligned = align_habitat_map(reference, moving, image=image)
+        aligned = align_habitat_map(reference, moving)
         assert aligned is moving
         assert np.array_equal(aligned.label_array, swapped_array)
 
@@ -1142,12 +1091,7 @@ class TestAlignHabitatMap:
             habitat_ids=(1, 2),
             provenance=provenance(),
         )
-        aligned = align_habitat_map(
-            reference,
-            moving,
-            method="overlap",
-            force=True,
-        )
+        aligned = align_habitat_map(reference, moving, force=True)
         assert np.array_equal(aligned.label_array, reference.label_array)
 
     def test_overlap_2_3_swap_on_moving_only(self) -> None:
@@ -1181,10 +1125,10 @@ class TestAlignHabitatMap:
             habitat_ids=(1, 2, 3),
             provenance=provenance(),
         )
-        skipped = align_habitat_map(reference, moving, method="overlap")
+        skipped = align_habitat_map(reference, moving)
         assert skipped is moving
         aligned = align_habitat_map(
-            reference, moving, method="overlap", force=True
+            reference, moving, force=True
         )
         assert np.array_equal(reference.label_array, labels)
         assert np.array_equal(aligned.label_array, labels)
@@ -1214,7 +1158,7 @@ class TestAlignHabitatMap:
             habitat_ids=(1, 2),
             provenance=provenance(),
         )
-        aligned = align_habitat_map(reference, moving, method="overlap")
+        aligned = align_habitat_map(reference, moving)
         disagree = (
             (aligned.label_array != reference.label_array)
             & ((aligned.label_array > 0) | (reference.label_array > 0))
@@ -1236,10 +1180,239 @@ class TestAlignHabitatMap:
             habitat_ids=(1, 2, 3),
             provenance=provenance(),
         )
-        aligned = align_habitat_map(reference, moving, method="overlap")
+        aligned = align_habitat_map(reference, moving)
         leftover = aligned.label_array[moved_array == 1]
         assert np.all(aligned.label_array[moved_array == 2] == 1)
         assert np.all(aligned.label_array[moved_array == 3] == 2)
         assert int(leftover[0]) == 3
         assert np.all(leftover == 3)
         assert aligned.habitat_ids == (1, 2, 3)
+
+
+def _block_map(subject_id: str, n_habitats: int) -> HabitatMap:
+    """One-row-per-habitat map: habitat k occupies slab z == k - 1."""
+    labels = np.zeros((max(n_habitats, 1), 2, 2), dtype=np.int32)
+    for habitat_id in range(1, n_habitats + 1):
+        labels[habitat_id - 1] = habitat_id
+    return HabitatMap(
+        subject_id=subject_id,
+        label_array=labels,
+        geometry=Geometry.from_array(labels.shape),
+        model_id=f"one-step-{subject_id}",
+        habitat_ids=tuple(range(1, n_habitats + 1)),
+        provenance=provenance(),
+    )
+
+
+class TestAlignHabitatMapsToPrototypes:
+    # Reference-bias example: columns are (enhancement, washout).
+    # Pairwise matching onto A groups C1 with A1; onto B it groups C2
+    # with B1. Prototype matching settles on {A1, B2, C1} / {A2, B1, C2}
+    # whatever subject starts the search.
+    CENTROIDS = {
+        "A": np.array([[1.0, 0.0], [0.0, 0.0]]),
+        "B": np.array([[0.0, 1.0], [0.0, 0.0]]),
+        "C": np.array([[2.0, 1.0], [0.0, 2.0]]),
+    }
+
+    def _run(self, order, **kwargs):
+        maps = [_block_map(subject_id, 2) for subject_id in order]
+        blocks = [self.CENTROIDS[subject_id] for subject_id in order]
+        return align_habitat_maps_to_prototypes(maps, centroids=blocks, **kwargs)
+
+    @staticmethod
+    def _groups(result) -> set:
+        table = result.assignments
+        return {
+            frozenset(
+                f"{row.subject_id}{row.habitat_id}"
+                for row in table[table.prototype_id == pid].itertuples()
+            )
+            for pid in table.prototype_id.dropna().unique()
+        }
+
+    def test_grouping_is_reference_free(self) -> None:
+        """Every subject order gives the same prototype grouping and ids."""
+        expected = {frozenset({"A1", "B2", "C1"}), frozenset({"A2", "B1", "C2"})}
+        first = self._run(("A", "B", "C"))
+        for order in (("B", "C", "A"), ("C", "A", "B")):
+            other = self._run(order)
+            assert self._groups(other) == expected
+            np.testing.assert_allclose(other.prototypes, first.prototypes)
+        assert self._groups(first) == expected
+        # Lexicographic ids: (0, 1) is habitat 1, (1, 1/3) is habitat 2.
+        np.testing.assert_allclose(first.prototypes, [[0.0, 1.0], [1.0, 1.0 / 3.0]])
+        assert first.converged
+
+    def test_prototypes_beat_single_reference_grouping(self) -> None:
+        """Objective is below the within-group spread of reference-A pairing."""
+        result = self._run(("A", "B", "C"))
+        # Reference A groups {A1, B1, C1} and {A2, B2, C2}.
+        spread = 0.0
+        for rows in (
+            np.array([[1.0, 0.0], [0.0, 1.0], [2.0, 1.0]]),
+            np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 2.0]]),
+        ):
+            spread += float(np.sum((rows - rows.mean(axis=0)) ** 2))
+        assert result.objective < spread
+
+    def test_maps_share_one_id_space(self) -> None:
+        """Aligned labels follow prototype ids and share one model_id."""
+        result = self._run(("A", "B", "C"))
+        a_map, b_map, _ = result.habitat_maps
+        assert a_map.model_id == b_map.model_id
+        assert a_map.model_id.startswith("prototype-")
+        # A1 (slab 0) belongs to prototype 2; B1 (slab 0) to prototype 1.
+        assert np.all(a_map.label_array[0] == 2)
+        assert np.all(b_map.label_array[0] == 1)
+        assert a_map.habitat_ids == (1, 2)
+
+    def test_different_habitat_counts_keep_every_habitat(self) -> None:
+        """2 / 3 / 4 habitats: K = 4, every habitat gets a distinct shared id."""
+        maps = [_block_map("a", 2), _block_map("b", 3), _block_map("c", 4)]
+        blocks = [
+            np.array([[0.5], [2.0]]),
+            np.array([[0.6], [1.4], [2.2]]),
+            np.array([[0.4], [1.0], [1.6], [2.1]]),
+        ]
+        result = align_habitat_maps_to_prototypes(maps, centroids=blocks)
+        assert result.assignments.prototype_id.notna().all()
+        np.testing.assert_allclose(result.prototypes.ravel(), [0.5, 1.0, 1.5, 2.1])
+        named = {
+            subject: sorted(
+                int(v)
+                for v in result.assignments.loc[
+                    result.assignments.subject_id == subject, "prototype_id"
+                ]
+            )
+            for subject in ("a", "b", "c")
+        }
+        assert named == {"a": [1, 4], "b": [1, 3, 4], "c": [1, 2, 3, 4]}
+        for original, aligned in zip(maps, result.habitat_maps):
+            # Habitat count and voxels per habitat are preserved exactly.
+            assert aligned.habitat_ids == (1, 2, 3, 4)
+            before = np.bincount(original.label_array.ravel())[1:]
+            after = np.bincount(aligned.label_array.ravel())[1:]
+            assert sorted(before[before > 0]) == sorted(after[after > 0])
+
+    def test_max_distance_leaves_outlier_unmatched(self) -> None:
+        """A habitat far from every free prototype is not forced onto one."""
+        maps = [_block_map("A", 2), _block_map("B", 2)]
+        blocks = [np.array([[0.0], [10.0]]), np.array([[0.5], [40.0]])]
+        forced = align_habitat_maps_to_prototypes(maps, centroids=blocks)
+        assert forced.assignments.prototype_id.notna().all()
+        partial = align_habitat_maps_to_prototypes(
+            maps, centroids=blocks, max_distance=5.0
+        )
+        table = partial.assignments.set_index(["subject_id", "habitat_id"])
+        assert table.loc[("B", 2), "prototype_id"] is pd.NA
+        assert int(table.loc[("B", 1), "prototype_id"]) == 1
+
+    def test_models_must_share_feature_names(self) -> None:
+        """Different clustering features are different habitat definitions."""
+        maps = [_block_map("A", 2), _block_map("B", 2)]
+        models = [
+            SimpleNamespace(centroids=np.zeros((2, 1)), feature_names=("LAP",)),
+            SimpleNamespace(centroids=np.ones((2, 1)), feature_names=("PVP",)),
+        ]
+        with pytest.raises(HABITAPIError, match="shared feature definition"):
+            align_habitat_maps_to_prototypes(maps, models=models)
+
+    def test_features_volume_and_field_match_centroids(self) -> None:
+        """features= (volume or VoxelFeatureField) = per-habitat means."""
+        order = ("A", "B", "C")
+        maps = [_block_map(subject_id, 2) for subject_id in order]
+        volumes, fields = [], []
+        for habitat_map, subject_id in zip(maps, order):
+            labels = habitat_map.label_array
+            volume = np.zeros(labels.shape + (2,), dtype=np.float64)
+            for row, centroid in enumerate(self.CENTROIDS[subject_id]):
+                volume[labels == row + 1] = centroid
+            volumes.append(volume)
+            index = np.argwhere(labels > 0)
+            fields.append(
+                VoxelFeatureField(
+                    subject_id=subject_id,
+                    feature_names=("enhancement", "washout"),
+                    values=volume[tuple(index.T)],
+                    voxel_index=index,
+                    geometry=habitat_map.geometry,
+                    provenance=provenance(),
+                )
+            )
+        expected = self._run(order)
+        from_volume = align_habitat_maps_to_prototypes(maps, features=volumes)
+        from_field = align_habitat_maps_to_prototypes(maps, features=fields)
+        for result in (from_volume, from_field):
+            assert self._groups(result) == self._groups(expected)
+            np.testing.assert_allclose(result.prototypes, expected.prototypes)
+        assert from_field.feature_names == ("enhancement", "washout")
+        assert from_field.source == "features"
+        assert expected.source == "centroids"
+
+    def test_exactly_one_source(self) -> None:
+        """models / features / centroids are mutually exclusive."""
+        maps = [_block_map("A", 2)]
+        with pytest.raises(HABITAPIError, match="exactly one of"):
+            align_habitat_maps_to_prototypes(maps)
+        with pytest.raises(HABITAPIError, match="exactly one of"):
+            align_habitat_maps_to_prototypes(
+                maps,
+                centroids=[np.zeros((2, 1))],
+                features=[np.zeros(maps[0].label_array.shape)],
+            )
+
+    def test_metric_is_recorded(self) -> None:
+        """Every metric runs, is stored, and changes the shared model_id."""
+        ids = set()
+        for metric in ("sqeuclidean", "manhattan", "cosine", "correlation"):
+            result = self._run(("A", "B", "C"), metric=metric, standardize="zscore")
+            assert result.metric == metric
+            assert result.converged
+            ids.add(result.model_id)
+            assert "metric=" + metric in result.habitat_maps[0].provenance.spec_fingerprint
+        assert len(ids) == 4
+
+    def test_frozen_prototypes_name_new_subjects(self) -> None:
+        """A validation subject is named with the trained prototypes."""
+        trained = self._run(("A", "B", "C"), standardize="zscore")
+        new_map = _block_map("D", 3)
+        # D: habitat 1 near prototype 2, habitat 2 near prototype 1, plus an
+        # extra habitat that no trained prototype is left for.
+        new_rows = np.array([[1.0, 0.3], [0.0, 1.0], [5.0, 5.0]])
+        frozen = align_habitat_maps_to_prototypes(
+            [new_map],
+            centroids=[new_rows],
+            standardize="zscore",
+            prototypes=trained,
+        )
+        assert frozen.model_id == trained.model_id
+        assert frozen.habitat_maps[0].model_id == trained.model_id
+        np.testing.assert_allclose(frozen.prototypes, trained.prototypes)
+        np.testing.assert_allclose(frozen.location, trained.location)
+        table = frozen.assignments.set_index("habitat_id")["prototype_id"]
+        assert int(table[1]) == 2
+        assert int(table[2]) == 1
+        assert table[3] is pd.NA
+        # The extra habitat keeps a local id above K = 2.
+        assert frozen.habitat_maps[0].habitat_ids == (1, 2, 3)
+        assert np.all(frozen.habitat_maps[0].label_array[2] == 3)
+
+    def test_frozen_settings_must_match(self) -> None:
+        """Frozen naming refuses a different metric / scaler."""
+        trained = self._run(("A", "B", "C"))
+        with pytest.raises(HABITAPIError, match="metric='sqeuclidean'"):
+            align_habitat_maps_to_prototypes(
+                [_block_map("D", 2)],
+                centroids=[np.zeros((2, 2))],
+                metric="manhattan",
+                prototypes=trained,
+            )
+        with pytest.raises(HABITAPIError, match="standardize='none'"):
+            align_habitat_maps_to_prototypes(
+                [_block_map("D", 2)],
+                centroids=[np.zeros((2, 2))],
+                standardize="zscore",
+                prototypes=trained,
+            )
+

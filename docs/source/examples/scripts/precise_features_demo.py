@@ -442,22 +442,13 @@ for item in icc_source:
     edge_fit = one_step_habitat(
         modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
     ).fit_predict(Cohort(subjects=(edge_item,)))
-    orig_image = demo_subject.image(MODALITIES[0])
-    edge_image = edge_item.image(MODALITIES[0])
     # Restrict both maps to the agreed core before pairing / features.
     ref_core = _restrict_to_intersection(orig_fit.habitat_maps[0], intersection)
     mov_core = _restrict_to_intersection(edge_fit.habitat_maps[0], intersection)
-    # Pair by Hungarian assignment on per-habitat mean intensity (same
-    # quantity k-means uses as a cluster centre). force=True: independent
-    # one_step fits share a model_id digest even though ids are permuted.
-    aligned_core = align_habitat_map(
-        ref_core,
-        mov_core,
-        method="centroid",
-        image=orig_image,
-        moving_image=edge_image,
-        force=True,
-    )
+    # Pair by Hungarian assignment on voxel overlap inside the shared core.
+    # force=True: independent one_step fits share a model_id digest even
+    # though ids are permuted.
+    aligned_core = align_habitat_map(ref_core, mov_core, force=True)
     print(f"  light habitat-map features on intersection: {demo_subject.subject_id}", flush=True)
     orig_rows.append(_all_habitat_features(ref_core))
     edge_rows.append(_all_habitat_features(aligned_core))
@@ -469,17 +460,11 @@ for item in icc_source:
             intersection,
             ref_core,
             aligned_core,
-            habitat_stability(
-                ref_core,
-                [mov_core],
-                method="centroid",
-                image=orig_image,
-                moving_images=(edge_image,),
-            ),
+            habitat_stability(ref_core, [mov_core]),
         )
 
 demo_subject, edge_item, intersection, ref_core, aligned_core, dice_frame = first_bundle
-print("Habitat Dice on ROI intersection (mean-intensity match)")
+print("Habitat Dice on ROI intersection (overlap match)")
 print(dice_frame.to_string(index=False))
 
 # Shared axial index: densest original ROI (same crop, same slice).

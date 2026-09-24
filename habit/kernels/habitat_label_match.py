@@ -15,86 +15,82 @@
 """Match and remap habitat label ids across independently clustered maps.
 
 Two habitat analyses typically emit permuted integer ids: cluster 1 of
-the second fit may be cluster 3 of the first. This kernel recovers a
-``{moving_id: reference_id}`` assignment and applies it.
+the second fit may be cluster 3 of the first. HABIT recovers the
+correspondence in exactly one of two ways, chosen by what the two sides
+share:
 
-Matching is one of:
-
-* **features** -- Hungarian assignment on habitat-level **summary
-  feature vectors** (any finite ``(n_habitats, n_features)`` matrix).
-  Typical rows are unscaled means / medians of the same voxel field used
-  to define habitats: raw multimodality intensities, constructed maps,
-  or texture channels. Do **not** pass per-tumour MinMax / z-score
-  cluster centres. The operator then column-z-scores the stacked rows
-  (or applies a locked cohort ``location`` / ``scale``) so features with
-  different units share one ruler, then minimises Euclidean or
-  ``1 - correlation`` cost. Volume fraction is an optional tie-break
-  only.
-* **centroid** -- same Hungarian path with ``standardize="none"`` and
-  Euclidean cost. Kept for same-image intensity / spatial means and
-  for callers that already live in one commensurate space.
-* **overlap** -- Hungarian assignment on maximal voxel overlap (the
-  Prior 2024 ``munkres`` step used by habitat Dice). Requires a shared
-  grid; it cannot name habitats across patients.
+* **overlap** (:func:`match_labels_by_overlap`) -- the maps label the
+  same voxels (retest, perturbation, another preprocessing chain,
+  another reader). Hungarian assignment on voxel-overlap counts (the
+  Prior 2024 ``munkres`` step used by habitat Dice).
+* **prototypes** (:func:`match_rows_to_prototypes`) -- the maps label
+  different voxels (different patients), so only habitat descriptions
+  can be compared. Every subject is matched one-to-one onto shared
+  prototypes (Stephens 2000 relabelling; k-means with a cannot-link
+  constraint inside each subject). Two subjects are the special case
+  of pairwise Hungarian on squared Euclidean distance. Prototypes can
+  also be frozen to name new subjects with a trained definition.
 
 Arrays in, arrays / dicts out. No HABIT types, no IO.
 """
 
 from __future__ import annotations
 
-from typing import Dict, Iterable, List, Literal, Mapping, Optional, Sequence, Tuple
+from typing import (
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Mapping,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Tuple,
+)
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-from scipy.stats import rankdata
 
 __all__ = [
-    "FEATURE_MATCH_METRICS",
-    "FEATURE_MATCH_SCALES",
-    "align_label_array",
-    "feature_match_cost_matrix",
-    "fit_feature_match_scale",
+    "PROTOTYPE_METRICS",
     "adjusted_rand_index",
+    "fit_feature_match_scale",
     "habitat_dice_from_mapping",
     "habitat_intensity_centroids",
-    "habitat_spatial_centroids",
-    "habitat_volume_fraction_vector",
-    "match_label_ids",
-    "match_labels_by_centroid",
-    "match_labels_by_features",
     "match_labels_by_overlap",
+    "match_rows_to_prototypes",
     "overlap_count_table",
+    "PrototypeMatch",
     "present_habitat_ids",
     "remap_label_array",
-    "standardize_feature_rows",
 ]
 
-#: Cost metrics for :func:`match_labels_by_features`. Lower is better.
-FEATURE_MATCH_METRICS: Tuple[str, ...] = (
-    "euclidean",
-    "pearson",
-    "spearman",
-    "cosine",
-    "manhattan",
-    "chebyshev",
-)
-
-#: Column-wise cohort scalers applied to stacked habitat feature rows.
-FEATURE_MATCH_SCALES: Tuple[str, ...] = ("none", "zscore")
-
-FeatureMatchMetric = Literal[
-    "euclidean", "pearson", "spearman", "cosine", "manhattan", "chebyshev"
-]
 FeatureMatchScale = Literal["none", "zscore"]
 
-#: Degenerate column / row scale replaced by 1 so a constant feature
-#: becomes 0 after z-score instead of NaN.
-_SCALE_FLOOR: float = 1e-12
+#: Distances accepted by :func:`match_rows_to_prototypes`. Each one is
+#: paired with the prototype update that minimises it, so the alternating
+#: search never increases its objective:
+#:
+#: * ``"sqeuclidean"`` -- squared Euclidean; prototype = mean (k-means).
+#: * ``"manhattan"`` -- L1; prototype = per-feature median (k-medians).
+#: * ``"cosine"`` -- ``1 - cos``; rows scaled to unit length, prototype =
+#:   renormalised mean direction (spherical k-means). Ignores magnitude.
+#: * ``"correlation"`` -- ``1 - Pearson r`` across features; rows centred
+#:   on their own mean then treated as ``"cosine"``. Ignores offset and
+#:   magnitude.
+PROTOTYPE_METRICS: Tuple[str, ...] = (
+    "sqeuclidean",
+    "manhattan",
+    "cosine",
+    "correlation",
+)
 
-#: When volume fractions are supplied and ``volume_weight`` is left at
-#: the default, add this much of |Δvolume| so volume only breaks ties
-#: (feature costs after z-score are O(1); 1e-3 cannot flip a real gap).
-_DEFAULT_VOLUME_TIEBREAK: float = 1e-3
+PrototypeMetric = Literal["sqeuclidean", "manhattan", "cosine", "correlation"]
+
+#: Degenerate column / row scale replaced by 1 so a constant feature
+#: becomes 0 after z-score instead of NaN. Also the zero-norm threshold
+#: for cosine / correlation rows.
+_SCALE_FLOOR: float = 1e-12
 
 
 def present_habitat_ids(label_array: np.ndarray) -> np.ndarray:
@@ -136,10 +132,10 @@ def habitat_intensity_centroids(
     in that habitat (same quantity k-means stores as a centre).
     ``reduction="median"`` is the test-retest table convention.
 
-    For cross-patient naming pass the **unscaled** feature volume here,
-    then :func:`match_labels_by_features` (cohort z-score). Do not pass
-    a per-tumour MinMax / z-score copy: those axes are not comparable
-    across subjects.
+    For cross-patient naming pass a feature volume whose values mean the
+    same thing in every patient, then feed the rows to
+    :func:`match_rows_to_prototypes`. Do not pass a per-tumour MinMax /
+    z-score copy: those axes are not comparable across subjects.
 
     Args:
         image: Feature volume aligned with ``label_array``, or the same
@@ -188,73 +184,6 @@ def habitat_intensity_centroids(
     return ids, centroids
 
 
-def habitat_spatial_centroids(
-    label_array: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Mean voxel-index coordinate of every non-background habitat.
-
-    Used when no image / feature centroids are available. Coordinates are
-    ``(z, y, x)`` for 3-D maps and ``(y, x)`` for 2-D maps.
-
-    Args:
-        label_array: Integer habitat labels; ``0`` is background.
-
-    Returns:
-        ``(ids, centroids)`` with ``centroids`` shaped
-        ``(n_habitats, label_array.ndim)``.
-    """
-    labels = np.asarray(label_array)
-    ids = present_habitat_ids(labels)
-    coords = np.indices(labels.shape, dtype=np.float64)
-    centroids = np.zeros((ids.size, labels.ndim), dtype=np.float64)
-    for row, habitat_id in enumerate(ids):
-        selector = labels == habitat_id
-        if not np.any(selector):
-            continue
-        centroids[row] = np.array(
-            [coords[axis][selector].mean() for axis in range(labels.ndim)],
-            dtype=np.float64,
-        )
-    return ids, centroids
-
-
-def habitat_volume_fraction_vector(
-    label_array: np.ndarray,
-    habitat_ids: np.ndarray,
-) -> np.ndarray:
-    """
-    Volume fractions aligned with ``habitat_ids`` rows.
-
-    Each value is (voxels of that id) / (non-background voxels). Absent
-    ids receive ``0.0``. Used only as a Hungarian tie-break, not as a
-    primary matching feature.
-
-    Args:
-        label_array: Integer habitat labels; ``0`` is background.
-        habitat_ids: Ids aligned with the feature-row matrix.
-
-    Returns:
-        1-D float64 vector of length ``habitat_ids.size``.
-    """
-    labels = np.asarray(label_array).reshape(-1)
-    ids = np.asarray(habitat_ids, dtype=np.int64).reshape(-1)
-    total = int(np.count_nonzero(labels))
-    fractions = np.zeros(ids.size, dtype=np.float64)
-    if total == 0 or ids.size == 0:
-        return fractions
-    positive = labels[labels != 0]
-    if positive.size == 0:
-        return fractions
-    max_id = int(max(int(positive.max()), int(ids.max())))
-    counts = np.bincount(positive.astype(np.int64, copy=False), minlength=max_id + 1)
-    for row, habitat_id in enumerate(ids.tolist()):
-        hid = int(habitat_id)
-        if 0 < hid < counts.size:
-            fractions[row] = float(counts[hid]) / float(total)
-    return fractions
-
-
 def fit_feature_match_scale(
     feature_blocks: Sequence[np.ndarray],
     method: FeatureMatchScale = "zscore",
@@ -262,10 +191,11 @@ def fit_feature_match_scale(
     """
     Fit a locked cohort scaler on stacked unscaled habitat rows.
 
-    Call this once on every patient's unscaled habitat summaries, then
-    pass the returned ``(location, scale)`` into
-    :func:`match_labels_by_features` so every subject uses the same
-    ruler. Fitting on two maps alone is the pairwise fallback.
+    Call this once on every patient's unscaled habitat summaries and
+    apply ``(rows - location) / scale`` to every block before
+    :func:`match_rows_to_prototypes`, so every subject uses the same
+    ruler. Keep the pair to rescale new subjects that are named with
+    frozen prototypes.
 
     Args:
         feature_blocks: One ``(n_habitats, n_features)`` block per
@@ -281,10 +211,10 @@ def fit_feature_match_scale(
         ValueError: If no finite row remains or feature widths differ.
     """
     resolved = str(method).strip().lower()
-    if resolved not in FEATURE_MATCH_SCALES:
+    if resolved not in ("none", "zscore"):
         raise ValueError(
-            "fit_feature_match_scale: method must be one of "
-            f"{FEATURE_MATCH_SCALES}; got {method!r}."
+            "fit_feature_match_scale: method must be 'none' or 'zscore'; "
+            f"got {method!r}."
         )
     stacked = _stack_feature_blocks(feature_blocks, caller="fit_feature_match_scale")
     if resolved == "none":
@@ -299,302 +229,454 @@ def fit_feature_match_scale(
     return location, scale
 
 
-def standardize_feature_rows(
-    rows: np.ndarray,
-    *,
-    method: FeatureMatchScale = "zscore",
-    location: Optional[np.ndarray] = None,
-    scale: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+class PrototypeMatch(NamedTuple):
     """
-    Column-wise standardise habitat feature rows.
+    Result of :func:`match_rows_to_prototypes`.
 
-    ``location`` / ``scale`` lock a previously fitted cohort scaler.
-    When omitted and ``method="zscore"``, statistics are fit on
-    ``rows`` itself.
+    Attributes:
+        assignments: One int64 vector per input block. Entry ``i`` is the
+            prototype index (``0 .. K-1``) of row ``i``, or ``-1`` when the
+            row stayed unmatched.
+        distances: One float64 vector per block. Distance from each row to
+            its prototype (``NaN`` for unmatched rows): Euclidean for
+            ``"sqeuclidean"``, L1 for ``"manhattan"``, ``1 - cos`` for
+            ``"cosine"``, ``1 - r`` for ``"correlation"``.
+        prototypes: Prototypes in the metric's working space, shape
+            ``(K, n_features)``: means (``"sqeuclidean"``), medians
+            (``"manhattan"``), or unit vectors (``"cosine"``,
+            ``"correlation"``). Fitted prototypes are sorted
+            lexicographically so the numbering does not depend on which
+            block seeded the search; frozen prototypes keep their order.
+        objective: Sum of matched costs (squared distance for
+            ``"sqeuclidean"``, the distance itself otherwise) plus the
+            unmatched cost per unmatched row when ``max_distance`` is set.
+            Lower is a tighter cohort grouping.
+        n_iter: Assignment / update rounds run by the winning start
+            (``1`` for frozen prototypes).
+        converged: True when the winning start stopped because the
+            assignments no longer changed (always True when frozen).
+        init_block: Index of the block whose rows seeded the winning start,
+            ``-1`` for frozen prototypes.
+        metric: The metric used, one of :data:`PROTOTYPE_METRICS`.
+    """
+
+    assignments: Tuple[np.ndarray, ...]
+    distances: Tuple[np.ndarray, ...]
+    prototypes: np.ndarray
+    objective: float
+    n_iter: int
+    converged: bool
+    init_block: int
+    metric: str
+
+
+def _metric_rows(rows: np.ndarray, metric: str, what: str) -> np.ndarray:
+    """
+    Move rows into the working space of ``metric``.
+
+    ``"cosine"`` compares directions, so every row is scaled to unit
+    length; ``"correlation"`` first subtracts each row's own mean across
+    features (Pearson r is the cosine of centred rows). The other metrics
+    use the rows as given. A zero-length row has no direction, so it is
+    rejected instead of being given an arbitrary cost.
 
     Args:
-        rows: Feature matrix, shape ``(n_habitats, n_features)``.
-        method: ``"none"`` or ``"zscore"``.
-        location: Optional locked per-feature mean.
-        scale: Optional locked per-feature std (zeros already replaced).
+        rows: Matrix ``(n_rows, n_features)``.
+        metric: One of :data:`PROTOTYPE_METRICS`.
+        what: Name used in the error message (for example ``"block 2"``).
 
     Returns:
-        ``(scaled_rows, location, scale)``.
+        Float64 matrix of the same shape in the working space.
 
     Raises:
-        ValueError: If ``method`` is unknown or the locked stats are
-            incomplete / wrong width.
+        ValueError: If a cosine / correlation row has zero length.
     """
     matrix = np.asarray(rows, dtype=np.float64)
-    if matrix.ndim != 2:
-        raise ValueError(
-            f"standardize_feature_rows: rows must be 2-D; got {matrix.ndim}D."
+    if metric not in ("cosine", "correlation") or matrix.shape[0] == 0:
+        return matrix
+    if metric == "correlation":
+        matrix = matrix - matrix.mean(axis=1, keepdims=True)
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+    if np.any(norms[:, 0] < _SCALE_FLOOR):
+        reason = (
+            "is constant across features (Pearson r undefined; with one "
+            "feature every row is constant)"
+            if metric == "correlation"
+            else "is all zeros (no direction)"
         )
-    have_locked = location is not None or scale is not None
-    if have_locked:
-        if location is None or scale is None:
-            raise ValueError(
-                "standardize_feature_rows: location and scale must be "
-                "provided together."
-            )
-        loc = np.asarray(location, dtype=np.float64).reshape(-1)
-        scl = np.asarray(scale, dtype=np.float64).reshape(-1)
-        if loc.size != matrix.shape[1] or scl.size != matrix.shape[1]:
-            raise ValueError(
-                "standardize_feature_rows: locked stats width "
-                f"{int(loc.size)}/{int(scl.size)} does not match "
-                f"{matrix.shape[1]} features."
-            )
-        scl = np.where(np.abs(scl) < _SCALE_FLOOR, 1.0, scl)
-        return (matrix - loc) / scl, loc, scl
-    resolved = str(method).strip().lower()
-    if resolved == "none":
-        n_features = int(matrix.shape[1])
-        loc = np.zeros(n_features, dtype=np.float64)
-        scl = np.ones(n_features, dtype=np.float64)
-        return matrix.copy(), loc, scl
-    if resolved != "zscore":
         raise ValueError(
-            "standardize_feature_rows: method must be one of "
-            f"{FEATURE_MATCH_SCALES}; got {method!r}."
+            f"match_rows_to_prototypes: a row of {what} {reason}; "
+            f"metric={metric!r} cannot compare it."
         )
-    loc, scl = fit_feature_match_scale((matrix,), method="zscore")
-    return (matrix - loc) / scl, loc, scl
+    return matrix / norms
 
 
-def feature_match_cost_matrix(
-    moving_features: np.ndarray,
-    reference_features: np.ndarray,
-    metric: FeatureMatchMetric = "euclidean",
+def _metric_cost(rows: np.ndarray, prototypes: np.ndarray, metric: str) -> np.ndarray:
+    """
+    Assignment cost ``(n_rows, K)`` in the working space.
+
+    ``"sqeuclidean"`` returns the squared distance (the quantity a mean
+    minimises); ``"manhattan"`` the L1 distance (minimised by a median);
+    ``"cosine"`` / ``"correlation"`` return ``1 - u . p`` for unit rows
+    and unit prototypes (maximised agreement of directions).
+    """
+    if metric in ("cosine", "correlation"):
+        return 1.0 - rows @ prototypes.T
+    delta = rows[:, None, :] - prototypes[None, :, :]
+    if metric == "manhattan":
+        return np.sum(np.abs(delta), axis=2)
+    return np.sum(delta * delta, axis=2)
+
+
+def _assign_block_to_prototypes(
+    rows: np.ndarray,
+    prototypes: np.ndarray,
+    metric: str,
+    unmatched_cost: Optional[float],
 ) -> np.ndarray:
     """
-    Pairwise cost matrix, shape ``(n_moving, n_reference)``.
+    One-to-one assignment of a block's rows onto prototypes.
 
-    Pearson / Spearman costs are ``1 - r`` so Hungarian still minimises.
-    A constant row (undefined correlation) is treated as uncorrelated
-    (cost ``1``). Cosine cost is ``1 - cosine``. Correlation metrics
-    need at least two features.
+    The cost is the metric cost that the prototype update minimises, so
+    the alternating search never increases the objective. A block
+    contributes at most one row per prototype: two habitats of one
+    tumour can never be given the same name. With more rows than
+    prototypes (frozen prototypes only) the rows that lose stay
+    unmatched.
+
+    When ``unmatched_cost`` is set, every row also gets a private "leave
+    unmatched" column at that cost. Hungarian then leaves a row unmatched
+    exactly when every free prototype costs more; this is a partial
+    assignment, not a post-hoc threshold.
 
     Args:
-        moving_features: Already-standardised moving rows.
-        reference_features: Already-standardised reference rows.
-        metric: One of :data:`FEATURE_MATCH_METRICS`.
+        rows: Block rows in the working space, shape ``(n_rows, n_features)``.
+        prototypes: Current prototypes, shape ``(K, n_features)``.
+        metric: One of :data:`PROTOTYPE_METRICS`.
+        unmatched_cost: Cost charged for leaving a row unmatched, or
+            ``None`` to match as many rows as possible.
 
     Returns:
-        Float64 cost matrix. Lower is a better match.
-
-    Raises:
-        ValueError: If widths differ or the metric is unknown / needs
-            more features than available.
+        Int64 vector of prototype indices, ``-1`` for unmatched rows.
     """
-    moving = np.asarray(moving_features, dtype=np.float64)
-    reference = np.asarray(reference_features, dtype=np.float64)
-    if moving.ndim != 2 or reference.ndim != 2:
-        raise ValueError(
-            "feature_match_cost_matrix: features must be 2-D; "
-            f"got {moving.ndim}D and {reference.ndim}D."
-        )
-    if moving.shape[1] != reference.shape[1]:
-        raise ValueError(
-            "feature_match_cost_matrix: feature width mismatch; "
-            f"got {moving.shape[1]} vs {reference.shape[1]}."
-        )
-    resolved = str(metric).strip().lower()
-    if resolved not in FEATURE_MATCH_METRICS:
-        raise ValueError(
-            "feature_match_cost_matrix: metric must be one of "
-            f"{FEATURE_MATCH_METRICS}; got {metric!r}."
-        )
-    n_features = int(moving.shape[1])
-    if resolved in ("pearson", "spearman") and n_features < 2:
-        raise ValueError(
-            f"feature_match_cost_matrix: {resolved} needs at least 2 "
-            f"features; got {n_features}."
-        )
-    if resolved == "euclidean":
-        delta = moving[:, None, :] - reference[None, :, :]
-        return np.sqrt(np.sum(delta * delta, axis=2))
-    if resolved == "manhattan":
-        return np.sum(np.abs(moving[:, None, :] - reference[None, :, :]), axis=2)
-    if resolved == "chebyshev":
-        return np.max(np.abs(moving[:, None, :] - reference[None, :, :]), axis=2)
-    if resolved == "cosine":
-        return _row_cosine_distance(moving, reference)
-    if resolved == "pearson":
-        return _row_pearson_distance(moving, reference)
-    ranked_moving = _rank_rows(moving)
-    ranked_reference = _rank_rows(reference)
-    return _row_pearson_distance(ranked_moving, ranked_reference)
+    n_rows = int(rows.shape[0])
+    assignment = np.full(n_rows, -1, dtype=np.int64)
+    if n_rows == 0:
+        return assignment
+    cost = _metric_cost(rows, prototypes, metric)
+    n_prototypes = int(prototypes.shape[0])
+    if unmatched_cost is not None:
+        # Diagonal dummy block: row i may only use its own dummy column.
+        dummy = np.full((n_rows, n_rows), np.inf, dtype=np.float64)
+        np.fill_diagonal(dummy, float(unmatched_cost))
+        cost = np.hstack((cost, dummy))
+    row_index, column_index = linear_sum_assignment(cost)
+    for row, column in zip(row_index.tolist(), column_index.tolist()):
+        if column < n_prototypes:
+            assignment[row] = column
+    return assignment
 
 
-def match_labels_by_centroid(
-    reference_ids: np.ndarray,
-    reference_centroids: np.ndarray,
-    moving_ids: np.ndarray,
-    moving_centroids: np.ndarray,
+def _update_prototypes(
+    blocks: Sequence[np.ndarray],
+    assignments: Sequence[np.ndarray],
+    previous: np.ndarray,
+    metric: str,
+) -> np.ndarray:
+    """
+    Move every prototype to the centre that minimises its metric cost.
+
+    Mean for ``"sqeuclidean"``, per-feature median for ``"manhattan"``,
+    renormalised mean for ``"cosine"`` / ``"correlation"``. A prototype
+    with no assigned row (or whose unit rows cancel out exactly) keeps
+    its previous value.
+    """
+    n_prototypes, n_features = previous.shape
+    updated = previous.copy()
+    if metric == "manhattan":
+        members: List[List[np.ndarray]] = [[] for _ in range(n_prototypes)]
+        for rows, assignment in zip(blocks, assignments):
+            for row, prototype in zip(rows, assignment.tolist()):
+                if prototype >= 0:
+                    members[prototype].append(row)
+        for prototype, rows in enumerate(members):
+            if rows:
+                updated[prototype] = np.median(np.vstack(rows), axis=0)
+        return updated
+    sums = np.zeros((n_prototypes, n_features), dtype=np.float64)
+    counts = np.zeros(n_prototypes, dtype=np.int64)
+    for rows, assignment in zip(blocks, assignments):
+        matched = assignment >= 0
+        if not np.any(matched):
+            continue
+        np.add.at(sums, assignment[matched], rows[matched])
+        np.add.at(counts, assignment[matched], 1)
+    filled = counts > 0
+    if metric in ("cosine", "correlation"):
+        norms = np.linalg.norm(sums, axis=1)
+        filled &= norms >= _SCALE_FLOOR
+        updated[filled] = sums[filled] / norms[filled, None]
+        return updated
+    updated[filled] = sums[filled] / counts[filled, None]
+    return updated
+
+
+def _prototype_objective(
+    blocks: Sequence[np.ndarray],
+    assignments: Sequence[np.ndarray],
+    prototypes: np.ndarray,
+    metric: str,
+    unmatched_cost: Optional[float],
+) -> float:
+    """Sum of matched metric costs plus the unmatched penalty."""
+    total = 0.0
+    for rows, assignment in zip(blocks, assignments):
+        matched = assignment >= 0
+        if np.any(matched):
+            cost = _metric_cost(rows[matched], prototypes, metric)
+            total += float(np.sum(cost[np.arange(cost.shape[0]), assignment[matched]]))
+        if unmatched_cost is not None:
+            total += float(unmatched_cost) * int(np.count_nonzero(~matched))
+    return total
+
+
+def match_rows_to_prototypes(
+    blocks: Sequence[np.ndarray],
     *,
-    metric: FeatureMatchMetric = "euclidean",
-    standardize: FeatureMatchScale = "none",
-    reference_volumes: Optional[np.ndarray] = None,
-    moving_volumes: Optional[np.ndarray] = None,
-    volume_weight: Optional[float] = None,
-    location: Optional[np.ndarray] = None,
-    scale: Optional[np.ndarray] = None,
-) -> Dict[int, int]:
+    metric: PrototypeMetric = "sqeuclidean",
+    max_distance: Optional[float] = None,
+    max_iter: int = 100,
+    prototypes: Optional[np.ndarray] = None,
+) -> PrototypeMatch:
     """
-    Pair moving habitats to reference habitats by centroid distance.
+    Name habitats across a cohort by matching them to shared prototypes.
 
-    Default is raw Euclidean Hungarian (same-image intensity / spatial
-    means, or any already-commensurate space). For cross-patient
-    habitat-summary naming prefer :func:`match_labels_by_features`.
+    Pairwise matching to one reference subject biases the names toward
+    that subject and is not transitive (A→B→C can disagree with A→C).
+    This operator instead alternates two steps until the assignments stop
+    changing (Stephens 2000 relabelling; equivalently k-means with a
+    cannot-link constraint between rows of the same block, Wagstaff 2001):
+
+    1. **Assign** -- every block is matched one-to-one onto the current
+       prototypes by Hungarian assignment on the metric cost.
+    2. **Update** -- every prototype moves to the centre that minimises
+       that cost (see :data:`PROTOTYPE_METRICS`).
+
+    Both steps can only lower the objective, so the loop terminates. The
+    search is started once from every block that has exactly ``K`` rows
+    and the lowest-objective result wins, so no single subject decides
+    the outcome. Final prototypes are sorted lexicographically so the
+    numbering is reproducible regardless of block order.
+
+    ``K`` is the largest block row count. Every row of every block
+    therefore finds a distinct prototype: no subject loses or merges a
+    habitat, and a block with fewer rows simply leaves some prototypes
+    empty. With two blocks and ``"sqeuclidean"`` the result is exactly
+    pairwise Hungarian on squared Euclidean distance (a matched pair's
+    within-group sum of squares is half its squared distance), found at
+    the global optimum.
+
+    Metric notes. ``"sqeuclidean"`` (default) and ``"manhattan"`` compare
+    values, so a strongly and a weakly enhancing habitat differ.
+    ``"cosine"`` compares only the direction of the feature vector:
+    rows ``(0.5, 0.6)`` and ``(2.0, 2.4)`` are identical to it, and with
+    one feature of constant sign every row looks the same.
+    ``"correlation"`` compares only the profile shape across features:
+    with two features every centred row is one of two directions, and
+    with one feature it is undefined (rejected). Use cosine /
+    correlation only when many features describe a habitat and their
+    shape, not their level, is what defines it.
+
+    ``prototypes`` freezes the definition: rows are assigned once to the
+    given prototypes (in the order given), nothing is updated, and ``K``
+    is ``prototypes.shape[0]``. Use it to name a validation cohort or a
+    new patient with prototypes fitted elsewhere; refitting would let the
+    new subjects change the definition. A block with more rows than
+    ``K`` leaves the extra rows unmatched.
+
+    Rows must already live in one comparable space; this kernel does not
+    rescale columns. Arrays in, arrays out.
 
     Args:
-        reference_ids: Habitat ids aligned with ``reference_centroids`` rows.
-        reference_centroids: Feature centroids, shape
-            ``(n_reference, n_features)``.
-        moving_ids: Habitat ids aligned with ``moving_centroids`` rows.
-        moving_centroids: Feature centroids, shape
-            ``(n_moving, n_features)``.
-        metric: Cost metric. Default ``"euclidean"``.
-        standardize: ``"none"`` (default) or ``"zscore"``.
-        reference_volumes: Optional volume fractions aligned with
-            ``reference_ids`` (tie-break only).
-        moving_volumes: Optional volume fractions aligned with
-            ``moving_ids``.
-        volume_weight: Weight on ``|Δvolume|``. ``None`` uses
-            :data:`_DEFAULT_VOLUME_TIEBREAK` when volumes are given.
-        location: Locked cohort mean. Requires ``scale``.
-        scale: Locked cohort std.
+        blocks: One ``(n_habitats, n_features)`` matrix per subject.
+            Empty blocks (a subject without habitats) are allowed.
+        metric: One of :data:`PROTOTYPE_METRICS`. Default
+            ``"sqeuclidean"``.
+        max_distance: Optional distance (in the units reported by
+            ``distances``) above which a row is left unmatched instead of
+            being forced onto a prototype. ``None`` (default) names every
+            row that has a free prototype.
+        max_iter: Upper bound on assignment / update rounds per start.
+        prototypes: Optional frozen prototypes ``(K, n_features)`` in the
+            same units as ``blocks`` (for cosine / correlation any
+            positive scaling is fine; rows are normalised here).
 
     Returns:
-        Mapping ``{moving_id: reference_id}`` for every assigned pair.
-        Empty when either side has no habitats.
+        A :class:`PrototypeMatch`.
 
     Raises:
-        ValueError: If centroid shapes, metrics, or locked stats are invalid.
+        ValueError: If blocks are not 2-D / finite / equal width, a
+            cosine / correlation row has zero length, or a parameter is
+            out of range.
     """
-    return match_labels_by_features(
-        reference_ids,
-        reference_centroids,
-        moving_ids,
-        moving_centroids,
-        metric=metric,
-        standardize=standardize,
-        reference_volumes=reference_volumes,
-        moving_volumes=moving_volumes,
-        volume_weight=volume_weight,
-        location=location,
-        scale=scale,
+    resolved_metric = str(metric).strip().lower()
+    if resolved_metric not in PROTOTYPE_METRICS:
+        raise ValueError(
+            "match_rows_to_prototypes: metric must be one of "
+            f"{PROTOTYPE_METRICS}; got {metric!r}."
+        )
+    matrices: List[np.ndarray] = []
+    n_features: Optional[int] = None
+    for index, block in enumerate(blocks):
+        matrix = np.asarray(block, dtype=np.float64)
+        if matrix.size == 0:
+            # Width is fixed below once a non-empty block reveals it.
+            matrices.append(matrix)
+            continue
+        if matrix.ndim != 2:
+            raise ValueError(
+                "match_rows_to_prototypes: block "
+                f"{index} must be 2-D; got {matrix.ndim}D."
+            )
+        if n_features is None:
+            n_features = int(matrix.shape[1])
+        elif int(matrix.shape[1]) != n_features:
+            raise ValueError(
+                "match_rows_to_prototypes: feature width mismatch at block "
+                f"{index}; got {matrix.shape[1]} vs {n_features}."
+            )
+        if not np.all(np.isfinite(matrix)):
+            raise ValueError(
+                f"match_rows_to_prototypes: block {index} must be finite."
+            )
+        matrices.append(_metric_rows(matrix, resolved_metric, f"block {index}"))
+    if n_features is None:
+        raise ValueError("match_rows_to_prototypes: no habitat rows to match.")
+    matrices = [
+        matrix if matrix.size else np.empty((0, n_features), dtype=np.float64)
+        for matrix in matrices
+    ]
+    row_counts = [int(matrix.shape[0]) for matrix in matrices]
+    if int(max_iter) < 1:
+        raise ValueError(
+            f"match_rows_to_prototypes: max_iter must be >= 1; got {max_iter}."
+        )
+    unmatched_cost: Optional[float] = None
+    if max_distance is not None:
+        if not np.isfinite(max_distance) or float(max_distance) <= 0:
+            raise ValueError(
+                "match_rows_to_prototypes: max_distance must be a positive "
+                f"finite number; got {max_distance!r}."
+            )
+        # Only sqeuclidean reports a distance that is not its own cost.
+        unmatched_cost = (
+            float(max_distance) ** 2
+            if resolved_metric == "sqeuclidean"
+            else float(max_distance)
+        )
+
+    if prototypes is not None:
+        frozen = np.asarray(prototypes, dtype=np.float64)
+        if frozen.ndim != 2 or frozen.shape[0] == 0 or frozen.shape[1] != n_features:
+            raise ValueError(
+                "match_rows_to_prototypes: prototypes must have shape "
+                f"(K, {n_features}); got {frozen.shape}."
+            )
+        if not np.all(np.isfinite(frozen)):
+            raise ValueError("match_rows_to_prototypes: prototypes must be finite.")
+        # Cosine / correlation prototypes must be unit rows in the working
+        # space; means and medians are used as given.
+        frozen = _metric_rows(frozen, resolved_metric, "prototypes")
+        assignments = [
+            _assign_block_to_prototypes(rows, frozen, resolved_metric, unmatched_cost)
+            for rows in matrices
+        ]
+        best = PrototypeMatch(
+            assignments=tuple(assignments),
+            distances=(),
+            prototypes=frozen,
+            objective=_prototype_objective(
+                matrices, assignments, frozen, resolved_metric, unmatched_cost
+            ),
+            n_iter=1,
+            converged=True,
+            init_block=-1,
+            metric=resolved_metric,
+        )
+        order = np.arange(frozen.shape[0])
+    else:
+        # K = largest habitat count, so every habitat can get its own prototype.
+        n_proto = max(row_counts)
+        # Every subject with the largest habitat count seeds one start.
+        seeds = [index for index, count in enumerate(row_counts) if count == n_proto]
+        best_fit: Optional[PrototypeMatch] = None
+        for seed in seeds:
+            current = matrices[seed].copy()
+            previous: Optional[List[np.ndarray]] = None
+            converged = False
+            n_iter = 0
+            assignments = []
+            for n_iter in range(1, int(max_iter) + 1):
+                assignments = [
+                    _assign_block_to_prototypes(
+                        rows, current, resolved_metric, unmatched_cost
+                    )
+                    for rows in matrices
+                ]
+                current = _update_prototypes(
+                    matrices, assignments, current, resolved_metric
+                )
+                if previous is not None and all(
+                    np.array_equal(old, new) for old, new in zip(previous, assignments)
+                ):
+                    converged = True
+                    break
+                previous = assignments
+            objective = _prototype_objective(
+                matrices, assignments, current, resolved_metric, unmatched_cost
+            )
+            # Strict "<" keeps the earliest seed on ties, so results are
+            # deterministic for a given block order.
+            if best_fit is None or objective < best_fit.objective - 1e-12:
+                best_fit = PrototypeMatch(
+                    assignments=tuple(assignments),
+                    distances=(),
+                    prototypes=current,
+                    objective=objective,
+                    n_iter=n_iter,
+                    converged=converged,
+                    init_block=seed,
+                    metric=resolved_metric,
+                )
+        assert best_fit is not None
+        best = best_fit
+        # Canonical numbering: lexicographic on feature columns, first
+        # column most significant. np.lexsort treats the LAST key as primary.
+        order = np.lexsort(best.prototypes.T[::-1])
+
+    n_out = int(best.prototypes.shape[0])
+    new_index = np.empty(n_out, dtype=np.int64)
+    new_index[order] = np.arange(n_out, dtype=np.int64)
+    final = best.prototypes[order]
+    assignments_out: List[np.ndarray] = []
+    distances_out: List[np.ndarray] = []
+    for rows, assignment in zip(matrices, best.assignments):
+        renamed = np.where(assignment >= 0, new_index[np.maximum(assignment, 0)], -1)
+        distance = np.full(renamed.size, np.nan, dtype=np.float64)
+        matched = renamed >= 0
+        if np.any(matched):
+            cost = _metric_cost(rows[matched], final, resolved_metric)
+            picked = cost[np.arange(cost.shape[0]), renamed[matched]]
+            if resolved_metric == "sqeuclidean":
+                picked = np.sqrt(np.maximum(picked, 0.0))
+            distance[matched] = picked
+        assignments_out.append(renamed.astype(np.int64))
+        distances_out.append(distance)
+    return best._replace(
+        assignments=tuple(assignments_out),
+        distances=tuple(distances_out),
+        prototypes=final,
     )
-
-
-def match_labels_by_features(
-    reference_ids: np.ndarray,
-    reference_features: np.ndarray,
-    moving_ids: np.ndarray,
-    moving_features: np.ndarray,
-    *,
-    metric: FeatureMatchMetric = "euclidean",
-    standardize: FeatureMatchScale = "zscore",
-    reference_volumes: Optional[np.ndarray] = None,
-    moving_volumes: Optional[np.ndarray] = None,
-    volume_weight: Optional[float] = None,
-    location: Optional[np.ndarray] = None,
-    scale: Optional[np.ndarray] = None,
-) -> Dict[int, int]:
-    """
-    Pair habitats by cohort-standardised **habitat summary features**.
-
-    Intended Stage-B naming operator:
-
-    1. Rows are **unscaled** habitat means / medians (or any caller-built
-       summary vectors with a shared feature width).
-    2. Columns are z-scored on the stacked reference+moving rows, or
-       with a locked ``location`` / ``scale`` from
-       :func:`fit_feature_match_scale` (full cohort).
-    3. Hungarian assignment minimises Euclidean or ``1 - r`` cost.
-    4. Volume fraction, if given, is a small additive tie-break.
-
-    Feature content is not restricted to texture: multimodality raw
-    intensities, engineered maps, and mixed channels work when both sides
-    use the same definition. Do not pass per-tumour MinMax / z-score
-    cluster centres: those axes change when one tumour's own min/max
-    change.
-
-    Args:
-        reference_ids: Habitat ids aligned with ``reference_features`` rows.
-        reference_features: Unscaled summaries, shape
-            ``(n_reference, n_features)``.
-        moving_ids: Habitat ids aligned with ``moving_features`` rows.
-        moving_features: Unscaled summaries, shape
-            ``(n_moving, n_features)``.
-        metric: One of :data:`FEATURE_MATCH_METRICS`. Default Euclidean
-            after z-score (equal feature weight). ``pearson`` /
-            ``spearman`` compare profile shape (``1 - r``).
-        standardize: ``"zscore"`` (default) or ``"none"``.
-        reference_volumes: Optional fractions aligned with reference rows.
-        moving_volumes: Optional fractions aligned with moving rows.
-        volume_weight: Weight on ``|Δvolume|``. ``None`` uses a small
-            default when both volume vectors are given, else ``0``.
-        location: Locked cohort mean. Requires ``scale``.
-        scale: Locked cohort std.
-
-    Returns:
-        Mapping ``{moving_id: reference_id}``. Empty when either side
-        has no habitats. Hungarian is one-to-one: two moving ids never
-        share a reference id.
-
-    Raises:
-        ValueError: If shapes, metric, or scaler inputs are invalid.
-    """
-    ref_ids = np.asarray(reference_ids, dtype=np.int64).reshape(-1)
-    mov_ids = np.asarray(moving_ids, dtype=np.int64).reshape(-1)
-    ref_feat = np.asarray(reference_features, dtype=np.float64)
-    mov_feat = np.asarray(moving_features, dtype=np.float64)
-    if ref_ids.size == 0 or mov_ids.size == 0:
-        return {}
-    if ref_feat.ndim != 2 or mov_feat.ndim != 2:
-        raise ValueError(
-            "match_labels_by_features: feature matrices must be 2-D; "
-            f"got {ref_feat.ndim}D and {mov_feat.ndim}D."
-        )
-    if ref_feat.shape[0] != ref_ids.size or mov_feat.shape[0] != mov_ids.size:
-        raise ValueError(
-            "match_labels_by_features: feature rows must match ids; "
-            f"got {ref_feat.shape[0]} vs {ref_ids.size} and "
-            f"{mov_feat.shape[0]} vs {mov_ids.size}."
-        )
-    if ref_feat.shape[1] != mov_feat.shape[1]:
-        raise ValueError(
-            "match_labels_by_features: feature width mismatch; "
-            f"got {ref_feat.shape[1]} vs {mov_feat.shape[1]}."
-        )
-    if not np.all(np.isfinite(ref_feat)) or not np.all(np.isfinite(mov_feat)):
-        raise ValueError(
-            "match_labels_by_features: feature matrices must be finite."
-        )
-    ref_scaled, mov_scaled = _standardize_pair(
-        ref_feat,
-        mov_feat,
-        method=standardize,
-        location=location,
-        scale=scale,
-    )
-    cost = feature_match_cost_matrix(mov_scaled, ref_scaled, metric=metric)
-    cost = _add_volume_tiebreak(
-        cost,
-        reference_volumes=reference_volumes,
-        moving_volumes=moving_volumes,
-        n_reference=int(ref_ids.size),
-        n_moving=int(mov_ids.size),
-        volume_weight=volume_weight,
-    )
-    rows, columns = linear_sum_assignment(cost)
-    return {
-        int(mov_ids[row]): int(ref_ids[column])
-        for row, column in zip(rows.tolist(), columns.tolist())
-    }
 
 
 def _stack_feature_blocks(
@@ -626,113 +708,6 @@ def _stack_feature_blocks(
     if not matrices:
         raise ValueError(f"{caller}: no finite habitat rows to fit.")
     return np.vstack(matrices)
-
-
-def _standardize_pair(
-    reference_features: np.ndarray,
-    moving_features: np.ndarray,
-    *,
-    method: FeatureMatchScale,
-    location: Optional[np.ndarray],
-    scale: Optional[np.ndarray],
-) -> Tuple[np.ndarray, np.ndarray]:
-    """Z-score both sides with one locked or stacked-pair scaler."""
-    if location is not None or scale is not None:
-        ref_scaled, _, _ = standardize_feature_rows(
-            reference_features, method=method, location=location, scale=scale
-        )
-        mov_scaled, _, _ = standardize_feature_rows(
-            moving_features, method=method, location=location, scale=scale
-        )
-        return ref_scaled, mov_scaled
-    resolved = str(method).strip().lower()
-    if resolved == "none":
-        return reference_features, moving_features
-    if resolved != "zscore":
-        raise ValueError(
-            "match_labels_by_features: standardize must be one of "
-            f"{FEATURE_MATCH_SCALES}; got {method!r}."
-        )
-    stacked = np.vstack((reference_features, moving_features))
-    loc, scl = fit_feature_match_scale((stacked,), method="zscore")
-    return (reference_features - loc) / scl, (moving_features - loc) / scl
-
-
-def _add_volume_tiebreak(
-    cost: np.ndarray,
-    *,
-    reference_volumes: Optional[np.ndarray],
-    moving_volumes: Optional[np.ndarray],
-    n_reference: int,
-    n_moving: int,
-    volume_weight: Optional[float],
-) -> np.ndarray:
-    """Add |Δvolume| so volume only breaks near-equal feature costs."""
-    have_volumes = reference_volumes is not None or moving_volumes is not None
-    if not have_volumes:
-        return cost
-    if reference_volumes is None or moving_volumes is None:
-        raise ValueError(
-            "match_labels_by_features: reference_volumes and moving_volumes "
-            "must be provided together."
-        )
-    ref_vf = np.asarray(reference_volumes, dtype=np.float64).reshape(-1)
-    mov_vf = np.asarray(moving_volumes, dtype=np.float64).reshape(-1)
-    if ref_vf.size != n_reference or mov_vf.size != n_moving:
-        raise ValueError(
-            "match_labels_by_features: volume lengths must match ids; "
-            f"got {ref_vf.size} vs {n_reference} and "
-            f"{mov_vf.size} vs {n_moving}."
-        )
-    weight = _DEFAULT_VOLUME_TIEBREAK if volume_weight is None else float(volume_weight)
-    if weight == 0.0:
-        return cost
-    delta = np.abs(mov_vf[:, None] - ref_vf[None, :])
-    return cost + weight * delta
-
-
-def _rank_rows(matrix: np.ndarray) -> np.ndarray:
-    """Average ranks along the feature axis (Spearman)."""
-    ranked = np.empty_like(matrix, dtype=np.float64)
-    for row in range(matrix.shape[0]):
-        ranked[row] = rankdata(matrix[row], method="average")
-    return ranked
-
-
-def _row_cosine_distance(moving: np.ndarray, reference: np.ndarray) -> np.ndarray:
-    """1 - cosine similarity; a zero vector is treated as orthogonal."""
-    moving_norm = np.linalg.norm(moving, axis=1, keepdims=True)
-    reference_norm = np.linalg.norm(reference, axis=1, keepdims=True)
-    moving_ok = moving_norm[:, 0] >= _SCALE_FLOOR
-    reference_ok = reference_norm[:, 0] >= _SCALE_FLOOR
-    moving_unit = np.divide(moving, moving_norm, where=moving_norm >= _SCALE_FLOOR)
-    reference_unit = np.divide(
-        reference, reference_norm, where=reference_norm >= _SCALE_FLOOR
-    )
-    similarity = moving_unit @ reference_unit.T
-    similarity[~moving_ok, :] = 0.0
-    similarity[:, ~reference_ok] = 0.0
-    return 1.0 - similarity
-
-
-def _row_pearson_distance(moving: np.ndarray, reference: np.ndarray) -> np.ndarray:
-    """1 - Pearson r of each pair of rows; a constant row costs 1."""
-    moving_centered = moving - moving.mean(axis=1, keepdims=True)
-    reference_centered = reference - reference.mean(axis=1, keepdims=True)
-    moving_norm = np.linalg.norm(moving_centered, axis=1, keepdims=True)
-    reference_norm = np.linalg.norm(reference_centered, axis=1, keepdims=True)
-    moving_ok = moving_norm[:, 0] >= _SCALE_FLOOR
-    reference_ok = reference_norm[:, 0] >= _SCALE_FLOOR
-    moving_unit = np.divide(
-        moving_centered, moving_norm, where=moving_norm >= _SCALE_FLOOR
-    )
-    reference_unit = np.divide(
-        reference_centered, reference_norm, where=reference_norm >= _SCALE_FLOOR
-    )
-    similarity = moving_unit @ reference_unit.T
-    similarity[~moving_ok, :] = 0.0
-    similarity[:, ~reference_ok] = 0.0
-    return 1.0 - similarity
 
 
 def _nonzero_union_labels(
@@ -984,7 +959,7 @@ def match_labels_by_overlap(
     Pair moving habitats to reference habitats by maximal voxel overlap.
 
     This is the Prior 2024 Hungarian / ``munkres`` step. The assignment is
-    the same pairing ``habitat_stability(..., method="overlap")`` uses.
+    the same pairing :func:`~habit.precision.habitat_stability` uses.
     The overlap table is a one-pass ``bincount`` on non-background voxels,
     then the same ``linear_sum_assignment(-overlap)`` as before.
 
@@ -1072,232 +1047,3 @@ def remap_label_array(
     return lut[labels]
 
 
-def match_label_ids(
-    reference: np.ndarray,
-    moving: np.ndarray,
-    *,
-    image: Optional[np.ndarray] = None,
-    moving_image: Optional[np.ndarray] = None,
-    method: str = "centroid",
-    reference_centroids: Optional[np.ndarray] = None,
-    moving_centroids: Optional[np.ndarray] = None,
-    reference_ids: Optional[np.ndarray] = None,
-    moving_ids: Optional[np.ndarray] = None,
-    metric: FeatureMatchMetric = "euclidean",
-    standardize: Optional[FeatureMatchScale] = None,
-    reduction: Literal["mean", "median"] = "mean",
-    volume_tiebreak: bool = False,
-    reference_volumes: Optional[np.ndarray] = None,
-    moving_volumes: Optional[np.ndarray] = None,
-    volume_weight: Optional[float] = None,
-    location: Optional[np.ndarray] = None,
-    scale: Optional[np.ndarray] = None,
-) -> Dict[int, int]:
-    """
-    Return ``{moving_id: reference_id}`` for one matching method.
-
-    ``method="centroid"`` (default) is raw Euclidean Hungarian on
-    explicit centroids, else mean intensity of ``image`` /
-    ``moving_image``, else spatial means. ``method="features"`` is the
-    Stage-B path: unscaled summaries, cohort z-score, then Hungarian.
-    ``method="overlap"`` pairs by maximal voxel overlap.
-
-    Args:
-        reference: Reference integer label image.
-        moving: Moving integer label image.
-        image: Optional intensity / feature volume for the reference map.
-            Also used for the moving map when ``moving_image`` is omitted.
-            For ``method="features"`` this must be the **unscaled**
-            feature volume (multimodal / constructed / texture).
-        moving_image: Optional intensity / feature volume for the moving map.
-        method: ``"centroid"`` (default), ``"features"``, or ``"overlap"``.
-        reference_centroids: Optional explicit reference summaries.
-        moving_centroids: Optional explicit moving summaries.
-        reference_ids: Ids aligned with ``reference_centroids`` rows.
-            Defaults to ``1 .. n_rows`` when centroids are given, else
-            the present labels.
-        moving_ids: Ids aligned with ``moving_centroids`` rows.
-        metric: Feature cost. Ignored for ``overlap``.
-        standardize: ``None`` follows the method default (``none`` for
-            ``centroid``, ``zscore`` for ``features``).
-        reduction: Mean or median when summaries are taken from ``image``.
-        volume_tiebreak: If True and volumes are omitted, derive volume
-            fractions from the label arrays.
-        reference_volumes: Optional fractions aligned with reference rows.
-        moving_volumes: Optional fractions aligned with moving rows.
-        volume_weight: Weight on ``|Δvolume|``.
-        location: Locked cohort mean. Requires ``scale``.
-        scale: Locked cohort std.
-
-    Returns:
-        Mapping ``{moving_id: reference_id}`` for every assigned pair.
-
-    Raises:
-        ValueError: If ``method`` is unknown, shapes differ, or centroid
-            inputs are incomplete.
-    """
-    ref_labels = np.asarray(reference)
-    mov_labels = np.asarray(moving)
-    if ref_labels.shape != mov_labels.shape:
-        raise ValueError(
-            "match_label_ids: label shapes must match; "
-            f"got {ref_labels.shape} vs {mov_labels.shape}."
-        )
-    resolved = str(method).strip().lower()
-    if resolved == "overlap":
-        return match_labels_by_overlap(ref_labels, mov_labels)
-    if resolved not in ("centroid", "features"):
-        raise ValueError(
-            "align_label_array: method must be 'centroid', 'features', "
-            f"or 'overlap'; got {method!r}."
-        )
-    scale_method: FeatureMatchScale = (
-        "zscore"
-        if standardize is None and resolved == "features"
-        else "none"
-        if standardize is None
-        else standardize
-    )
-    have_explicit = reference_centroids is not None or moving_centroids is not None
-    if have_explicit:
-        if reference_centroids is None or moving_centroids is None:
-            raise ValueError(
-                "align_label_array: reference_centroids and moving_centroids "
-                "must be provided together."
-            )
-        ref_ids = (
-            np.asarray(reference_ids, dtype=np.int64)
-            if reference_ids is not None
-            else np.arange(1, np.asarray(reference_centroids).shape[0] + 1, dtype=np.int64)
-        )
-        mov_ids = (
-            np.asarray(moving_ids, dtype=np.int64)
-            if moving_ids is not None
-            else np.arange(1, np.asarray(moving_centroids).shape[0] + 1, dtype=np.int64)
-        )
-        ref_cent = np.asarray(reference_centroids, dtype=np.float64)
-        mov_cent = np.asarray(moving_centroids, dtype=np.float64)
-    elif image is not None:
-        ref_image = np.asarray(image)
-        mov_image = np.asarray(moving_image) if moving_image is not None else ref_image
-        ref_ids, ref_cent = habitat_intensity_centroids(
-            ref_image, ref_labels, reduction=reduction
-        )
-        mov_ids, mov_cent = habitat_intensity_centroids(
-            mov_image, mov_labels, reduction=reduction
-        )
-    else:
-        if resolved == "features":
-            raise ValueError(
-                "align_label_array: method='features' needs unscaled "
-                "feature centroids or an unscaled image."
-            )
-        ref_ids, ref_cent = habitat_spatial_centroids(ref_labels)
-        mov_ids, mov_cent = habitat_spatial_centroids(mov_labels)
-    ref_vf = reference_volumes
-    mov_vf = moving_volumes
-    if volume_tiebreak and ref_vf is None and mov_vf is None:
-        ref_vf = habitat_volume_fraction_vector(ref_labels, ref_ids)
-        mov_vf = habitat_volume_fraction_vector(mov_labels, mov_ids)
-    return match_labels_by_features(
-        ref_ids,
-        ref_cent,
-        mov_ids,
-        mov_cent,
-        metric=metric,
-        standardize=scale_method,
-        reference_volumes=ref_vf,
-        moving_volumes=mov_vf,
-        volume_weight=volume_weight,
-        location=location,
-        scale=scale,
-    )
-
-
-def align_label_array(
-    reference: np.ndarray,
-    moving: np.ndarray,
-    *,
-    image: Optional[np.ndarray] = None,
-    moving_image: Optional[np.ndarray] = None,
-    method: str = "centroid",
-    reference_centroids: Optional[np.ndarray] = None,
-    moving_centroids: Optional[np.ndarray] = None,
-    reference_ids: Optional[np.ndarray] = None,
-    moving_ids: Optional[np.ndarray] = None,
-    metric: FeatureMatchMetric = "euclidean",
-    standardize: Optional[FeatureMatchScale] = None,
-    reduction: Literal["mean", "median"] = "mean",
-    volume_tiebreak: bool = False,
-    reference_volumes: Optional[np.ndarray] = None,
-    moving_volumes: Optional[np.ndarray] = None,
-    volume_weight: Optional[float] = None,
-    location: Optional[np.ndarray] = None,
-    scale: Optional[np.ndarray] = None,
-) -> np.ndarray:
-    """
-    Remap ``moving`` ids onto the ``reference`` id space.
-
-    ``method="centroid"`` prefers explicit centroids, else per-habitat
-    intensity of ``image`` / ``moving_image``, then spatial means.
-    ``method="features"`` z-scores unscaled summaries before Hungarian.
-    ``method="overlap"`` uses voxel overlap.
-
-    Args:
-        reference: Reference integer label image.
-        moving: Moving integer label image.
-        image: Optional intensity volume for the reference map. Also used
-            for the moving map when ``moving_image`` is omitted.
-        moving_image: Optional intensity volume for the moving map.
-        method: ``"centroid"`` (default), ``"features"``, or ``"overlap"``.
-        reference_centroids: Optional explicit reference centroids.
-        moving_centroids: Optional explicit moving centroids.
-        reference_ids: Ids aligned with ``reference_centroids`` rows.
-            Defaults to ``1 .. n_rows`` when centroids are given, else
-            the present labels.
-        moving_ids: Ids aligned with ``moving_centroids`` rows.
-        metric: Feature cost. Ignored for ``overlap``.
-        standardize: ``None`` follows the method default.
-        reduction: Mean or median when summaries are taken from ``image``.
-        volume_tiebreak: Derive volume fractions from the label arrays
-            when explicit volumes are omitted.
-        reference_volumes: Optional fractions aligned with reference rows.
-        moving_volumes: Optional fractions aligned with moving rows.
-        volume_weight: Weight on ``|Δvolume|``.
-        location: Locked cohort mean. Requires ``scale``.
-        scale: Locked cohort std.
-
-    Returns:
-        Remapped copy of ``moving``. Matched ids use the reference id
-        space. Extra moving habitats (more clusters than the reference)
-        receive unused ids starting at ``max(reference ids) + 1``.
-
-    Raises:
-        ValueError: If ``method`` is unknown or centroid inputs are incomplete.
-    """
-    mov_labels = np.asarray(moving)
-    mapping = match_label_ids(
-        reference,
-        moving,
-        image=image,
-        moving_image=moving_image,
-        method=method,
-        reference_centroids=reference_centroids,
-        moving_centroids=moving_centroids,
-        reference_ids=reference_ids,
-        moving_ids=moving_ids,
-        metric=metric,
-        standardize=standardize,
-        reduction=reduction,
-        volume_tiebreak=volume_tiebreak,
-        reference_volumes=reference_volumes,
-        moving_volumes=moving_volumes,
-        volume_weight=volume_weight,
-        location=location,
-        scale=scale,
-    )
-    return remap_label_array(
-        mov_labels,
-        mapping,
-        reserved_ids=present_habitat_ids(np.asarray(reference)),
-    )
