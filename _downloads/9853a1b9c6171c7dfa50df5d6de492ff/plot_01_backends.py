@@ -142,7 +142,7 @@ if __name__ == "__main__":
 # always faster. The scientific definition is unchanged: same
 # ``HabitatSpec``, same habitat labels. The timing gap is overhead.
 # Process workers win when there are many subjects, each subject is
-# expensive, and ``workers`` stays greater than 1 — see the recorded
+# expensive, and ``workers`` stays greater than 1. See the recorded
 # multi-GPU table further down.
 if __name__ == "__main__":
     for name, seconds in timings.items():

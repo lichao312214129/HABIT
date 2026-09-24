@@ -878,52 +878,7 @@ change the numbers.</p>
 
 <section id="examples-using-habit-contracts-voxelfeaturefield">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.contracts.VoxelFeatureField</span></code><a class="headerlink" href="#examples-using-habit-contracts-voxelfeaturefield" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Arrays use axis order (z, y, x). The mask is integer labels, 0 = background. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_03_numpy_arrays_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/01_data_in/plot_03_numpy_arrays.html"><span class="doc">Load from NumPy arrays</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Load from NumPy arrays</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Clustering uses the voxel field you define — not a fixed T1 image. This page is the intensity pair: raw (concatenate modality intensities inside the ROI) and concat (join families column-wise)."><img alt="" src="../../_images/sphx_glr_plot_01_feature_routes_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_01_feature_routes.html"><span class="doc">Voxel features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Voxel features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Three liver DCE maps: arterial relative enhancement, arterial-to-portal wash-out, and arterial-to-delayed wash-out."><img alt="" src="../../_images/sphx_glr_plot_02_custom_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_02_custom_features.html"><span class="doc">Custom features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Custom features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="ExpressionVoxelFeatures builds one column per formula. Names in the formula are modality keys on the subject (``LAP``, pre_contrast, ...). eps keeps a zero denominator from breaking a ratio."><img alt="" src="../../_images/sphx_glr_plot_02_expression_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_02_expression.html"><span class="doc">Expression voxel features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Expression voxel features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Texture maps are inputs to clustering, not post-label tables. GPU is a faster implementation of the same IBSI / PyRadiomics definition — the numbers do not change because of GPU."><img alt="" src="../../_images/sphx_glr_plot_03_voxel_texture_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Voxel texture and GPU</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel texture columns live on very different scales: GLCM contrast runs into the hundreds, correlation stays within [-1, 1]. Clustering then sees mostly the large columns, so a preprocessing step comes first."><img alt="" src="../../_images/sphx_glr_plot_06_texture_preprocessing_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Preprocessing voxel texture before clustering</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw."><img alt="" src="../../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture."><img alt="" src="../../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with the four DCE phases. Output: a HabitatMap. The voxel field is ExpressionVoxelFeatures (see /auto_examples/02_stages/plot_02_expression). Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: a HabitatMap built from the preprocessed features. Stage: voxel_feature_preprocessors, then partition, fit, assign."><img alt="" src="../../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_10_preprocess_features.html"><span class="doc">Preprocessing features before clustering</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Preprocessing features before clustering</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/02_stages/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/03_quantify/plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="With one_step habitats every subject is clustered on its own, so habitat 1 of one patient need not be habitat 1 of another, and patients may even have different habitat counts. align_habitat_maps_to_prototypes gives every subject one shared set of names:"><img alt="" src="../../_images/sphx_glr_plot_07_match_labels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Matching habitat labels across subjects</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/08_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
 </div></div><div style="clear:both"></div></section>
