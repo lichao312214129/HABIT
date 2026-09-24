@@ -1,0 +1,53 @@
+
+
+.. _sphx_glr_auto_examples_05_apply:
+
+5. Apply a saved model
+======================
+
+Train the habitat definition, write a ``.habitatmodel`` file, and label
+later subjects without fitting again.
+
+:doc:`/auto_examples/05_apply/plot_04_apply_saved_model`
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_apply/images/thumb/sphx_glr_plot_04_apply_saved_model_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_apply/plot_04_apply_saved_model`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Applying a saved habitat model</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/05_apply/plot_04_apply_saved_model
+

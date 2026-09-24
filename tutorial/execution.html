@@ -23,7 +23,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=51b770b3"></script>
+        <script src="../_static/documentation_options.js?v=acc74ff5"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -46,7 +46,7 @@
             HABIT
           </a>
               <div class="version">
-                2.0.0
+                3.0.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -98,6 +98,10 @@
 <p class="caption" role="heading"><span class="caption-text">Habitat Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Habitat Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/00_full_pipeline/index.html">0. Complete analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/00_full_pipeline/plot_01_full_pipeline.html">A complete habitat analysis</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../auto_examples/01_data_in/index.html">1. Data In</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
@@ -105,60 +109,61 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_expression.html">Expression voxel features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_stages/index.html">2. Each stage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_01_feature_routes.html">Voxel features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_02_expression.html">Expression voxel features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_09_texture_habitats.html">Clustering habitats from a texture field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_10_preprocess_features.html">Preprocessing features before clustering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_11_preprocess_compare.html">Comparing habitat maps with and without preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_12_supervoxels.html">Partitioning a ROI into supervoxels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_13_fit_model.html">Fitting a cohort habitat model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_14_assign_labels.html">Assigning habitat labels</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_precision/plot_01_precise_features.html">Precise voxel features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03_quantify/index.html">3. Habitat Quantification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_01_volume_fractions.html">Volume and fractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_02_msi.html">Multiregional spatial interaction (MSI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_03_ith.html">Intratumoral heterogeneity (ITH)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_04_graph_features.html">Graph features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_05_each_habitat_radiomics.html">Per-habitat radiomics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_06_whole_habitat_radiomics.html">Whole-habitat radiomics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_01_two_step.html">Defining habitats in two steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_09_texture_habitats.html">Clustering habitats from a texture field</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_10_preprocess_features.html">Preprocessing features before clustering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_11_preprocess_compare.html">Comparing habitat maps with and without preprocessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_12_supervoxels.html">Partitioning a ROI into supervoxels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_13_fit_model.html">Fitting a cohort habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_14_assign_labels.html">Assigning habitat labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04_designs/index.html">4. Three habitat designs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_designs/plot_01_two_step.html">Defining habitats in two steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_designs/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_designs/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05_quantify/index.html">5. Habitat Quantification</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_01_volume_fractions.html">Volume and fractions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_02_msi.html">Multiregional spatial interaction (MSI)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_03_ith.html">Intratumoral heterogeneity (ITH)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_04_graph_features.html">Graph features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_05_each_habitat_radiomics.html">Per-habitat radiomics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_06_whole_habitat_radiomics.html">Whole-habitat radiomics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05_apply/index.html">5. Apply a saved model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_apply/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_run_a_cohort.html">Running a cohort in parallel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_when_a_subject_fails.html">When a subject fails</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_03_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_matching/index.html">6. Matching Habitat Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/08_precision/index.html">8. Precise Feature Screening</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/08_precision/plot_01_precise_features.html">Precise voxel features</a></li>
 </ul>
 </li>
 </ul>
@@ -685,7 +690,7 @@ schedule subjects. Scientific numbers do not change when you switch
 serial ↔ process pool if <code class="docutils literal notranslate"><span class="pre">random_seed</span></code> is fixed.</p>
 <p>This page is the integrator chapter. Knob-by-knob reference:
 <a class="reference internal" href="../api/execution.html"><span class="doc">Execution backends</span></a>. Runnable demos:
-<a class="reference internal" href="../auto_examples/06_parallel_runs/index.html"><span class="doc">6. Parallel runs</span></a>.</p>
+<a class="reference internal" href="../auto_examples/07_parallel/index.html"><span class="doc">7. Parallel runs</span></a>.</p>
 <p>Beginners can ignore this page until a cohort is slow or one subject
 crashes the run. The quickstarts use a small process pool already
 (<code class="docutils literal notranslate"><span class="pre">workers=2</span></code>).</p>
@@ -771,12 +776,12 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 process, then <code class="docutils literal notranslate"><span class="pre">backend.map</span></code> the assigner on units already in memory.
 Subject versus cohort preprocessing of that texture, and the equivalent
 <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code>, is
-<a class="reference internal" href="../auto_examples/02_voxel/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a>.
+<a class="reference internal" href="../auto_examples/02_stages/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a>.
 Serial versus pooled runs of one study, with timings, are on the first
 gallery page.</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../auto_examples/02_voxel/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a></p></li>
-<li><p><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_run_a_cohort.html"><span class="doc">Running a cohort in parallel</span></a></p></li>
+<li><p><a class="reference internal" href="../auto_examples/02_stages/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a></p></li>
+<li><p><a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a></p></li>
 </ul>
 </section>
 <section id="failure-policy">
@@ -793,7 +798,7 @@ if</strong> the backend used <code class="docutils literal notranslate"><span cl
 <code class="docutils literal notranslate"><span class="pre">raise_on_failure=False</span></code> so a partial cohort can finish. Calling
 <code class="docutils literal notranslate"><span class="pre">backend.map</span></code> directly leaves the exception on <code class="docutils literal notranslate"><span class="pre">slot.error</span></code>.</p>
 <p>Both, on a study with one incomplete subject:
-<a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_when_a_subject_fails.html"><span class="doc">When a subject fails</span></a>.</p>
+<a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a>.</p>
 <p>Per-subject wall-clock cap: <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> (ProcessPool only).
 Expiry raises <code class="docutils literal notranslate"><span class="pre">SubjectTimeoutError</span></code>.</p>
 <p>In-run retries of flaky subjects: <code class="docutils literal notranslate"><span class="pre">auto_retry_rounds</span></code> (ProcessPool).
@@ -803,7 +808,7 @@ After a fatal <code class="docutils literal notranslate"><span class="pre">Memor
 <h2>Resume and checkpoints<a class="headerlink" href="#resume-and-checkpoints" title="Link to this heading"></a></h2>
 <p>Attach a <a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> so a second run skips
 subjects already recorded as success:
-<a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_when_a_subject_fails.html"><span class="doc">When a subject fails</span></a>.</p>
+<a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a>.</p>
 <p>Recorded <strong>failures</strong> stay skipped unless <code class="docutils literal notranslate"><span class="pre">retry_failed_subjects=True</span></code>.
 Force a few IDs with <code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code>.</p>
 <p>On the habitat recipe / CLI path, cache keys embed the spec fingerprint.
@@ -837,7 +842,7 @@ knobs at the document top level (<code class="docutils literal notranslate"><spa
 <li><p>Habitat core: <a class="reference internal" href="habitat_analysis.html"><span class="doc">Habitat analysis</span></a></p></li>
 <li><p>Embed operators: <a class="reference internal" href="../examples/habitat_atomic_ops.html"><span class="doc">Atomic operators</span></a></p></li>
 <li><p>API reference: <a class="reference internal" href="../api/execution.html"><span class="doc">Execution backends</span></a></p></li>
-<li><p>Demos: <a class="reference internal" href="../auto_examples/06_parallel_runs/index.html"><span class="doc">6. Parallel runs</span></a></p></li>
+<li><p>Demos: <a class="reference internal" href="../auto_examples/07_parallel/index.html"><span class="doc">7. Parallel runs</span></a></p></li>
 </ul>
 </section>
 </section>

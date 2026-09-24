@@ -12,7 +12,7 @@ Execution backends
 
 Integrator chapter (which backend, continue vs fail_fast, resume):
 :doc:`../tutorial/execution`. Runnable demos:
-:doc:`/auto_examples/06_parallel_runs/index`. YAML twins:
+:doc:`/auto_examples/07_parallel/index`. YAML twins:
 :doc:`spec`. Habitat CLI / recipe wiring:
 :doc:`../configuration/habitat`.
 

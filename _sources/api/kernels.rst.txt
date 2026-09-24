@@ -11,7 +11,7 @@ Numeric kernels (``habit.kernels``)
 .. currentmodule:: habit.kernels
 
 **User guide:** Habitat Guide
-:doc:`../auto_examples/05_quantify/plot_04_graph_features`.
+:doc:`../auto_examples/03_quantify/plot_04_graph_features`.
 Pure NumPy / SciPy functions. No ``Subject``, no YAML, no IO.
 
 Classes

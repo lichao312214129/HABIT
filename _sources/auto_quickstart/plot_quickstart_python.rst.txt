@@ -137,24 +137,30 @@ patient. Drop ``pool`` and every subject is clustered on its own
 (one-step); drop ``partition`` and voxels are clustered directly
 (direct pooling). The fitter tries 2 to 10 habitats and keeps the elbow.
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-91
+.. GENERATED FROM PYTHON SOURCE LINES 72-97
 
 .. code-block:: Python
 
     spec = HabitatSpec(
         name="quickstart_two_step",
         stages=(
+            # extract: one intensity column per DCE phase, inside the ROI.
             Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+            # partition: 30 supervoxels per tumour; these rows are clustered.
             Stage("partition", Spec("kmeans", {"n_supervoxels": 30})),
+            # pool: one matrix for every training subject, then one fit.
             Stage("pool", Spec("pool")),
+            # fit: search 2..10 habitats and keep the elbow. n_init=10 restarts.
             Stage("fit", Spec("kmeans", {"min_habitats": 2, "max_habitats": 10, "validation": "elbow", "n_init": 10})),
+            # assign: nearest centroid writes the shared habitat ids.
             Stage("assign", Spec("nearest_centroid")),
-            # Per-subject feature tables: volume fractions, MSI, ITH, graph.
+            # quantify: one row per subject. Spec name is the feature family.
             Stage("volume", Spec("volume")),
             Stage("msi", Spec("msi")),
             Stage("ith", Spec("ith_score")),
             Stage("graph", Spec("graph", {"include_extended_metrics": False})),
         ),
+        # Seeds partition and fit. It is not a RunPolicy setting.
         random_seed=0,
     )
     result = Study(spec).fit_predict(train)
@@ -168,8 +174,8 @@ patient. Drop ``pool`` and every subject is clustered on its own
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.01s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.72s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04<00:01,  1.57s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.50s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:05,  1.74s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:02<00:02,  1.29s/it]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:03<00:01,  1.10s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:04<00:00,  1.02s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:04<00:00,  1.02s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:07,  2.54s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:04<00:04,  2.15s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.96s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.84s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.84s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:03,  1.10s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:01<00:01,  1.03it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02<00:00,  1.12it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.15it/s]
     HabitatModel kmeans-b01ecfd00139f26e
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -177,21 +183,21 @@ patient. Drop ``pool`` and every subject is clustered on its own
       modalities         : pre_contrast, LAP, PVP, delay_3min
       cohort digest      : 81dc6515a9f2b393...
       produced by        : habitat_model_fitter.kmeans
-      habit version      : 2.0.0
+      habit version      : 3.0.0
       random seed        : 0
       preprocessing state: inertia, selection_report, validation
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-96
+.. GENERATED FROM PYTHON SOURCE LINES 98-102
 
 ``two_step_habitat(modalities=..., roi=..., n_supervoxels=30,
 habitat_features=[...], random_seed=0)`` is a shortcut for the same
 spec; ``one_step_habitat`` and ``direct_pooling_habitat`` do the same for
 the other designs. Both give the same habitat maps:
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-100
+.. GENERATED FROM PYTHON SOURCE LINES 102-106
 
 .. code-block:: Python
 
@@ -207,21 +213,21 @@ the other designs. Both give the same habitat maps:
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:01<00:05,  1.98s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.69s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04<00:01,  1.54s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05<00:00,  1.47s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05<00:00,  1.47s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00<00:00,  4.66it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00<00:00,  4.45it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00<00:00,  4.45it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.54it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.05s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.77s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04<00:01,  1.61s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.53s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.53s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00<00:00,  3.82it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00<00:00,  4.02it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00<00:00,  4.16it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.25it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.25it/s]
     stages == shortcut: True
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 101-105
+.. GENERATED FROM PYTHON SOURCE LINES 107-111
 
 How many habitats, and why
 --------------------------
 The fitter scores every candidate count; the marked point is the one
 kept. The report travels inside the model, so the choice is auditable.
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-110
+.. GENERATED FROM PYTHON SOURCE LINES 111-116
 
 .. code-block:: Python
 
@@ -242,14 +248,14 @@ kept. The report travels inside the model, so the choice is auditable.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-115
+.. GENERATED FROM PYTHON SOURCE LINES 117-121
 
 Habitat maps
 ------------
 From supervoxels to habitats on one slice, then the habitat map of two
 patients. Same colour, same habitat, in both.
 
-.. GENERATED FROM PYTHON SOURCE LINES 115-130
+.. GENERATED FROM PYTHON SOURCE LINES 121-136
 
 .. code-block:: Python
 
@@ -310,7 +316,7 @@ patients. Same colour, same habitat, in both.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-136
+.. GENERATED FROM PYTHON SOURCE LINES 137-142
 
 The feature table
 -----------------
@@ -318,7 +324,7 @@ One row per subject, ready for statistics: volume fractions, the MSI
 (how habitats touch each other), the ITH score (how fragmented the
 tumour is) and graph topology. A few of the columns:
 
-.. GENERATED FROM PYTHON SOURCE LINES 136-141
+.. GENERATED FROM PYTHON SOURCE LINES 142-147
 
 .. code-block:: Python
 
@@ -346,14 +352,14 @@ tumour is) and graph topology. A few of the columns:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-146
+.. GENERATED FROM PYTHON SOURCE LINES 148-152
 
 What those numbers look like for one subject
 --------------------------------------------
 Volume fractions come straight from the table. MSI and ITH are drawn from
 the same label map with the kernels the table uses.
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-167
+.. GENERATED FROM PYTHON SOURCE LINES 152-173
 
 .. code-block:: Python
 
@@ -416,14 +422,14 @@ the same label map with the kernels the table uses.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-172
+.. GENERATED FROM PYTHON SOURCE LINES 174-178
 
 Reuse the model on a new patient
 --------------------------------
 The ``.habitatmodel`` file is the habitat definition: load it anywhere
 and the new patient gets the same habitat names. Nothing is refitted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 172-184
+.. GENERATED FROM PYTHON SOURCE LINES 178-190
 
 .. code-block:: Python
 
@@ -452,22 +458,21 @@ and the new patient gets the same habitat names. Nothing is refitted.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.58s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.58s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.59s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.59s/it]
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-196
+.. GENERATED FROM PYTHON SOURCE LINES 191-201
 
 Where to go next
 ----------------
 * The same analysis from a YAML file:
   :doc:`/auto_quickstart/plot_quickstart_yaml`.
-* Other habitat designs, texture features, custom stages: the Guide
-  sections :doc:`/auto_examples/04_habitat_maps/index` and
-  :doc:`/auto_examples/05_quantify/index`.
+* The same stages, then each one opened up:
+  :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
 * Interactive 3-D view (``pip install "habitat-analysis[view]"``)::
 
     from habit.viz import view_habitat_napari
@@ -476,7 +481,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 31.119 seconds)
+   **Total running time of the script:** (0 minutes 32.630 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_python.py:

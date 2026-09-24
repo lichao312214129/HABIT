@@ -5,7 +5,9 @@
 1. Data In
 ==========
 
-Every route ends in a :class:`~habit.contracts.Cohort`. Each page shows
+The :doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
+starts from a :class:`~habit.contracts.Cohort`. Every route on this
+section ends in one. Each page shows
 two assemblies: ``Cohort([one_subject])`` and ``Cohort([several_subjects])``.
 Pass that cohort to ``fit`` / ``fit_predict``. A Python list is not a cohort.
 

@@ -1,0 +1,108 @@
+
+
+.. _sphx_glr_auto_examples_04_designs:
+
+4. Three habitat designs
+========================
+
+The complete analysis is two-step: ``partition``, then ``pool``, then
+``fit``. These pages change that stage list and nothing else.
+
+====================  =============  ========  =====================
+Design                ``partition``  ``pool``  ``fit`` runs on
+====================  =============  ========  =====================
+two-step              yes            yes       supervoxels, cohort
+inside each subject   no             no        voxels, one subject
+pooling voxels        no             yes       voxels, cohort
+====================  =============  ========  =====================
+
+``two_step_habitat``, ``one_step_habitat`` and ``direct_pooling_habitat``
+build those lists. Habitat ids match across subjects only when ``fit``
+ran once on the cohort. Otherwise match labels first
+(:doc:`/auto_examples/06_matching/index`).
+
+* **Two steps** — :doc:`/auto_examples/04_designs/plot_01_two_step`.
+* **Inside each subject** —
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`.
+* **Pooling voxels** — :doc:`/auto_examples/04_designs/plot_03_pool_voxels`.
+
+Applying a saved model is the next section. Opening each stage is
+:doc:`/auto_examples/02_stages/index`.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. The design is the stage list: partition then pool then fit.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_01_two_step_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_designs/plot_01_two_step`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. The stage list has no pool, so fit runs inside each subject instead of on the cohort. one_step_habitat(...) is a shortcut that builds the same stage list.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_02_inside_each_subject_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. The stage list is pool then fit, with no partition. direct_pooling_habitat(...) is a shortcut that builds the same stage list.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_03_pool_voxels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_designs/plot_03_pool_voxels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/04_designs/plot_01_two_step
+   /auto_examples/04_designs/plot_02_inside_each_subject
+   /auto_examples/04_designs/plot_03_pool_voxels
+

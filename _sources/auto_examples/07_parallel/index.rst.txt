@@ -1,0 +1,55 @@
+
+
+.. _sphx_glr_auto_examples_07_parallel:
+
+7. Parallel runs
+================
+
+One study, four ways to schedule it. The stage list is the complete
+analysis with a fixed habitat count. ``backend`` is ``serial`` or
+``process``. A persistent pool, a fresh process per subject, and one
+worker per GPU are settings of the process backend.
+
+:doc:`/auto_examples/07_parallel/plot_01_backends`
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The study is the two-step list from /auto_examples/00_full_pipeline/plot_01_full_pipeline, with the habitat count fixed at 3 so this page can refit it on every backend. Only backend= changes. Habitat labels must match.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_parallel/images/thumb/sphx_glr_plot_01_backends_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_parallel/plot_01_backends`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Running the same study on each backend</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/07_parallel/plot_01_backends
+

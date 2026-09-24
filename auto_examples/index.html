@@ -23,7 +23,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=51b770b3"></script>
+        <script src="../_static/documentation_options.js?v=acc74ff5"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -33,7 +33,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="1. Data In" href="01_data_in/index.html" />
+    <link rel="next" title="0. Complete analysis" href="00_full_pipeline/index.html" />
     <link rel="prev" title="Quickstart: run the demo (YAML + CLI)" href="../tutorial/quickstart.html" /> 
 </head>
 
@@ -49,7 +49,7 @@
             HABIT
           </a>
               <div class="version">
-                2.0.0
+                3.0.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -101,6 +101,10 @@
 <p class="caption" role="heading"><span class="caption-text">Habitat Guide</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Habitat Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="00_full_pipeline/index.html">0. Complete analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="00_full_pipeline/plot_01_full_pipeline.html">A complete habitat analysis</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="01_data_in/index.html">1. Data In</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="01_data_in/plot_01_directory.html">Load from directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
@@ -108,60 +112,61 @@
 <li class="toctree-l3"><a class="reference internal" href="01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="02_voxel/index.html">2. Voxel Representation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_02_custom_features.html">Custom features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_02_expression.html">Expression voxel features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="02_voxel/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_stages/index.html">2. Each stage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_01_feature_routes.html">Voxel features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_02_expression.html">Expression voxel features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_09_texture_habitats.html">Clustering habitats from a texture field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_10_preprocess_features.html">Preprocessing features before clustering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_11_preprocess_compare.html">Comparing habitat maps with and without preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_12_supervoxels.html">Partitioning a ROI into supervoxels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_13_fit_model.html">Fitting a cohort habitat model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_stages/plot_14_assign_labels.html">Assigning habitat labels</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="03_precision/index.html">3. Precise Feature Screening</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="03_precision/plot_01_precise_features.html">Precise voxel features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_quantify/index.html">3. Habitat Quantification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03_quantify/plot_01_volume_fractions.html">Volume and fractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_quantify/plot_02_msi.html">Multiregional spatial interaction (MSI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_quantify/plot_03_ith.html">Intratumoral heterogeneity (ITH)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_quantify/plot_04_graph_features.html">Graph features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_quantify/plot_05_each_habitat_radiomics.html">Per-habitat radiomics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_quantify/plot_06_whole_habitat_radiomics.html">Whole-habitat radiomics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_01_two_step.html">Defining habitats in two steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_09_texture_habitats.html">Clustering habitats from a texture field</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_10_preprocess_features.html">Preprocessing features before clustering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_11_preprocess_compare.html">Comparing habitat maps with and without preprocessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_12_supervoxels.html">Partitioning a ROI into supervoxels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_13_fit_model.html">Fitting a cohort habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="04_habitat_maps/plot_14_assign_labels.html">Assigning habitat labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_designs/index.html">4. Three habitat designs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="04_designs/plot_01_two_step.html">Defining habitats in two steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04_designs/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04_designs/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="05_quantify/index.html">5. Habitat Quantification</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="05_quantify/plot_01_volume_fractions.html">Volume and fractions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05_quantify/plot_02_msi.html">Multiregional spatial interaction (MSI)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05_quantify/plot_03_ith.html">Intratumoral heterogeneity (ITH)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05_quantify/plot_04_graph_features.html">Graph features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05_quantify/plot_05_each_habitat_radiomics.html">Per-habitat radiomics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05_quantify/plot_06_whole_habitat_radiomics.html">Whole-habitat radiomics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_apply/index.html">5. Apply a saved model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="05_apply/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="06_parallel_runs/index.html">6. Parallel runs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_01_run_a_cohort.html">Running a cohort in parallel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_02_when_a_subject_fails.html">When a subject fails</a></li>
-<li class="toctree-l3"><a class="reference internal" href="06_parallel_runs/plot_03_several_gpus.html">Running a cohort on several GPUs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_matching/index.html">6. Matching Habitat Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="06_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="07_habitat_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
-<li class="toctree-l3"><a class="reference internal" href="07_habitat_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="07_habitat_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="07_habitat_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
-<li class="toctree-l3"><a class="reference internal" href="07_habitat_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="07_habitat_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="08_precision/index.html">8. Precise Feature Screening</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="08_precision/plot_01_precise_features.html">Precise voxel features</a></li>
 </ul>
 </li>
 </ul>
@@ -684,15 +689,42 @@
 <h1>Habitat Guide<a class="headerlink" href="#habitat-guide" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p>One scientific task per page. Copy the Python, swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code> /
-<code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>. Figures on a page come from that page’s
-<code class="docutils literal notranslate"><span class="pre">plot_*</span></code> call.</p>
+<p>Start with the complete analysis, then open one stage at a time.
+Copy the Python, swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>. Figures on
+a page come from that page’s <code class="docutils literal notranslate"><span class="pre">plot_*</span></code> call.</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">A complete habitat analysis</span></a> —
+one two-step study, from images to a saved model.</p></li>
+<li><p><a class="reference internal" href="01_data_in/index.html"><span class="doc">1. Data In</span></a> — other ways to build the cohort.</p></li>
+<li><p><a class="reference internal" href="02_stages/index.html"><span class="doc">2. Each stage</span></a> — each <code class="docutils literal notranslate"><span class="pre">Stage</span></code> / <code class="docutils literal notranslate"><span class="pre">Spec</span></code>.</p></li>
+<li><p><a class="reference internal" href="03_quantify/index.html"><span class="doc">3. Habitat Quantification</span></a> — volume, MSI, ITH, graph,
+radiomics.</p></li>
+<li><p><a class="reference internal" href="04_designs/index.html"><span class="doc">4. Three habitat designs</span></a> — drop <code class="docutils literal notranslate"><span class="pre">partition</span></code> or <code class="docutils literal notranslate"><span class="pre">pool</span></code>.</p></li>
+<li><p><a class="reference internal" href="05_apply/plot_04_apply_saved_model.html"><span class="doc">Applying a saved habitat model</span></a> — reuse the model.</p></li>
+<li><p><a class="reference internal" href="06_matching/index.html"><span class="doc">6. Matching Habitat Labels</span></a> — habitat ids that do not match.</p></li>
+<li><p><a class="reference internal" href="07_parallel/plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a> — the same study
+on serial and process backends.</p></li>
+<li><p><a class="reference internal" href="08_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a> —
+repeatability screening.</p></li>
+</ol>
 <p>Every example loads the official pack with
 <a class="reference internal" href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_demo()</span></code></a> (downloads once). CLI / YAML:
 <a class="reference internal" href="../tutorial/quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a> and <a class="reference internal" href="../configuration/index.html"><span class="doc">CLI and YAML</span></a>.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"></div><section id="data-in">
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"></div><section id="complete-analysis">
+<h2>0. Complete analysis<a class="headerlink" href="#complete-analysis" title="Link to this heading"></a></h2>
+<p>Read this page first. It is one two-step study from images to a feature
+table and a saved model. Later sections open the same
+<a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> one stage at a time.</p>
+<p><a class="reference internal" href="00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">A complete habitat analysis</span></a></p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="One HabitatSpec declares the whole study. One fit_predict runs it. The stage list below is the same two-step analysis as /auto_quickstart/plot_quickstart_python: raw DCE intensities, 30 supervoxels, one shared model, then volume, MSI, ITH and graph features."><img alt="" src="../_images/sphx_glr_plot_01_full_pipeline_thumb.png" />
+<p><a class="reference internal" href="00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">A complete habitat analysis</span></a></p>
+  <div class="sphx-glr-thumbnail-title">A complete habitat analysis</div>
+</div></div></section>
+<section id="data-in">
 <h2>1. Data In<a class="headerlink" href="#data-in" title="Link to this heading"></a></h2>
-<p>Every route ends in a <a class="reference internal" href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cohort</span></code></a>. Each page shows
+<p>The <a class="reference internal" href="00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">complete analysis</span></a>
+starts from a <a class="reference internal" href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cohort</span></code></a>. Every route on this
+section ends in one. Each page shows
 two assemblies: <code class="docutils literal notranslate"><span class="pre">Cohort([one_subject])</span></code> and <code class="docutils literal notranslate"><span class="pre">Cohort([several_subjects])</span></code>.
 Pass that cohort to <code class="docutils literal notranslate"><span class="pre">fit</span></code> / <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code>. A Python list is not a cohort.</p>
 <p>Pick the page that matches the files you already have.</p>
@@ -728,61 +760,114 @@ directory page. The official demo pack is already preprocessed.</p>
 <p><a class="reference internal" href="01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
 </div></div></section>
-<section id="voxel-representation">
-<h2>2. Voxel Representation<a class="headerlink" href="#voxel-representation" title="Link to this heading"></a></h2>
-<p>Define the voxel field that clustering sees: raw intensities, custom
-formulas, expression maps
-(<a class="reference internal" href="02_voxel/plot_02_expression.html"><span class="doc">Expression voxel features</span></a>), texture maps
-(CPU vs GPU), clustering-feature preprocessor chains, supervoxel
-feature extraction and acceleration, and subject- versus cohort-level
-preprocessing of voxel texture.</p>
+<section id="each-stage">
+<h2>2. Each stage<a class="headerlink" href="#each-stage" title="Link to this heading"></a></h2>
+<p>These pages open the stage list of the
+<a class="reference internal" href="00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">complete analysis</span></a>.
+<code class="docutils literal notranslate"><span class="pre">Stage</span></code>’s first argument is a label. <code class="docutils literal notranslate"><span class="pre">Spec</span></code> names the component.</p>
+<ul class="simple">
+<li><p><strong>extract</strong> — <a class="reference internal" href="02_stages/plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a>,
+<a class="reference internal" href="02_stages/plot_01_feature_routes.html"><span class="doc">Voxel features</span></a>,
+<a class="reference internal" href="02_stages/plot_02_expression.html"><span class="doc">Expression voxel features</span></a>,
+<a class="reference internal" href="02_stages/plot_02_custom_features.html"><span class="doc">Custom features</span></a>,
+<a class="reference internal" href="02_stages/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>,
+<a class="reference internal" href="02_stages/plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a>,
+<a class="reference internal" href="02_stages/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a>,
+<a class="reference internal" href="02_stages/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a>.</p></li>
+<li><p><strong>preprocess</strong> — <a class="reference internal" href="02_stages/plot_04_feature_preprocessing.html"><span class="doc">Feature preprocessing</span></a>,
+<a class="reference internal" href="02_stages/plot_10_preprocess_features.html"><span class="doc">Preprocessing features before clustering</span></a>,
+<a class="reference internal" href="02_stages/plot_11_preprocess_compare.html"><span class="doc">Comparing habitat maps with and without preprocessing</span></a>,
+<a class="reference internal" href="02_stages/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a>.</p></li>
+<li><p><strong>partition</strong> — <a class="reference internal" href="02_stages/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a>,
+<a class="reference internal" href="02_stages/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a>.</p></li>
+<li><p><strong>fit</strong> — <a class="reference internal" href="02_stages/plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a>.</p></li>
+<li><p><strong>assign</strong> — <a class="reference internal" href="02_stages/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a>.</p></li>
+</ul>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Clustering uses the voxel field you define — not a fixed T1 image. This page is the intensity pair: raw (concatenate modality intensities inside the ROI) and concat (join families column-wise)."><img alt="" src="../_images/sphx_glr_plot_01_feature_routes_thumb.png" />
-<p><a class="reference internal" href="02_voxel/plot_01_feature_routes.html"><span class="doc">Voxel features</span></a></p>
+<p><a class="reference internal" href="02_stages/plot_01_feature_routes.html"><span class="doc">Voxel features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Voxel features</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Three liver DCE maps: arterial relative enhancement, arterial-to-portal wash-out, and arterial-to-delayed wash-out."><img alt="" src="../_images/sphx_glr_plot_02_custom_features_thumb.png" />
-<p><a class="reference internal" href="02_voxel/plot_02_custom_features.html"><span class="doc">Custom features</span></a></p>
+<p><a class="reference internal" href="02_stages/plot_02_custom_features.html"><span class="doc">Custom features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Custom features</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="ExpressionVoxelFeatures builds one column per formula. Names in the formula are modality keys on the subject (``LAP``, pre_contrast, ...). eps keeps a zero denominator from breaking a ratio."><img alt="" src="../_images/sphx_glr_plot_02_expression_thumb.png" />
-<p><a class="reference internal" href="02_voxel/plot_02_expression.html"><span class="doc">Expression voxel features</span></a></p>
+<p><a class="reference internal" href="02_stages/plot_02_expression.html"><span class="doc">Expression voxel features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Expression voxel features</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Texture maps are inputs to clustering, not post-label tables. GPU is a faster implementation of the same IBSI / PyRadiomics definition — the numbers do not change because of GPU."><img alt="" src="../_images/sphx_glr_plot_03_voxel_texture_thumb.png" />
-<p><a class="reference internal" href="02_voxel/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a></p>
+<p><a class="reference internal" href="02_stages/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a></p>
   <div class="sphx-glr-thumbnail-title">Voxel texture and GPU</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Clustering operates on preprocessed feature matrices, not raw intensities. HabitatSpec exposes three ordered chains:"><img alt="" src="../_images/sphx_glr_plot_04_feature_preprocessing_thumb.png" />
-<p><a class="reference internal" href="02_voxel/plot_04_feature_preprocessing.html"><span class="doc">Feature preprocessing</span></a></p>
+<p><a class="reference internal" href="02_stages/plot_04_feature_preprocessing.html"><span class="doc">Feature preprocessing</span></a></p>
   <div class="sphx-glr-thumbnail-title">Feature preprocessing</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
-<p><a class="reference internal" href="02_voxel/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
+<p><a class="reference internal" href="02_stages/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
   <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Voxel texture columns live on very different scales: GLCM contrast runs into the hundreds, correlation stays within [-1, 1]. Clustering then sees mostly the large columns, so a preprocessing step comes first."><img alt="" src="../_images/sphx_glr_plot_06_texture_preprocessing_thumb.png" />
-<p><a class="reference internal" href="02_voxel/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a></p>
+<p><a class="reference internal" href="02_stages/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a></p>
   <div class="sphx-glr-thumbnail-title">Preprocessing voxel texture before clustering</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw."><img alt="" src="../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture."><img alt="" src="../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with the four DCE phases. Output: a HabitatMap. The voxel field is ExpressionVoxelFeatures (see /auto_examples/02_stages/plot_02_expression). Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../_images/sphx_glr_plot_08_derived_map_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: a HabitatMap built from the preprocessed features. Stage: voxel_feature_preprocessors, then partition, fit, assign."><img alt="" src="../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_10_preprocess_features.html"><span class="doc">Preprocessing features before clustering</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Preprocessing features before clustering</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: the same cohort, the same two-step design, the same k and seed. The only change is the voxel-feature preprocessor chain."><img alt="" src="../_images/sphx_glr_plot_11_preprocess_compare_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_11_preprocess_compare.html"><span class="doc">Comparing habitat maps with and without preprocessing</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Comparing habitat maps with and without preprocessing</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The fit stage of /auto_examples/00_full_pipeline/plot_01_full_pipeline. Input: one Supervoxelization per subject. Output: a HabitatModel."><img alt="" src="../_images/sphx_glr_plot_13_fit_model_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Fitting a cohort habitat model</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid."><img alt="" src="../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
+<p><a class="reference internal" href="02_stages/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
 </div></div></section>
-<section id="precise-feature-screening">
-<h2>3. Precise Feature Screening<a class="headerlink" href="#precise-feature-screening" title="Link to this heading"></a></h2>
-<p>Repeatability and reproducibility screening (Prior et al., 2024):
-simulated image retest perturbation (noise, translation, rotation) and
-ROI contour edge perturbation, evaluated across kernel radii and bin
-widths with multi-panel ICC forest plots.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../_images/sphx_glr_plot_01_precise_features_thumb.png" />
-<p><a class="reference internal" href="03_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
+<section id="habitat-quantification">
+<h2>3. Habitat Quantification<a class="headerlink" href="#habitat-quantification" title="Link to this heading"></a></h2>
+<p>These metrics are the quantify stages of the
+<a class="reference internal" href="00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">complete analysis</span></a>
+(volume, MSI, ITH, graph). Each page refits a small cohort so it can be
+copied on its own, then computes one family from the label map.</p>
+<p>Quantify habitats with atomic functions: volume and fractions,
+multiregional spatial interaction (MSI, Wu et al. 2018), intratumoral
+heterogeneity (ITH), graph topology networks, per-habitat radiomics,
+whole-habitat radiomics, and deep-learning masked embeddings.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats."><img alt="" src="../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
+<p><a class="reference internal" href="03_quantify/plot_01_volume_fractions.html"><span class="doc">Volume and fractions</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix."><img alt="" src="../_images/sphx_glr_plot_02_msi_thumb.png" />
+<p><a class="reference internal" href="03_quantify/plot_02_msi.html"><span class="doc">Multiregional spatial interaction (MSI)</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Multiregional spatial interaction (MSI)</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic ITH metrics from a habitat label map: ith_score and habitat_ith_dispersion."><img alt="" src="../_images/sphx_glr_plot_03_ith_thumb.png" />
+<p><a class="reference internal" href="03_quantify/plot_03_ith.html"><span class="doc">Intratumoral heterogeneity (ITH)</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Intratumoral heterogeneity (ITH)</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study."><img alt="" src="../_images/sphx_glr_plot_04_graph_features_thumb.png" />
+<p><a class="reference internal" href="03_quantify/plot_04_graph_features.html"><span class="doc">Graph features</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Graph features</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
+<p><a class="reference internal" href="03_quantify/plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Quantify the shape and spatial distribution of the partition map itself using WholeHabitatRadiomicsFeatures. The habitat label image plays both intensity and mask roles."><img alt="" src="../_images/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png" />
+<p><a class="reference internal" href="03_quantify/plot_06_whole_habitat_radiomics.html"><span class="doc">Whole-habitat radiomics</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Whole-habitat radiomics</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Bridge HABIT habitat maps to deep-learning pipelines: extract a binary mask per habitat and apply masked spatial average pooling on a 3-D feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch encoder output with the same (C, z, y, x) layout)."><img alt="" src="../_images/sphx_glr_plot_07_deep_learning_embeddings_thumb.png" />
+<p><a class="reference internal" href="03_quantify/plot_07_deep_learning_embeddings.html"><span class="doc">Deep-learning habitat embeddings</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Deep-learning habitat embeddings</div>
 </div></div></section>
-<section id="habitat-mapping">
-<h2>4. Habitat Mapping<a class="headerlink" href="#habitat-mapping" title="Link to this heading"></a></h2>
-<p>A habitat map is a label volume. Integer ids are arbitrary until two
-maps share one fitted model, or until labels are matched after the fact.</p>
-<p>Use at least two subjects for two-step and for pooling. One subject has
-no shared cohort to fit. Applying a saved model to a validation cohort
-keeps the training definition. Fitting that cohort again creates a
-different definition. Do not compare colours across the three design
-pages until labels have been matched.</p>
-</section>
-<section id="choosing-how-habitats-are-defined">
-<h2>Choosing how habitats are defined<a class="headerlink" href="#choosing-how-habitats-are-defined" title="Link to this heading"></a></h2>
-<p>The design is the stage list of the <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>.
-The three designs differ only in whether <code class="docutils literal notranslate"><span class="pre">partition</span></code> and <code class="docutils literal notranslate"><span class="pre">pool</span></code> are
-present:</p>
+<section id="three-habitat-designs">
+<h2>4. Three habitat designs<a class="headerlink" href="#three-habitat-designs" title="Link to this heading"></a></h2>
+<p>The complete analysis is two-step: <code class="docutils literal notranslate"><span class="pre">partition</span></code>, then <code class="docutils literal notranslate"><span class="pre">pool</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">fit</span></code>. These pages change that stage list and nothing else.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Design</p></th>
@@ -810,148 +895,41 @@ present:</p>
 </tbody>
 </table>
 <p><code class="docutils literal notranslate"><span class="pre">two_step_habitat</span></code>, <code class="docutils literal notranslate"><span class="pre">one_step_habitat</span></code> and <code class="docutils literal notranslate"><span class="pre">direct_pooling_habitat</span></code>
-are shortcuts that build these stage lists. Each page uses the same three
-DCE phases, a fixed count of 3 habitats, one overlay and one volume table.</p>
+build those lists. Habitat ids match across subjects only when <code class="docutils literal notranslate"><span class="pre">fit</span></code>
+ran once on the cohort. Otherwise match labels first
+(<a class="reference internal" href="06_matching/index.html"><span class="doc">6. Matching Habitat Labels</span></a>).</p>
 <ul class="simple">
-<li><p><strong>Defining habitats in two steps</strong> (partition, then a shared model) —
-<a class="reference internal" href="04_habitat_maps/plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a>.</p></li>
-<li><p><strong>Defining habitats inside each subject</strong> (ids do not match across people) —
-<a class="reference internal" href="04_habitat_maps/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a>.</p></li>
-<li><p><strong>Pooling voxels across the cohort</strong> (no supervoxels) —
-<a class="reference internal" href="04_habitat_maps/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a>.</p></li>
-<li><p><strong>Applying a saved habitat model</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_04_apply_saved_model.html"><span class="doc">Applying a saved habitat model</span></a>.</p></li>
-<li><p><strong>Matching habitat labels across subjects</strong> (shared or frozen
-prototypes) — <a class="reference internal" href="04_habitat_maps/plot_05_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a>.
-Which matcher to use and why: <a class="reference internal" href="../reference/habitat_matching.html"><span class="doc">Matching habitat labels across fits and subjects</span></a>;
-worked, visual pages: <a class="reference internal" href="07_habitat_matching/index.html"><span class="doc">7. Matching Habitat Labels</span></a>.</p></li>
+<li><p><strong>Two steps</strong> — <a class="reference internal" href="04_designs/plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a>.</p></li>
+<li><p><strong>Inside each subject</strong> —
+<a class="reference internal" href="04_designs/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a>.</p></li>
+<li><p><strong>Pooling voxels</strong> — <a class="reference internal" href="04_designs/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a>.</p></li>
 </ul>
-</section>
-<section id="building-a-habitat-map-step-by-step">
-<h2>Building a habitat map step by step<a class="headerlink" href="#building-a-habitat-map-step-by-step" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code> → <code class="docutils literal notranslate"><span class="pre">Supervoxelization</span></code> → <code class="docutils literal notranslate"><span class="pre">HabitatModel</span></code> →
-<code class="docutils literal notranslate"><span class="pre">HabitatMap</span></code> → <code class="docutils literal notranslate"><span class="pre">FeatureTable</span></code>. Each page names its input, its output,
-and the <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> stage.</p>
-<ul class="simple">
-<li><p><strong>Extracting voxel intensities</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a>.</p></li>
-<li><p><strong>Extracting a voxel texture</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a>.</p></li>
-<li><p><strong>Clustering habitats from a derived map</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a>.</p></li>
-<li><p><strong>Clustering habitats from a texture field</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a>.</p></li>
-<li><p><strong>Preprocessing features before clustering</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_10_preprocess_features.html"><span class="doc">Preprocessing features before clustering</span></a>.</p></li>
-<li><p><strong>Comparing habitat maps with and without preprocessing</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_11_preprocess_compare.html"><span class="doc">Comparing habitat maps with and without preprocessing</span></a>.</p></li>
-<li><p><strong>Partitioning a ROI into supervoxels</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a>.</p></li>
-<li><p><strong>Fitting a cohort habitat model</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a>.</p></li>
-<li><p><strong>Assigning habitat labels</strong> —
-<a class="reference internal" href="04_habitat_maps/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a>.</p></li>
-</ul>
+<p>Applying a saved model is the next section. Opening each stage is
+<a class="reference internal" href="02_stages/index.html"><span class="doc">2. Each stage</span></a>.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. The design is the stage list: partition then pool then fit."><img alt="" src="../_images/sphx_glr_plot_01_two_step_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a></p>
+<p><a class="reference internal" href="04_designs/plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a></p>
   <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. The stage list has no pool, so fit runs inside each subject instead of on the cohort. one_step_habitat(...) is a shortcut that builds the same stage list."><img alt="" src="../_images/sphx_glr_plot_02_inside_each_subject_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a></p>
+<p><a class="reference internal" href="04_designs/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a></p>
   <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. The stage list is pool then fit, with no partition. direct_pooling_habitat(...) is a shortcut that builds the same stage list."><img alt="" src="../_images/sphx_glr_plot_03_pool_voxels_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a></p>
+<p><a class="reference internal" href="04_designs/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a></p>
   <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_04_apply_saved_model.html"><span class="doc">Applying a saved habitat model</span></a></p>
+</div></div></section>
+<section id="apply-a-saved-model">
+<h2>5. Apply a saved model<a class="headerlink" href="#apply-a-saved-model" title="Link to this heading"></a></h2>
+<p>Train the habitat definition, write a <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> file, and label
+later subjects without fitting again.</p>
+<p><a class="reference internal" href="05_apply/plot_04_apply_saved_model.html"><span class="doc">Applying a saved habitat model</span></a></p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
+<p><a class="reference internal" href="05_apply/plot_04_apply_saved_model.html"><span class="doc">Applying a saved habitat model</span></a></p>
   <div class="sphx-glr-thumbnail-title">Applying a saved habitat model</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="With one_step habitats every subject is clustered on its own, so habitat 1 of one patient need not be habitat 1 of another, and patients may even have different habitat counts. align_habitat_maps_to_prototypes gives every subject one shared set of names:"><img alt="" src="../_images/sphx_glr_plot_05_match_labels_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_05_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Matching habitat labels across subjects</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw."><img alt="" src="../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture."><img alt="" src="../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with the four DCE phases. Output: a HabitatMap. The voxel field is ExpressionVoxelFeatures (see /auto_examples/02_voxel/plot_02_expression). Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../_images/sphx_glr_plot_08_derived_map_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: a HabitatMap built from the preprocessed features. Stage: voxel_feature_preprocessors, then partition, fit, assign."><img alt="" src="../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_10_preprocess_features.html"><span class="doc">Preprocessing features before clustering</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Preprocessing features before clustering</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: the same cohort, the same two-step design, the same k and seed. The only change is the voxel-feature preprocessor chain."><img alt="" src="../_images/sphx_glr_plot_11_preprocess_compare_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_11_preprocess_compare.html"><span class="doc">Comparing habitat maps with and without preprocessing</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Comparing habitat maps with and without preprocessing</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Supervoxelization per subject. Output: a HabitatModel. Stage: fit."><img alt="" src="../_images/sphx_glr_plot_13_fit_model_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Fitting a cohort habitat model</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid."><img alt="" src="../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
-<p><a class="reference internal" href="04_habitat_maps/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
-</div></div></section>
-<section id="habitat-quantification">
-<h2>5. Habitat Quantification<a class="headerlink" href="#habitat-quantification" title="Link to this heading"></a></h2>
-<p>Quantify habitats with atomic functions: volume and fractions,
-multiregional spatial interaction (MSI, Wu et al. 2018), intratumoral
-heterogeneity (ITH), graph topology networks, per-habitat radiomics,
-whole-habitat radiomics, and deep-learning masked embeddings.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats."><img alt="" src="../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
-<p><a class="reference internal" href="05_quantify/plot_01_volume_fractions.html"><span class="doc">Volume and fractions</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix."><img alt="" src="../_images/sphx_glr_plot_02_msi_thumb.png" />
-<p><a class="reference internal" href="05_quantify/plot_02_msi.html"><span class="doc">Multiregional spatial interaction (MSI)</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Multiregional spatial interaction (MSI)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic ITH metrics from a habitat label map: ith_score and habitat_ith_dispersion."><img alt="" src="../_images/sphx_glr_plot_03_ith_thumb.png" />
-<p><a class="reference internal" href="05_quantify/plot_03_ith.html"><span class="doc">Intratumoral heterogeneity (ITH)</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Intratumoral heterogeneity (ITH)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study."><img alt="" src="../_images/sphx_glr_plot_04_graph_features_thumb.png" />
-<p><a class="reference internal" href="05_quantify/plot_04_graph_features.html"><span class="doc">Graph features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Graph features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
-<p><a class="reference internal" href="05_quantify/plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Quantify the shape and spatial distribution of the partition map itself using WholeHabitatRadiomicsFeatures. The habitat label image plays both intensity and mask roles."><img alt="" src="../_images/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png" />
-<p><a class="reference internal" href="05_quantify/plot_06_whole_habitat_radiomics.html"><span class="doc">Whole-habitat radiomics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Whole-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Bridge HABIT habitat maps to deep-learning pipelines: extract a binary mask per habitat and apply masked spatial average pooling on a 3-D feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch encoder output with the same (C, z, y, x) layout)."><img alt="" src="../_images/sphx_glr_plot_07_deep_learning_embeddings_thumb.png" />
-<p><a class="reference internal" href="05_quantify/plot_07_deep_learning_embeddings.html"><span class="doc">Deep-learning habitat embeddings</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Deep-learning habitat embeddings</div>
-</div></div></section>
-<section id="parallel-runs">
-<h2>6. Parallel runs<a class="headerlink" href="#parallel-runs" title="Link to this heading"></a></h2>
-<p>These pages only change how subjects are scheduled. The study is the one
-from the Python quickstart, so a pooled run gives the same habitat maps
-as a serial run; the first page checks that voxel by voxel.</p>
-<ul class="simple">
-<li><p><strong>Running a cohort in parallel.</strong> Serial versus a pool of four worker
-processes, with real timings, and which backend to use on CPU, one GPU
-or several GPUs.
-<a class="reference internal" href="06_parallel_runs/plot_01_run_a_cohort.html"><span class="doc">Running a cohort in parallel</span></a>.</p></li>
-<li><p><strong>When a subject fails.</strong> Continue or stop at the first failure,
-resume from a checkpoint, and a per-subject time limit.
-<a class="reference internal" href="06_parallel_runs/plot_02_when_a_subject_fails.html"><span class="doc">When a subject fails</span></a>.</p></li>
-<li><p><strong>Several GPUs.</strong> One worker per card. The timing table is a recorded
-5-GPU run.
-<a class="reference internal" href="06_parallel_runs/plot_03_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a>.</p></li>
-</ul>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The study is the one from /auto_quickstart/plot_quickstart_python. Only the backend= argument changes: serially, subjects run one after the other in this process; with RunPolicy(workers=4, backend=&quot;process&quot;) four worker processes take subjects side by side. The habitat maps must be identical either way, and this page checks that."><img alt="" src="../_images/sphx_glr_plot_01_run_a_cohort_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_01_run_a_cohort.html"><span class="doc">Running a cohort in parallel</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Running a cohort in parallel</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="One subject in this cohort has no portal-venous (``PVP``) series, so voxel extraction raises for it. What happens next is set on the backend:"><img alt="" src="../_images/sphx_glr_plot_02_when_a_subject_fails_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_02_when_a_subject_fails.html"><span class="doc">When a subject fails</span></a></p>
-  <div class="sphx-glr-thumbnail-title">When a subject fails</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This machine has one GPU, so the recorded 5-GPU timings below are from a cloud run and this page does not repeat that workload. The call itself is in the next cell."><img alt="" src="../_images/sphx_glr_plot_03_several_gpus_thumb.png" />
-<p><a class="reference internal" href="06_parallel_runs/plot_03_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Running a cohort on several GPUs</div>
 </div></div></section>
 <section id="matching-habitat-labels">
-<h2>7. Matching Habitat Labels<a class="headerlink" href="#matching-habitat-labels" title="Link to this heading"></a></h2>
+<h2>6. Matching Habitat Labels<a class="headerlink" href="#matching-habitat-labels" title="Link to this heading"></a></h2>
+<p>Calling it on a fitted study:
+<a class="reference internal" href="06_matching/plot_07_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a>.
+The pages below show why ids switch and how each matcher works.</p>
 <p>Habitat ids from independent clusterings are arbitrary: habitat 1 of one
 fit can be habitat 3 of another. Anything that compares habitats by id
 (Dice, volume fractions, a cohort feature table) must match the ids
@@ -971,23 +949,47 @@ new cohort. <a class="reference internal" href="../api/generated/habit.precision
 already uses one id space and needs neither. Formulas, proofs, and
 literature: <a class="reference internal" href="../reference/habitat_matching.html"><span class="doc">Matching habitat labels across fits and subjects</span></a>.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Cluster the same tumour twice with the same features and the same k, changing only the k-means random seed. The two maps describe the same tissue, but k-means numbers its clusters in arbitrary order, so habitat 1 of one run is habitat 2 or 3 of the other. This is label switching. Comparing the maps by raw id reports disagreement that is not there."><img alt="" src="../_images/sphx_glr_plot_01_label_switching_thumb.png" />
-<p><a class="reference internal" href="07_habitat_matching/plot_01_label_switching.html"><span class="doc">Why habitat ids must be matched</span></a></p>
+<p><a class="reference internal" href="06_matching/plot_01_label_switching.html"><span class="doc">Why habitat ids must be matched</span></a></p>
   <div class="sphx-glr-thumbnail-title">Why habitat ids must be matched</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Voxel overlap is the matcher whenever two maps label the same voxels: a k-means restart, another k, another feature set, a perturbed image, a second reader. It needs no features at all, only the two label images, so it also works when the two fits live in different feature spaces."><img alt="" src="../_images/sphx_glr_plot_02_overlap_cases_thumb.png" />
-<p><a class="reference internal" href="07_habitat_matching/plot_02_overlap_cases.html"><span class="doc">Matching maps of the same voxels by overlap</span></a></p>
+<p><a class="reference internal" href="06_matching/plot_02_overlap_cases.html"><span class="doc">Matching maps of the same voxels by overlap</span></a></p>
   <div class="sphx-glr-thumbnail-title">Matching maps of the same voxels by overlap</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Between different subjects there is no shared voxel, so habitats are matched by what describes them: one summary row per habitat (a centroid, a mean feature vector). HABIT names every subject against K shared prototypes, K = the largest habitat count, by alternating two steps:"><img alt="" src="../_images/sphx_glr_plot_03_prototype_steps_thumb.png" />
-<p><a class="reference internal" href="07_habitat_matching/plot_03_prototype_steps.html"><span class="doc">Prototype matching step by step</span></a></p>
+<p><a class="reference internal" href="06_matching/plot_03_prototype_steps.html"><span class="doc">Prototype matching step by step</span></a></p>
   <div class="sphx-glr-thumbnail-title">Prototype matching step by step</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="The prototype matcher accepts four distances. Each comes with the prototype update that minimises it, so the loop still converges:"><img alt="" src="../_images/sphx_glr_plot_04_prototype_metrics_thumb.png" />
-<p><a class="reference internal" href="07_habitat_matching/plot_04_prototype_metrics.html"><span class="doc">Choosing the distance for prototype matching</span></a></p>
+<p><a class="reference internal" href="06_matching/plot_04_prototype_metrics.html"><span class="doc">Choosing the distance for prototype matching</span></a></p>
   <div class="sphx-glr-thumbnail-title">Choosing the distance for prototype matching</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Habitat names learned on a training cohort are part of the model definition. A validation or external cohort must be named with those names, not refitted together with the training subjects: refitting moves the prototypes, so &quot;habitat 2&quot; would mean something slightly different in every analysis."><img alt="" src="../_images/sphx_glr_plot_05_frozen_prototypes_thumb.png" />
-<p><a class="reference internal" href="07_habitat_matching/plot_05_frozen_prototypes.html"><span class="doc">Naming a new cohort with frozen prototypes</span></a></p>
+<p><a class="reference internal" href="06_matching/plot_05_frozen_prototypes.html"><span class="doc">Naming a new cohort with frozen prototypes</span></a></p>
   <div class="sphx-glr-thumbnail-title">Naming a new cohort with frozen prototypes</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="A cohort habitat table has one column per habitat id: H1_volume, H2_mean_enhancement, ... A column is only one variable if H2 means the same habitat in every row. With per-subject (``one_step``) fits it does not, until the ids are matched."><img alt="" src="../_images/sphx_glr_plot_06_downstream_tables_thumb.png" />
-<p><a class="reference internal" href="07_habitat_matching/plot_06_downstream_tables.html"><span class="doc">What matching changes in a cohort feature table</span></a></p>
+<p><a class="reference internal" href="06_matching/plot_06_downstream_tables.html"><span class="doc">What matching changes in a cohort feature table</span></a></p>
   <div class="sphx-glr-thumbnail-title">What matching changes in a cohort feature table</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="With one_step habitats every subject is clustered on its own, so habitat 1 of one patient need not be habitat 1 of another, and patients may even have different habitat counts. align_habitat_maps_to_prototypes gives every subject one shared set of names:"><img alt="" src="../_images/sphx_glr_plot_07_match_labels_thumb.png" />
+<p><a class="reference internal" href="06_matching/plot_07_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Matching habitat labels across subjects</div>
+</div></div></section>
+<section id="parallel-runs">
+<h2>7. Parallel runs<a class="headerlink" href="#parallel-runs" title="Link to this heading"></a></h2>
+<p>One study, four ways to schedule it. The stage list is the complete
+analysis with a fixed habitat count. <code class="docutils literal notranslate"><span class="pre">backend</span></code> is <code class="docutils literal notranslate"><span class="pre">serial</span></code> or
+<code class="docutils literal notranslate"><span class="pre">process</span></code>. A persistent pool, a fresh process per subject, and one
+worker per GPU are settings of the process backend.</p>
+<p><a class="reference internal" href="07_parallel/plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a></p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The study is the two-step list from /auto_examples/00_full_pipeline/plot_01_full_pipeline, with the habitat count fixed at 3 so this page can refit it on every backend. Only backend= changes. Habitat labels must match."><img alt="" src="../_images/sphx_glr_plot_01_backends_thumb.png" />
+<p><a class="reference internal" href="07_parallel/plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Running the same study on each backend</div>
+</div></div></section>
+<section id="precise-feature-screening">
+<h2>8. Precise Feature Screening<a class="headerlink" href="#precise-feature-screening" title="Link to this heading"></a></h2>
+<p>Repeatability and reproducibility screening (Prior et al., 2024):
+simulated image retest perturbation (noise, translation, rotation) and
+ROI contour edge perturbation, evaluated across kernel radii and bin
+widths with multi-panel ICC forest plots.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<p><a class="reference internal" href="08_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
 </div></div><p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
 </section>
 </section>
@@ -997,7 +999,7 @@ literature: <a class="reference internal" href="../reference/habitat_matching.ht
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../tutorial/quickstart.html" class="btn btn-neutral float-left" title="Quickstart: run the demo (YAML + CLI)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="01_data_in/index.html" class="btn btn-neutral float-right" title="1. Data In" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="00_full_pipeline/index.html" class="btn btn-neutral float-right" title="0. Complete analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

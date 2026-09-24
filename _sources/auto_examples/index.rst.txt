@@ -3,9 +3,23 @@
 Habitat Guide
 =============
 
-One scientific task per page. Copy the Python, swap ``DATA`` /
-``MODALITIES`` / ``ROI``. Figures on a page come from that page's
-``plot_*`` call.
+Start with the complete analysis, then open one stage at a time.
+Copy the Python, swap ``DATA`` / ``MODALITIES`` / ``ROI``. Figures on
+a page come from that page's ``plot_*`` call.
+
+#. :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline` —
+   one two-step study, from images to a saved model.
+#. :doc:`/auto_examples/01_data_in/index` — other ways to build the cohort.
+#. :doc:`/auto_examples/02_stages/index` — each ``Stage`` / ``Spec``.
+#. :doc:`/auto_examples/03_quantify/index` — volume, MSI, ITH, graph,
+   radiomics.
+#. :doc:`/auto_examples/04_designs/index` — drop ``partition`` or ``pool``.
+#. :doc:`/auto_examples/05_apply/plot_04_apply_saved_model` — reuse the model.
+#. :doc:`/auto_examples/06_matching/index` — habitat ids that do not match.
+#. :doc:`/auto_examples/07_parallel/plot_01_backends` — the same study
+   on serial and process backends.
+#. :doc:`/auto_examples/08_precision/plot_01_precise_features` —
+   repeatability screening.
 
 Every example loads the official pack with
 :func:`~habit.datasets.fetch_demo` (downloads once). CLI / YAML:
@@ -29,10 +43,56 @@ Every example loads the official pack with
 
     </div>
 
+0. Complete analysis
+====================
+
+Read this page first. It is one two-step study from images to a feature
+table and a saved model. Later sections open the same
+:class:`~habit.spec.HabitatSpec` one stage at a time.
+
+:doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="One HabitatSpec declares the whole study. One fit_predict runs it. The stage list below is the same two-step analysis as /auto_quickstart/plot_quickstart_python: raw DCE intensities, 30 supervoxels, one shared model, then volume, MSI, ITH and graph features.">
+
+.. only:: html
+
+  .. image:: /auto_examples/00_full_pipeline/images/thumb/sphx_glr_plot_01_full_pipeline_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">A complete habitat analysis</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
 1. Data In
 ==========
 
-Every route ends in a :class:`~habit.contracts.Cohort`. Each page shows
+The :doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
+starts from a :class:`~habit.contracts.Cohort`. Every route on this
+section ends in one. Each page shows
 two assemblies: ``Cohort([one_subject])`` and ``Cohort([several_subjects])``.
 Pass that cohort to ``fit`` / ``fit_predict``. A Python list is not a cohort.
 
@@ -144,15 +204,29 @@ directory page. The official demo pack is already preprocessed.
 
     </div>
 
-2. Voxel Representation
-=======================
+2. Each stage
+=============
 
-Define the voxel field that clustering sees: raw intensities, custom
-formulas, expression maps
-(:doc:`/auto_examples/02_voxel/plot_02_expression`), texture maps
-(CPU vs GPU), clustering-feature preprocessor chains, supervoxel
-feature extraction and acceleration, and subject- versus cohort-level
-preprocessing of voxel texture.
+These pages open the stage list of the
+:doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`.
+``Stage``'s first argument is a label. ``Spec`` names the component.
+
+* **extract** — :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`,
+  :doc:`/auto_examples/02_stages/plot_01_feature_routes`,
+  :doc:`/auto_examples/02_stages/plot_02_expression`,
+  :doc:`/auto_examples/02_stages/plot_02_custom_features`,
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`,
+  :doc:`/auto_examples/02_stages/plot_07_voxel_texture`,
+  :doc:`/auto_examples/02_stages/plot_08_derived_map`,
+  :doc:`/auto_examples/02_stages/plot_09_texture_habitats`.
+* **preprocess** — :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`,
+  :doc:`/auto_examples/02_stages/plot_10_preprocess_features`,
+  :doc:`/auto_examples/02_stages/plot_11_preprocess_compare`,
+  :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`.
+* **partition** — :doc:`/auto_examples/02_stages/plot_12_supervoxels`,
+  :doc:`/auto_examples/02_stages/plot_05_supervoxel_features`.
+* **fit** — :doc:`/auto_examples/02_stages/plot_13_fit_model`.
+* **assign** — :doc:`/auto_examples/02_stages/plot_14_assign_labels`.
 
 
 .. raw:: html
@@ -172,10 +246,10 @@ preprocessing of voxel texture.
 
 .. only:: html
 
-  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_01_feature_routes_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_01_feature_routes_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_voxel/plot_01_feature_routes`
+  :doc:`/auto_examples/02_stages/plot_01_feature_routes`
 
 .. raw:: html
 
@@ -189,10 +263,10 @@ preprocessing of voxel texture.
 
 .. only:: html
 
-  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_02_custom_features_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_02_custom_features_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_voxel/plot_02_custom_features`
+  :doc:`/auto_examples/02_stages/plot_02_custom_features`
 
 .. raw:: html
 
@@ -206,10 +280,10 @@ preprocessing of voxel texture.
 
 .. only:: html
 
-  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_02_expression_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_02_expression_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_voxel/plot_02_expression`
+  :doc:`/auto_examples/02_stages/plot_02_expression`
 
 .. raw:: html
 
@@ -223,10 +297,10 @@ preprocessing of voxel texture.
 
 .. only:: html
 
-  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_03_voxel_texture_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_03_voxel_texture_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_voxel/plot_03_voxel_texture`
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`
 
 .. raw:: html
 
@@ -240,10 +314,10 @@ preprocessing of voxel texture.
 
 .. only:: html
 
-  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_04_feature_preprocessing_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_04_feature_preprocessing_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_voxel/plot_04_feature_preprocessing`
+  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`
 
 .. raw:: html
 
@@ -257,10 +331,10 @@ preprocessing of voxel texture.
 
 .. only:: html
 
-  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_05_supervoxel_features_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_05_supervoxel_features_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_voxel/plot_05_supervoxel_features`
+  :doc:`/auto_examples/02_stages/plot_05_supervoxel_features`
 
 .. raw:: html
 
@@ -274,230 +348,14 @@ preprocessing of voxel texture.
 
 .. only:: html
 
-  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_06_texture_preprocessing_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_06_texture_preprocessing_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`
+  :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`
 
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Preprocessing voxel texture before clustering</div>
-    </div>
-
-
-.. thumbnail-parent-div-close
-
-.. raw:: html
-
-    </div>
-
-3. Precise Feature Screening
-============================
-
-Repeatability and reproducibility screening (Prior et al., 2024):
-simulated image retest perturbation (noise, translation, rotation) and
-ROI contour edge perturbation, evaluated across kernel radii and bin
-widths with multi-panel ICC forest plots.
-
-
-.. raw:: html
-
-  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbnails">
-
-.. thumbnail-parent-div-open
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI).">
-
-.. only:: html
-
-  .. image:: /auto_examples/03_precision/images/thumb/sphx_glr_plot_01_precise_features_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/03_precision/plot_01_precise_features`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
-    </div>
-
-
-.. thumbnail-parent-div-close
-
-.. raw:: html
-
-    </div>
-
-4. Habitat Mapping
-==================
-
-A habitat map is a label volume. Integer ids are arbitrary until two
-maps share one fitted model, or until labels are matched after the fact.
-
-Use at least two subjects for two-step and for pooling. One subject has
-no shared cohort to fit. Applying a saved model to a validation cohort
-keeps the training definition. Fitting that cohort again creates a
-different definition. Do not compare colours across the three design
-pages until labels have been matched.
-
-Choosing how habitats are defined
-----------------------------------
-
-The design is the stage list of the :class:`~habit.spec.HabitatSpec`.
-The three designs differ only in whether ``partition`` and ``pool`` are
-present:
-
-====================  =============  ========  =====================
-Design                ``partition``  ``pool``  ``fit`` runs on
-====================  =============  ========  =====================
-two-step              yes            yes       supervoxels, cohort
-inside each subject   no             no        voxels, one subject
-pooling voxels        no             yes       voxels, cohort
-====================  =============  ========  =====================
-
-``two_step_habitat``, ``one_step_habitat`` and ``direct_pooling_habitat``
-are shortcuts that build these stage lists. Each page uses the same three
-DCE phases, a fixed count of 3 habitats, one overlay and one volume table.
-
-* **Defining habitats in two steps** (partition, then a shared model) —
-  :doc:`/auto_examples/04_habitat_maps/plot_01_two_step`.
-* **Defining habitats inside each subject** (ids do not match across people) —
-  :doc:`/auto_examples/04_habitat_maps/plot_02_inside_each_subject`.
-* **Pooling voxels across the cohort** (no supervoxels) —
-  :doc:`/auto_examples/04_habitat_maps/plot_03_pool_voxels`.
-* **Applying a saved habitat model** —
-  :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
-* **Matching habitat labels across subjects** (shared or frozen
-  prototypes) — :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
-  Which matcher to use and why: :doc:`/reference/habitat_matching`;
-  worked, visual pages: :doc:`/auto_examples/07_habitat_matching/index`.
-
-Building a habitat map step by step
-------------------------------------
-
-``VoxelFeatureField`` → ``Supervoxelization`` → ``HabitatModel`` →
-``HabitatMap`` → ``FeatureTable``. Each page names its input, its output,
-and the :class:`~habit.spec.HabitatSpec` stage.
-
-* **Extracting voxel intensities** —
-  :doc:`/auto_examples/04_habitat_maps/plot_06_voxel_intensities`.
-* **Extracting a voxel texture** —
-  :doc:`/auto_examples/04_habitat_maps/plot_07_voxel_texture`.
-* **Clustering habitats from a derived map** —
-  :doc:`/auto_examples/04_habitat_maps/plot_08_derived_map`.
-* **Clustering habitats from a texture field** —
-  :doc:`/auto_examples/04_habitat_maps/plot_09_texture_habitats`.
-* **Preprocessing features before clustering** —
-  :doc:`/auto_examples/04_habitat_maps/plot_10_preprocess_features`.
-* **Comparing habitat maps with and without preprocessing** —
-  :doc:`/auto_examples/04_habitat_maps/plot_11_preprocess_compare`.
-* **Partitioning a ROI into supervoxels** —
-  :doc:`/auto_examples/04_habitat_maps/plot_12_supervoxels`.
-* **Fitting a cohort habitat model** —
-  :doc:`/auto_examples/04_habitat_maps/plot_13_fit_model`.
-* **Assigning habitat labels** —
-  :doc:`/auto_examples/04_habitat_maps/plot_14_assign_labels`.
-
-
-.. raw:: html
-
-  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbnails">
-
-.. thumbnail-parent-div-open
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. The design is the stage list: partition then pool then fit.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_01_two_step_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04_habitat_maps/plot_01_two_step`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. The stage list has no pool, so fit runs inside each subject instead of on the cohort. one_step_habitat(...) is a shortcut that builds the same stage list.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_02_inside_each_subject_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04_habitat_maps/plot_02_inside_each_subject`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. The stage list is pool then fit, with no partition. direct_pooling_habitat(...) is a shortcut that builds the same stage list.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_03_pool_voxels_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04_habitat_maps/plot_03_pool_voxels`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects.">
-
-.. only:: html
-
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_04_apply_saved_model_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Applying a saved habitat model</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="With one_step habitats every subject is clustered on its own, so habitat 1 of one patient need not be habitat 1 of another, and patients may even have different habitat counts. align_habitat_maps_to_prototypes gives every subject one shared set of names:">
-
-.. only:: html
-
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_05_match_labels_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Matching habitat labels across subjects</div>
     </div>
 
 
@@ -507,10 +365,10 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_06_voxel_intensities_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_06_voxel_intensities_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_06_voxel_intensities`
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`
 
 .. raw:: html
 
@@ -524,10 +382,10 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_07_voxel_texture_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_07_voxel_texture_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_07_voxel_texture`
+  :doc:`/auto_examples/02_stages/plot_07_voxel_texture`
 
 .. raw:: html
 
@@ -537,14 +395,14 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with the four DCE phases. Output: a HabitatMap. The voxel field is ExpressionVoxelFeatures (see /auto_examples/02_voxel/plot_02_expression). Stage: extract_voxel_features with expression, then a per-subject fit.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with the four DCE phases. Output: a HabitatMap. The voxel field is ExpressionVoxelFeatures (see /auto_examples/02_stages/plot_02_expression). Stage: extract_voxel_features with expression, then a per-subject fit.">
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_08_derived_map_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_08_derived_map_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_08_derived_map`
+  :doc:`/auto_examples/02_stages/plot_08_derived_map`
 
 .. raw:: html
 
@@ -558,10 +416,10 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_09_texture_habitats_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_09_texture_habitats_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_09_texture_habitats`
+  :doc:`/auto_examples/02_stages/plot_09_texture_habitats`
 
 .. raw:: html
 
@@ -575,10 +433,10 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_10_preprocess_features_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_10_preprocess_features_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_10_preprocess_features`
+  :doc:`/auto_examples/02_stages/plot_10_preprocess_features`
 
 .. raw:: html
 
@@ -592,10 +450,10 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_11_preprocess_compare_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_11_preprocess_compare_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_11_preprocess_compare`
+  :doc:`/auto_examples/02_stages/plot_11_preprocess_compare`
 
 .. raw:: html
 
@@ -609,10 +467,10 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_12_supervoxels_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_12_supervoxels_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_12_supervoxels`
+  :doc:`/auto_examples/02_stages/plot_12_supervoxels`
 
 .. raw:: html
 
@@ -622,14 +480,14 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Supervoxelization per subject. Output: a HabitatModel. Stage: fit.">
+    <div class="sphx-glr-thumbcontainer" tooltip="The fit stage of /auto_examples/00_full_pipeline/plot_01_full_pipeline. Input: one Supervoxelization per subject. Output: a HabitatModel.">
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_13_fit_model_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_13_fit_model_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_13_fit_model`
+  :doc:`/auto_examples/02_stages/plot_13_fit_model`
 
 .. raw:: html
 
@@ -643,10 +501,10 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. only:: html
 
-  .. image:: /auto_examples/04_habitat_maps/images/thumb/sphx_glr_plot_14_assign_labels_thumb.png
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_14_assign_labels_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_habitat_maps/plot_14_assign_labels`
+  :doc:`/auto_examples/02_stages/plot_14_assign_labels`
 
 .. raw:: html
 
@@ -660,8 +518,13 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
     </div>
 
-5. Habitat Quantification
+3. Habitat Quantification
 =========================
+
+These metrics are the quantify stages of the
+:doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
+(volume, MSI, ITH, graph). Each page refits a small cohort so it can be
+copied on its own, then computes one family from the label map.
 
 Quantify habitats with atomic functions: volume and fractions,
 multiregional spatial interaction (MSI, Wu et al. 2018), intratumoral
@@ -686,10 +549,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_01_volume_fractions_thumb.png
+  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_01_volume_fractions_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_quantify/plot_01_volume_fractions`
+  :doc:`/auto_examples/03_quantify/plot_01_volume_fractions`
 
 .. raw:: html
 
@@ -703,10 +566,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_02_msi_thumb.png
+  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_02_msi_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_quantify/plot_02_msi`
+  :doc:`/auto_examples/03_quantify/plot_02_msi`
 
 .. raw:: html
 
@@ -720,10 +583,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_03_ith_thumb.png
+  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_03_ith_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_quantify/plot_03_ith`
+  :doc:`/auto_examples/03_quantify/plot_03_ith`
 
 .. raw:: html
 
@@ -737,10 +600,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_04_graph_features_thumb.png
+  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_04_graph_features_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_quantify/plot_04_graph_features`
+  :doc:`/auto_examples/03_quantify/plot_04_graph_features`
 
 .. raw:: html
 
@@ -754,10 +617,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_05_each_habitat_radiomics_thumb.png
+  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_05_each_habitat_radiomics_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_quantify/plot_05_each_habitat_radiomics`
+  :doc:`/auto_examples/03_quantify/plot_05_each_habitat_radiomics`
 
 .. raw:: html
 
@@ -771,10 +634,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png
+  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_quantify/plot_06_whole_habitat_radiomics`
+  :doc:`/auto_examples/03_quantify/plot_06_whole_habitat_radiomics`
 
 .. raw:: html
 
@@ -788,10 +651,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/05_quantify/images/thumb/sphx_glr_plot_07_deep_learning_embeddings_thumb.png
+  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_07_deep_learning_embeddings_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_quantify/plot_07_deep_learning_embeddings`
+  :doc:`/auto_examples/03_quantify/plot_07_deep_learning_embeddings`
 
 .. raw:: html
 
@@ -805,23 +668,32 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
     </div>
 
-6. Parallel runs
-================
+4. Three habitat designs
+========================
 
-These pages only change how subjects are scheduled. The study is the one
-from the Python quickstart, so a pooled run gives the same habitat maps
-as a serial run; the first page checks that voxel by voxel.
+The complete analysis is two-step: ``partition``, then ``pool``, then
+``fit``. These pages change that stage list and nothing else.
 
-* **Running a cohort in parallel.** Serial versus a pool of four worker
-  processes, with real timings, and which backend to use on CPU, one GPU
-  or several GPUs.
-  :doc:`/auto_examples/06_parallel_runs/plot_01_run_a_cohort`.
-* **When a subject fails.** Continue or stop at the first failure,
-  resume from a checkpoint, and a per-subject time limit.
-  :doc:`/auto_examples/06_parallel_runs/plot_02_when_a_subject_fails`.
-* **Several GPUs.** One worker per card. The timing table is a recorded
-  5-GPU run.
-  :doc:`/auto_examples/06_parallel_runs/plot_03_several_gpus`.
+====================  =============  ========  =====================
+Design                ``partition``  ``pool``  ``fit`` runs on
+====================  =============  ========  =====================
+two-step              yes            yes       supervoxels, cohort
+inside each subject   no             no        voxels, one subject
+pooling voxels        no             yes       voxels, cohort
+====================  =============  ========  =====================
+
+``two_step_habitat``, ``one_step_habitat`` and ``direct_pooling_habitat``
+build those lists. Habitat ids match across subjects only when ``fit``
+ran once on the cohort. Otherwise match labels first
+(:doc:`/auto_examples/06_matching/index`).
+
+* **Two steps** — :doc:`/auto_examples/04_designs/plot_01_two_step`.
+* **Inside each subject** —
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`.
+* **Pooling voxels** — :doc:`/auto_examples/04_designs/plot_03_pool_voxels`.
+
+Applying a saved model is the next section. Opening each stage is
+:doc:`/auto_examples/02_stages/index`.
 
 
 .. raw:: html
@@ -837,52 +709,52 @@ as a serial run; the first page checks that voxel by voxel.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The study is the one from /auto_quickstart/plot_quickstart_python. Only the backend= argument changes: serially, subjects run one after the other in this process; with RunPolicy(workers=4, backend=&quot;process&quot;) four worker processes take subjects side by side. The habitat maps must be identical either way, and this page checks that.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel and one HabitatMap per subject. The design is the stage list: partition then pool then fit.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_01_run_a_cohort_thumb.png
+  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_01_two_step_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_parallel_runs/plot_01_run_a_cohort`
+  :doc:`/auto_examples/04_designs/plot_01_two_step`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Running a cohort in parallel</div>
+      <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="One subject in this cohort has no portal-venous (``PVP``) series, so voxel extraction raises for it. What happens next is set on the backend:">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. The stage list has no pool, so fit runs inside each subject instead of on the cohort. one_step_habitat(...) is a shortcut that builds the same stage list.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_02_when_a_subject_fails_thumb.png
+  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_02_inside_each_subject_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_parallel_runs/plot_02_when_a_subject_fails`
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">When a subject fails</div>
+      <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This machine has one GPU, so the recorded 5-GPU timings below are from a cloud run and this page does not repeat that workload. The call itself is in the next cell.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. The stage list is pool then fit, with no partition. direct_pooling_habitat(...) is a shortcut that builds the same stage list.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_03_several_gpus_thumb.png
+  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_03_pool_voxels_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_parallel_runs/plot_03_several_gpus`
+  :doc:`/auto_examples/04_designs/plot_03_pool_voxels`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Running a cohort on several GPUs</div>
+      <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
     </div>
 
 
@@ -892,8 +764,55 @@ as a serial run; the first page checks that voxel by voxel.
 
     </div>
 
-7. Matching Habitat Labels
+5. Apply a saved model
+======================
+
+Train the habitat definition, write a ``.habitatmodel`` file, and label
+later subjects without fitting again.
+
+:doc:`/auto_examples/05_apply/plot_04_apply_saved_model`
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_apply/images/thumb/sphx_glr_plot_04_apply_saved_model_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_apply/plot_04_apply_saved_model`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Applying a saved habitat model</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+6. Matching Habitat Labels
 ==========================
+
+Calling it on a fitted study:
+:doc:`/auto_examples/06_matching/plot_07_match_labels`.
+The pages below show why ids switch and how each matcher works.
 
 Habitat ids from independent clusterings are arbitrary: habitat 1 of one
 fit can be habitat 3 of another. Anything that compares habitats by id
@@ -932,10 +851,10 @@ literature: :doc:`/reference/habitat_matching`.
 
 .. only:: html
 
-  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_01_label_switching_thumb.png
+  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_01_label_switching_thumb.png
     :alt:
 
-  :doc:`/auto_examples/07_habitat_matching/plot_01_label_switching`
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`
 
 .. raw:: html
 
@@ -949,10 +868,10 @@ literature: :doc:`/reference/habitat_matching`.
 
 .. only:: html
 
-  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_02_overlap_cases_thumb.png
+  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_02_overlap_cases_thumb.png
     :alt:
 
-  :doc:`/auto_examples/07_habitat_matching/plot_02_overlap_cases`
+  :doc:`/auto_examples/06_matching/plot_02_overlap_cases`
 
 .. raw:: html
 
@@ -966,10 +885,10 @@ literature: :doc:`/reference/habitat_matching`.
 
 .. only:: html
 
-  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_03_prototype_steps_thumb.png
+  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_03_prototype_steps_thumb.png
     :alt:
 
-  :doc:`/auto_examples/07_habitat_matching/plot_03_prototype_steps`
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`
 
 .. raw:: html
 
@@ -983,10 +902,10 @@ literature: :doc:`/reference/habitat_matching`.
 
 .. only:: html
 
-  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_04_prototype_metrics_thumb.png
+  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_04_prototype_metrics_thumb.png
     :alt:
 
-  :doc:`/auto_examples/07_habitat_matching/plot_04_prototype_metrics`
+  :doc:`/auto_examples/06_matching/plot_04_prototype_metrics`
 
 .. raw:: html
 
@@ -1000,10 +919,10 @@ literature: :doc:`/reference/habitat_matching`.
 
 .. only:: html
 
-  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_05_frozen_prototypes_thumb.png
+  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_05_frozen_prototypes_thumb.png
     :alt:
 
-  :doc:`/auto_examples/07_habitat_matching/plot_05_frozen_prototypes`
+  :doc:`/auto_examples/06_matching/plot_05_frozen_prototypes`
 
 .. raw:: html
 
@@ -1017,14 +936,119 @@ literature: :doc:`/reference/habitat_matching`.
 
 .. only:: html
 
-  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_06_downstream_tables_thumb.png
+  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_06_downstream_tables_thumb.png
     :alt:
 
-  :doc:`/auto_examples/07_habitat_matching/plot_06_downstream_tables`
+  :doc:`/auto_examples/06_matching/plot_06_downstream_tables`
 
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">What matching changes in a cohort feature table</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="With one_step habitats every subject is clustered on its own, so habitat 1 of one patient need not be habitat 1 of another, and patients may even have different habitat counts. align_habitat_maps_to_prototypes gives every subject one shared set of names:">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_07_match_labels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_matching/plot_07_match_labels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Matching habitat labels across subjects</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+7. Parallel runs
+================
+
+One study, four ways to schedule it. The stage list is the complete
+analysis with a fixed habitat count. ``backend`` is ``serial`` or
+``process``. A persistent pool, a fresh process per subject, and one
+worker per GPU are settings of the process backend.
+
+:doc:`/auto_examples/07_parallel/plot_01_backends`
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The study is the two-step list from /auto_examples/00_full_pipeline/plot_01_full_pipeline, with the habitat count fixed at 3 so this page can refit it on every backend. Only backend= changes. Habitat labels must match.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_parallel/images/thumb/sphx_glr_plot_01_backends_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_parallel/plot_01_backends`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Running the same study on each backend</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+8. Precise Feature Screening
+============================
+
+Repeatability and reproducibility screening (Prior et al., 2024):
+simulated image retest perturbation (noise, translation, rotation) and
+ROI contour edge perturbation, evaluated across kernel radii and bin
+widths with multi-panel ICC forest plots.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI).">
+
+.. only:: html
+
+  .. image:: /auto_examples/08_precision/images/thumb/sphx_glr_plot_01_precise_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/08_precision/plot_01_precise_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
     </div>
 
 
@@ -1040,13 +1064,15 @@ literature: :doc:`/reference/habitat_matching`.
    :includehidden:
 
 
+   /auto_examples/00_full_pipeline/index.rst
    /auto_examples/01_data_in/index.rst
-   /auto_examples/02_voxel/index.rst
-   /auto_examples/03_precision/index.rst
-   /auto_examples/04_habitat_maps/index.rst
-   /auto_examples/05_quantify/index.rst
-   /auto_examples/06_parallel_runs/index.rst
-   /auto_examples/07_habitat_matching/index.rst
+   /auto_examples/02_stages/index.rst
+   /auto_examples/03_quantify/index.rst
+   /auto_examples/04_designs/index.rst
+   /auto_examples/05_apply/index.rst
+   /auto_examples/06_matching/index.rst
+   /auto_examples/07_parallel/index.rst
+   /auto_examples/08_precision/index.rst
 
 
 

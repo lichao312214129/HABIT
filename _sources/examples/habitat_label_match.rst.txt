@@ -3,7 +3,7 @@
 Match habitat ids
 =================
 
-Moved to :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
+Moved to :doc:`/auto_examples/06_matching/plot_07_match_labels`.
 
 Shared-model apply stays on
-:doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
+:doc:`/auto_examples/05_apply/plot_04_apply_saved_model`.

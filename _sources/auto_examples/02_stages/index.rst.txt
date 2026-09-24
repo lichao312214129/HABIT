@@ -1,0 +1,339 @@
+
+
+.. _sphx_glr_auto_examples_02_stages:
+
+2. Each stage
+=============
+
+These pages open the stage list of the
+:doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`.
+``Stage``'s first argument is a label. ``Spec`` names the component.
+
+* **extract** — :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`,
+  :doc:`/auto_examples/02_stages/plot_01_feature_routes`,
+  :doc:`/auto_examples/02_stages/plot_02_expression`,
+  :doc:`/auto_examples/02_stages/plot_02_custom_features`,
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`,
+  :doc:`/auto_examples/02_stages/plot_07_voxel_texture`,
+  :doc:`/auto_examples/02_stages/plot_08_derived_map`,
+  :doc:`/auto_examples/02_stages/plot_09_texture_habitats`.
+* **preprocess** — :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`,
+  :doc:`/auto_examples/02_stages/plot_10_preprocess_features`,
+  :doc:`/auto_examples/02_stages/plot_11_preprocess_compare`,
+  :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`.
+* **partition** — :doc:`/auto_examples/02_stages/plot_12_supervoxels`,
+  :doc:`/auto_examples/02_stages/plot_05_supervoxel_features`.
+* **fit** — :doc:`/auto_examples/02_stages/plot_13_fit_model`.
+* **assign** — :doc:`/auto_examples/02_stages/plot_14_assign_labels`.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Clustering uses the voxel field you define — not a fixed T1 image. This page is the intensity pair: raw (concatenate modality intensities inside the ROI) and concat (join families column-wise).">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_01_feature_routes_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_01_feature_routes`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Voxel features</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Three liver DCE maps: arterial relative enhancement, arterial-to-portal wash-out, and arterial-to-delayed wash-out.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_02_custom_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_02_custom_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Custom features</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="ExpressionVoxelFeatures builds one column per formula. Names in the formula are modality keys on the subject (``LAP``, pre_contrast, ...). eps keeps a zero denominator from breaking a ratio.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_02_expression_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_02_expression`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Expression voxel features</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Texture maps are inputs to clustering, not post-label tables. GPU is a faster implementation of the same IBSI / PyRadiomics definition — the numbers do not change because of GPU.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_03_voxel_texture_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Voxel texture and GPU</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Clustering operates on preprocessed feature matrices, not raw intensities. HabitatSpec exposes three ordered chains:">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_04_feature_preprocessing_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Feature preprocessing</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_05_supervoxel_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_05_supervoxel_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture columns live on very different scales: GLCM contrast runs into the hundreds, correlation stays within [-1, 1]. Clustering then sees mostly the large columns, so a preprocessing step comes first.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_06_texture_preprocessing_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Preprocessing voxel texture before clustering</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_06_voxel_intensities_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_07_voxel_texture_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_07_voxel_texture`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with the four DCE phases. Output: a HabitatMap. The voxel field is ExpressionVoxelFeatures (see /auto_examples/02_stages/plot_02_expression). Stage: extract_voxel_features with expression, then a per-subject fit.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_08_derived_map_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_08_derived_map`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_09_texture_habitats_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_09_texture_habitats`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: a HabitatMap built from the preprocessed features. Stage: voxel_feature_preprocessors, then partition, fit, assign.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_10_preprocess_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_10_preprocess_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Preprocessing features before clustering</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: the same cohort, the same two-step design, the same k and seed. The only change is the voxel-feature preprocessor chain.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_11_preprocess_compare_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_11_preprocess_compare`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Comparing habitat maps with and without preprocessing</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_12_supervoxels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_12_supervoxels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The fit stage of /auto_examples/00_full_pipeline/plot_01_full_pipeline. Input: one Supervoxelization per subject. Output: a HabitatModel.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_13_fit_model_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_13_fit_model`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Fitting a cohort habitat model</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_14_assign_labels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_stages/plot_14_assign_labels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/02_stages/plot_01_feature_routes
+   /auto_examples/02_stages/plot_02_custom_features
+   /auto_examples/02_stages/plot_02_expression
+   /auto_examples/02_stages/plot_03_voxel_texture
+   /auto_examples/02_stages/plot_04_feature_preprocessing
+   /auto_examples/02_stages/plot_05_supervoxel_features
+   /auto_examples/02_stages/plot_06_texture_preprocessing
+   /auto_examples/02_stages/plot_06_voxel_intensities
+   /auto_examples/02_stages/plot_07_voxel_texture
+   /auto_examples/02_stages/plot_08_derived_map
+   /auto_examples/02_stages/plot_09_texture_habitats
+   /auto_examples/02_stages/plot_10_preprocess_features
+   /auto_examples/02_stages/plot_11_preprocess_compare
+   /auto_examples/02_stages/plot_12_supervoxels
+   /auto_examples/02_stages/plot_13_fit_model
+   /auto_examples/02_stages/plot_14_assign_labels
+

@@ -1,0 +1,54 @@
+
+
+.. _sphx_glr_auto_examples_00_full_pipeline:
+
+0. Complete analysis
+====================
+
+Read this page first. It is one two-step study from images to a feature
+table and a saved model. Later sections open the same
+:class:`~habit.spec.HabitatSpec` one stage at a time.
+
+:doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="One HabitatSpec declares the whole study. One fit_predict runs it. The stage list below is the same two-step analysis as /auto_quickstart/plot_quickstart_python: raw DCE intensities, 30 supervoxels, one shared model, then volume, MSI, ITH and graph features.">
+
+.. only:: html
+
+  .. image:: /auto_examples/00_full_pipeline/images/thumb/sphx_glr_plot_01_full_pipeline_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">A complete habitat analysis</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/00_full_pipeline/plot_01_full_pipeline
+

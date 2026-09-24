@@ -156,8 +156,8 @@ sphinx_gallery_thumbnail_number = 1
       out_dir: out/quickstart_yaml
 
     Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored='2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160', current='61f6e8d3d7ec436881357ce5cc68b1f62ac51070c0d01dad8703deba121f093a'. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:00<00:00, 11.26it/s]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:00<00:00, 11.33it/s]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:00<00:00, 11.22it/s]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:00<00:00, 11.36it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 10.64it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 10.63it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:00,  5.85it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:00,  5.56it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00<00:00,  5.45it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:00<00:00,  5.18it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  4.98it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  4.97it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:00<00:00, 11.09it/s]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:00<00:00, 11.36it/s]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:00<00:00, 11.89it/s]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:00<00:00, 12.11it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 11.84it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 11.84it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:00,  5.38it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:00,  5.13it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00<00:00,  5.22it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:00<00:00,  5.08it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  4.94it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  4.94it/s]
     HabitatModel kmeans-b116f5fc90857e1b
       habitats           : 4
       features (4)    : LAP, pre_contrast, PVP, delay_3min
@@ -165,7 +165,7 @@ sphinx_gallery_thumbnail_number = 1
       modalities         : LAP, pre_contrast, PVP, delay_3min
       cohort digest      : 29bb088d9c7c93b8...
       produced by        : habitat_model_fitter.kmeans
-      habit version      : 2.0.0
+      habit version      : 3.0.0
       random seed        : 0
       preprocessing state: inertia, selection_report, validation
              habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  ith_score
@@ -222,7 +222,7 @@ The anatomy comes from the same folder the YAML named.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.694 seconds)
+   **Total running time of the script:** (0 minutes 2.610 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_yaml.py:

@@ -9,7 +9,7 @@
 .. currentmodule:: habit.supervoxel
 
 **User guide:** :doc:`domain_habitat` · Habitat Guide
-:doc:`../auto_examples/04_habitat_maps/plot_12_supervoxels`.
+:doc:`../auto_examples/02_stages/plot_12_supervoxels`.
 Component names: :doc:`../how_to/habitat_components`.
 
 Classes

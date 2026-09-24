@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**03:42.683** total execution time for 44 files **from all galleries**:
+**13:23.608** total execution time for 43 files **from all galleries**:
 
 .. container::
 
@@ -32,135 +32,132 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_01_two_step.py` (``..\..\examples\guide\04_habitat_maps\plot_01_two_step.py``)
-     - 01:40.391
+   * - :ref:`sphx_glr_auto_examples_04_designs_plot_01_two_step.py` (``..\..\examples\guide\04_designs\plot_01_two_step.py``)
+     - 01:33.771
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_run_a_cohort.py` (``..\..\examples\guide\06_parallel_runs\plot_01_run_a_cohort.py``)
-     - 00:43.158
+   * - :ref:`sphx_glr_auto_examples_08_precision_plot_01_precise_features.py` (``..\..\examples\guide\08_precision\plot_01_precise_features.py``)
+     - 01:24.052
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_03_voxel_texture.py` (``..\..\examples\guide\02_stages\plot_03_voxel_texture.py``)
+     - 01:01.396
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_14_assign_labels.py` (``..\..\examples\guide\02_stages\plot_14_assign_labels.py``)
+     - 00:45.735
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_13_fit_model.py` (``..\..\examples\guide\02_stages\plot_13_fit_model.py``)
+     - 00:45.683
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_parallel_plot_01_backends.py` (``..\..\examples\guide\07_parallel\plot_01_backends.py``)
+     - 00:45.102
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_matching_plot_05_frozen_prototypes.py` (``..\..\examples\guide\06_matching\plot_05_frozen_prototypes.py``)
+     - 00:39.158
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_matching_plot_06_downstream_tables.py` (``..\..\examples\guide\06_matching\plot_06_downstream_tables.py``)
+     - 00:38.209
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_matching_plot_07_match_labels.py` (``..\..\examples\guide\06_matching\plot_07_match_labels.py``)
+     - 00:36.107
      - 0.0
    * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)
-     - 00:31.119
+     - 00:32.630
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_02_when_a_subject_fails.py` (``..\..\examples\guide\06_parallel_runs\plot_02_when_a_subject_fails.py``)
-     - 00:20.652
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_10_preprocess_features.py` (``..\..\examples\guide\02_stages\plot_10_preprocess_features.py``)
+     - 00:27.084
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_03_prototype_steps.py` (``..\..\examples\guide\07_habitat_matching\plot_03_prototype_steps.py``)
-     - 00:08.484
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_12_supervoxels.py` (``..\..\examples\guide\02_stages\plot_12_supervoxels.py``)
+     - 00:24.858
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_02_inside_each_subject.py` (``..\..\examples\guide\04_habitat_maps\plot_02_inside_each_subject.py``)
-     - 00:07.867
+   * - :ref:`sphx_glr_auto_examples_03_quantify_plot_06_whole_habitat_radiomics.py` (``..\..\examples\guide\03_quantify\plot_06_whole_habitat_radiomics.py``)
+     - 00:23.554
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_03_pool_voxels.py` (``..\..\examples\guide\04_habitat_maps\plot_03_pool_voxels.py``)
-     - 00:05.163
+   * - :ref:`sphx_glr_auto_examples_00_full_pipeline_plot_01_full_pipeline.py` (``..\..\examples\guide\00_full_pipeline\plot_01_full_pipeline.py``)
+     - 00:19.922
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_03_several_gpus.py` (``..\..\examples\guide\06_parallel_runs\plot_03_several_gpus.py``)
-     - 00:03.154
+   * - :ref:`sphx_glr_auto_examples_03_quantify_plot_07_deep_learning_embeddings.py` (``..\..\examples\guide\03_quantify\plot_07_deep_learning_embeddings.py``)
+     - 00:18.048
      - 0.0
-   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_yaml.py` (``..\..\examples\quickstart\plot_quickstart_yaml.py``)
-     - 00:02.694
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_06_texture_preprocessing.py` (``..\..\examples\guide\02_stages\plot_06_texture_preprocessing.py``)
+     - 00:16.052
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_01_data_in_plot_01_directory.py` (``..\..\examples\guide\01_data_in\plot_01_directory.py``)
-     - 00:00.000
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_05_supervoxel_features.py` (``..\..\examples\guide\02_stages\plot_05_supervoxel_features.py``)
+     - 00:14.919
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_01_feature_routes.py` (``..\..\examples\guide\02_stages\plot_01_feature_routes.py``)
+     - 00:12.982
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_apply_plot_04_apply_saved_model.py` (``..\..\examples\guide\05_apply\plot_04_apply_saved_model.py``)
+     - 00:11.252
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_matching_plot_03_prototype_steps.py` (``..\..\examples\guide\06_matching\plot_03_prototype_steps.py``)
+     - 00:09.413
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_11_preprocess_compare.py` (``..\..\examples\guide\02_stages\plot_11_preprocess_compare.py``)
+     - 00:08.607
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_04_feature_preprocessing.py` (``..\..\examples\guide\02_stages\plot_04_feature_preprocessing.py``)
+     - 00:08.556
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_03_quantify_plot_04_graph_features.py` (``..\..\examples\guide\03_quantify\plot_04_graph_features.py``)
+     - 00:07.839
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_designs_plot_02_inside_each_subject.py` (``..\..\examples\guide\04_designs\plot_02_inside_each_subject.py``)
+     - 00:07.389
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_matching_plot_02_overlap_cases.py` (``..\..\examples\guide\06_matching\plot_02_overlap_cases.py``)
+     - 00:07.208
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_03_quantify_plot_05_each_habitat_radiomics.py` (``..\..\examples\guide\03_quantify\plot_05_each_habitat_radiomics.py``)
+     - 00:07.030
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_02_custom_features.py` (``..\..\examples\guide\02_stages\plot_02_custom_features.py``)
+     - 00:06.869
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_03_quantify_plot_01_volume_fractions.py` (``..\..\examples\guide\03_quantify\plot_01_volume_fractions.py``)
+     - 00:05.993
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_04_designs_plot_03_pool_voxels.py` (``..\..\examples\guide\04_designs\plot_03_pool_voxels.py``)
+     - 00:05.290
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_03_quantify_plot_02_msi.py` (``..\..\examples\guide\03_quantify\plot_02_msi.py``)
+     - 00:04.952
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_09_texture_habitats.py` (``..\..\examples\guide\02_stages\plot_09_texture_habitats.py``)
+     - 00:04.406
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_matching_plot_01_label_switching.py` (``..\..\examples\guide\06_matching\plot_01_label_switching.py``)
+     - 00:03.521
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_07_voxel_texture.py` (``..\..\examples\guide\02_stages\plot_07_voxel_texture.py``)
+     - 00:03.505
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_08_derived_map.py` (``..\..\examples\guide\02_stages\plot_08_derived_map.py``)
+     - 00:03.460
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_02_simpleitk.py` (``..\..\examples\guide\01_data_in\plot_02_simpleitk.py``)
-     - 00:00.000
+     - 00:03.149
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_01_data_in_plot_03_numpy_arrays.py` (``..\..\examples\guide\01_data_in\plot_03_numpy_arrays.py``)
-     - 00:00.000
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_02_expression.py` (``..\..\examples\guide\02_stages\plot_02_expression.py``)
+     - 00:02.769
+     - 0.0
+   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_yaml.py` (``..\..\examples\quickstart\plot_quickstart_yaml.py``)
+     - 00:02.610
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_matching_plot_04_prototype_metrics.py` (``..\..\examples\guide\06_matching\plot_04_prototype_metrics.py``)
+     - 00:01.985
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_stages_plot_06_voxel_intensities.py` (``..\..\examples\guide\02_stages\plot_06_voxel_intensities.py``)
+     - 00:01.899
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_03_quantify_plot_03_ith.py` (``..\..\examples\guide\03_quantify\plot_03_ith.py``)
+     - 00:01.861
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_data_in_plot_01_directory.py` (``..\..\examples\guide\01_data_in\plot_01_directory.py``)
+     - 00:01.699
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_data_in_plot_04_nifti_files.py` (``..\..\examples\guide\01_data_in\plot_04_nifti_files.py``)
-     - 00:00.000
+     - 00:01.652
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_01_feature_routes.py` (``..\..\examples\guide\02_voxel\plot_01_feature_routes.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_02_custom_features.py` (``..\..\examples\guide\02_voxel\plot_02_custom_features.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_02_expression.py` (``..\..\examples\guide\02_voxel\plot_02_expression.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_03_voxel_texture.py` (``..\..\examples\guide\02_voxel\plot_03_voxel_texture.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_04_feature_preprocessing.py` (``..\..\examples\guide\02_voxel\plot_04_feature_preprocessing.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_05_supervoxel_features.py` (``..\..\examples\guide\02_voxel\plot_05_supervoxel_features.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_02_voxel_plot_06_texture_preprocessing.py` (``..\..\examples\guide\02_voxel\plot_06_texture_preprocessing.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_03_precision_plot_01_precise_features.py` (``..\..\examples\guide\03_precision\plot_01_precise_features.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_04_apply_saved_model.py` (``..\..\examples\guide\04_habitat_maps\plot_04_apply_saved_model.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_05_match_labels.py` (``..\..\examples\guide\04_habitat_maps\plot_05_match_labels.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_06_voxel_intensities.py` (``..\..\examples\guide\04_habitat_maps\plot_06_voxel_intensities.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_07_voxel_texture.py` (``..\..\examples\guide\04_habitat_maps\plot_07_voxel_texture.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_08_derived_map.py` (``..\..\examples\guide\04_habitat_maps\plot_08_derived_map.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_09_texture_habitats.py` (``..\..\examples\guide\04_habitat_maps\plot_09_texture_habitats.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_10_preprocess_features.py` (``..\..\examples\guide\04_habitat_maps\plot_10_preprocess_features.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_11_preprocess_compare.py` (``..\..\examples\guide\04_habitat_maps\plot_11_preprocess_compare.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_12_supervoxels.py` (``..\..\examples\guide\04_habitat_maps\plot_12_supervoxels.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_13_fit_model.py` (``..\..\examples\guide\04_habitat_maps\plot_13_fit_model.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_04_habitat_maps_plot_14_assign_labels.py` (``..\..\examples\guide\04_habitat_maps\plot_14_assign_labels.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_01_volume_fractions.py` (``..\..\examples\guide\05_quantify\plot_01_volume_fractions.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_02_msi.py` (``..\..\examples\guide\05_quantify\plot_02_msi.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_03_ith.py` (``..\..\examples\guide\05_quantify\plot_03_ith.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_04_graph_features.py` (``..\..\examples\guide\05_quantify\plot_04_graph_features.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_05_each_habitat_radiomics.py` (``..\..\examples\guide\05_quantify\plot_05_each_habitat_radiomics.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_06_whole_habitat_radiomics.py` (``..\..\examples\guide\05_quantify\plot_06_whole_habitat_radiomics.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_quantify_plot_07_deep_learning_embeddings.py` (``..\..\examples\guide\05_quantify\plot_07_deep_learning_embeddings.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_01_label_switching.py` (``..\..\examples\guide\07_habitat_matching\plot_01_label_switching.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_02_overlap_cases.py` (``..\..\examples\guide\07_habitat_matching\plot_02_overlap_cases.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_04_prototype_metrics.py` (``..\..\examples\guide\07_habitat_matching\plot_04_prototype_metrics.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_05_frozen_prototypes.py` (``..\..\examples\guide\07_habitat_matching\plot_05_frozen_prototypes.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_habitat_matching_plot_06_downstream_tables.py` (``..\..\examples\guide\07_habitat_matching\plot_06_downstream_tables.py``)
-     - 00:00.000
+   * - :ref:`sphx_glr_auto_examples_01_data_in_plot_03_numpy_arrays.py` (``..\..\examples\guide\01_data_in\plot_03_numpy_arrays.py``)
+     - 00:01.435
      - 0.0

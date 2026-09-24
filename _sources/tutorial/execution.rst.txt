@@ -10,7 +10,7 @@ serial ↔ process pool if ``random_seed`` is fixed.
 
 This page is the integrator chapter. Knob-by-knob reference:
 :doc:`../api/execution`. Runnable demos:
-:doc:`/auto_examples/06_parallel_runs/index`.
+:doc:`/auto_examples/07_parallel/index`.
 
 Beginners can ignore this page until a cohort is slow or one subject
 crashes the run. The quickstarts use a small process pool already
@@ -75,12 +75,12 @@ Atomic path (no ``Study``): extract texture, preprocess, fit in this
 process, then ``backend.map`` the assigner on units already in memory.
 Subject versus cohort preprocessing of that texture, and the equivalent
 ``HabitatSpec``, is
-:doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`.
+:doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`.
 Serial versus pooled runs of one study, with timings, are on the first
 gallery page.
 
-* :doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`
-* :doc:`/auto_examples/06_parallel_runs/plot_01_run_a_cohort`
+* :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`
+* :doc:`/auto_examples/07_parallel/plot_01_backends`
 
 Failure policy
 --------------
@@ -98,7 +98,7 @@ if** the backend used ``continue``. Recipes / CLI pass
 ``backend.map`` directly leaves the exception on ``slot.error``.
 
 Both, on a study with one incomplete subject:
-:doc:`/auto_examples/06_parallel_runs/plot_02_when_a_subject_fails`.
+:doc:`/auto_examples/07_parallel/plot_01_backends`.
 
 Per-subject wall-clock cap: ``subject_timeout_sec`` (ProcessPool only).
 Expiry raises ``SubjectTimeoutError``.
@@ -111,7 +111,7 @@ Resume and checkpoints
 
 Attach a :class:`~habit.execution.CheckpointStore` so a second run skips
 subjects already recorded as success:
-:doc:`/auto_examples/06_parallel_runs/plot_02_when_a_subject_fails`.
+:doc:`/auto_examples/07_parallel/plot_01_backends`.
 
 Recorded **failures** stay skipped unless ``retry_failed_subjects=True``.
 Force a few IDs with ``force_rerun_subjects``.
@@ -149,4 +149,4 @@ Next
 * Habitat core: :doc:`habitat_analysis`
 * Embed operators: :doc:`../examples/habitat_atomic_ops`
 * API reference: :doc:`../api/execution`
-* Demos: :doc:`/auto_examples/06_parallel_runs/index`
+* Demos: :doc:`/auto_examples/07_parallel/index`
