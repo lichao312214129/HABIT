@@ -61,6 +61,15 @@ prototypes for different subjects. Method, metrics, and literature:
   preprocessing pages moved to
   ``examples/guide/02_voxel/plot_06_texture_preprocessing.py``. Process-pool
   pages leave the compute device at ``"auto"`` and check serial results.
+- "6. Parallel runs" is now three pages: running the quickstart study
+  serially and on a process pool (timings, voxel-equal check), what
+  happens when a subject fails (continue, fail-fast, checkpoint resume,
+  time limit), and several GPUs. Old page URLs redirect.
+- Quickstart and the three habitat-design pages build the analysis as an
+  explicit ``HabitatSpec`` stage list; ``two_step_habitat`` and friends are
+  shown as shortcuts that give the same maps.
+- Default habitat colours are keyed by habitat id, so a habitat keeps its
+  colour when a lower id is absent from a map.
 
 ## [2.0.0] - 2026-09-03
 

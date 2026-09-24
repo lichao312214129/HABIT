@@ -37,7 +37,7 @@ print(
 # example ``0,1,2,3,4``. Leave ``HABIT_GPU_OVERSUBSCRIBE`` unset: each
 # worker then keeps one card. On a single GPU the cap leaves one worker;
 # extra workers without the cap are sent to CPU
-# (:doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`).
+# (:doc:`/auto_examples/06_parallel_runs/plot_01_run_a_cohort`).
 #
 # ``extractor`` is any per-subject operator, for example
 # ``VoxelRadiomicsFeatures``. Do not pin ``torch_device`` to one card:

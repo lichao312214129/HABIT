@@ -206,16 +206,18 @@ def _habitat_color_lookup(
     """
     Map each habitat ID to a stable RGB triple.
 
-    Colour index follows the sorted-ID order so every panel that shares
-    the same ID list paints habitat ``k`` with the same colour (a slice
-    that happens to miss an ID does not re-index the palette).
+    With the default palette the colour is keyed by the ID itself: habitat
+    ``k`` takes bank entry ``k - 1`` whichever other IDs are present. A
+    map that has no habitat 1 therefore still paints habitat 2 with the
+    second colour, so two subjects labelled by one cohort model share
+    colours. Maps whose IDs are ``1..K`` get the same colours as before.
 
     Args:
         habitat_ids: Positive integer habitat IDs (already unique).
         colors: Optional RGB triples. When omitted, HABIT assigns one
             distinct colour per ID from the Radiology-safe bank (no
-            silent 8-colour wrap). A caller-supplied list still cycles
-            if it is shorter than the ID list.
+            silent 8-colour wrap). A caller-supplied list is aligned with
+            the sorted ``habitat_ids`` and cycles if it is shorter.
 
     Returns:
         ``habitat_id → (r, g, b)`` in ``[0, 1]``.
@@ -224,6 +226,9 @@ def _habitat_color_lookup(
     if not ordered:
         return {}
     if colors is None:
+        if min(ordered) >= 1:
+            bank_by_id = habitat_rgb_colors(max(ordered))
+            return {habitat_id: bank_by_id[habitat_id - 1] for habitat_id in ordered}
         face = habitat_rgb_colors(len(ordered))
     else:
         bank = list(colors)

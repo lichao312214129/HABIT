@@ -13,8 +13,21 @@ pages until labels have been matched.
 Choosing how habitats are defined
 ----------------------------------
 
-Same modalities (``LAP``), fixed ``n_habitats=3``, one overlay and one
-volume table on each page.
+The design is the stage list of the :class:`~habit.spec.HabitatSpec`.
+The three designs differ only in whether ``partition`` and ``pool`` are
+present:
+
+====================  =============  ========  =====================
+Design                ``partition``  ``pool``  ``fit`` runs on
+====================  =============  ========  =====================
+two-step              yes            yes       supervoxels, cohort
+inside each subject   no             no        voxels, one subject
+pooling voxels        no             yes       voxels, cohort
+====================  =============  ========  =====================
+
+``two_step_habitat``, ``one_step_habitat`` and ``direct_pooling_habitat``
+are shortcuts that build these stage lists. Each page uses the same three
+DCE phases, a fixed count of 3 habitats, one overlay and one volume table.
 
 * **Defining habitats in two steps** (partition, then a shared model) —
   :doc:`/auto_examples/04_habitat_maps/plot_01_two_step`.

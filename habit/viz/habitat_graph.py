@@ -418,12 +418,16 @@ def _network_2d_layout(
 
 
 def _habitat_colors(labels: Sequence[int]) -> Dict[int, str]:
-    """Map habitat labels to stable Radiology-safe colours (no 8-colour wrap)."""
+    """Map habitat labels to Radiology-safe colours keyed by the label itself.
+
+    Habitat ``k`` takes bank entry ``k - 1`` (same rule as the overlay), so a
+    map missing habitat 1 does not shift the colours of the others.
+    """
     ordered = sorted({int(value) for value in labels if int(value) > 0})
     if not ordered:
         return {}
-    hexes = habitat_hex_colors(len(ordered))
-    return {label: hexes[index] for index, label in enumerate(ordered)}
+    hexes = habitat_hex_colors(max(ordered))
+    return {label: hexes[label - 1] for label in ordered}
 
 
 #: Matplotlib scatter area (points^2). H1--Hk and pairwise panels share

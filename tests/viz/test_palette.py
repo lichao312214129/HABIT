@@ -61,13 +61,25 @@ def test_no_black_in_designed_bank() -> None:
 
 def test_overlay_lookup_matches_hex_bank() -> None:
     """Overlay and graph must paint the same ID with the same colour."""
+    from habit.viz.habitat_graph import _habitat_colors
+
     ids = (1, 2, 3, 4, 9, 10)
     lookup = _habitat_color_lookup(ids)
-    hexes = habitat_hex_colors(len(ids))
+    hexes = habitat_hex_colors(max(ids))
     listed = _habitat_color_list(ids)
+    graph = _habitat_colors(ids)
     for index, habitat_id in enumerate(ids):
-        assert lookup[habitat_id] == hex_to_rgb(hexes[index])
+        assert lookup[habitat_id] == hex_to_rgb(hexes[habitat_id - 1])
         assert listed[index] == lookup[habitat_id]
+        assert hex_to_rgb(graph[habitat_id]) == lookup[habitat_id]
+
+
+def test_missing_habitat_does_not_shift_colours() -> None:
+    """A subject without habitat 1 keeps habitat 2 on the second colour."""
+    full = _habitat_color_lookup((1, 2, 3))
+    gapped = _habitat_color_lookup((2, 3))
+    assert gapped[2] == full[2]
+    assert gapped[3] == full[3]
 
 
 def test_beyond_bank_still_unique() -> None:

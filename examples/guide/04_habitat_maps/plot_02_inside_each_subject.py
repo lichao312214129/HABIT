@@ -4,7 +4,9 @@ Defining habitats inside each subject
 
 Input: one subject at a time. Output: a
 :class:`~habit.contracts.HabitatMap` whose integer ids belong to that
-subject only. There is no cohort ``fit`` stage.
+subject only. The stage list has no ``pool``, so ``fit`` runs inside each
+subject instead of on the cohort. ``one_step_habitat(...)`` is a
+shortcut that builds the same stage list.
 
 Habitat 1 in the first subject is not habitat 1 in the second. Match
 labels before comparing people:
@@ -23,7 +25,8 @@ import numpy as np
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
-from habit.recipes import one_step_habitat
+from habit.recipes import Study
+from habit.spec import HabitatSpec, Spec, Stage
 from habit.viz import plot_habitat_overlay
 
 DATA = fetch_demo()
@@ -36,15 +39,20 @@ print(f"Cohort: {list(cohort.subject_ids)}")
 # %%
 # Fit a private model inside each subject
 # ---------------------------------------
-# Habitat 1 in the first subject is not habitat 1 in the second.
-# There is no shared centroid.
-result = one_step_habitat(
-    modalities=MODALITIES,
-    n_habitats=3,
-    habitat_features=("volume",),
+# No ``partition`` and no ``pool``: each subject's ROI voxels are
+# clustered on their own. Habitat 1 in the first subject is not habitat 1
+# in the second. There is no shared centroid.
+spec = HabitatSpec(
+    name="one_step",
+    stages=(
+        Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+        Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 10})),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("volume", Spec("volume")),
+    ),
     random_seed=0,
-    roi=ROI,
-).fit_predict(cohort)
+)
+result = Study(spec).fit_predict(cohort)
 print(f"Per-subject models: {list(result.subject_models)}")
 for habitat_map in result.habitat_maps:
     present = sorted(

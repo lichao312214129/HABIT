@@ -4,8 +4,9 @@ Pooling voxels across the cohort
 
 Input: a cohort of at least two subjects. Output: one shared
 :class:`~habit.contracts.HabitatModel` fitted on voxels, and one
-:class:`~habit.contracts.HabitatMap` per subject. Stage: ``pool`` then
-``fit``. There is no ``partition`` stage.
+:class:`~habit.contracts.HabitatMap` per subject. The stage list is
+``pool`` then ``fit``, with no ``partition``. ``direct_pooling_habitat(...)``
+is a shortcut that builds the same stage list.
 """
 
 # %%
@@ -19,7 +20,8 @@ import matplotlib.pyplot as plt
 
 from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
-from habit.recipes import direct_pooling_habitat
+from habit.recipes import Study
+from habit.spec import HabitatSpec, Spec, Stage
 from habit.viz import plot_habitat_overlay
 import numpy as np
 
@@ -33,15 +35,20 @@ print(f"Cohort: {list(cohort.subject_ids)}")
 # %%
 # Fit one model on every ROI voxel
 # --------------------------------
-# ``direct_pooling_habitat`` skips supervoxels. Each ROI voxel is its
-# own clustering unit, and one model is fit on every subject's voxels.
-result = direct_pooling_habitat(
-    modalities=MODALITIES,
-    n_habitats=3,
-    habitat_features=("volume",),
+# No ``partition``: each ROI voxel is its own clustering unit. ``pool``
+# puts the voxels of every subject together and one model is fit on them.
+spec = HabitatSpec(
+    name="direct_pooling",
+    stages=(
+        Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+        Stage("pool", Spec("pool")),
+        Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 10})),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("volume", Spec("volume")),
+    ),
     random_seed=0,
-    roi=ROI,
-).fit_predict(cohort)
+)
+result = Study(spec).fit_predict(cohort)
 print(result.habitat_model.summary())
 print(result.features.frame)
 result.features.frame
