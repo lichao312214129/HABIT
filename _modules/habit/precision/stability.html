@@ -426,6 +426,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -448,6 +449,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_expression.html">Expression voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
@@ -462,7 +464,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
@@ -852,6 +854,24 @@ window.runMermaid = runMermaid;</script>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/habitat_matching.html">Matching habitat labels across fits and subjects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#when-matching-is-needed">When matching is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#choosing-a-method">Choosing a method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#what-describes-a-habitat">What describes a habitat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#distance-metrics">Distance metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#different-habitat-counts">Different habitat counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#assumptions-and-limitations">Assumptions and limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#references">References</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration/index.html">CLI and YAML</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
@@ -1026,15 +1046,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">produced the maps (per-subject GMM, cohort model, any recipe) is not this</span>
 <span class="sd">layer&#39;s concern.</span>
 
-<span class="sd">:func:`align_habitat_map` is the in-memory remapper the test-retest recipe</span>
-<span class="sd">deferred: habitat maps in, remapped map out. Default matching is by</span>
-<span class="sd">feature-space centroids (the test-retest idea); overlap matching is the</span>
-<span class="sd">same assignment ``habitat_stability`` uses for Dice.</span>
+<span class="sd">Label matching has exactly two operators here, chosen by what the maps</span>
+<span class="sd">share:</span>
+
+<span class="sd">* :func:`align_habitat_map` / :func:`habitat_stability` -- the two maps</span>
+<span class="sd">  label the **same voxels** (retest, perturbation, another preprocessing</span>
+<span class="sd">  chain). Ids are paired by maximal voxel overlap.</span>
+<span class="sd">* :func:`align_habitat_maps_to_prototypes` -- the maps label **different</span>
+<span class="sd">  subjects**. Every subject&#39;s habitats are matched one-to-one to shared</span>
+<span class="sd">  prototypes (K = largest habitat count), so no reference subject is</span>
+<span class="sd">  chosen and no subject&#39;s habitat count changes. Pass ``prototypes=`` to</span>
+<span class="sd">  name new subjects with a trained definition.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1042,23 +1071,48 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatMap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_label_match</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">align_label_array</span><span class="p">,</span>
+    <span class="n">fit_feature_match_scale</span><span class="p">,</span>
     <span class="n">habitat_dice_from_mapping</span><span class="p">,</span>
-    <span class="n">match_label_ids</span><span class="p">,</span>
+    <span class="n">habitat_intensity_centroids</span><span class="p">,</span>
+    <span class="n">match_labels_by_overlap</span><span class="p">,</span>
+    <span class="n">match_rows_to_prototypes</span><span class="p">,</span>
     <span class="n">present_habitat_ids</span><span class="p">,</span>
+    <span class="n">remap_label_array</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;align_habitat_map&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_stability&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;HabitatPrototypeAlignment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;align_habitat_map&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;align_habitat_maps_to_prototypes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;habitat_stability&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
-<span class="n">AlignMethod</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="s2">&quot;overlap&quot;</span><span class="p">]</span>
+<span class="n">_PROTOTYPE_CALLER</span> <span class="o">=</span> <span class="s2">&quot;align_habitat_maps_to_prototypes&quot;</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_as_image_array</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">argument_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a numeric volume from an array or an ImageVolume-like object.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;align_habitat_map: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> is required.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_PROTOTYPE_CALLER</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> is required.&quot;</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_centroids_from_model</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">argument_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a ``(n_habitats, n_features)`` centroid matrix from a fitted model.&quot;&quot;&quot;</span>
+    <span class="n">centroids</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;centroids&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">centroids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_PROTOTYPE_CALLER</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> must provide .centroids &quot;</span>
+            <span class="s2">&quot;(a HabitatModel).&quot;</span>
+        <span class="p">)</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_PROTOTYPE_CALLER</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2">.centroids must be 2-D; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">array</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">array</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_same_model_id</span><span class="p">(</span><span class="n">reference</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span> <span class="n">moving</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1074,64 +1128,31 @@ window.runMermaid = runMermaid;</script>
     <span class="n">reference</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
     <span class="n">moving</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">moving_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="n">AlignMethod</span> <span class="o">=</span> <span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
-    <span class="n">reference_centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">moving_centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
-    <span class="n">standardize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">reduction</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
-    <span class="n">volume_tiebreak</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">reference_volumes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">moving_volumes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">volume_weight</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">scale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatMap</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remap ``moving`` habitat ids onto the ``reference`` id space.</span>
 
-<span class="sd">    Independently clustered maps (two ``fit_predict`` runs) permute integer</span>
-<span class="sd">    ids. This operator recovers the correspondence and returns a new</span>
-<span class="sd">    :class:`~habit.contracts.habitat.HabitatMap` whose labels are comparable</span>
-<span class="sd">    to ``reference``. Maps that already share a ``model_id`` (the</span>
-<span class="sd">    apply-saved-model path) are returned unchanged: those ids are already</span>
-<span class="sd">    the same definition.</span>
+<span class="sd">    For two maps of the **same voxels** (retest, perturbation, another</span>
+<span class="sd">    preprocessing chain, another reader): independently clustered maps</span>
+<span class="sd">    permute integer ids, so ids are paired by maximal voxel overlap</span>
+<span class="sd">    (Hungarian on the overlap counts, the Prior 2024 ``munkres`` step)</span>
+<span class="sd">    and ``moving`` is rewritten into the reference ids. Maps that already</span>
+<span class="sd">    share a ``model_id`` (the apply-saved-model path) are returned</span>
+<span class="sd">    unchanged: those ids are already the same definition.</span>
 
-<span class="sd">    Default matching is **centroid** -- Hungarian assignment on Euclidean</span>
-<span class="sd">    distance between per-habitat **mean** feature vectors (the same</span>
-<span class="sd">    quantity k-means stores as a cluster centre). Pass the two fits&#39;</span>
-<span class="sd">    :attr:`~habit.contracts.habitat.HabitatModel.centroids` when available;</span>
-<span class="sd">    otherwise mean image intensity, then spatial means.</span>
+<span class="sd">    To name habitats of **different** subjects use</span>
+<span class="sd">    :func:`align_habitat_maps_to_prototypes`; overlap between two</span>
+<span class="sd">    patients&#39; voxels has no meaning.</span>
 
-<span class="sd">    ``method=&quot;features&quot;`` is the cross-patient naming path: unscaled</span>
-<span class="sd">    habitat summaries, cohort z-score, then Hungarian. Pass an unscaled</span>
-<span class="sd">    feature volume (multimodal intensities, constructed maps,</span>
-<span class="sd">    radiomic/texture channels, or any shared voxel field) or unscaled</span>
-<span class="sd">    habitat means/medians, not per-tumour MinMax centres.</span>
-<span class="sd">    ``method=&quot;overlap&quot;`` uses maximal voxel overlap. Use the same</span>
-<span class="sd">    ``method`` in :func:`habitat_stability` so Dice is scored on the</span>
-<span class="sd">    same pairing. Do not feed an already-aligned map back into</span>
-<span class="sd">    ``habitat_stability``: Dice should be scored on the original pair</span>
-<span class="sd">    (stability matches internally).</span>
+<span class="sd">    :func:`habitat_stability` uses the same pairing, so the compare figure</span>
+<span class="sd">    and the Dice table share one correspondence. Do not feed an</span>
+<span class="sd">    already-aligned map back into ``habitat_stability``; it pairs the</span>
+<span class="sd">    original maps itself.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        reference: Habitat map whose ids are the target space.</span>
-<span class="sd">        moving: Independently labelled map to remap.</span>
-<span class="sd">        image: Optional intensity volume for the reference map (and for</span>
-<span class="sd">            the moving map when ``moving_image`` is omitted). Accepts a</span>
-<span class="sd">            NumPy array or an object with ``.data`` (``ImageVolume``).</span>
-<span class="sd">        moving_image: Optional intensity volume for the moving map.</span>
-<span class="sd">        method: ``&quot;centroid&quot;`` (default), ``&quot;features&quot;``, or ``&quot;overlap&quot;``.</span>
-<span class="sd">        reference_centroids: Optional cluster centres of the reference fit,</span>
-<span class="sd">            shape ``(n_habitats, n_features)``, rows in</span>
-<span class="sd">            ``reference.habitat_ids`` order (row ``i`` is habitat</span>
-<span class="sd">            ``habitat_ids[i]``).</span>
-<span class="sd">        moving_centroids: Optional cluster centres of the moving fit.</span>
-<span class="sd">            For ``method=&quot;features&quot;`` these must be **unscaled** habitat</span>
-<span class="sd">            means / medians, not per-tumour MinMax cluster centres.</span>
+<span class="sd">        moving: Independently labelled map of the same voxel grid.</span>
 <span class="sd">        force: If True, align even when ``model_id`` already matches.</span>
 <span class="sd">            Independent ``one_step`` / ``fit_predict`` runs on the same</span>
 <span class="sd">            subject share a model_id (spec + subject-id digest, not image</span>
@@ -1146,7 +1167,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        already match and ``force`` is False.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HABITAPIError: If the grids differ or centroid inputs are incomplete.</span>
+<span class="sd">        HABITAPIError: If the grids differ.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">moving</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
@@ -1155,57 +1176,13 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span> <span class="ow">and</span> <span class="n">_same_model_id</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">moving</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">moving</span>
-    <span class="n">resolved</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">resolved</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="s2">&quot;overlap&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;align_habitat_map: method must be &#39;centroid&#39;, &#39;features&#39;, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;or &#39;overlap&#39;; got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
-    <span class="n">ref_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">mov_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ref_image</span> <span class="o">=</span> <span class="n">_as_image_array</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">)</span>
-        <span class="n">mov_image</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">_as_image_array</span><span class="p">(</span><span class="n">moving_image</span><span class="p">,</span> <span class="s2">&quot;moving_image&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">moving_image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="n">ref_image</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">moving_image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-            <span class="s2">&quot;align_habitat_map: moving_image requires image for the reference.&quot;</span>
-        <span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">remapped</span> <span class="o">=</span> <span class="n">align_label_array</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="p">),</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="o">.</span><span class="n">label_array</span><span class="p">),</span>
-            <span class="n">image</span><span class="o">=</span><span class="n">ref_image</span><span class="p">,</span>
-            <span class="n">moving_image</span><span class="o">=</span><span class="n">mov_image</span><span class="p">,</span>
-            <span class="n">method</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span>
-            <span class="n">reference_centroids</span><span class="o">=</span><span class="n">reference_centroids</span><span class="p">,</span>
-            <span class="n">moving_centroids</span><span class="o">=</span><span class="n">moving_centroids</span><span class="p">,</span>
-            <span class="n">reference_ids</span><span class="o">=</span><span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">reference_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">),</span>
-            <span class="n">moving_ids</span><span class="o">=</span><span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">moving_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">),</span>
-            <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
-            <span class="n">standardize</span><span class="o">=</span><span class="n">standardize</span><span class="p">,</span>
-            <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">,</span>
-            <span class="n">volume_tiebreak</span><span class="o">=</span><span class="n">volume_tiebreak</span><span class="p">,</span>
-            <span class="n">reference_volumes</span><span class="o">=</span><span class="n">reference_volumes</span><span class="p">,</span>
-            <span class="n">moving_volumes</span><span class="o">=</span><span class="n">moving_volumes</span><span class="p">,</span>
-            <span class="n">volume_weight</span><span class="o">=</span><span class="n">volume_weight</span><span class="p">,</span>
-            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
-            <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;align_habitat_map: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
     <span class="n">reference_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">)</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">match_labels_by_overlap</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">remapped</span> <span class="o">=</span> <span class="n">remap_label_array</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="o">.</span><span class="n">label_array</span><span class="p">),</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">reserved_ids</span><span class="o">=</span><span class="n">reference_ids</span>
+    <span class="p">)</span>
     <span class="n">reserved</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">reference_ids</span><span class="p">)</span>
     <span class="n">leftover_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span>
@@ -1220,8 +1197,547 @@ window.runMermaid = runMermaid;</script>
         <span class="n">habitat_ids</span><span class="o">=</span><span class="n">reference_ids</span> <span class="o">+</span> <span class="n">leftover_ids</span><span class="p">,</span>
         <span class="n">provenance</span><span class="o">=</span><span class="n">moving</span><span class="o">.</span><span class="n">provenance</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span>
             <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;align_habitat_map&quot;</span><span class="p">,</span>
-            <span class="n">spec_fingerprint</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;align_habitat_map:</span><span class="si">{</span><span class="n">resolved</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">spec_fingerprint</span><span class="o">=</span><span class="s2">&quot;align_habitat_map:overlap&quot;</span><span class="p">,</span>
         <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HabitatPrototypeAlignment">
+<a class="viewcode-back" href="../../../api/generated/habit.precision.HabitatPrototypeAlignment.html#habit.precision.HabitatPrototypeAlignment">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HabitatPrototypeAlignment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cohort habitat maps renamed onto shared prototypes.</span>
+
+<span class="sd">    Returned by :func:`align_habitat_maps_to_prototypes`.</span>
+
+<span class="sd">    Pass it back as ``prototypes=`` to name new subjects with the same</span>
+<span class="sd">    definition (same prototypes, same scaler, same metric, same</span>
+<span class="sd">    ``model_id``).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        habitat_maps: Aligned maps, input order. Prototype ``k`` is habitat</span>
+<span class="sd">            id ``k + 1`` in every map, so the same id means the same</span>
+<span class="sd">            habitat across subjects. No subject loses or merges a habitat.</span>
+<span class="sd">            A habitat stays unnamed only when ``max_distance`` is set (or</span>
+<span class="sd">            when a subject has more habitats than frozen prototypes); it</span>
+<span class="sd">            then keeps a subject-local id above ``K`` that is **not**</span>
+<span class="sd">            comparable across subjects.</span>
+<span class="sd">        prototypes: Shape ``(K, n_features)`` in the units of the input</span>
+<span class="sd">            summaries (row ``k`` is habitat id ``k + 1``): the mean (median</span>
+<span class="sd">            for ``metric=&quot;manhattan&quot;``) of every subject summary assigned to</span>
+<span class="sd">            that prototype. Descriptive; matching uses</span>
+<span class="sd">            ``match_prototypes``. For frozen runs these are the reference&#39;s.</span>
+<span class="sd">        feature_names: Column names of ``prototypes``: the models&#39; or</span>
+<span class="sd">            feature fields&#39; names when available, else ``f0, f1, ...``.</span>
+<span class="sd">        source: Where the habitat summaries came from: ``&quot;models&quot;``</span>
+<span class="sd">            (fitted clustering centroids), ``&quot;features&quot;`` (per-habitat means</span>
+<span class="sd">            of a supplied voxel feature volume / field), or ``&quot;centroids&quot;``</span>
+<span class="sd">            (caller-supplied matrices).</span>
+<span class="sd">        assignments: One row per input habitat with columns ``subject_id``,</span>
+<span class="sd">            ``habitat_id`` (original id), ``prototype_id`` (new id, NA when</span>
+<span class="sd">            left unnamed), and ``distance`` to the prototype in the</span>
+<span class="sd">            matching space (see ``metric``).</span>
+<span class="sd">        objective: Sum of matched metric costs plus the unmatched penalty,</span>
+<span class="sd">            in the matching space.</span>
+<span class="sd">        n_iter: Assign / update rounds of the winning start (1 when frozen).</span>
+<span class="sd">        converged: False when ``max_iter`` stopped the search first.</span>
+<span class="sd">        seed_subject_id: Subject whose summaries seeded the winning start,</span>
+<span class="sd">            empty for frozen runs.</span>
+<span class="sd">        metric: Matching distance (see</span>
+<span class="sd">            :data:`~habit.kernels.habitat_label_match.PROTOTYPE_METRICS`).</span>
+<span class="sd">        standardize: ``&quot;none&quot;`` or ``&quot;zscore&quot;``.</span>
+<span class="sd">        reduction: Per-habitat reduction used for ``features=`` sources.</span>
+<span class="sd">        location: Column means of the z-score (``None`` without z-score).</span>
+<span class="sd">        scale: Column standard deviations of the z-score, or ``None``.</span>
+<span class="sd">        match_prototypes: Prototypes in the matching space (after z-score;</span>
+<span class="sd">            unit rows for cosine / correlation). Reused by frozen runs.</span>
+<span class="sd">        model_id: Shared ``model_id`` written into every aligned map.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">habitat_maps</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">HabitatMap</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">prototypes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">feature_names</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">assignments</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">objective</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">n_iter</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">converged</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">seed_subject_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">standardize</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">reduction</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="n">scale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="n">match_prototypes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_field_habitat_means</span><span class="p">(</span>
+    <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">argument_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-habitat summary of a VoxelFeatureField-like object (rows + indices).&quot;&quot;&quot;</span>
+    <span class="n">caller</span> <span class="o">=</span> <span class="s2">&quot;align_habitat_maps_to_prototypes&quot;</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">voxel_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">index</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2">.voxel_index must have shape &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(n_voxels, </span><span class="si">{</span><span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">); got </span><span class="si">{</span><span class="n">index</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> indexes voxels outside the habitat &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;map grid </span><span class="si">{</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> of subject </span><span class="si">{</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="c1"># Habitat label of every feature row, read at the row&#39;s (z, y, x).</span>
+    <span class="n">row_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
+    <span class="n">reducer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span> <span class="k">if</span> <span class="n">reduction</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">:</span>
+        <span class="n">selector</span> <span class="o">=</span> <span class="n">row_labels</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">selector</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: habitat </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span><span class="si">}</span><span class="s2"> of subject &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="si">!r}</span><span class="s2"> has voxels but none of them &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;are rows of </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2">; the feature field must &quot;</span>
+                    <span class="s2">&quot;cover the habitat ROI.&quot;</span>
+                <span class="p">)</span>
+            <span class="c1"># Id listed but empty in this map: nothing to name.</span>
+            <span class="k">continue</span>
+        <span class="n">ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">))</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reducer</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">selector</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="k">if</span> <span class="n">rows</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_volume_habitat_means</span><span class="p">(</span>
+    <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
+    <span class="n">volume</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">argument_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-habitat summary of a volume on the map grid (optional channel axis).&quot;&quot;&quot;</span>
+    <span class="n">caller</span> <span class="o">=</span> <span class="s2">&quot;align_habitat_maps_to_prototypes&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_as_image_array</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">argument_name</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span> <span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">]</span> <span class="o">!=</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span> <span class="ow">or</span> <span class="n">values</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">ndim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> has shape </span><span class="si">{</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">; expected the &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;habitat map grid </span><span class="si">{</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, optionally with one trailing &quot;</span>
+            <span class="s2">&quot;feature axis.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">present</span><span class="p">,</span> <span class="n">block</span> <span class="o">=</span> <span class="n">habitat_intensity_centroids</span><span class="p">(</span>
+            <span class="n">values</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="n">row_of</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">):</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">present</span><span class="o">.</span><span class="n">tolist</span><span class="p">())}</span>
+    <span class="c1"># Keep habitat_ids order; skip ids that are listed but have no voxels.</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="ow">in</span> <span class="n">row_of</span><span class="p">]</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">block</span><span class="p">[</span><span class="n">row_of</span><span class="p">[</span><span class="n">h</span><span class="p">]]</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="k">if</span> <span class="n">rows</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">block</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prototype_blocks</span><span class="p">(</span>
+    <span class="n">habitat_maps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatMap</span><span class="p">],</span>
+    <span class="n">models</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]],</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]],</span>
+    <span class="n">centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
+    <span class="n">reduction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build one habitat-summary block per map from exactly one source.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(source, ids, blocks, feature_names)`` where ``blocks[s][i]`` is</span>
+<span class="sd">        the summary of habitat ``ids[s][i]`` of map ``s``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">caller</span> <span class="o">=</span> <span class="s2">&quot;align_habitat_maps_to_prototypes&quot;</span>
+    <span class="n">given</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;models&quot;</span><span class="p">,</span> <span class="n">models</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">features</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;centroids&quot;</span><span class="p">,</span> <span class="n">centroids</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">given</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: pass exactly one of models= (fitted clustering &quot;</span>
+            <span class="s2">&quot;centroids), features= (voxel features to average per habitat), &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;or centroids= (your own matrices); got </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">given</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">source</span><span class="p">,</span> <span class="n">sources</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">given</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">habitat_maps</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: need one </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> entry per habitat map; got &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">all_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">blocks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">feature_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">habitat_map</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">habitat_maps</span><span class="p">,</span> <span class="n">sources</span><span class="p">)):</span>
+        <span class="n">argument_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="n">names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;features&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">&quot;values&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">&quot;voxel_index&quot;</span><span class="p">):</span>
+                <span class="n">ids</span><span class="p">,</span> <span class="n">block</span> <span class="o">=</span> <span class="n">_field_habitat_means</span><span class="p">(</span>
+                    <span class="n">habitat_map</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">reduction</span><span class="p">,</span> <span class="n">argument_name</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ids</span><span class="p">,</span> <span class="n">block</span> <span class="o">=</span> <span class="n">_volume_habitat_means</span><span class="p">(</span>
+                    <span class="n">habitat_map</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">reduction</span><span class="p">,</span> <span class="n">argument_name</span>
+                <span class="p">)</span>
+            <span class="n">raw_names</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">&quot;feature_names&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;models&quot;</span><span class="p">:</span>
+                <span class="n">block</span> <span class="o">=</span> <span class="n">_centroids_from_model</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">argument_name</span><span class="p">)</span>
+                <span class="n">raw_names</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">&quot;feature_names&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">block</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">raw_names</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> must be 2-D; got </span><span class="si">{</span><span class="n">block</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D.&quot;</span>
+                    <span class="p">)</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: subject </span><span class="si">{</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="si">!r}</span><span class="s2"> has &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> habitat ids but </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> has &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">block</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows; row i must be habitat_ids[i].&quot;</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">raw_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">raw_names</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">feature_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">feature_names</span> <span class="o">=</span> <span class="n">names</span>
+            <span class="k">elif</span> <span class="n">names</span> <span class="o">!=</span> <span class="n">feature_names</span><span class="p">:</span>
+                <span class="c1"># Different features = different habitat definitions;</span>
+                <span class="c1"># naming them against each other would be meaningless.</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> uses features </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="si">}</span><span class="s2">, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;but the first entry uses </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="s2">&quot;Prototype matching needs one shared feature definition.&quot;</span>
+                <span class="p">)</span>
+        <span class="n">all_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span> <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">names_out</span> <span class="o">=</span> <span class="n">feature_names</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;f</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">source</span><span class="p">,</span> <span class="n">all_ids</span><span class="p">,</span> <span class="n">blocks</span><span class="p">,</span> <span class="n">names_out</span>
+
+
+<div class="viewcode-block" id="align_habitat_maps_to_prototypes">
+<a class="viewcode-back" href="../../../api/generated/habit.precision.align_habitat_maps_to_prototypes.html#habit.precision.align_habitat_maps_to_prototypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">align_habitat_maps_to_prototypes</span><span class="p">(</span>
+    <span class="n">habitat_maps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatMap</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">models</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;sqeuclidean&quot;</span><span class="p">,</span> <span class="s2">&quot;manhattan&quot;</span><span class="p">,</span> <span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;correlation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sqeuclidean&quot;</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="n">max_distance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">standardize</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;zscore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">prototypes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HabitatPrototypeAlignment</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatPrototypeAlignment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Give every subject&#39;s habitats one shared set of names (cohort matching).</span>
+
+<span class="sd">    For per-subject (``one_step``) habitats each subject numbers its</span>
+<span class="sd">    habitats in arbitrary order. Pairwise matching to one reference subject</span>
+<span class="sd">    makes the names depend on who the reference is, and chains of pairwise</span>
+<span class="sd">    matches need not agree (A→B→C versus A→C). This operator names **all**</span>
+<span class="sd">    subjects at once against ``K`` shared prototypes:</span>
+
+<span class="sd">    1. start from one subject&#39;s habitat summaries as prototypes;</span>
+<span class="sd">    2. match every subject one-to-one onto the prototypes (Hungarian on</span>
+<span class="sd">       the ``metric`` cost; two habitats of one tumour never share a</span>
+<span class="sd">       name);</span>
+<span class="sd">    3. move each prototype to the centre of its matched summaries (mean,</span>
+<span class="sd">       median for ``&quot;manhattan&quot;``, mean direction for cosine /</span>
+<span class="sd">       correlation);</span>
+<span class="sd">    4. repeat until nothing changes. Every subject with ``K`` habitats is</span>
+<span class="sd">       tried as the start and the tightest result is kept.</span>
+
+<span class="sd">    This is the relabelling algorithm of Stephens (2000) for label</span>
+<span class="sd">    switching, equivalently k-means with a cannot-link constraint inside</span>
+<span class="sd">    each subject (Wagstaff et al. 2001). Prototype ids are sorted by the</span>
+<span class="sd">    first feature (then the second, ...), so they do not depend on input</span>
+<span class="sd">    order. With two subjects and the default metric the grouping equals</span>
+<span class="sd">    pairwise Hungarian on squared Euclidean distance.</span>
+
+<span class="sd">    ``K`` is the largest subject habitat count. Every habitat of every</span>
+<span class="sd">    subject gets its own prototype id: no subject loses, gains, or merges</span>
+<span class="sd">    a habitat. A subject with fewer habitats simply lacks some ids (zero</span>
+<span class="sd">    volume in cohort tables). ``max_distance`` is off by default; when set,</span>
+<span class="sd">    a habitat farther than that from every free prototype is left unnamed</span>
+<span class="sd">    (``prototype_id`` NA, subject-local id above ``K``).</span>
+
+<span class="sd">    What describes a habitat (pass exactly one):</span>
+
+<span class="sd">    * ``models`` (default use) -- the fitted per-subject models;</span>
+<span class="sd">      ``HabitatModel.centroids`` are the clustering centroids, row ``i``</span>
+<span class="sd">      is ``habitat_ids[i]``. Names therefore follow the same features that</span>
+<span class="sd">      defined the habitats.</span>
+<span class="sd">    * ``features`` -- one voxel feature source per map: a</span>
+<span class="sd">      :class:`~habit.contracts.VoxelFeatureField` (rows at</span>
+<span class="sd">      ``voxel_index``), or a volume / ``ImageVolume`` on the map grid with</span>
+<span class="sd">      an optional trailing feature axis. Each habitat is summarised by the</span>
+<span class="sd">      ``reduction`` of its voxels.</span>
+<span class="sd">    * ``centroids`` -- caller-built ``(n_habitats, n_features)`` matrices,</span>
+<span class="sd">      rows in ``habitat_ids`` order.</span>
+
+<span class="sd">    Values are compared as given, so they must be comparable across</span>
+<span class="sd">    subjects: same features, computed so that values mean the same thing</span>
+<span class="sd">    in every patient (for example relative enhancement, or a validated</span>
+<span class="sd">    intensity normalisation). ``one_step`` models cluster raw voxel values</span>
+<span class="sd">    by default, and raw MRI signal is **not** comparable across scanners</span>
+<span class="sd">    or patients. ``standardize=&quot;zscore&quot;`` rescales every column once on the</span>
+<span class="sd">    pooled cohort summaries (unit balance when features have different</span>
+<span class="sd">    units; it does not make incomparable signal comparable).</span>
+
+<span class="sd">    Metric choice. ``&quot;sqeuclidean&quot;`` (default) and ``&quot;manhattan&quot;``</span>
+<span class="sd">    (robust to one outlying habitat) compare feature **values**.</span>
+<span class="sd">    ``&quot;cosine&quot;`` compares only the direction of the feature vector, so a</span>
+<span class="sd">    weakly and a strongly enhancing habitat with the same ratio look</span>
+<span class="sd">    identical; with one feature of constant sign every habitat looks the</span>
+<span class="sd">    same. ``&quot;correlation&quot;`` compares only the shape of the feature profile;</span>
+<span class="sd">    with two features every centred profile is one of two directions, and</span>
+<span class="sd">    with one feature it is undefined (an error). No error is raised for</span>
+<span class="sd">    few features otherwise: choose cosine / correlation only when many</span>
+<span class="sd">    features describe a habitat and their shape, not their level, is the</span>
+<span class="sd">    habitat definition. ``max_distance`` and ``distance`` are in the</span>
+<span class="sd">    metric&#39;s units (Euclidean, L1, ``1 - cos``, ``1 - r``).</span>
+
+<span class="sd">    Frozen prototypes. Pass a previous result as ``prototypes=`` to name</span>
+<span class="sd">    a validation cohort or a new patient with a trained definition: the</span>
+<span class="sd">    habitats are assigned once to the stored prototypes, nothing is</span>
+<span class="sd">    refitted, and the aligned maps get the stored ``model_id``. The</span>
+<span class="sd">    source feature names, ``metric``, ``standardize`` and ``reduction``</span>
+<span class="sd">    must equal the stored ones, and a z-score reuses the stored</span>
+<span class="sd">    ``location`` / ``scale``. A subject with more habitats than stored</span>
+<span class="sd">    prototypes keeps the extra ones unnamed.</span>
+
+<span class="sd">    Maps that already share one cohort model (two-step, direct pooling,</span>
+<span class="sd">    apply-saved-model) are already named consistently and do not need</span>
+<span class="sd">    this step.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        habitat_maps: One map per subject (any grids; no voxel is compared</span>
+<span class="sd">            across subjects).</span>
+<span class="sd">        models: Fitted per-subject models, one per map. Their</span>
+<span class="sd">            ``feature_names`` must agree.</span>
+<span class="sd">        features: Voxel feature fields or volumes, one per map. Feature</span>
+<span class="sd">            names (when present) must agree.</span>
+<span class="sd">        centroids: Caller-supplied summary matrices, one per map.</span>
+<span class="sd">        metric: ``&quot;sqeuclidean&quot;`` (default), ``&quot;manhattan&quot;``,</span>
+<span class="sd">            ``&quot;cosine&quot;``, or ``&quot;correlation&quot;``.</span>
+<span class="sd">        reduction: ``&quot;mean&quot;`` (default, the quantity a k-means centroid</span>
+<span class="sd">            stores) or ``&quot;median&quot;``; used only with ``features``.</span>
+<span class="sd">        max_distance: Optional distance above which a habitat is left</span>
+<span class="sd">            unnamed instead of being forced onto a prototype. ``None``</span>
+<span class="sd">            (default) names every habitat.</span>
+<span class="sd">        standardize: ``&quot;none&quot;`` (default) or ``&quot;zscore&quot;`` on pooled rows.</span>
+<span class="sd">        max_iter: Upper bound on assign / update rounds per start.</span>
+<span class="sd">        prototypes: Optional earlier result whose prototypes are reused</span>
+<span class="sd">            without refitting.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`HabitatPrototypeAlignment`. Aligned maps share one</span>
+<span class="sd">        ``model_id`` derived from the prototypes and the parameters (the</span>
+<span class="sd">        stored one for frozen runs).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If no source or more than one is given, sources do</span>
+<span class="sd">            not line up with the maps, feature definitions differ, frozen</span>
+<span class="sd">            settings disagree, or a cosine / correlation summary has zero</span>
+<span class="sd">            length.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">caller</span> <span class="o">=</span> <span class="n">_PROTOTYPE_CALLER</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">habitat_maps</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: at least one habitat map is required.&quot;</span><span class="p">)</span>
+    <span class="n">resolved_metric</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resolved_metric</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;sqeuclidean&quot;</span><span class="p">,</span> <span class="s2">&quot;manhattan&quot;</span><span class="p">,</span> <span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;correlation&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: metric must be &#39;sqeuclidean&#39;, &#39;manhattan&#39;, &#39;cosine&#39;, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;or &#39;correlation&#39;; got </span><span class="si">{</span><span class="n">metric</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">resolved_scale</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">standardize</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resolved_scale</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;zscore&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: standardize must be &#39;none&#39; or &#39;zscore&#39;; got </span><span class="si">{</span><span class="n">standardize</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">resolved_reduction</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">reduction</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resolved_reduction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: reduction must be &#39;mean&#39; or &#39;median&#39;; got </span><span class="si">{</span><span class="n">reduction</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">source</span><span class="p">,</span> <span class="n">habitat_ids</span><span class="p">,</span> <span class="n">raw_blocks</span><span class="p">,</span> <span class="n">feature_names</span> <span class="o">=</span> <span class="n">_prototype_blocks</span><span class="p">(</span>
+        <span class="n">habitat_maps</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">resolved_reduction</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">prototypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># A frozen definition is only the same definition when every</span>
+        <span class="c1"># setting that shapes the matching space is the same.</span>
+        <span class="n">stored</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;feature_names&quot;</span><span class="p">:</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">feature_names</span><span class="p">,</span>
+            <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span>
+            <span class="s2">&quot;standardize&quot;</span><span class="p">:</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">standardize</span><span class="p">,</span>
+            <span class="s2">&quot;reduction&quot;</span><span class="p">:</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">reduction</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">given</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;feature_names&quot;</span><span class="p">:</span> <span class="n">feature_names</span><span class="p">,</span>
+            <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="n">resolved_metric</span><span class="p">,</span>
+            <span class="s2">&quot;standardize&quot;</span><span class="p">:</span> <span class="n">resolved_scale</span><span class="p">,</span>
+            <span class="s2">&quot;reduction&quot;</span><span class="p">:</span> <span class="n">resolved_reduction</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">stored_value</span> <span class="ow">in</span> <span class="n">stored</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">given</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">!=</span> <span class="n">stored_value</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: frozen prototypes were fitted with &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">stored_value</span><span class="si">!r}</span><span class="s2">, but this call uses &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">given</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">!r}</span><span class="s2">. Use the same setting, or refit.&quot;</span>
+                <span class="p">)</span>
+        <span class="n">location</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">scale</span>
+    <span class="k">elif</span> <span class="n">resolved_scale</span> <span class="o">==</span> <span class="s2">&quot;zscore&quot;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">location</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">fit_feature_match_scale</span><span class="p">(</span><span class="n">raw_blocks</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;zscore&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">location</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">location</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">match_blocks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">block</span> <span class="o">-</span> <span class="n">location</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span> <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="n">block</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">raw_blocks</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">match_blocks</span> <span class="o">=</span> <span class="n">raw_blocks</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">match_rows_to_prototypes</span><span class="p">(</span>
+            <span class="n">match_blocks</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="n">resolved_metric</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="n">max_distance</span><span class="o">=</span><span class="n">max_distance</span><span class="p">,</span>
+            <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span>
+            <span class="n">prototypes</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">prototypes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">match_prototypes</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="n">n_proto</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">prototypes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;source=</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">:metric=</span><span class="si">{</span><span class="n">resolved_metric</span><span class="si">}</span><span class="s2">:reduction=</span><span class="si">{</span><span class="n">resolved_reduction</span><span class="si">}</span><span class="s2">:&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;K=</span><span class="si">{</span><span class="n">n_proto</span><span class="si">}</span><span class="s2">:max_distance=</span><span class="si">{</span><span class="n">max_distance</span><span class="si">}</span><span class="s2">:standardize=</span><span class="si">{</span><span class="n">resolved_scale</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">prototypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">report_prototypes</span> <span class="o">=</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">prototypes</span>
+        <span class="n">model_id</span> <span class="o">=</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">model_id</span>
+        <span class="n">fingerprint</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">:frozen=</span><span class="si">{</span><span class="n">model_id</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">settings</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">seed_subject_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Report prototypes in input units: centre of raw rows per</span>
+        <span class="c1"># prototype (median for manhattan, mean otherwise). Canonical</span>
+        <span class="c1"># order was fixed in the matching space and is kept here.</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">prototypes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">report_prototypes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_proto</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">members</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_proto</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">block</span><span class="p">,</span> <span class="n">assignment</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">raw_blocks</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">assignments</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">prototype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">assignment</span><span class="o">.</span><span class="n">tolist</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">prototype</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">members</span><span class="p">[</span><span class="n">prototype</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span> <span class="k">if</span> <span class="n">resolved_metric</span> <span class="o">==</span> <span class="s2">&quot;manhattan&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span>
+        <span class="k">for</span> <span class="n">prototype</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">members</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">rows</span><span class="p">:</span>
+                <span class="n">report_prototypes</span><span class="p">[</span><span class="n">prototype</span><span class="p">]</span> <span class="o">=</span> <span class="n">center</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">digest</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
+        <span class="n">digest</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">prototypes</span><span class="p">)</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span>
+        <span class="n">digest</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">repr</span><span class="p">((</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">settings</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">model_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;prototype-</span><span class="si">{</span><span class="n">digest</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">fingerprint</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">settings</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">seed_subject_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">habitat_maps</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">init_block</span><span class="p">]</span><span class="o">.</span><span class="n">subject_id</span><span class="p">)</span>
+    <span class="n">prototype_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_proto</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">aligned</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatMap</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">assignment</span><span class="p">,</span> <span class="n">distance</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="n">habitat_maps</span><span class="p">,</span> <span class="n">habitat_ids</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">assignments</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">distances</span>
+    <span class="p">):</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">habitat_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">habitat_id</span><span class="p">,</span> <span class="n">prototype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">assignment</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">prototype</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="p">}</span>
+        <span class="c1"># Unnamed ids (max_distance, or more habitats than frozen</span>
+        <span class="c1"># prototypes) move above K: 1..K are reserved for shared names.</span>
+        <span class="n">remapped</span> <span class="o">=</span> <span class="n">remap_label_array</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">),</span>
+            <span class="n">mapping</span><span class="p">,</span>
+            <span class="n">reserved_ids</span><span class="o">=</span><span class="n">prototype_ids</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">leftover_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">remapped</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">n_proto</span>
+        <span class="p">)</span>
+        <span class="n">aligned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">HabitatMap</span><span class="p">(</span>
+                <span class="n">subject_id</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">label_array</span><span class="o">=</span><span class="n">remapped</span><span class="p">,</span>
+                <span class="n">geometry</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+                <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+                <span class="n">habitat_ids</span><span class="o">=</span><span class="n">prototype_ids</span> <span class="o">+</span> <span class="n">leftover_ids</span><span class="p">,</span>
+                <span class="n">provenance</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">provenance</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span>
+                    <span class="n">produced_by</span><span class="o">=</span><span class="n">caller</span><span class="p">,</span>
+                    <span class="n">spec_fingerprint</span><span class="o">=</span><span class="n">fingerprint</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">habitat_id</span><span class="p">,</span> <span class="n">prototype</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">ids</span><span class="p">,</span> <span class="n">assignment</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">distance</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                    <span class="n">habitat_id</span><span class="p">,</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">prototype</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+                    <span class="nb">float</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span> <span class="k">if</span> <span class="n">prototype</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="n">assignments</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span>
+        <span class="n">records</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;subject_id&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_id&quot;</span><span class="p">,</span> <span class="s2">&quot;prototype_id&quot;</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">assignments</span><span class="p">[</span><span class="s2">&quot;prototype_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assignments</span><span class="p">[</span><span class="s2">&quot;prototype_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">HabitatPrototypeAlignment</span><span class="p">(</span>
+        <span class="n">habitat_maps</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">aligned</span><span class="p">),</span>
+        <span class="n">prototypes</span><span class="o">=</span><span class="n">report_prototypes</span><span class="p">,</span>
+        <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_names</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+        <span class="n">assignments</span><span class="o">=</span><span class="n">assignments</span><span class="p">,</span>
+        <span class="n">objective</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">objective</span><span class="p">),</span>
+        <span class="n">n_iter</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">n_iter</span><span class="p">),</span>
+        <span class="n">converged</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">converged</span><span class="p">),</span>
+        <span class="n">seed_subject_id</span><span class="o">=</span><span class="n">seed_subject_id</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">resolved_metric</span><span class="p">,</span>
+        <span class="n">standardize</span><span class="o">=</span><span class="n">resolved_scale</span><span class="p">,</span>
+        <span class="n">reduction</span><span class="o">=</span><span class="n">resolved_reduction</span><span class="p">,</span>
+        <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+        <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
+        <span class="n">match_prototypes</span><span class="o">=</span><span class="n">match</span><span class="o">.</span><span class="n">prototypes</span><span class="p">,</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -1231,33 +1747,17 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">habitat_stability</span><span class="p">(</span>
     <span class="n">reference</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
     <span class="n">perturbed</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatMap</span><span class="p">],</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="n">AlignMethod</span> <span class="o">=</span> <span class="s2">&quot;overlap&quot;</span><span class="p">,</span>
-    <span class="n">image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">moving_images</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">reference_centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">moving_centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
-    <span class="n">standardize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">reduction</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
-    <span class="n">volume_tiebreak</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">scale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Score habitat stability between a reference map and perturbed maps.</span>
 
-<span class="sd">    Each perturbed map is paired to the reference, then ordinary Dice is</span>
-<span class="sd">    computed on that pair: ``2 * intersection / (n_reference + n_matched)``,</span>
-<span class="sd">    where the two counts are voxel sizes of one reference habitat and its</span>
-<span class="sd">    matched perturbed habitat. Unmatched reference habitats (fewer</span>
-<span class="sd">    clusters on the perturbed map) score Dice 0.</span>
-
-<span class="sd">    Default ``method=&quot;overlap&quot;`` is the Prior 2024 Hungarian / overlap</span>
-<span class="sd">    pairing. ``method=&quot;centroid&quot;`` pairs by raw Euclidean on per-habitat</span>
-<span class="sd">    means. ``method=&quot;features&quot;`` z-scores unscaled summaries first.</span>
-<span class="sd">    Use the same ``method`` as :func:`align_habitat_map` so the compare</span>
-<span class="sd">    figure and the Dice table share one correspondence.</span>
+<span class="sd">    Each perturbed map is paired to the reference by maximal voxel overlap</span>
+<span class="sd">    (the Prior 2024 Hungarian / ``munkres`` step, the same pairing as</span>
+<span class="sd">    :func:`align_habitat_map`), then ordinary Dice is computed on that</span>
+<span class="sd">    pair: ``2 * intersection / (n_reference + n_matched)``, where the two</span>
+<span class="sd">    counts are voxel sizes of one reference habitat and its matched</span>
+<span class="sd">    perturbed habitat. Unmatched reference habitats (fewer clusters on</span>
+<span class="sd">    the perturbed map) score Dice 0.</span>
 
 <span class="sd">    This function does **not** rewrite the input maps. Pass the original</span>
 <span class="sd">    independently clustered pair, not a map that was already remapped.</span>
@@ -1266,16 +1766,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        reference: Habitat map of the original subject.</span>
 <span class="sd">        perturbed: Habitat maps computed independently on perturbed copies,</span>
 <span class="sd">            each on the same voxel grid as ``reference``.</span>
-<span class="sd">        method: ``&quot;overlap&quot;`` (default), ``&quot;centroid&quot;``, or ``&quot;features&quot;``.</span>
-<span class="sd">        image: Optional intensity / feature volume for the reference map.</span>
-<span class="sd">            Required for intensity-mean centroid matching when explicit</span>
-<span class="sd">            centroids are omitted.</span>
-<span class="sd">        moving_images: Optional per-perturbed intensity volumes. When</span>
-<span class="sd">            omitted, ``image`` is reused for every perturbed map.</span>
-<span class="sd">        reference_centroids: Optional explicit reference cluster centres.</span>
-<span class="sd">        moving_centroids: Optional explicit centres, one array per</span>
-<span class="sd">            perturbed map (``None`` entries fall back to image / spatial</span>
-<span class="sd">            means).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Long-format DataFrame with one row per perturbation per reference</span>
@@ -1284,31 +1774,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ``n_matched`` voxel counts.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HABITAPIError: If no perturbed map is given, the grids differ,</span>
-<span class="sd">            ``method`` is unknown, or centroid inputs are incomplete.</span>
+<span class="sd">        HABITAPIError: If no perturbed map is given or the grids differ.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">perturbed</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;habitat_stability: at least one perturbed map is required.&quot;</span><span class="p">)</span>
-    <span class="n">resolved</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">resolved</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="s2">&quot;overlap&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;habitat_stability: method must be &#39;centroid&#39;, &#39;features&#39;, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;or &#39;overlap&#39;; got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="n">moving_images</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">moving_images</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">perturbed</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-            <span class="s2">&quot;habitat_stability: moving_images must have one entry per &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;perturbed map; got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moving_images</span><span class="p">)</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">perturbed</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="n">moving_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">moving_centroids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">perturbed</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-            <span class="s2">&quot;habitat_stability: moving_centroids must have one entry per &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;perturbed map; got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moving_centroids</span><span class="p">)</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">perturbed</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
     <span class="n">reference_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
-    <span class="n">ref_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">_as_image_array</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="p">)</span>
     <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">moved</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">perturbed</span><span class="p">):</span>
         <span class="n">moved_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moved</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
@@ -1317,44 +1787,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;habitat_stability: perturbed map </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> has shape &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">moved_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, expected </span><span class="si">{</span><span class="n">reference_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="n">mov_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">moving_images</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">moving_images</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mov_image</span> <span class="o">=</span> <span class="n">_as_image_array</span><span class="p">(</span>
-                <span class="n">moving_images</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;moving_images[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">]&quot;</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">ref_image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mov_image</span> <span class="o">=</span> <span class="n">ref_image</span>
-        <span class="n">mov_cent</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">moving_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mov_cent</span> <span class="o">=</span> <span class="n">moving_centroids</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">mapping</span> <span class="o">=</span> <span class="n">match_label_ids</span><span class="p">(</span>
-                <span class="n">reference_labels</span><span class="p">,</span>
-                <span class="n">moved_labels</span><span class="p">,</span>
-                <span class="n">image</span><span class="o">=</span><span class="n">ref_image</span><span class="p">,</span>
-                <span class="n">moving_image</span><span class="o">=</span><span class="n">mov_image</span><span class="p">,</span>
-                <span class="n">method</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span>
-                <span class="n">reference_centroids</span><span class="o">=</span><span class="n">reference_centroids</span><span class="p">,</span>
-                <span class="n">moving_centroids</span><span class="o">=</span><span class="n">mov_cent</span><span class="p">,</span>
-                <span class="n">reference_ids</span><span class="o">=</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">reference_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                    <span class="k">else</span> <span class="kc">None</span>
-                <span class="p">),</span>
-                <span class="n">moving_ids</span><span class="o">=</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moved</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">mov_cent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                    <span class="k">else</span> <span class="kc">None</span>
-                <span class="p">),</span>
-                <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
-                <span class="n">standardize</span><span class="o">=</span><span class="n">standardize</span><span class="p">,</span>
-                <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">,</span>
-                <span class="n">volume_tiebreak</span><span class="o">=</span><span class="n">volume_tiebreak</span><span class="p">,</span>
-                <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
-                <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;habitat_stability: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="n">match_labels_by_overlap</span><span class="p">(</span><span class="n">reference_labels</span><span class="p">,</span> <span class="n">moved_labels</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">habitat_id</span><span class="p">,</span> <span class="n">moved_id</span><span class="p">,</span> <span class="n">dice</span><span class="p">,</span> <span class="n">n_reference</span><span class="p">,</span> <span class="n">n_moved</span> <span class="ow">in</span> <span class="n">habitat_dice_from_mapping</span><span class="p">(</span>
             <span class="n">reference_labels</span><span class="p">,</span> <span class="n">moved_labels</span><span class="p">,</span> <span class="n">mapping</span>
         <span class="p">):</span>

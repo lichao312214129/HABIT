@@ -97,7 +97,7 @@ Build the extractor
 changes when the series, radius, or ``binWidth`` change. This cell
 does not extract texture.
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-80
+.. GENERATED FROM PYTHON SOURCE LINES 39-77
 
 .. code-block:: Python
 
@@ -116,9 +116,6 @@ does not extract texture.
         kernel_radius=3,
         params=RADIOMICS_PARAMS,
         voxel_batch=1000,
-        use_torch_radiomics=True,
-        torch_device="cuda:0",
-        use_gpu_matrices=True,
         cache_dir=CACHE,
     )
 
@@ -150,18 +147,18 @@ does not extract texture.
 
  .. code-block:: none
 
-    voxel_radiomics:728af0deb271c775581cec4bcdd427d43ac13fde0776bde4a76cefa202b3a30f:subj001
+    voxel_radiomics:791aecdbae8212a816e878941d89be5006ea4c64d0cf31d51788b0bf451c963a:subj001
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-84
+.. GENERATED FROM PYTHON SOURCE LINES 78-81
 
 First pass writes the checkpoint
 --------------------------------
 A new store is empty, so both subjects are computed.
 
-.. GENERATED FROM PYTHON SOURCE LINES 84-89
+.. GENERATED FROM PYTHON SOURCE LINES 81-86
 
 .. code-block:: Python
 
@@ -183,13 +180,13 @@ A new store is empty, so both subjects are computed.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-93
+.. GENERATED FROM PYTHON SOURCE LINES 87-90
 
 Second pass reads the checkpoint
 --------------------------------
 ``from_cache`` is true, and the field is the one stored on the first pass.
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-102
+.. GENERATED FROM PYTHON SOURCE LINES 90-99
 
 .. code-block:: Python
 
@@ -217,12 +214,12 @@ Second pass reads the checkpoint
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-105
+.. GENERATED FROM PYTHON SOURCE LINES 100-102
 
 Computed pass versus cached pass
 --------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-129
+.. GENERATED FROM PYTHON SOURCE LINES 102-126
 
 .. code-block:: Python
 
@@ -265,7 +262,7 @@ Computed pass versus cached pass
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.890 seconds)
+   **Total running time of the script:** (0 minutes 3.681 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_04_resume.py:

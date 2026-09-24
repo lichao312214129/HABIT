@@ -21,18 +21,20 @@
 Clustering habitats from a derived map
 ======================================
 
-Input: one :class:`~habit.contracts.Subject` with unenhanced and arterial
-phases. Output: a :class:`~habit.contracts.HabitatMap`. Stage:
+Input: one :class:`~habit.contracts.Subject` with the four DCE phases.
+Output: a :class:`~habit.contracts.HabitatMap`. The voxel field is
+:class:`~habit.voxel_features.ExpressionVoxelFeatures` (see
+:doc:`/auto_examples/02_voxel/plot_02_expression`). Stage:
 ``extract_voxel_features`` with ``expression``, then a per-subject ``fit``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-15
+.. GENERATED FROM PYTHON SOURCE LINES 13-17
 
 Load one subject
 ----------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-33
+.. GENERATED FROM PYTHON SOURCE LINES 17-35
 
 .. code-block:: Python
 
@@ -89,14 +91,14 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-38
+.. GENERATED FROM PYTHON SOURCE LINES 36-40
 
 Build the four derived maps
 ---------------------------
 Each key becomes one column. ``eps`` keeps a zero denominator from
 breaking the ratio.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-51
+.. GENERATED FROM PYTHON SOURCE LINES 40-53
 
 .. code-block:: Python
 
@@ -132,13 +134,13 @@ breaking the ratio.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-55
+.. GENERATED FROM PYTHON SOURCE LINES 54-57
 
 Fit and assign on these voxels
 ------------------------------
 ``voxel_units`` makes every ROI voxel its own clustering unit.
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-62
+.. GENERATED FROM PYTHON SOURCE LINES 57-64
 
 .. code-block:: Python
 
@@ -171,12 +173,12 @@ Fit and assign on these voxels
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-65
+.. GENERATED FROM PYTHON SOURCE LINES 65-67
 
 Relative enhancement
 --------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-77
+.. GENERATED FROM PYTHON SOURCE LINES 67-79
 
 .. code-block:: Python
 
@@ -201,15 +203,22 @@ Relative enhancement
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      direction, spacing = resolve_display_geometry(
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-80
+
+.. GENERATED FROM PYTHON SOURCE LINES 80-82
 
 Habitats from the derived maps
 ------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-88
+.. GENERATED FROM PYTHON SOURCE LINES 82-90
 
 .. code-block:: Python
 
@@ -230,13 +239,20 @@ Habitats from the derived maps
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\habitat_overlay.py:801: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.283 seconds)
+   **Total running time of the script:** (0 minutes 4.337 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_habitat_maps_plot_08_derived_map.py:

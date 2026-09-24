@@ -73,6 +73,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -95,9 +96,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../02_voxel/index.html">2. Voxel Representation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_02_expression.html">Expression voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -109,7 +112,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
@@ -138,14 +141,18 @@
 <li class="toctree-l3"><a class="reference internal" href="plot_04_resume.html">Resuming finished subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_06_reuse_workers.html">Reusing workers across passes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_13_isolated.html">One fresh process per subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_07_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_08_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_09_several_gpus.html">Running a cohort on several GPUs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
 </ul>
 </li>
 </ul>
@@ -499,6 +506,24 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/habitat_matching.html">Matching habitat labels across fits and subjects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#when-matching-is-needed">When matching is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#choosing-a-method">Choosing a method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#what-describes-a-habitat">What describes a habitat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#distance-metrics">Distance metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#different-habitat-counts">Different habitat counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#assumptions-and-limitations">Assumptions and limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#references">References</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">CLI and YAML</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
@@ -649,48 +674,45 @@
              
   <section id="parallel-runs">
 <span id="sphx-glr-auto-examples-06-parallel-runs"></span><h1>6. Parallel runs<a class="headerlink" href="#parallel-runs" title="Link to this heading"></a></h1>
-<p>Voxel texture (four DCE series, radius 3, <code class="docutils literal notranslate"><span class="pre">binWidth</span></code> 12) is the
-workload. Feature preprocessing changes the numbers. A backend only
-changes how subjects are scheduled. GPU and <code class="docutils literal notranslate"><span class="pre">voxel_batch</span></code> are set on
-the extractor; they do not change the texture definition.</p>
-<p>Preprocessing, one method per page. Scheduling on these pages is
-<a class="reference internal" href="../../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SerialBackend</span></code></a>.</p>
+<p>These pages only change how subjects are scheduled. The texture, the
+preprocessing and the habitat model stay the same, so a finished map
+matches a serial run of the same chain. That check is on the process-pool
+page. Preprocessing of the texture itself is
+<a class="reference internal" href="../02_voxel/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a>.</p>
+<section id="which-backend">
+<h2>Which backend<a class="headerlink" href="#which-backend" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>Subject z-score</strong> (and the matching <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code>) —
-<a class="reference internal" href="plot_08_subject_zscore.html"><span class="doc">Subject z-score on voxel texture</span></a>.</p></li>
-<li><p><strong>Subject robust scaling</strong> —
-<a class="reference internal" href="plot_09_subject_robust.html"><span class="doc">Subject robust scaling on voxel texture</span></a>.</p></li>
-<li><p><strong>Subject winsorizing</strong> —
-<a class="reference internal" href="plot_10_subject_winsorize.html"><span class="doc">Subject winsorizing on voxel texture</span></a>.</p></li>
-<li><p><strong>Cohort z-score</strong> —
-<a class="reference internal" href="plot_11_cohort_zscore.html"><span class="doc">Cohort z-score on voxel texture</span></a>.</p></li>
-<li><p><strong>Cohort binning</strong> —
-<a class="reference internal" href="plot_12_cohort_binning.html"><span class="doc">Cohort binning on voxel texture</span></a>.</p></li>
-</ul>
-<p>Scheduling uses the subject z-score chain unless the page is about a
-failure. A fixed <code class="docutils literal notranslate"><span class="pre">random_seed</span></code> keeps finished maps aligned with a
-serial run.</p>
-<ul class="simple">
-<li><p><strong>One machine, in order</strong> —
+<li><p><strong>One process, subjects in order.</strong> Use this to debug a single case.
 <a class="reference internal" href="plot_01_serial.html"><span class="doc">Running a cohort serially</span></a>.</p></li>
-<li><p><strong>One bad case should not stop the batch</strong> —
-<a class="reference internal" href="plot_02_skip_failed.html"><span class="doc">Skipping a subject that fails</span></a>.</p></li>
-<li><p><strong>A bad case should stop the batch</strong> —
-<a class="reference internal" href="plot_03_stop_on_failure.html"><span class="doc">Stopping at the first failure</span></a>.</p></li>
-<li><p><strong>A crashed run should skip finished subjects</strong> —
-<a class="reference internal" href="plot_04_resume.html"><span class="doc">Resuming finished subjects</span></a>.</p></li>
-<li><p><strong>Several CPU workers</strong> —
+<li><p><strong>A pool of worker processes.</strong> On a CPU machine the subjects run side
+by side. On one GPU only the first worker gets the card and the others
+run on CPU, so the pool is slower; <code class="docutils literal notranslate"><span class="pre">HABIT_GPU_OVERSUBSCRIBE=wrap</span></code>
+shares that card instead. Several GPUs are one worker per card.
 <a class="reference internal" href="plot_05_process_pool.html"><span class="doc">Running subjects in separate processes</span></a>.</p></li>
-<li><p><strong>Do not pay worker startup twice</strong> —
+<li><p><strong>Keep those workers up between passes.</strong> A cold pool pays spawn and
+imports on every <code class="docutils literal notranslate"><span class="pre">map</span></code>. <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">backend.reuse_workers():</span></code> pays it once.
 <a class="reference internal" href="plot_06_reuse_workers.html"><span class="doc">Reusing workers across passes</span></a>.</p></li>
-<li><p><strong>One fresh process per subject</strong> —
-<a class="reference internal" href="plot_13_isolated.html"><span class="doc">One fresh process per subject</span></a>.</p></li>
-<li><p><strong>Per-subject wall-clock limit</strong> —
-<a class="reference internal" href="plot_14_wall_clock.html"><span class="doc">Per-subject wall-clock limit</span></a>.</p></li>
-<li><p><strong>One worker per GPU</strong> (recorded timings, not re-run here) —
-<a class="reference internal" href="plot_07_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a>.</p></li>
+<li><p><strong>One fresh process per subject.</strong> Same results, higher spawn cost.
+<a class="reference internal" href="plot_07_isolated.html"><span class="doc">One fresh process per subject</span></a>.</p></li>
+<li><p><strong>One worker per GPU.</strong> The call is on the page. The timing table is a
+recorded 5-GPU run, because this machine has one GPU.
+<a class="reference internal" href="plot_09_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a>.</p></li>
 </ul>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="SerialBackend runs the texture extraction and the habitat assignment in this process, one subject after another. Z-scoring and fitting stay here as well: the scaler is per subject, and the fit has to see every subject. The matching HabitatSpec is on the subject z-score page."><img alt="" src="../../_images/sphx_glr_plot_01_serial_thumb.png" />
+</section>
+<section id="when-a-subject-fails">
+<h2>When a subject fails<a class="headerlink" href="#when-a-subject-fails" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Keep the batch and record the exception:
+<a class="reference internal" href="plot_02_skip_failed.html"><span class="doc">Skipping a subject that fails</span></a>.</p></li>
+<li><p>Stop at the first failure:
+<a class="reference internal" href="plot_03_stop_on_failure.html"><span class="doc">Stopping at the first failure</span></a>.</p></li>
+<li><p>Skip subjects that already finished:
+<a class="reference internal" href="plot_04_resume.html"><span class="doc">Resuming finished subjects</span></a>.</p></li>
+<li><p>Give each subject a wall-clock limit. Only the process backend enforces
+it:
+<a class="reference internal" href="plot_08_wall_clock.html"><span class="doc">Per-subject wall-clock limit</span></a>.</p></li>
+</ul>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="SerialBackend runs the texture extraction and the habitat assignment in this process, one subject after another. Z-scoring and fitting stay here as well: the scaler is per subject, and the fit has to see every subject. The same chain written as a HabitatSpec is /auto_examples/02_voxel/plot_06_texture_preprocessing."><img alt="" src="../../_images/sphx_glr_plot_01_serial_thumb.png" />
 <p><a class="reference internal" href="plot_01_serial.html"><span class="doc">Running a cohort serially</span></a></p>
   <div class="sphx-glr-thumbnail-title">Running a cohort serially</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;continue&quot; keeps the batch. One subject here has no arterial-phase image, so texture extraction raises. The other subject still receives a habitat map. The error is stored on that subject&#x27;s slot."><img alt="" src="../../_images/sphx_glr_plot_02_skip_failed_thumb.png" />
@@ -702,38 +724,24 @@ serial run.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="A CheckpointStore records each success. The checkpoint key includes the texture specification, so changing the feature list or binWidth does not reuse the old field. The second map returns from_cache=True and does not recompute texture."><img alt="" src="../../_images/sphx_glr_plot_04_resume_thumb.png" />
 <p><a class="reference internal" href="plot_04_resume.html"><span class="doc">Resuming finished subjects</span></a></p>
   <div class="sphx-glr-thumbnail-title">Resuming finished subjects</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend. Texture extraction and habitat assignment run in that pool. Z-scoring and fitting stay in this process. On Windows the map calls sit under __main__ so a worker does not start another pool."><img alt="" src="../../_images/sphx_glr_plot_05_process_pool_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend: each subject is sent to one of two worker processes. This page runs the same texture extraction and habitat assignment serially and in the pool, checks that the results agree, and times both."><img alt="" src="../../_images/sphx_glr_plot_05_process_pool_thumb.png" />
 <p><a class="reference internal" href="plot_05_process_pool.html"><span class="doc">Running subjects in separate processes</span></a></p>
   <div class="sphx-glr-thumbnail-title">Running subjects in separate processes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays spawn and import on the first map. with backend.reuse_workers(): keeps those workers for the assignment map that follows. Z-scoring and fitting run in this process while the workers stay up."><img alt="" src="../../_images/sphx_glr_plot_06_reuse_workers_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays process spawn and imports on every map. with backend.reuse_workers(): starts the workers once and keeps them for every map inside the block. Leaving the block stops them."><img alt="" src="../../_images/sphx_glr_plot_06_reuse_workers_thumb.png" />
 <p><a class="reference internal" href="plot_06_reuse_workers.html"><span class="doc">Reusing workers across passes</span></a></p>
   <div class="sphx-glr-thumbnail-title">Reusing workers across passes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This page records a cloud run. It does not repeat that workload when the docs are built."><img alt="" src="../../_images/sphx_glr_plot_07_several_gpus_thumb.png" />
-<p><a class="reference internal" href="plot_07_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Running a cohort on several GPUs</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Per-subject z-score uses each lesion&#x27;s own mean and standard deviation. The atomic calls and the HabitatSpec below are the same analysis: four DCE series, GLCM / first-order / GLRLM texture, radius 3, binWidth 12, then habitats fit on the pooled voxels."><img alt="" src="../../_images/sphx_glr_plot_08_subject_zscore_thumb.png" />
-<p><a class="reference internal" href="plot_08_subject_zscore.html"><span class="doc">Subject z-score on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Subject z-score on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Robust scaling centres each column on that subject&#x27;s median and divides by its interquartile range. The texture definition matches the subject z-score page; only the scaler changes."><img alt="" src="../../_images/sphx_glr_plot_09_subject_robust_thumb.png" />
-<p><a class="reference internal" href="plot_09_subject_robust.html"><span class="doc">Subject robust scaling on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Subject robust scaling on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Winsorizing clips each column at that subject&#x27;s tail quantiles. It does not rescale the centre of the distribution. The texture definition matches the other pages in this section."><img alt="" src="../../_images/sphx_glr_plot_10_subject_winsorize_thumb.png" />
-<p><a class="reference internal" href="plot_10_subject_winsorize.html"><span class="doc">Subject winsorizing on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Subject winsorizing on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Cohort z-score is fitted once on the pooled training rows and replayed on every subject. A single subject&#x27;s column mean is then not zero: both subjects share the training mean and standard deviation. That fitted state has to travel with the habitat model."><img alt="" src="../../_images/sphx_glr_plot_11_cohort_zscore_thumb.png" />
-<p><a class="reference internal" href="plot_11_cohort_zscore.html"><span class="doc">Cohort z-score on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Cohort z-score on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Bin edges are learned on the pooled training rows. The same bin index then means the same texture range in every subject. This is not a rescaling: the stored values are bin indices."><img alt="" src="../../_images/sphx_glr_plot_12_cohort_binning_thumb.png" />
-<p><a class="reference internal" href="plot_12_cohort_binning.html"><span class="doc">Cohort binning on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Cohort binning on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="parallel_mode=&quot;isolated&quot; starts a new process for every subject instead of keeping a worker alive. The texture definition and the subject z-score match the persistent process-pool page. Spawn cost is higher; the habitat counts are the same chain."><img alt="" src="../../_images/sphx_glr_plot_13_isolated_thumb.png" />
-<p><a class="reference internal" href="plot_13_isolated.html"><span class="doc">One fresh process per subject</span></a></p>
+</div><div class="sphx-glr-thumbcontainer" tooltip="parallel_mode=&quot;isolated&quot; starts a new process for every subject instead of keeping a worker alive. The texture definition and the subject z-score match the persistent process-pool page. Spawn cost is higher; the habitat counts are the same chain."><img alt="" src="../../_images/sphx_glr_plot_07_isolated_thumb.png" />
+<p><a class="reference internal" href="plot_07_isolated.html"><span class="doc">One fresh process per subject</span></a></p>
   <div class="sphx-glr-thumbnail-title">One fresh process per subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="subject_timeout_sec is enforced only by the process backend. The limit on this page is 2 seconds, below a real texture extraction, and the extractor is not allowed to read the on-disk texture cache. parallel_mode=&quot;isolated&quot; and workers=1 run one subject at a time in its own process, so the limit is recorded on every slot. Both finish as SubjectTimeoutError. A study that should finish uses a limit on the order of minutes."><img alt="" src="../../_images/sphx_glr_plot_14_wall_clock_thumb.png" />
-<p><a class="reference internal" href="plot_14_wall_clock.html"><span class="doc">Per-subject wall-clock limit</span></a></p>
+</div><div class="sphx-glr-thumbcontainer" tooltip="subject_timeout_sec is enforced only by the process backend. The limit on this page is 2 seconds, below a real texture extraction, and the extractor is not allowed to read the on-disk texture cache. parallel_mode=&quot;isolated&quot; and workers=1 run one subject at a time in its own process, so the limit is recorded on every slot. Both finish as SubjectTimeoutError. A study that should finish uses a limit on the order of minutes."><img alt="" src="../../_images/sphx_glr_plot_08_wall_clock_thumb.png" />
+<p><a class="reference internal" href="plot_08_wall_clock.html"><span class="doc">Per-subject wall-clock limit</span></a></p>
   <div class="sphx-glr-thumbnail-title">Per-subject wall-clock limit</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This machine has one GPU, so the recorded 5-GPU timings below are from a cloud run and this page does not repeat that workload. The call itself is in the next cell."><img alt="" src="../../_images/sphx_glr_plot_09_several_gpus_thumb.png" />
+<p><a class="reference internal" href="plot_09_several_gpus.html"><span class="doc">Running a cohort on several GPUs</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Running a cohort on several GPUs</div>
 </div></div><div class="toctree-wrapper compound">
 </div>
+</section>
 </section>
 
 

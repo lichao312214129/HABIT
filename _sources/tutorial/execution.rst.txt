@@ -73,11 +73,12 @@ Pass the backend into a recipe or into :meth:`~habit.contracts.Cohort.map`::
 
 Atomic path (no ``Study``): extract texture, preprocess, fit in this
 process, then ``backend.map`` the assigner on units already in memory.
-The subject z-score page runs that chain and the equivalent
-``HabitatSpec``. Serial scheduling of the same chain is the first
-gallery page.
+Subject versus cohort preprocessing of that texture, and the equivalent
+``HabitatSpec``, is
+:doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`.
+Serial scheduling of the same chain is the first gallery page.
 
-* :doc:`/auto_examples/06_parallel_runs/plot_08_subject_zscore`
+* :doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`
 * :doc:`/auto_examples/06_parallel_runs/plot_01_serial`
 
 Failure policy
@@ -100,7 +101,7 @@ if** the backend used ``continue``. Recipes / CLI pass
 
 Per-subject wall-clock cap: ``subject_timeout_sec`` (ProcessPool only).
 Expiry raises ``SubjectTimeoutError``.
-See :doc:`/auto_examples/06_parallel_runs/plot_14_wall_clock`.
+See :doc:`/auto_examples/06_parallel_runs/plot_08_wall_clock`.
 
 In-run retries of flaky subjects: ``auto_retry_rounds`` (ProcessPool).
 After a fatal ``MemoryError``, ``oom_backoff=True`` reduces ``workers``.

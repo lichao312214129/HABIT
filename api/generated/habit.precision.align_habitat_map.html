@@ -32,7 +32,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="habitat_stability" href="habit.precision.habitat_stability.html" />
+    <link rel="next" title="align_habitat_maps_to_prototypes" href="habit.precision.align_habitat_maps_to_prototypes.html" />
     <link rel="prev" title="identify_precise_features" href="habit.precision.identify_precise_features.html" /> 
 </head>
 
@@ -73,6 +73,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -95,9 +96,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_expression.html">Expression voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -109,7 +112,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
@@ -138,14 +141,18 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_04_resume.html">Resuming finished subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_several_gpus.html">Running a cohort on several GPUs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
 </ul>
 </li>
 </ul>
@@ -499,6 +506,24 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/habitat_matching.html">Matching habitat labels across fits and subjects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#when-matching-is-needed">When matching is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#choosing-a-method">Choosing a method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#what-describes-a-habitat">What describes a habitat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#distance-metrics">Distance metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#different-habitat-counts">Different habitat counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#assumptions-and-limitations">Assumptions and limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#references">References</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">CLI and YAML</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
@@ -659,46 +684,27 @@ function signature, and not how to use it. Please refer to the
 </div>
 <dl class="py function">
 <dt class="sig sig-object py" id="habit.precision.align_habitat_map">
-<span class="sig-name descname"><span class="pre">align_habitat_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">moving</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moving_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'centroid'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'features'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'overlap'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'centroid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_centroids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moving_centroids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'euclidean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standardize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'mean'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'median'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_tiebreak</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_volumes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moving_volumes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></span><a class="reference internal" href="../../_modules/habit/precision/stability.html#align_habitat_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.precision.align_habitat_map" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">align_habitat_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">moving</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></span><a class="reference internal" href="../../_modules/habit/precision/stability.html#align_habitat_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.precision.align_habitat_map" title="Link to this definition"></a></dt>
 <dd><p>Remap <code class="docutils literal notranslate"><span class="pre">moving</span></code> habitat ids onto the <code class="docutils literal notranslate"><span class="pre">reference</span></code> id space.</p>
-<p>Independently clustered maps (two <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> runs) permute integer
-ids. This operator recovers the correspondence and returns a new
-<a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatMap</span></code></a> whose labels are comparable
-to <code class="docutils literal notranslate"><span class="pre">reference</span></code>. Maps that already share a <code class="docutils literal notranslate"><span class="pre">model_id</span></code> (the
-apply-saved-model path) are returned unchanged: those ids are already
-the same definition.</p>
-<p>Default matching is <strong>centroid</strong> – Hungarian assignment on Euclidean
-distance between per-habitat <strong>mean</strong> feature vectors (the same
-quantity k-means stores as a cluster centre). Pass the two fits’
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">centroids</span></code> when available;
-otherwise mean image intensity, then spatial means.</p>
-<p><code class="docutils literal notranslate"><span class="pre">method=&quot;features&quot;</span></code> is the cross-patient naming path: unscaled
-habitat summaries, cohort z-score, then Hungarian. Pass an unscaled
-feature volume (multimodal intensities, constructed maps,
-radiomic/texture channels, or any shared voxel field) or unscaled
-habitat means/medians, not per-tumour MinMax centres.
-<code class="docutils literal notranslate"><span class="pre">method=&quot;overlap&quot;</span></code> uses maximal voxel overlap. Use the same
-<code class="docutils literal notranslate"><span class="pre">method</span></code> in <a class="reference internal" href="habit.precision.habitat_stability.html#habit.precision.habitat_stability" title="habit.precision.habitat_stability"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code></a> so Dice is scored on the
-same pairing. Do not feed an already-aligned map back into
-<code class="docutils literal notranslate"><span class="pre">habitat_stability</span></code>: Dice should be scored on the original pair
-(stability matches internally).</p>
+<p>For two maps of the <strong>same voxels</strong> (retest, perturbation, another
+preprocessing chain, another reader): independently clustered maps
+permute integer ids, so ids are paired by maximal voxel overlap
+(Hungarian on the overlap counts, the Prior 2024 <code class="docutils literal notranslate"><span class="pre">munkres</span></code> step)
+and <code class="docutils literal notranslate"><span class="pre">moving</span></code> is rewritten into the reference ids. Maps that already
+share a <code class="docutils literal notranslate"><span class="pre">model_id</span></code> (the apply-saved-model path) are returned
+unchanged: those ids are already the same definition.</p>
+<p>To name habitats of <strong>different</strong> subjects use
+<a class="reference internal" href="habit.precision.align_habitat_maps_to_prototypes.html#habit.precision.align_habitat_maps_to_prototypes" title="habit.precision.align_habitat_maps_to_prototypes"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_maps_to_prototypes()</span></code></a>; overlap between two
+patients’ voxels has no meaning.</p>
+<p><a class="reference internal" href="habit.precision.habitat_stability.html#habit.precision.habitat_stability" title="habit.precision.habitat_stability"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code></a> uses the same pairing, so the compare figure
+and the Dice table share one correspondence. Do not feed an
+already-aligned map back into <code class="docutils literal notranslate"><span class="pre">habitat_stability</span></code>; it pairs the
+original maps itself.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>reference</strong> – Habitat map whose ids are the target space.</p></li>
-<li><p><strong>moving</strong> – Independently labelled map to remap.</p></li>
-<li><p><strong>image</strong> – Optional intensity volume for the reference map (and for
-the moving map when <code class="docutils literal notranslate"><span class="pre">moving_image</span></code> is omitted). Accepts a
-NumPy array or an object with <code class="docutils literal notranslate"><span class="pre">.data</span></code> (<code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code>).</p></li>
-<li><p><strong>moving_image</strong> – Optional intensity volume for the moving map.</p></li>
-<li><p><strong>method</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;centroid&quot;</span></code> (default), <code class="docutils literal notranslate"><span class="pre">&quot;features&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;overlap&quot;</span></code>.</p></li>
-<li><p><strong>reference_centroids</strong> – Optional cluster centres of the reference fit,
-shape <code class="docutils literal notranslate"><span class="pre">(n_habitats,</span> <span class="pre">n_features)</span></code>, rows in
-<code class="docutils literal notranslate"><span class="pre">reference.habitat_ids</span></code> order (row <code class="docutils literal notranslate"><span class="pre">i</span></code> is habitat
-<code class="docutils literal notranslate"><span class="pre">habitat_ids[i]</span></code>).</p></li>
-<li><p><strong>moving_centroids</strong> – Optional cluster centres of the moving fit.
-For <code class="docutils literal notranslate"><span class="pre">method=&quot;features&quot;</span></code> these must be <strong>unscaled</strong> habitat
-means / medians, not per-tumour MinMax cluster centres.</p></li>
+<li><p><strong>moving</strong> – Independently labelled map of the same voxel grid.</p></li>
 <li><p><strong>force</strong> – If True, align even when <code class="docutils literal notranslate"><span class="pre">model_id</span></code> already matches.
 Independent <code class="docutils literal notranslate"><span class="pre">one_step</span></code> / <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> runs on the same
 subject share a model_id (spec + subject-id digest, not image
@@ -714,16 +720,19 @@ The input <code class="docutils literal notranslate"><span class="pre">moving</s
 already match and <code class="docutils literal notranslate"><span class="pre">force</span></code> is False.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – If the grids differ or centroid inputs are incomplete.</p>
+<dd class="field-odd"><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – If the grids differ.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <section id="examples-using-habit-precision-align-habitat-map">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.precision.align_habitat_map</span></code><a class="headerlink" href="#examples-using-habit-precision-align-habitat-map" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/05_quantify/plot_04_graph_features.html"><span class="doc">Graph features</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Graph features</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Cluster the same tumour twice with the same features and the same k, changing only the k-means random seed. The two maps describe the same tissue, but k-means numbers its clusters in arbitrary order, so habitat 1 of one run is habitat 2 or 3 of the other. This is label switching. Comparing the maps by raw id reports disagreement that is not there."><img alt="" src="../../_images/sphx_glr_plot_01_label_switching_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_01_label_switching.html"><span class="doc">Why habitat ids must be matched</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Why habitat ids must be matched</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel overlap is the matcher whenever two maps label the same voxels: a k-means restart, another k, another feature set, a perturbed image, a second reader. It needs no features at all, only the two label images, so it also works when the two fits live in different feature spaces."><img alt="" src="../../_images/sphx_glr_plot_02_overlap_cases_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_02_overlap_cases.html"><span class="doc">Matching maps of the same voxels by overlap</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Matching maps of the same voxels by overlap</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 
@@ -732,7 +741,7 @@ already match and <code class="docutils literal notranslate"><span class="pre">f
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="habit.precision.identify_precise_features.html" class="btn btn-neutral float-left" title="identify_precise_features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habit.precision.habitat_stability.html" class="btn btn-neutral float-right" title="habitat_stability" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habit.precision.align_habitat_maps_to_prototypes.html" class="btn btn-neutral float-right" title="align_habitat_maps_to_prototypes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

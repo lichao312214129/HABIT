@@ -426,6 +426,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -448,6 +449,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_02_expression.html">Expression voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
@@ -462,7 +464,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../auto_examples/04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
@@ -850,6 +852,24 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/habitat_matching.html">Matching habitat labels across fits and subjects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#when-matching-is-needed">When matching is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#choosing-a-method">Choosing a method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#what-describes-a-habitat">What describes a habitat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#distance-metrics">Distance metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/habitat_matching.html#different-habitat-counts">Different habitat counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#assumptions-and-limitations">Assumptions and limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/habitat_matching.html#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration/index.html">CLI and YAML</a><ul>
@@ -1855,7 +1875,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_HABITAT_CBAR_LABEL</span><span class="p">,</span>
     <span class="n">align_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">align_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;overlap&quot;</span><span class="p">,</span>
     <span class="n">crop_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
     <span class="n">crop_pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
@@ -1865,15 +1884,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Independently clustered maps permute integer ids. By default this</span>
 <span class="sd">    remaps ``labels_b`` (panel 2 only) onto ``labels_a`` by maximal voxel</span>
 <span class="sd">    overlap -- the same Hungarian pairing</span>
-<span class="sd">    ``habitat_stability(..., method=&quot;overlap&quot;)`` uses --</span>
+<span class="sd">    :func:`~habit.precision.habitat_stability` uses --</span>
 <span class="sd">    before colouring and before the disagreement panel. Habitat 2 on the</span>
 <span class="sd">    left is then the same spatial region as habitat 2 on the right.</span>
 <span class="sd">    Disagreement is ``aligned_b != a`` on labelled voxels, not raw id</span>
-<span class="sd">    inequality. Maps that already share a ``model_id`` (apply-saved-model)</span>
-<span class="sd">    are left unchanged -- those ids are already the same definition.</span>
-
-<span class="sd">    Use ``align_method=&quot;centroid&quot;`` when the maps are not co-registered</span>
-<span class="sd">    and overlap is not meaningful (feature-space / intensity centroids).</span>
+<span class="sd">    inequality. Maps that already share a ``model_id`` (apply-saved-model,</span>
+<span class="sd">    or maps renamed by</span>
+<span class="sd">    :func:`~habit.precision.align_habitat_maps_to_prototypes`) are left</span>
+<span class="sd">    unchanged -- those ids are already the same definition.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        image: Anatomy volume ``(z, y, x)`` or 2D.</span>
@@ -1895,8 +1913,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            ``model_id``; ``True`` always aligns; ``False`` never aligns.</span>
 <span class="sd">            Independent ``one_step`` fits on the same subject share a</span>
 <span class="sd">            model_id (spec + subject-id digest) and need ``True``.</span>
-<span class="sd">        align_method: ``&quot;overlap&quot;`` (default, same-grid visual compare) or</span>
-<span class="sd">            ``&quot;centroid&quot;`` (feature / intensity centroids).</span>
 <span class="sd">        crop_to: ``&quot;none&quot;`` (default) draws the full field of view;</span>
 <span class="sd">            ``&quot;labels&quot;`` zooms every panel to the bounding box of the union</span>
 <span class="sd">            of non-background voxels in both maps so a small tumour fills</span>
@@ -1928,10 +1944,18 @@ window.runMermaid = runMermaid;</script>
         <span class="k">else</span> <span class="ow">not</span> <span class="n">_shared_habitat_model_id</span><span class="p">(</span><span class="n">labels_a</span><span class="p">,</span> <span class="n">labels_b</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">should_align</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_label_match</span><span class="w"> </span><span class="kn">import</span> <span class="n">align_label_array</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_label_match</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">match_labels_by_overlap</span><span class="p">,</span>
+            <span class="n">present_habitat_ids</span><span class="p">,</span>
+            <span class="n">remap_label_array</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="n">align_label_array</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image_vol</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">align_method</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">remap_label_array</span><span class="p">(</span>
+                <span class="n">b</span><span class="p">,</span>
+                <span class="n">match_labels_by_overlap</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span>
+                <span class="n">reserved_ids</span><span class="o">=</span><span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plot_habitat_label_compare: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
     <span class="k">if</span> <span class="n">image_vol</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span> <span class="ow">or</span> <span class="n">image_vol</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>

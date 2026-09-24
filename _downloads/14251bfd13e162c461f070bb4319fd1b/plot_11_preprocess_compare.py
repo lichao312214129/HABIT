@@ -5,10 +5,13 @@ Comparing habitat maps with and without preprocessing
 Input: the same cohort, the same two-step design, the same ``k`` and
 seed. The only change is the voxel-feature preprocessor chain.
 
-The two overlays share one crop and one set of slice indices, taken from
-the union of both maps. Habitat integers are matched by voxel overlap
-before the volume-fraction bars: k-means may permute ids, and unpaired
-ids are not the same habitat.
+Each fit numbers its habitats in its own arbitrary k-means order, so
+habitat 1 of one fit need not be habitat 1 of the other. **Match the ids
+first, then compare.** Both fits label the same voxels of the same
+subjects, so the ids are matched by voxel overlap (Hungarian on the
+overlap counts). Centroid distance is not usable here: one model lives
+in raw-intensity space, the other in winsorised min-max space.
+Which matcher fits which situation: :doc:`/reference/habitat_matching`.
 """
 
 # %%
@@ -25,6 +28,7 @@ from habit.contracts import cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.kernels import habitat_volume_fractions
 from habit.kernels.habitat_label_match import (
+    habitat_dice_from_mapping,
     match_labels_by_overlap,
     remap_label_array,
 )
@@ -37,7 +41,6 @@ DATA = fetch_demo()
 MODALITIES = ("pre_contrast", "LAP", "PVP")
 ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
-image = cohort[0].image(ROI)
 Path("out").mkdir(exist_ok=True)
 
 
@@ -90,11 +93,8 @@ def _densest_slice(labels: np.ndarray, axis: int) -> int:
 
 
 # %%
-# Two fits on the same cohort. Overlap matching renames the preprocessed
-# map into the raw map's ids (same subject, same grid). The shared window
-# is the union of both label maps: one crop, and one axial / coronal /
-# sagittal index in the original volume. The next two figures both use
-# that window.
+# Two fits on the same cohort: one on raw intensities, one after
+# winsorising and min-max scaling every feature.
 plain = Study(spec=two_step(())).fit_predict(cohort)
 chain = (
     Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
@@ -102,38 +102,57 @@ chain = (
 )
 prepped = Study(spec=two_step(chain)).fit_predict(cohort)
 
-reference = plain.habitat_maps[0]
-moving = prepped.habitat_maps[0]
-mapping = match_labels_by_overlap(reference.label_array, moving.label_array)
-aligned_labels = remap_label_array(
-    moving.label_array,
-    mapping,
-    reserved_ids=reference.habitat_ids,
+# %%
+# Step 1 -- match habitat ids (before any comparison)
+# ----------------------------------------------------
+# A two-step fit is one cohort model, so one renaming must hold for every
+# subject. Stack the voxels of all subjects into one long vector per fit
+# and pair ids by maximal overlap on that pooled vector. ``dice`` scores
+# how well each matched pair agrees (1 = identical voxels).
+plain_voxels = np.concatenate(
+    [np.asarray(m.label_array).ravel() for m in plain.habitat_maps]
 )
-present = tuple(sorted(int(v) for v in np.unique(aligned_labels) if int(v) > 0))
-aligned = replace(moving, label_array=aligned_labels, habitat_ids=present)
+prepped_voxels = np.concatenate(
+    [np.asarray(m.label_array).ravel() for m in prepped.habitat_maps]
+)
+mapping = match_labels_by_overlap(plain_voxels, prepped_voxels)
 
+match_table = pd.DataFrame(
+    habitat_dice_from_mapping(plain_voxels, prepped_voxels, mapping),
+    columns=["without_id", "with_id", "dice", "n_without", "n_with"],
+)
+print("id match (with preprocessing -> without), pooled over the cohort:")
+print(match_table.to_string(index=False))
+match_table
+
+# %%
+# Rename every preprocessed map into the unpreprocessed ids. From here on
+# habitat ``H1`` means the same tissue in both fits.
+ids = tuple(int(v) for v in plain.habitat_maps[0].habitat_ids)
+aligned_maps = []
+for moving in prepped.habitat_maps:
+    renamed = remap_label_array(moving.label_array, mapping, reserved_ids=ids)
+    present = tuple(sorted(int(v) for v in np.unique(renamed) if int(v) > 0))
+    aligned_maps.append(replace(moving, label_array=renamed, habitat_ids=present))
+
+# %%
+# Step 2 -- compare the maps of one subject
+# -----------------------------------------
+# Both overlays share one crop (the union of the two label maps) and one
+# axial / coronal / sagittal index, so they frame the same anatomy.
+# Colours follow the matched ids.
+image = cohort[0].image(ROI)
+reference = plain.habitat_maps[0]
+aligned = aligned_maps[0]
 union = np.where(
-    (np.asarray(reference.label_array) > 0) | (aligned_labels > 0),
+    (np.asarray(reference.label_array) > 0)
+    | (np.asarray(aligned.label_array) > 0),
     1,
     0,
 ).astype(np.int32)
 shared_index = tuple(_densest_slice(union, axis) for axis in range(union.ndim))
-
-match_table = pd.DataFrame(
-    [
-        {"with_id": int(src), "without_id": int(dst)}
-        for src, dst in sorted(mapping.items())
-    ]
-)
-print("overlap match (with preprocessing -> without):")
-print(match_table.to_string(index=False))
 print("shared slice indices (axis 0, 1, 2):", shared_index)
-match_table
 
-# %%
-# Without preprocessing. ``crop_labels`` and ``index`` are the shared
-# window, so this figure frames the same anatomy as the next one.
 fig_plain = plot_habitat_overlay(
     image,
     reference,
@@ -148,8 +167,7 @@ fig_plain.savefig(
 plt.show()
 
 # %%
-# With preprocessing, same crop and the same slices. Colours follow the
-# matched ids, so habitat 1 is the same colour in both figures.
+# With preprocessing, same crop and the same slices.
 fig_prepped = plot_habitat_overlay(
     image,
     aligned,
@@ -164,43 +182,45 @@ fig_prepped.savefig(
 plt.show()
 
 # %%
-# Volume fractions on the matched ids. The raw feature-table columns are
-# not comparable: they still use each fit's own k-means integers.
-ids = tuple(int(v) for v in reference.habitat_ids)
-fractions_plain = habitat_volume_fractions(reference.label_array, ids)
-fractions_prepped = habitat_volume_fractions(aligned_labels, ids)
-fraction_table = pd.DataFrame(
-    {
-        "habitat": [f"H{habitat_id}" for habitat_id in ids],
-        "without": [fractions_plain[habitat_id] for habitat_id in ids],
-        "with": [fractions_prepped[habitat_id] for habitat_id in ids],
-    }
-)
+# Step 3 -- compare volume fractions on the matched ids
+# -----------------------------------------------------
+# One row per subject and habitat. Comparing fractions on the raw k-means
+# ids (or on unmatched feature-table columns) would compare different
+# habitats.
+rows = []
+for original, renamed in zip(plain.habitat_maps, aligned_maps):
+    without = habitat_volume_fractions(original.label_array, ids)
+    with_prep = habitat_volume_fractions(renamed.label_array, ids)
+    for habitat_id in ids:
+        rows.append(
+            {
+                "subject": original.subject_id,
+                "habitat": f"H{habitat_id}",
+                "without": without[habitat_id],
+                "with": with_prep[habitat_id],
+            }
+        )
+fraction_table = pd.DataFrame(rows)
 print(fraction_table.to_string(index=False))
 fraction_table
 
-labels = [f"H{habitat_id}" for habitat_id in ids]
-fig_bar, ax = plt.subplots(figsize=(6.2, 3.2))
-x = np.arange(len(labels))
-ax.bar(
-    x - 0.18,
-    [fractions_plain[habitat_id] for habitat_id in ids],
-    width=0.36,
-    label="without",
-    color="#4C78A8",
+subjects = list(fraction_table["subject"].unique())
+fig_bar, axes = plt.subplots(
+    1, len(subjects), figsize=(3.4 * len(subjects), 3.2), sharey=True
 )
-ax.bar(
-    x + 0.18,
-    [fractions_prepped[habitat_id] for habitat_id in ids],
-    width=0.36,
-    label="with",
-    color="#F58518",
-)
-ax.set_xticks(x)
-ax.set_xticklabels(labels)
-ax.set_ylabel("volume fraction")
-ax.set_ylim(0, 1)
-ax.set_title("habitat volume fractions")
-ax.legend()
+axes = np.atleast_1d(axes)
+x = np.arange(len(ids))
+for ax, subject_id in zip(axes, subjects):
+    part = fraction_table[fraction_table["subject"] == subject_id]
+    ax.bar(x - 0.18, part["without"], width=0.36, label="without", color="#4C78A8")
+    ax.bar(x + 0.18, part["with"], width=0.36, label="with", color="#F58518")
+    ax.set_xticks(x)
+    ax.set_xticklabels(part["habitat"])
+    ax.set_ylim(0, 1)
+    ax.set_title(subject_id)
+axes[0].set_ylabel("volume fraction")
+axes[-1].legend()
+fig_bar.suptitle("habitat volume fractions (matched ids)")
+fig_bar.tight_layout()
 fig_bar.savefig("out/preprocess_volume_fractions.png", dpi=150, bbox_inches="tight")
 plt.show()

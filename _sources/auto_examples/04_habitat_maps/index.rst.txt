@@ -28,8 +28,10 @@ volume table on each page.
   :doc:`/auto_examples/04_habitat_maps/plot_03_pool_voxels`.
 * **Applying a saved habitat model** —
   :doc:`/auto_examples/04_habitat_maps/plot_04_apply_saved_model`.
-* **Matching habitat labels across fits** —
-  :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
+* **Matching habitat labels across subjects** (shared or frozen
+  prototypes) — :doc:`/auto_examples/04_habitat_maps/plot_05_match_labels`.
+  Which matcher to use and why: :doc:`/reference/habitat_matching`;
+  worked, visual pages: :doc:`/auto_examples/07_habitat_matching/index`.
 
 Building a habitat map step by step
 ------------------------------------
@@ -139,7 +141,7 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Independent fits permute integer ids: habitat 1 of subject B need not be habitat 1 of subject A. habit.kernels.habitat_label_match recovers a {moving_id: reference_id} map.">
+    <div class="sphx-glr-thumbcontainer" tooltip="With one_step habitats every subject is clustered on its own, so habitat 1 of one patient need not be habitat 1 of another, and patients may even have different habitat counts. align_habitat_maps_to_prototypes gives every subject one shared set of names:">
 
 .. only:: html
 
@@ -150,7 +152,7 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Matching habitat labels across fits</div>
+      <div class="sphx-glr-thumbnail-title">Matching habitat labels across subjects</div>
     </div>
 
 
@@ -190,7 +192,7 @@ and the :class:`~habit.spec.HabitatSpec` stage.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with unenhanced and arterial phases. Output: a HabitatMap. Stage: extract_voxel_features with expression, then a per-subject fit.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with the four DCE phases. Output: a HabitatMap. The voxel field is ExpressionVoxelFeatures (see /auto_examples/02_voxel/plot_02_expression). Stage: extract_voxel_features with expression, then a per-subject fit.">
 
 .. only:: html
 

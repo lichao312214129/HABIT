@@ -24,16 +24,17 @@ Running a cohort serially
 :class:`~habit.execution.SerialBackend` runs the texture extraction and
 the habitat assignment in this process, one subject after another.
 Z-scoring and fitting stay here as well: the scaler is per subject, and
-the fit has to see every subject. The matching :class:`~habit.spec.HabitatSpec`
-is on the subject z-score page.
+the fit has to see every subject. The same chain written as a
+:class:`~habit.spec.HabitatSpec` is
+:doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-16
+.. GENERATED FROM PYTHON SOURCE LINES 14-17
 
 Load the cohort
 ---------------
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-38
+.. GENERATED FROM PYTHON SOURCE LINES 17-39
 
 .. code-block:: Python
 
@@ -94,14 +95,15 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-43
+.. GENERATED FROM PYTHON SOURCE LINES 40-45
 
 Build the extractor and the serial backend
 ------------------------------------------
 Radius 3 is a 7×7×7 neighbourhood. ``binWidth`` 12 is the PyRadiomics
-grey-level width. This cell does not extract texture.
+grey-level width. The device is left at ``"auto"``: CUDA when this
+machine has it, otherwise CPU. This cell does not extract texture.
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-70
+.. GENERATED FROM PYTHON SOURCE LINES 45-69
 
 .. code-block:: Python
 
@@ -120,9 +122,6 @@ grey-level width. This cell does not extract texture.
         kernel_radius=3,
         params=RADIOMICS_PARAMS,
         voxel_batch=1000,
-        use_torch_radiomics=True,
-        torch_device="cuda:0",
-        use_gpu_matrices=True,
         cache_dir=CACHE,
     )
     zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
@@ -146,13 +145,13 @@ grey-level width. This cell does not extract texture.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-74
+.. GENERATED FROM PYTHON SOURCE LINES 70-73
 
 Extract texture
 ---------------
 ``SerialBackend.map`` yields one slot per subject, in cohort order.
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-81
+.. GENERATED FROM PYTHON SOURCE LINES 73-80
 
 .. code-block:: Python
 
@@ -177,13 +176,13 @@ Extract texture
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 82-85
+.. GENERATED FROM PYTHON SOURCE LINES 81-84
 
 Z-score inside each subject
 ---------------------------
 Mean and standard deviation are computed on that subject only.
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-109
+.. GENERATED FROM PYTHON SOURCE LINES 84-108
 
 .. code-block:: Python
 
@@ -225,13 +224,13 @@ Mean and standard deviation are computed on that subject only.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 110-113
+.. GENERATED FROM PYTHON SOURCE LINES 109-112
 
 Fit on the pooled voxels
 ------------------------
 Fitting stays in this process: it has to see every subject.
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-117
+.. GENERATED FROM PYTHON SOURCE LINES 112-116
 
 .. code-block:: Python
 
@@ -261,13 +260,13 @@ Fitting stays in this process: it has to see every subject.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-121
+.. GENERATED FROM PYTHON SOURCE LINES 117-120
 
 Assign habitats
 ---------------
 Assignment reuses these units. It does not extract texture again.
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-139
+.. GENERATED FROM PYTHON SOURCE LINES 120-138
 
 .. code-block:: Python
 
@@ -304,6 +303,8 @@ Assignment reuses these units. It does not extract texture again.
 
     subj001 voxels per habitat: {1: 17427, 2: 7448, 3: 9819}
     subj002 voxels per habitat: {1: 5609, 2: 1568, 3: 2681}
+    F:\work\habit_project\habit\viz\habitat_overlay.py:801: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
@@ -311,7 +312,7 @@ Assignment reuses these units. It does not extract texture again.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.455 seconds)
+   **Total running time of the script:** (0 minutes 5.754 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_01_serial.py:

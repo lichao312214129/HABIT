@@ -71,6 +71,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -93,9 +94,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../02_voxel/index.html">2. Voxel Representation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_02_expression.html">Expression voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_voxel/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -107,7 +110,7 @@
 <li class="toctree-l3"><a class="reference internal" href="plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="plot_05_match_labels.html">Matching habitat labels across fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
@@ -136,14 +139,18 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_04_resume.html">Resuming finished subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_07_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_08_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../06_parallel_runs/plot_09_several_gpus.html">Running a cohort on several GPUs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../07_habitat_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
 </ul>
 </li>
 </ul>
@@ -497,6 +504,24 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/habitat_matching.html">Matching habitat labels across fits and subjects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#when-matching-is-needed">When matching is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#choosing-a-method">Choosing a method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#what-describes-a-habitat">What describes a habitat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#distance-metrics">Distance metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#different-habitat-counts">Different habitat counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#assumptions-and-limitations">Assumptions and limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#references">References</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">CLI and YAML</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
@@ -646,7 +671,7 @@
              
   <section id="computation-times">
 <span id="sphx-glr-auto-examples-04-habitat-maps-sg-execution-times"></span><h1>Computation times<a class="headerlink" href="#computation-times" title="Link to this heading"></a></h1>
-<p><strong>03:50.759</strong> total execution time for 14 files <strong>from auto_examples04_habitat_maps</strong>:</p>
+<p><strong>00:40.339</strong> total execution time for 14 files <strong>from auto_examples04_habitat_maps</strong>:</p>
 <div class="docutils container">
 <style scoped>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
@@ -667,59 +692,59 @@ $(document).ready( function () {
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="plot_01_two_step.html#sphx-glr-auto-examples-04-habitat-maps-plot-01-two-step-py"><span class="std std-ref">Defining habitats in two steps</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_01_two_step.py</span></code>)</p></td>
-<td><p>01:32.780</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="plot_05_match_labels.html#sphx-glr-auto-examples-04-habitat-maps-plot-05-match-labels-py"><span class="std std-ref">Matching habitat labels across subjects</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_05_match_labels.py</span></code>)</p></td>
+<td><p>00:40.339</p></td>
 <td><p>0.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="plot_14_assign_labels.html#sphx-glr-auto-examples-04-habitat-maps-plot-14-assign-labels-py"><span class="std std-ref">Assigning habitat labels</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_14_assign_labels.py</span></code>)</p></td>
-<td><p>00:44.782</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="plot_13_fit_model.html#sphx-glr-auto-examples-04-habitat-maps-plot-13-fit-model-py"><span class="std std-ref">Fitting a cohort habitat model</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_13_fit_model.py</span></code>)</p></td>
-<td><p>00:43.187</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="plot_12_supervoxels.html#sphx-glr-auto-examples-04-habitat-maps-plot-12-supervoxels-py"><span class="std std-ref">Partitioning a ROI into supervoxels</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_12_supervoxels.py</span></code>)</p></td>
-<td><p>00:23.487</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="plot_01_two_step.html#sphx-glr-auto-examples-04-habitat-maps-plot-01-two-step-py"><span class="std std-ref">Defining habitats in two steps</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_01_two_step.py</span></code>)</p></td>
+<td><p>00:00.000</p></td>
 <td><p>0.0</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="plot_02_inside_each_subject.html#sphx-glr-auto-examples-04-habitat-maps-plot-02-inside-each-subject-py"><span class="std std-ref">Defining habitats inside each subject</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_02_inside_each_subject.py</span></code>)</p></td>
-<td><p>00:06.663</p></td>
+<td><p>00:00.000</p></td>
 <td><p>0.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="plot_07_voxel_texture.html#sphx-glr-auto-examples-04-habitat-maps-plot-07-voxel-texture-py"><span class="std std-ref">Extracting a voxel texture</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_07_voxel_texture.py</span></code>)</p></td>
-<td><p>00:06.049</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="plot_03_pool_voxels.html#sphx-glr-auto-examples-04-habitat-maps-plot-03-pool-voxels-py"><span class="std std-ref">Pooling voxels across the cohort</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_03_pool_voxels.py</span></code>)</p></td>
-<td><p>00:04.689</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="plot_09_texture_habitats.html#sphx-glr-auto-examples-04-habitat-maps-plot-09-texture-habitats-py"><span class="std std-ref">Clustering habitats from a texture field</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_09_texture_habitats.py</span></code>)</p></td>
-<td><p>00:04.195</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="plot_08_derived_map.html#sphx-glr-auto-examples-04-habitat-maps-plot-08-derived-map-py"><span class="std std-ref">Clustering habitats from a derived map</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_08_derived_map.py</span></code>)</p></td>
-<td><p>00:03.283</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="plot_06_voxel_intensities.html#sphx-glr-auto-examples-04-habitat-maps-plot-06-voxel-intensities-py"><span class="std std-ref">Extracting voxel intensities</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_06_voxel_intensities.py</span></code>)</p></td>
-<td><p>00:01.644</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="plot_03_pool_voxels.html#sphx-glr-auto-examples-04-habitat-maps-plot-03-pool-voxels-py"><span class="std std-ref">Pooling voxels across the cohort</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_03_pool_voxels.py</span></code>)</p></td>
+<td><p>00:00.000</p></td>
 <td><p>0.0</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="plot_04_apply_saved_model.html#sphx-glr-auto-examples-04-habitat-maps-plot-04-apply-saved-model-py"><span class="std std-ref">Applying a saved habitat model</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_04_apply_saved_model.py</span></code>)</p></td>
 <td><p>00:00.000</p></td>
 <td><p>0.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="plot_05_match_labels.html#sphx-glr-auto-examples-04-habitat-maps-plot-05-match-labels-py"><span class="std std-ref">Matching habitat labels across fits</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_05_match_labels.py</span></code>)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="plot_06_voxel_intensities.html#sphx-glr-auto-examples-04-habitat-maps-plot-06-voxel-intensities-py"><span class="std std-ref">Extracting voxel intensities</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_06_voxel_intensities.py</span></code>)</p></td>
 <td><p>00:00.000</p></td>
 <td><p>0.0</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="plot_10_preprocess_features.html#sphx-glr-auto-examples-04-habitat-maps-plot-10-preprocess-features-py"><span class="std std-ref">Preprocessing features before clustering</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_10_preprocess_features.py</span></code>)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="plot_07_voxel_texture.html#sphx-glr-auto-examples-04-habitat-maps-plot-07-voxel-texture-py"><span class="std std-ref">Extracting a voxel texture</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_07_voxel_texture.py</span></code>)</p></td>
 <td><p>00:00.000</p></td>
 <td><p>0.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="plot_11_preprocess_compare.html#sphx-glr-auto-examples-04-habitat-maps-plot-11-preprocess-compare-py"><span class="std std-ref">Comparing habitat maps with and without preprocessing</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_11_preprocess_compare.py</span></code>)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="plot_08_derived_map.html#sphx-glr-auto-examples-04-habitat-maps-plot-08-derived-map-py"><span class="std std-ref">Clustering habitats from a derived map</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_08_derived_map.py</span></code>)</p></td>
+<td><p>00:00.000</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="plot_09_texture_habitats.html#sphx-glr-auto-examples-04-habitat-maps-plot-09-texture-habitats-py"><span class="std std-ref">Clustering habitats from a texture field</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_09_texture_habitats.py</span></code>)</p></td>
+<td><p>00:00.000</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="plot_10_preprocess_features.html#sphx-glr-auto-examples-04-habitat-maps-plot-10-preprocess-features-py"><span class="std std-ref">Preprocessing features before clustering</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_10_preprocess_features.py</span></code>)</p></td>
+<td><p>00:00.000</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="plot_11_preprocess_compare.html#sphx-glr-auto-examples-04-habitat-maps-plot-11-preprocess-compare-py"><span class="std std-ref">Comparing habitat maps with and without preprocessing</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_11_preprocess_compare.py</span></code>)</p></td>
+<td><p>00:00.000</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="plot_12_supervoxels.html#sphx-glr-auto-examples-04-habitat-maps-plot-12-supervoxels-py"><span class="std std-ref">Partitioning a ROI into supervoxels</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_12_supervoxels.py</span></code>)</p></td>
+<td><p>00:00.000</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="plot_13_fit_model.html#sphx-glr-auto-examples-04-habitat-maps-plot-13-fit-model-py"><span class="std std-ref">Fitting a cohort habitat model</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_13_fit_model.py</span></code>)</p></td>
+<td><p>00:00.000</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="plot_14_assign_labels.html#sphx-glr-auto-examples-04-habitat-maps-plot-14-assign-labels-py"><span class="std std-ref">Assigning habitat labels</span></a> (<code class="docutils literal notranslate"><span class="pre">plot_14_assign_labels.py</span></code>)</p></td>
 <td><p>00:00.000</p></td>
 <td><p>0.0</p></td>
 </tr>

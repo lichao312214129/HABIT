@@ -110,7 +110,7 @@ Build the extractor
 The same four series are requested for every subject. ``missing_lap``
 cannot satisfy that request. This cell does not extract texture.
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-74
+.. GENERATED FROM PYTHON SOURCE LINES 51-71
 
 .. code-block:: Python
 
@@ -129,9 +129,6 @@ cannot satisfy that request. This cell does not extract texture.
         kernel_radius=3,
         params=RADIOMICS_PARAMS,
         voxel_batch=1000,
-        use_torch_radiomics=True,
-        torch_device="cuda:0",
-        use_gpu_matrices=True,
         cache_dir=CACHE,
     )
     backend = SerialBackend(on_subject_failure="continue")
@@ -150,14 +147,14 @@ cannot satisfy that request. This cell does not extract texture.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-79
+.. GENERATED FROM PYTHON SOURCE LINES 72-76
 
 Extract, and keep the batch after the failure
 ---------------------------------------------
 The successful slot is a texture field. The failed slot carries the
 exception. Nothing is fit in this cell.
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-94
+.. GENERATED FROM PYTHON SOURCE LINES 76-91
 
 .. code-block:: Python
 
@@ -190,13 +187,13 @@ exception. Nothing is fit in this cell.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 95-98
+.. GENERATED FROM PYTHON SOURCE LINES 92-95
 
 Z-score the subjects that produced a field
 ------------------------------------------
 The incomplete subject is not in this list.
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-123
+.. GENERATED FROM PYTHON SOURCE LINES 95-120
 
 .. code-block:: Python
 
@@ -238,12 +235,12 @@ The incomplete subject is not in this list.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 124-126
+.. GENERATED FROM PYTHON SOURCE LINES 121-123
 
 Fit on the successful subjects
 ------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 126-132
+.. GENERATED FROM PYTHON SOURCE LINES 123-129
 
 .. code-block:: Python
 
@@ -275,12 +272,12 @@ Fit on the successful subjects
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 133-135
+.. GENERATED FROM PYTHON SOURCE LINES 130-132
 
 Assign the subject that has every series
 ----------------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-144
+.. GENERATED FROM PYTHON SOURCE LINES 132-141
 
 .. code-block:: Python
 
@@ -306,12 +303,12 @@ Assign the subject that has every series
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-147
+.. GENERATED FROM PYTHON SOURCE LINES 142-144
 
 Which slots succeeded
 ---------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 147-156
+.. GENERATED FROM PYTHON SOURCE LINES 144-153
 
 .. code-block:: Python
 
@@ -336,12 +333,12 @@ Which slots succeeded
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 157-159
+.. GENERATED FROM PYTHON SOURCE LINES 154-156
 
 Habitat map of the complete subject
 -----------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-167
+.. GENERATED FROM PYTHON SOURCE LINES 156-164
 
 .. code-block:: Python
 
@@ -362,13 +359,20 @@ Habitat map of the complete subject
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    F:\work\habit_project\habit\viz\habitat_overlay.py:801: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.319 seconds)
+   **Total running time of the script:** (0 minutes 3.201 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_02_skip_failed.py:

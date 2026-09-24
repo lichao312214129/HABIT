@@ -64,6 +64,8 @@ Habitat clustering and overlay
    plot_msi_matrix
    plot_ith_summary
    plot_habitat_label_compare
+   plot_label_overlap_matrix
+   plot_prototype_matching
    plot_partition_triptych
    plot_precision_icc
    plot_habitat_feature_heatmap

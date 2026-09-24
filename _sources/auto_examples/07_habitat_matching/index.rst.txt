@@ -1,0 +1,157 @@
+
+
+.. _sphx_glr_auto_examples_07_habitat_matching:
+
+7. Matching Habitat Labels
+==========================
+
+Habitat ids from independent clusterings are arbitrary: habitat 1 of one
+fit can be habitat 3 of another. Anything that compares habitats by id
+(Dice, volume fractions, a cohort feature table) must match the ids
+first. HABIT has two matchers, chosen by what the two sides share:
+
+* **Voxel overlap** -- the maps label the *same voxels* (a restart,
+  another ``k``, another feature set, a perturbed image, a second reader).
+  Hungarian assignment on the voxel-overlap table.
+  :func:`~habit.precision.align_habitat_map`,
+  :func:`~habit.precision.habitat_stability`.
+* **Shared prototypes** -- the maps label *different subjects*. Each
+  subject's habitat summaries are matched one-to-one onto ``K`` shared
+  prototypes, iterated until stable; prototypes can be frozen to name a
+  new cohort. :func:`~habit.precision.align_habitat_maps_to_prototypes`.
+
+A shared cohort model (two-step, direct pooling, an applied saved model)
+already uses one id space and needs neither. Formulas, proofs, and
+literature: :doc:`/reference/habitat_matching`.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Cluster the same tumour twice with the same features and the same k, changing only the k-means random seed. The two maps describe the same tissue, but k-means numbers its clusters in arbitrary order, so habitat 1 of one run is habitat 2 or 3 of the other. This is label switching. Comparing the maps by raw id reports disagreement that is not there.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_01_label_switching_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_habitat_matching/plot_01_label_switching`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Why habitat ids must be matched</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Voxel overlap is the matcher whenever two maps label the same voxels: a k-means restart, another k, another feature set, a perturbed image, a second reader. It needs no features at all, only the two label images, so it also works when the two fits live in different feature spaces.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_02_overlap_cases_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_habitat_matching/plot_02_overlap_cases`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Matching maps of the same voxels by overlap</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Between different subjects there is no shared voxel, so habitats are matched by what describes them: one summary row per habitat (a centroid, a mean feature vector). HABIT names every subject against K shared prototypes, K = the largest habitat count, by alternating two steps:">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_03_prototype_steps_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_habitat_matching/plot_03_prototype_steps`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Prototype matching step by step</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The prototype matcher accepts four distances. Each comes with the prototype update that minimises it, so the loop still converges:">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_04_prototype_metrics_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_habitat_matching/plot_04_prototype_metrics`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Choosing the distance for prototype matching</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Habitat names learned on a training cohort are part of the model definition. A validation or external cohort must be named with those names, not refitted together with the training subjects: refitting moves the prototypes, so &quot;habitat 2&quot; would mean something slightly different in every analysis.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_05_frozen_prototypes_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_habitat_matching/plot_05_frozen_prototypes`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Naming a new cohort with frozen prototypes</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A cohort habitat table has one column per habitat id: H1_volume, H2_mean_enhancement, ... A column is only one variable if H2 means the same habitat in every row. With per-subject (``one_step``) fits it does not, until the ids are matched.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_habitat_matching/images/thumb/sphx_glr_plot_06_downstream_tables_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_habitat_matching/plot_06_downstream_tables`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">What matching changes in a cohort feature table</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/07_habitat_matching/plot_01_label_switching
+   /auto_examples/07_habitat_matching/plot_02_overlap_cases
+   /auto_examples/07_habitat_matching/plot_03_prototype_steps
+   /auto_examples/07_habitat_matching/plot_04_prototype_metrics
+   /auto_examples/07_habitat_matching/plot_05_frozen_prototypes
+   /auto_examples/07_habitat_matching/plot_06_downstream_tables
+

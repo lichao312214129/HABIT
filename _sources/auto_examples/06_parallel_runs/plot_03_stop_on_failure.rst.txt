@@ -102,7 +102,7 @@ Build the extractor
 No cache directory: this page should raise, not reuse a finished field.
 This cell does not call the extractor.
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-73
+.. GENERATED FROM PYTHON SOURCE LINES 44-70
 
 .. code-block:: Python
 
@@ -121,9 +121,6 @@ This cell does not call the extractor.
         kernel_radius=3,
         params=RADIOMICS_PARAMS,
         voxel_batch=1000,
-        use_torch_radiomics=True,
-        torch_device="cuda:0",
-        use_gpu_matrices=True,
     )
     print("feature classes:", sorted(RADIOMICS_PARAMS["featureClass"]))
     seen: list[str] = []
@@ -148,14 +145,14 @@ This cell does not call the extractor.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-78
+.. GENERATED FROM PYTHON SOURCE LINES 71-75
 
 Stop on the missing series
 --------------------------
 ``seen`` records who actually entered the extractor. The second id is
 absent, and the exception type is printed.
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-85
+.. GENERATED FROM PYTHON SOURCE LINES 75-82
 
 .. code-block:: Python
 
@@ -181,13 +178,13 @@ absent, and the exception type is printed.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-89
+.. GENERATED FROM PYTHON SOURCE LINES 83-86
 
 Who was visited
 ---------------
 Grey is the subject the backend did not start.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-97
+.. GENERATED FROM PYTHON SOURCE LINES 86-94
 
 .. code-block:: Python
 

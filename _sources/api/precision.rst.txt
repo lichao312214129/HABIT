@@ -15,8 +15,11 @@ Recipe wrapper: :func:`~habit.recipes.identify_precise_voxel_features`.
 
 Simulated-retest perturbations and the ICC intersection that decides
 which extracted voxel columns may define habitats (Prior et al.,
-Radiol Artif Intell 2024;6(2):e230118). Label matching
-(``align_habitat_map``) lives here too.
+Radiol Artif Intell 2024;6(2):e230118). Label matching lives here too:
+``align_habitat_map`` (voxel overlap) for two maps of the same voxels and
+``align_habitat_maps_to_prototypes`` for different subjects, including
+naming a new cohort with frozen prototypes. Method
+choice, algorithm, and literature: :doc:`../reference/habitat_matching`.
 
 Classes
 -------
@@ -37,6 +40,7 @@ Classes
    PerturbationChain
    PreciseFeatureSet
    ImagePerturbationRegistry
+   HabitatPrototypeAlignment
 
 Functions
 ---------
@@ -51,4 +55,5 @@ Functions
    aggregate_panels
    identify_precise_features
    align_habitat_map
+   align_habitat_maps_to_prototypes
    habitat_stability

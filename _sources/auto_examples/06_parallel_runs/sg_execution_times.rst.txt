@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**01:43.416** total execution time for 14 files **from auto_examples\06_parallel_runs**:
+**00:22.251** total execution time for 9 files **from auto_examples\06_parallel_runs**:
 
 .. container::
 
@@ -32,45 +32,30 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_13_isolated.py` (``plot_13_isolated.py``)
-     - 00:16.075
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_05_process_pool.py` (``plot_05_process_pool.py``)
-     - 00:15.207
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_08_subject_zscore.py` (``plot_08_subject_zscore.py``)
-     - 00:12.970
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_14_wall_clock.py` (``plot_14_wall_clock.py``)
-     - 00:12.554
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_06_reuse_workers.py` (``plot_06_reuse_workers.py``)
-     - 00:10.101
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_11_cohort_zscore.py` (``plot_11_cohort_zscore.py``)
-     - 00:06.086
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_10_subject_winsorize.py` (``plot_10_subject_winsorize.py``)
-     - 00:06.076
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_12_cohort_binning.py` (``plot_12_cohort_binning.py``)
-     - 00:05.819
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_09_subject_robust.py` (``plot_09_subject_robust.py``)
-     - 00:05.737
+     - 00:22.251
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_01_serial.py` (``plot_01_serial.py``)
-     - 00:05.455
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_04_resume.py` (``plot_04_resume.py``)
-     - 00:03.890
+     - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_02_skip_failed.py` (``plot_02_skip_failed.py``)
-     - 00:03.319
+     - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_03_stop_on_failure.py` (``plot_03_stop_on_failure.py``)
-     - 00:00.127
+     - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_07_several_gpus.py` (``plot_07_several_gpus.py``)
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_04_resume.py` (``plot_04_resume.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_05_process_pool.py` (``plot_05_process_pool.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_07_isolated.py` (``plot_07_isolated.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_08_wall_clock.py` (``plot_08_wall_clock.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_06_parallel_runs_plot_09_several_gpus.py` (``plot_09_several_gpus.py``)
      - 00:00.000
      - 0.0

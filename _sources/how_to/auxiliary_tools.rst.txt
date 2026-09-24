@@ -10,8 +10,9 @@ Copy-paste demos. Flags: ``habit <cmd> --help``.
    habit icc --config config/auxiliary/config_icc_demo.yaml
 
 For in-memory habitat label alignment after independent clustering, use
-:func:`~habit.precision.align_habitat_map` (see
-:doc:`../examples/habitat_label_match`).
+:func:`~habit.precision.align_habitat_map` for two maps of the same voxels
+and :func:`~habit.precision.align_habitat_maps_to_prototypes` across
+subjects (see :doc:`../reference/habitat_matching`).
 
 ::
 

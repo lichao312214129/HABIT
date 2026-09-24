@@ -63,9 +63,6 @@ texture = VoxelRadiomicsFeatures(
     kernel_radius=3,
     params=RADIOMICS_PARAMS,
     voxel_batch=1000,
-    use_torch_radiomics=True,
-    torch_device="cuda:0",
-    use_gpu_matrices=True,
     cache_dir=CACHE,
 )
 backend = SerialBackend(on_subject_failure="continue")

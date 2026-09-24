@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matching habitat labels across fits and subjects &mdash; HABIT Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=211e58f4" />
+
+  
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/reference/habitat_matching.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=51b770b3"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=30646c52"></script>
+        <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CLI and YAML" href="../configuration/index.html" />
+    <link rel="prev" title="Whole / Each Habitat Radiomics" href="features/whole_each_habitat.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HABIT
+          </a>
+              <div class="version">
+                2.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-miniconda">1. Install Miniconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-pytorch-gpu">5. Optional: PyTorch GPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-pyradiomics">6. Optional: PyRadiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-packages">Optional packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">4. Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#next">Next</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Habitat Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Habitat Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01_data_in/index.html">1. Data In</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_02_expression.html">Expression voxel features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_voxel/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_precision/plot_01_precise_features.html">Precise voxel features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04_habitat_maps/index.html">4. Habitat Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_01_two_step.html">Defining habitats in two steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_09_texture_habitats.html">Clustering habitats from a texture field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_10_preprocess_features.html">Preprocessing features before clustering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_11_preprocess_compare.html">Comparing habitat maps with and without preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_12_supervoxels.html">Partitioning a ROI into supervoxels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_13_fit_model.html">Fitting a cohort habitat model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_habitat_maps/plot_14_assign_labels.html">Assigning habitat labels</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05_quantify/index.html">5. Habitat Quantification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_01_volume_fractions.html">Volume and fractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_02_msi.html">Multiregional spatial interaction (MSI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_03_ith.html">Intratumoral heterogeneity (ITH)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_04_graph_features.html">Graph features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_05_each_habitat_radiomics.html">Per-habitat radiomics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_06_whole_habitat_radiomics.html">Whole-habitat radiomics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_parallel_runs/index.html">6. Parallel runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_01_serial.html">Running a cohort serially</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_02_skip_failed.html">Skipping a subject that fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_03_stop_on_failure.html">Stopping at the first failure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_04_resume.html">Resuming finished subjects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_07_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_08_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_parallel_runs/plot_09_several_gpus.html">Running a cohort on several GPUs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_habitat_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#habitat-analysis-pipeline">Habitat analysis pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/recipes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes</span></code>: named study designs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/recipes.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/recipes.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/recipes.html#supporting-recipes">Supporting recipes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-constructor-deprecated">Named-field constructor (deprecated)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#run-the-translated-spec-with-a-recipe">Run the translated spec with a recipe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#cli">CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/contracts.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.contracts</span></code>: in-memory data model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/contracts.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/contracts.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/voxel_features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.voxel_features</span></code>: per-voxel descriptors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/voxel_features.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/voxel_features.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/supervoxel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.supervoxel</span></code>: partition an ROI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/supervoxel.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/supervoxel.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habitat_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.habitat_model</span></code>: fit and assign habitats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habitat_model.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habitat_model.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/habitat_features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.habitat_features</span></code>: quantify habitats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/habitat_features.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/habitat_features.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/feature_preprocessing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.feature_preprocessing</span></code>: scale voxel-feature matrices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/feature_preprocessing.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/feature_preprocessing.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/precision.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.precision</span></code>: repeatability screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/precision.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/precision.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.pipeline</span></code>: compose subject / table pipelines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/pipeline.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/pipeline.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/combiners.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.combiners</span></code>: compose feature trees</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/combiners.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/combiners.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/report.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.report</span></code>: run-scoped persistence and figures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/report.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/report.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/viz.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code>: publication overlays</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/viz.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/viz.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/execution.html">Execution backends</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/execution.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/execution.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/execution.html#backend-selection-from-cli-and-run-from-yaml">Backend selection from CLI and run_from_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/execution.html#serialbackend">SerialBackend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/execution.html#failure-policy-continue-vs-fail-fast">Failure policy: <code class="docutils literal notranslate"><span class="pre">continue</span></code> vs <code class="docutils literal notranslate"><span class="pre">fail_fast</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/execution.html#processpoolbackend">ProcessPoolBackend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/execution.html#checkpointstore">CheckpointStore</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/adapters.html">Adapters (<code class="docutils literal notranslate"><span class="pre">habit.adapters</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/adapters.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/adapters.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/adapters.html#directorydatasource">DirectoryDataSource</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/adapters.html#fileimageref">FileImageRef</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/adapters.html#directoryresultwriter">DirectoryResultWriter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.datasets</span></code>: demo pack and synthetic builders</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/datasets.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/datasets.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#habitat-metrics-examples">Habitat metrics (examples)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#graph-topology-kernels">Graph topology kernels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#icc-kernels">ICC kernels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#image-perturbation">Image perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#habitat-label-matching">Habitat label matching</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#stability">Stability</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/registry.html">Component registry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/registry.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/plugins.html">Plugin introspection API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#types">Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/exceptions.html">Errors and optional dependencies</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/exceptions.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/exceptions.html#when-each-exception-is-raised">When each exception is raised</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/exceptions.html#soft-failure-switches-not-exceptions">Soft-failure switches (not exceptions)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#supporting-bookmarks">Supporting bookmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/table_ml.html">Tabular ML (bookmark)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/table_ml.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/table_ml.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/image_io.html">Low-level image I/O helpers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/image_io.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/image_io.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/image_io.html#geometrypolicy-modes">GeometryPolicy modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/image_io.html#low-level-radiomics-extraction">Low-level radiomics extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/image_preprocessing.html">Image preprocessing (bookmark)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/image_preprocessing.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#narrative-guides">Narrative guides</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/python_api.html">Python API guide (v2.0)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#mental-model">Mental model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-entry-study-cohort-recipe">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code> (cohort recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#advanced-declare-stages-yourself">Advanced: declare stages yourself</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#common-workflows">Common workflows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#where-to-go-next">Where to go next</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#tabular-machine-learning">Tabular machine learning</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/data_model.html">Data model (<code class="docutils literal notranslate"><span class="pre">habit.contracts</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#geometry">Geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#image-references-and-volumes">Image references and volumes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#subject-and-cohort">Subject and Cohort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#habitat-artefacts">Habitat artefacts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#featuretable">FeatureTable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#outcome">Outcome</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#provenance">Provenance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#runmanifest-and-studyresult">RunManifest and StudyResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/data_model.html#operator-protocols">Operator protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/domain.html">Domain protocols and registries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#import-style">Import style</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#single-subject-operators">Single-subject operators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#five-habitat-protocols">Five habitat protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#hand-assembled-two-step-chain">Hand-assembled two-step chain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#subjectpipeline"><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#habitatcomponents-spec-live-objects"><code class="docutils literal notranslate"><span class="pre">HabitatComponents</span></code> (spec → live objects)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#composing-features-trees-combiners-and-statistics">Composing features: trees, combiners, and statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#precision-screen-perturbations-and-precise-features">Precision screen: perturbations and precise features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#randomness-seedable">Randomness (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#built-in-registry-domains">Built-in registry domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/domain_habitat.html">Habitat domain API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#protocols">Protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#ordered-stages-and-the-shared-executor">Ordered stages and the shared executor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#registry-pattern-all-domains">Registry pattern (all domains)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#step-inspection-optional">Step inspection (optional)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#subjectpipeline"><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#hand-assembled-two-step-chain">Hand-assembled two-step chain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#image-preprocessing-domain">Image preprocessing domain</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/domain_table.html">Table ML domain API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#table-preprocessors">Table preprocessors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#feature-selectors">Feature selectors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#classifiers">Classifiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#metrics">Metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/habitat_components.html">Habitat Spec component catalog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#feature-preprocessing">2. Feature preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#feature-preprocessing-method">feature_preprocessing_method</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-partition">3. Supervoxel partition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxelizer">supervoxelizer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#pool">5. Pool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#pooling">pooling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#fit-habitats">6. Fit habitats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#habitat-model-fitter">habitat_model_fitter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#assign">7. Assign</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#habitat-assigner">habitat_assigner</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#quantify">8. Quantify</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#habitat-feature-extractor">habitat_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="features/index.html">Features from habitat maps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="features/msi.html">MSI Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="features/msi.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/msi.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/msi.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/msi.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/msi.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/msi.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="features/ith_score.html">ITH Score</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="features/ith_score.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/ith_score.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/ith_score.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/ith_score.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/ith_score.html#notes">Notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/ith_score.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/ith_score.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="features/graph.html">Graph topology features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#extended-metrics">Extended metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/graph.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="features/non_radiomics.html">Non-radiomics Morphology</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="features/non_radiomics.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/non_radiomics.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/non_radiomics.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/non_radiomics.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/non_radiomics.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="features/traditional.html">Traditional Radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="features/traditional.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/traditional.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/traditional.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features/traditional.html#feature-definitions">Feature definitions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="features/whole_each_habitat.html#whole-habitat">whole_habitat</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="features/whole_each_habitat.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/whole_each_habitat.html#definition">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/whole_each_habitat.html#output-columns">Output columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/whole_each_habitat.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="features/whole_each_habitat.html#each-habitat">each_habitat</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="features/whole_each_habitat.html#id1">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/whole_each_habitat.html#id2">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/whole_each_habitat.html#id4">Output columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features/whole_each_habitat.html#id5">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Matching habitat labels across fits and subjects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#when-matching-is-needed">When matching is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choosing-a-method">Choosing a method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-describes-a-habitat">What describes a habitat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#distance-metrics">Distance metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#different-habitat-counts">Different habitat counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#assumptions-and-limitations">Assumptions and limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">CLI and YAML</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/recipe_catalog.html#starter-demos">Starter demos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/recipe_catalog.html#field-reference-pages">Field reference pages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/habitat.html">Habitat Segmentation Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/habitat.html#habitat-analysis-configuration-parameters">Habitat Analysis Configuration Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/habitat.html#habitat-segmentation-supervoxel-slic-superpixel-configuration">habitat_segmentation.supervoxel — SLIC Superpixel Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/habitat.html#habitat-stage-1-parallelism-and-checkpoint-resume-top-level-field-reference">Habitat Stage-1 Parallelism and Checkpoint Resume (Top-Level Field Reference)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/feature_extraction.html">Feature Extraction Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/radiomics.html">Traditional Radiomics Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#paths"><code class="docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#processing"><code class="docutils literal notranslate"><span class="pre">processing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#export"><code class="docutils literal notranslate"><span class="pre">export</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#logging"><code class="docutils literal notranslate"><span class="pre">logging</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#backward-compatible-flat-keys">Backward-compatible flat keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#pyradiomics-parameter-yaml">PyRadiomics parameter YAML</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/preprocessing.html">Preprocessing Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html#preprocessing-configuration-parameters">Preprocessing configuration parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html#dicom-sort-configuration-habit-sort-dicom">DICOM sort configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/dicom_sort.html">DICOM Sort Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html#top-level-fields">Top-level fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/auxiliary.html">Auxiliary Tools and Data Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#data-configuration-parameters">Data configuration parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#icc-analysis-configuration-habit-icc">ICC analysis configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#traditional-radiomics-cli-configuration-habit-radiomics">Traditional radiomics CLI configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#repository-configuration-template-index">Repository configuration template index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#configuration-file-validation">Configuration file validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#faq">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/index.html#supporting-bookmarks">Supporting bookmarks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting/faq.html">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#run">Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#data">Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="upstream_libraries.html">Upstream Dependencies and Documentation Links</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="upstream_libraries.html#image-preprocessing-habit-preprocess">Image preprocessing (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upstream_libraries.html#habitat-segmentation-habit-get-habitat">Habitat segmentation (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upstream_libraries.html#habitat-features-and-traditional-radiomics-habit-extract-habit-radiomics">Habitat features and traditional radiomics (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upstream_libraries.html#machine-learning-habit-model-habit-cv">Machine learning (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upstream_libraries.html#model-comparison-habit-compare">Model comparison (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upstream_libraries.html#icc-testretest-other">ICC / Test–retest / other</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upstream_libraries.html#roi-delineation-external-tools">ROI delineation (external tools)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#design-principles">Design principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#the-six-layers">The six layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#two-execution-paths">Two execution paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#key-components">Key components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#subsystems">Subsystems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#cli-to-core-mapping">CLI-to-core mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#design-philosophy">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#habitat-and-api-glossary">Habitat and API glossary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#invariants">Invariants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#where-to-look-in-the-repo">Where to look in the repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../development/contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#how-to-contribute">How to contribute</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#report-bugs">Report bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#submit-code">Submit code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#code-style">Code style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#development-setup">Development setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#how-to-run-tests">How to run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#pull-requests">Pull requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#code-of-conduct">Code of conduct</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../customization/index.html">Extending HABIT</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index.html#v1-registry-and-entry-points">v1 registry and entry points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index.html#v1-custom-voxel-feature-extractors">v1 custom voxel feature extractors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index.html#extension-principles">Extension principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index.html#image-preprocessing-and-tabular-ml">Image preprocessing and tabular ML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index.html#faq">FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/index.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgments.html">Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#core-developers">Core developers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#future-developers">Future developers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#clinical-collaborators">Clinical collaborators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#special-thanks">Special thanks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#open-source-community">Open source community</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#how-to-contribute">How to contribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#contact">Contact</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Matching habitat labels across fits and subjects</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/reference/habitat_matching.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="matching-habitat-labels-across-fits-and-subjects">
+<h1>Matching habitat labels across fits and subjects<a class="headerlink" href="#matching-habitat-labels-across-fits-and-subjects" title="Link to this heading"></a></h1>
+<p>Clustering returns integer ids in arbitrary order. Habitat 1 of one fit
+need not be habitat 1 of another. This page states when that matters,
+which matching method HABIT offers for each situation, how the cohort
+method works, what it can and cannot guarantee, and where each algorithm
+comes from.</p>
+<p>Code: <a class="reference internal" href="../api/precision.html#module-habit.precision" title="habit.precision"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.precision</span></code></a> (<a class="reference internal" href="../api/generated/habit.precision.align_habitat_map.html#habit.precision.align_habitat_map" title="habit.precision.align_habitat_map"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code></a>,
+<a class="reference internal" href="../api/generated/habit.precision.align_habitat_maps_to_prototypes.html#habit.precision.align_habitat_maps_to_prototypes" title="habit.precision.align_habitat_maps_to_prototypes"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_maps_to_prototypes()</span></code></a>) on top of the
+L0 kernel <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.kernels.habitat_label_match</span></code>. Runnable gallery page:
+<a class="reference internal" href="../auto_examples/04_habitat_maps/plot_05_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a>. Worked, visual
+pages for every case (label switching, overlap cases, the prototype loop
+round by round, the four distances, frozen prototypes, effect on cohort
+tables): <a class="reference internal" href="../auto_examples/07_habitat_matching/index.html"><span class="doc">7. Matching Habitat Labels</span></a>. Figures:
+<a class="reference internal" href="../api/generated/habit.viz.plot_label_overlap_matrix.html#habit.viz.plot_label_overlap_matrix" title="habit.viz.plot_label_overlap_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_label_overlap_matrix()</span></code></a>,
+<a class="reference internal" href="../api/generated/habit.viz.plot_prototype_matching.html#habit.viz.plot_prototype_matching" title="habit.viz.plot_prototype_matching"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_prototype_matching()</span></code></a>.</p>
+<section id="when-matching-is-needed">
+<h2>When matching is needed<a class="headerlink" href="#when-matching-is-needed" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Two-step, direct pooling, apply a saved model.</strong> One cohort model
+defines the habitats; every subject is labelled against the same
+centroids. Ids already mean the same thing everywhere. Do <strong>not</strong>
+rematch.</p></li>
+<li><p><strong>One-step (habitats defined inside each subject).</strong> Every subject has
+its own model and its own id order. Before any cohort table
+(“volume fraction of habitat 2”) the ids must be given shared names.</p></li>
+<li><p><strong>Same subject, two fits / two observers / a perturbed retest.</strong> Ids
+must be paired before Dice or stability is computed
+(<a class="reference internal" href="../api/generated/habit.precision.habitat_stability.html#habit.precision.habitat_stability" title="habit.precision.habitat_stability"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code></a>).</p></li>
+</ul>
+</section>
+<section id="choosing-a-method">
+<h2>Choosing a method<a class="headerlink" href="#choosing-a-method" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 22.0%" />
+<col style="width: 48.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Situation</p></th>
+<th class="head"><p>Call</p></th>
+<th class="head"><p>What is compared</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Different subjects (one-step cohort, any habitat counts)</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">align_habitat_maps_to_prototypes(maps,</span> <span class="pre">models=...)</span></code></p></td>
+<td><p>Every subject’s habitats against shared prototypes (below).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Same voxels</strong> (retest, perturbation, another preprocessing
+chain, two observers, two seeds)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">align_habitat_map(reference,</span> <span class="pre">moving)</span></code> /
+<code class="docutils literal notranslate"><span class="pre">habitat_stability(reference,</span> <span class="pre">perturbed)</span></code></p></td>
+<td><p>Voxel overlap (Hungarian on the contingency table; Prior et al. 2024)</p></td>
+</tr>
+</tbody>
+</table>
+<p>These are the only two methods, split by what the maps share. When they
+label the same voxels, which voxels were grouped together is the most
+direct evidence of correspondence, and it needs no feature to be
+comparable. When they label different patients no voxel is shared, so
+only habitat descriptions can be compared, and the prototype method
+compares them without picking a reference subject. Matching two maps of
+the same voxels by feature centroids is not offered: the two fits often
+live in different feature spaces (for example raw intensities versus
+winsorised min–max), where centroid distances have no meaning.</p>
+<p>Pairwise feature matching (“which habitat of B is habitat 1 of A”) is not
+a separate method either: for two subjects it is the prototype method
+(see <em>Two subjects</em> below). Across a cohort it has a flaw: the answer
+depends on who A is.</p>
+</section>
+<section id="why-a-single-reference-is-not-enough">
+<h2>Why a single reference is not enough<a class="headerlink" href="#why-a-single-reference-is-not-enough" title="Link to this heading"></a></h2>
+<p>Three subjects, two habitats each, two clustering features (relative
+enhancement and washout, already comparable across subjects):</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Subject</p></th>
+<th class="head"><p>Habitat</p></th>
+<th class="head"><p>Enhancement</p></th>
+<th class="head"><p>Washout</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>A</p></td>
+<td><p>2</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>B</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>B</p></td>
+<td><p>2</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>C</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>C</p></td>
+<td><p>2</p></td>
+<td><p>0</p></td>
+<td><p>2</p></td>
+</tr>
+</tbody>
+</table>
+<p>Pairwise matching onto one reference subject (Hungarian, Euclidean):</p>
+<ul class="simple">
+<li><p><strong>Reference A.</strong> B→A keeps ids; C→A keeps ids. Groups
+{A1, B1, C1} and {A2, B2, C2}.</p></li>
+<li><p><strong>Reference B.</strong> A→B keeps ids; C→B <strong>swaps</strong> them. Groups
+{A1, B1, C2} and {A2, B2, C1}.</p></li>
+</ul>
+<p>Same data, different reference, and subject C gets the opposite names.
+Chaining pairwise matches is also not transitive: A→B and B→C together
+imply a C→A pairing that disagrees with matching C to A directly.</p>
+<p>A neutral score for any grouping is the within-group sum of squares
+(each habitat’s squared distance to the mean of its group):</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Grouping</p></th>
+<th class="head"><p>Group means (enhancement, washout)</p></th>
+<th class="head"><p>Within-group sum of squares</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Reference A</p></td>
+<td><p>(1, 0.667), (0, 0.667)</p></td>
+<td><p>5.333</p></td>
+</tr>
+<tr class="row-odd"><td><p>Reference B</p></td>
+<td><p>(0.333, 1), (0.667, 0.333)</p></td>
+<td><p>6.000</p></td>
+</tr>
+<tr class="row-even"><td><p>Prototype matching</p></td>
+<td><p>(0, 1), (1, 0.333)</p></td>
+<td><p><strong>4.667</strong></p></td>
+</tr>
+</tbody>
+</table>
+<p>Prototype matching finds {A2, B1, C2} and {A1, B2, C1}: a tighter
+grouping than either reference produces, and the same result whichever
+subject starts the search. This example is the regression test
+<code class="docutils literal notranslate"><span class="pre">TestAlignHabitatMapsToPrototypes</span></code> in <code class="docutils literal notranslate"><span class="pre">tests/domain/test_precision.py</span></code>.</p>
+</section>
+<section id="prototype-matching-cohort">
+<h2>Prototype matching (cohort)<a class="headerlink" href="#prototype-matching-cohort" title="Link to this heading"></a></h2>
+<section id="what-describes-a-habitat">
+<h3>What describes a habitat<a class="headerlink" href="#what-describes-a-habitat" title="Link to this heading"></a></h3>
+<p>Each habitat is summarised by one feature vector. Pass exactly one
+source:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 78.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Habitat summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">models=</span></code> (default use)</p></td>
+<td><p>The fitted per-subject <code class="docutils literal notranslate"><span class="pre">HabitatModel.centroids</span></code>: the clustering
+centroids, i.e. the features that defined the habitats. Row
+<span class="math notranslate nohighlight">\(i\)</span> is habitat <code class="docutils literal notranslate"><span class="pre">habitat_ids[i]</span></code>. <code class="docutils literal notranslate"><span class="pre">feature_names</span></code> must
+agree across subjects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">features=</span></code></p></td>
+<td><p>One voxel feature source per map: a
+<a class="reference internal" href="../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code></a> (rows placed by
+<code class="docutils literal notranslate"><span class="pre">voxel_index</span></code>) or a volume / <code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code> on the map grid
+with an optional trailing feature axis. Each habitat is summarised
+by the <code class="docutils literal notranslate"><span class="pre">reduction</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code> default, or <code class="docutils literal notranslate"><span class="pre">&quot;median&quot;</span></code>) of its
+voxels. With the clustering field itself this reproduces the
+fitted centroids (demo: largest difference <span class="math notranslate nohighlight">\(1.2\times10^{-3}\)</span>,
+k-means convergence).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">centroids=</span></code></p></td>
+<td><p>Your own <code class="docutils literal notranslate"><span class="pre">(n_habitats,</span> <span class="pre">n_features)</span></code> matrices, rows in
+<code class="docutils literal notranslate"><span class="pre">habitat_ids</span></code> order.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Use features that do not feed the downstream model (volume, texture
+columns): naming habitats by the quantity you later test would bias that
+test.</p>
+</section>
+<section id="algorithm">
+<h3>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading"></a></h3>
+<p>Let subject <span class="math notranslate nohighlight">\(s\)</span> have summaries <span class="math notranslate nohighlight">\(x_{s,1},\dots,x_{s,n_s}\)</span> and
+let <span class="math notranslate nohighlight">\(\mu_1,\dots,\mu_K\)</span> be shared prototypes, with
+<span class="math notranslate nohighlight">\(K=\max_s n_s\)</span> (the largest habitat count). An assignment
+<span class="math notranslate nohighlight">\(\pi_s\)</span> maps each habitat of <span class="math notranslate nohighlight">\(s\)</span> to a distinct prototype. The
+objective is</p>
+<div class="math notranslate nohighlight">
+\[J = \sum_{s}\Big[\sum_{i\,\text{matched}} \lVert x_{s,i}-\mu_{\pi_s(i)}\rVert^2
+    + \lambda^2\cdot\#\{\text{unmatched habitats of } s\}\Big],\]</div>
+<p>with <span class="math notranslate nohighlight">\(\lambda\)</span> = <code class="docutils literal notranslate"><span class="pre">max_distance</span></code>. This is the default metric
+(<code class="docutils literal notranslate"><span class="pre">metric=&quot;sqeuclidean&quot;</span></code>); other metrics replace the squared distance by
+their own cost (next section). By default <code class="docutils literal notranslate"><span class="pre">max_distance</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>:
+the penalty term is absent and every habitat is matched. The algorithm
+alternates:</p>
+<ol class="arabic simple">
+<li><p><strong>Assign.</strong> For each subject, solve a one-to-one assignment of its
+habitats onto prototypes by the Hungarian algorithm (Kuhn 1955;
+Munkres 1957) on the metric cost. Two habitats of one tumour can
+never share a name (a cannot-link constraint; Wagstaff et al. 2001).</p></li>
+<li><p><strong>Update.</strong> Each prototype moves to the centre that minimises that
+cost: the mean of the summaries assigned to it for squared Euclidean
+(a prototype nobody picked keeps its previous value).</p></li>
+</ol>
+<p>Each step can only lower <span class="math notranslate nohighlight">\(J\)</span>, so the loop stops after finitely many
+rounds. The search is started once from every subject that has exactly
+<span class="math notranslate nohighlight">\(K\)</span> habitats and the start with the lowest <span class="math notranslate nohighlight">\(J\)</span> is kept, so no
+single subject decides the result. Prototypes are then numbered in
+lexicographic order of their feature values (first feature most
+significant), so ids do not depend on the order of the input list.</p>
+<p>This is the relabelling algorithm Stephens (2000) proposed for the
+label-switching problem in mixture models (see also Jasra et al. 2005);
+the same “cluster each sample, then cluster the clusters into shared
+templates” design is standard in cross-sample flow cytometry (FLAME,
+Pyne et al. 2009; FlowSOM meta-clustering, Van Gassen et al. 2015).</p>
+</section>
+<section id="two-subjects-pairwise-matching-as-a-special-case">
+<h3>Two subjects: pairwise matching as a special case<a class="headerlink" href="#two-subjects-pairwise-matching-as-a-special-case" title="Link to this heading"></a></h3>
+<p>For two subjects <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span>, a matched pair
+<span class="math notranslate nohighlight">\((a, b)\)</span> has prototype <span class="math notranslate nohighlight">\(m = (a+b)/2\)</span> and contributes</p>
+<div class="math notranslate nohighlight">
+\[\lVert a-m\rVert^2 + \lVert b-m\rVert^2 = \tfrac12\lVert a-b\rVert^2\]</div>
+<p>to <span class="math notranslate nohighlight">\(J\)</span>. Minimising <span class="math notranslate nohighlight">\(J\)</span> is therefore minimising
+<span class="math notranslate nohighlight">\(\sum_i \lVert a_i-b_{\pi(i)}\rVert^2\)</span>: pairwise Hungarian matching
+on squared Euclidean distance. The search also finds the global optimum:
+starting from <span class="math notranslate nohighlight">\(A\)</span>, the first assignment is exactly that optimal
+pairing and later rounds cannot raise <span class="math notranslate nohighlight">\(J\)</span>. With unequal counts
+(2 versus 3) the extra habitat takes a prototype of its own, which is
+what pairwise matching does with a leftover. Two differences remain:
+pairwise matching on plain (not squared) Euclidean distance can pick a
+different pairing in rare cases, and the prototype method numbers the
+pairs by prototype order instead of copying the reference subject’s ids.
+Regression test: <code class="docutils literal notranslate"><span class="pre">test_two_subjects_equal_pairwise_squared_hungarian</span></code>.</p>
+</section>
+<section id="distance-metrics">
+<h3>Distance metrics<a class="headerlink" href="#distance-metrics" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">metric=</span></code> changes the cost and, with it, the prototype update, so the
+alternating search still never increases its objective:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 30.0%" />
+<col style="width: 30.0%" />
+<col style="width: 22.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">metric</span></code></p></th>
+<th class="head"><p>Cost between a habitat and a prototype</p></th>
+<th class="head"><p>Prototype update</p></th>
+<th class="head"><p>Known as</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;sqeuclidean&quot;</span></code> (default)</p></td>
+<td><p>squared Euclidean distance</p></td>
+<td><p>mean</p></td>
+<td><p>k-means</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;manhattan&quot;</span></code></p></td>
+<td><p>L1 distance (sum of absolute differences)</p></td>
+<td><p>per-feature median</p></td>
+<td><p>k-medians</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;cosine&quot;</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(1-\cos\)</span> of the angle between the vectors</p></td>
+<td><p>mean of unit vectors, renormalised</p></td>
+<td><p>spherical k-means (Dhillon and Modha 2001)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;correlation&quot;</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(1-r\)</span> (Pearson across features)</p></td>
+<td><p>rows centred on their own mean, then as cosine</p></td>
+<td><p>—</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">distance</span></code> and <code class="docutils literal notranslate"><span class="pre">max_distance</span></code> are in the metric’s units: Euclidean
+distance, L1 distance, <span class="math notranslate nohighlight">\(1-\cos\)</span>, or <span class="math notranslate nohighlight">\(1-r\)</span>.</p>
+<p>Which to use. Squared Euclidean and Manhattan compare feature <strong>values</strong>;
+Manhattan’s median is less pulled by one outlying habitat. Cosine and
+correlation discard the level of the feature vector:</p>
+<ul class="simple">
+<li><p>Cosine compares only direction. Habitats with relative enhancement
+(0.5, 0.6) and (2.0, 2.4) point the same way, so cosine calls them the
+same habitat although one enhances four times as much. With a single
+feature of constant sign every habitat has the same direction and all
+costs are equal.</p></li>
+<li><p>Correlation compares only the shape of the profile across features.
+With two features every centred profile is one of two directions, so
+it can only tell “first feature higher” from “second feature higher”.
+With one feature Pearson <span class="math notranslate nohighlight">\(r\)</span> is undefined and HABIT raises an
+error; a habitat whose features are all equal raises the same error.</p></li>
+</ul>
+<p>HABIT does not refuse cosine or correlation for two or three features,
+but they are meaningful only when many features describe a habitat and
+their pattern, not their level, is what defines it. For habitats built
+from enhancement or intensity, keep the default. Features on different
+scales should be <code class="docutils literal notranslate"><span class="pre">standardize=&quot;zscore&quot;</span></code> first for every metric.</p>
+</section>
+<section id="naming-new-subjects-with-frozen-prototypes">
+<h3>Naming new subjects with frozen prototypes<a class="headerlink" href="#naming-new-subjects-with-frozen-prototypes" title="Link to this heading"></a></h3>
+<p>A validation cohort, or one new patient, must be named with the
+prototypes fitted on the training cohort. Refitting on the pooled
+cohorts would let the new subjects move the prototypes and change the
+definition that the model was trained on. Pass the training result back
+in:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">trained</span> <span class="o">=</span> <span class="n">align_habitat_maps_to_prototypes</span><span class="p">(</span><span class="n">train_maps</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">train_models</span><span class="p">)</span>
+<span class="n">named</span> <span class="o">=</span> <span class="n">align_habitat_maps_to_prototypes</span><span class="p">(</span><span class="n">new_maps</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">new_models</span><span class="p">,</span> <span class="n">prototypes</span><span class="o">=</span><span class="n">trained</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The new habitats are assigned once to the stored prototypes; nothing is
+updated, the stored z-score <code class="docutils literal notranslate"><span class="pre">location</span></code> / <code class="docutils literal notranslate"><span class="pre">scale</span></code> are reused, and the
+aligned maps get the training <code class="docutils literal notranslate"><span class="pre">model_id</span></code>. The feature names, <code class="docutils literal notranslate"><span class="pre">metric</span></code>,
+<code class="docutils literal notranslate"><span class="pre">standardize</span></code> and <code class="docutils literal notranslate"><span class="pre">reduction</span></code> must equal the stored ones, otherwise
+HABIT raises an error. A new subject with more habitats than stored
+prototypes keeps the extra habitats unnamed (<code class="docutils literal notranslate"><span class="pre">prototype_id</span></code> NA, local
+id above <span class="math notranslate nohighlight">\(K\)</span>): the training definition has no habitat for them.
+Regression test: <code class="docutils literal notranslate"><span class="pre">test_frozen_prototypes_name_new_subjects</span></code>.</p>
+</section>
+<section id="different-habitat-counts">
+<h3>Different habitat counts<a class="headerlink" href="#different-habitat-counts" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(K\)</span> is always the largest subject habitat count, so every habitat
+of every subject has a free prototype. No subject’s habitat count ever
+changes: habitats are neither merged (many-to-one is excluded by design)
+nor dropped. A subject with fewer habitats simply lacks some prototype
+ids; those habitats have zero volume in cohort tables.</p>
+<p>Three subjects with 2, 3, and 4 habitats (one feature, relative
+enhancement; result of the code, regression test
+<code class="docutils literal notranslate"><span class="pre">test_different_habitat_counts_keep_every_habitat</span></code>):</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Prototype</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>a (2 habitats)</p></th>
+<th class="head"><p>b (3 habitats)</p></th>
+<th class="head"><p>c (4 habitats)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>0.5</p></td>
+<td><p>0.5</p></td>
+<td><p>0.6</p></td>
+<td><p>0.4</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>1.0</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>1.5</p></td>
+<td><p>—</p></td>
+<td><p>1.4</p></td>
+<td><p>1.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>2.1</p></td>
+<td><p>2.0</p></td>
+<td><p>2.2</p></td>
+<td><p>2.1</p></td>
+</tr>
+</tbody>
+</table>
+<p>For comparison, pairwise naming onto <code class="docutils literal notranslate"><span class="pre">a</span></code> (the smallest subject) leaves
+<code class="docutils literal notranslate"><span class="pre">b</span></code>’s 1.4 and <code class="docutils literal notranslate"><span class="pre">c</span></code>’s 1.0 both as “new id 3” although they were never
+compared; that is why pairwise naming is not offered across subjects.</p>
+<p><strong>Optional partial matching</strong> (<code class="docutils literal notranslate"><span class="pre">max_distance</span></code>, off by default). Each
+habitat also gets a private “unmatched” option at cost <span class="math notranslate nohighlight">\(\lambda^2\)</span>.
+The Hungarian solve then leaves a habitat unmatched exactly when every
+free prototype is farther than <span class="math notranslate nohighlight">\(\lambda\)</span> (an optimal partial
+assignment, the same idea as unbalanced / partial optimal transport,
+Chizat et al. 2018, and the unmatched-cluster handling of Azad et al.
+2010). An unmatched habitat keeps a subject-local id above <span class="math notranslate nohighlight">\(K\)</span> and
+<code class="docutils literal notranslate"><span class="pre">prototype_id</span></code> NA; such ids are <strong>not</strong> comparable across subjects, so
+keep <code class="docutils literal notranslate"><span class="pre">max_distance</span></code> off when the aligned maps feed a cohort feature
+table.</p>
+</section>
+</section>
+<section id="assumptions-and-limitations">
+<h2>Assumptions and limitations<a class="headerlink" href="#assumptions-and-limitations" title="Link to this heading"></a></h2>
+<p><strong>Comparable features.</strong> Matching compares centroid values directly.
+They must mean the same thing in every subject: the same clustering
+features, computed so that values are commensurate across patients.
+<code class="docutils literal notranslate"><span class="pre">one_step</span></code> models cluster raw voxel values by default, and raw MRI
+signal is not comparable across scanners, protocols, or even patients on
+one scanner. Use ratio or normalised maps (for example relative
+enhancement via <a class="reference internal" href="../api/generated/habit.voxel_features.ExpressionVoxelFeatures.html#habit.voxel_features.ExpressionVoxelFeatures" title="habit.voxel_features.ExpressionVoxelFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpressionVoxelFeatures</span></code></a>,
+as the gallery page does) or a validated intensity normalisation before
+clustering. <code class="docutils literal notranslate"><span class="pre">standardize=&quot;zscore&quot;</span></code> only rescales each column on the
+pooled cohort centroids (unit balance); it does not make incomparable
+signal comparable.</p>
+<p><strong>Every habitat is named, even in a shifted tumour.</strong> With prototypes
+low 0.8, mid 1.5, high 2.0 and a tumour whose three habitats are 2.6,
+3.2, 4.0, one-to-one naming gives low / mid / high, although all three
+enhance strongly. The <code class="docutils literal notranslate"><span class="pre">distance</span></code> column exposes this (here 1.8, 1.7,
+and 2.0 for the three habitats). Report it, check large
+distances, and prefer features that are truly comparable across
+patients; <code class="docutils literal notranslate"><span class="pre">max_distance</span></code> can flag such habitats but then leaves them
+without a shared name.</p>
+<p><strong>Local optimum.</strong> Minimising <span class="math notranslate nohighlight">\(J\)</span> jointly over all subjects is a
+multi-dimensional assignment problem, which is NP-hard in general. The
+alternating search with multiple starts is a heuristic. Checked against
+exhaustive enumeration (all per-subject permutations):</p>
+<ul class="simple">
+<li><p>the five-subject demo cohort with three habitats each (relative
+enhancement, fixed <span class="math notranslate nohighlight">\(K=3\)</span>): identical optimum, <span class="math notranslate nohighlight">\(J = 17.0687\)</span>;</p></li>
+<li><p>200 random cohorts (3–5 subjects, <span class="math notranslate nohighlight">\(K\in\{2,3\}\)</span>, noisy shifted
+prototypes): optimum found in 198; the two misses were 0.2 % and 1.4 %
+above the optimum.</p></li>
+</ul>
+<p>Report <code class="docutils literal notranslate"><span class="pre">objective</span></code>, <code class="docutils literal notranslate"><span class="pre">converged</span></code>, and <code class="docutils literal notranslate"><span class="pre">seed_subject_id</span></code> with the
+results.</p>
+<p><strong>Not evidence that habitats are shared.</strong> A small <code class="docutils literal notranslate"><span class="pre">distance</span></code> means the
+naming is consistent, not that a habitat is the same biological
+phenotype in every patient. For a cohort-level habitat definition prefer
+a cohort model (two-step or direct pooling), which avoids post hoc
+matching altogether; a hierarchical Dirichlet process (Teh et al. 2006)
+is the model-based alternative in which groups share clusters by
+construction. Strict cycle-consistent pairwise matching (permutation
+synchronisation; Pachauri et al. 2013; Huang and Guibas 2013) is another
+route and is not implemented.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>Same calls as <a class="reference internal" href="../auto_examples/04_habitat_maps/plot_05_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a>.
+Each subject chooses its own habitat count (demo: 3, 2, 2, 2, 2):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cohort</span><span class="p">,</span> <span class="n">cohort_from_directory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_demo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.habitat_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeansHabitatModelFitter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">voxel_units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.precision</span><span class="w"> </span><span class="kn">import</span> <span class="n">align_habitat_maps_to_prototypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExpressionVoxelFeatures</span>
+
+<span class="n">DATA</span> <span class="o">=</span> <span class="n">fetch_demo</span><span class="p">()</span>  <span class="c1"># your preprocessed root</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">),</span> <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">ExpressionVoxelFeatures</span><span class="p">(</span>
+    <span class="n">features</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;rel_enh_lap&quot;</span><span class="p">:</span> <span class="s2">&quot;(LAP - pre_contrast) / (pre_contrast + eps)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rel_enh_pvp&quot;</span><span class="p">:</span> <span class="s2">&quot;(PVP - pre_contrast) / (pre_contrast + eps)&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">maps</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">fields</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">cohort</span><span class="p">:</span>
+    <span class="n">field</span> <span class="o">=</span> <span class="n">extractor</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="n">voxel_units</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">KMeansHabitatModelFitter</span><span class="p">(</span><span class="n">min_habitats</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_habitats</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">([</span><span class="n">units</span><span class="p">],</span> <span class="n">cohort</span><span class="o">=</span><span class="n">Cohort</span><span class="p">([</span><span class="n">subject</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">))</span>
+    <span class="n">maps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">assigner</span><span class="p">()(</span><span class="n">units</span><span class="p">))</span>
+    <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+<span class="n">matched</span> <span class="o">=</span> <span class="n">align_habitat_maps_to_prototypes</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">)</span>  <span class="c1"># clustering centroids</span>
+<span class="n">matched</span><span class="o">.</span><span class="n">habitat_maps</span>    <span class="c1"># same id = same prototype in every subject</span>
+<span class="n">matched</span><span class="o">.</span><span class="n">prototypes</span>      <span class="c1"># (K, n_features), row k is habitat k + 1</span>
+<span class="n">matched</span><span class="o">.</span><span class="n">assignments</span>     <span class="c1"># subject_id, habitat_id, prototype_id, distance</span>
+
+<span class="n">align_habitat_maps_to_prototypes</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">fields</span><span class="p">)</span>           <span class="c1"># per-habitat voxel means</span>
+<span class="n">align_habitat_maps_to_prototypes</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="n">centroids</span><span class="o">=</span><span class="n">my_matrices</span><span class="p">)</span>     <span class="c1"># your own summaries</span>
+<span class="n">align_habitat_maps_to_prototypes</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;manhattan&quot;</span><span class="p">)</span>  <span class="c1"># other metric</span>
+<span class="n">align_habitat_maps_to_prototypes</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># optional</span>
+<span class="n">align_habitat_maps_to_prototypes</span><span class="p">(</span><span class="n">new_maps</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">new_models</span><span class="p">,</span> <span class="n">prototypes</span><span class="o">=</span><span class="n">matched</span><span class="p">)</span>  <span class="c1"># frozen</span>
+</pre></div>
+</div>
+<p>The aligned maps share one new <code class="docutils literal notranslate"><span class="pre">model_id</span></code> (<code class="docutils literal notranslate"><span class="pre">prototype-…</span></code>) derived
+from the prototypes and parameters, and their provenance records
+<code class="docutils literal notranslate"><span class="pre">align_habitat_maps_to_prototypes</span></code> with the source, <code class="docutils literal notranslate"><span class="pre">metric</span></code>,
+<code class="docutils literal notranslate"><span class="pre">reduction</span></code>, <code class="docutils literal notranslate"><span class="pre">K</span></code>, <code class="docutils literal notranslate"><span class="pre">max_distance</span></code>, and <code class="docutils literal notranslate"><span class="pre">standardize</span></code> (plus the
+frozen <code class="docutils literal notranslate"><span class="pre">model_id</span></code> when prototypes were reused).</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<p>Assignment</p>
+<ul class="simple">
+<li><p>Kuhn HW. The Hungarian method for the assignment problem. <em>Naval
+Research Logistics Quarterly</em> 1955;2:83–97. doi:10.1002/nav.3800020109</p></li>
+<li><p>Munkres J. Algorithms for the assignment and transportation problems.
+<em>J Soc Ind Appl Math</em> 1957;5:32–38. doi:10.1137/0105003</p></li>
+</ul>
+<p>Label switching and prototype relabelling</p>
+<ul class="simple">
+<li><p>Stephens M. Dealing with label switching in mixture models. <em>J R Stat
+Soc B</em> 2000;62:795–809. doi:10.1111/1467-9868.00265</p></li>
+<li><p>Jasra A, Holmes CC, Stephens DA. Markov chain Monte Carlo methods and
+the label switching problem in Bayesian mixture modeling. <em>Stat Sci</em>
+2005;20. doi:10.1214/088342305000000016</p></li>
+<li><p>Wagstaff K, Cardie C, Rogers S, Schrödl S. Constrained k-means
+clustering with background knowledge. <em>Proc ICML</em> 2001:577–584
+(conference proceedings, no DOI).</p></li>
+<li><p>Dhillon IS, Modha DS. Concept decompositions for large sparse text
+data using clustering. <em>Mach Learn</em> 2001;42:143–175.
+doi:10.1023/A:1007612920971</p></li>
+</ul>
+<p>Cross-sample cluster matching</p>
+<ul class="simple">
+<li><p>Pyne S, Hu X, Wang K, et al. Automated high-dimensional flow cytometric
+data analysis. <em>PNAS</em> 2009;106:8519–8524. doi:10.1073/pnas.0903028106</p></li>
+<li><p>Van Gassen S, Callebaut B, Van Helden MJ, et al. FlowSOM: using
+self-organizing maps for visualization and interpretation of cytometry
+data. <em>Cytometry A</em> 2015. doi:10.1002/cyto.a.22625</p></li>
+<li><p>Azad A, Langguth J, Fang Y, et al. Identifying rare cell populations in
+comparative flow cytometry. <em>Lecture Notes in Computer Science (WABI)</em>
+2010:162–175. doi:10.1007/978-3-642-15294-8_14</p></li>
+<li><p>Crow M, Paul A, Ballouz S, Huang ZJ, Gillis J. Characterizing the
+replicability of cell types defined by single cell RNA-sequencing data
+using MetaNeighbor. <em>Nat Commun</em> 2018. doi:10.1038/s41467-018-03282-0</p></li>
+</ul>
+<p>Consistency and partial matching</p>
+<ul class="simple">
+<li><p>Pachauri D, Kondor R, Singh V. Solving the multi-way matching problem by
+permutation synchronization. <em>Advances in Neural Information Processing
+Systems 26</em> (NeurIPS) 2013 (conference proceedings, no DOI).</p></li>
+<li><p>Huang QX, Guibas L. Consistent shape maps via semidefinite programming.
+<em>Comput Graph Forum</em> 2013;32:177–186. doi:10.1111/cgf.12184</p></li>
+<li><p>Rubner Y, Tomasi C, Guibas LJ. The Earth Mover’s Distance as a metric
+for image retrieval. <em>Int J Comput Vis</em> 2000;40:99–121.
+doi:10.1023/A:1026543900054</p></li>
+<li><p>Chizat L, Peyré G, Schmitzer B, Vialard FX. Scaling algorithms for
+unbalanced optimal transport problems. <em>Math Comput</em> 2018;87:2563–2609.
+doi:10.1090/mcom/3303</p></li>
+<li><p>Teh YW, Jordan MI, Beal MJ, Blei DM. Hierarchical Dirichlet processes.
+<em>J Am Stat Assoc</em> 2006;101:1566–1581. doi:10.1198/016214506000000302</p></li>
+</ul>
+<p>Habitat imaging context</p>
+<ul class="simple">
+<li><p>Gatenby RA, Grove O, Gillies RJ. Quantitative imaging in cancer
+evolution and ecology. <em>Radiology</em> 2013. doi:10.1148/radiol.13122697</p></li>
+<li><p>Zhou M, Hall L, Goldgof D, et al. Radiologically defined ecological
+dynamics and clinical outcomes in glioblastoma multiforme: preliminary
+results. <em>Transl Oncol</em> 2014. doi:10.1593/tlo.13730</p></li>
+<li><p>Wu J, Cao G, Sun X, et al. Intratumoral spatial heterogeneity at
+perfusion MR imaging predicts recurrence-free survival in locally
+advanced breast cancer treated with neoadjuvant chemotherapy.
+<em>Radiology</em> 2018. doi:10.1148/radiol.2018172462</p></li>
+<li><p>Prior O, Macarro C, Navarro V, et al. Identification of precise 3D CT
+radiomics for habitat computation by machine learning in cancer.
+<em>Radiol Artif Intell</em> 2024;6(2):e230118. doi:10.1148/ryai.230118</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="features/whole_each_habitat.html" class="btn btn-neutral float-left" title="Whole / Each Habitat Radiomics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../configuration/index.html" class="btn btn-neutral float-right" title="CLI and YAML" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, HABIT Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

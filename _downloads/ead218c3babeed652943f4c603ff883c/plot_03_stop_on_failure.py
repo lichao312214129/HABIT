@@ -56,9 +56,6 @@ texture = VoxelRadiomicsFeatures(
     kernel_radius=3,
     params=RADIOMICS_PARAMS,
     voxel_batch=1000,
-    use_torch_radiomics=True,
-    torch_device="cuda:0",
-    use_gpu_matrices=True,
 )
 print("feature classes:", sorted(RADIOMICS_PARAMS["featureClass"]))
 seen: list[str] = []

@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from habit.contracts import HabitatModel, cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.pipeline.assembly import build_habitat_components
-from habit.spec import HabitatSpec, Spec
+from habit.spec import HabitatSpec, Spec, Stage
 from habit.viz import plot_habitat_overlay, plot_partition_triptych
 import habit.recipes as recipes
 
@@ -32,32 +32,48 @@ print(cohort)
 print("subject_ids:", list(cohort.subject_ids))
 
 # %%
-# Two-step spec: voxel features, clustering-feature preprocessors,
-# supervoxels, cohort binning, then fit / assign.
-# ``supervoxelizer`` + default pooling selects the two-step design.
+# Two-step spec as an ordered stage list. Preprocess stages before
+# ``partition`` are per subject. The preprocess stage after ``pool`` is
+# fit once on the cohort. ``partition`` plus ``pool`` selects two-step.
 spec = HabitatSpec(
     name="habitat_two_step",
-    voxel_feature_extractor=Spec("raw", {"modalities": list(MODALITIES)}),
-    voxel_feature_preprocessors=(
-        Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
-        Spec("minmax", {"across_features": False}),
+    stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": list(MODALITIES)})),
+        Stage(
+            "preprocess_voxels",
+            Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
+        ),
+        Stage("preprocess_voxels_2", Spec("minmax", {"across_features": False})),
+        Stage(
+            "partition",
+            Spec("kmeans", {"n_supervoxels": 12, "max_iter": 300, "n_init": 5}),
+        ),
+        Stage("pool", Spec("pool")),
+        Stage(
+            "preprocess_cohort",
+            Spec(
+                "binning",
+                {"n_bins": 10, "bin_strategy": "uniform", "across_features": False},
+            ),
+        ),
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 10,
+                    "validation": "elbow",
+                    "max_iter": 300,
+                    "n_init": 5,
+                },
+            ),
+        ),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("quantify", Spec("volume")),
+        Stage("quantify_msi", Spec("msi")),
+        Stage("quantify_ith", Spec("ith_score")),
     ),
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 12, "max_iter": 300, "n_init": 5}),
-    cohort_feature_preprocessors=(
-        Spec("binning", {"n_bins": 10, "bin_strategy": "uniform", "across_features": False}),
-    ),
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {
-            "min_habitats": 2,
-            "max_habitats": 10,
-            "validation": "elbow",
-            "max_iter": 300,
-            "n_init": 5,
-        },
-    ),
-    habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
     random_seed=42,
 )
 print(f"Spec fingerprint: {spec.fingerprint()[:16]}...")

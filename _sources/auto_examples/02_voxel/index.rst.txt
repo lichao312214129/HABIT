@@ -6,8 +6,11 @@
 =======================
 
 Define the voxel field that clustering sees: raw intensities, custom
-formulas, texture maps (CPU vs GPU), clustering-feature preprocessor
-chains, and supervoxel feature extraction and acceleration.
+formulas, expression maps
+(:doc:`/auto_examples/02_voxel/plot_02_expression`), texture maps
+(CPU vs GPU), clustering-feature preprocessor chains, supervoxel
+feature extraction and acceleration, and subject- versus cohort-level
+preprocessing of voxel texture.
 
 
 .. raw:: html
@@ -52,6 +55,23 @@ chains, and supervoxel feature extraction and acceleration.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Custom features</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="ExpressionVoxelFeatures builds one column per formula. Names in the formula are modality keys on the subject (``LAP``, pre_contrast, ...). eps keeps a zero denominator from breaking a ratio.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_02_expression_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_voxel/plot_02_expression`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Expression voxel features</div>
     </div>
 
 
@@ -106,6 +126,23 @@ chains, and supervoxel feature extraction and acceleration.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture columns live on very different scales: GLCM contrast runs into the hundreds, correlation stays within [-1, 1]. Clustering then sees mostly the large columns, so a preprocessing step comes first.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_voxel/images/thumb/sphx_glr_plot_06_texture_preprocessing_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Preprocessing voxel texture before clustering</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -118,7 +155,9 @@ chains, and supervoxel feature extraction and acceleration.
 
    /auto_examples/02_voxel/plot_01_feature_routes
    /auto_examples/02_voxel/plot_02_custom_features
+   /auto_examples/02_voxel/plot_02_expression
    /auto_examples/02_voxel/plot_03_voxel_texture
    /auto_examples/02_voxel/plot_04_feature_preprocessing
    /auto_examples/02_voxel/plot_05_supervoxel_features
+   /auto_examples/02_voxel/plot_06_texture_preprocessing
 

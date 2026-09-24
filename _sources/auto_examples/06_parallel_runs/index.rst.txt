@@ -5,47 +5,43 @@
 6. Parallel runs
 ================
 
-Voxel texture (four DCE series, radius 3, ``binWidth`` 12) is the
-workload. Feature preprocessing changes the numbers. A backend only
-changes how subjects are scheduled. GPU and ``voxel_batch`` are set on
-the extractor; they do not change the texture definition.
+These pages only change how subjects are scheduled. The texture, the
+preprocessing and the habitat model stay the same, so a finished map
+matches a serial run of the same chain. That check is on the process-pool
+page. Preprocessing of the texture itself is
+:doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`.
 
-Preprocessing, one method per page. Scheduling on these pages is
-:class:`~habit.execution.SerialBackend`.
+Which backend
+-------------
 
-* **Subject z-score** (and the matching ``HabitatSpec``) —
-  :doc:`/auto_examples/06_parallel_runs/plot_08_subject_zscore`.
-* **Subject robust scaling** —
-  :doc:`/auto_examples/06_parallel_runs/plot_09_subject_robust`.
-* **Subject winsorizing** —
-  :doc:`/auto_examples/06_parallel_runs/plot_10_subject_winsorize`.
-* **Cohort z-score** —
-  :doc:`/auto_examples/06_parallel_runs/plot_11_cohort_zscore`.
-* **Cohort binning** —
-  :doc:`/auto_examples/06_parallel_runs/plot_12_cohort_binning`.
-
-Scheduling uses the subject z-score chain unless the page is about a
-failure. A fixed ``random_seed`` keeps finished maps aligned with a
-serial run.
-
-* **One machine, in order** —
+* **One process, subjects in order.** Use this to debug a single case.
   :doc:`/auto_examples/06_parallel_runs/plot_01_serial`.
-* **One bad case should not stop the batch** —
-  :doc:`/auto_examples/06_parallel_runs/plot_02_skip_failed`.
-* **A bad case should stop the batch** —
-  :doc:`/auto_examples/06_parallel_runs/plot_03_stop_on_failure`.
-* **A crashed run should skip finished subjects** —
-  :doc:`/auto_examples/06_parallel_runs/plot_04_resume`.
-* **Several CPU workers** —
+* **A pool of worker processes.** On a CPU machine the subjects run side
+  by side. On one GPU only the first worker gets the card and the others
+  run on CPU, so the pool is slower; ``HABIT_GPU_OVERSUBSCRIBE=wrap``
+  shares that card instead. Several GPUs are one worker per card.
   :doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`.
-* **Do not pay worker startup twice** —
+* **Keep those workers up between passes.** A cold pool pays spawn and
+  imports on every ``map``. ``with backend.reuse_workers():`` pays it once.
   :doc:`/auto_examples/06_parallel_runs/plot_06_reuse_workers`.
-* **One fresh process per subject** —
-  :doc:`/auto_examples/06_parallel_runs/plot_13_isolated`.
-* **Per-subject wall-clock limit** —
-  :doc:`/auto_examples/06_parallel_runs/plot_14_wall_clock`.
-* **One worker per GPU** (recorded timings, not re-run here) —
-  :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`.
+* **One fresh process per subject.** Same results, higher spawn cost.
+  :doc:`/auto_examples/06_parallel_runs/plot_07_isolated`.
+* **One worker per GPU.** The call is on the page. The timing table is a
+  recorded 5-GPU run, because this machine has one GPU.
+  :doc:`/auto_examples/06_parallel_runs/plot_09_several_gpus`.
+
+When a subject fails
+--------------------
+
+* Keep the batch and record the exception:
+  :doc:`/auto_examples/06_parallel_runs/plot_02_skip_failed`.
+* Stop at the first failure:
+  :doc:`/auto_examples/06_parallel_runs/plot_03_stop_on_failure`.
+* Skip subjects that already finished:
+  :doc:`/auto_examples/06_parallel_runs/plot_04_resume`.
+* Give each subject a wall-clock limit. Only the process backend enforces
+  it:
+  :doc:`/auto_examples/06_parallel_runs/plot_08_wall_clock`.
 
 
 .. raw:: html
@@ -61,7 +57,7 @@ serial run.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="SerialBackend runs the texture extraction and the habitat assignment in this process, one subject after another. Z-scoring and fitting stay here as well: the scaler is per subject, and the fit has to see every subject. The matching HabitatSpec is on the subject z-score page.">
+    <div class="sphx-glr-thumbcontainer" tooltip="SerialBackend runs the texture extraction and the habitat assignment in this process, one subject after another. Z-scoring and fitting stay here as well: the scaler is per subject, and the fit has to see every subject. The same chain written as a HabitatSpec is /auto_examples/02_voxel/plot_06_texture_preprocessing.">
 
 .. only:: html
 
@@ -129,7 +125,7 @@ serial run.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend. Texture extraction and habitat assignment run in that pool. Z-scoring and fitting stay in this process. On Windows the map calls sit under __main__ so a worker does not start another pool.">
+    <div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend: each subject is sent to one of two worker processes. This page runs the same texture extraction and habitat assignment serially and in the pool, checks that the results agree, and times both.">
 
 .. only:: html
 
@@ -146,7 +142,7 @@ serial run.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays spawn and import on the first map. with backend.reuse_workers(): keeps those workers for the assignment map that follows. Z-scoring and fitting run in this process while the workers stay up.">
+    <div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays process spawn and imports on every map. with backend.reuse_workers(): starts the workers once and keeps them for every map inside the block. Leaving the block stops them.">
 
 .. only:: html
 
@@ -163,116 +159,14 @@ serial run.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This page records a cloud run. It does not repeat that workload when the docs are built.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_07_several_gpus_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Running a cohort on several GPUs</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Per-subject z-score uses each lesion&#x27;s own mean and standard deviation. The atomic calls and the HabitatSpec below are the same analysis: four DCE series, GLCM / first-order / GLRLM texture, radius 3, binWidth 12, then habitats fit on the pooled voxels.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_08_subject_zscore_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06_parallel_runs/plot_08_subject_zscore`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Subject z-score on voxel texture</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Robust scaling centres each column on that subject&#x27;s median and divides by its interquartile range. The texture definition matches the subject z-score page; only the scaler changes.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_09_subject_robust_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06_parallel_runs/plot_09_subject_robust`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Subject robust scaling on voxel texture</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Winsorizing clips each column at that subject&#x27;s tail quantiles. It does not rescale the centre of the distribution. The texture definition matches the other pages in this section.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_10_subject_winsorize_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06_parallel_runs/plot_10_subject_winsorize`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Subject winsorizing on voxel texture</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Cohort z-score is fitted once on the pooled training rows and replayed on every subject. A single subject&#x27;s column mean is then not zero: both subjects share the training mean and standard deviation. That fitted state has to travel with the habitat model.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_11_cohort_zscore_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06_parallel_runs/plot_11_cohort_zscore`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Cohort z-score on voxel texture</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Bin edges are learned on the pooled training rows. The same bin index then means the same texture range in every subject. This is not a rescaling: the stored values are bin indices.">
-
-.. only:: html
-
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_12_cohort_binning_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/06_parallel_runs/plot_12_cohort_binning`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Cohort binning on voxel texture</div>
-    </div>
-
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="parallel_mode=&quot;isolated&quot; starts a new process for every subject instead of keeping a worker alive. The texture definition and the subject z-score match the persistent process-pool page. Spawn cost is higher; the habitat counts are the same chain.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_13_isolated_thumb.png
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_07_isolated_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_parallel_runs/plot_13_isolated`
+  :doc:`/auto_examples/06_parallel_runs/plot_07_isolated`
 
 .. raw:: html
 
@@ -286,14 +180,31 @@ serial run.
 
 .. only:: html
 
-  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_14_wall_clock_thumb.png
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_08_wall_clock_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_parallel_runs/plot_14_wall_clock`
+  :doc:`/auto_examples/06_parallel_runs/plot_08_wall_clock`
 
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Per-subject wall-clock limit</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="cap_workers_to_gpu_pool=True clamps workers to the visible GPU count, one worker per card. Pair it with reuse_workers() so CUDA startup is paid once. This machine has one GPU, so the recorded 5-GPU timings below are from a cloud run and this page does not repeat that workload. The call itself is in the next cell.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_parallel_runs/images/thumb/sphx_glr_plot_09_several_gpus_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_parallel_runs/plot_09_several_gpus`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Running a cohort on several GPUs</div>
     </div>
 
 
@@ -313,12 +224,7 @@ serial run.
    /auto_examples/06_parallel_runs/plot_04_resume
    /auto_examples/06_parallel_runs/plot_05_process_pool
    /auto_examples/06_parallel_runs/plot_06_reuse_workers
-   /auto_examples/06_parallel_runs/plot_07_several_gpus
-   /auto_examples/06_parallel_runs/plot_08_subject_zscore
-   /auto_examples/06_parallel_runs/plot_09_subject_robust
-   /auto_examples/06_parallel_runs/plot_10_subject_winsorize
-   /auto_examples/06_parallel_runs/plot_11_cohort_zscore
-   /auto_examples/06_parallel_runs/plot_12_cohort_binning
-   /auto_examples/06_parallel_runs/plot_13_isolated
-   /auto_examples/06_parallel_runs/plot_14_wall_clock
+   /auto_examples/06_parallel_runs/plot_07_isolated
+   /auto_examples/06_parallel_runs/plot_08_wall_clock
+   /auto_examples/06_parallel_runs/plot_09_several_gpus
 

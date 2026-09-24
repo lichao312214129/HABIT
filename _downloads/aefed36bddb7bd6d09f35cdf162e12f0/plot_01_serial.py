@@ -5,8 +5,9 @@ Running a cohort serially
 :class:`~habit.execution.SerialBackend` runs the texture extraction and
 the habitat assignment in this process, one subject after another.
 Z-scoring and fitting stay here as well: the scaler is per subject, and
-the fit has to see every subject. The matching :class:`~habit.spec.HabitatSpec`
-is on the subject z-score page.
+the fit has to see every subject. The same chain written as a
+:class:`~habit.spec.HabitatSpec` is
+:doc:`/auto_examples/02_voxel/plot_06_texture_preprocessing`.
 """
 
 # %%
@@ -39,7 +40,8 @@ CACHE = str((Path("out") / "voxel_texture_cache").resolve())
 # Build the extractor and the serial backend
 # ------------------------------------------
 # Radius 3 is a 7×7×7 neighbourhood. ``binWidth`` 12 is the PyRadiomics
-# grey-level width. This cell does not extract texture.
+# grey-level width. The device is left at ``"auto"``: CUDA when this
+# machine has it, otherwise CPU. This cell does not extract texture.
 RADIOMICS_PARAMS = {
     "imageType": {"Original": {}},
     "featureClass": {
@@ -55,9 +57,6 @@ texture = VoxelRadiomicsFeatures(
     kernel_radius=3,
     params=RADIOMICS_PARAMS,
     voxel_batch=1000,
-    use_torch_radiomics=True,
-    torch_device="cuda:0",
-    use_gpu_matrices=True,
     cache_dir=CACHE,
 )
 zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])

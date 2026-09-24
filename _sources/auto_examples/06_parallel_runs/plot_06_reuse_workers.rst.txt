@@ -21,29 +21,38 @@
 Reusing workers across passes
 =============================
 
-A cold process pool pays spawn and import on the first ``map``.
-``with backend.reuse_workers():`` keeps those workers for the assignment
-``map`` that follows. Z-scoring and fitting run in this process while the
-workers stay up.
+A cold process pool pays process spawn and imports on every ``map``.
+``with backend.reuse_workers():`` starts the workers once and keeps them
+for every ``map`` inside the block. Leaving the block stops them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-15
+This page extracts texture serially (cached), fits in this process, then
+times habitat assignment three ways: a cold pool, the first map inside
+the block, and a second map in the same block. The second map is the one
+that skips spawn. Texture belongs in that same block when the cohort is
+large; on one GPU a two-worker texture pool is slower, see
+:doc:`/auto_examples/06_parallel_runs/plot_05_process_pool`.
 
-Load the cohort
----------------
+.. GENERATED FROM PYTHON SOURCE LINES 18-22
+
+Set up the cohort and one pool
+------------------------------
+Building the backend does not start workers. The device is ``"auto"``.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-38
+.. GENERATED FROM PYTHON SOURCE LINES 22-90
 
 .. code-block:: Python
 
+    import time
+    from collections.abc import Iterable
     from pathlib import Path
+    from typing import Protocol, TypeVar
 
     import matplotlib.pyplot as plt
-    import numpy as np
 
     from habit.contracts import cohort_from_directory
     from habit.datasets import fetch_demo
-    from habit.execution import backend_from_policy
+    from habit.execution import SerialBackend, backend_from_policy
     from habit.feature_preprocessing import SubjectPreprocessingChain, ZScoreScaling
     from habit.habitat_model import KMeansHabitatModelFitter
     from habit.pipeline import voxel_units
@@ -51,6 +60,16 @@ sphinx_gallery_thumbnail_number = 1
     from habit.viz import plot_habitat_overlay
     from habit.voxel_features import VoxelRadiomicsFeatures
 
+
+    class _NamedResult(Protocol):
+        """Anything the pool returns that carries a subject id."""
+
+        subject_id: str
+
+
+    _T = TypeVar("_T", bound=_NamedResult)
+
+    # Change DATA / MODALITIES / ROI to your preprocessed layout.
     DATA = fetch_demo()
     MODALITIES = ("pre_contrast", "LAP", "PVP", "delay_3min")
     ROI = "LAP"
@@ -58,6 +77,39 @@ sphinx_gallery_thumbnail_number = 1
     print(cohort)
     Path("out").mkdir(exist_ok=True)
     CACHE = str((Path("out") / "voxel_texture_cache").resolve())
+
+    texture = VoxelRadiomicsFeatures(
+        modalities=list(MODALITIES),
+        roi=ROI,
+        kernel_radius=3,
+        params={
+            "imageType": {"Original": {}},
+            "featureClass": {
+                "firstorder": ["Mean", "Entropy"],
+                "glcm": ["Contrast", "Correlation", "Idm", "JointEntropy"],
+                "glrlm": ["ShortRunEmphasis", "LongRunEmphasis"],
+            },
+            "setting": {"binWidth": 12},
+        },
+        voxel_batch=1000,
+        cache_dir=CACHE,
+    )
+    policy = RunPolicy(
+        workers=2,
+        backend="process",
+        parallel_mode="persistent",
+        auto_retry_rounds=0,
+    )
+
+
+    def by_subject(results: Iterable[_T]) -> dict[str, _T]:
+        """Index results by subject id.
+
+        A process pool yields subjects in the order they finish, not the
+        order they were submitted.
+        """
+        return {result.subject_id: result for result in results}
+
 
 
 
@@ -94,202 +146,70 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-42
+.. GENERATED FROM PYTHON SOURCE LINES 91-97
 
-Build one pool
---------------
-Workers are not started until the session below is entered.
+Time a cold pool against a reused pool
+--------------------------------------
+Texture, z-score and the fit stay in this process. A cold ``map`` pays
+spawn plus assignment. Inside ``reuse_workers`` the first ``map`` starts
+the workers and the second ``map`` reuses them. On Windows the pool is
+started under ``__main__``. Copy this cell together with the one above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-74
-
-.. code-block:: Python
-
-    RADIOMICS_PARAMS = {
-        "imageType": {"Original": {}},
-        "featureClass": {
-            "firstorder": ["Mean", "Entropy"],
-            "glcm": ["Contrast", "Correlation", "Idm", "JointEntropy"],
-            "glrlm": ["ShortRunEmphasis", "LongRunEmphasis"],
-        },
-        "setting": {"binWidth": 12},
-    }
-    texture = VoxelRadiomicsFeatures(
-        modalities=list(MODALITIES),
-        roi=ROI,
-        kernel_radius=3,
-        params=RADIOMICS_PARAMS,
-        voxel_batch=1000,
-        use_torch_radiomics=True,
-        torch_device="cuda:0",
-        use_gpu_matrices=True,
-        cache_dir=CACHE,
-    )
-    zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
-    fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
-    fitter.set_random_state(0)
-    policy = RunPolicy(
-        workers=2,
-        backend="process",
-        parallel_mode="persistent",
-        auto_retry_rounds=0,
-    )
-    backend = backend_from_policy(policy)
-    print(type(backend).__name__, backend.policy.parallel_mode)
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    ProcessPoolBackend persistent
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 75-79
-
-Open one worker session
------------------------
-The session stays open through scaling, fitting, and the assignment
-map. It closes in the last cell. Isolated mode would ignore this.
-
-.. GENERATED FROM PYTHON SOURCE LINES 79-84
+.. GENERATED FROM PYTHON SOURCE LINES 97-153
 
 .. code-block:: Python
 
     if __name__ == "__main__":
-        worker_session = backend.reuse_workers()
-        worker_session.__enter__()
-        print("worker session open, workers:", backend.workers)
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    worker session open, workers: 2
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 85-87
-
-Extract texture on those workers
---------------------------------
-
-.. GENERATED FROM PYTHON SOURCE LINES 87-95
-
-.. code-block:: Python
-
-    if __name__ == "__main__":
-        fields = [slot.result() for slot in backend.map(texture, cohort)]
-        for field in fields:
-            print(
-                f"{field.subject_id}: {field.values.shape[0]} voxels, "
-                f"{len(field.feature_names)} columns"
-            )
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    subj001: 34694 voxels, 32 columns
-    subj002: 9858 voxels, 32 columns
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 96-99
-
-Z-score and fit while the workers stay up
-------------------------------------------
-Both steps run in this process. The worker session is still open.
-
-.. GENERATED FROM PYTHON SOURCE LINES 99-113
-
-.. code-block:: Python
-
-    if __name__ == "__main__":
-        scaled_fields = []
-        for field in fields:
-            scaled_fields.append(
+        fields = [slot.result() for slot in SerialBackend().map(texture, cohort)]
+        zscore = SubjectPreprocessingChain([ZScoreScaling(across_features=False)])
+        units = [
+            voxel_units(
                 field.with_feature_frame(
                     zscore(field.feature_frame()),
                     produced_by="subject_feature_preprocessor",
                     spec_fingerprint=zscore.spec.fingerprint(),
                 )
             )
-        units = [voxel_units(field) for field in scaled_fields]
+            for field in fields
+        ]
+        fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+        fitter.set_random_state(0)
         model = fitter.fit(units, cohort=cohort)
-        print(model.summary())
+        assigner = model.assigner()
 
+        timings: dict[str, float] = {}
+        started = time.perf_counter()
+        cold = by_subject(slot.result() for slot in backend_from_policy(policy).map(assigner, units))
+        timings["cold pool"] = time.perf_counter() - started
 
+        warm_backend = backend_from_policy(policy)
+        with warm_backend.reuse_workers():
+            started = time.perf_counter()
+            first = by_subject(slot.result() for slot in warm_backend.map(assigner, units))
+            timings["session, first map"] = time.perf_counter() - started
+            started = time.perf_counter()
+            second = by_subject(slot.result() for slot in warm_backend.map(assigner, units))
+            timings["session, second map"] = time.perf_counter() - started
 
+        for name, seconds in timings.items():
+            print(f"{name:>22}: {seconds:5.2f} s")
+        for subject in cohort:
+            same = cold[subject.subject_id].label_array
+            assert (same == first[subject.subject_id].label_array).all()
+            assert (same == second[subject.subject_id].label_array).all()
+            print(subject.subject_id, "cold == both session maps")
 
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    HabitatModel kmeans-5d775118aebe119f
-      habitats           : 3
-      features (32)    : original_firstorder_Mean-pre_contrast, original_firstorder_Entropy-pre_contrast, original_glcm_Contrast-pre_contrast, original_glcm_Correlation-pre_contrast, original_glcm_Idm-pre_contrast, original_glcm_JointEntropy-pre_contrast, original_glrlm_ShortRunEmphasis-pre_contrast, original_glrlm_LongRunEmphasis-pre_contrast, original_firstorder_Mean-LAP, original_firstorder_Entropy-LAP, original_glcm_Contrast-LAP, original_glcm_Correlation-LAP, original_glcm_Idm-LAP, original_glcm_JointEntropy-LAP, original_glrlm_ShortRunEmphasis-LAP, original_glrlm_LongRunEmphasis-LAP, original_firstorder_Mean-PVP, original_firstorder_Entropy-PVP, original_glcm_Contrast-PVP, original_glcm_Correlation-PVP, original_glcm_Idm-PVP, original_glcm_JointEntropy-PVP, original_glrlm_ShortRunEmphasis-PVP, original_glrlm_LongRunEmphasis-PVP, original_firstorder_Mean-delay_3min, original_firstorder_Entropy-delay_3min, original_glcm_Contrast-delay_3min, original_glcm_Correlation-delay_3min, original_glcm_Idm-delay_3min, original_glcm_JointEntropy-delay_3min, original_glrlm_ShortRunEmphasis-delay_3min, original_glrlm_LongRunEmphasis-delay_3min
-      defining cohort    : n=2
-      modalities         : pre_contrast, LAP, PVP, delay_3min
-      cohort digest      : cc1b16a34cc7478d...
-      produced by        : habitat_model_fitter.kmeans
-      habit version      : 2.0.0
-      random seed        : 0
-      preprocessing state: inertia, validation
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 114-116
-
-Assign on the same workers, then close the session
---------------------------------------------------
-
-.. GENERATED FROM PYTHON SOURCE LINES 116-147
-
-.. code-block:: Python
-
-    if __name__ == "__main__":
-        try:
-            maps = [slot.result() for slot in backend.map(model.assigner(), units)]
-            for habitat_map in maps:
-                labels, counts = np.unique(habitat_map.label_array, return_counts=True)
-                present = {
-                    int(label): int(count)
-                    for label, count in zip(labels, counts)
-                    if int(label) != 0
-                }
-                print(habitat_map.subject_id, "voxels per habitat:", present)
-        finally:
-            worker_session.__exit__(None, None, None)
-        fig, ax = plt.subplots(figsize=(6.4, 3.2))
-        ax.bar(
-            ["texture map", "assign map"],
-            [backend.workers, backend.workers],
-            color="#4C78A8",
-        )
-        ax.set_ylabel("workers")
-        ax.set_title("workers stay up across both maps")
+        fig, ax = plt.subplots(figsize=(6.4, 2.8), constrained_layout=True)
+        ax.barh(list(timings), list(timings.values()), color="#4C78A8")
+        ax.invert_yaxis()
+        ax.set_xlabel("wall-clock seconds (assignment, 2 subjects)")
+        ax.set_title("worker startup is paid once per session")
         fig.savefig("out/reuse_workers.png", dpi=150, bbox_inches="tight")
         plt.show()
+
         fig_map = plot_habitat_overlay(
             cohort[0].image(ROI),
-            maps[0],
+            second[cohort[0].subject_id],
             title="habitats (reused workers)",
             crop_to="labels",
         )
@@ -304,14 +224,14 @@ Assign on the same workers, then close the session
     *
 
       .. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_001.png
-         :alt: workers stay up across both maps
+         :alt: worker startup is paid once per session
          :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_001.png
          :class: sphx-glr-multi-img
 
     *
 
       .. image-sg:: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_002.png
-         :alt: habitats (reused workers), Axis 0 (axial-like) @ 86, Axis 1 (coronal-like) @ 233, Axis 2 (sagittal-like) @ 69
+         :alt: habitats (reused workers), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
          :srcset: /auto_examples/06_parallel_runs/images/sphx_glr_plot_06_reuse_workers_002.png
          :class: sphx-glr-multi-img
 
@@ -320,8 +240,13 @@ Assign on the same workers, then close the session
 
  .. code-block:: none
 
-    subj002 voxels per habitat: {1: 5609, 2: 1568, 3: 2681}
-    subj001 voxels per habitat: {1: 17427, 2: 7448, 3: 9819}
+                 cold pool:  6.16 s
+        session, first map:  5.35 s
+       session, second map:  1.38 s
+    subj001 cold == both session maps
+    subj002 cold == both session maps
+    F:\work\habit_project\habit\viz\habitat_overlay.py:801: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
@@ -329,7 +254,7 @@ Assign on the same workers, then close the session
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 10.101 seconds)
+   **Total running time of the script:** (0 minutes 22.251 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_parallel_runs_plot_06_reuse_workers.py:

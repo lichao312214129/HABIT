@@ -73,6 +73,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html">Quickstart: Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_quickstart/plot_quickstart_yaml.html">Load a habitat analysis from YAML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
@@ -95,9 +96,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/02_voxel/index.html">2. Voxel Representation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_01_feature_routes.html">Voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_custom_features.html">Custom features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_02_expression.html">Expression voxel features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/02_voxel/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../auto_examples/03_precision/index.html">3. Precise Feature Screening</a><ul>
@@ -109,7 +112,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_05_match_labels.html">Matching habitat labels across subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
@@ -138,14 +141,18 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_04_resume.html">Resuming finished subjects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html">Running subjects in separate processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html">Reusing workers across passes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_several_gpus.html">Running a cohort on several GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html">Subject z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html">Subject robust scaling on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html">Subject winsorizing on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html">Cohort z-score on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html">Cohort binning on voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html">One fresh process per subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_14_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_07_isolated.html">One fresh process per subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_wall_clock.html">Per-subject wall-clock limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_several_gpus.html">Running a cohort on several GPUs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_habitat_matching/index.html">7. Matching Habitat Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_habitat_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
 </ul>
 </li>
 </ul>
@@ -499,6 +506,24 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/habitat_matching.html">Matching habitat labels across fits and subjects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#when-matching-is-needed">When matching is needed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#choosing-a-method">Choosing a method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#what-describes-a-habitat">What describes a habitat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#algorithm">Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#distance-metrics">Distance metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/habitat_matching.html#different-habitat-counts">Different habitat counts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#assumptions-and-limitations">Assumptions and limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/habitat_matching.html#references">References</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">CLI and YAML</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
@@ -754,54 +779,9 @@ with another <code class="docutils literal notranslate"><span class="pre">crop_t
 
 <section id="examples-using-habit-viz-plot-habitat-overlay">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_overlay</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-habitat-overlay" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: one subject at a time. Output: a HabitatMap whose integer ids belong to that subject only. There is no cohort fit stage."><img alt="" src="../../_images/sphx_glr_plot_02_inside_each_subject_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a cohort of at least two subjects. Output: one shared HabitatModel fitted on voxels, and one HabitatMap per subject. Stage: pool then fit. There is no partition stage."><img alt="" src="../../_images/sphx_glr_plot_03_pool_voxels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_03_pool_voxels.html"><span class="doc">Pooling voxels across the cohort</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with unenhanced and arterial phases. Output: a HabitatMap. Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid."><img alt="" src="../../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/04_habitat_maps/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="SerialBackend runs the texture extraction and the habitat assignment in this process, one subject after another. Z-scoring and fitting stay here as well: the scaler is per subject, and the fit has to see every subject. The matching HabitatSpec is on the subject z-score page."><img alt="" src="../../_images/sphx_glr_plot_01_serial_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_01_serial.html"><span class="doc">Running a cohort serially</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Running a cohort serially</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="on_subject_failure=&quot;continue&quot; keeps the batch. One subject here has no arterial-phase image, so texture extraction raises. The other subject still receives a habitat map. The error is stored on that subject&#x27;s slot."><img alt="" src="../../_images/sphx_glr_plot_02_skip_failed_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_02_skip_failed.html"><span class="doc">Skipping a subject that fails</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Skipping a subject that fails</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="RunPolicy(workers=2, backend=&quot;process&quot;) builds a ProcessPoolBackend. Texture extraction and habitat assignment run in that pool. Z-scoring and fitting stay in this process. On Windows the map calls sit under __main__ so a worker does not start another pool."><img alt="" src="../../_images/sphx_glr_plot_05_process_pool_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_05_process_pool.html"><span class="doc">Running subjects in separate processes</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Running subjects in separate processes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays spawn and import on the first map. with backend.reuse_workers(): keeps those workers for the assignment map that follows. Z-scoring and fitting run in this process while the workers stay up."><img alt="" src="../../_images/sphx_glr_plot_06_reuse_workers_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="A cold process pool pays process spawn and imports on every map. with backend.reuse_workers(): starts the workers once and keeps them for every map inside the block. Leaving the block stops them."><img alt="" src="../../_images/sphx_glr_plot_06_reuse_workers_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_06_reuse_workers.html"><span class="doc">Reusing workers across passes</span></a></p>
   <div class="sphx-glr-thumbnail-title">Reusing workers across passes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Per-subject z-score uses each lesion&#x27;s own mean and standard deviation. The atomic calls and the HabitatSpec below are the same analysis: four DCE series, GLCM / first-order / GLRLM texture, radius 3, binWidth 12, then habitats fit on the pooled voxels."><img alt="" src="../../_images/sphx_glr_plot_08_subject_zscore_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_08_subject_zscore.html"><span class="doc">Subject z-score on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Subject z-score on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Robust scaling centres each column on that subject&#x27;s median and divides by its interquartile range. The texture definition matches the subject z-score page; only the scaler changes."><img alt="" src="../../_images/sphx_glr_plot_09_subject_robust_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_09_subject_robust.html"><span class="doc">Subject robust scaling on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Subject robust scaling on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Winsorizing clips each column at that subject&#x27;s tail quantiles. It does not rescale the centre of the distribution. The texture definition matches the other pages in this section."><img alt="" src="../../_images/sphx_glr_plot_10_subject_winsorize_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_10_subject_winsorize.html"><span class="doc">Subject winsorizing on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Subject winsorizing on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Cohort z-score is fitted once on the pooled training rows and replayed on every subject. A single subject&#x27;s column mean is then not zero: both subjects share the training mean and standard deviation. That fitted state has to travel with the habitat model."><img alt="" src="../../_images/sphx_glr_plot_11_cohort_zscore_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_11_cohort_zscore.html"><span class="doc">Cohort z-score on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Cohort z-score on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Bin edges are learned on the pooled training rows. The same bin index then means the same texture range in every subject. This is not a rescaling: the stored values are bin indices."><img alt="" src="../../_images/sphx_glr_plot_12_cohort_binning_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_12_cohort_binning.html"><span class="doc">Cohort binning on voxel texture</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Cohort binning on voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="parallel_mode=&quot;isolated&quot; starts a new process for every subject instead of keeping a worker alive. The texture definition and the subject z-score match the persistent process-pool page. Spawn cost is higher; the habitat counts are the same chain."><img alt="" src="../../_images/sphx_glr_plot_13_isolated_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/06_parallel_runs/plot_13_isolated.html"><span class="doc">One fresh process per subject</span></a></p>
-  <div class="sphx-glr-thumbnail-title">One fresh process per subject</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

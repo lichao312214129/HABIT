@@ -11,7 +11,7 @@ the enabled ``featureClass`` list small for interactive demos. Neighbourhood
 entropy (``local_entropy``) is a separate statistic, not this texture.
 
 Walk-through (Guide): :doc:`/auto_examples/02_voxel/plot_03_voxel_texture`.
-For multi-GPU cohort timings, see :doc:`/auto_examples/06_parallel_runs/plot_07_several_gpus`. Scheduling (serial, skip, resume, process pool) is :doc:`/auto_examples/06_parallel_runs/index`. This page keeps
+For multi-GPU cohort timings, see :doc:`/auto_examples/06_parallel_runs/plot_09_several_gpus`. Scheduling (serial, skip, resume, process pool) is :doc:`/auto_examples/06_parallel_runs/index`. This page keeps
 runtime / backend notes that the gallery does not repeat.
 
 Who builds the texture matrices
