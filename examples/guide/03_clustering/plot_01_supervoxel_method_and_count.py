@@ -22,6 +22,15 @@ For every variant the page prints the number of habitats the elbow
 picks, the per-patient volume fractions, and how well the habitat map
 agrees with the reference (30 k-means supervoxels).
 
+
+**Elbow / Kneedle caveat.** HABIT ``validation="elbow"`` is the same
+rule as ``kneedle`` (Satopaa, Albrecht, Irwin, and Raghavan, 2011,
+Finding a "Kneedle" in a Haystack, IEEE ICDCS): KneeLocator on inertia,
+curve convex, direction decreasing — not Thorndike's (1953) informal
+elbow, and not the pre-v1.0 discrete-curvature second-difference rule.
+See :doc:`/user_guide/building_habitat_maps` and
+:doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+
 **When to use.** Before you freeze a habitat definition for a study,
 or when a reviewer asks whether your habitats depend on the supervoxel
 settings. A definition whose maps change completely with a small
@@ -267,6 +276,41 @@ print(summary.to_string())
 
 # The reference compared with itself must give ARI = 1.
 print("reference self-agreement is 1:", bool(np.allclose(agreement(reference["maps"], reference["maps"]), 1.0)))
+
+# %%
+# Elbow / Kneedle caveat and criterion table (reference supervoxels)
+# ------------------------------------------------------------------
+# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+# Normalize k and inertia to the unit square, draw the chord from the
+# first point to the last, and take the k farthest from that chord; a
+# smooth curve often places this knee to the right of the bend a person
+# sees. Literature "elbow" means inspecting within-cluster dispersion
+# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+# 18(4):267-276) — not a second-difference formula. The discrete-curvature
+# elbow (visual elbow, computed) maximizes the second difference of
+# inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+_ref_fitter = _KMeansFitter(min_habitats=2, max_habitats=10, validation="elbow", n_init=10)
+_ref_fitter.set_random_state(0)
+_hm = _ref_fitter.fit(reference["units"], cohort=train)
+_rep = _hm.preprocessing_state["selection_report"]
+_cand = [int(k) for k in _rep["candidates"]]
+_iner = np.asarray(_rep["scores"]["elbow"], dtype=float)
+_k_disc = (
+    int(_cand[int(np.argmax(np.diff(_iner, n=2))) + 1]) if len(_iner) >= 3 else int(_hm.n_habitats)
+)
+_k_table = {"elbow_kneedle": int(_hm.n_habitats), "discrete_curvature_elbow": _k_disc}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _f = _KMeansFitter(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+    _f.set_random_state(0)
+    _k_table[_name] = _f.fit(reference["units"], cohort=train).n_habitats
+print("K by criterion (reference supervoxels; skip gap):")
+for _n, _k in _k_table.items():
+    print(f"  {_n}: {_k}")
 
 for name, variant in variants.items():
     print(f"\n{name}: volume fractions (K = {variant['k']})")

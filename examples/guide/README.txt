@@ -1,9 +1,9 @@
 Examples
 ========
 
-Executed tutorials and how-tos for habitat analysis (Nilearn-style
-sphinx-gallery). Each page is a lesson: Background, Purpose, When to
-use, Key terms, then one step per cell.
+Executed tutorials and how-tos for habitat analysis. Each page is a
+lesson: Background, Purpose, When to use, Key terms, then one step
+per cell.
 
 Default science on pages that fit habitats: subject-level winsorize
 1% then z-score (no cohort-level z-score or binning), modalities

@@ -52,6 +52,9 @@ atomic components, or driven by a short YAML / CLI recipe.
 * Quantify habitats: volume fractions, MSI, ITH, per-habitat and
   whole-map radiomics, and graph-network features that describe how
   habitats sit in space.
+* Radiomics on habitat maps follow IBSI / PyRadiomics definitions, with
+  an IBSI-1 Phase 1 digital-phantom comparison on
+  :doc:`/reference/features/traditional`.
 * Screen features for reproducibility (**precise features**) and match
   habitat labels across fits.
 * Run a cohort with a simple serial backend; scale with a process

@@ -9,9 +9,26 @@ clustering **algorithm** (k-means or a Gaussian mixture) and the
 one a validation criterion prefers. Different criteria measure
 different things, so on the same data they can pick different Ks.
 
+**Elbow / Kneedle caveat.** HABIT validation ``elbow`` is the same rule
+as ``kneedle``. It runs ``KneeLocator`` on k-means inertia
+(within-cluster sum of squares), curve convex, direction decreasing
+(Satopaa, Albrecht, Irwin, and Raghavan, 2011, *Finding a "Kneedle" in
+a Haystack*, IEEE ICDCS Workshops). Normalize ``k`` and inertia to the
+unit square, draw the chord from the first point to the last, and take
+the ``k`` farthest from that chord; a smooth curve often places this
+knee to the right of the bend a person sees. In the clustering
+literature, *elbow* usually means looking at within-cluster dispersion
+versus ``k`` and choosing where extra clusters stop helping (Thorndike
+RL, 1953, *Who belongs in the family?*, Psychometrika 18(4):267–276).
+Do not claim Thorndike published a second-difference formula. The
+**discrete-curvature elbow** (visual elbow, computed) is the ``k`` that
+maximizes the second difference of inertia — the rule HABIT used before
+v1.0; it is not a “Thorndike formula”. See
+:doc:`/user_guide/building_habitat_maps`.
+
 **Purpose.** Starting from the analysis of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`, you will change
-ONLY the ``fit`` stage, on the SAME pooled, binned supervoxels:
+ONLY the ``fit`` stage, on the SAME pooled supervoxels:
 
 1. every k-means criterion, then every Gaussian-mixture criterion, and
    the K each one picks, with the score curves drawn by
@@ -25,13 +42,15 @@ whenever you have to justify "why K habitats" in a methods section.
 **Key terms.** Full definitions are on :doc:`/tutorial/concepts`.
 
 * **validation criterion** -- a score computed for every candidate K.
-  k-means: ``elbow`` (knee of the within-cluster sum of squares,
-  alias ``kneedle``; ``inertia`` is the same curve), ``silhouette`` and
-  ``calinski_harabasz`` (higher is better), ``davies_bouldin`` (lower is
-  better), ``gap`` (gap statistic, higher is better). Gaussian mixture:
-  ``bic`` / ``aic`` (information criteria, lower is better),
-  ``bic_elbow`` (knee of the BIC curve), plus the same four
-  label-based scores.
+  k-means: ``elbow`` / ``kneedle`` (Kneedle knee of inertia; maximize
+  distance to the chord), ``silhouette`` and ``calinski_harabasz``
+  (higher is better), ``davies_bouldin`` (lower is better), ``gap``
+  (gap statistic, higher is better). Gaussian mixture: ``bic`` /
+  ``aic`` (lower is better), ``bic_elbow`` (Prior 2024 BIC-slope rule),
+  plus the same four label-based scores.
+* **discrete-curvature elbow** -- ``argmax`` of the second difference of
+  inertia (pre-v1.0 HABIT ``elbow``); reported beside Kneedle, not used
+  to paint the habitat maps on this page.
 * **vote** -- ``validation=[...]`` with several criteria: each criterion
   casts one vote and the most voted K is kept.
 * **adjusted Rand index (ARI)** -- agreement of two label maps over the
@@ -39,10 +58,12 @@ whenever you have to justify "why K habitats" in a methods section.
   label numbers, so it is safe when two fits number the same region
   differently.
 
-The criteria comparison reuses the pooled, binned supervoxels of one
+The criteria comparison reuses the pooled supervoxels of one
 ``Study`` run and refits only the fitter, so every criterion sees
 exactly the same rows. The page checks first that refitting the
-reference fitter on those rows reproduces the ``Study`` maps.
+reference fitter on those rows reproduces the ``Study`` maps. The
+habitat map keeps the reference ``elbow`` / Kneedle K; other K values
+are shown only in the table and markers.
 
 .. note::
 
@@ -158,35 +179,94 @@ def ari(maps_a: List[object], maps_b: List[object]) -> List[float]:
 
 
 # %%
-# k-means: which K does each criterion pick?
-# ------------------------------------------
+# k-means: K selected by each criterion
+# -------------------------------------
 # One fitter per criterion, each with the reference settings (2..10
 # habitats, 10 restarts, seed 0). A candidate K is fitted with the
 # same seed whatever the criterion, so all curves describe the same
 # k-means solutions; only the rule that reads them changes.
+# Directions: elbow/kneedle = Kneedle knee; silhouette, calinski_harabasz,
+# gap = maximize; davies_bouldin = minimize. Gap is included here because
+# this page already compares every supported criterion.
 KMEANS_CRITERIA = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin", "gap")
 kmeans_k: Dict[str, int] = {}
+kmeans_models = {}
 for criterion in KMEANS_CRITERIA:
     fitter = KMeansHabitatModelFitter(min_habitats=2, max_habitats=10, validation=criterion, n_init=10)
     fitter.set_random_state(0)
-    kmeans_k[criterion] = fitter.fit(units, cohort=train).n_habitats
-print("k-means, K per criterion:", kmeans_k)
+    kmeans_models[criterion] = fitter.fit(units, cohort=train)
+    kmeans_k[criterion] = kmeans_models[criterion].n_habitats
+
+# Discrete-curvature elbow (visual elbow, computed): max second difference
+# of inertia — HABIT's pre-v1.0 elbow rule, not Thorndike (1953).
+elbow_report = kmeans_models["elbow"].preprocessing_state["selection_report"]
+candidates = [int(k) for k in elbow_report["candidates"]]
+inertia = np.asarray(elbow_report["scores"]["elbow"], dtype=float)
+
+
+def discrete_curvature_elbow_k(cluster_range: List[int], inertia_scores: np.ndarray) -> int:
+    """
+    Return the k that maximizes the second difference of inertia.
+
+    Args:
+        cluster_range: Candidate habitat counts, ascending.
+        inertia_scores: Within-cluster sum of squares per candidate.
+
+    Returns:
+        Selected habitat count (int).
+    """
+    values = np.asarray(inertia_scores, dtype=float)
+    if values.size < 3:
+        return int(cluster_range[int(np.argmin(values))])
+    # Same stencil as pre-v1.0: argmax(diff2) + 1 indexes into candidates.
+    index = int(np.argmax(np.diff(values, n=2))) + 1
+    return int(cluster_range[index])
+
+
+k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+kmeans_k["discrete_curvature_elbow"] = k_discrete
+print("k-means, K per criterion (maximize silhouette/CH/gap; minimize DB; Kneedle elbow):")
+for name, k in kmeans_k.items():
+    print(f"  {name}: {k}")
+print(
+    f"map uses HABIT elbow/kneedle K = {reference_model.n_habitats}; "
+    f"discrete-curvature elbow K = {k_discrete} (not used for the map)"
+)
 
 # A list of criteria is a vote. Its report carries every curve; the
 # figure marks, on each curve, the K that criterion picked on its own.
+# On the elbow panel the existing marker is Kneedle; we add an open
+# circle for the discrete-curvature k.
 voting = KMeansHabitatModelFitter(min_habitats=2, max_habitats=10, validation=list(KMEANS_CRITERIA), n_init=10)
 voting.set_random_state(0)
 voted_model = voting.fit(units, cohort=train)
 print("k-means, K by vote of all five:", voted_model.n_habitats)
 report = dict(voted_model.preprocessing_state["selection_report"])
-report["selected"] = kmeans_k
-fig = plot_cluster_validation_from_report(report, title="k-means: validation criteria")
+report["selected"] = {name: kmeans_k[name] for name in KMEANS_CRITERIA}
+fig = plot_cluster_validation_from_report(
+    report,
+    title="k-means criteria (elbow panel: x = Kneedle)",
+)
+# Second marker on the inertia/elbow panel: discrete-curvature elbow.
+elbow_ax = fig.axes[0]
+elbow_ax.plot(
+    k_discrete,
+    float(inertia[candidates.index(k_discrete)]),
+    marker="o",
+    markersize=8,
+    markerfacecolor="none",
+    markeredgecolor="C2",
+    markeredgewidth=1.4,
+    linestyle="none",
+    label=f"discrete-curvature k={k_discrete}",
+)
+elbow_ax.legend(loc="best", fontsize=8)
 fig.savefig("out/clustering_choice_kmeans_criteria.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# Gaussian mixture: which K does each criterion pick?
-# ---------------------------------------------------
+# Gaussian mixture: K selected by each criterion
+# ----------------------------------------------
 # The same rows with ``GmmHabitatModelFitter`` (full covariance, the
 # default; ``n_init=10`` as for k-means instead of the default 50, to
 # keep the page fast). Its own default criterion is ``bic``.
@@ -212,8 +292,8 @@ plt.show()
 # Same K, different algorithm
 # ---------------------------
 # When the two algorithms end up with the same K, are the habitats the
-# same regions? Compare the reference k-means map with the Gaussian
-# mixture chosen by ``bic_elbow``, if that picked the same K.
+# same regions? Compare the reference k-means map (Kneedle elbow K) with
+# the Gaussian mixture chosen by ``bic_elbow``, if that picked the same K.
 gmm_same_k = [c for c in GMM_CRITERIA if gmm_k[c] == reference_model.n_habitats]
 print("Gaussian-mixture criteria that picked the reference K:", gmm_same_k)
 if gmm_same_k:
@@ -249,20 +329,17 @@ for seed, (k, scores) in seed_rows.items():
 # How to read the result
 # ----------------------
 # On the build machine, with these two demo patients (60 pooled
-# supervoxels):
+# supervoxels), criteria disagree — that is the point of the page:
 #
-# * k-means: ``elbow`` and ``davies_bouldin`` picked K = 4,
-#   ``silhouette`` and ``calinski_harabasz`` picked K = 2, ``gap`` picked
-#   K = 10 (the top of the range). The vote of all five picked K = 2.
-# * Gaussian mixture: ``bic_elbow`` picked K = 4, ``bic`` and ``aic``
-#   picked K = 10 (the top of the range), the label-based scores picked
-#   K = 2, ``gap`` picked K = 7.
-# * The criteria disagree. That is normal: ``silhouette`` and
-#   ``calinski_harabasz`` reward a few well separated groups and often
-#   prefer 2; ``gap``, ``bic`` and ``aic`` keep improving as K grows on
-#   so few rows, so they run to the end of the range. A pick at the edge
-#   of the range means "the criterion did not find an optimum here", not
-#   "K = 10 is right".
+# * HABIT ``elbow`` / ``kneedle`` (Kneedle on inertia) and the
+#   discrete-curvature elbow (second difference of inertia) often pick
+#   different Ks; the habitat map above keeps the Kneedle K only.
+# * ``silhouette`` and ``calinski_harabasz`` (maximize) often prefer a
+#   small K; ``davies_bouldin`` (minimize) may agree with Kneedle or not;
+#   ``gap`` (maximize) can run to the top of the range on few rows.
+# * Gaussian mixture: ``bic`` / ``aic`` (minimize) and ``bic_elbow`` need
+#   not match k-means Kneedle. A pick at the edge of the range means
+#   "the criterion did not find an optimum here", not "that K is right".
 # * The seed-stability lines above show whether the K and the maps
 #   survive a different random start on these data.
 #

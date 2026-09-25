@@ -182,6 +182,49 @@ result_clean = Study(spec_clean).fit_predict(
     ),
 )
 print(result_raw.habitat_model.summary())
+
+# %%
+# Elbow / Kneedle caveat and criterion table
+# ------------------------------------------
+# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+# Normalize k and inertia to the unit square, draw the chord from the
+# first point to the last, and take the k farthest from that chord; a
+# smooth curve often places this knee to the right of the bend a person
+# sees. Literature "elbow" means inspecting within-cluster dispersion
+# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+# 18(4):267-276) — not a second-difference formula. The discrete-curvature
+# elbow (visual elbow, computed) maximizes the second difference of
+# inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+_report = result_raw.habitat_model.preprocessing_state["selection_report"]
+_candidates = [int(k) for k in _report["candidates"]]
+_inertia = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+
+
+def _discrete_curvature_elbow_k(cluster_range, inertia_scores):
+    """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+    values = np.asarray(inertia_scores, dtype=float)
+    cluster_range = [int(k) for k in cluster_range]
+    if values.size < 3:
+        return int(cluster_range[int(np.argmin(values))])
+    return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+_k_kneedle = int(result_raw.habitat_model.n_habitats)
+_k_discrete = _discrete_curvature_elbow_k(_candidates, _inertia)
+from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+_k_table = {"elbow_kneedle": _k_kneedle, "discrete_curvature_elbow": _k_discrete}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _fitter = _KMeansFitter(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+    _fitter.set_random_state(0)
+    _k_table[_name] = _fitter.fit(result_raw.units, cohort=train).n_habitats
+print("K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):")
+for _name, _k in _k_table.items():
+    print(f"  {_name}: {_k}")
+print(f"habitat map uses Kneedle K = {_k_kneedle}")
 print("cleanup Spec:", spec_clean.postprocess_habitat or "via stages")
 
 # %%

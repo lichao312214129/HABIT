@@ -169,7 +169,63 @@ print(model.summary())
 # with no bend means the count is a guess; look at neighbouring counts
 # before trusting the maps.
 report = model.preprocessing_state["selection_report"]
-fig = plot_cluster_validation_from_report(report, title="Approved definition: elbow curve")
+# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+# Normalize k and inertia to the unit square, draw the chord from the
+# first point to the last, and take the k farthest from that chord; a
+# smooth curve often places this knee to the right of the bend a person
+# sees. Literature "elbow" means inspecting within-cluster dispersion
+# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+# 18(4):267-276) — not a second-difference formula. The discrete-curvature
+# elbow (visual elbow, computed) maximizes the second difference of
+# inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. The
+# habitat map keeps the Kneedle K; other Ks are only in the table below.
+# Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+candidates = [int(k) for k in report["candidates"]]
+inertia = np.asarray(report["scores"][report["methods"][0]], dtype=float)
+
+
+def discrete_curvature_elbow_k(cluster_range, inertia_scores):
+    """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+    values = np.asarray(inertia_scores, dtype=float)
+    cluster_range = [int(k) for k in cluster_range]
+    if values.size < 3:
+        return int(cluster_range[int(np.argmin(values))])
+    return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+k_kneedle = int(result.habitat_model.n_habitats)
+k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+from habit.habitat_model import KMeansHabitatModelFitter
+
+_k_table = {"elbow_kneedle": k_kneedle, "discrete_curvature_elbow": k_discrete}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _fitter = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=10, validation=_name, n_init=10
+    )
+    _fitter.set_random_state(0)
+    _k_table[_name] = _fitter.fit(result.units, cohort=train).n_habitats
+print("K by criterion:")
+for _name, _k in _k_table.items():
+    print(f"  {_name}: {_k}")
+
+fig = plot_cluster_validation_from_report(
+    report, title="Approved definition: x = HABIT elbow/Kneedle"
+)
+fig.axes[0].plot(
+    k_discrete,
+    float(inertia[candidates.index(k_discrete)]),
+    marker="o",
+    markersize=8,
+    markerfacecolor="none",
+    markeredgecolor="C2",
+    markeredgewidth=1.4,
+    linestyle="none",
+    label=f"discrete-curvature k={k_discrete}",
+)
+fig.axes[0].legend(loc="best", fontsize=8)
 fig.savefig("out/quality_control_elbow.png", dpi=150, bbox_inches="tight")
 plt.show()
 

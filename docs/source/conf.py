@@ -159,17 +159,28 @@ napoleon_include_special_with_doc = True
 napoleon_use_param = True
 napoleon_use_rtype = True
 
-# Use the Read the Docs theme with the project custom stylesheet.
-html_theme = "sphinx_rtd_theme"
+# PyData theme: dark default and GitHub icon in the header.
+_docs_project_urls = _load_project_urls_module()
+html_theme = "pydata_sphinx_theme"
+html_context = {
+    "default_mode": "dark",
+}
 html_theme_options = {
+    "default_mode": "dark",
+    "github_url": _docs_project_urls.GITHUB_REPO_URL,
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": _docs_project_urls.GITHUB_REPO_URL,
+            "icon": "fa-brands fa-github",
+            "type": "fontawesome",
+        },
+    ],
+    "show_nav_level": 1,
     "navigation_depth": 4,
-    # sphinx-rtd-theme no longer accepts display_version
-    "prev_next_buttons_location": "bottom",
-    "collapse_navigation": False,
-    "sticky_navigation": True,
-    "includehidden": True,
-    "titles_only": False,
-    "style_external_links": True,
+    "show_toc_level": 2,
+    "navbar_align": "left",
+    "secondary_sidebar_items": ["page-toc", "edit-this-page"],
 }
 
 # Template path.

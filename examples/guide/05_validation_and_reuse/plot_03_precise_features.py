@@ -252,6 +252,27 @@ result_all = Study(spec_all).fit_predict(
     ),
 )
 
+# Elbow / Kneedle caveat: HABIT elbow is Kneedle (Satopaa et al., 2011),
+# not Thorndike (1953) informal elbow, not pre-v1.0 discrete-curvature.
+# One-step maps keep each subject's Kneedle K (range 2..4 here).
+_sid0 = cohort[0].subject_id
+_model0 = result_all.subject_models[_sid0]
+_report = _model0.preprocessing_state["selection_report"]
+_cand = [int(k) for k in _report["candidates"]]
+_iner = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+_k_kn = int(_model0.n_habitats)
+_k_dc = int(_cand[int(np.argmax(np.diff(_iner, n=2))) + 1]) if len(_iner) >= 3 else _k_kn
+from habit.habitat_model import KMeansHabitatModelFitter as _KF
+
+_k_table = {"elbow_kneedle": _k_kn, "discrete_curvature_elbow": _k_dc}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _f = _KF(min_habitats=2, max_habitats=4, validation=_name, n_init=5)
+    _f.set_random_state(11)
+    _k_table[_name] = _f.fit(result_all.units[0:1], cohort=cohort[:1]).n_habitats
+print(f"{_sid0}: K by criterion (skip gap)")
+for _n, _k in _k_table.items():
+    print(f"  {_n}: {_k}")
+
 def n_habitats_one_step(study_result: object) -> int:
     """Return K for a one-step run (per-subject model; no cohort model).
 

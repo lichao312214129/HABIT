@@ -21,11 +21,12 @@ feature of each centroid (what each habitat looks like on average).
   habitats and their centroids).
 * **centroid** -- the mean feature vector of one habitat; new rows are
   labelled by the centroid they are closest to.
-* **elbow** -- a rule for picking the number of habitats: the candidate
-  count after which adding one more habitat stops reducing
-  within-cluster spread much. This page fixes ``n_habitats=3``, so no
-  selection runs; the complete analysis passes ``min_habitats`` /
-  ``max_habitats`` with ``validation="elbow"`` instead.
+* **elbow** -- HABIT ``validation="elbow"`` is Kneedle on inertia
+  (Satopaa et al., 2011), not Thorndike's (1953) informal elbow and not
+  the pre-v1.0 discrete-curvature rule; see
+  :doc:`/user_guide/building_habitat_maps`. This page fixes
+  ``n_habitats=3``, so no selection runs; pages that auto-select pass
+  ``min_habitats`` / ``max_habitats`` with ``validation="elbow"`` instead.
 
 The ``fit`` stage of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.

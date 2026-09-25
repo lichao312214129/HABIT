@@ -171,6 +171,30 @@ result = Study(spec).fit_predict(
     ),
 )
 print("habitats:", result.habitat_model.n_habitats)
+
+# %%
+# Elbow / Kneedle caveat
+# ----------------------
+# HABIT validation ``elbow`` is the same rule as ``kneedle`` (Satopaa et
+# al., 2011): KneeLocator on inertia, curve convex, direction decreasing —
+# not Thorndike (1953) informal elbow, not pre-v1.0 discrete-curvature.
+# Maps keep the Kneedle K. See :doc:`/user_guide/building_habitat_maps`.
+_report = result.habitat_model.preprocessing_state["selection_report"]
+_cand = [int(k) for k in _report["candidates"]]
+_iner = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+_k_kn = int(result.habitat_model.n_habitats)
+_k_dc = int(_cand[int(np.argmax(np.diff(_iner, n=2))) + 1]) if len(_iner) >= 3 else _k_kn
+from habit.habitat_model import KMeansHabitatModelFitter as _KF
+
+_k_table = {"elbow_kneedle": _k_kn, "discrete_curvature_elbow": _k_dc}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _f = _KF(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+    _f.set_random_state(0)
+    _k_table[_name] = _f.fit(result.units, cohort=cohort).n_habitats
+print("K by criterion (skip gap):")
+for _n, _k in _k_table.items():
+    print(f"  {_n}: {_k}")
+
 for habitat_map in result.habitat_maps:
     print(habitat_map.subject_id, "label array", habitat_map.label_array.shape, "ids", habitat_map.habitat_ids)
 

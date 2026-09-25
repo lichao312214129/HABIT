@@ -50,6 +50,7 @@ import zipfile
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from habit.contracts import HabitatModel, cohort_from_directory
 from habit.datasets import fetch_demo
@@ -91,12 +92,44 @@ spec = HabitatSpec(
     ),
     random_seed=0,
 )
-Study(spec).fit_predict(
+published = Study(spec).fit_predict(
     cohort[:2],
     backend=backend_from_policy(
         RunPolicy(backend="serial", on_subject_failure="continue")
     ),
-).save("out/published", write_maps=False)
+)
+published.save("out/published", write_maps=False)
+
+# %%
+# Elbow / Kneedle caveat (authors' fit before publish)
+# ----------------------------------------------------
+# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+# Normalize k and inertia to the unit square, draw the chord from the
+# first point to the last, and take the k farthest from that chord; a
+# smooth curve often places this knee to the right of the bend a person
+# sees. Literature "elbow" means inspecting within-cluster dispersion
+# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+# 18(4):267-276) — not a second-difference formula. The discrete-curvature
+# elbow (visual elbow, computed) maximizes the second difference of
+# inertia (HABIT pre-v1.0 elbow). The published map K is Kneedle.
+_report = published.habitat_model.preprocessing_state["selection_report"]
+_cand = [int(k) for k in _report["candidates"]]
+_iner = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+_k_kn = int(published.habitat_model.n_habitats)
+_k_dc = int(_cand[int(np.argmax(np.diff(_iner, n=2))) + 1]) if len(_iner) >= 3 else _k_kn
+from habit.habitat_model import KMeansHabitatModelFitter as _KF
+
+_k_table = {"elbow_kneedle": _k_kn, "discrete_curvature_elbow": _k_dc}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _f = _KF(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+    _f.set_random_state(0)
+    _k_table[_name] = _f.fit(published.units, cohort=cohort[:2]).n_habitats
+print("K by criterion (published fit; skip gap):")
+for _n, _k in _k_table.items():
+    print(f"  {_n}: {_k}")
 
 # From here on, pretend this path is a file you downloaded.
 downloaded = Path("out/published/habitat_model.habitatmodel")

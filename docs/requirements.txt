@@ -1,6 +1,6 @@
 # Sphinx 核心依赖
-sphinx>=7.0.0
-sphinx-rtd-theme>=2.0.0
+sphinx>=7.0.0,<9
+pydata-sphinx-theme>=0.15
 # docutils>=0.21 移除了 docutils.utils.roman，sphinx 7.x latex builder 回退到该包
 roman>=3.3
 
