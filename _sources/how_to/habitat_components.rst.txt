@@ -467,9 +467,14 @@ Allowed ``validation`` values:
 
 * **kmeans** — ``elbow`` (default; alias of ``kneedle``), ``kneedle``,
   ``inertia``, ``silhouette``, ``calinski_harabasz``, ``davies_bouldin``,
-  ``gap``. A list of these casts one vote each.
+  ``gap``. A list of these casts one vote each. HABIT ``elbow`` /
+  ``kneedle`` is Kneedle on inertia (Satopaa et al., 2011), not the
+  informal literature elbow (Thorndike, 1953) and not the pre-v1.0
+  discrete-curvature second-difference rule — see
+  :doc:`/user_guide/building_habitat_maps`.
 * **gmm** — ``bic`` (default), ``aic``, ``davies_bouldin`` (minimise);
-  ``silhouette``, ``calinski_harabasz``, ``gap`` (maximise).
+  ``silhouette``, ``calinski_harabasz``, ``gap`` (maximise);
+  ``bic_elbow`` (Prior 2024 BIC-slope rule).
 
 Copy-paste a ``fit`` stage::
 

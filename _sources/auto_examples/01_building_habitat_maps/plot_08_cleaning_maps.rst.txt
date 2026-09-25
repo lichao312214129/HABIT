@@ -145,7 +145,7 @@ Two definitions that differ only in cleanup
 ``cleanup=True`` it inserts one ``connected_components`` stage after
 ``assign`` and changes nothing else.
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-187
+.. GENERATED FROM PYTHON SOURCE LINES 87-186
 
 .. code-block:: Python
 
@@ -247,7 +247,6 @@ Two definitions that differ only in cleanup
         ),
     )
     print(result_raw.habitat_model.summary())
-    print("cleanup Spec:", spec_clean.postprocess_habitat or "via stages")
 
 
 
@@ -257,10 +256,10 @@ Two definitions that differ only in cleanup
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.61s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.58s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.58s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.69it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.76it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.76it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.43s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.48s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.48s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.28s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.33s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.33s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.97s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.97s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.69it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.62it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.72s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.75s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.75s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.07s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:07<00:00,  3.97s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:07<00:00,  3.97s/it]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -271,12 +270,81 @@ Two definitions that differ only in cleanup
       habit version      : 3.0.0
       random seed        : 0
       preprocessing state: inertia, selection_report, validation
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 187-201
+
+Elbow / Kneedle caveat and criterion table
+------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+
+.. GENERATED FROM PYTHON SOURCE LINES 201-230
+
+.. code-block:: Python
+
+    _report = result_raw.habitat_model.preprocessing_state["selection_report"]
+    _candidates = [int(k) for k in _report["candidates"]]
+    _inertia = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+
+
+    def _discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    _k_kneedle = int(result_raw.habitat_model.n_habitats)
+    _k_discrete = _discrete_curvature_elbow_k(_candidates, _inertia)
+    from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+    _k_table = {"elbow_kneedle": _k_kneedle, "discrete_curvature_elbow": _k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = _KMeansFitter(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(result_raw.units, cohort=train).n_habitats
+    print("K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+    print(f"habitat map uses Kneedle K = {_k_kneedle}")
+    print("cleanup Spec:", spec_clean.postprocess_habitat or "via stages")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
+    habitat map uses Kneedle K = 5
     cleanup Spec: via stages
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 188-193
+.. GENERATED FROM PYTHON SOURCE LINES 231-236
 
 Piece counts before and after cleanup
 -------------------------------------
@@ -284,7 +352,7 @@ The same voxels, the same centroids: only islands smaller than
 ``MIN_COMPONENT_SIZE`` are refilled. Volume fractions can move by those
 reassigned voxels; habitat ids that were present stay present.
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-219
+.. GENERATED FROM PYTHON SOURCE LINES 236-262
 
 .. code-block:: Python
 
@@ -329,7 +397,7 @@ reassigned voxels; habitat ids that were present stay present.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 220-225
+.. GENERATED FROM PYTHON SOURCE LINES 263-268
 
 Side-by-side maps on one patient
 --------------------------------
@@ -337,7 +405,7 @@ Left = raw assignment; right = after connected-component cleanup.
 Ids come from two fits that share the stage list and seed except for
 cleanup, so colours match without Hungarian rematching.
 
-.. GENERATED FROM PYTHON SOURCE LINES 225-248
+.. GENERATED FROM PYTHON SOURCE LINES 268-291
 
 .. code-block:: Python
 
@@ -397,7 +465,7 @@ cleanup, so colours match without Hungarian rematching.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-254
+.. GENERATED FROM PYTHON SOURCE LINES 292-297
 
 Volume fractions move only where voxels were reassigned
 -------------------------------------------------------
@@ -405,7 +473,7 @@ The ``volume`` stage columns come from the maps that actually left the
 pipeline. Cleanup can change a fraction by a few percent; a large jump
 means the cut-off removed a real region, not only speck.
 
-.. GENERATED FROM PYTHON SOURCE LINES 254-261
+.. GENERATED FROM PYTHON SOURCE LINES 297-304
 
 .. code-block:: Python
 
@@ -433,7 +501,7 @@ means the cut-off removed a real region, not only speck.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-276
+.. GENERATED FROM PYTHON SOURCE LINES 305-319
 
 How to read the result
 ----------------------
@@ -450,7 +518,7 @@ Measured on this run (K = 4 by elbow on subj001 + subj002;
 Choose the size cut-off for your cohort (and report it). Cleanup that
 changes fractions by tens of percent is too aggressive for that data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 278-288
+.. GENERATED FROM PYTHON SOURCE LINES 321-331
 
 Where to go next
 ----------------
@@ -466,7 +534,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 25.168 seconds)
+   **Total running time of the script:** (0 minutes 29.202 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_08_cleaning_maps.py:

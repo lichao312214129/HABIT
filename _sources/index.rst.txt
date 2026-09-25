@@ -6,6 +6,8 @@ quantifies them (volume fractions, MSI, ITH, radiomics, and HABIT's own
 **habitat graph-network features**), and saves a reusable
 ``.habitatmodel`` so new patients can be labelled without refitting.
 
+Project repository: https://github.com/lichao312214129/HABIT
+
 .. warning::
 
    Research / education only. Not for clinical diagnosis.
@@ -59,6 +61,13 @@ Featured examples
    api/index
    configuration/recipe_catalog
    reference/cli
+   reference/habitat_matching
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Feature formulas
+
+   reference/features/index
 
 .. toctree::
    :maxdepth: 1
@@ -73,7 +82,6 @@ Featured examples
    development/contributing
    development/architecture
    customization/index
-   changelog
 
 .. toctree::
    :maxdepth: 1

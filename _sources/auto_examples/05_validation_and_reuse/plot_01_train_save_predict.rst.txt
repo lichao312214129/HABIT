@@ -155,7 +155,7 @@ The same stage list as the reference page. Stages before ``pool`` are
 subject-level; ``preprocess_cohort`` after ``pool`` is cohort-level and
 is stored in the model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-149
+.. GENERATED FROM PYTHON SOURCE LINES 96-139
 
 .. code-block:: Python
 
@@ -202,6 +202,82 @@ is stored in the model.
     )
     print(result.habitat_model.summary())
 
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:04<00:08,  4.20s/it]    Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:06<00:03,  3.02s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:07<00:00,  2.48s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:07<00:00,  2.48s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.11s/it]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:01<00:00,  1.02it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.10it/s]
+    HabitatModel kmeans-67aab5a9d307d671
+      habitats           : 5
+      features (4)    : pre_contrast, LAP, PVP, delay_3min
+      defining cohort    : n=3
+      modalities         : pre_contrast, LAP, PVP, delay_3min
+      cohort digest      : 7ffce8f589e3ad28...
+      produced by        : habitat_model_fitter.kmeans
+      habit version      : 3.0.0
+      random seed        : 0
+      preprocessing state: inertia, selection_report, validation
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 140-154
+
+Elbow / Kneedle caveat and criterion table
+------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+
+.. GENERATED FROM PYTHON SOURCE LINES 154-195
+
+.. code-block:: Python
+
+    _report = result.habitat_model.preprocessing_state["selection_report"]
+    _candidates = [int(k) for k in _report["candidates"]]
+    _inertia = __import__("numpy").asarray(_report["scores"][_report["methods"][0]], dtype=float)
+
+
+    def _discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        import numpy as np
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    _k_kneedle = int(result.habitat_model.n_habitats)
+    _k_discrete = _discrete_curvature_elbow_k(_candidates, _inertia)
+    from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+    _k_table = {"elbow_kneedle": _k_kneedle, "discrete_curvature_elbow": _k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = _KMeansFitter(
+            min_habitats=2, max_habitats=10, validation=_name, n_init=10
+        )
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(result.units, cohort=train).n_habitats
+    print("K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+    print(f"habitat map uses Kneedle K = {_k_kneedle}")
+
     # One training map, to compare colours with the held-out patients below.
     fig = plot_habitat_overlay(
         train[0].image("LAP"),
@@ -225,25 +301,20 @@ is stored in the model.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:04<00:08,  4.12s/it]    Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:05<00:02,  2.97s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:07<00:00,  2.47s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:07<00:00,  2.47s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:01<00:02,  1.18s/it]    Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:02<00:01,  1.04s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.04it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:02<00:00,  1.04it/s]
-    HabitatModel kmeans-67aab5a9d307d671
-      habitats           : 5
-      features (4)    : pre_contrast, LAP, PVP, delay_3min
-      defining cohort    : n=3
-      modalities         : pre_contrast, LAP, PVP, delay_3min
-      cohort digest      : 7ffce8f589e3ad28...
-      produced by        : habitat_model_fitter.kmeans
-      habit version      : 3.0.0
-      random seed        : 0
-      preprocessing state: inertia, selection_report, validation
+    K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
+    habitat map uses Kneedle K = 5
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-156
+.. GENERATED FROM PYTHON SOURCE LINES 196-202
 
 The methods paragraph of the training run
 -----------------------------------------
@@ -252,7 +323,7 @@ seeds and the software versions. ``describe_methods()`` turns that
 record into a draft methods paragraph. It states only steps that
 actually ran; you still edit it for your manuscript.
 
-.. GENERATED FROM PYTHON SOURCE LINES 156-158
+.. GENERATED FROM PYTHON SOURCE LINES 202-204
 
 .. code-block:: Python
 
@@ -271,7 +342,7 @@ actually ran; you still edit it for your manuscript.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-168
+.. GENERATED FROM PYTHON SOURCE LINES 205-214
 
 Save the model and look inside the file
 ---------------------------------------
@@ -283,7 +354,7 @@ version) and the centroid matrix as ``.npy``. No pickle, so any
 Python -- or any language with ZIP and JSON -- can read it, and a
 future HABIT can refuse an incompatible file with a clear message.
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-174
+.. GENERATED FROM PYTHON SOURCE LINES 214-220
 
 .. code-block:: Python
 
@@ -307,7 +378,7 @@ future HABIT can refuse an incompatible file with a clear message.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 175-181
+.. GENERATED FROM PYTHON SOURCE LINES 221-227
 
 Reload into a fresh object
 --------------------------
@@ -316,7 +387,7 @@ model carries an id and a non-identifying description of the cohort
 that defined it (number of subjects, modalities, a digest of the
 subject ids), so a shared file says where its definition came from.
 
-.. GENERATED FROM PYTHON SOURCE LINES 181-193
+.. GENERATED FROM PYTHON SOURCE LINES 227-239
 
 .. code-block:: Python
 
@@ -353,7 +424,7 @@ subject ids), so a shared file says where its definition came from.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 194-205
+.. GENERATED FROM PYTHON SOURCE LINES 240-251
 
 Label the held-out patients
 ---------------------------
@@ -367,7 +438,7 @@ upstream stages (extract, preprocess, partition) must be the ones the
 model was trained with. Without ``spec=``, the spec stored in the
 model is used.
 
-.. GENERATED FROM PYTHON SOURCE LINES 205-223
+.. GENERATED FROM PYTHON SOURCE LINES 251-269
 
 .. code-block:: Python
 
@@ -402,7 +473,7 @@ model is used.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:02<00:02,  2.50s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:11<00:00,  5.91s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:11<00:00,  5.91s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:02<00:02,  2.36s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:11<00:00,  5.54s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:11<00:00,  5.54s/it]
     held-out habitat volume fractions:
              habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  habitat_5_volume_fraction
     subject                                                                                                                                       
@@ -414,7 +485,7 @@ model is used.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 224-230
+.. GENERATED FROM PYTHON SOURCE LINES 270-276
 
 Check that labelling did not change the definition
 --------------------------------------------------
@@ -423,7 +494,7 @@ after ``predict``, every held-out map carries the id of the model
 that labelled it (so maps from different definitions cannot be mixed
 silently), and no held-out map uses an id the model does not have.
 
-.. GENERATED FROM PYTHON SOURCE LINES 230-235
+.. GENERATED FROM PYTHON SOURCE LINES 276-281
 
 .. code-block:: Python
 
@@ -447,7 +518,7 @@ silently), and no held-out map uses an id the model does not have.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 236-244
+.. GENERATED FROM PYTHON SOURCE LINES 282-290
 
 Same labels from a fresh Python process
 ---------------------------------------
@@ -458,7 +529,7 @@ this page, so it shares nothing with the objects above. It uses the
 spec stored in the model, so it also shows that the file carries the
 analysis, not only the centroids.
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-275
+.. GENERATED FROM PYTHON SOURCE LINES 290-321
 
 .. code-block:: Python
 
@@ -507,7 +578,7 @@ analysis, not only the centroids.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 276-281
+.. GENERATED FROM PYTHON SOURCE LINES 322-327
 
 Hand the feature table to your statistics tool
 ----------------------------------------------
@@ -515,7 +586,7 @@ One row per held-out patient: volume fractions, MSI, ITH and graph
 columns. This CSV is where HABIT stops; outcome modelling or
 statistics happen in the tool of your choice. No model is built here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 281-285
+.. GENERATED FROM PYTHON SOURCE LINES 327-331
 
 .. code-block:: Python
 
@@ -537,7 +608,7 @@ statistics happen in the tool of your choice. No model is built here.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 286-304
+.. GENERATED FROM PYTHON SOURCE LINES 332-350
 
 How to read the result
 ----------------------
@@ -558,7 +629,7 @@ Measured on this run:
 None of this says the habitats are clinically meaningful or that they
 transfer to another centre; that needs an independent cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 306-318
+.. GENERATED FROM PYTHON SOURCE LINES 352-364
 
 Where to go next
 ----------------
@@ -576,7 +647,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 42.791 seconds)
+   **Total running time of the script:** (0 minutes 41.599 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_validation_and_reuse_plot_01_train_save_predict.py:

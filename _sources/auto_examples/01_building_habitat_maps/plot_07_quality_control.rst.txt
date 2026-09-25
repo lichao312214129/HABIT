@@ -248,9 +248,9 @@ centroids and the stored bin edges, without refitting.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.39s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.09s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.09s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.79it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.84it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.84it/s]
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:02<00:04,  2.07s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:04<00:02,  2.13s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:12<00:00,  4.13s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:12<00:00,  4.13s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.40s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.18s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.70it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.69it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.69it/s]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:02<00:04,  2.02s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:04<00:02,  2.07s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:12<00:00,  4.24s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:12<00:00,  4.24s/it]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -273,12 +273,68 @@ The elbow curve should have a visible bend at the kept count. A curve
 with no bend means the count is a guess; look at neighbouring counts
 before trusting the maps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 171-176
+.. GENERATED FROM PYTHON SOURCE LINES 171-232
 
 .. code-block:: Python
 
     report = model.preprocessing_state["selection_report"]
-    fig = plot_cluster_validation_from_report(report, title="Approved definition: elbow curve")
+    # HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+    # ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+    # curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+    # Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+    # Normalize k and inertia to the unit square, draw the chord from the
+    # first point to the last, and take the k farthest from that chord; a
+    # smooth curve often places this knee to the right of the bend a person
+    # sees. Literature "elbow" means inspecting within-cluster dispersion
+    # versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+    # 18(4):267-276) — not a second-difference formula. The discrete-curvature
+    # elbow (visual elbow, computed) maximizes the second difference of
+    # inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. The
+    # habitat map keeps the Kneedle K; other Ks are only in the table below.
+    # Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+    candidates = [int(k) for k in report["candidates"]]
+    inertia = np.asarray(report["scores"][report["methods"][0]], dtype=float)
+
+
+    def discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    k_kneedle = int(result.habitat_model.n_habitats)
+    k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+    from habit.habitat_model import KMeansHabitatModelFitter
+
+    _k_table = {"elbow_kneedle": k_kneedle, "discrete_curvature_elbow": k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = KMeansHabitatModelFitter(
+            min_habitats=2, max_habitats=10, validation=_name, n_init=10
+        )
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(result.units, cohort=train).n_habitats
+    print("K by criterion:")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+
+    fig = plot_cluster_validation_from_report(
+        report, title="Approved definition: x = HABIT elbow/Kneedle"
+    )
+    fig.axes[0].plot(
+        k_discrete,
+        float(inertia[candidates.index(k_discrete)]),
+        marker="o",
+        markersize=8,
+        markerfacecolor="none",
+        markeredgecolor="C2",
+        markeredgewidth=1.4,
+        linestyle="none",
+        label=f"discrete-curvature k={k_discrete}",
+    )
+    fig.axes[0].legend(loc="best", fontsize=8)
     fig.savefig("out/quality_control_elbow.png", dpi=150, bbox_inches="tight")
     plt.show()
 
@@ -286,15 +342,26 @@ before trusting the maps.
 
 
 .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_07_quality_control_001.png
-   :alt: Approved definition: elbow curve, elbow (selected k=5)
+   :alt: Approved definition: x = HABIT elbow/Kneedle, elbow (selected k=5)
    :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_07_quality_control_001.png
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    K by criterion:
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 177-182
+
+.. GENERATED FROM PYTHON SOURCE LINES 233-238
 
 Check 2: supervoxels and habitats on one slice
 ----------------------------------------------
@@ -302,7 +369,7 @@ The triptych shows whether habitats follow the supervoxel patches and
 the anatomy. Habitats that cut straight through uniform tissue, or
 supervoxels that ignore visible edges, are worth a second look.
 
-.. GENERATED FROM PYTHON SOURCE LINES 182-188
+.. GENERATED FROM PYTHON SOURCE LINES 238-244
 
 .. code-block:: Python
 
@@ -331,7 +398,7 @@ supervoxels that ignore visible edges, are worth a second look.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 189-195
+.. GENERATED FROM PYTHON SOURCE LINES 245-251
 
 Check 3: overlays on all three axes and several slices
 ------------------------------------------------------
@@ -340,7 +407,7 @@ densest habitat slice). One slice can hide a one-block or speckled
 region, so two more axial slices are drawn near the top and bottom
 quarter of the tumour.
 
-.. GENERATED FROM PYTHON SOURCE LINES 195-221
+.. GENERATED FROM PYTHON SOURCE LINES 251-277
 
 .. code-block:: Python
 
@@ -412,7 +479,7 @@ quarter of the tumour.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 222-228
+.. GENERATED FROM PYTHON SOURCE LINES 278-284
 
 Check 4: numeric flags for every map
 ------------------------------------
@@ -421,7 +488,7 @@ each habitat, how many of the model's habitats are present, how many
 connected pieces there are, the share of voxels in tiny pieces and the
 ITH score, and turns three of them into True / False flags.
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-309
+.. GENERATED FROM PYTHON SOURCE LINES 284-365
 
 .. code-block:: Python
 
@@ -526,14 +593,14 @@ ITH score, and turns three of them into True / False flags.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 310-314
+.. GENERATED FROM PYTHON SOURCE LINES 366-370
 
 Check 5: volume fractions per subject
 -------------------------------------
 One bar chart per new patient. A healthy map spreads its voxels over
 several habitats; one tall bar is the one-block pattern.
 
-.. GENERATED FROM PYTHON SOURCE LINES 314-322
+.. GENERATED FROM PYTHON SOURCE LINES 370-378
 
 .. code-block:: Python
 
@@ -576,7 +643,7 @@ several habitats; one tall bar is the one-block pattern.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 323-329
+.. GENERATED FROM PYTHON SOURCE LINES 379-385
 
 A deliberately poor definition
 ------------------------------
@@ -585,7 +652,7 @@ are in arbitrary units, so a new patient whose scan is globally darker
 or brighter than the training scans is pushed towards the centroids
 nearest its overall intensity level.
 
-.. GENERATED FROM PYTHON SOURCE LINES 329-350
+.. GENERATED FROM PYTHON SOURCE LINES 385-406
 
 .. code-block:: Python
 
@@ -618,9 +685,9 @@ nearest its overall intensity level.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.38s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.55s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.55s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.88it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.83it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.83it/s]
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:01<00:03,  1.97s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:03<00:01,  1.96s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:11<00:00,  3.73s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:11<00:00,  3.73s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.27s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.50s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.88it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:01<00:03,  1.92s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:03<00:01,  1.92s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:11<00:00,  3.70s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:11<00:00,  3.70s/it]
     Poor definition, no subject-level normalization (K = 5):
     subject    h1    h2    h3    h4    h5  largest present  pieces  tiny_share   ith  one_block  missing_habitat  fragmented
     subj001 0.221 0.116 0.252 0.047 0.364    0.364     5/5     194       0.012 0.961      False            False       False
@@ -633,14 +700,14 @@ nearest its overall intensity level.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 351-355
+.. GENERATED FROM PYTHON SOURCE LINES 407-411
 
 The flags side by side
 ----------------------
 One row per subject and definition; only the flag columns and the
 numbers they are based on.
 
-.. GENERATED FROM PYTHON SOURCE LINES 355-361
+.. GENERATED FROM PYTHON SOURCE LINES 411-417
 
 .. code-block:: Python
 
@@ -674,7 +741,7 @@ numbers they are based on.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 362-367
+.. GENERATED FROM PYTHON SOURCE LINES 418-423
 
 Look at the worst map under both definitions
 --------------------------------------------
@@ -682,7 +749,7 @@ The new patient with the largest single-habitat fraction under the
 poor definition, drawn under both definitions with the same crop
 window so the two figures show the same anatomy.
 
-.. GENERATED FROM PYTHON SOURCE LINES 367-394
+.. GENERATED FROM PYTHON SOURCE LINES 423-450
 
 .. code-block:: Python
 
@@ -760,7 +827,7 @@ window so the two figures show the same anatomy.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 395-412
+.. GENERATED FROM PYTHON SOURCE LINES 451-468
 
 How to read the result
 ----------------------
@@ -780,7 +847,7 @@ poor definition without subject-level winsorize / z-score: K = 5):
 The 60 % / 5 % / 10-voxel thresholds are page choices. Set your own
 from your cohort before treating a flag as a reject rule.
 
-.. GENERATED FROM PYTHON SOURCE LINES 414-427
+.. GENERATED FROM PYTHON SOURCE LINES 470-483
 
 Where to go next
 ----------------
@@ -799,7 +866,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 58.749 seconds)
+   **Total running time of the script:** (1 minutes 0.131 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_07_quality_control.py:

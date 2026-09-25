@@ -219,7 +219,7 @@ The same ``HabitatSpec`` as
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`. ``Study`` only
 sees the in-memory cohort; it neither reads nor writes any folder.
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-187
+.. GENERATED FROM PYTHON SOURCE LINES 143-175
 
 .. code-block:: Python
 
@@ -254,6 +254,51 @@ sees the in-memory cohort; it neither reads nor writes any folder.
         ),
     )
     print("habitats:", result.habitat_model.n_habitats)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.19s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.10s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.10s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.12s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.01it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.01it/s]
+    habitats: 5
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 176-182
+
+Elbow / Kneedle caveat
+----------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle`` (Satopaa et
+al., 2011): KneeLocator on inertia, curve convex, direction decreasing —
+not Thorndike (1953) informal elbow, not pre-v1.0 discrete-curvature.
+Maps keep the Kneedle K. See :doc:`/user_guide/building_habitat_maps`.
+
+.. GENERATED FROM PYTHON SOURCE LINES 182-211
+
+.. code-block:: Python
+
+    _report = result.habitat_model.preprocessing_state["selection_report"]
+    _cand = [int(k) for k in _report["candidates"]]
+    _iner = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+    _k_kn = int(result.habitat_model.n_habitats)
+    _k_dc = int(_cand[int(np.argmax(np.diff(_iner, n=2))) + 1]) if len(_iner) >= 3 else _k_kn
+    from habit.habitat_model import KMeansHabitatModelFitter as _KF
+
+    _k_table = {"elbow_kneedle": _k_kn, "discrete_curvature_elbow": _k_dc}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _f = _KF(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+        _f.set_random_state(0)
+        _k_table[_name] = _f.fit(result.units, cohort=cohort).n_habitats
+    print("K by criterion (skip gap):")
+    for _n, _k in _k_table.items():
+        print(f"  {_n}: {_k}")
+
     for habitat_map in result.habitat_maps:
         print(habitat_map.subject_id, "label array", habitat_map.label_array.shape, "ids", habitat_map.habitat_ids)
 
@@ -280,9 +325,12 @@ sees the in-memory cohort; it neither reads nor writes any folder.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.81s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.89s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.89s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.00it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.12it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.12it/s]
-    habitats: 5
+    K by criterion (skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
     subj001 label array (200, 360, 360) ids (1, 2, 3, 4, 5)
     subj002 label array (200, 360, 360) ids (1, 2, 3, 4, 5)
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
@@ -291,7 +339,7 @@ sees the in-memory cohort; it neither reads nor writes any folder.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 188-202
+.. GENERATED FROM PYTHON SOURCE LINES 212-226
 
 Hand the result back as SimpleITK images
 ----------------------------------------
@@ -308,7 +356,7 @@ input image, and its labelled voxels are exactly the ROI voxels of the
 mask array your loader returned (every ROI voxel got a habitat, no
 voxel outside it did).
 
-.. GENERATED FROM PYTHON SOURCE LINES 202-215
+.. GENERATED FROM PYTHON SOURCE LINES 226-239
 
 .. code-block:: Python
 
@@ -339,7 +387,7 @@ voxel outside it did).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-221
+.. GENERATED FROM PYTHON SOURCE LINES 240-245
 
 Same result as the directory-loaded run
 ---------------------------------------
@@ -347,7 +395,7 @@ The same patients loaded with ``cohort_from_directory`` and the same
 spec. The in-memory route should change nothing but the loading, so
 the habitat maps must be identical voxel for voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 221-233
+.. GENERATED FROM PYTHON SOURCE LINES 245-257
 
 .. code-block:: Python
 
@@ -371,8 +419,8 @@ the habitat maps must be identical voxel for voxel.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.48s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.52s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.52s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.02s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.11it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.11it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.88s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.81s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.81s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.07s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.04it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.04it/s]
     subj001: in-memory == directory-loaded: True
     subj002: in-memory == directory-loaded: True
     same number of habitats: True
@@ -380,7 +428,7 @@ the habitat maps must be identical voxel for voxel.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-252
+.. GENERATED FROM PYTHON SOURCE LINES 258-276
 
 How to read the result
 ----------------------
@@ -401,7 +449,7 @@ only ``my_loader`` touched files (here the demo files, in your project
 whatever your loader reads), and the ``.nrrd`` written to ``out/`` is
 just one way your pipeline could store the returned SimpleITK images.
 
-.. GENERATED FROM PYTHON SOURCE LINES 254-263
+.. GENERATED FROM PYTHON SOURCE LINES 278-287
 
 Where to go next
 ----------------
@@ -416,7 +464,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 14.620 seconds)
+   **Total running time of the script:** (0 minutes 16.658 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07_advanced_plot_09_own_pipeline.py:

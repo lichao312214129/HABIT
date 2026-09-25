@@ -12,8 +12,9 @@ describes each patient by how much of each habitat they have and how
 the habitats are arranged.
 
 **Purpose.** You will fit habitats on two demo patients with the
-two-step design, pick the number of habitats with the elbow rule, view
-the habitat maps, get a one-row-per-patient feature table (volume
+two-step design, pick the number of habitats with HABIT ``elbow``
+(Kneedle on inertia; see the caveat in the "How many habitats" cell),
+view the habitat maps, get a one-row-per-patient feature table (volume
 fractions, MSI, ITH, graph), save the model as a ``.habitatmodel``
 file, and label a third patient with it.
 
@@ -194,12 +195,70 @@ print(result.habitat_model.summary())
 # %%
 # How many habitats
 # -----------------
-# The fitter scores every candidate count (here the k-means inertia,
-# which always falls as K grows) and keeps the elbow, where adding one
-# more habitat stops paying off. The report is stored on the model, so
-# the choice can be audited later from the saved file.
+# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+# Normalize k and inertia to the unit square, draw the chord from the
+# first point to the last, and take the k farthest from that chord; a
+# smooth curve often places this knee to the right of the bend a person
+# sees. Literature "elbow" means inspecting within-cluster dispersion
+# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+# 18(4):267-276) — not a second-difference formula. The discrete-curvature
+# elbow (visual elbow, computed) maximizes the second difference of
+# inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. The
+# habitat map keeps the Kneedle K; other Ks are only in the table below.
+# Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+
 report = result.habitat_model.preprocessing_state["selection_report"]
-fig = plot_cluster_validation_from_report(report)
+candidates = [int(k) for k in report["candidates"]]
+inertia = np.asarray(report["scores"][report["methods"][0]], dtype=float)
+
+
+def discrete_curvature_elbow_k(cluster_range, inertia_scores):
+    """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+    values = np.asarray(inertia_scores, dtype=float)
+    cluster_range = [int(k) for k in cluster_range]
+    if values.size < 3:
+        return int(cluster_range[int(np.argmin(values))])
+    return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+k_kneedle = int(result.habitat_model.n_habitats)
+k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+# Other supported k-means criteria (skip gap: expensive; not run on this page).
+from habit.habitat_model import KMeansHabitatModelFitter
+
+_k_table = {"elbow_kneedle": k_kneedle, "discrete_curvature_elbow": k_discrete}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _fitter = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=10, validation=_name, n_init=10
+    )
+    _fitter.set_random_state(0)
+    _k_table[_name] = _fitter.fit(result.units, cohort=train).n_habitats
+print(
+    "K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; "
+    "discrete-curvature=max second diff of inertia):"
+)
+for _name, _k in _k_table.items():
+    print(f"  {_name}: {_k}")
+print(f"habitat map uses Kneedle K = {k_kneedle}")
+
+fig = plot_cluster_validation_from_report(
+    report, title="Inertia: x = HABIT elbow/Kneedle"
+)
+fig.axes[0].plot(
+    k_discrete,
+    float(inertia[candidates.index(k_discrete)]),
+    marker="o",
+    markersize=8,
+    markerfacecolor="none",
+    markeredgecolor="C2",
+    markeredgewidth=1.4,
+    linestyle="none",
+    label=f"discrete-curvature k={k_discrete}",
+)
+fig.axes[0].legend(loc="best", fontsize=8)
 fig.savefig("out/two_step_spec_elbow.png", dpi=150, bbox_inches="tight")
 plt.show()
 
@@ -241,7 +300,9 @@ print(table[columns].round(3).to_string())
 # %%
 # How to read the result
 # ----------------------
-# * The elbow rule kept **K = 4** habitats on subj001 + subj002.
+# * HABIT elbow/Kneedle kept **K = 5** habitats on subj001 + subj002
+#   (discrete-curvature elbow K = 3; silhouette / Calinski-Harabasz /
+#   Davies-Bouldin all K = 2 on this demo — map uses Kneedle only).
 # * Volume fractions (columns ``habitat_<i>_volume_fraction``) sum to 1
 #   per patient. Because the ids are shared, a column can be compared
 #   across rows: in this run habitat 1 covers 0.225 of subj001 and
@@ -313,8 +374,8 @@ fig.savefig("out/two_step_spec_new_patient.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# Is the new patient one big habitat?
-# -----------------------------------
+# New-patient habitat fractions
+# -----------------------------
 # The demo's third patient is globally darker than the two training
 # patients. If voxels were compared on raw intensities, most of them
 # could fall into the darkest centroid. Print the fraction of its ROI

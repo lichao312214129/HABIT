@@ -191,6 +191,50 @@ pooled_ready_units = list(units)
 model = fitter.fit(pooled_ready_units, cohort=train)
 print(model.summary())
 
+# %%
+# How many habitats (elbow / Kneedle caveat)
+# ------------------------------------------
+# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+# Normalize k and inertia to the unit square, draw the chord from the
+# first point to the last, and take the k farthest from that chord; a
+# smooth curve often places this knee to the right of the bend a person
+# sees. Literature "elbow" means inspecting within-cluster dispersion
+# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+# 18(4):267-276) — not a second-difference formula. The discrete-curvature
+# elbow (visual elbow, computed) maximizes the second difference of
+# inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. Habitat
+# maps below keep the Kneedle K. See
+# :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+report = model.preprocessing_state["selection_report"]
+candidates = [int(k) for k in report["candidates"]]
+inertia = np.asarray(report["scores"][report["methods"][0]], dtype=float)
+
+
+def discrete_curvature_elbow_k(cluster_range, inertia_scores):
+    """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+    values = np.asarray(inertia_scores, dtype=float)
+    cluster_range = [int(k) for k in cluster_range]
+    if values.size < 3:
+        return int(cluster_range[int(np.argmin(values))])
+    return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+k_kneedle = int(model.n_habitats)
+k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+_k_table = {"elbow_kneedle": k_kneedle, "discrete_curvature_elbow": k_discrete}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _fitter = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=10, validation=_name, n_init=10
+    )
+    _fitter.set_random_state(SEED)
+    _k_table[_name] = _fitter.fit(pooled_ready_units, cohort=train).n_habitats
+print("K by criterion (sil/CH maximize; DB minimize; skip gap):")
+for _name, _k in _k_table.items():
+    print(f"  {_name}: {_k}")
+
 # The assigner gives every supervoxel the id of its nearest centroid,
 # then writes that id onto the supervoxel's voxels.
 assigner = model.assigner("nearest_centroid")

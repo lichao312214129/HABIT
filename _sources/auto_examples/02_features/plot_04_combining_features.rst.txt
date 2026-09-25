@@ -295,8 +295,8 @@ pooled fit (elbow over 2..3 habitats), assign, then the feature stages.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.34s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.27s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.27s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.54it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.56it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.56it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.16s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.59it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.62it/s]
     HabitatModel kmeans-eb51fe90351b084b
       habitats           : 3
       features (2)    : LAP, PVP
@@ -318,7 +318,7 @@ pooled fit (elbow over 2..3 habitats), assign, then the feature stages.
 ``concat`` joins two ``raw`` extractors column-wise. The head() table
 should show the same number of rows and more columns.
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-158
+.. GENERATED FROM PYTHON SOURCE LINES 122-159
 
 .. code-block:: Python
 
@@ -362,6 +362,7 @@ should show the same number of rows and more columns.
 
 
 
+
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
@@ -375,9 +376,79 @@ should show the same number of rows and more columns.
     2  1077.0  1088.0
     3  1073.0  1072.0
     4  1033.0  1132.0
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.51s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.51s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.45it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.44it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.44it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.79s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.71s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.71s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.33it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.34it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.34it/s]
     concat habitats: 3
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 160-174
+
+Elbow / Kneedle caveat and criterion table
+------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+
+.. GENERATED FROM PYTHON SOURCE LINES 174-204
+
+.. code-block:: Python
+
+    _report = concat_result.habitat_model.preprocessing_state["selection_report"]
+    _candidates = [int(k) for k in _report["candidates"]]
+    _inertia = __import__("numpy").asarray(_report["scores"][_report["methods"][0]], dtype=float)
+
+
+    def _discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        import numpy as np
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    _k_kneedle = int(concat_result.habitat_model.n_habitats)
+    _k_discrete = _discrete_curvature_elbow_k(_candidates, _inertia)
+    from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+    _k_table = {"elbow_kneedle": _k_kneedle, "discrete_curvature_elbow": _k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = _KMeansFitter(
+            min_habitats=2, max_habitats=3, validation=_name, n_init=3
+        )
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(concat_result.units, cohort=cohort).n_habitats
+    print("K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+    print(f"habitat map uses Kneedle K = {_k_kneedle}")
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):
+      elbow_kneedle: 3
+      discrete_curvature_elbow: 3
+      silhouette: 3
+      calinski_harabasz: 3
+      davies_bouldin: 3
+    habitat map uses Kneedle K = 3
 
 
 
@@ -385,7 +456,7 @@ should show the same number of rows and more columns.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 14.288 seconds)
+   **Total running time of the script:** (0 minutes 14.605 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_features_plot_04_combining_features.py:

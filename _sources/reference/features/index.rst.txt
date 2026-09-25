@@ -1,5 +1,5 @@
-Features from habitat maps
-==========================
+Feature formulas
+================
 
 HABIT-native definitions, formulas, and output CSV columns for features
 extracted **on habitat maps** (after habitats exist). Intensity / texture /
@@ -54,11 +54,11 @@ Registered extractor names (input side and map-side):
 
 .. toctree::
    :maxdepth: 2
-   :caption: Features from habitat maps
+   :caption: Feature formulas
 
-   msi
-   ith_score
-   graph
-   non_radiomics
-   traditional
-   whole_each_habitat
+   IBSI digital phantom <traditional>
+   MSI <msi>
+   ITH <ith_score>
+   Graph network <graph>
+   Non-radiomics summaries <non_radiomics>
+   Whole-habitat and each-habitat radiomics <whole_each_habitat>

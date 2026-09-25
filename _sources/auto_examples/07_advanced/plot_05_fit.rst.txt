@@ -40,11 +40,12 @@ feature of each centroid (what each habitat looks like on average).
   habitats and their centroids).
 * **centroid** -- the mean feature vector of one habitat; new rows are
   labelled by the centroid they are closest to.
-* **elbow** -- a rule for picking the number of habitats: the candidate
-  count after which adding one more habitat stops reducing
-  within-cluster spread much. This page fixes ``n_habitats=3``, so no
-  selection runs; the complete analysis passes ``min_habitats`` /
-  ``max_habitats`` with ``validation="elbow"`` instead.
+* **elbow** -- HABIT ``validation="elbow"`` is Kneedle on inertia
+  (Satopaa et al., 2011), not Thorndike's (1953) informal elbow and not
+  the pre-v1.0 discrete-curvature rule; see
+  :doc:`/user_guide/building_habitat_maps`. This page fixes
+  ``n_habitats=3``, so no selection runs; pages that auto-select pass
+  ``min_habitats`` / ``max_habitats`` with ``validation="elbow"`` instead.
 
 The ``fit`` stage of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
@@ -55,14 +56,14 @@ The calls below are that stage without a ``HabitatSpec``. Inside a spec
 they are ``Stage("partition", Spec("slic", {"n_supervoxels": 100}))``
 then ``Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 3}))``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 41-45
+.. GENERATED FROM PYTHON SOURCE LINES 42-46
 
 Load the cohort
 ---------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-62
+.. GENERATED FROM PYTHON SOURCE LINES 46-63
 
 .. code-block:: Python
 
@@ -118,14 +119,14 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-67
+.. GENERATED FROM PYTHON SOURCE LINES 64-68
 
 Partition each subject
 ----------------------
 Each element of ``units`` is one subject's supervoxels. These rows
 are what the cohort model fits on.
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-73
+.. GENERATED FROM PYTHON SOURCE LINES 68-74
 
 .. code-block:: Python
 
@@ -149,7 +150,7 @@ are what the cohort model fits on.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-79
+.. GENERATED FROM PYTHON SOURCE LINES 75-80
 
 Fit one shared model
 --------------------
@@ -157,7 +158,7 @@ The fitter pools every subject's units and learns one set of centroids.
 n_habitats=3 fixes the count; n_init=3 restarts k-means three times and
 keeps the run with the lowest within-cluster spread (inertia).
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-85
+.. GENERATED FROM PYTHON SOURCE LINES 80-86
 
 .. code-block:: Python
 
@@ -189,12 +190,12 @@ keeps the run with the lowest within-cluster spread (inertia).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-88
+.. GENERATED FROM PYTHON SOURCE LINES 87-89
 
 First feature of each centroid
 ------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 88-96
+.. GENERATED FROM PYTHON SOURCE LINES 89-97
 
 .. code-block:: Python
 
@@ -221,7 +222,7 @@ First feature of each centroid
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 46.042 seconds)
+   **Total running time of the script:** (0 minutes 46.487 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07_advanced_plot_05_fit.py:

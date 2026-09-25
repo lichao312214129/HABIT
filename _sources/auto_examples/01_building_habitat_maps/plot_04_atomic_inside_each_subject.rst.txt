@@ -34,6 +34,15 @@ cohort model on every patient's voxels. Neither has a supervoxelizer.
 then run the corresponding ``HabitatSpec`` with ``Study`` and check
 that labels (voxel for voxel), model ids and feature tables agree.
 
+
+**Elbow / Kneedle caveat.** HABIT ``validation="elbow"`` is the same
+rule as ``kneedle`` (Satopaa, Albrecht, Irwin, and Raghavan, 2011,
+Finding a "Kneedle" in a Haystack, IEEE ICDCS): KneeLocator on inertia,
+curve convex, direction decreasing — not Thorndike's (1953) informal
+elbow, and not the pre-v1.0 discrete-curvature second-difference rule.
+See :doc:`/user_guide/building_habitat_maps` and
+:doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+
 **When to use.** When you want to place one of these designs inside
 your own pipeline, or to see exactly what ``Study`` does for them. For
 a normal study, ``Study`` is shorter and records the run manifest.
@@ -59,7 +68,7 @@ the Study pages) and the volume, MSI and ITH families (no graph).
 * **cohort-level chain** -- preprocessing fitted once on the pooled
   training rows; its fitted state is attached to the model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-50
+.. GENERATED FROM PYTHON SOURCE LINES 54-59
 
 Load the cohort and build the shared components
 -----------------------------------------------
@@ -67,7 +76,7 @@ Both designs start the same way per subject: raw voxel features, then
 subject-level normalization with that subject's own statistics. The
 components are built once and reused for every subject.
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-170
+.. GENERATED FROM PYTHON SOURCE LINES 59-179
 
 .. code-block:: Python
 
@@ -226,7 +235,7 @@ components are built once and reused for every subject.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 172-178
+.. GENERATED FROM PYTHON SOURCE LINES 181-187
 
 Per-subject design: the atomic loop
 -----------------------------------
@@ -235,7 +244,7 @@ and no cohort-level chain, because there are no pooled rows to learn
 bin edges from. ``fit`` is called without ``cohort=``: the model is
 not defined by a cohort, only by this one subject's units.
 
-.. GENERATED FROM PYTHON SOURCE LINES 178-194
+.. GENERATED FROM PYTHON SOURCE LINES 187-203
 
 .. code-block:: Python
 
@@ -269,14 +278,14 @@ not defined by a cohort, only by this one subject's units.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 195-199
+.. GENERATED FROM PYTHON SOURCE LINES 204-208
 
 Per-subject design: check against Study
 ---------------------------------------
 The same design declared as a spec (no partition, no pool, no
 preprocess_cohort), run with ``Study`` on the same two patients.
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-226
+.. GENERATED FROM PYTHON SOURCE LINES 208-235
 
 .. code-block:: Python
 
@@ -315,7 +324,7 @@ preprocess_cohort), run with ``Study`` on the same two patients.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:02<00:02,  2.86s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:05<00:00,  2.70s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:05<00:00,  2.70s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:02<00:02,  2.74s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.49s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.49s/it]
     per-subject subj002: labels identical = True, model_id equal = True
     per-subject subj003: labels identical = True, model_id equal = True
     per-subject feature table: same = True
@@ -323,7 +332,70 @@ preprocess_cohort), run with ``Study`` on the same two patients.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 227-234
+.. GENERATED FROM PYTHON SOURCE LINES 236-251
+
+Elbow / Kneedle caveat (first training patient)
+-----------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow). Each patient's map keeps that patient's
+Kneedle K.
+
+.. GENERATED FROM PYTHON SOURCE LINES 251-274
+
+.. code-block:: Python
+
+    _sid0 = train[0].subject_id
+    _model0 = one_step_models[_sid0]
+    _report = _model0.preprocessing_state["selection_report"]
+    _candidates = [int(k) for k in _report["candidates"]]
+    _inertia = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+    _k_kneedle = int(_model0.n_habitats)
+    _k_discrete = (
+        int(_candidates[int(np.argmax(np.diff(_inertia, n=2))) + 1])
+        if len(_inertia) >= 3
+        else _k_kneedle
+    )
+    _units0 = [normalized_voxel_units(train[0])]
+    _k_table = {"elbow_kneedle": _k_kneedle, "discrete_curvature_elbow": _k_discrete}
+    from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _f = _KMeansFitter(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+        _f.set_random_state(SEED)
+        _k_table[_name] = _f.fit(_units0).n_habitats
+    print(f"{_sid0}: K by criterion (skip gap)")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    subj002: K by criterion (skip gap)
+      elbow_kneedle: 4
+      discrete_curvature_elbow: 3
+      silhouette: 3
+      calinski_harabasz: 3
+      davies_bouldin: 3
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 275-282
 
 Pooled-voxel design: the atomic loop
 ------------------------------------
@@ -333,7 +405,7 @@ pooled TRAINING rows, and ONE fitter call defines the habitats for
 the cohort. ``cohort=train`` fingerprints the training patients into
 the model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-248
+.. GENERATED FROM PYTHON SOURCE LINES 282-296
 
 .. code-block:: Python
 
@@ -374,14 +446,14 @@ the model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-253
+.. GENERATED FROM PYTHON SOURCE LINES 297-301
 
 Pooled-voxel design: check against Study
 ----------------------------------------
 The spec of the pooled-voxel page (no partition), with the same three
 feature families as the atomic loop.
 
-.. GENERATED FROM PYTHON SOURCE LINES 253-288
+.. GENERATED FROM PYTHON SOURCE LINES 301-336
 
 .. code-block:: Python
 
@@ -428,8 +500,8 @@ feature families as the atomic loop.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.22s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.15s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.45it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.47it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.47it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.11s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.11s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.45it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.59it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.59it/s]
     pooled model_id: atomic kmeans-cf751438e76faa67 | Study kmeans-cf751438e76faa67
     pooled model_id equal = True
     pooled subj002: labels identical = True
@@ -440,7 +512,7 @@ feature families as the atomic loop.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 289-294
+.. GENERATED FROM PYTHON SOURCE LINES 337-342
 
 The two designs on one patient
 ------------------------------
@@ -448,7 +520,7 @@ Same patient, same features, two definitions. Left: habitats private
 to this patient. Right: habitats shared with the other training
 patient. The colours are NOT comparable between the two maps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 294-306
+.. GENERATED FROM PYTHON SOURCE LINES 342-354
 
 .. code-block:: Python
 
@@ -497,7 +569,7 @@ patient. The colours are NOT comparable between the two maps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 307-324
+.. GENERATED FROM PYTHON SOURCE LINES 355-372
 
 How to read the result
 ----------------------
@@ -517,7 +589,7 @@ How to read the result
   the rows being clustered differ: two patients together versus one
   at a time. It is not a contradiction between the two paths.
 
-.. GENERATED FROM PYTHON SOURCE LINES 326-336
+.. GENERATED FROM PYTHON SOURCE LINES 374-384
 
 Where to go next
 ----------------
@@ -533,7 +605,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 23.056 seconds)
+   **Total running time of the script:** (0 minutes 40.364 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_04_atomic_inside_each_subject.py:

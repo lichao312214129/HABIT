@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**03:29.026** total execution time for 10 files **from auto_examples\07_advanced**:
+**01:42.128** total execution time for 10 files **from auto_examples\07_advanced**:
 
 .. container::
 
@@ -32,33 +32,33 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_06_assign.py` (``plot_06_assign.py``)
-     - 00:48.636
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_07_advanced_plot_05_fit.py` (``plot_05_fit.py``)
-     - 00:46.042
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_08_backends.py` (``plot_08_backends.py``)
-     - 00:30.871
+     - 00:46.487
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_advanced_plot_07_postprocess.py` (``plot_07_postprocess.py``)
-     - 00:25.692
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_03_supervoxels.py` (``plot_03_supervoxels.py``)
-     - 00:24.377
+     - 00:27.986
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_advanced_plot_09_own_pipeline.py` (``plot_09_own_pipeline.py``)
-     - 00:14.620
+     - 00:16.658
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_advanced_plot_10_export_results.py` (``plot_10_export_results.py``)
-     - 00:09.093
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_04_pooling.py` (``plot_04_pooling.py``)
-     - 00:05.299
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_02_subject_preprocess.py` (``plot_02_subject_preprocess.py``)
-     - 00:02.663
+     - 00:10.998
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_advanced_plot_01_extract.py` (``plot_01_extract.py``)
-     - 00:01.734
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_02_subject_preprocess.py` (``plot_02_subject_preprocess.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_03_supervoxels.py` (``plot_03_supervoxels.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_04_pooling.py` (``plot_04_pooling.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_06_assign.py` (``plot_06_assign.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_07_advanced_plot_08_backends.py` (``plot_08_backends.py``)
+     - 00:00.000
      - 0.0

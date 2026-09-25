@@ -31,8 +31,9 @@ describes each patient by how much of each habitat they have and how
 the habitats are arranged.
 
 **Purpose.** You will fit habitats on two demo patients with the
-two-step design, pick the number of habitats with the elbow rule, view
-the habitat maps, get a one-row-per-patient feature table (volume
+two-step design, pick the number of habitats with HABIT ``elbow``
+(Kneedle on inertia; see the caveat in the "How many habitats" cell),
+view the habitat maps, get a one-row-per-patient feature table (volume
 fractions, MSI, ITH, graph), save the model as a ``.habitatmodel``
 file, and label a third patient with it.
 
@@ -78,7 +79,7 @@ patients instead of two).
    demo, not a cohort. A real study fits the habitat model on tens of
    patients so that the centroids describe the population.
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-70
+.. GENERATED FROM PYTHON SOURCE LINES 65-71
 
 Load the cohort
 ---------------
@@ -87,7 +88,7 @@ first two patients define the habitats; the third plays a new patient
 at the end of the page. The pack is downloaded once and then cached.
 sphinx_gallery_thumbnail_number = 3
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-116
+.. GENERATED FROM PYTHON SOURCE LINES 71-117
 
 .. code-block:: Python
 
@@ -179,7 +180,7 @@ sphinx_gallery_thumbnail_number = 3
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-135
+.. GENERATED FROM PYTHON SOURCE LINES 118-136
 
 Declare every stage
 -------------------
@@ -200,7 +201,7 @@ Drop ``partition`` and ``pool`` and each subject is clustered alone
 only ``partition`` and voxels of all patients are clustered together
 (:doc:`/auto_examples/00_introductory_tutorials/plot_03_pooled_voxels`).
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-194
+.. GENERATED FROM PYTHON SOURCE LINES 136-195
 
 .. code-block:: Python
 
@@ -271,8 +272,8 @@ only ``partition`` and voxels of all patients are clustered together
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.94s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.82s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.82s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.11s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.03s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.03s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.30s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.42s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.42s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.61s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.38s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.38s/it]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -287,21 +288,79 @@ only ``partition`` and voxels of all patients are clustered together
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 195-201
+.. GENERATED FROM PYTHON SOURCE LINES 196-212
 
 How many habitats
 -----------------
-The fitter scores every candidate count (here the k-means inertia,
-which always falls as K grows) and keeps the elbow, where adding one
-more habitat stops paying off. The report is stored on the model, so
-the choice can be audited later from the saved file.
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. The
+habitat map keeps the Kneedle K; other Ks are only in the table below.
+Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 201-206
+.. GENERATED FROM PYTHON SOURCE LINES 212-265
 
 .. code-block:: Python
 
+
     report = result.habitat_model.preprocessing_state["selection_report"]
-    fig = plot_cluster_validation_from_report(report)
+    candidates = [int(k) for k in report["candidates"]]
+    inertia = np.asarray(report["scores"][report["methods"][0]], dtype=float)
+
+
+    def discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    k_kneedle = int(result.habitat_model.n_habitats)
+    k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+    # Other supported k-means criteria (skip gap: expensive; not run on this page).
+    from habit.habitat_model import KMeansHabitatModelFitter
+
+    _k_table = {"elbow_kneedle": k_kneedle, "discrete_curvature_elbow": k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = KMeansHabitatModelFitter(
+            min_habitats=2, max_habitats=10, validation=_name, n_init=10
+        )
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(result.units, cohort=train).n_habitats
+    print(
+        "K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; "
+        "discrete-curvature=max second diff of inertia):"
+    )
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+    print(f"habitat map uses Kneedle K = {k_kneedle}")
+
+    fig = plot_cluster_validation_from_report(
+        report, title="Inertia: x = HABIT elbow/Kneedle"
+    )
+    fig.axes[0].plot(
+        k_discrete,
+        float(inertia[candidates.index(k_discrete)]),
+        marker="o",
+        markersize=8,
+        markerfacecolor="none",
+        markeredgecolor="C2",
+        markeredgewidth=1.4,
+        linestyle="none",
+        label=f"discrete-curvature k={k_discrete}",
+    )
+    fig.axes[0].legend(loc="best", fontsize=8)
     fig.savefig("out/two_step_spec_elbow.png", dpi=150, bbox_inches="tight")
     plt.show()
 
@@ -309,15 +368,27 @@ the choice can be audited later from the saved file.
 
 
 .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_01_two_step_spec_002.png
-   :alt: Cluster validation curves, elbow (selected k=5)
+   :alt: Inertia: x = HABIT elbow/Kneedle, elbow (selected k=5)
    :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_01_two_step_spec_002.png
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; discrete-curvature=max second diff of inertia):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
+    habitat map uses Kneedle K = 5
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 207-212
+
+.. GENERATED FROM PYTHON SOURCE LINES 266-271
 
 Habitat maps
 ------------
@@ -325,7 +396,7 @@ Supervoxels, then habitats, on one slice. The same colour is the same
 habitat in every patient because ``pool`` and ``fit`` ran once for
 the cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 212-227
+.. GENERATED FROM PYTHON SOURCE LINES 271-286
 
 .. code-block:: Python
 
@@ -386,7 +457,7 @@ the cohort.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-233
+.. GENERATED FROM PYTHON SOURCE LINES 287-292
 
 Feature table
 -------------
@@ -394,7 +465,7 @@ One row per subject, produced by the four quantify stages above:
 volume fractions, MSI, ITH and graph columns. Only a few columns are
 printed; the full table has several hundred.
 
-.. GENERATED FROM PYTHON SOURCE LINES 233-241
+.. GENERATED FROM PYTHON SOURCE LINES 292-300
 
 .. code-block:: Python
 
@@ -423,11 +494,13 @@ printed; the full table has several hundred.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 242-256
+.. GENERATED FROM PYTHON SOURCE LINES 301-317
 
 How to read the result
 ----------------------
-* The elbow rule kept **K = 4** habitats on subj001 + subj002.
+* HABIT elbow/Kneedle kept **K = 5** habitats on subj001 + subj002
+  (discrete-curvature elbow K = 3; silhouette / Calinski-Harabasz /
+  Davies-Bouldin all K = 2 on this demo — map uses Kneedle only).
 * Volume fractions (columns ``habitat_<i>_volume_fraction``) sum to 1
   per patient. Because the ids are shared, a column can be compared
   across rows: in this run habitat 1 covers 0.225 of subj001 and
@@ -440,7 +513,7 @@ How to read the result
 * With two training patients these numbers illustrate the workflow;
   they are not estimates for any population.
 
-.. GENERATED FROM PYTHON SOURCE LINES 258-263
+.. GENERATED FROM PYTHON SOURCE LINES 319-324
 
 One subject, four views of that table
 -------------------------------------
@@ -448,7 +521,7 @@ Volume fractions are columns of the table. MSI, ITH and the graph
 slice are drawn from the same label map the table used, so each
 figure explains one family of columns.
 
-.. GENERATED FROM PYTHON SOURCE LINES 263-292
+.. GENERATED FROM PYTHON SOURCE LINES 324-353
 
 .. code-block:: Python
 
@@ -519,7 +592,7 @@ figure explains one family of columns.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 293-299
+.. GENERATED FROM PYTHON SOURCE LINES 354-360
 
 Save the model and label a new patient
 --------------------------------------
@@ -528,7 +601,7 @@ not refit. The new patient is normalized with its OWN statistics
 (subject-level stages), then binned with the TRAINING bin edges stored
 in the model (cohort-level stage), then given the training centroids.
 
-.. GENERATED FROM PYTHON SOURCE LINES 299-315
+.. GENERATED FROM PYTHON SOURCE LINES 360-376
 
 .. code-block:: Python
 
@@ -562,23 +635,23 @@ in the model (cohort-level stage), then given the training centroids.
  .. code-block:: none
 
     stored in the model: ['inertia', 'selection_report', 'validation']
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.24s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.24s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.62s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.62s/it]
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 316-322
+.. GENERATED FROM PYTHON SOURCE LINES 377-383
 
-Is the new patient one big habitat?
------------------------------------
+New-patient habitat fractions
+-----------------------------
 The demo's third patient is globally darker than the two training
 patients. If voxels were compared on raw intensities, most of them
 could fall into the darkest centroid. Print the fraction of its ROI
 voxels in each habitat to check that every habitat is used:
 
-.. GENERATED FROM PYTHON SOURCE LINES 322-328
+.. GENERATED FROM PYTHON SOURCE LINES 383-389
 
 .. code-block:: Python
 
@@ -604,7 +677,7 @@ voxels in each habitat to check that every habitat is used:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 329-340
+.. GENERATED FROM PYTHON SOURCE LINES 390-401
 
 How to read the result
 ----------------------
@@ -618,7 +691,7 @@ How to read the result
 * The new patient was never part of the fit: its bin edges and
   centroids are the training ones read back from the file.
 
-.. GENERATED FROM PYTHON SOURCE LINES 342-354
+.. GENERATED FROM PYTHON SOURCE LINES 403-415
 
 Where to go next
 ----------------
@@ -636,7 +709,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 17.430 seconds)
+   **Total running time of the script:** (0 minutes 21.966 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_01_two_step_spec.py:

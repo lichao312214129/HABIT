@@ -320,7 +320,7 @@ subject-level winsorize step matters here: it clips each column to
 the patient's own 1st..99th percentile before min-max puts the three
 columns on the same 0..1 scale.
 
-.. GENERATED FROM PYTHON SOURCE LINES 210-248
+.. GENERATED FROM PYTHON SOURCE LINES 210-305
 
 .. code-block:: Python
 
@@ -358,7 +358,64 @@ columns on the same 0..1 scale.
     model = result.habitat_model
     print(model.summary())
 
-    fig = plot_cluster_validation_from_report(model.preprocessing_state["selection_report"])
+    # HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+    # ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+    # curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+    # Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+    # Normalize k and inertia to the unit square, draw the chord from the
+    # first point to the last, and take the k farthest from that chord; a
+    # smooth curve often places this knee to the right of the bend a person
+    # sees. Literature "elbow" means inspecting within-cluster dispersion
+    # versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+    # 18(4):267-276) — not a second-difference formula. The discrete-curvature
+    # elbow (visual elbow, computed) maximizes the second difference of
+    # inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. The
+    # habitat map keeps the Kneedle K; other Ks are only in the table below.
+    # Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+    report = model.preprocessing_state["selection_report"]
+    candidates = [int(k) for k in report["candidates"]]
+    inertia = np.asarray(report["scores"][report["methods"][0]], dtype=float)
+
+
+    def discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    k_kneedle = int(model.n_habitats)
+    k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+    from habit.habitat_model import KMeansHabitatModelFitter
+
+    _k_table = {"elbow_kneedle": k_kneedle, "discrete_curvature_elbow": k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = KMeansHabitatModelFitter(
+            min_habitats=2, max_habitats=10, validation=_name, n_init=10
+        )
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(result.units, cohort=train).n_habitats
+    print("K by criterion:")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+
+    fig = plot_cluster_validation_from_report(
+        report, title="Inertia: x = HABIT elbow/Kneedle"
+    )
+    fig.axes[0].plot(
+        k_discrete,
+        float(inertia[candidates.index(k_discrete)]),
+        marker="o",
+        markersize=8,
+        markerfacecolor="none",
+        markeredgecolor="C2",
+        markeredgewidth=1.4,
+        linestyle="none",
+        label=f"discrete-curvature k={k_discrete}",
+    )
+    fig.axes[0].legend(loc="best", fontsize=8)
     fig.savefig("out/feature_plugin_elbow.png", dpi=150, bbox_inches="tight")
     plt.show()
 
@@ -366,7 +423,7 @@ columns on the same 0..1 scale.
 
 
 .. image-sg:: /auto_examples/02_features/images/sphx_glr_plot_05_own_feature_extractor_002.png
-   :alt: Cluster validation curves, elbow (selected k=4)
+   :alt: Inertia: x = HABIT elbow/Kneedle, elbow (selected k=4)
    :srcset: /auto_examples/02_features/images/sphx_glr_plot_05_own_feature_extractor_002.png
    :class: sphx-glr-single-img
 
@@ -375,8 +432,8 @@ columns on the same 0..1 scale.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.46s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.49s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.49s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.35it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.47it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.47it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.43s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.49s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.49s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.58it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 4
       features (3)    : relative_enhancement_lap, relative_washout_pvp, relative_washout_delay
@@ -387,18 +444,24 @@ columns on the same 0..1 scale.
       habit version      : 3.0.0
       random seed        : 0
       preprocessing state: inertia, selection_report, validation
+    K by criterion:
+      elbow_kneedle: 4
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-253
+.. GENERATED FROM PYTHON SOURCE LINES 306-310
 
 Habitat maps and what they mean
 -------------------------------
 The centroid columns are the extractor's feature names, in bin units
 0..9 (after subject-level scaling and cohort-level binning).
 
-.. GENERATED FROM PYTHON SOURCE LINES 253-272
+.. GENERATED FROM PYTHON SOURCE LINES 310-329
 
 .. code-block:: Python
 
@@ -463,7 +526,7 @@ The centroid columns are the extractor's feature names, in bin units
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 273-281
+.. GENERATED FROM PYTHON SOURCE LINES 330-338
 
 Ship it as a package
 --------------------
@@ -474,7 +537,7 @@ the registry's entry-point group in that package's ``pyproject.toml``.
 The group name is ``"habit." + <registry domain>``; ask the registry
 rather than typing it:
 
-.. GENERATED FROM PYTHON SOURCE LINES 281-283
+.. GENERATED FROM PYTHON SOURCE LINES 338-340
 
 .. code-block:: Python
 
@@ -493,7 +556,7 @@ rather than typing it:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 284-299
+.. GENERATED FROM PYTHON SOURCE LINES 341-356
 
 Declare the entry point and load it
 -----------------------------------
@@ -511,7 +574,7 @@ decorator. After ``pip install my-dce-pkg``, a user calls
 installed HABIT entry point and reports what it loaded; here no such
 package is installed, so the list is empty.
 
-.. GENERATED FROM PYTHON SOURCE LINES 299-302
+.. GENERATED FROM PYTHON SOURCE LINES 356-359
 
 .. code-block:: Python
 
@@ -531,7 +594,7 @@ package is installed, so the list is empty.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 303-328
+.. GENERATED FROM PYTHON SOURCE LINES 360-385
 
 How to read the result
 ----------------------
@@ -559,7 +622,7 @@ When this page was built:
 These ratios are illustrative formulas on two demo patients, not a
 validated perfusion model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 330-339
+.. GENERATED FROM PYTHON SOURCE LINES 387-396
 
 Where to go next
 ----------------
@@ -574,7 +637,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 11.122 seconds)
+   **Total running time of the script:** (0 minutes 11.783 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_features_plot_05_own_feature_extractor.py:

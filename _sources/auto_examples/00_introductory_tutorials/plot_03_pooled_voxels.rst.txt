@@ -199,8 +199,8 @@ before ``pool`` they are subject-level, after it cohort-level.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.40s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.32s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.32s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.29s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.23s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.19s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.19s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.35s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.17s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.17s/it]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -217,20 +217,80 @@ before ``pool`` they are subject-level, after it cohort-level.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 130-134
+.. GENERATED FROM PYTHON SOURCE LINES 130-148
 
 How many habitats
 -----------------
-The same elbow rule as on the two-step page, now scored on every
-pooled voxel instead of on 60 supervoxels.
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. The
+habitat map keeps the Kneedle K; other Ks are only in the table below.
+Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+The same HABIT elbow/Kneedle rule as on the two-step page, now scored
+on every pooled voxel instead of on 60 supervoxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-140
+.. GENERATED FROM PYTHON SOURCE LINES 148-200
 
 .. code-block:: Python
 
     report = result.habitat_model.preprocessing_state["selection_report"]
     Path("out").mkdir(exist_ok=True)
-    fig = plot_cluster_validation_from_report(report)
+    candidates = [int(k) for k in report["candidates"]]
+    inertia = np.asarray(report["scores"][report["methods"][0]], dtype=float)
+
+
+    def discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    k_kneedle = int(result.habitat_model.n_habitats)
+    k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+    from habit.habitat_model import KMeansHabitatModelFitter
+
+    _k_table = {"elbow_kneedle": k_kneedle, "discrete_curvature_elbow": k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = KMeansHabitatModelFitter(
+            min_habitats=2, max_habitats=10, validation=_name, n_init=10
+        )
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(result.units, cohort=train).n_habitats
+    print(
+        "K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; "
+        "discrete-curvature=max second diff):"
+    )
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+    print(f"habitat map uses Kneedle K = {k_kneedle}")
+
+    fig = plot_cluster_validation_from_report(
+        report, title="Inertia: x = HABIT elbow/Kneedle"
+    )
+    fig.axes[0].plot(
+        k_discrete,
+        float(inertia[candidates.index(k_discrete)]),
+        marker="o",
+        markersize=8,
+        markerfacecolor="none",
+        markeredgecolor="C2",
+        markeredgewidth=1.4,
+        linestyle="none",
+        label=f"discrete-curvature k={k_discrete}",
+    )
+    fig.axes[0].legend(loc="best", fontsize=8)
     fig.savefig("out/pooled_voxels_elbow.png", dpi=150, bbox_inches="tight")
     plt.show()
 
@@ -238,21 +298,33 @@ pooled voxel instead of on 60 supervoxels.
 
 
 .. image-sg:: /auto_examples/00_introductory_tutorials/images/sphx_glr_plot_03_pooled_voxels_001.png
-   :alt: Cluster validation curves, elbow (selected k=5)
+   :alt: Inertia: x = HABIT elbow/Kneedle, elbow (selected k=5)
    :srcset: /auto_examples/00_introductory_tutorials/images/sphx_glr_plot_03_pooled_voxels_001.png
    :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; discrete-curvature=max second diff):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
+    habitat map uses Kneedle K = 5
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 141-144
+
+.. GENERATED FROM PYTHON SOURCE LINES 201-204
 
 One overlay per patient
 -----------------------
 Ids are shared, so the same colour is the same habitat in both maps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-154
+.. GENERATED FROM PYTHON SOURCE LINES 204-214
 
 .. code-block:: Python
 
@@ -299,14 +371,14 @@ Ids are shared, so the same colour is the same habitat in both maps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 155-159
+.. GENERATED FROM PYTHON SOURCE LINES 215-219
 
 Feature table
 -------------
 One row per patient. Volume fractions can be compared across rows
 because the ids come from one shared model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-167
+.. GENERATED FROM PYTHON SOURCE LINES 219-227
 
 .. code-block:: Python
 
@@ -335,7 +407,7 @@ because the ids come from one shared model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-174
+.. GENERATED FROM PYTHON SOURCE LINES 228-234
 
 Arterial-phase intensity inside each habitat
 --------------------------------------------
@@ -344,7 +416,7 @@ shows only one of them (the displayed LAP image, raw values, first
 patient) to give the habitats a physical reading. The label map sits
 on the image grid, so the two arrays can be indexed together.
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-190
+.. GENERATED FROM PYTHON SOURCE LINES 234-250
 
 .. code-block:: Python
 
@@ -386,12 +458,12 @@ on the image grid, so the two arrays can be indexed together.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 191-193
+.. GENERATED FROM PYTHON SOURCE LINES 251-253
 
 Save maps, tables, and the model
 --------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-196
+.. GENERATED FROM PYTHON SOURCE LINES 253-256
 
 .. code-block:: Python
 
@@ -411,7 +483,7 @@ Save maps, tables, and the model
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 197-206
+.. GENERATED FROM PYTHON SOURCE LINES 257-266
 
 How to read the result
 ----------------------
@@ -423,7 +495,7 @@ How to read the result
 * Habitat numbering is not the same as on the two-step page unless you
   match labels deliberately.
 
-.. GENERATED FROM PYTHON SOURCE LINES 208-219
+.. GENERATED FROM PYTHON SOURCE LINES 268-279
 
 Where to go next
 ----------------
@@ -440,7 +512,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 16.402 seconds)
+   **Total running time of the script:** (0 minutes 56.386 seconds)
 
 
 .. _sphx_glr_download_auto_examples_00_introductory_tutorials_plot_03_pooled_voxels.py:

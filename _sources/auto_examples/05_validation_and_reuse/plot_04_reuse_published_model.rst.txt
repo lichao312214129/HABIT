@@ -65,7 +65,7 @@ In practice this cell is someone else's work; you receive only the
 file written at the end of it.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-105
+.. GENERATED FROM PYTHON SOURCE LINES 48-103
 
 .. code-block:: Python
 
@@ -74,6 +74,7 @@ sphinx_gallery_thumbnail_number = 1
     from pathlib import Path
 
     import matplotlib.pyplot as plt
+    import numpy as np
 
     from habit.contracts import HabitatModel, cohort_from_directory
     from habit.datasets import fetch_demo
@@ -115,16 +116,13 @@ sphinx_gallery_thumbnail_number = 1
         ),
         random_seed=0,
     )
-    Study(spec).fit_predict(
+    published = Study(spec).fit_predict(
         cohort[:2],
         backend=backend_from_policy(
             RunPolicy(backend="serial", on_subject_failure="continue")
         ),
-    ).save("out/published", write_maps=False)
-
-    # From here on, pretend this path is a file you downloaded.
-    downloaded = Path("out/published/habitat_model.habitatmodel")
-    print("received:", downloaded, f"({downloaded.stat().st_size / 1024:.1f} kB)")
+    )
+    published.save("out/published", write_maps=False)
 
 
 
@@ -156,14 +154,74 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.55s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.55s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.00s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.12it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.12it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.92s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.82s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.82s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.17s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.02s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.02s/it]
+
+    WindowsPath('out/published')
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 104-118
+
+Elbow / Kneedle caveat (authors' fit before publish)
+----------------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow). The published map K is Kneedle.
+
+.. GENERATED FROM PYTHON SOURCE LINES 118-138
+
+.. code-block:: Python
+
+    _report = published.habitat_model.preprocessing_state["selection_report"]
+    _cand = [int(k) for k in _report["candidates"]]
+    _iner = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+    _k_kn = int(published.habitat_model.n_habitats)
+    _k_dc = int(_cand[int(np.argmax(np.diff(_iner, n=2))) + 1]) if len(_iner) >= 3 else _k_kn
+    from habit.habitat_model import KMeansHabitatModelFitter as _KF
+
+    _k_table = {"elbow_kneedle": _k_kn, "discrete_curvature_elbow": _k_dc}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _f = _KF(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+        _f.set_random_state(0)
+        _k_table[_name] = _f.fit(published.units, cohort=cohort[:2]).n_habitats
+    print("K by criterion (published fit; skip gap):")
+    for _n, _k in _k_table.items():
+        print(f"  {_n}: {_k}")
+
+    # From here on, pretend this path is a file you downloaded.
+    downloaded = Path("out/published/habitat_model.habitatmodel")
+    print("received:", downloaded, f"({downloaded.stat().st_size / 1024:.1f} kB)")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    K by criterion (published fit; skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
     received: out\published\habitat_model.habitatmodel (2.4 kB)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-112
+.. GENERATED FROM PYTHON SOURCE LINES 139-145
 
 Load it and read what it declares
 ---------------------------------
@@ -172,7 +230,7 @@ card (``summary()``) and the attributes below are everything the
 authors declared. The spec travels in ``spec_payload``: it lists the
 stages a new patient goes through.
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-128
+.. GENERATED FROM PYTHON SOURCE LINES 145-161
 
 .. code-block:: Python
 
@@ -235,7 +293,7 @@ stages a new patient goes through.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 129-134
+.. GENERATED FROM PYTHON SOURCE LINES 162-167
 
 The format version lives in the manifest
 ----------------------------------------
@@ -243,7 +301,7 @@ The format version lives in the manifest
 field of ``manifest.json`` and is checked during ``load``. Plain
 ``zipfile`` + ``json`` read it without HABIT.
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-141
+.. GENERATED FROM PYTHON SOURCE LINES 167-174
 
 .. code-block:: Python
 
@@ -270,7 +328,7 @@ field of ``manifest.json`` and is checked during ``load``. Plain
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-149
+.. GENERATED FROM PYTHON SOURCE LINES 175-182
 
 A file from a newer HABIT is refused, not misread
 -------------------------------------------------
@@ -280,7 +338,7 @@ is untouched). Loading it raises ``CompatibilityError`` with an
 explicit message instead of returning a model that might be read
 wrongly.
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-164
+.. GENERATED FROM PYTHON SOURCE LINES 182-197
 
 .. code-block:: Python
 
@@ -312,7 +370,7 @@ wrongly.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-173
+.. GENERATED FROM PYTHON SOURCE LINES 198-206
 
 Your data must reach the model's feature space
 ----------------------------------------------
@@ -323,7 +381,7 @@ images your subject has. Then see what ``predict`` does anyway: it
 stops with an error naming the missing modality; it never fills in or
 drops a column silently.
 
-.. GENERATED FROM PYTHON SOURCE LINES 173-183
+.. GENERATED FROM PYTHON SOURCE LINES 206-216
 
 .. code-block:: Python
 
@@ -346,14 +404,14 @@ drops a column silently.
  .. code-block:: none
 
     subj003 lacks modalities the model needs: ['delay_3min']
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:00<00:00,  1.10it/s][apply_habitat_model] subject subj003 failed: KeyError: "Subject 'subj003' has no modality 'delay_3min'. Available: ['LAP', 'PVP', 'pre_contrast']."
-    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:00<00:00,  1.10it/s]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:00<00:00,  1.08it/s][apply_habitat_model] subject subj003 failed: KeyError: "Subject 'subj003' has no modality 'delay_3min'. Available: ['LAP', 'PVP', 'pre_contrast']."
+    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:00<00:00,  1.07it/s]
     ProcessingError: All 1 subject(s) failed in recipe stage 'apply_habitat_model': subj003: KeyError: "Subject 'subj003' has no modality 'delay_3min'. Available: ['LAP', 'PVP', 'pre_contrast']."
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 184-192
+.. GENERATED FROM PYTHON SOURCE LINES 217-225
 
 Failure mode: habitats without subject z-score
 ----------------------------------------------
@@ -364,7 +422,7 @@ deliberately broken twin of the same design (no subject preprocess),
 predict the same new patient, and print the real volume fractions.
 Then compare with the fixed model below.
 
-.. GENERATED FROM PYTHON SOURCE LINES 192-233
+.. GENERATED FROM PYTHON SOURCE LINES 225-266
 
 .. code-block:: Python
 
@@ -417,9 +475,9 @@ Then compare with the fixed model below.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.87s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.24s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.24s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.82it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.80it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.80it/s]
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01<00:00,  1.64s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01<00:00,  1.64s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.17s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.45s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.45s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01<00:00,  1.72s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01<00:00,  1.72s/it]
     WITHOUT subject winsorize+z-score — new-patient volume fractions:
              habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  habitat_5_volume_fraction
     subject                                                                                                                                       
@@ -429,7 +487,7 @@ Then compare with the fixed model below.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-239
+.. GENERATED FROM PYTHON SOURCE LINES 267-272
 
 Label a new patient (fixed path: subject z-score)
 -------------------------------------------------
@@ -437,7 +495,7 @@ The received model embeds subject-level winsorize 1% + z-score. Each
 new patient recomputes THEIR OWN mean and std; training mean/std are
 never applied. subj003 was not in the training pair.
 
-.. GENERATED FROM PYTHON SOURCE LINES 239-256
+.. GENERATED FROM PYTHON SOURCE LINES 272-289
 
 .. code-block:: Python
 
@@ -471,7 +529,7 @@ never applied. subj003 was not in the training pair.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.02s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.02s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.11s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.11s/it]
     map model_id == file model_id: True
     WITH subject winsorize+z-score — new-patient volume fractions:
              habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  habitat_5_volume_fraction
@@ -484,7 +542,7 @@ never applied. subj003 was not in the training pair.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-267
+.. GENERATED FROM PYTHON SOURCE LINES 290-300
 
 How to read the result
 ----------------------
@@ -497,7 +555,7 @@ Format / missing-modality checks earlier still apply: a readable file
 with matching modalities is necessary but not sufficient; subject-level
 z-score is part of the definition that must travel with the model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 269-279
+.. GENERATED FROM PYTHON SOURCE LINES 302-312
 
 Where to go next
 ----------------
@@ -513,7 +571,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 18.692 seconds)
+   **Total running time of the script:** (0 minutes 20.877 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_validation_and_reuse_plot_04_reuse_published_model.py:

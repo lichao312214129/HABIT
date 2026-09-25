@@ -769,14 +769,28 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
   .. warning::
 
      **Breaking change in v1.0**: ``elbow`` and ``kneedle`` are now the same
-     rule. Up to v0.1.x, ``elbow`` used a second-difference (discrete
-     curvature) criterion while ``kneedle`` used the normalised
-     maximum-deviation criterion, and the two could select different cluster
-     counts on the same curve. Both keys now resolve to the Kneedle rule
-     implemented in :func:`habit.kernels.cluster_selection.knee_index`, so a
-     v0.1 configuration written with ``elbow`` remains valid but may select a
-     different cluster count than it did before. Studies that must reproduce a
-     published habitat count should set ``fixed_n_clusters`` to that count.
+     rule. HABIT ``elbow`` runs ``KneeLocator`` on k-means inertia (curve
+     convex, direction decreasing) — the Kneedle algorithm of Satopaa,
+     Albrecht, Irwin, and Raghavan (2011, *Finding a "Kneedle" in a
+     Haystack*, IEEE ICDCS Workshops): normalize ``k`` and inertia to the
+     unit square, draw the chord from the first point to the last, and take
+     the ``k`` farthest from that chord. A smooth curve often places this
+     knee to the right of the bend a person sees.
+
+     In the clustering literature, *elbow* usually means inspecting
+     within-cluster dispersion versus ``k`` (Thorndike RL, 1953, *Who
+     belongs in the family?*, Psychometrika 18(4):267–276). Thorndike did
+     **not** publish a second-difference formula. Up to v0.1.x, HABIT
+     ``elbow`` used a **discrete-curvature elbow** (visual elbow,
+     computed): ``argmax`` of the second difference of inertia. That is
+     not the Thorndike citation and is not today’s default. Both
+     ``elbow`` and ``kneedle`` now resolve to
+     :func:`habit.kernels.cluster_selection.knee_index`, so a v0.1
+     configuration written with ``elbow`` remains valid but may select a
+     different cluster count. Studies that must reproduce a published
+     habitat count should set ``fixed_n_clusters`` to that count. See
+     :doc:`/user_guide/building_habitat_maps` and
+     :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
 
 - ``plot_validation_curves``: Plot validation curves
 

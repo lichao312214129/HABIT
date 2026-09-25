@@ -162,7 +162,7 @@ stage; its parameters are the ``GraphHabitatFeatures`` constructor
 arguments. Everything not listed keeps the library default
 (uniform-grid nodes, 8-voxel cubes, closest-voxel edges within 5).
 
-.. GENERATED FROM PYTHON SOURCE LINES 104-157
+.. GENERATED FROM PYTHON SOURCE LINES 104-144
 
 .. code-block:: Python
 
@@ -206,6 +206,82 @@ arguments. Everything not listed keeps the library default
     )
     print(result.habitat_model.summary())
 
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.86s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.77s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.77s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.08s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.04it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.04it/s]
+    HabitatModel kmeans-3432f3b65bfec11a
+      habitats           : 5
+      features (4)    : pre_contrast, LAP, PVP, delay_3min
+      defining cohort    : n=2
+      modalities         : pre_contrast, LAP, PVP, delay_3min
+      cohort digest      : cc1b16a34cc7478d...
+      produced by        : habitat_model_fitter.kmeans
+      habit version      : 3.0.0
+      random seed        : 0
+      preprocessing state: inertia, selection_report, validation
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 145-159
+
+Elbow / Kneedle caveat and criterion table
+------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+
+.. GENERATED FROM PYTHON SOURCE LINES 159-203
+
+.. code-block:: Python
+
+    _report = result.habitat_model.preprocessing_state["selection_report"]
+    _candidates = [int(k) for k in _report["candidates"]]
+    _inertia = __import__("numpy").asarray(_report["scores"][_report["methods"][0]], dtype=float)
+
+
+    def _discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        import numpy as np
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    _k_kneedle = int(result.habitat_model.n_habitats)
+    _k_discrete = _discrete_curvature_elbow_k(_candidates, _inertia)
+    from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+    _k_table = {"elbow_kneedle": _k_kneedle, "discrete_curvature_elbow": _k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = _KMeansFitter(
+            min_habitats=2, max_habitats=10, validation=_name, n_init=10
+        )
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(result.units, cohort=train).n_habitats
+    print("K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+    print(f"habitat map uses Kneedle K = {_k_kneedle}")
+
     # The other three patients are labelled with the fitted definition
     # (no refit). Passing ``spec=`` runs the same quantify stages on them.
     prediction = Study.from_model(result.habitat_model, spec=spec).predict(cohort[2:])
@@ -227,26 +303,21 @@ arguments. Everything not listed keeps the library default
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.11s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.93s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.93s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.13s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.02s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.02s/it]
-    HabitatModel kmeans-3432f3b65bfec11a
-      habitats           : 5
-      features (4)    : pre_contrast, LAP, PVP, delay_3min
-      defining cohort    : n=2
-      modalities         : pre_contrast, LAP, PVP, delay_3min
-      cohort digest      : cc1b16a34cc7478d...
-      produced by        : habitat_model_fitter.kmeans
-      habit version      : 3.0.0
-      random seed        : 0
-      preprocessing state: inertia, selection_report, validation
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:02<00:05,  2.53s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:05<00:02,  2.69s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:14<00:00,  4.94s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:14<00:00,  4.94s/it]
+    K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
+    habitat map uses Kneedle K = 5
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:02<00:04,  2.38s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:05<00:02,  2.64s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:14<00:00,  4.72s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:14<00:00,  4.72s/it]
     habitat ids: (1, 2, 3, 4, 5)
     graph columns: 608 of 663
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 158-166
+.. GENERATED FROM PYTHON SOURCE LINES 204-212
 
 A curated metrics table
 -----------------------
@@ -257,7 +328,7 @@ answer its question. The ten below illustrate the family on habitat 1
 and the habitat 1 / habitat 2 pair; the same metrics exist for every
 other habitat id and pair.
 
-.. GENERATED FROM PYTHON SOURCE LINES 166-183
+.. GENERATED FROM PYTHON SOURCE LINES 212-229
 
 .. code-block:: Python
 
@@ -313,7 +384,7 @@ other habitat id and pair.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 184-195
+.. GENERATED FROM PYTHON SOURCE LINES 230-241
 
 The lattice and the network on one slice
 ----------------------------------------
@@ -327,7 +398,7 @@ are drawn). Its ``n`` / ``e`` counts are for the slice, not the 3-D
 table. Both functions take the label array of the full 3-D map and
 choose the slice with the largest cross-section.
 
-.. GENERATED FROM PYTHON SOURCE LINES 195-206
+.. GENERATED FROM PYTHON SOURCE LINES 241-252
 
 .. code-block:: Python
 
@@ -366,7 +437,7 @@ choose the slice with the largest cross-section.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 207-213
+.. GENERATED FROM PYTHON SOURCE LINES 253-259
 
 All patients at a glance
 ------------------------
@@ -375,7 +446,7 @@ All patients at a glance
 the largest variance among the single-habitat metrics. With five
 patients this is a way to look at the table, not a statistical result.
 
-.. GENERATED FROM PYTHON SOURCE LINES 213-223
+.. GENERATED FROM PYTHON SOURCE LINES 259-269
 
 .. code-block:: Python
 
@@ -401,7 +472,7 @@ patients this is a way to look at the table, not a statistical result.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 224-235
+.. GENERATED FROM PYTHON SOURCE LINES 270-281
 
 Another node and edge rule
 --------------------------
@@ -415,7 +486,7 @@ the same; only the graph built on them differs. The extractor is the
 same component the ``graph`` stage uses, called as
 ``extractor(subject, habitat_map)``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 235-261
+.. GENERATED FROM PYTHON SOURCE LINES 281-307
 
 .. code-block:: Python
 
@@ -467,7 +538,7 @@ same component the ``graph`` stage uses, called as
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-278
+.. GENERATED FROM PYTHON SOURCE LINES 308-324
 
 What the extended metrics add
 -----------------------------
@@ -486,7 +557,7 @@ ensemble and is slower still. Timing below is for one small patient on
 the machine that built this page. The extended call is timed twice:
 the first call in a Python process also pays a one-time setup cost.
 
-.. GENERATED FROM PYTHON SOURCE LINES 278-294
+.. GENERATED FROM PYTHON SOURCE LINES 324-340
 
 .. code-block:: Python
 
@@ -514,14 +585,14 @@ the first call in a Python process also pays a one-time setup cost.
 
  .. code-block:: none
 
-    subj002: 609 columns in 0.24 s without extended metrics
-    subj002: 824 columns with extended metrics, first call 0.57 s, repeat call 0.46 s
+    subj002: 609 columns in 0.21 s without extended metrics
+    subj002: 824 columns with extended metrics, first call 0.53 s, repeat call 0.44 s
     added for habitat 1: ['single_h1_betweenness_max', 'single_h1_betweenness_max_norm', 'single_h1_betweenness_std', 'single_h1_betweenness_std_norm', 'single_h1_degree_skewness', 'single_h1_global_efficiency', 'single_h1_local_efficiency', 'single_h1_node_local_efficiency_min', 'single_h1_node_local_efficiency_std', 'single_h1_rich_club_coefficient', 'single_h1_small_world_sigma']
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 295-320
+.. GENERATED FROM PYTHON SOURCE LINES 341-366
 
 How to read the result
 ----------------------
@@ -549,7 +620,7 @@ habitat ids 1..4):
 These are five demo patients; the numbers show what the columns
 contain, not how they relate to any clinical outcome.
 
-.. GENERATED FROM PYTHON SOURCE LINES 322-332
+.. GENERATED FROM PYTHON SOURCE LINES 368-378
 
 Where to go next
 ----------------
@@ -565,7 +636,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 32.451 seconds)
+   **Total running time of the script:** (0 minutes 31.201 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_quantifying_habitats_plot_04_graph_network_features.py:

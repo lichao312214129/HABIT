@@ -15,6 +15,15 @@ cohort model on every patient's voxels. Neither has a supervoxelizer.
 then run the corresponding ``HabitatSpec`` with ``Study`` and check
 that labels (voxel for voxel), model ids and feature tables agree.
 
+
+**Elbow / Kneedle caveat.** HABIT ``validation="elbow"`` is the same
+rule as ``kneedle`` (Satopaa, Albrecht, Irwin, and Raghavan, 2011,
+Finding a "Kneedle" in a Haystack, IEEE ICDCS): KneeLocator on inertia,
+curve convex, direction decreasing — not Thorndike's (1953) informal
+elbow, and not the pre-v1.0 discrete-curvature second-difference rule.
+See :doc:`/user_guide/building_habitat_maps` and
+:doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+
 **When to use.** When you want to place one of these designs inside
 your own pipeline, or to see exactly what ``Study`` does for them. For
 a normal study, ``Study`` is shorter and records the run manifest.
@@ -222,6 +231,45 @@ for atomic_map, study_map in zip(one_step_maps, one_step_result.habitat_maps):
     same_id = one_step_models[sid].model_id == one_step_result.subject_models[sid].model_id
     print(f"per-subject {sid}: labels identical = {same_labels}, model_id equal = {same_id}")
 print(f"per-subject feature table: same = {same_table(one_step_table, one_step_result.features.frame)}")
+
+# %%
+# Elbow / Kneedle caveat (first training patient)
+# -----------------------------------------------
+# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+# Normalize k and inertia to the unit square, draw the chord from the
+# first point to the last, and take the k farthest from that chord; a
+# smooth curve often places this knee to the right of the bend a person
+# sees. Literature "elbow" means inspecting within-cluster dispersion
+# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+# 18(4):267-276) — not a second-difference formula. The discrete-curvature
+# elbow (visual elbow, computed) maximizes the second difference of
+# inertia (HABIT pre-v1.0 elbow). Each patient's map keeps that patient's
+# Kneedle K.
+_sid0 = train[0].subject_id
+_model0 = one_step_models[_sid0]
+_report = _model0.preprocessing_state["selection_report"]
+_candidates = [int(k) for k in _report["candidates"]]
+_inertia = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+_k_kneedle = int(_model0.n_habitats)
+_k_discrete = (
+    int(_candidates[int(np.argmax(np.diff(_inertia, n=2))) + 1])
+    if len(_inertia) >= 3
+    else _k_kneedle
+)
+from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+_units0 = [normalized_voxel_units(train[0])]
+_k_table = {"elbow_kneedle": _k_kneedle, "discrete_curvature_elbow": _k_discrete}
+for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+    _f = _KMeansFitter(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+    _f.set_random_state(SEED)
+    _k_table[_name] = _f.fit(_units0).n_habitats
+print(f"{_sid0}: K by criterion (skip gap)")
+for _name, _k in _k_table.items():
+    print(f"  {_name}: {_k}")
 
 # %%
 # Pooled-voxel design: the atomic loop

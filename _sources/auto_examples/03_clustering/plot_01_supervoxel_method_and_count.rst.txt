@@ -41,6 +41,15 @@ For every variant the page prints the number of habitats the elbow
 picks, the per-patient volume fractions, and how well the habitat map
 agrees with the reference (30 k-means supervoxels).
 
+
+**Elbow / Kneedle caveat.** HABIT ``validation="elbow"`` is the same
+rule as ``kneedle`` (Satopaa, Albrecht, Irwin, and Raghavan, 2011,
+Finding a "Kneedle" in a Haystack, IEEE ICDCS): KneeLocator on inertia,
+curve convex, direction decreasing — not Thorndike's (1953) informal
+elbow, and not the pre-v1.0 discrete-curvature second-difference rule.
+See :doc:`/user_guide/building_habitat_maps` and
+:doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+
 **When to use.** Before you freeze a habitat definition for a study,
 or when a reviewer asks whether your habitats depend on the supervoxel
 settings. A definition whose maps change completely with a small
@@ -79,7 +88,7 @@ the ``partition`` stage, for example
    show how to run the check, not how sensitive habitats are in
    general. Run the same check on your own cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-72
+.. GENERATED FROM PYTHON SOURCE LINES 74-81
 
 Load the cohort and compute the voxel features once
 ---------------------------------------------------
@@ -89,7 +98,7 @@ do not depend on the supervoxel settings, so they run once here and
 every variant below starts from the same normalized voxel fields.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-118
+.. GENERATED FROM PYTHON SOURCE LINES 81-127
 
 .. code-block:: Python
 
@@ -175,7 +184,7 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 119-127
+.. GENERATED FROM PYTHON SOURCE LINES 128-136
 
 One function = everything after the partition stage
 ---------------------------------------------------
@@ -186,7 +195,7 @@ with 2..10 habitats chosen by the elbow, and assign every voxel to the
 nearest centroid. Keeping this part fixed is what makes the
 comparison a one-factor comparison.
 
-.. GENERATED FROM PYTHON SOURCE LINES 127-192
+.. GENERATED FROM PYTHON SOURCE LINES 136-201
 
 .. code-block:: Python
 
@@ -262,7 +271,7 @@ comparison a one-factor comparison.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-208
+.. GENERATED FROM PYTHON SOURCE LINES 202-217
 
 Factor 1: the supervoxel method
 -------------------------------
@@ -280,7 +289,7 @@ Three supervoxelizers, each asked for 30 supervoxels per tumour.
   default: report the exact parameters (they are in the spec) if you
   use it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 208-227
+.. GENERATED FROM PYTHON SOURCE LINES 217-236
 
 .. code-block:: Python
 
@@ -345,14 +354,14 @@ Three supervoxelizers, each asked for 30 supervoxels per tumour.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-232
+.. GENERATED FROM PYTHON SOURCE LINES 237-241
 
 Factor 2: the number of supervoxels
 -----------------------------------
 Back to k-means supervoxels, now with half and double the reference
 count. The 30-supervoxel run is the reference computed above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 232-247
+.. GENERATED FROM PYTHON SOURCE LINES 241-256
 
 .. code-block:: Python
 
@@ -404,7 +413,7 @@ count. The 30-supervoxel run is the reference computed above.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 248-257
+.. GENERATED FROM PYTHON SOURCE LINES 257-266
 
 The numbers
 -----------
@@ -416,7 +425,7 @@ Volume-fraction columns are only comparable WITHIN a variant: habitat
 2 of one fit is not habitat 2 of another fit. That is exactly why the
 agreement is measured with the ARI and not by comparing columns.
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-275
+.. GENERATED FROM PYTHON SOURCE LINES 266-280
 
 .. code-block:: Python
 
@@ -434,10 +443,6 @@ agreement is measured with the ARI and not by comparing columns.
     # The reference compared with itself must give ARI = 1.
     print("reference self-agreement is 1:", bool(np.allclose(agreement(reference["maps"], reference["maps"]), 1.0)))
 
-    for name, variant in variants.items():
-        print(f"\n{name}: volume fractions (K = {variant['k']})")
-        print(variant["fractions"].round(3).to_string(index=False))
-
 
 
 
@@ -454,6 +459,69 @@ agreement is measured with the ARI and not by comparing columns.
     kmeans, 15  4                   15                   15        0.570        0.331
     kmeans, 60  4                   60                   60        0.479        0.361
     reference self-agreement is 1: True
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 281-295
+
+Elbow / Kneedle caveat and criterion table (reference supervoxels)
+------------------------------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+
+.. GENERATED FROM PYTHON SOURCE LINES 295-319
+
+.. code-block:: Python
+
+    from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+    _ref_fitter = _KMeansFitter(min_habitats=2, max_habitats=10, validation="elbow", n_init=10)
+    _ref_fitter.set_random_state(0)
+    _hm = _ref_fitter.fit(reference["units"], cohort=train)
+    _rep = _hm.preprocessing_state["selection_report"]
+    _cand = [int(k) for k in _rep["candidates"]]
+    _iner = np.asarray(_rep["scores"]["elbow"], dtype=float)
+    _k_disc = (
+        int(_cand[int(np.argmax(np.diff(_iner, n=2))) + 1]) if len(_iner) >= 3 else int(_hm.n_habitats)
+    )
+    _k_table = {"elbow_kneedle": int(_hm.n_habitats), "discrete_curvature_elbow": _k_disc}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _f = _KMeansFitter(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+        _f.set_random_state(0)
+        _k_table[_name] = _f.fit(reference["units"], cohort=train).n_habitats
+    print("K by criterion (reference supervoxels; skip gap):")
+    for _n, _k in _k_table.items():
+        print(f"  {_n}: {_k}")
+
+    for name, variant in variants.items():
+        print(f"\n{name}: volume fractions (K = {variant['k']})")
+        print(variant["fractions"].round(3).to_string(index=False))
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    K by criterion (reference supervoxels; skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
 
     kmeans, 30: volume fractions (K = 5)
     subject  habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  habitat_5_volume_fraction
@@ -483,7 +551,7 @@ agreement is measured with the ARI and not by comparing columns.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 276-302
+.. GENERATED FROM PYTHON SOURCE LINES 320-346
 
 How to read the result
 ----------------------
@@ -512,7 +580,7 @@ What to do with this in a real study:
 * If the downstream conclusion changes with the supervoxel setting,
   say so; do not choose the setting that gives the best result.
 
-.. GENERATED FROM PYTHON SOURCE LINES 304-314
+.. GENERATED FROM PYTHON SOURCE LINES 348-358
 
 Where to go next
 ----------------
@@ -528,7 +596,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 56.734 seconds)
+   **Total running time of the script:** (0 minutes 57.878 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_clustering_plot_01_supervoxel_method_and_count.py:

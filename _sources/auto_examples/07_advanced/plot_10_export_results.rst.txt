@@ -68,7 +68,7 @@ habitats; volume / MSI / ITH / graph fill the feature table that will
 be exported.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-116
+.. GENERATED FROM PYTHON SOURCE LINES 51-107
 
 .. code-block:: Python
 
@@ -128,22 +128,8 @@ sphinx_gallery_thumbnail_number = 1
     )
     print(result.habitat_model.summary())
 
-    fig = plot_habitat_overlay(
-        train[0].image("LAP"),
-        result.habitat_maps[0],
-        title=f"{train[0].subject_id}: habitats",
-        crop_to="labels",
-    )
-    fig.savefig("out/export_methods_overlay.png", dpi=150, bbox_inches="tight")
-    plt.show()
 
 
-
-
-.. image-sg:: /auto_examples/07_advanced/images/sphx_glr_plot_10_export_results_001.png
-   :alt: subj001: habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-   :srcset: /auto_examples/07_advanced/images/sphx_glr_plot_10_export_results_001.png
-   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -173,8 +159,8 @@ sphinx_gallery_thumbnail_number = 1
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort(2 subjects [subj001, subj002])
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.53s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.53s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.02s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.10it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.42s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.04s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.04s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.08s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.00s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.00s/it]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -185,13 +171,74 @@ sphinx_gallery_thumbnail_number = 1
       habit version      : 3.0.0
       random seed        : 0
       preprocessing state: inertia, selection_report, validation
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 108-114
+
+Elbow / Kneedle caveat
+----------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle`` (Satopaa et
+al., 2011): KneeLocator on inertia, curve convex, direction decreasing —
+not Thorndike (1953) informal elbow, not pre-v1.0 discrete-curvature.
+Maps keep the Kneedle K. See :doc:`/user_guide/building_habitat_maps`.
+
+.. GENERATED FROM PYTHON SOURCE LINES 114-139
+
+.. code-block:: Python
+
+    _report = result.habitat_model.preprocessing_state["selection_report"]
+    _cand = [int(k) for k in _report["candidates"]]
+    _iner = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
+    _k_kn = int(result.habitat_model.n_habitats)
+    _k_dc = int(_cand[int(np.argmax(np.diff(_iner, n=2))) + 1]) if len(_iner) >= 3 else _k_kn
+    from habit.habitat_model import KMeansHabitatModelFitter as _KF
+
+    _k_table = {"elbow_kneedle": _k_kn, "discrete_curvature_elbow": _k_dc}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _f = _KF(min_habitats=2, max_habitats=10, validation=_name, n_init=10)
+        _f.set_random_state(0)
+        _k_table[_name] = _f.fit(result.units, cohort=train).n_habitats
+    print("K by criterion (skip gap):")
+    for _n, _k in _k_table.items():
+        print(f"  {_n}: {_k}")
+
+    fig = plot_habitat_overlay(
+        train[0].image("LAP"),
+        result.habitat_maps[0],
+        title=f"{train[0].subject_id}: habitats",
+        crop_to="labels",
+    )
+    fig.savefig("out/export_methods_overlay.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+
+
+
+.. image-sg:: /auto_examples/07_advanced/images/sphx_glr_plot_10_export_results_001.png
+   :alt: subj001: habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+   :srcset: /auto_examples/07_advanced/images/sphx_glr_plot_10_export_results_001.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    K by criterion (skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-123
+.. GENERATED FROM PYTHON SOURCE LINES 140-146
 
 Spec fingerprint and methods draft
 ----------------------------------
@@ -200,7 +247,7 @@ comes from the **run** manifest: only stages that actually executed,
 with the parameters and seeds that were used. Print both styles so
 you can pick the tone closest to your journal.
 
-.. GENERATED FROM PYTHON SOURCE LINES 123-132
+.. GENERATED FROM PYTHON SOURCE LINES 146-155
 
 .. code-block:: Python
 
@@ -236,7 +283,7 @@ you can pick the tone closest to your journal.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 133-138
+.. GENERATED FROM PYTHON SOURCE LINES 156-161
 
 Save the study directory
 ------------------------
@@ -244,7 +291,7 @@ Save the study directory
 archive, habitat maps, the feature table and the run manifest. Set
 ``write_maps=False`` if you only need the table and the model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 138-145
+.. GENERATED FROM PYTHON SOURCE LINES 161-168
 
 .. code-block:: Python
 
@@ -276,14 +323,14 @@ archive, habitat maps, the feature table and the run manifest. Set
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-150
+.. GENERATED FROM PYTHON SOURCE LINES 169-173
 
 Reload the model and reread the feature table
 ---------------------------------------------
 A short round-trip check: the saved model reloads, and the CSV row
 count matches the in-memory feature table.
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-175
+.. GENERATED FROM PYTHON SOURCE LINES 173-198
 
 .. code-block:: Python
 
@@ -331,7 +378,7 @@ count matches the in-memory feature table.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 176-181
+.. GENERATED FROM PYTHON SOURCE LINES 199-204
 
 Manifest JSON (what the archive remembers)
 ------------------------------------------
@@ -339,7 +386,7 @@ The ``.habitatmodel`` is a ZIP. Its ``manifest.json`` holds the format
 version, model id, feature columns, Spec payload and cohort fingerprint
 without identifying patient data beyond a digest of subject ids.
 
-.. GENERATED FROM PYTHON SOURCE LINES 181-190
+.. GENERATED FROM PYTHON SOURCE LINES 204-213
 
 .. code-block:: Python
 
@@ -368,7 +415,7 @@ without identifying patient data beyond a digest of subject ids.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 191-209
+.. GENERATED FROM PYTHON SOURCE LINES 214-232
 
 How to read the result
 ----------------------
@@ -389,7 +436,7 @@ Edit the draft methods text for your journal (scanners, inclusion
 criteria, clinical endpoints). The fingerprint identifies the Spec;
 the manifest identifies what actually ran.
 
-.. GENERATED FROM PYTHON SOURCE LINES 211-221
+.. GENERATED FROM PYTHON SOURCE LINES 234-244
 
 Where to go next
 ----------------
@@ -405,7 +452,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 9.093 seconds)
+   **Total running time of the script:** (0 minutes 10.998 seconds)
 
 
 .. _sphx_glr_download_auto_examples_07_advanced_plot_10_export_results.py:

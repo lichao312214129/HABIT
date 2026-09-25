@@ -306,12 +306,84 @@ the whole training cohort and returns a ``HabitatModel`` (the
 centroids). New patients recompute their own subject z-score, then
 meet these centroids — training mean/std are never applied to them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 191-204
+.. GENERATED FROM PYTHON SOURCE LINES 191-194
 
 .. code-block:: Python
 
     model = fitter.fit(pooled_ready_units, cohort=train)
     print(model.summary())
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    HabitatModel kmeans-3432f3b65bfec11a
+      habitats           : 5
+      features (4)    : pre_contrast, LAP, PVP, delay_3min
+      defining cohort    : n=2
+      modalities         : pre_contrast, LAP, PVP, delay_3min
+      cohort digest      : cc1b16a34cc7478d...
+      produced by        : habitat_model_fitter.kmeans
+      habit version      : 3.0.0
+      random seed        : 0
+      preprocessing state: inertia, selection_report, validation
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 195-211
+
+How many habitats (elbow / Kneedle caveat)
+------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. Habitat
+maps below keep the Kneedle K. See
+:doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
+
+.. GENERATED FROM PYTHON SOURCE LINES 211-248
+
+.. code-block:: Python
+
+    report = model.preprocessing_state["selection_report"]
+    candidates = [int(k) for k in report["candidates"]]
+    inertia = np.asarray(report["scores"][report["methods"][0]], dtype=float)
+
+
+    def discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    k_kneedle = int(model.n_habitats)
+    k_discrete = discrete_curvature_elbow_k(candidates, inertia)
+    _k_table = {"elbow_kneedle": k_kneedle, "discrete_curvature_elbow": k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = KMeansHabitatModelFitter(
+            min_habitats=2, max_habitats=10, validation=_name, n_init=10
+        )
+        _fitter.set_random_state(SEED)
+        _k_table[_name] = _fitter.fit(pooled_ready_units, cohort=train).n_habitats
+    print("K by criterion (sil/CH maximize; DB minimize; skip gap):")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
 
     # The assigner gives every supervoxel the id of its nearest centroid,
     # then writes that id onto the supervoxel's voxels.
@@ -336,23 +408,19 @@ meet these centroids — training mean/std are never applied to them.
 
  .. code-block:: none
 
-    HabitatModel kmeans-3432f3b65bfec11a
-      habitats           : 5
-      features (4)    : pre_contrast, LAP, PVP, delay_3min
-      defining cohort    : n=2
-      modalities         : pre_contrast, LAP, PVP, delay_3min
-      cohort digest      : cc1b16a34cc7478d...
-      produced by        : habitat_model_fitter.kmeans
-      habit version      : 3.0.0
-      random seed        : 0
-      preprocessing state: inertia, selection_report, validation
+    K by criterion (sil/CH maximize; DB minimize; skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
     F:\work\habit_project\habit\viz\habitat_core.py:1110: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 205-210
+.. GENERATED FROM PYTHON SOURCE LINES 249-254
 
 Step 4: the feature table
 -------------------------
@@ -360,7 +428,7 @@ Every habitat feature extractor is called as ``extractor(subject,
 habitat_map)`` and returns a one-row table. ``join`` glues the four
 families side by side; ``concat`` stacks the subjects.
 
-.. GENERATED FROM PYTHON SOURCE LINES 210-220
+.. GENERATED FROM PYTHON SOURCE LINES 254-264
 
 .. code-block:: Python
 
@@ -390,7 +458,7 @@ families side by side; ``concat`` stacks the subjects.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 221-227
+.. GENERATED FROM PYTHON SOURCE LINES 265-271
 
 Check against Study
 -------------------
@@ -399,7 +467,7 @@ labels must match voxel for voxel and the model id (a digest of the
 fitter settings and the training subjects) must be the same. Each
 check prints True or False.
 
-.. GENERATED FROM PYTHON SOURCE LINES 227-264
+.. GENERATED FROM PYTHON SOURCE LINES 271-308
 
 .. code-block:: Python
 
@@ -448,8 +516,8 @@ check prints True or False.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.26s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.15s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.27s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.22s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.22s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.71s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.33s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.33s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.21s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.08s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.08s/it]
     atomic model: kmeans-3432f3b65bfec11a | Study model: kmeans-3432f3b65bfec11a
     same model id: True
     same number of habitats: True
@@ -460,7 +528,7 @@ check prints True or False.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-270
+.. GENERATED FROM PYTHON SOURCE LINES 309-314
 
 Label a new patient with the atomic path
 ----------------------------------------
@@ -468,7 +536,7 @@ A new patient goes through the same per-subject steps (its OWN
 winsorize 1% + z-score, its own 30 supervoxels), then the TRAINING
 centroids. Nothing is refitted; no cohort bin edges are applied.
 
-.. GENERATED FROM PYTHON SOURCE LINES 270-296
+.. GENERATED FROM PYTHON SOURCE LINES 314-340
 
 .. code-block:: Python
 
@@ -511,7 +579,7 @@ centroids. Nothing is refitted; no cohort bin edges are applied.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.77s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.77s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.48s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.49s/it]
     subj003: atomic == Study.predict: True
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
@@ -519,7 +587,7 @@ centroids. Nothing is refitted; no cohort bin edges are applied.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 297-305
+.. GENERATED FROM PYTHON SOURCE LINES 341-349
 
 Hand the atomic model to Study
 ------------------------------
@@ -530,7 +598,7 @@ subject-level scaling, how many supervoxels). ``spec=spec`` supplies
 them, so ``Study`` puts the new patient through the same stages before
 the stored bin edges and centroids are applied.
 
-.. GENERATED FROM PYTHON SOURCE LINES 305-316
+.. GENERATED FROM PYTHON SOURCE LINES 349-360
 
 .. code-block:: Python
 
@@ -553,7 +621,7 @@ the stored bin edges and centroids are applied.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.44s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.44s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.57s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.57s/it]
     subj003: atomic == Study.from_model(atomic model): True
     subj003 habitat 1: 0.105 of ROI voxels
     subj003 habitat 2: 0.415 of ROI voxels
@@ -563,7 +631,7 @@ the stored bin edges and centroids are applied.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 317-335
+.. GENERATED FROM PYTHON SOURCE LINES 361-379
 
 How to read the result
 ----------------------
@@ -584,7 +652,7 @@ The checks show that the components reproduce ``Study`` exactly on
 this data and seed. They say nothing about whether K = 4 is a good
 habitat definition; two patients are a demo, not a cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 337-349
+.. GENERATED FROM PYTHON SOURCE LINES 381-393
 
 Where to go next
 ----------------
@@ -602,7 +670,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 27.665 seconds)
+   **Total running time of the script:** (0 minutes 28.245 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_02_atomic_two_step.py:

@@ -166,7 +166,7 @@ supervoxels, its own cohort-level bin edges, its own number of
 habitats (elbow rule) and its own centroids. Nothing ties habitat 1
 of fit A to habitat 1 of fit B.
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-153
+.. GENERATED FROM PYTHON SOURCE LINES 106-152
 
 .. code-block:: Python
 
@@ -215,6 +215,75 @@ of fit A to habitat 1 of fit B.
     )
     model_a, model_b = result_a.habitat_model, result_b.habitat_model
     print(f"fit A: K = {model_a.n_habitats}, model_id {model_a.model_id}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.82s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.76s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.76s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.61it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.55s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.55s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.55s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.46it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.25it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.25it/s]
+    fit A: K = 5, model_id kmeans-3432f3b65bfec11a
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 153-167
+
+Elbow / Kneedle caveat and criterion table
+------------------------------------------
+HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
+``KneeLocator`` on k-means inertia (within-cluster sum of squares),
+curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
+Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
+Normalize k and inertia to the unit square, draw the chord from the
+first point to the last, and take the k farthest from that chord; a
+smooth curve often places this knee to the right of the bend a person
+sees. Literature "elbow" means inspecting within-cluster dispersion
+versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
+18(4):267-276) — not a second-difference formula. The discrete-curvature
+elbow (visual elbow, computed) maximizes the second difference of
+inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+
+.. GENERATED FROM PYTHON SOURCE LINES 167-199
+
+.. code-block:: Python
+
+    _report = model_a.preprocessing_state["selection_report"]
+    _candidates = [int(k) for k in _report["candidates"]]
+    _inertia = __import__("numpy").asarray(_report["scores"][_report["methods"][0]], dtype=float)
+
+
+    def _discrete_curvature_elbow_k(cluster_range, inertia_scores):
+        """Return k maximizing the second difference of inertia (pre-v1.0 elbow)."""
+        import numpy as np
+        values = np.asarray(inertia_scores, dtype=float)
+        cluster_range = [int(k) for k in cluster_range]
+        if values.size < 3:
+            return int(cluster_range[int(np.argmin(values))])
+        return int(cluster_range[int(np.argmax(np.diff(values, n=2))) + 1])
+
+
+    _k_kneedle = int(model_a.n_habitats)
+    _k_discrete = _discrete_curvature_elbow_k(_candidates, _inertia)
+    from habit.habitat_model import KMeansHabitatModelFitter as _KMeansFitter
+
+    _k_table = {"elbow_kneedle": _k_kneedle, "discrete_curvature_elbow": _k_discrete}
+    for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
+        _fitter = _KMeansFitter(
+            min_habitats=2, max_habitats=10, validation=_name, n_init=10
+        )
+        _fitter.set_random_state(0)
+        _k_table[_name] = _fitter.fit(result_a.units, cohort=cohort_a).n_habitats
+    print("K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):")
+    for _name, _k in _k_table.items():
+        print(f"  {_name}: {_k}")
+    print(f"habitat map uses Kneedle K = {_k_kneedle}")
     print(f"fit B: K = {model_b.n_habitats}, model_id {model_b.model_id}")
 
 
@@ -225,17 +294,19 @@ of fit A to habitat 1 of fit B.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.22s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.00s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.00s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.58it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.57it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.57it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.55s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.52s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.52s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.64it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.67it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.67it/s]
-    fit A: K = 5, model_id kmeans-3432f3b65bfec11a
+    K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip gap):
+      elbow_kneedle: 5
+      discrete_curvature_elbow: 3
+      silhouette: 2
+      calinski_harabasz: 2
+      davies_bouldin: 2
+    habitat map uses Kneedle K = 5
     fit B: K = 5, model_id kmeans-8b5c6e3e4454443b
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 154-161
+.. GENERATED FROM PYTHON SOURCE LINES 200-207
 
 Raw ids disagree on the same patient
 ------------------------------------
@@ -245,7 +316,7 @@ fraction of voxels with the same raw id is low, yet the ARI (which
 ignores names) is much higher: the two fits draw similar borders but
 call the regions by different numbers.
 
-.. GENERATED FROM PYTHON SOURCE LINES 161-187
+.. GENERATED FROM PYTHON SOURCE LINES 207-233
 
 .. code-block:: Python
 
@@ -288,8 +359,8 @@ call the regions by different numbers.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:07<00:00,  7.98s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:07<00:00,  7.98s/it]
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:07<00:00,  7.92s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:07<00:00,  7.92s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:07<00:00,  7.48s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:07<00:00,  7.48s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:07<00:00,  7.37s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:07<00:00,  7.37s/it]
     subj005 voxels with the same raw id: 35.8%
     subj005 adjusted Rand index (ignores names): 0.393
     fit B      1     2      3     4     5
@@ -305,7 +376,7 @@ call the regions by different numbers.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 188-206
+.. GENERATED FROM PYTHON SOURCE LINES 234-252
 
 Why one reference is not a neutral anchor
 -----------------------------------------
@@ -326,7 +397,7 @@ C        1       2           1
 C        2       0           2
 ======== ======= =========== =======
 
-.. GENERATED FROM PYTHON SOURCE LINES 206-260
+.. GENERATED FROM PYTHON SOURCE LINES 252-306
 
 .. code-block:: Python
 
@@ -399,7 +470,7 @@ C        2       0           2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 261-274
+.. GENERATED FROM PYTHON SOURCE LINES 307-320
 
 Describe both fits in one comparable space
 ------------------------------------------
@@ -415,7 +486,7 @@ mean of those four columns over every voxel the habitat covers in its
 fit's own training patients. The same chain is rebuilt here from the
 atomic components.
 
-.. GENERATED FROM PYTHON SOURCE LINES 274-329
+.. GENERATED FROM PYTHON SOURCE LINES 320-375
 
 .. code-block:: Python
 
@@ -498,7 +569,7 @@ atomic components.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 330-341
+.. GENERATED FROM PYTHON SOURCE LINES 376-387
 
 Match the two fits
 ------------------
@@ -512,7 +583,7 @@ habitat to its prototype, in normalized-intensity units (0..1 scale);
 the partner distance is the distance between the two matched
 profiles.
 
-.. GENERATED FROM PYTHON SOURCE LINES 341-382
+.. GENERATED FROM PYTHON SOURCE LINES 387-428
 
 .. code-block:: Python
 
@@ -582,7 +653,7 @@ profiles.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 383-392
+.. GENERATED FROM PYTHON SOURCE LINES 429-438
 
 Check on the unseen patient
 ---------------------------
@@ -594,7 +665,7 @@ shared voxels of subj005 alone, without any profile. Pairs on which
 both methods agree do not depend on the matching method; pairs on
 which they differ deserve a closer look.
 
-.. GENERATED FROM PYTHON SOURCE LINES 392-432
+.. GENERATED FROM PYTHON SOURCE LINES 438-478
 
 .. code-block:: Python
 
@@ -673,7 +744,7 @@ which they differ deserve a closer look.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 433-439
+.. GENERATED FROM PYTHON SOURCE LINES 479-485
 
 What matching changes in a feature table
 ----------------------------------------
@@ -682,7 +753,7 @@ A cohort table has one column per habitat id. Before matching,
 tissues. After renaming fit B's columns with the mapping, each column
 compares like with like (subj005, both fits).
 
-.. GENERATED FROM PYTHON SOURCE LINES 439-454
+.. GENERATED FROM PYTHON SOURCE LINES 485-500
 
 .. code-block:: Python
 
@@ -719,7 +790,7 @@ compares like with like (subj005, both fits).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 455-464
+.. GENERATED FROM PYTHON SOURCE LINES 501-510
 
 Per-subject naming is for one-step designs
 ------------------------------------------
@@ -731,7 +802,7 @@ cohort fits it matches each training patient separately, so one
 habitat of a fit can receive different names in two of its patients.
 Check whether each fit's habitats got one name per habitat:
 
-.. GENERATED FROM PYTHON SOURCE LINES 464-486
+.. GENERATED FROM PYTHON SOURCE LINES 510-532
 
 .. code-block:: Python
 
@@ -782,7 +853,7 @@ Check whether each fit's habitats got one name per habitat:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 487-531
+.. GENERATED FROM PYTHON SOURCE LINES 533-577
 
 How to read the result
 ----------------------
@@ -829,7 +900,7 @@ The disagreement is expected: each fit saw only two patients. With
 two halves of a real cohort, report K of each fit, the matched pairs
 with their profile distances, and the per-pair Dice.
 
-.. GENERATED FROM PYTHON SOURCE LINES 533-543
+.. GENERATED FROM PYTHON SOURCE LINES 579-589
 
 Where to go next
 ----------------
@@ -845,7 +916,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 36.425 seconds)
+   **Total running time of the script:** (0 minutes 35.003 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_validation_and_reuse_plot_02_matching_labels.py:
