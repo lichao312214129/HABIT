@@ -143,6 +143,78 @@ def test_manifest_reports_versions_seeds_and_exclusions() -> None:
         manifest.describe_methods(style="imaginary")
 
 
+def _two_subject_manifest() -> RunManifest:
+    """
+    Build a cohort manifest shaped like a real two-step run.
+
+    Two subjects each carry their own extract -> subject preprocess ->
+    partition -> cohort preprocess -> assign chain; the recipe root fans in
+    both. A third-party step (``acme.denoise``) sits between extraction and
+    subject preprocessing to exercise rank inference from inputs.
+    """
+    maps = []
+    for _ in range(2):
+        record = Provenance.source("subject_images")
+        record = record.derive(produced_by="voxel_feature_extractor.raw", spec_fingerprint="e")
+        record = record.derive(produced_by="acme.denoise", spec_fingerprint="d")
+        record = record.derive(
+            produced_by="feature_preprocessing.subject.voxel", spec_fingerprint="s"
+        )
+        record = record.derive(produced_by="supervoxelizer.kmeans", spec_fingerprint="k")
+        record = record.derive(produced_by="feature_preprocessing.cohort", spec_fingerprint="c")
+        record = record.derive(
+            produced_by="habitat_assigner.nearest_centroid",
+            spec_fingerprint="a",
+            random_seed=7,
+        )
+        maps.append(record)
+    root = Provenance(
+        produced_by="recipes.habitat.two_step",
+        spec_fingerprint="spec",
+        inputs=tuple(maps),
+        random_seed=7,
+    )
+    return RunManifest(
+        spec_payload={
+            "name": "demo",
+            "stages": [
+                {"name": "extract", "component": {"name": "raw", "params": {"roi": "LAP"}}},
+                {"name": "partition", "component": {"name": "kmeans", "params": {"n_supervoxels": 30}}},
+                {"name": "fit", "component": {"name": "kmeans", "params": {}}},
+            ],
+            "random_seed": 7,
+        },
+        provenance=root,
+        subject_outcomes={"s1": "success", "s2": "success"},
+    )
+
+
+@pytest.mark.unit
+def test_describe_methods_states_each_step_once_in_pipeline_order() -> None:
+    """Per-subject records collapse to one mention, ordered source -> run."""
+    methods = _two_subject_manifest().describe_methods()
+    expected = [
+        "subject_images",
+        "voxel_feature_extractor.raw",
+        "acme.denoise",
+        "feature_preprocessing.subject.voxel",
+        "supervoxelizer.kmeans",
+        "feature_preprocessing.cohort",
+        "habitat_assigner.nearest_centroid",
+        "recipes.habitat.two_step",
+    ]
+    # Labels contain dots, so cut at the sentence terminator ". " only.
+    steps_sentence = methods.split("were: ", 1)[1].split(". ", 1)[0]
+    assert steps_sentence.split("; ") == expected
+    # Stage parameters come from the stage-shaped spec payload, once.
+    assert "extract (raw: roi='LAP')" in methods
+    assert "partition (kmeans: n_supervoxels=30)" in methods
+    assert methods.count("n_supervoxels=30") == 1
+    # One shared seed and the cohort size are each stated once.
+    assert methods.count("Random seed 7") == 1
+    assert "2 subject(s) entered the analysis" in methods
+
+
 @pytest.mark.unit
 def test_manifest_checklist_never_fakes_unverifiable_items() -> None:
     """Items HABIT cannot evidence are marked needs_human_answer."""

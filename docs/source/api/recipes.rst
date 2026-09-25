@@ -11,7 +11,7 @@
 .. currentmodule:: habit.recipes
 
 **User guide:** Habitat Guide :doc:`../auto_examples/index` (especially
-:doc:`../auto_examples/04_designs/index`) ·
+:doc:`../auto_examples/00_introductory_tutorials/index`) ·
 :doc:`python_api`. Component names:
 :doc:`../how_to/habitat_components`.
 

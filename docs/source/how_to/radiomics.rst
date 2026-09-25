@@ -6,8 +6,8 @@ Traditional radiomics
 .. note::
 
    Whole-ROI radiomics without habitat maps. Guide:
-   :doc:`../examples/features_radiomics_api`. Features **on** habitat
-   maps: :doc:`../examples/feature_extraction`.
+   :doc:`/auto_examples/04_quantifying_habitats/index`. Features **on** habitat
+   maps: :doc:`/auto_examples/04_quantifying_habitats/index`.
 
 Goal: whole-ROI PyRadiomics **without** habitat maps. For habitat features use
 :doc:`extract_features`. ROI-level radiomics, voxel-level radiomics, and
@@ -33,7 +33,7 @@ Success: feature tables under ``paths.out_dir``.
 Habitat-wise tables (when you do have maps) overlay the same anatomy.
 The figure is **not** from ``habit radiomics`` above (whole-ROI has no
 labels). It is written by the feature-extraction gallery
-(:doc:`../examples/feature_extraction`). Reproduce it::
+(:doc:`/auto_examples/04_quantifying_habitats/index`). Reproduce it::
 
    python docs/source/examples/scripts/feature_extraction_demo.py
 

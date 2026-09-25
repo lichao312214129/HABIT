@@ -230,7 +230,7 @@ Built-in combiners: ``concat``, ``weighted_concat`` / ``average``
 ``kinetic`` (DCE slope pairs), ``expression`` (dataframe arithmetic).
 Column naming: single-column nodes keep their source label
 (``modality`` > ``as_`` > name); ``as_`` renames only single-output nodes.
-See :doc:`../examples/feature_composition` for a runnable tour.
+See :doc:`/auto_examples/02_features/plot_05_own_feature_extractor` for a runnable tour.
 
 Precision screen: perturbations and precise features
 ----------------------------------------------------
@@ -261,7 +261,7 @@ Mask-only contour methods (``morphological``, ``gradient_weighted``,
 ``slice_extent``) must be called on a
 :class:`~habit.contracts.subject.Subject` via
 :class:`~habit.precision.ImagePerturbationRegistry` — see
-:doc:`../examples/precise_features`. ``extract_voxel_texture`` is one
+:doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`. ``extract_voxel_texture`` is one
 voxel-radiomics pass; paper combinations are repeated calls (R1 vs R3,
 B12 vs B25, original vs perturbed). Then compose ICC panels:
 
@@ -292,7 +292,7 @@ chain is :func:`~habit.precision.prior2024_retest_perturbation`
 ``PreciseFeatureSet.preprocessor()`` returns a ``FeatureWhitelist``.
 The one-call recipe is
 :func:`habit.recipes.identify_precise_voxel_features`; the runnable tour
-is :doc:`../examples/precise_features`.
+is :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
 
 Randomness (``Seedable``)
 -------------------------

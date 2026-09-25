@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- ``RunManifest.describe_methods()``: each executed step is stated once, in
+  pipeline order (previously listed once per subject and in reverse
+  provenance-walk order). Shared random seeds and cohort size are each
+  summarised once; stage-shaped specs contribute their ordered stage
+  parameters.
+- ``Study.from_model``: when ``spec`` is omitted, rebuild from the model
+  card's upstream analysis when present (Study-fitted models); otherwise
+  raise an actionable ``HABITAPIError`` that asks for the ``HabitatSpec``
+  used to produce the centroids (component-assembled / fitter-only cards).
+- MSI docstrings: document that ``energy`` / ``homogeneity`` can exceed 1
+  under the established ``P = M / D`` definition (not a probability
+  matrix), and that ``contrast`` / ``homogeneity`` / ``correlation``
+  depend on numeric habitat ids. Feature values are unchanged.
+
 ## [3.0.0] - 2026-09-24
 
 **BREAKING.** Habitat label matching is reduced to

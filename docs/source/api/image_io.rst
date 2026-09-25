@@ -23,9 +23,12 @@ Classes
 
    GeometryPolicy
    GeometryReport
-   ImageVolume
-   MaskVolume
    ImageMaskPair
+
+``habit.image.ImageVolume`` and ``habit.image.MaskVolume`` are the same
+classes as :class:`habit.contracts.ImageVolume` and
+:class:`habit.contracts.MaskVolume` (re-exported), so they are documented
+once, on :doc:`contracts`.
 
 .. currentmodule:: habit.radiomics.extract
 
@@ -141,6 +144,6 @@ Component API (not the YAML workflow)::
    )
 
 ``fail_fast=False`` keeps successful rows and records per-subject errors in
-``FeatureTableResult.failures`` (see :doc:`../examples/fault_tolerance`).
+``FeatureTableResult.failures`` (see :doc:`/auto_examples/07_advanced/plot_08_backends`).
 
 Returns ``FeatureResult`` / ``FeatureTableResult``.

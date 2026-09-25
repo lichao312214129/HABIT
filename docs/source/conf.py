@@ -142,6 +142,9 @@ sphinx_gallery_conf = {
     "plot_gallery": _plot_gallery_enabled(),
     "reset_modules": ("matplotlib",),
     "min_reported_time": 1,
+    # Parallel example execution for faster local / full gallery builds.
+    # Windows Loky failed with "cannot find context for 'loky'" — serial fallback.
+    "parallel": False,
 }
 
 # Client-side rendering for static hosting (GitHub Pages).

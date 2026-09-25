@@ -8,7 +8,7 @@ metrics) from habitat label maps, optionally with 2D/3D figures.
 
 Need habitat maps first (:doc:`segment_habitat`). This page is the CLI /
 YAML bookmark. End-to-end Python gallery:
-:doc:`../examples/graph_features`. Reviewer-grade formulas:
+:doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`. Reviewer-grade formulas:
 :doc:`../reference/features/graph`.
 
 ``graph`` is a **built-in** light family under
@@ -82,7 +82,7 @@ Python API
 ----------
 
 The figure below is written by the graph gallery
-(:doc:`../examples/graph_features`) — one-step with **fixed**
+(:doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`) — one-step with **fixed**
 ``n_habitats=4`` and the library graph defaults (uniform 8-voxel cubes
 with per-subregion centroid nodes + min-distance edges + dashed
 lattice). Reproduce it::
@@ -139,7 +139,7 @@ so each completed subject writes ``graph_slice.png`` and
        writer=writer,
    )
 
-Full walkthrough: :doc:`../examples/one_step_habitat` (**Stream per subject**).
+Full walkthrough: :doc:`/auto_examples/00_introductory_tutorials/plot_02_inside_each_subject` (**Stream per subject**).
 
 Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry
 ``HabitatFeatureExtractorRegistry.create("graph", ...)``, and 3D
@@ -231,5 +231,5 @@ Also see
 --------
 
 * General extract how-to: :doc:`extract_features`
-* Examples gallery: :doc:`../examples/graph_features`
+* Examples gallery: :doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`
 * Feature columns: :doc:`../reference/features/graph`

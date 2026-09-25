@@ -12,7 +12,7 @@ Execution backends
 
 Integrator chapter (which backend, continue vs fail_fast, resume):
 :doc:`../tutorial/execution`. Runnable demos:
-:doc:`/auto_examples/07_parallel/index`. YAML twins:
+:doc:`/auto_examples/07_advanced/plot_08_backends`. YAML twins:
 :doc:`spec`. Habitat CLI / recipe wiring:
 :doc:`../configuration/habitat`.
 
@@ -139,7 +139,7 @@ Both ``SerialBackend`` and ``ProcessPoolBackend`` accept
    Pass ``raise_on_failure=False`` to receive :class:`~habit.contracts.SubjectResult`
    slots (recipes / CLI do this so a partial cohort can finish, matching
    v0.1). Soft failure also remains available via ``backend.map`` directly.
-   See :doc:`../examples/fault_tolerance`.
+   See :doc:`/auto_examples/07_advanced/plot_08_backends`.
 
 ProcessPoolBackend
 ------------------
@@ -255,7 +255,7 @@ Recorded terminal failures are skipped on resume (v0.1 rule) unless
 Pass the same store to :meth:`~habit.recipes.Study.fit_predict` together
 with a :class:`~habit.report.Report` so one-step product files (maps,
 models, figures) are rewritten from cached payloads on resume
-(:doc:`../examples/one_step_habitat`).
+(:doc:`/auto_examples/00_introductory_tutorials/plot_02_inside_each_subject`).
 
 On the v1 habitat CLI path, cache keys embed the spec fingerprint, and the
 store is also bound to ``run_fingerprint.json``. With

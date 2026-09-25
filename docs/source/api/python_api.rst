@@ -42,7 +42,7 @@ Mental model
 
 1. **Subject-level operators** are one-argument callables
    (``voxel(subject)``, ``pipe(subject)``). No YAML, no directory layout.
-   This is the embedding surface — :doc:`../examples/habitat_atomic_ops`.
+   This is the embedding surface — :doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`.
 2. **Cohort** = ordered subjects (lazy images). Optional until you fit
    a shared :class:`~habit.contracts.HabitatModel` or ``map`` a pipeline.
 3. **``HabitatSpec.stages``** = ordered named stages (source of truth);
@@ -59,7 +59,7 @@ Mental model
 
 Beginners: copy :doc:`../auto_quickstart/plot_quickstart_python` (a ``Study``
 recipe). Integrators: atoms first, then this page. Concept:
-:doc:`../tutorial/habitat_analysis`. Parallel / fault tolerance:
+:doc:`/auto_examples/00_introductory_tutorials/index`. Parallel / fault tolerance:
 :doc:`../tutorial/execution`.
 
 Primary entry: ``Study`` (cohort recipe)
@@ -85,7 +85,7 @@ Nothing is written until you ask for it:
 :func:`~habit.recipes.direct_pooling_habitat` are the other two designs.
 Single-subject debugging uses ``habit.<capability>`` operators
 (``RawVoxelFeatures(subject)``, and so on) — see
-:doc:`../examples/habitat_atomic_ops`.
+:doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`.
 
 Advanced: declare stages yourself
 ---------------------------------
@@ -128,7 +128,7 @@ return a :class:`~habit.recipes.Study` with a declared ``design`` (see
 One-step (no ``pool``) has no cohort-level definition:
 ``result.habitat_model`` is ``None``; per-subject definitions live in
 ``result.subject_models``. Stream maps / figures with
-:class:`~habit.report.Report` — see :doc:`../examples/one_step_habitat`.
+:class:`~habit.report.Report` — see :doc:`/auto_examples/00_introductory_tutorials/plot_02_inside_each_subject`.
 
 .. code-block:: python
 
@@ -176,7 +176,7 @@ Common workflows
 The snippets below use :func:`~habit.datasets.make_synthetic_cohort` so they
 run without a download. For the official imaging pack (and to see the
 folder tree your own data must match) call :func:`~habit.datasets.fetch_demo`, then
-:func:`~habit.contracts.cohort_from_directory` (see :doc:`../examples/data_from_arrays`).
+:func:`~habit.contracts.cohort_from_directory` (see :doc:`/auto_examples/06_manipulating_images/index`).
 
 Environment fingerprint
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -441,7 +441,7 @@ Where to go next
    * - Directory / file image adapters
      - :doc:`adapters`
    * - Embed ``op(subject)`` / ``SubjectPipeline``
-     - :doc:`../examples/habitat_atomic_ops`
+     - :doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`
    * - Habitat protocols, registries, ``SubjectPipeline``,
        ``HabitatComponents``
      - :doc:`domain_habitat`
@@ -452,7 +452,7 @@ Where to go next
    * - ``HabitatSpec`` / ``RunPolicy`` / migrate YAML
      - :doc:`spec`
    * - Streaming persist + per-subject figures (``Report``)
-     - :doc:`../examples/one_step_habitat`
+     - :doc:`/auto_examples/00_introductory_tutorials/plot_02_inside_each_subject`
    * - Pure numeric kernels
      - :doc:`kernels`
    * - sklearn / MONAI / nnU-Net
@@ -501,7 +501,7 @@ data. Tabular building blocks are documented in :doc:`domain_table`.
 
 ``make_synthetic_feature_table`` is built for golden tests (one strong
 ``signal`` column) and will often print AUC 1.0. For publication-style
-figures see :doc:`../examples/visualization`.
+figures see :doc:`/auto_examples/04_quantifying_habitats/plot_01_volume_fractions`.
 
 Steps interleave freely, which the three predecessor fields could not
 express. ``zscore`` → ``variance`` → ``minmax`` → ``lasso`` is a plain list:

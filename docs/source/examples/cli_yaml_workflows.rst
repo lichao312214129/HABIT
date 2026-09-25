@@ -1,6 +1,0 @@
-:orphan:
-
-CLI / YAML workflows
-====================
-
-This page moved to :doc:`../configuration/index`.

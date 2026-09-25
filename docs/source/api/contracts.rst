@@ -11,7 +11,7 @@
 .. currentmodule:: habit.contracts
 
 **User guide:** :doc:`data_model` · Habitat Guide
-:doc:`../auto_examples/01_data_in/plot_01_directory`.
+:doc:`../auto_examples/06_manipulating_images/plot_01_directory`.
 Adapters that load these objects from disk: :doc:`adapters`.
 
 Contracts are plain value objects with no IO and no YAML knowledge.

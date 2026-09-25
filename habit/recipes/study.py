@@ -524,15 +524,70 @@ class Study:
         Returns:
             A study whose ``model_`` is already fitted, ready for
             :meth:`predict`.
+
+        Raises:
+            HABITAPIError: When ``spec`` is omitted and the model card does
+                not record the upstream analysis (typical for a model fitted
+                directly with ``fitter.fit(...)`` from individual
+                components); the message says which ``spec`` to pass.
         """
         if not isinstance(model, HabitatModel):
             model = HabitatModel.load(model)
         if spec is None:
-            spec = HabitatSpec.from_dict(model.spec_payload)
+            spec = _spec_from_model_card(model)
         spec = _with_model_habitat_postprocessing(spec, model)
         study = cls(spec=spec, design=_infer_design(spec))
         study.model_ = model
         return study
+
+
+#: Spec-payload keys that describe how a subject reaches the model's feature
+#: space. A model card holding none of them (only the fitter and, possibly,
+#: the fitted cohort chain) cannot say which voxel features, subject-level
+#: preprocessing and partition a new subject must go through.
+_UPSTREAM_SPEC_KEYS: Tuple[str, ...] = ("stages", "voxel_feature_extractor")
+
+
+def _spec_from_model_card(model: HabitatModel) -> HabitatSpec:
+    """
+    Rebuild the analysis spec embedded in a model card.
+
+    Models fitted by :class:`Study` embed the full analysis spec, so they
+    round-trip. A model fitted directly from components
+    (``fitter.fit(units)`` then ``with_cohort_preprocessing``) records only
+    the fitter and the cohort chain: the upstream steps were run by the
+    caller's own code and HABIT never saw them. Guessing them would apply
+    the centroids to features computed differently from the training
+    features and return plausible-looking but wrong habitat maps, so the
+    caller is asked for the spec instead.
+
+    Args:
+        model: The fitted habitat model.
+
+    Returns:
+        The spec rebuilt from ``model.spec_payload``.
+
+    Raises:
+        HABITAPIError: If the model card lacks the upstream analysis steps.
+    """
+    payload = model.spec_payload
+    if not any(key in payload for key in _UPSTREAM_SPEC_KEYS):
+        recorded = ", ".join(sorted(payload)) or "nothing"
+        raise HABITAPIError(
+            f"Study.from_model cannot rebuild the analysis for model "
+            f"{model.model_id!r}: its model card records only {recorded}, "
+            "not the upstream steps (voxel feature extraction, subject-level "
+            "preprocessing, partition) that new subjects must go through to "
+            "reach the feature space of its centroids. This happens when the "
+            "model was fitted directly from individual components "
+            "(fitter.fit(...)) instead of by Study. Pass the HabitatSpec that "
+            "describes the analysis which produced the model, e.g. "
+            "Study.from_model(model, spec=HabitatSpec(stages=(...))), with "
+            "the same extract / preprocess / partition / preprocess_cohort / "
+            "fit stages you ran; or keep applying it with your own component "
+            "loop via model.assigner(...)."
+        )
+    return HabitatSpec.from_dict(payload)
 
 
 def two_step_habitat(

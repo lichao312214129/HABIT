@@ -10,7 +10,7 @@ serial ↔ process pool if ``random_seed`` is fixed.
 
 This page is the integrator chapter. Knob-by-knob reference:
 :doc:`../api/execution`. Runnable demos:
-:doc:`/auto_examples/07_parallel/index`.
+:doc:`/auto_examples/07_advanced/plot_08_backends`.
 
 Beginners can ignore this page until a cohort is slow or one subject
 crashes the run. The quickstarts use a small process pool already
@@ -75,12 +75,12 @@ Atomic path (no ``Study``): extract texture, preprocess, fit in this
 process, then ``backend.map`` the assigner on units already in memory.
 Subject versus cohort preprocessing of that texture, and the equivalent
 ``HabitatSpec``, is
-:doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`.
+:doc:`/auto_examples/02_features/plot_02_texture_feature_maps`.
 Serial versus pooled runs of one study, with timings, are on the first
 gallery page.
 
-* :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`
-* :doc:`/auto_examples/07_parallel/plot_01_backends`
+* :doc:`/auto_examples/02_features/plot_02_texture_feature_maps`
+* :doc:`/auto_examples/07_advanced/plot_08_backends`
 
 Failure policy
 --------------
@@ -98,7 +98,7 @@ if** the backend used ``continue``. Recipes / CLI pass
 ``backend.map`` directly leaves the exception on ``slot.error``.
 
 Both, on a study with one incomplete subject:
-:doc:`/auto_examples/07_parallel/plot_01_backends`.
+:doc:`/auto_examples/07_advanced/plot_08_backends`.
 
 Per-subject wall-clock cap: ``subject_timeout_sec`` (ProcessPool only).
 Expiry raises ``SubjectTimeoutError``.
@@ -111,7 +111,7 @@ Resume and checkpoints
 
 Attach a :class:`~habit.execution.CheckpointStore` so a second run skips
 subjects already recorded as success:
-:doc:`/auto_examples/07_parallel/plot_01_backends`.
+:doc:`/auto_examples/07_advanced/plot_08_backends`.
 
 Recorded **failures** stay skipped unless ``retry_failed_subjects=True``.
 Force a few IDs with ``force_rerun_subjects``.
@@ -131,7 +131,7 @@ Not execution backends, but the same "raise vs continue" idea:
 * **HabitatModel.load** — refuses a file that is not
   ``habit.habitatmodel`` (:class:`~habit.exceptions.CompatibilityError`)
 
-Walkthrough: :doc:`../examples/fault_tolerance`.
+Walkthrough: :doc:`/auto_examples/07_advanced/plot_08_backends`.
 
 YAML
 ----
@@ -146,7 +146,7 @@ knobs at the document top level (``processes``,
 Next
 ----
 
-* Habitat core: :doc:`habitat_analysis`
-* Embed operators: :doc:`../examples/habitat_atomic_ops`
+* Habitat core: :doc:`/auto_examples/00_introductory_tutorials/index`
+* Embed operators: :doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`
 * API reference: :doc:`../api/execution`
-* Demos: :doc:`/auto_examples/07_parallel/index`
+* Demos: :doc:`/auto_examples/07_advanced/plot_08_backends`

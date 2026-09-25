@@ -1,23 +1,24 @@
 CLI and YAML
 ============
 
-YAML templates and ``habit`` commands live only here, not in the Habitat
-Guide. Copy a file from ``config/``, edit the ★ fields (usually data and
-output paths), and run the matching command.
+The ``habit`` command line and the YAML files are a shell over the Python
+API: every command runs the same analysis as the Python pages. YAML
+templates and ``habit`` commands live only in this section, not in the
+Habitat Guide.
 
-Command list: :doc:`../reference/cli`.
-Catalog of templates: :doc:`recipe_catalog`.
+Two subpages:
+
+* :doc:`../reference/cli` -- every ``habit`` subcommand, what it does,
+  and where its options are explained.
+* :doc:`recipe_catalog` -- the YAML templates under ``config/`` and the
+  field reference for each workflow. Copy a file, edit the ★ fields
+  (usually data and output paths), and run the matching command.
 
 .. toctree::
    :maxdepth: 2
 
+   ../reference/cli
    recipe_catalog
-   habitat
-   feature_extraction
-   radiomics
-   preprocessing
-   dicom_sort
-   auxiliary
 
 Supporting bookmarks
 --------------------

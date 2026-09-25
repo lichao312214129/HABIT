@@ -105,7 +105,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 - **Type**: string
 - **Required**: yes
 - **Default**: none (required)
-- **Description**: ``data_dir`` may be a directory **or** a manifest YAML (e.g. ``file_habitat.yaml``, or ``file_habitat_registered_single_roi.yaml`` when modalities are already co-registered and each subject has one ROI). Never a bare ``.nii.gz``. ``out_dir`` is the default parent directory for results and checkpoints. See :doc:`../examples/data_from_arrays`.
+- **Description**: ``data_dir`` may be a directory **or** a manifest YAML (e.g. ``file_habitat.yaml``, or ``file_habitat_registered_single_roi.yaml`` when modalities are already co-registered and each subject has one ROI). Never a bare ``.nii.gz``. ``out_dir`` is the default parent directory for results and checkpoints. See :doc:`/auto_examples/06_manipulating_images/index`.
 
 **feature_construction**: Feature extraction settings
 
@@ -215,7 +215,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         The simulated-retest perturbation used to *define* those precise features
         is :func:`~habit.precision.prior2024_retest_perturbation` (MIRP 1.2.0
         Appendix S2: noise + 0.5-voxel translation fraction + 0.5° z-rotation).
-        See :doc:`../examples/precise_features`.
+        See :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
 
       - **Example**: ``concat(voxel_radiomics(T2))`` with ``params: {}`` (CT R3B12 defaults); override example: ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` in ``params``
 
@@ -1109,7 +1109,7 @@ per-subject timeout isolation set ``backend: process`` (or
 
 Python API twin: :class:`~habit.spec.RunPolicy` /
 :doc:`../api/execution`. Soft-failure patterns (geometry, batch
-``fail_fast``, ``Cohort.map`` aggregation): :doc:`../examples/fault_tolerance`.
+``fail_fast``, ``Cohort.map`` aggregation): :doc:`/auto_examples/07_advanced/plot_08_backends`.
 
 **oom_backoff** (habitat analysis top level): Reduce parallelism after memory errors
 

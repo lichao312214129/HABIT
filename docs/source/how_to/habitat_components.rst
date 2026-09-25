@@ -2,11 +2,11 @@ Habitat Spec component catalog
 ==============================
 
 **Reference** chooser for registered ``Spec`` names. Walk-throughs stay in
-the Habitat Guide (:doc:`../examples/index`). This page lists every built-in
+the Habitat Guide (:doc:`/auto_examples/index`). This page lists every built-in
 name, constructor parameter, and the Python / YAML twin.
 
-Concept and embedding: :doc:`../tutorial/habitat_analysis` ·
-:doc:`../examples/habitat_atomic_ops`.
+Concept and embedding: :doc:`/auto_examples/00_introductory_tutorials/index` ·
+:doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`.
 
 The gallery scripts (one-step, two-step, direct-pooling) show **one**
 worked :class:`~habit.spec.HabitatSpec`. This page is the chooser from
@@ -288,8 +288,8 @@ Grammar (strict; bad input is rejected, not guessed): modalities are
 quoted (``raw("T1")``); parameters are ``key=value``; a quoted string
 among children is an implicit ``raw``. Bare ``raw(T1)`` is v0.1-only.
 
-Nested trees and column names: :doc:`../examples/feature_composition`.
-Arithmetic beyond combiners: :doc:`../examples/custom_voxel_features`
+Nested trees and column names: :doc:`/auto_examples/02_features/plot_05_own_feature_extractor`.
+Arithmetic beyond combiners: :doc:`/auto_examples/02_features/plot_05_own_feature_extractor`
 (``expression`` or a custom plugin).
 
 .. include:: _generated_catalog_voxel_feature_extractor.rst
@@ -304,7 +304,7 @@ after ``pool`` they are cohort-level and travel with
 
 Typical voxel-level chain: ``winsorize`` then ``minmax``. Do not skip
 scaling on two-step / direct-pooling runs — see
-:doc:`../examples/habitat_preprocessing`.
+:doc:`/auto_examples/07_advanced/plot_02_subject_preprocess`.
 
 Python::
 
@@ -408,7 +408,7 @@ B. Multi-modality supervoxel composition
 
 Compose the leaves the same way as voxel combiners. Keep each combiner
 to one job — statistics together, or a statistic plus radiomics — and
-leave nested trees to :doc:`../examples/feature_composition`::
+leave nested trees to :doc:`/auto_examples/02_features/plot_05_own_feature_extractor`::
 
    Stage(
        "extract_supervoxel_features",
@@ -541,7 +541,7 @@ Python::
 
 One-step streaming figures (not stages — do not enter the fingerprint).
 Pass the same :class:`~habit.kernels.HabitatGraphFeatureOptions` to
-``Spec("graph")`` and the graph atoms. Catalog: :doc:`../examples/visualization`.
+``Spec("graph")`` and the graph atoms. Catalog: :doc:`/auto_examples/04_quantifying_habitats/plot_01_volume_fractions`.
 
 Python::
 
@@ -590,9 +590,9 @@ YAML::
 What to read next
 -----------------
 
-* :doc:`../examples/two_step_habitat` — typical paper pipeline
-* :doc:`../examples/one_step_habitat` — per-subject habitats
-* :doc:`../examples/feature_composition` — worked concat / ratio / ``as_`` trees
+* :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec` — typical paper pipeline
+* :doc:`/auto_examples/00_introductory_tutorials/plot_02_inside_each_subject` — per-subject habitats
+* :doc:`/auto_examples/02_features/plot_05_own_feature_extractor` — worked concat / ratio / ``as_`` trees
 * :doc:`../api/spec` — fingerprints, sugar, ``RunPolicy``
 * :doc:`../api/plugins` — every domain, including table-ML
 * :doc:`segment_habitat` — CLI / YAML bookmark only

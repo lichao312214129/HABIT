@@ -1,19 +1,21 @@
 # =============================================================================
 # HABIT v1 document - the quickstart two-step analysis (demo data)
 #
-# Same analysis as the Python and YAML quickstart pages: raw intensities of
-# the four DCE phases inside the LAP ROI, 30 k-means supervoxels per tumour,
-# one k-means fit over the pooled supervoxels (2..10 habitats, elbow),
-# nearest-centroid assignment, seed 0, fitted on subj001-subj004.
+# Same analysis as the Python and YAML quickstart pages: intensities of the
+# four DCE phases inside the LAP ROI, winsorized (5 % / 5 %) and min-max
+# scaled within each subject, 30 k-means supervoxels per tumour, 10-bin
+# uniform binning learned on the pooled training supervoxels, one k-means
+# fit over them (2..10 habitats, elbow), nearest-centroid assignment,
+# seed 0, fitted on subj001-subj004.
 #
 # Run from <work_dir> (the folder holding config/ and demo_data/):
 #
 #   habit check-config --config config/habitat/config_habitat_quickstart_v1.yaml
 #   habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml
 #
-# For a fuller configuration (winsorize / min-max, cohort binning,
-# 50 supervoxels, connected-component clean-up, seed 42) see
-# config_habitat_two_step.yaml; it defines different habitats by design.
+# For a fuller configuration (same preprocessing, 50 supervoxels,
+# connected-component clean-up, seed 42) see config_habitat_two_step.yaml;
+# it defines different habitats by design.
 #
 # PATH SEMANTICS: v1 documents use paths as written, relative to the
 # current working directory.
@@ -31,15 +33,29 @@ spec:
     # extract: one intensity column per DCE phase, inside the LAP ROI.
     # The YAML loader keys the ROI mask by the FIRST modality, so LAP is
     # listed first; the Python page lists pre_contrast first. The column
-    # order is the only difference and the habitat maps are identical.
+    # order is the only difference; every preprocessing step works column
+    # by column, so the habitat maps are identical.
     - name: extract
       component: {name: raw, params: {modalities: [LAP, pre_contrast, PVP, delay_3min], roi: LAP}}
+    # preprocess, preprocess2 (subject-level, before pool): clip each column
+    # to the subject's own 5th..95th percentile, then min-max it to 0..1.
+    # MR intensities are arbitrary units; without this a darker scan lands
+    # in one habitat. No state is stored.
+    - name: preprocess
+      component: {name: winsorize, params: {winsor_limits: [0.05, 0.05]}}
+    - name: preprocess2
+      component: {name: minmax}
     # partition: 30 k-means supervoxels per tumour.
     - name: partition
       component: {name: kmeans, params: {n_supervoxels: 30}}
     # pool: one matrix for every training subject, then one fit.
     - name: pool
       component: {name: pool}
+    # preprocess_cohort (cohort-level, after pool): 10 uniform bins per
+    # feature, edges learned on the training supervoxels and stored in the
+    # saved model, reused unchanged for new patients.
+    - name: preprocess_cohort
+      component: {name: binning, params: {n_bins: 10, bin_strategy: uniform}}
     # fit: search 2..10 habitats and keep the elbow; n_init=10 restarts.
     - name: fit
       component: {name: kmeans, params: {min_habitats: 2, max_habitats: 10, validation: elbow, n_init: 10}}

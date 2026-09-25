@@ -26,4 +26,4 @@ Dice is a table; the examples gallery also draws the compared ROI:
    :alt: Pairwise mask Dice
    :width: 420
 
-   Pairwise Dice from :func:`~habit.recipes.dice` (:doc:`../examples/cohort_plugins_auxiliary`).
+   Pairwise Dice from :func:`~habit.recipes.dice` (:doc:`/configuration/auxiliary`).

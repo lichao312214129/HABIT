@@ -231,7 +231,7 @@ Feature trees and the expression form
 
 Copy-paste recipes (single-modality leaves, then combiners):
 :doc:`../how_to/habitat_components` section 1. Nested trees:
-:doc:`../examples/feature_composition`.
+:doc:`/auto_examples/02_features/plot_05_own_feature_extractor`.
 
 Extraction stages accept a **tree** of nodes: leaves carry ``modality=`` /
 ``modalities=`` parameters, and combiner nodes nest their children under
@@ -311,7 +311,7 @@ YAML ``policy:`` block and the Python form stay one-to-one.
 backend. :meth:`~habit.contracts.Cohort.map` still raises
 ``ProcessingError`` by default; pass ``raise_on_failure=False`` (recipes /
 CLI) to proceed with successes — see :doc:`execution` and
-:doc:`../examples/fault_tolerance`.
+:doc:`/auto_examples/07_advanced/plot_08_backends`.
 
 Full field set (defaults from ``habit/spec/policy.py``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -201,6 +201,59 @@ def test_msi_features_from_matrix_zero_denominator() -> None:
 
 
 @pytest.mark.unit
+def test_msi_normalisation_pins_the_published_definition() -> None:
+    """
+    Pin the documented MSI normalisation (energy is NOT bounded by 1).
+
+    ``P = M / D`` with ``D`` = unique non-background pair count: the exported
+    normalised first-order entries sum to 1, while second-order statistics
+    run over the full symmetric matrix including ``P[0, 0]``. A refactor that
+    "fixes" energy to a probability-matrix energy would silently change
+    published values under the same column name; this test fails first.
+    """
+    matrix = np.array(
+        [
+            [40.0, 6.0, 2.0],
+            [6.0, 10.0, 4.0],
+            [2.0, 4.0, 8.0],
+        ]
+    )
+    features = msi_features_from_matrix(matrix)
+    exported = sum(
+        value
+        for key, value in features.items()
+        if key.startswith("firstorder_normalized_")
+    )
+    assert exported == pytest.approx(1.0)
+    # D = 6 + 10 + 2 + 4 + 8 = 30 (lower triangle, background row dropped).
+    normalised = matrix / 30.0
+    assert features["energy"] == pytest.approx(float(np.sum(normalised**2)))
+    # Dominated by the background-background entry (40 / 30) ** 2 > 1.
+    assert features["energy"] > 1.0
+
+
+@pytest.mark.unit
+def test_msi_energy_ignores_label_order_but_contrast_does_not() -> None:
+    """
+    Swapping two habitat ids leaves energy unchanged but changes contrast.
+
+    Documents why contrast / homogeneity / correlation are only comparable
+    across maps labelled by one shared model (same id meaning).
+    """
+    labels = np.zeros((6, 6, 6), dtype=np.int64)
+    labels[1:5, 1:5, 1:3] = 1
+    labels[1:5, 1:5, 3:4] = 2
+    labels[1:5, 1:5, 4:5] = 3
+    swapped = labels.copy()
+    swapped[labels == 1] = 3
+    swapped[labels == 3] = 1
+    original = msi_features_from_matrix(spatial_interaction_matrix(labels, 4))
+    relabelled = msi_features_from_matrix(spatial_interaction_matrix(swapped, 4))
+    assert relabelled["energy"] == pytest.approx(original["energy"])
+    assert relabelled["contrast"] != pytest.approx(original["contrast"])
+
+
+@pytest.mark.unit
 def test_msi_features_from_matrix_validates_input() -> None:
     """Non-square or negative matrices are rejected."""
     with pytest.raises(ValueError):

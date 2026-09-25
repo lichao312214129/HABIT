@@ -58,6 +58,134 @@ _COMPONENT_PHRASES: Tuple[Tuple[str, str], ...] = (
 )
 
 
+#: Pipeline position of every ``produced_by`` label HABIT itself emits, as
+#: ``(prefix, rank)``. Ranks follow the habitat pipeline: input images ->
+#: voxel feature extraction -> subject-level preprocessing -> partition ->
+#: pooling -> cohort-level preprocessing -> fit -> assign -> postprocess ->
+#: quantify -> run record. Matching is by prefix so every registered
+#: component name of a domain (``supervoxelizer.kmeans``,
+#: ``supervoxelizer.slic`` ...) shares its domain's rank. Labels not listed
+#: here (third-party components) are ranked from their inputs instead, see
+#: :func:`_ordered_steps`.
+_STEP_RANKS: Tuple[Tuple[str, float], ...] = (
+    ("voxel_feature_extractor.", 10.0),
+    ("feature_preprocessing.subject.voxel", 20.0),
+    ("pipeline.voxel_units", 30.0),
+    ("supervoxelizer.", 30.0),
+    ("postprocess_supervoxel", 35.0),
+    ("supervoxel_feature_extractor.", 36.0),
+    ("feature_preprocessing.subject.supervoxel", 38.0),
+    ("stages.pool", 40.0),
+    ("feature_preprocessing.cohort", 50.0),
+    ("habitat_model_fitter.", 60.0),
+    ("stages.fit", 60.0),
+    ("habitat_assigner.", 70.0),
+    ("postprocess.", 80.0),
+    ("habitat_feature_extractor.", 90.0),
+    ("habitat_features", 90.0),
+    ("feature_table.join", 95.0),
+    ("recipes.", 100.0),
+    ("recipe.", 100.0),
+)
+
+
+def _known_step_rank(produced_by: str) -> Optional[float]:
+    """
+    Return the pipeline rank of a HABIT-emitted ``produced_by`` label.
+
+    Args:
+        produced_by: The provenance label, e.g. ``"supervoxelizer.kmeans"``.
+
+    Returns:
+        The rank from :data:`_STEP_RANKS`, or ``None`` for labels HABIT does
+        not emit itself (third-party components, external sources).
+    """
+    for prefix, rank in _STEP_RANKS:
+        if produced_by.startswith(prefix):
+            return rank
+    return None
+
+
+def _ordered_steps(root: Provenance) -> Tuple[str, ...]:
+    """
+    List every executed step ONCE, in pipeline order.
+
+    A cohort run's provenance DAG holds one record per subject for every
+    subject-level step (extraction, preprocessing, partition, assignment),
+    and a breadth-first walk from the root visits them newest first. Neither
+    property belongs in a methods paragraph: a manuscript states each step
+    once, in the order the pipeline applies it. Steps are therefore
+    deduplicated by their ``produced_by`` label (the registered component
+    name, i.e. the step's identity; per-subject records of one step share
+    it) and ordered by:
+
+    1. pipeline rank -- :data:`_STEP_RANKS` for HABIT's own labels; an
+       external root (no inputs, e.g. ``"subject_images"``) ranks 0; any
+       other label ranks just after the latest-ranked step it consumed, so
+       a third-party step is placed where it actually sat in the DAG;
+    2. DAG depth (longest path from a root) as a tie-breaker;
+    3. first appearance in the walk as the final, deterministic tie-breaker.
+
+    Args:
+        root: Root provenance of the run.
+
+    Returns:
+        Unique ``produced_by`` labels in pipeline order. Empty labels are
+        skipped.
+    """
+    chain = _collect_provenance_chain(root)
+    rank_memo: Dict[int, float] = {}
+    depth_memo: Dict[int, int] = {}
+
+    def rank_of(record: Provenance) -> float:
+        # Memoised by object identity: the DAG shares input records between
+        # branches, so each record is scored once.
+        key = id(record)
+        if key in rank_memo:
+            return rank_memo[key]
+        known = _known_step_rank(record.produced_by)
+        if known is not None:
+            value = known
+        elif not record.inputs:
+            value = 0.0
+        else:
+            # Unknown step: place it right after everything it consumed.
+            value = max(rank_of(parent) for parent in record.inputs) + 0.5
+        rank_memo[key] = value
+        return value
+
+    def depth_of(record: Provenance) -> int:
+        key = id(record)
+        if key in depth_memo:
+            return depth_memo[key]
+        value = (
+            0
+            if not record.inputs
+            else 1 + max(depth_of(parent) for parent in record.inputs)
+        )
+        depth_memo[key] = value
+        return value
+
+    # label -> (rank, depth, first_seen); the minimum over a label's records
+    # keeps the earliest pipeline position of that step.
+    keyed: Dict[str, Tuple[float, int, int]] = {}
+    for position, record in enumerate(chain):
+        label = record.produced_by
+        if not label:
+            continue
+        candidate = (rank_of(record), depth_of(record), position)
+        current = keyed.get(label)
+        if current is None:
+            keyed[label] = candidate
+        else:
+            keyed[label] = (
+                min(current[0], candidate[0]),
+                min(current[1], candidate[1]),
+                current[2],
+            )
+    return tuple(sorted(keyed, key=lambda label: keyed[label]))
+
+
 def _collect_provenance_chain(root: Provenance) -> Tuple[Provenance, ...]:
     """Flatten a provenance DAG into a breadth-first tuple without repeats."""
     seen: list[int] = []
@@ -137,6 +265,41 @@ def _component_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
     return tuple(phrases)
 
 
+def _stage_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
+    """
+    Render the ordered ``stages`` of a spec payload as prose phrases.
+
+    The declared stage order is the pipeline order (HabitatSpec validates
+    it), so each phrase appears once, in that order, with the component's
+    recorded parameters.
+
+    Args:
+        payload: Spec payload as produced by ``HabitatSpec.to_dict``.
+
+    Returns:
+        One ``"<stage> (<component>: <params>)"`` phrase per stage, or an
+        empty tuple when the payload has no stage list.
+    """
+    stages = payload.get("stages") or []
+    phrases: list[str] = []
+    for stage in stages:
+        if not isinstance(stage, Mapping):
+            phrases.append(str(stage))
+            continue
+        component = stage.get("component")
+        if isinstance(component, Mapping) and "name" in component:
+            params = component.get("params")
+            detail = (
+                str(component["name"])
+                if not params
+                else f"{component['name']}: {_params_text(params)}"
+            )
+        else:
+            detail = str(component)
+        phrases.append(f"{stage.get('name', detail)} ({detail})")
+    return tuple(phrases)
+
+
 def _specification_sentence(payload: Mapping[str, Any]) -> Optional[str]:
     """
     Render the analysis specification as one methods sentence.
@@ -149,14 +312,24 @@ def _specification_sentence(payload: Mapping[str, Any]) -> Optional[str]:
     """
     if not payload:
         return None
-    phrases = _component_phrases(payload)
-    if not phrases:
-        return None
     name = payload.get("name")
     lead = "The analysis specification"
     if isinstance(name, str) and name:
         lead += f" {name!r}"
-    sentence = f"{lead} comprised {'; '.join(phrases)}."
+    stage_phrases = _stage_phrases(payload)
+    if stage_phrases:
+        # Explicit-stage specs serialise ONLY their ordered stages (the
+        # named component keys are absent from the payload), so the stages
+        # are the one place the parameters of every step can be read from.
+        sentence = (
+            f"{lead} comprised the following ordered stages: "
+            f"{'; '.join(stage_phrases)}."
+        )
+    else:
+        phrases = _component_phrases(payload)
+        if not phrases:
+            return None
+        sentence = f"{lead} comprised {'; '.join(phrases)}."
     # The dataflow declaration is part of the recorded spec payload; state it
     # when habitats were defined per subject (cohort-level pooling stays the
     # unmentioned default, mirroring HabitatSpec.describe_methods).
@@ -331,8 +504,11 @@ class RunManifest:
 
         The text states only steps that actually executed, derived from the
         provenance DAG, plus the recorded specification, software versions,
-        seeds, and excluded subjects. Generating plausible but unexecuted
-        methods text would make the whole reporting feature untrustworthy.
+        seeds, and excluded subjects. Each ``produced_by`` label is listed
+        once, in pipeline order (not once per subject, and not in
+        breadth-first reverse discovery order). Generating plausible but
+        unexecuted methods text would make the whole reporting feature
+        untrustworthy.
 
         Args:
             style: Target venue convention. ``"radiology"`` opens with the
@@ -340,7 +516,8 @@ class RunManifest:
                 wording only -- the stated facts are identical.
 
         Returns:
-            English prose that states only steps that actually executed.
+            English prose that states only steps that actually executed,
+            each step once and in pipeline order.
 
         Raises:
             HABITAPIError: On an unknown style.
@@ -356,21 +533,44 @@ class RunManifest:
         specification = _specification_sentence(self.spec_payload)
         if specification is not None:
             body.append(specification)
-        chain = _collect_provenance_chain(self.provenance)
-        steps = [record.produced_by for record in chain if record.produced_by]
+        # Each step once, in pipeline order -- never once per subject.
+        steps = _ordered_steps(self.provenance)
         body.append(
-            "The executed pipeline steps, in provenance order, were: "
+            "The executed pipeline steps, in pipeline order, were: "
             + ("; ".join(steps) if steps else "none recorded")
             + "."
         )
         if seeds:
-            seed_text = ", ".join(f"{name}={seed}" for name, seed in seeds.items())
-            body.append(f"Random seeds were fixed as follows: {seed_text}.")
+            # Same pipeline order as the steps sentence; a single shared
+            # seed is stated once instead of once per component.
+            position = {label: index for index, label in enumerate(steps)}
+            ordered_seeds = sorted(
+                seeds.items(), key=lambda item: position.get(item[0], len(position))
+            )
+            distinct = {seed for _, seed in ordered_seeds}
+            if len(distinct) == 1:
+                names = ", ".join(name for name, _ in ordered_seeds)
+                body.append(
+                    f"Random seed {next(iter(distinct))} was fixed for the "
+                    f"seeded steps ({names})."
+                )
+            else:
+                seed_text = ", ".join(
+                    f"{name}={seed}" for name, seed in ordered_seeds
+                )
+                body.append(f"Random seeds were fixed as follows: {seed_text}.")
         failed = sorted(
             subject
             for subject, outcome in self.subject_outcomes.items()
             if outcome != "success"
         )
+        if self.subject_outcomes:
+            # Cohort size stated once for the whole run.
+            n_total = len(self.subject_outcomes)
+            body.append(
+                f"{n_total} subject(s) entered the analysis and "
+                f"{n_total - len(failed)} were processed successfully."
+            )
         if failed:
             body.append(
                 f"{len(failed)} subject(s) failed processing and were "

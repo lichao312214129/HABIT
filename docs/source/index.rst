@@ -1,79 +1,82 @@
 HABIT Documentation
 =====================
 
-**HABIT** turns images + an ROI into habitat maps, then quantifies those
-habitats. Supporting image preprocessing is provided for data ingestion.
+**HABIT** turns medical images plus an ROI into tumour **habitat maps**,
+quantifies them (volume fractions, MSI, ITH, radiomics, and HABIT's own
+**habitat graph-network features**), and saves a reusable
+``.habitatmodel`` so new patients can be labelled without refitting.
 
 .. warning::
 
    Research / education only. Not for clinical diagnosis.
 
-Start here
-----------
+.. raw:: html
 
-1. :doc:`tutorial/installation` — install
-2. :doc:`auto_quickstart/plot_quickstart_python` — first habitat map (Python)
-3. :doc:`auto_quickstart/plot_quickstart_yaml` — load that analysis from YAML
-4. :doc:`tutorial/quickstart` — first habitat map (CLI)
-5. :doc:`auto_examples/index` — **Habitat Guide** (one task per page)
+   <div class="habit-home-cards">
+     <a class="habit-home-card" href="auto_quickstart/plot_quickstart_python.html"><strong>Quickstart</strong><span>First habitat map in Python</span></a>
+     <a class="habit-home-card" href="auto_examples/index.html"><strong>Examples</strong><span>Tutorials and how-tos</span></a>
+     <a class="habit-home-card" href="user_guide/index.html"><strong>User guide</strong><span>Concepts without full code</span></a>
+   </div>
 
-Stuck: :doc:`troubleshooting/faq`.
-Signatures and defaults: :doc:`api/index`.
-Scientific definitions: :doc:`reference/features/index`.
+Featured examples
+-----------------
 
+* :doc:`auto_examples/00_introductory_tutorials/plot_01_two_step` — two-step habitats
+* :doc:`auto_examples/04_quantifying_habitats/plot_04_graph_network_features` — graph-network features
+* :doc:`auto_examples/05_validation_and_reuse/plot_04_reuse_published_model` — reuse a published model
 
 .. toctree::
    :maxdepth: 1
-   :caption: Get started
+   :caption: Quickstart
 
-   tutorial/installation
    auto_quickstart/plot_quickstart_python
    auto_quickstart/plot_quickstart_yaml
-   tutorial/quickstart
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Installation
+
+   tutorial/installation
+   user_guide/optional_dependencies
 
 .. toctree::
    :maxdepth: 2
-   :caption: Habitat Guide
+   :caption: Examples
    :titlesonly:
 
    auto_examples/index
 
 .. toctree::
    :maxdepth: 2
-   :caption: Reference
+   :caption: User guide
+
+   user_guide/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API reference
 
    api/index
-   how_to/habitat_components
-   reference/features/index
-   reference/habitat_matching
-   configuration/index
+   configuration/recipe_catalog
    reference/cli
-   troubleshooting/faq
-   reference/upstream_libraries
 
 .. toctree::
    :maxdepth: 1
-   :caption: Developer
+   :caption: Glossary
 
-   development/architecture
+   user_guide/glossary
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Development
+
    development/contributing
+   development/architecture
    customization/index
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Changelog
-
    changelog
 
-.. Do not add another toctree after Acknowledgments. Sphinx / RTD parents
-   a later toctree onto the last caption, which would dump leftover pages
-   into the Acknowledgments sidebar. CLI / YAML how_to bookmark pages stay
-   :orphan: (reachable by URL / cross-links). Guide duplicates stay :orphan:.
-
 .. toctree::
    :maxdepth: 1
-   :caption: Acknowledgments
+   :caption: Citing HABIT
 
    acknowledgments
-
-- GitHub: |github_repo|

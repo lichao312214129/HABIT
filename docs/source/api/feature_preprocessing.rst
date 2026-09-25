@@ -9,7 +9,7 @@
 .. currentmodule:: habit.feature_preprocessing
 
 **User guide:** Habitat Guide
-:doc:`../auto_examples/02_stages/plot_04_feature_preprocessing` ·
+:doc:`../auto_examples/07_advanced/plot_02_subject_preprocess` ·
 :doc:`domain_habitat`. Component names:
 :doc:`../how_to/habitat_components`.
 

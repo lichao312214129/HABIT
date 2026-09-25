@@ -11,7 +11,7 @@ Numeric kernels (``habit.kernels``)
 .. currentmodule:: habit.kernels
 
 **User guide:** Habitat Guide
-:doc:`../auto_examples/03_quantify/plot_04_graph_features`.
+:doc:`../auto_examples/04_quantifying_habitats/plot_04_graph_network_features`.
 Pure NumPy / SciPy functions. No ``Subject``, no YAML, no IO.
 
 Classes
@@ -255,7 +255,7 @@ composes translation+rotation into one affine (MIRP ≥ 2).
 
 Subject-level wrappers (``morphological``, ``gradient_weighted``,
 ``slice_extent``) live on :class:`~habit.precision.ImagePerturbationRegistry`.
-Copy-ready demo and figures: :doc:`../examples/precise_features`.
+Copy-ready demo and figures: :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
 
 .. figure:: ../_static/images/examples/contour_morphological_grow.png
    :alt: Uniform morphological grow of an ROI contour
@@ -332,7 +332,7 @@ two matchers, chosen by what the maps share:
   :func:`~habit.precision.align_habitat_maps_to_prototypes`. Method and
   references: :doc:`../reference/habitat_matching`.
 
-Copy-ready walkthrough: :doc:`../examples/habitat_label_match`.
+Copy-ready walkthrough: :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
 
 .. code-block:: python
 

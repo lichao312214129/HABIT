@@ -9,9 +9,9 @@
 .. currentmodule:: habit.habitat_features
 
 **User guide:** Habitat Guide
-:doc:`../auto_examples/03_quantify/plot_01_volume_fractions` ·
-:doc:`../auto_examples/03_quantify/plot_02_msi` ·
-:doc:`../auto_examples/03_quantify/plot_03_ith` ·
+:doc:`../auto_examples/04_quantifying_habitats/plot_01_volume_fractions` ·
+:doc:`../auto_examples/04_quantifying_habitats/plot_02_msi` ·
+:doc:`../auto_examples/04_quantifying_habitats/plot_03_ith` ·
 :doc:`domain_habitat`. Component names:
 :doc:`../how_to/habitat_components`.
 

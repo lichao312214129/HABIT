@@ -10,8 +10,8 @@ Goal: compute and display **voxel-level texture** maps — densified
 the enabled ``featureClass`` list small for interactive demos. Neighbourhood
 entropy (``local_entropy``) is a separate statistic, not this texture.
 
-Walk-through (Guide): :doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
-For multi-GPU cohort timings, see :doc:`/auto_examples/07_parallel/plot_01_backends`. Scheduling (serial, skip, resume, process pool) is :doc:`/auto_examples/07_parallel/index`. This page keeps
+Walk-through (Guide): :doc:`/auto_examples/02_features/plot_02_texture_feature_maps`.
+For multi-GPU cohort timings, see :doc:`/auto_examples/07_advanced/plot_08_backends`. Scheduling (serial, skip, resume, process pool) is :doc:`/auto_examples/07_advanced/plot_08_backends`. This page keeps
 runtime / backend notes that the gallery does not repeat.
 
 Who builds the texture matrices
@@ -456,6 +456,6 @@ texture maps; use ITK-SNAP / 3D Slicer / napari for full volumetric browsing.
 Also see
 --------
 
-* Examples gallery: :doc:`../examples/voxel_texture`
+* Examples gallery: :doc:`/auto_examples/02_features/plot_02_texture_feature_maps`
 * Extractor: :func:`~habit.voxel_features.extract_voxel_texture`
 * Habitat-map graph figures: :doc:`graph_features`

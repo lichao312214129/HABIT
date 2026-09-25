@@ -10,10 +10,10 @@ comes from.
 Code: :mod:`habit.precision` (:func:`~habit.precision.align_habitat_map`,
 :func:`~habit.precision.align_habitat_maps_to_prototypes`) on top of the
 L0 kernel :mod:`habit.kernels.habitat_label_match`. Runnable gallery page:
-:doc:`/auto_examples/06_matching/plot_07_match_labels`. Worked, visual
+:doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`. Worked, visual
 pages for every case (label switching, overlap cases, the prototype loop
 round by round, the four distances, frozen prototypes, effect on cohort
-tables): :doc:`/auto_examples/06_matching/index`. Figures:
+tables): :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`. Figures:
 :func:`~habit.viz.plot_label_overlap_matrix`,
 :func:`~habit.viz.plot_prototype_matching`.
 
@@ -68,75 +68,12 @@ depends on who A is.
 Why a single reference is not enough
 ------------------------------------
 
-Three subjects, two habitats each, two clustering features (relative
-enhancement and washout, already comparable across subjects):
-
-.. list-table::
-   :header-rows: 1
-
-   * - Subject
-     - Habitat
-     - Enhancement
-     - Washout
-   * - A
-     - 1
-     - 1
-     - 0
-   * - A
-     - 2
-     - 0
-     - 0
-   * - B
-     - 1
-     - 0
-     - 1
-   * - B
-     - 2
-     - 0
-     - 0
-   * - C
-     - 1
-     - 2
-     - 1
-   * - C
-     - 2
-     - 0
-     - 2
-
-Pairwise matching onto one reference subject (Hungarian, Euclidean):
-
-* **Reference A.** B→A keeps ids; C→A keeps ids. Groups
-  {A1, B1, C1} and {A2, B2, C2}.
-* **Reference B.** A→B keeps ids; C→B **swaps** them. Groups
-  {A1, B1, C2} and {A2, B2, C1}.
-
-Same data, different reference, and subject C gets the opposite names.
-Chaining pairwise matches is also not transitive: A→B and B→C together
-imply a C→A pairing that disagrees with matching C to A directly.
-
-A neutral score for any grouping is the within-group sum of squares
-(each habitat's squared distance to the mean of its group):
-
-.. list-table::
-   :header-rows: 1
-
-   * - Grouping
-     - Group means (enhancement, washout)
-     - Within-group sum of squares
-   * - Reference A
-     - (1, 0.667), (0, 0.667)
-     - 5.333
-   * - Reference B
-     - (0.333, 1), (0.667, 0.333)
-     - 6.000
-   * - Prototype matching
-     - (0, 1), (1, 0.333)
-     - **4.667**
-
-Prototype matching finds {A2, B1, C2} and {A1, B2, C1}: a tighter
-grouping than either reference produces, and the same result whichever
-subject starts the search. This example is the regression test
-``TestAlignHabitatMapsToPrototypes`` in ``tests/domain/test_precision.py``.
+Pairwise matching onto one reference subject gives different names depending
+on which subject is the reference, and chained pairwise matches are not
+transitive. The worked three-subject example (and the within-group sum of
+squares that scores each grouping) is taught in the Guide:
+:doc:\/auto_examples/05_validation_and_reuse/plot_02_matching_labels\. It is the regression test
+\TestAlignHabitatMapsToPrototypes\ in \	ests/domain/test_precision.py\.
 
 Prototype matching (cohort)
 ---------------------------
@@ -424,7 +361,7 @@ route and is not implemented.
 Usage
 -----
 
-Same calls as :doc:`/auto_examples/06_matching/plot_07_match_labels`.
+Same calls as :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
 Each subject chooses its own habitat count (demo: 3, 2, 2, 2, 2):
 
 .. code-block:: python

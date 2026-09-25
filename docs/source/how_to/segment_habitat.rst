@@ -4,13 +4,13 @@ Habitat segmentation (CLI / YAML)
 =================================
 
 Bookmark for ``habit get-habitat``. Python walk-throughs:
-:doc:`../examples/two_step_habitat`, :doc:`../examples/one_step_habitat`,
-:doc:`../examples/direct_pooling_habitat`. Atomic ``op(subject)``:
-:doc:`../examples/habitat_atomic_ops`. Strategy table:
-:doc:`../tutorial/habitat_analysis`.
+:doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`, :doc:`/auto_examples/00_introductory_tutorials/plot_02_inside_each_subject`,
+:doc:`/auto_examples/00_introductory_tutorials/plot_03_pooled_voxels`. Atomic ``op(subject)``:
+:doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`. Strategy table:
+:doc:`/auto_examples/00_introductory_tutorials/index`.
 
 Before you start: :doc:`before_you_start`. Data layout:
-:doc:`../examples/data_from_arrays`. Demo tree::
+:doc:`/auto_examples/06_manipulating_images/index`. Demo tree::
 
    demo_data/preprocessed/
 

@@ -1,5 +1,5 @@
-Configuration recipe catalog
-============================
+YAML configuration files
+========================
 
 Copy a YAML template from the repository ``config/`` tree, edit the ``#%%====``
 path blocks, then run the matching ``habit`` command. Relative paths in YAML
@@ -64,9 +64,12 @@ Use these when you want a short path through the demo data:
 Field reference pages
 ---------------------
 
-- :doc:`preprocessing`
-- :doc:`dicom_sort`
-- :doc:`habitat`
-- :doc:`feature_extraction`
-- :doc:`radiomics`
-- :doc:`auxiliary`
+.. toctree::
+   :maxdepth: 1
+
+   habitat
+   feature_extraction
+   radiomics
+   preprocessing
+   dicom_sort
+   auxiliary

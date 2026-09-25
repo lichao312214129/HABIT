@@ -113,6 +113,48 @@ def test_predict_requires_a_fitted_model() -> None:
 
 
 @pytest.mark.unit
+def test_from_model_without_upstream_spec_asks_for_one() -> None:
+    """
+    A component-assembled model (fitter-only card) needs an explicit spec.
+
+    ``fitter.fit(...)`` + ``with_cohort_preprocessing`` record only the fitter
+    and cohort chain; the card is emulated by stripping a Study-fitted
+    model's payload to those keys. Omitting ``spec`` must raise an
+    actionable error, and passing it must reproduce Study's labels.
+    """
+    import dataclasses
+
+    import numpy as np
+
+    cohort = make_synthetic_cohort(
+        n_subjects=2, modalities=("T1",), shape=(8, 8, 8), rng=0
+    )
+    spec = _two_step_spec()
+    study = Study(spec=spec, design="two_step").fit(cohort)
+    fitted = study.model_
+    atomic = dataclasses.replace(
+        fitted,
+        spec_payload={
+            "habitat_model_fitter": fitted.spec_payload["habitat_model_fitter"]
+        },
+    )
+
+    with pytest.raises(HABITAPIError, match=r"Pass the HabitatSpec") as info:
+        Study.from_model(atomic)
+    assert "habitat_model_fitter" in str(info.value)
+    assert "spec=" in str(info.value)
+
+    # Study-fitted cards embed the upstream analysis; no explicit spec needed.
+    from_card = Study.from_model(fitted)
+    rebuilt = Study.from_model(atomic, spec=spec)
+    expected = study.predict(cohort)
+    for rebuilt_study in (from_card, rebuilt):
+        actual = rebuilt_study.predict(cohort)
+        for left, right in zip(expected.habitat_maps, actual.habitat_maps):
+            assert np.array_equal(left.label_array, right.label_array)
+
+
+@pytest.mark.unit
 def test_two_step_habitat_factory_builds_spec() -> None:
     """Convenience factory wires modalities and habitat count into the spec."""
     study = two_step_habitat(

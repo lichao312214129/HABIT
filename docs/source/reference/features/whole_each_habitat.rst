@@ -154,7 +154,7 @@ first. Pairwise ``p_value`` / ``q_value`` are NaN when only one subject
 remains.
 
 Runnable gallery (synthetic stand-in table; swap ``table`` for your
-extract): :doc:`../../examples/habitat_feature_compare`. Graph topology
+extract): :doc:`/auto_examples/04_quantifying_habitats/index`. Graph topology
 columns (``single_h*`` / ``pair_h*_h*``) can share the joined table but
 do not melt through this API.
 

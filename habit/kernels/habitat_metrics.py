@@ -225,6 +225,28 @@ def msi_features_from_matrix(matrix: np.ndarray) -> Dict[str, float]:
       ``energy`` computed on the normalised matrix (correlation falls back
       to ``1.0`` when a marginal standard deviation vanishes).
 
+    Properties of this definition (inherent, not defects; changing them
+    would change published values and therefore needs a new feature name):
+
+    * ``P = M / D`` is NOT a probability matrix. ``D`` counts each
+      unordered class pair once (lower triangle, background row excluded),
+      so the exported ``firstorder_normalized_*`` entries sum to 1, but the
+      second-order sums run over the full symmetric ``(K+1) x (K+1)``
+      matrix: every off-diagonal pair appears twice and the
+      background-background entry ``P[0, 0]`` (zero faces inside the
+      padded bounding box, not part of ``D``) is included. Hence
+      ``sum(P) > 1`` and ``energy``, ``homogeneity`` can exceed 1; energy is
+      typically dominated by ``P[0, 0] ** 2``. They are not bounded like
+      IBSI GLCM statistics and must not be compared with them.
+    * ``contrast``, ``homogeneity`` and ``correlation`` weight entries by
+      the label indices ``i, j`` (``(i - j) ** 2``, ``i * j``), i.e. they
+      treat nominal habitat ids as ordinal. Values are therefore only
+      comparable between maps whose ids mean the same habitats: across
+      subjects labelled by one shared cohort model (two-step / direct
+      pooling), yes; across per-subject models (one-step), or across
+      models with differently ordered ids, no. ``energy`` and the
+      first-order counts do not depend on the id order.
+
     Args:
         matrix: Square non-negative interaction matrix, typically from
             :func:`spatial_interaction_matrix`.

@@ -6,7 +6,7 @@ Before you start
 Do this once, then every CLI bookmark is copy → edit ★ → run.
 A git clone is **not** required after ``pip install habitat-analysis``.
 
-Habitat analysis is the core (Guide: :doc:`../examples/index`).
+Habitat analysis is the core (Guide: :doc:`/auto_examples/index`).
 These steps only set up the terminal, ``config/``, and the demo imaging pack.
 
 1. Terminal + env
@@ -95,6 +95,6 @@ Validate without running::
 
    habit check-config --config config/habitat/config_habitat_two_step.yaml
 
-Next: :doc:`/auto_examples/01_data_in/index` — pick directory, loose NIfTI,
+Next: :doc:`/auto_examples/06_manipulating_images/index` — pick directory, loose NIfTI,
 SimpleITK, or NumPy. The same ``DATA`` / ``MODALITIES`` / ``ROI`` knobs
 appear in every gallery script. DICOM is :doc:`preprocess`, not a load route.

@@ -20,25 +20,25 @@ are Python-first in the Guide.
      - :doc:`../configuration/dicom_sort`
    * - ``habit get-habitat``
      - Habitat maps
-     - :doc:`../examples/habitat_recipes`
+     - :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`
    * - ``habit view``
      - Overlay habitat on image (paths, no YAML)
-     - :doc:`../examples/visualization`
+     - :doc:`/auto_examples/04_quantifying_habitats/plot_01_volume_fractions`
    * - ``habit extract``
      - Habitat features
-     - :doc:`../examples/feature_extraction`
+     - :doc:`/auto_examples/04_quantifying_habitats/index`
    * - ``habit radiomics``
      - Whole-ROI radiomics
      - :doc:`../configuration/radiomics`
    * - ``habit check-config``
      - Validate YAML
-     - :doc:`../tutorial/quickstart`
+     - :doc:`/auto_quickstart/plot_quickstart_yaml`
    * - ``habit copy-demo-config``
      - Materialize bundled demo ``config/`` into a work dir
-     - :doc:`../tutorial/quickstart`
+     - :doc:`/auto_quickstart/plot_quickstart_yaml`
    * - ``habit fetch-demo``
      - Download the official preprocessed pack once and print its layout
-     - :doc:`../examples/data_from_arrays`
+     - :doc:`/auto_examples/06_manipulating_images/index`
    * - ``habit migrate-config``
      - Older YAML → current document
      - :doc:`../api/spec`

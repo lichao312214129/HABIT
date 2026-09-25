@@ -46,6 +46,16 @@ class MsiHabitatFeatures:
     The matrix size comes from the model's habitat ids (via the map's
     ``habitat_ids``), not from the labels present in this subject, so every
     subject of the same model yields the same feature columns.
+
+    Interpretation notes (properties of the established definition, see
+    :func:`~habit.kernels.habitat_metrics.msi_features_from_matrix`):
+    ``contrast`` / ``homogeneity`` / ``correlation`` depend on the numeric
+    habitat ids, so compare them only across subjects labelled by the same
+    cohort model (two-step / direct pooling), not across one-step
+    per-subject models. The normalised matrix is scaled by the number of
+    unique non-background pair types rather than its own total (and keeps
+    the background-background entry), so ``energy`` and ``homogeneity`` are
+    not bounded by 1.
     """
 
     @property

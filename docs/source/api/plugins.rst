@@ -193,4 +193,4 @@ as other domains). After ``pip install`` of the plugin package,
 ``list_plugins("voxel_feature_extractor")`` report
 ``provider="<distribution>"``.
 
-Runnable DIY example: :doc:`../examples/custom_voxel_features`.
+Runnable DIY example: :doc:`/auto_examples/02_features/plot_05_own_feature_extractor`.
