@@ -1,0 +1,103 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_01_complete_sg_execution_times:
+
+
+Computation times
+=================
+**00:00.000** total execution time for 23 files **from auto_examples\01_complete**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_01_two_step_spec.py` (``plot_01_two_step_spec.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_02_inside_each_subject.py` (``plot_02_inside_each_subject.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_03_pooled_voxels.py` (``plot_03_pooled_voxels.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_04_atomic_two_step.py` (``plot_04_atomic_two_step.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_05_atomic_other_designs.py` (``plot_05_atomic_other_designs.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_06_atomic_on_backends.py` (``plot_06_atomic_on_backends.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_07_spec_on_backends.py` (``plot_07_spec_on_backends.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_08_single_sequence.py` (``plot_08_single_sequence.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_09_texture_maps.py` (``plot_09_texture_maps.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_10_feature_plugin.py` (``plot_10_feature_plugin.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_11_supervoxel_choice.py` (``plot_11_supervoxel_choice.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_12_clustering_choice.py` (``plot_12_clustering_choice.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_13_cleaning_maps.py` (``plot_13_cleaning_maps.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_14_quality_control.py` (``plot_14_quality_control.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_15_segmentation_robustness.py` (``plot_15_segmentation_robustness.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_16_graph_network.py` (``plot_16_graph_network.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_17_habitat_radiomics.py` (``plot_17_habitat_radiomics.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_18_train_save_predict.py` (``plot_18_train_save_predict.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_19_label_matching.py` (``plot_19_label_matching.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_20_precise_features.py` (``plot_20_precise_features.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_21_published_model.py` (``plot_21_published_model.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_22_own_pipeline.py` (``plot_22_own_pipeline.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_complete_plot_23_export_methods.py` (``plot_23_export_methods.py``)
+     - 00:00.000
+     - 0.0

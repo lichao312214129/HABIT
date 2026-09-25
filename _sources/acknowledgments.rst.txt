@@ -1,10 +1,40 @@
+Citing and acknowledgments
+==========================
+
+Citing HABIT
+------------
+
+If you use HABIT in scientific work, please cite the software with the
+version you ran. The citation metadata is in ``CITATION.cff`` at the
+repository root (GitHub shows it as "Cite this repository"):
+
+   Li C, Dong M, HABIT Contributors. *HABIT: Habitat Analysis - Biomedical
+   Imaging Toolkit*. Version |release|. Apache-2.0.
+   https://github.com/lichao312214129/HABIT
+
+No DOI has been registered for the software yet; cite the repository URL
+and the exact version until one exists.
+
+For the methods section, let HABIT draft the paragraph from what actually
+ran rather than from memory:
+
+.. code-block:: python
+
+   result = Study(spec).fit_predict(cohort)
+   print(result.manifest.describe_methods())
+
+It states the executed stages with their parameters, the seed, software
+versions and any excluded subjects. A worked example is
+:doc:`/auto_examples/05_validation_and_reuse/plot_01_train_save_predict`.
+Review and edit it like any draft.
+
 Acknowledgments
-===============
+---------------
 
 We sincerely thank the following experts and institutions for their support and contributions to the HABIT project.
 
 Core developers
----------------
+~~~~~~~~~~~~~~~
 
 **Li Chao**
 
@@ -23,12 +53,12 @@ Core developers
 * Institution: West China Medical Robotics Center
 
 Future developers
------------------
+~~~~~~~~~~~~~~~~~
 
 The following members are expected to join HABIT development.
 
 Clinical collaborators
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 **Dr. Huang Teng**
 
@@ -48,12 +78,12 @@ Clinical collaborators
 * Special contributions: Image registration algorithm design, implementation, and validation (including collaborative test code).
 
 Special thanks
---------------
+~~~~~~~~~~~~~~
 
 We thank all experts, scholars, and users who have provided valuable feedback in clinical applications, algorithm improvements, and project optimization. Your support drives HABIT's continued development.
 
 Open source community
------------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 HABIT relies on many excellent open-source projects, including but not limited to:
 
@@ -66,7 +96,7 @@ HABIT relies on many excellent open-source projects, including but not limited t
 We extend our sincere respect and gratitude to the developers and maintainers of these projects.
 
 How to contribute
------------------
+~~~~~~~~~~~~~~~~~
 
 To contribute code, docs, or extensions, start with
 :doc:`development/architecture`, then :doc:`development/contributing`
@@ -75,7 +105,7 @@ To contribute code, docs, or extensions, start with
 |link_github_issues|.
 
 Contact
--------
+~~~~~~~
 
 For collaboration or other inquiries:
 

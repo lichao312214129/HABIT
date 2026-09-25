@@ -9,8 +9,8 @@
 .. currentmodule:: habit.precision
 
 **User guide:** Habitat Guide
-:doc:`../auto_examples/08_precision/plot_01_precise_features` ·
-:doc:`../auto_examples/06_matching/plot_07_match_labels`.
+:doc:`../auto_examples/05_validation_and_reuse/plot_03_precise_features` ·
+:doc:`../auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
 Recipe wrapper: :func:`~habit.recipes.identify_precise_voxel_features`.
 
 Simulated-retest perturbations and the ICC intersection that decides

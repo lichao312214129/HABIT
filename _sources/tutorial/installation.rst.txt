@@ -146,7 +146,7 @@ small; CSV needs nothing extra. Saving the table is optional::
 
    pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
 
-GPU texture speedup numbers: :doc:`../examples/voxel_texture`.
+GPU texture speedup numbers: :doc:`/auto_examples/02_features/plot_02_texture_feature_maps`.
 
 
 From source (developers)
@@ -167,4 +167,5 @@ Problems?
 ---------
 
 See :doc:`../troubleshooting/faq`. After install:
-:doc:`quickstart` or :doc:`quickstart_python`.
+:doc:`/auto_quickstart/plot_quickstart_python` or
+:doc:`/auto_quickstart/plot_quickstart_yaml`.

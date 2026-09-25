@@ -1,18 +1,20 @@
-:orphan:
-
-Preprocessing
-=============
+Before: image preprocessing
+===========================
 
 .. note::
 
-   Supporting integration, not the habitat core. Guide walk-through:
-   :doc:`../examples/image_preprocessing`. Demo pack is already
-   preprocessed — habitat maps: :doc:`../examples/two_step_habitat`.
+   Supporting integration, not the habitat core. Habitat analysis
+   expects every series of a subject on one voxel grid with the ROI
+   mask (registration / resampling), which this page prepares. The
+   demo pack is already preprocessed -- habitat maps:
+   :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
+   Intensity normalization for clustering is a habitat stage, not an
+   image step: see :doc:`/tutorial/concepts`.
 
 Goal: turn images (or DICOM) into a preprocessed ``images/`` + ``masks/`` tree.
 
 **First demo run:** skip this page — the demo pack already has
-``demo_data/preprocessed/``. Go to :doc:`../examples/two_step_habitat`.
+``demo_data/preprocessed/``. Go to :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
 
 Run
 ---
@@ -40,7 +42,7 @@ and modality names. Then ``habit check-config`` + ``habit preprocess``.
 Success: ``out_dir/processed_images/images/<subject>/<modality>/`` has NIfTI.
 
 Anatomy | processed intensity. The figure is written by the image
-preprocessing gallery (:doc:`../examples/image_preprocessing`).
+preprocessing gallery (:doc:`/how_to/preprocess`).
 Reproduce it::
 
    python docs/source/examples/scripts/image_preprocessing_demo.py
@@ -72,13 +74,13 @@ The plot call in that script::
 Image z-score here is **per-volume intensity** (DICOM/NIfTI tree). It is
 not the clustering-time ``winsorize`` / ``minmax`` chain; skipping that
 chain on two-step runs under-expresses habitats — see
-:doc:`../examples/habitat_preprocessing`.
+:doc:`/auto_examples/07_advanced/plot_02_subject_preprocess`.
 
 Atomic Python (same steps, no YAML)
 -----------------------------------
 
 :func:`~habit.recipes.preprocess_subject` / :func:`~habit.recipes.preprocess_image` take a
-``Subject`` or one volume. Copy from :doc:`../examples/image_preprocessing`
+``Subject`` or one volume. Copy from :doc:`/how_to/preprocess`
 and swap ``DATA``. Per-step figures:
 
 .. figure:: ../_static/images/examples/preprocess_resample.png

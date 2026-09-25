@@ -11,7 +11,7 @@
 .. currentmodule:: habit.viz
 
 **User guide:** Habitat Guide
-:doc:`../auto_examples/03_quantify/plot_01_volume_fractions`.
+:doc:`../auto_examples/04_quantifying_habitats/plot_01_volume_fractions`.
 
 ``matplotlib`` is imported lazily inside each function, so importing
 ``habit`` never pulls a plotting backend. All figure labels are

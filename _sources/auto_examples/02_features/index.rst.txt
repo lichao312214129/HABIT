@@ -1,0 +1,124 @@
+
+
+.. _sphx_glr_auto_examples_02_features:
+
+Features
+========
+
+Multi-sequence intensities (default), texture maps on one sequence
+(all texture families), enhancement patterns, combining features, and
+a plugin extractor without editing HABIT source.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Many studies have only one usable MR sequence, for example a single post-contrast series. Habitat analysis still works, but with one feature column the habitats mean something narrower: they are intensity strata inside the tumour, not enhancement-kinetics patterns (which need several phases).">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_01_multi_sequence_intensities_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_features/plot_01_multi_sequence_intensities`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitats from a single sequence</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Two regions of a tumour can have the same mean brightness but a different local pattern: one smooth, one speckled. Intensity alone cannot separate them. Voxel-wise texture gives every voxel a few numbers that describe its small neighbourhood. Those numbers can replace the intensity in the feature table that the habitat model clusters, or sit next to it.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_02_texture_feature_maps_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_features/plot_02_texture_feature_maps`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Texture feature maps, alone and with intensity</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Dynamic contrast-enhanced (DCE) MRI records how a tumour takes up and washes out contrast across several phases. Raw intensities mix absolute brightness with that kinetic pattern. Derived maps (ratios, differences, averages, kinetic slopes, or free expressions) put the pattern into the feature table that habitats use.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_03_enhancement_patterns_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_features/plot_03_enhancement_patterns`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Enhancement patterns</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The extract stage decides which numbers describe each voxel; habitats can only separate what those columns show. The simplest choice is the image intensities themselves.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_04_combining_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_features/plot_04_combining_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Voxel features</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Built-in voxel extractors cover intensities, formulas, kinetics and texture. When your study needs its own voxel-level computation (here, liver DCE enhancement and wash-out ratios), you write a small extractor class, register it under a name, and use that name in a Spec exactly like a built-in one. The same class can later be shipped as a pip-installable package, so other groups use it by name without copying code or editing HABIT.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_05_own_feature_extractor_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_features/plot_05_own_feature_extractor`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Your own feature extractor as a plugin</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/02_features/plot_01_multi_sequence_intensities
+   /auto_examples/02_features/plot_02_texture_feature_maps
+   /auto_examples/02_features/plot_03_enhancement_patterns
+   /auto_examples/02_features/plot_04_combining_features
+   /auto_examples/02_features/plot_05_own_feature_extractor
+

@@ -38,6 +38,10 @@ patient without refitting.
   as an integer mask; only voxels inside it are analysed (0 = background).
 * **voxel feature** -- the numbers that describe one voxel (here its
   intensity in each DCE phase); one column per feature.
+* **subject-level normalization** -- each patient's features are
+  rescaled with that patient's own statistics before clustering. MR
+  intensities are arbitrary units, so a darker scan would otherwise fall
+  into one habitat. See :doc:`/tutorial/concepts`.
 * **supervoxel** -- a small patch of neighbouring voxels with similar
   features, clustered inside one subject first (``partition``), so the cohort
   model clusters tens of rows per subject instead of every voxel.
@@ -56,6 +60,8 @@ patient without refitting.
   count after which adding one more habitat stops reducing within-cluster
   spread much.
 
+Every term is defined at more length on :doc:`/tutorial/concepts`.
+
 A short list of stages declares the analysis; one call fits it on a
 cohort. Everything after that is looking at the result: the habitat map,
 the per-habitat features a paper would report, and reusing the fitted
@@ -65,7 +71,7 @@ Install first (:doc:`/tutorial/installation`). This page uses the
 official demo pack (five liver lesions, four DCE phases). Change ``DATA``
 / ``MODALITIES`` / ``ROI`` to your own preprocessed tree.
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-56
+.. GENERATED FROM PYTHON SOURCE LINES 57-62
 
 Load the images
 ---------------
@@ -73,22 +79,24 @@ Four subjects define the habitats; the fifth plays a new patient later.
 The downloaded pack is cached after the first run.
 sphinx_gallery_thumbnail_number = 4
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-97
+.. GENERATED FROM PYTHON SOURCE LINES 62-105
 
 .. code-block:: Python
 
     from pathlib import Path
 
     import matplotlib.pyplot as plt
-    import numpy as np
 
     from habit.contracts import HabitatModel, cohort_from_directory
     from habit.datasets import fetch_demo
     from habit.kernels import habitat_ith_dispersion, ith_score, spatial_interaction_matrix
-    from habit.recipes import Study, two_step_habitat
+    from habit.execution import backend_from_policy
+    from habit.recipes import Study
     from habit.spec import HabitatSpec, Spec, Stage
+    from habit.spec.policy import RunPolicy
     from habit.viz import (
         plot_cluster_validation_from_report,
+        plot_habitat_graph_network_2d,
         plot_habitat_graph_slice,
         plot_habitat_overlay,
         plot_habitat_volume_fractions,
@@ -160,19 +168,20 @@ sphinx_gallery_thumbnail_number = 4
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-107
+.. GENERATED FROM PYTHON SOURCE LINES 106-116
 
 Build the analysis step by step
 -------------------------------
 A habitat analysis is a list of stages. This is the two-step design:
-each tumour is split into 30 supervoxels (``partition``), the
-supervoxels of all subjects are put together (``pool``) and clustered
-once (``fit``), so habitat 2 means the same enhancement pattern in every
-patient. Drop ``pool`` and every subject is clustered on its own
-(one-step); drop ``partition`` and voxels are clustered directly
-(direct pooling). The fitter tries 2 to 10 habitats and keeps the elbow.
+each tumour is normalized on its own scale, split into 30 supervoxels
+(``partition``), the supervoxels of all subjects are put together
+(``pool``) and clustered once (``fit``), so habitat 2 means the same
+enhancement pattern in every patient. Drop ``pool`` and every subject
+is clustered on its own (one-step); drop ``partition`` and voxels are
+clustered directly (direct pooling). The fitter tries 2 to 10 habitats
+and keeps the elbow.
 
-.. GENERATED FROM PYTHON SOURCE LINES 107-134
+.. GENERATED FROM PYTHON SOURCE LINES 116-155
 
 .. code-block:: Python
 
@@ -181,10 +190,17 @@ patient. Drop ``pool`` and every subject is clustered on its own
         stages=(
             # extract: one intensity column per DCE phase, inside the ROI.
             Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+            # preprocess, preprocess2 (subject-level, before pool): clip each
+            # column to the patient's own 1st..99th percentile, then rescale it
+            # to 0..1 with the patient's own min and max. Nothing is stored.
+            Stage("preprocess", Spec("winsorize", {"winsor_limits": [0.01, 0.01]})),
+            Stage("preprocess2", Spec("zscore")),
             # partition: 30 supervoxels per tumour; these rows are clustered.
             Stage("partition", Spec("kmeans", {"n_supervoxels": 30})),
             # pool: one matrix for every training subject, then one fit.
             Stage("pool", Spec("pool")),
+            # No cohort-level preprocessing after pool (see subject z-score above).
+
             # fit: search 2..10 habitats and keep the elbow. n_init=10 restarts.
             Stage("fit", Spec("kmeans", {"min_habitats": 2, "max_habitats": 10, "validation": "elbow", "n_init": 10})),
             # assign: nearest centroid writes the shared habitat ids.
@@ -200,7 +216,12 @@ patient. Drop ``pool`` and every subject is clustered on its own
     )
     # Study runs the spec: fit_predict learns the habitats on the four training
     # subjects and labels those same subjects in one call.
-    result = Study(spec).fit_predict(train)
+    result = Study(spec).fit_predict(
+        train,
+        backend=backend_from_policy(
+            RunPolicy(backend="serial", on_subject_failure="continue")
+        ),
+    )
     print(result.habitat_model.summary())
 
 
@@ -211,8 +232,8 @@ patient. Drop ``pool`` and every subject is clustered on its own
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:05<00:17,  5.74s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:07<00:07,  3.59s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:08<00:02,  2.83s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:09<00:00,  2.46s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:09<00:00,  2.46s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:04,  1.41s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:02<00:02,  1.10s/it]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02<00:00,  1.02it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.09it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.09it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:03<00:10,  3.59s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:05<00:05,  2.57s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:06<00:02,  2.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.95s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.95s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:03,  1.03s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:01<00:01,  1.10it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02<00:00,  1.19it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.24it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.24it/s]
     HabitatModel kmeans-b01ecfd00139f26e
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -227,44 +248,14 @@ patient. Drop ``pool`` and every subject is clustered on its own
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-139
-
-``two_step_habitat(modalities=..., roi=..., n_supervoxels=30,
-habitat_features=[...], random_seed=0)`` is a shortcut for the same
-spec; ``one_step_habitat`` and ``direct_pooling_habitat`` do the same for
-the other designs. Both give the same habitat maps:
-
-.. GENERATED FROM PYTHON SOURCE LINES 139-143
-
-.. code-block:: Python
-
-    shortcut = two_step_habitat(modalities=MODALITIES, roi=ROI, n_supervoxels=30, random_seed=0).fit_predict(train)
-    same = all(np.array_equal(a.label_array, b.label_array) for a, b in zip(result.habitat_maps, shortcut.habitat_maps))
-    print("stages == shortcut:", same)
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.02s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.92s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.70s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.61s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.61s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00<00:00,  4.49it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00<00:00,  4.61it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00<00:00,  4.67it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.71it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.71it/s]
-    stages == shortcut: True
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 144-148
+.. GENERATED FROM PYTHON SOURCE LINES 156-160
 
 How many habitats, and why
 --------------------------
 The fitter scores every candidate count; the marked point is the one
 kept. The report travels inside the model, so the choice is auditable.
 
-.. GENERATED FROM PYTHON SOURCE LINES 148-153
+.. GENERATED FROM PYTHON SOURCE LINES 160-165
 
 .. code-block:: Python
 
@@ -285,14 +276,14 @@ kept. The report travels inside the model, so the choice is auditable.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 154-158
+.. GENERATED FROM PYTHON SOURCE LINES 166-170
 
 Habitat maps
 ------------
 From supervoxels to habitats on one slice, then the habitat map of two
 patients. Same colour, same habitat, in both.
 
-.. GENERATED FROM PYTHON SOURCE LINES 158-173
+.. GENERATED FROM PYTHON SOURCE LINES 170-185
 
 .. code-block:: Python
 
@@ -353,7 +344,7 @@ patients. Same colour, same habitat, in both.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-179
+.. GENERATED FROM PYTHON SOURCE LINES 186-191
 
 The feature table
 -----------------
@@ -361,7 +352,7 @@ One row per subject, ready for statistics: volume fractions, the MSI
 (how habitats touch each other), the ITH score (how fragmented the
 tumour is) and graph topology. A few of the columns:
 
-.. GENERATED FROM PYTHON SOURCE LINES 179-184
+.. GENERATED FROM PYTHON SOURCE LINES 191-196
 
 .. code-block:: Python
 
@@ -381,22 +372,22 @@ tumour is) and graph topology. A few of the columns:
     663 columns
              habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  habitat_5_volume_fraction  ith_score  contrast  graph_num_nodes_total
     subject                                                                                                                                                                                   
-    subj001                      0.090                      0.110                      0.182                      0.182                      0.436      0.949     1.424                  498.0
-    subj002                      0.000                      0.171                      0.196                      0.117                      0.516      0.850     2.295                  125.0
-    subj003                      0.000                      0.424                      0.000                      0.576                      0.000      0.796     1.639                   47.0
-    subj004                      0.178                      0.169                      0.550                      0.000                      0.104      0.862     1.461                  105.0
+    subj001                      0.258                      0.112                      0.231                      0.355                      0.044      0.972     1.747                  501.0
+    subj002                      0.058                      0.081                      0.202                      0.446                      0.213      0.911     2.897                  149.0
+    subj003                      0.210                      0.147                      0.277                      0.361                      0.006      0.828     1.766                   75.0
+    subj004                      0.274                      0.069                      0.297                      0.296                      0.063      0.851     2.299                  130.0
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-189
+.. GENERATED FROM PYTHON SOURCE LINES 197-201
 
 What those numbers look like for one subject
 --------------------------------------------
 Volume fractions come straight from the table. MSI and ITH are drawn from
 the same label map with the kernels the table uses.
 
-.. GENERATED FROM PYTHON SOURCE LINES 189-210
+.. GENERATED FROM PYTHON SOURCE LINES 201-216
 
 .. code-block:: Python
 
@@ -413,12 +404,6 @@ the same label map with the kernels the table uses.
 
     fig = plot_ith_summary(float(ith_score(labels)), dispersion=habitat_ith_dispersion(labels))
     fig.savefig("out/quickstart_ith.png", dpi=150, bbox_inches="tight")
-    plt.show()
-
-    # The graph features cut the tumour into 8-voxel cubes (the grid); each
-    # cube is a node coloured by its habitat, and touching cubes share an edge.
-    fig = plot_habitat_graph_slice(labels, block_size=8)
-    fig.savefig("out/quickstart_graph.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -448,6 +433,73 @@ the same label map with the kernels the table uses.
          :srcset: /auto_quickstart/images/sphx_glr_plot_quickstart_python_008.png
          :class: sphx-glr-multi-img
 
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 217-242
+
+Graph network features: the habitat layout as a network
+-------------------------------------------------------
+Volume fractions say *how much* of each habitat a tumour has; they do
+not say how the habitats are laid out. The graph features are HABIT's
+own family for that. HABIT turns each habitat into a network and
+measures its shape:
+
+* **nodes** -- the ROI is covered by a lattice of 8 x 8 x 8-voxel
+  cubes. Inside each cube, every connected piece of one habitat becomes
+  one node, placed at that piece's centre.
+* **edges** -- two nodes are joined when their closest voxels are at
+  most 5 voxels apart (distances in voxels, not millimetres).
+* **single_h<i>_*** columns describe the network of habitat *i* alone
+  (for example ``single_h1_connected_components`` counts separate
+  islands of habitat 1; ``single_h1_n_nodes`` and ``single_h1_n_edges``
+  its size). **pair_h<i>_h<j>_*** columns describe how habitats *i* and
+  *j* meet (for example ``pair_h1_h2_n_edges`` counts links between
+  them). ``graph_num_nodes_total`` is the node count over all habitats.
+
+``include_extended_metrics=False`` (set in the ``graph`` stage above)
+skips the efficiency, small-world and rich-club summaries, which need
+many random reference graphs and are much slower. Node and edge rules
+are options of the graph component (for example
+``node_method="component"`` and ``edge_method="adjacency"``); more on
+:doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`.
+
+.. GENERATED FROM PYTHON SOURCE LINES 242-267
+
+.. code-block:: Python
+
+    graph_columns = [c for c in table.columns if c.startswith(("single_h", "pair_h", "graph_"))]
+    print(len(graph_columns), "graph columns")
+    example_columns = [
+        "graph_num_nodes_total",
+        "single_h1_n_nodes",
+        "single_h1_n_edges",
+        "single_h1_connected_components",
+        "pair_h1_h2_n_edges",
+    ]
+    print(table[example_columns].round(3).to_string())
+
+    # The lattice view: the 8-voxel grid and each habitat inside it on the
+    # largest cross-section. The network view draws, per habitat and per
+    # habitat pair, the nodes (white dots) and edges (white lines) that the
+    # features are built with, drawn on that one slice for display; the
+    # feature columns come from the full 3-D map. Both take the label array.
+    fig = plot_habitat_graph_slice(labels, block_size=8)
+    fig.savefig("out/quickstart_graph.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+    fig = plot_habitat_graph_network_2d(labels, block_size=8)
+    if fig is not None:
+        fig.savefig("out/quickstart_graph_network.png", dpi=150, bbox_inches="tight")
+        plt.show()
+
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
     *
 
       .. image-sg:: /auto_quickstart/images/sphx_glr_plot_quickstart_python_009.png
@@ -455,20 +507,53 @@ the same label map with the kernels the table uses.
          :srcset: /auto_quickstart/images/sphx_glr_plot_quickstart_python_009.png
          :class: sphx-glr-multi-img
 
+    *
+
+      .. image-sg:: /auto_quickstart/images/sphx_glr_plot_quickstart_python_010.png
+         :alt: 2D habitat graphs from representative cross-section (slice 18; 8-voxel cubes), H1 (n=21, e=47), H2 (n=16, e=18), H3 (n=28, e=51), H4 (n=29, e=71), H5 (n=13, e=12), H1-H2 (n=37, inter e=16), H1-H3 (n=49, inter e=53), H1-H4 (n=50, inter e=126), H1-H5 (n=34, inter e=36), H2-H3 (n=44, inter e=71), H2-H4 (n=45, inter e=34), H2-H5 (n=29, inter e=19), H3-H4 (n=57, inter e=87), H3-H5 (n=41, inter e=39), H4-H5 (n=42, inter e=36)
+         :srcset: /auto_quickstart/images/sphx_glr_plot_quickstart_python_010.png
+         :class: sphx-glr-multi-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    608 graph columns
+             graph_num_nodes_total  single_h1_n_nodes  single_h1_n_edges  single_h1_connected_components  pair_h1_h2_n_edges
+    subject                                                                                                                 
+    subj001                  501.0               94.0              489.0                             4.0               220.0
+    subj002                  149.0               14.0               42.0                             3.0                10.0
+    subj003                   75.0               20.0               65.0                             1.0                14.0
+    subj004                  130.0               27.0               94.0                             1.0                76.0
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 211-217
+.. GENERATED FROM PYTHON SOURCE LINES 268-276
+
+How to read the graph features
+------------------------------
+More nodes for a habitat means it covers more lattice cubes; more
+``connected_components`` for the same habitat means it is broken into
+separate islands rather than one compact region. Many ``pair`` edges
+between two habitats mean they interleave along a long shared border.
+Size-dependent columns also have ``*_norm`` / ``*_per_habitat_volume``
+companions so tumours of different size can be compared.
+
+.. GENERATED FROM PYTHON SOURCE LINES 278-287
 
 Reuse the model on a new patient
 --------------------------------
 The ``.habitatmodel`` file is the habitat definition: load it anywhere
-and the new patient gets the same habitat names. Nothing is refitted.
+and the new patient gets the same habitat names. Nothing is refitted:
+the new patient is normalized with its own statistics, binned with the
+training bin edges stored in the model, and matched to the training
+centroids.
 save writes the model archive and result tables under out/quickstart,
 plus the habitat maps because write_maps=True.
 
-.. GENERATED FROM PYTHON SOURCE LINES 217-230
+.. GENERATED FROM PYTHON SOURCE LINES 287-300
 
 .. code-block:: Python
 
@@ -488,9 +573,9 @@ plus the habitat maps because write_maps=True.
 
 
 
-.. image-sg:: /auto_quickstart/images/sphx_glr_plot_quickstart_python_010.png
+.. image-sg:: /auto_quickstart/images/sphx_glr_plot_quickstart_python_011.png
    :alt: subj005: habitats from the saved model, Axis 0 (axial-like) @ 95, Axis 1 (coronal-like) @ 166, Axis 2 (sagittal-like) @ 106
-   :srcset: /auto_quickstart/images/sphx_glr_plot_quickstart_python_010.png
+   :srcset: /auto_quickstart/images/sphx_glr_plot_quickstart_python_011.png
    :class: sphx-glr-single-img
 
 
@@ -498,24 +583,28 @@ plus the habitat maps because write_maps=True.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.63s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.63s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:08<00:00,  8.16s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:08<00:00,  8.16s/it]
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-244
+.. GENERATED FROM PYTHON SOURCE LINES 301-318
 
 Where to go next
 ----------------
-* The same analysis from a YAML file:
-  :doc:`/auto_quickstart/plot_quickstart_yaml`, and from the shell with
-  ``habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml``
-  (:doc:`/tutorial/quickstart`). Both fit the same four subjects and give
-  the same habitat maps as this page.
-* The same stages, then each one opened up:
-  :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
+* The same analysis from a YAML file and from the shell with
+  ``habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml``:
+  :doc:`/auto_quickstart/plot_quickstart_yaml`. Both fit the same four
+  subjects and give the same habitat maps as this page.
+* Complete analyses, one research scenario per page:
+  :doc:`/auto_examples/01_building_habitat_maps/index`; start with
+  :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
+* The graph features in depth:
+  :doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`.
+* Terms (supervoxel, subject-level vs cohort-level):
+  :doc:`/tutorial/concepts`.
 * Interactive 3-D view (``pip install "habitat-analysis[view]"``)::
 
     from habit.viz import view_habitat_napari
@@ -524,7 +613,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 35.247 seconds)
+   **Total running time of the script:** (0 minutes 31.055 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_python.py:

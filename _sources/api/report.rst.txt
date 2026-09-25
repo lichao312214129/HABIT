@@ -11,7 +11,7 @@
 .. currentmodule:: habit.report
 
 **User guide:** Habitat Guide
-:doc:`../auto_examples/03_quantify/plot_01_volume_fractions` ·
+:doc:`../auto_examples/04_quantifying_habitats/plot_01_volume_fractions` ·
 :doc:`python_api`.
 
 Pass a :class:`~habit.report.Report` to

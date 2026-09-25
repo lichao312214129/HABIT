@@ -19,6 +19,10 @@ patient without refitting.
   as an integer mask; only voxels inside it are analysed (0 = background).
 * **voxel feature** -- the numbers that describe one voxel (here its
   intensity in each DCE phase); one column per feature.
+* **subject-level normalization** -- each patient's features are
+  rescaled with that patient's own statistics before clustering. MR
+  intensities are arbitrary units, so a darker scan would otherwise fall
+  into one habitat. See :doc:`/tutorial/concepts`.
 * **supervoxel** -- a small patch of neighbouring voxels with similar
   features, clustered inside one subject first (``partition``), so the cohort
   model clusters tens of rows per subject instead of every voxel.
@@ -36,6 +40,8 @@ patient without refitting.
 * **elbow** -- a rule for picking the number of habitats: the candidate
   count after which adding one more habitat stops reducing within-cluster
   spread much.
+
+Every term is defined at more length on :doc:`/tutorial/concepts`.
 
 A short list of stages declares the analysis; one call fits it on a
 cohort. Everything after that is looking at the result: the habitat map,
@@ -56,15 +62,17 @@ official demo pack (five liver lesions, four DCE phases). Change ``DATA``
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from habit.contracts import HabitatModel, cohort_from_directory
 from habit.datasets import fetch_demo
 from habit.kernels import habitat_ith_dispersion, ith_score, spatial_interaction_matrix
-from habit.recipes import Study, two_step_habitat
+from habit.execution import backend_from_policy
+from habit.recipes import Study
 from habit.spec import HabitatSpec, Spec, Stage
+from habit.spec.policy import RunPolicy
 from habit.viz import (
     plot_cluster_validation_from_report,
+    plot_habitat_graph_network_2d,
     plot_habitat_graph_slice,
     plot_habitat_overlay,
     plot_habitat_volume_fractions,
@@ -98,21 +106,29 @@ plt.show()
 # Build the analysis step by step
 # -------------------------------
 # A habitat analysis is a list of stages. This is the two-step design:
-# each tumour is split into 30 supervoxels (``partition``), the
-# supervoxels of all subjects are put together (``pool``) and clustered
-# once (``fit``), so habitat 2 means the same enhancement pattern in every
-# patient. Drop ``pool`` and every subject is clustered on its own
-# (one-step); drop ``partition`` and voxels are clustered directly
-# (direct pooling). The fitter tries 2 to 10 habitats and keeps the elbow.
+# each tumour is normalized on its own scale, split into 30 supervoxels
+# (``partition``), the supervoxels of all subjects are put together
+# (``pool``) and clustered once (``fit``), so habitat 2 means the same
+# enhancement pattern in every patient. Drop ``pool`` and every subject
+# is clustered on its own (one-step); drop ``partition`` and voxels are
+# clustered directly (direct pooling). The fitter tries 2 to 10 habitats
+# and keeps the elbow.
 spec = HabitatSpec(
     name="quickstart_two_step",
     stages=(
         # extract: one intensity column per DCE phase, inside the ROI.
         Stage("extract", Spec("raw", {"modalities": list(MODALITIES), "roi": ROI})),
+        # preprocess, preprocess2 (subject-level, before pool): clip each
+        # column to the patient's own 1st..99th percentile, then rescale it
+        # to 0..1 with the patient's own min and max. Nothing is stored.
+        Stage("preprocess", Spec("winsorize", {"winsor_limits": [0.01, 0.01]})),
+        Stage("preprocess2", Spec("zscore")),
         # partition: 30 supervoxels per tumour; these rows are clustered.
         Stage("partition", Spec("kmeans", {"n_supervoxels": 30})),
         # pool: one matrix for every training subject, then one fit.
         Stage("pool", Spec("pool")),
+        # No cohort-level preprocessing after pool (see subject z-score above).
+
         # fit: search 2..10 habitats and keep the elbow. n_init=10 restarts.
         Stage("fit", Spec("kmeans", {"min_habitats": 2, "max_habitats": 10, "validation": "elbow", "n_init": 10})),
         # assign: nearest centroid writes the shared habitat ids.
@@ -128,17 +144,13 @@ spec = HabitatSpec(
 )
 # Study runs the spec: fit_predict learns the habitats on the four training
 # subjects and labels those same subjects in one call.
-result = Study(spec).fit_predict(train)
+result = Study(spec).fit_predict(
+    train,
+    backend=backend_from_policy(
+        RunPolicy(backend="serial", on_subject_failure="continue")
+    ),
+)
 print(result.habitat_model.summary())
-
-# %%
-# ``two_step_habitat(modalities=..., roi=..., n_supervoxels=30,
-# habitat_features=[...], random_seed=0)`` is a shortcut for the same
-# spec; ``one_step_habitat`` and ``direct_pooling_habitat`` do the same for
-# the other designs. Both give the same habitat maps:
-shortcut = two_step_habitat(modalities=MODALITIES, roi=ROI, n_supervoxels=30, random_seed=0).fit_predict(train)
-same = all(np.array_equal(a.label_array, b.label_array) for a, b in zip(result.habitat_maps, shortcut.habitat_maps))
-print("stages == shortcut:", same)
 
 # %%
 # How many habitats, and why
@@ -201,17 +213,75 @@ fig = plot_ith_summary(float(ith_score(labels)), dispersion=habitat_ith_dispersi
 fig.savefig("out/quickstart_ith.png", dpi=150, bbox_inches="tight")
 plt.show()
 
-# The graph features cut the tumour into 8-voxel cubes (the grid); each
-# cube is a node coloured by its habitat, and touching cubes share an edge.
+# %%
+# Graph network features: the habitat layout as a network
+# -------------------------------------------------------
+# Volume fractions say *how much* of each habitat a tumour has; they do
+# not say how the habitats are laid out. The graph features are HABIT's
+# own family for that. HABIT turns each habitat into a network and
+# measures its shape:
+#
+# * **nodes** -- the ROI is covered by a lattice of 8 x 8 x 8-voxel
+#   cubes. Inside each cube, every connected piece of one habitat becomes
+#   one node, placed at that piece's centre.
+# * **edges** -- two nodes are joined when their closest voxels are at
+#   most 5 voxels apart (distances in voxels, not millimetres).
+# * **single_h<i>_*** columns describe the network of habitat *i* alone
+#   (for example ``single_h1_connected_components`` counts separate
+#   islands of habitat 1; ``single_h1_n_nodes`` and ``single_h1_n_edges``
+#   its size). **pair_h<i>_h<j>_*** columns describe how habitats *i* and
+#   *j* meet (for example ``pair_h1_h2_n_edges`` counts links between
+#   them). ``graph_num_nodes_total`` is the node count over all habitats.
+#
+# ``include_extended_metrics=False`` (set in the ``graph`` stage above)
+# skips the efficiency, small-world and rich-club summaries, which need
+# many random reference graphs and are much slower. Node and edge rules
+# are options of the graph component (for example
+# ``node_method="component"`` and ``edge_method="adjacency"``); more on
+# :doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`.
+graph_columns = [c for c in table.columns if c.startswith(("single_h", "pair_h", "graph_"))]
+print(len(graph_columns), "graph columns")
+example_columns = [
+    "graph_num_nodes_total",
+    "single_h1_n_nodes",
+    "single_h1_n_edges",
+    "single_h1_connected_components",
+    "pair_h1_h2_n_edges",
+]
+print(table[example_columns].round(3).to_string())
+
+# The lattice view: the 8-voxel grid and each habitat inside it on the
+# largest cross-section. The network view draws, per habitat and per
+# habitat pair, the nodes (white dots) and edges (white lines) that the
+# features are built with, drawn on that one slice for display; the
+# feature columns come from the full 3-D map. Both take the label array.
 fig = plot_habitat_graph_slice(labels, block_size=8)
 fig.savefig("out/quickstart_graph.png", dpi=150, bbox_inches="tight")
 plt.show()
+
+fig = plot_habitat_graph_network_2d(labels, block_size=8)
+if fig is not None:
+    fig.savefig("out/quickstart_graph_network.png", dpi=150, bbox_inches="tight")
+    plt.show()
+
+# %%
+# How to read the graph features
+# ------------------------------
+# More nodes for a habitat means it covers more lattice cubes; more
+# ``connected_components`` for the same habitat means it is broken into
+# separate islands rather than one compact region. Many ``pair`` edges
+# between two habitats mean they interleave along a long shared border.
+# Size-dependent columns also have ``*_norm`` / ``*_per_habitat_volume``
+# companions so tumours of different size can be compared.
 
 # %%
 # Reuse the model on a new patient
 # --------------------------------
 # The ``.habitatmodel`` file is the habitat definition: load it anywhere
-# and the new patient gets the same habitat names. Nothing is refitted.
+# and the new patient gets the same habitat names. Nothing is refitted:
+# the new patient is normalized with its own statistics, binned with the
+# training bin edges stored in the model, and matched to the training
+# centroids.
 # save writes the model archive and result tables under out/quickstart,
 # plus the habitat maps because write_maps=True.
 result.save("out/quickstart", write_maps=True)
@@ -230,13 +300,17 @@ plt.show()
 # %%
 # Where to go next
 # ----------------
-# * The same analysis from a YAML file:
-#   :doc:`/auto_quickstart/plot_quickstart_yaml`, and from the shell with
-#   ``habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml``
-#   (:doc:`/tutorial/quickstart`). Both fit the same four subjects and give
-#   the same habitat maps as this page.
-# * The same stages, then each one opened up:
-#   :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
+# * The same analysis from a YAML file and from the shell with
+#   ``habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml``:
+#   :doc:`/auto_quickstart/plot_quickstart_yaml`. Both fit the same four
+#   subjects and give the same habitat maps as this page.
+# * Complete analyses, one research scenario per page:
+#   :doc:`/auto_examples/01_building_habitat_maps/index`; start with
+#   :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
+# * The graph features in depth:
+#   :doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`.
+# * Terms (supervoxel, subject-level vs cohort-level):
+#   :doc:`/tutorial/concepts`.
 # * Interactive 3-D view (``pip install "habitat-analysis[view]"``)::
 #
 #     from habit.viz import view_habitat_napari

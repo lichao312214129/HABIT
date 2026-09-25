@@ -9,7 +9,7 @@ For built-in ``Spec`` names and constructor parameters, see
 :doc:`../how_to/habitat_components`. For discovery APIs, see
 :doc:`../api/plugins`. For arithmetic formulas without a plugin, use the
 built-in ``expression`` voxel extractor
-(:doc:`../examples/custom_voxel_features`).
+(:doc:`/auto_examples/02_features/plot_05_own_feature_extractor`).
 
 v1 registry and entry points
 ----------------------------
@@ -156,7 +156,7 @@ call (or imports the module that does). Users then::
    from habit.plugins import load_plugins
    load_plugins()
 
-See :doc:`../examples/custom_voxel_features` for a runnable demo covering both
+See :doc:`/auto_examples/02_features/plot_05_own_feature_extractor` for a runnable demo covering both
 ``expression`` and a custom plugin, and :doc:`../api/plugins` for discovery.
 
 Other habitat domains follow the same pattern: implement the protocol,

@@ -8,9 +8,9 @@ registries from the v2 capability packages (they are **not** top-level ``habit``
 exports).
 
 Walkthrough (stop after any step, bring your own ``Subject``):
-:doc:`../examples/habitat_atomic_ops`. Concept:
-:doc:`../tutorial/habitat_analysis`. Arrays in:
-:doc:`../examples/data_from_arrays`.
+:doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`. Concept:
+:doc:`/auto_examples/00_introductory_tutorials/index`. Arrays in:
+:doc:`/auto_examples/06_manipulating_images/index`.
 
 For a whole-cohort study without hand-wiring each operator, use
 :meth:`~habit.recipes.Study.fit_predict` with
@@ -192,8 +192,8 @@ Step inspection (optional)
 
 To observe every habitat pipeline boundary in memory, pass
 ``inspect=StepRecorder(...)`` to a recipe. See
-:doc:`../examples/habitat_preprocessing` ("Inspect every step") and
-:doc:`../examples/habitat_atomic_ops`.
+:doc:`/auto_examples/07_advanced/plot_02_subject_preprocess` ("Inspect every step") and
+:doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`.
 
 .. code-block:: python
 
@@ -293,7 +293,7 @@ one subject. Figures: :func:`~habit.viz.plot_habitat_feature_heatmap`,
 :func:`~habit.viz.plot_habitat_feature_violin`,
 :func:`~habit.viz.plot_habitat_feature_bars`. See
 :doc:`../reference/features/whole_each_habitat`. Gallery:
-:doc:`../examples/habitat_feature_compare`.
+:doc:`/auto_examples/04_quantifying_habitats/index`.
 
 For array-only callers, use the public kernel helpers
 :func:`~habit.kernels.extract_graph_features` /

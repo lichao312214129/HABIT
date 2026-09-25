@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quickstart: YAML &mdash; HABIT Documentation</title>
+  <title>Quickstart: YAML and CLI &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -13,7 +13,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=211e58f4" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=05c9112e" />
 
   
     <link rel="canonical" href="https://lichao312214129.github.io/HABIT/auto_quickstart/plot_quickstart_yaml.html" />
@@ -32,7 +32,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Quickstart: run the demo (YAML + CLI)" href="../tutorial/quickstart.html" />
+    <link rel="next" title="Installation" href="../tutorial/installation.html" />
     <link rel="prev" title="Quickstart: Python API" href="plot_quickstart_python.html" /> 
 </head>
 
@@ -58,8 +58,31 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Quickstart</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="plot_quickstart_python.html">Quickstart: Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#load-the-images">Load the images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#build-the-analysis-step-by-step">Build the analysis step by step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#how-many-habitats-and-why">How many habitats, and why</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#habitat-maps">Habitat maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#the-feature-table">The feature table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#what-those-numbers-look-like-for-one-subject">What those numbers look like for one subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#graph-network-features-the-habitat-layout-as-a-network">Graph network features: the habitat layout as a network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#how-to-read-the-graph-features">How to read the graph features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#reuse-the-model-on-a-new-patient">Reuse the model on a new patient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart: YAML and CLI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#write-the-files-and-run-them">Write the files and run them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#look-at-one-habitat-map">Look at one habitat map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-same-analysis-from-the-shell">The same analysis from the shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Installation</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/installation.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-miniconda">1. Install Miniconda</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
@@ -72,106 +95,104 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="plot_quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#load-the-images">Load the images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#build-the-analysis-step-by-step">Build the analysis step by step</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#how-many-habitats-and-why">How many habitats, and why</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#habitat-maps">Habitat maps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#the-feature-table">The feature table</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#what-those-numbers-look-like-for-one-subject">What those numbers look like for one subject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#reuse-the-model-on-a-new-patient">Reuse the model on a new patient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_quickstart_python.html#where-to-go-next">Where to go next</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/optional_dependencies.html">Optional dependencies</a></li>
 </ul>
-</li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart: YAML</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#write-the-files-and-run-them">Write the files and run them</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#look-at-one-habitat-map">Look at one habitat map</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#work-directory-and-demo-configs">1. Work directory and demo configs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#activate-and-check">3. Activate and check</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">4. Run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#next">Next</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Habitat Guide</span></p>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Habitat Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/00_full_pipeline/index.html">0. Complete analysis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/00_full_pipeline/plot_01_full_pipeline.html">A complete habitat analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/index.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html">Introductory tutorials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_01_two_step.html">Two-step habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_02_inside_each_subject.html">Habitats inside each subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_03_pooled_voxels.html">Habitats from pooled voxels</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01_data_in/index.html">1. Data In</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_01_directory.html">Load from directory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_02_simpleitk.html">Load from SimpleITK</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_03_numpy_arrays.html">Load from NumPy arrays</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_data_in/plot_04_nifti_files.html">Load from NIfTI files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/index.html">Building habitat maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html">Two-step habitats with a Spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_02_atomic_two_step.html">Two-step habitats from atomic components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_03_inside_each_subject_spec.html">Habitats inside each subject with a Spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_04_atomic_inside_each_subject.html">Habitats inside each subject from atomic components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_05_pooled_voxels_spec.html">Pooled-voxel habitats with a Spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_06_atomic_pooled.html">Pooled-voxel habitats from atomic components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_07_quality_control.html">Quality control of habitat maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_08_cleaning_maps.html">Cleaning habitat maps (connected components)</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_stages/index.html">2. Each stage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_01_feature_routes.html">Voxel features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_02_custom_features.html">Custom features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_02_expression.html">Expression voxel features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_03_voxel_texture.html">Voxel texture and GPU</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_04_feature_preprocessing.html">Feature preprocessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_05_supervoxel_features.html">Supervoxel feature extraction and acceleration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_06_texture_preprocessing.html">Preprocessing voxel texture before clustering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_06_voxel_intensities.html">Extracting voxel intensities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_07_voxel_texture.html">Extracting a voxel texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_08_derived_map.html">Clustering habitats from a derived map</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_09_texture_habitats.html">Clustering habitats from a texture field</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_10_preprocess_features.html">Preprocessing features before clustering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_11_preprocess_compare.html">Comparing habitat maps with and without preprocessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_12_supervoxels.html">Partitioning a ROI into supervoxels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_13_fit_model.html">Fitting a cohort habitat model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_stages/plot_14_assign_labels.html">Assigning habitat labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/02_features/index.html">Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_features/plot_01_multi_sequence_intensities.html">Habitats from a single sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_features/plot_02_texture_feature_maps.html">Texture feature maps, alone and with intensity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_features/plot_03_enhancement_patterns.html">Enhancement patterns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_features/plot_04_combining_features.html">Voxel features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html">Your own feature extractor as a plugin</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03_quantify/index.html">3. Habitat Quantification</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_01_volume_fractions.html">Volume and fractions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_02_msi.html">Multiregional spatial interaction (MSI)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_03_ith.html">Intratumoral heterogeneity (ITH)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_04_graph_features.html">Graph features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_05_each_habitat_radiomics.html">Per-habitat radiomics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_06_whole_habitat_radiomics.html">Whole-habitat radiomics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_quantify/plot_07_deep_learning_embeddings.html">Deep-learning habitat embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/03_clustering/index.html">Clustering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_clustering/plot_01_supervoxel_method_and_count.html">Supervoxel method and count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_clustering/plot_02_what_supervoxel_summarizes.html">Supervoxel feature extraction and acceleration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/03_clustering/plot_03_clustering_algorithm.html">Clustering algorithm and number of habitats</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04_designs/index.html">4. Three habitat designs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_designs/plot_01_two_step.html">Defining habitats in two steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_designs/plot_02_inside_each_subject.html">Defining habitats inside each subject</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_designs/plot_03_pool_voxels.html">Pooling voxels across the cohort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/04_quantifying_habitats/index.html">Quantifying habitats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_01_volume_fractions.html">Volume and fractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_02_msi.html">Multiregional spatial interaction (MSI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_03_ith.html">Intratumoral heterogeneity (ITH)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_04_graph_network_features.html">Habitat graph network features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_05_habitat_radiomics.html">Habitat radiomics with volume, MSI and ITH</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05_apply/index.html">5. Apply a saved model</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_apply/plot_04_apply_saved_model.html">Applying a saved habitat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/05_validation_and_reuse/index.html">Validation and reuse</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_01_train_save_predict.html">Train, save, and predict new patients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_matching_labels.html">Matching habitat labels between two fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_03_precise_features.html">Precise features and habitat stability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_04_reuse_published_model.html">Reuse a published habitat model</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_matching/index.html">6. Matching Habitat Labels</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_01_label_switching.html">Why habitat ids must be matched</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_02_overlap_cases.html">Matching maps of the same voxels by overlap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_03_prototype_steps.html">Prototype matching step by step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_04_prototype_metrics.html">Choosing the distance for prototype matching</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_05_frozen_prototypes.html">Naming a new cohort with frozen prototypes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_06_downstream_tables.html">What matching changes in a cohort feature table</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/06_manipulating_images/index.html">Manipulating images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_manipulating_images/plot_01_directory.html">Load from directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_manipulating_images/plot_02_nifti.html">Load from NIfTI files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_manipulating_images/plot_03_simpleitk.html">Load from SimpleITK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_manipulating_images/plot_04_numpy.html">Load from NumPy arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_manipulating_images/plot_05_named_masks.html">Named masks</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/08_precision/index.html">8. Precise Feature Screening</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../auto_examples/08_precision/plot_01_precise_features.html">Precise voxel features</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_advanced/index.html">Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_01_extract.html">Extracting voxel intensities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_02_subject_preprocess.html">Subject-level preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_03_supervoxels.html">Partitioning a ROI into supervoxels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_04_pooling.html">Pooling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_05_fit.html">Fitting a cohort habitat model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_06_assign.html">Assigning habitat labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_07_postprocess.html">Cleaning habitat maps (connected components)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html">Atomic components on execution backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_09_own_pipeline.html">HABIT inside your own pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_advanced/plot_10_export_results.html">Export results and draft the methods paragraph</a></li>
 </ul>
 </li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/index.html">User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/introduction.html#what-habitat-analysis-asks">What habitat analysis asks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/introduction.html#practical-challenges">Practical challenges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/introduction.html#what-habit-is-for">What HABIT is for</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/introduction.html#how-to-use-this-documentation">How to use this documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building_habitat_maps.html">Building habitat maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/building_habitat_maps.html#reading-a-figure">Reading a figure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/building_habitat_maps.html#choosing-the-number-of-habitats">Choosing the number of habitats</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quantifying_habitats.html">Quantifying habitats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/manipulating_images.html">Manipulating images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building_blocks.html">Building blocks</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#habitat-analysis-pipeline">Habitat analysis pipeline</a><ul>
@@ -393,231 +414,55 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/habitat_components.html">Habitat Spec component catalog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/recipe_catalog.html">YAML configuration files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/recipe_catalog.html#starter-demos">Starter demos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/recipe_catalog.html#field-reference-pages">Field reference pages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/habitat.html">Habitat Segmentation Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/habitat.html#habitat-analysis-configuration-parameters">Habitat Analysis Configuration Parameters</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#feature-preprocessing">2. Feature preprocessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#feature-preprocessing-method">feature_preprocessing_method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/feature_extraction.html">Feature Extraction Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html">Traditional Radiomics Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/radiomics.html#paths"><code class="docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/radiomics.html#processing"><code class="docutils literal notranslate"><span class="pre">processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/radiomics.html#export"><code class="docutils literal notranslate"><span class="pre">export</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/radiomics.html#logging"><code class="docutils literal notranslate"><span class="pre">logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/radiomics.html#backward-compatible-flat-keys">Backward-compatible flat keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/radiomics.html#pyradiomics-parameter-yaml">PyRadiomics parameter YAML</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-partition">3. Supervoxel partition</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxelizer">supervoxelizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html">Preprocessing Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/preprocessing.html#preprocessing-configuration-parameters">Preprocessing configuration parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/preprocessing.html#dicom-sort-configuration-habit-sort-dicom">DICOM sort configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code>)</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html">DICOM Sort Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/dicom_sort.html#top-level-fields">Top-level fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/dicom_sort.html#notes">Notes</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#pool">5. Pool</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#pooling">pooling</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#fit-habitats">6. Fit habitats</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#habitat-model-fitter">habitat_model_fitter</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#assign">7. Assign</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#habitat-assigner">habitat_assigner</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#quantify">8. Quantify</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#habitat-feature-extractor">habitat_feature_extractor</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/habitat_components.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/features/index.html">Features from habitat maps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/msi.html">MSI Features</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/msi.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/msi.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/msi.html#formula">Formula</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/msi.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/msi.html#implementation">Implementation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/msi.html#references">References</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/ith_score.html">ITH Score</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#formula">Formula</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#notes">Notes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#implementation">Implementation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#references">References</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#small-worldness-and-random-graph-nulls">Small-worldness and random-graph nulls</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#references">References</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/non_radiomics.html">Non-radiomics Morphology</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#formula">Formula</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#implementation">Implementation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/traditional.html">Traditional Radiomics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#implementation">Implementation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#pyradiomics-alignment">PyRadiomics alignment</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/traditional.html#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 digital phantom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html">Auxiliary Tools and Data Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/auxiliary.html#data-configuration-parameters">Data configuration parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/auxiliary.html#icc-analysis-configuration-habit-icc">ICC analysis configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/auxiliary.html#traditional-radiomics-cli-configuration-habit-radiomics">Traditional radiomics CLI configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/auxiliary.html#repository-configuration-template-index">Repository configuration template index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/auxiliary.html#configuration-file-validation">Configuration file validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../configuration/auxiliary.html#faq">FAQ</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#whole-habitat">whole_habitat</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#output">Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#definition">Definition</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#output-columns">Output columns</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#implementation">Implementation</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#each-habitat">each_habitat</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id1">Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id2">Definition</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id4">Output columns</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/habitat_matching.html">Matching habitat labels across fits and subjects</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../reference/habitat_matching.html#when-matching-is-needed">When matching is needed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/habitat_matching.html#choosing-a-method">Choosing a method</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/habitat_matching.html#why-a-single-reference-is-not-enough">Why a single reference is not enough</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/habitat_matching.html#prototype-matching-cohort">Prototype matching (cohort)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/habitat_matching.html#what-describes-a-habitat">What describes a habitat</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/habitat_matching.html#algorithm">Algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/habitat_matching.html#two-subjects-pairwise-matching-as-a-special-case">Two subjects: pairwise matching as a special case</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/habitat_matching.html#distance-metrics">Distance metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/habitat_matching.html#naming-new-subjects-with-frozen-prototypes">Naming new subjects with frozen prototypes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/habitat_matching.html#different-habitat-counts">Different habitat counts</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/habitat_matching.html#assumptions-and-limitations">Assumptions and limitations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/habitat_matching.html#usage">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/habitat_matching.html#references">References</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">CLI and YAML</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/recipe_catalog.html#starter-demos">Starter demos</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/recipe_catalog.html#field-reference-pages">Field reference pages</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/habitat.html">Habitat Segmentation Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/habitat.html#habitat-analysis-configuration-parameters">Habitat Analysis Configuration Parameters</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../configuration/habitat.html#habitat-segmentation-supervoxel-slic-superpixel-configuration">habitat_segmentation.supervoxel — SLIC Superpixel Configuration</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../configuration/habitat.html#habitat-stage-1-parallelism-and-checkpoint-resume-top-level-field-reference">Habitat Stage-1 Parallelism and Checkpoint Resume (Top-Level Field Reference)</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/feature_extraction.html">Feature Extraction Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/radiomics.html">Traditional Radiomics Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#paths"><code class="docutils literal notranslate"><span class="pre">paths</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#processing"><code class="docutils literal notranslate"><span class="pre">processing</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#export"><code class="docutils literal notranslate"><span class="pre">export</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#logging"><code class="docutils literal notranslate"><span class="pre">logging</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#backward-compatible-flat-keys">Backward-compatible flat keys</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/radiomics.html#pyradiomics-parameter-yaml">PyRadiomics parameter YAML</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/preprocessing.html">Preprocessing Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html#preprocessing-configuration-parameters">Preprocessing configuration parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/preprocessing.html#dicom-sort-configuration-habit-sort-dicom">DICOM sort configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code>)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/dicom_sort.html">DICOM Sort Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html#top-level-fields">Top-level fields</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/dicom_sort.html#notes">Notes</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/auxiliary.html">Auxiliary Tools and Data Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#data-configuration-parameters">Data configuration parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#icc-analysis-configuration-habit-icc">ICC analysis configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code>)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#traditional-radiomics-cli-configuration-habit-radiomics">Traditional radiomics CLI configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#repository-configuration-template-index">Repository configuration template index</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#configuration-file-validation">Configuration file validation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../configuration/auxiliary.html#faq">FAQ</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../configuration/index.html#supporting-bookmarks">Supporting bookmarks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/cli.html">Command reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../troubleshooting/faq.html">FAQ</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#install">Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#run">Run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#data">Data</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/upstream_libraries.html">Upstream Dependencies and Documentation Links</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../reference/upstream_libraries.html#image-preprocessing-habit-preprocess">Image preprocessing (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/upstream_libraries.html#habitat-segmentation-habit-get-habitat">Habitat segmentation (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/upstream_libraries.html#habitat-features-and-traditional-radiomics-habit-extract-habit-radiomics">Habitat features and traditional radiomics (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/upstream_libraries.html#machine-learning-habit-model-habit-cv">Machine learning (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/upstream_libraries.html#model-comparison-habit-compare">Model comparison (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/upstream_libraries.html#icc-testretest-other">ICC / Test–retest / other</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/upstream_libraries.html#roi-delineation-external-tools">ROI delineation (external tools)</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Developer</span></p>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../development/architecture.html">Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#design-principles">Design principles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#the-six-layers">The six layers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#two-execution-paths">Two execution paths</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#key-components">Key components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#subsystems">Subsystems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#cli-to-core-mapping">CLI-to-core mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#design-philosophy">Design philosophy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#habitat-and-api-glossary">Habitat and API glossary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#invariants">Invariants</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#where-to-look-in-the-repo">Where to look in the repo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#see-also">See also</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/glossary.html">Glossary</a></li>
 </ul>
-</li>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../development/contributing.html">Contributing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#how-to-contribute">How to contribute</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../development/contributing.html#report-bugs">Report bugs</a></li>
@@ -632,6 +477,20 @@
 <li class="toctree-l2"><a class="reference internal" href="../development/contributing.html#code-of-conduct">Code of conduct</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../development/architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#design-principles">Design principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#the-six-layers">The six layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#two-execution-paths">Two execution paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#key-components">Key components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#subsystems">Subsystems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#cli-to-core-mapping">CLI-to-core mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#design-philosophy">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#habitat-and-api-glossary">Habitat and API glossary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#invariants">Invariants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#where-to-look-in-the-repo">Where to look in the repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../development/architecture.html#see-also">See also</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../customization/index.html">Extending HABIT</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../customization/index.html#v1-registry-and-entry-points">v1 registry and entry points</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../customization/index.html#v1-custom-voxel-feature-extractors">v1 custom voxel feature extractors</a></li>
@@ -641,21 +500,22 @@
 <li class="toctree-l2"><a class="reference internal" href="../customization/index.html#next-steps">Next steps</a></li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
+<p class="caption" role="heading"><span class="caption-text">Citing HABIT</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../acknowledgments.html">Acknowledgments</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#core-developers">Core developers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#future-developers">Future developers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#clinical-collaborators">Clinical collaborators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#special-thanks">Special thanks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#open-source-community">Open source community</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#how-to-contribute">How to contribute</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#contact">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgments.html">Citing and acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#citing-habit">Citing HABIT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acknowledgments.html#acknowledgments">Acknowledgments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../acknowledgments.html#core-developers">Core developers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../acknowledgments.html#future-developers">Future developers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../acknowledgments.html#clinical-collaborators">Clinical collaborators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../acknowledgments.html#special-thanks">Special thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../acknowledgments.html#open-source-community">Open source community</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../acknowledgments.html#how-to-contribute">How to contribute</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../acknowledgments.html#contact">Contact</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -674,7 +534,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Quickstart: YAML</li>
+      <li class="breadcrumb-item active">Quickstart: YAML and CLI</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/auto_quickstart/plot_quickstart_yaml.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -689,13 +549,14 @@
 <p><a class="reference internal" href="#sphx-glr-download-auto-quickstart-plot-quickstart-yaml-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="quickstart-yaml">
-<span id="sphx-glr-auto-quickstart-plot-quickstart-yaml-py"></span><h1>Quickstart: YAML<a class="headerlink" href="#quickstart-yaml" title="Link to this heading"></a></h1>
+<section class="sphx-glr-example-title" id="quickstart-yaml-and-cli">
+<span id="sphx-glr-auto-quickstart-plot-quickstart-yaml-py"></span><h1>Quickstart: YAML and CLI<a class="headerlink" href="#quickstart-yaml-and-cli" title="Link to this heading"></a></h1>
 <p><strong>Background.</strong> A YAML file is a plain-text way to write the same stage list
-you would build in Python, so an analysis can be run from the shell, shared,
-and kept next to the results.</p>
+you would build in Python, so an analysis can be run from the shell with the
+<code class="docutils literal notranslate"><span class="pre">habit</span></code> command, shared, and kept next to the results.</p>
 <p><strong>Purpose.</strong> You get the two-step habitat maps and a volume-fraction / MSI /
-ITH / graph table from a YAML file, plus one habitat overlay.</p>
+ITH / graph table from a YAML file, plus one habitat overlay. The last
+section runs the shipped quickstart config with <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code>.</p>
 <p><strong>Key terms.</strong></p>
 <ul class="simple">
 <li><p><strong>YAML config</strong> – a text file whose <code class="docutils literal notranslate"><span class="pre">spec:</span></code> block is a
@@ -704,12 +565,16 @@ ITH / graph table from a YAML file, plus one habitat overlay.</p>
 <li><p><strong>Stage / Spec / HabitatSpec</strong> – see
 <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>; each YAML stage entry is
 one <code class="docutils literal notranslate"><span class="pre">Stage</span></code>, and its <code class="docutils literal notranslate"><span class="pre">component</span></code> is the <code class="docutils literal notranslate"><span class="pre">Spec</span></code>.</p></li>
+<li><p><strong>subject-level / cohort-level preprocessing</strong> – a <code class="docutils literal notranslate"><span class="pre">preprocess</span></code>
+entry before <code class="docutils literal notranslate"><span class="pre">pool</span></code> rescales each patient on its own; one after
+<code class="docutils literal notranslate"><span class="pre">pool</span></code> is learned on the training cohort and saved in the model
+(<a class="reference internal" href="../tutorial/concepts.html"><span class="doc">Concepts</span></a>).</p></li>
 </ul>
 <p>The same analysis as <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>, written as a YAML
 file: same stages, same seed, fitted on the same four subjects. It gives
 the same habitat maps and feature values as the Python page, and as
 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> with <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_quickstart_v1.yaml</span></code>
-on <a class="reference internal" href="../tutorial/quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>. <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">&lt;file&gt;</span></code> runs
+(last section of this page). <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">&lt;file&gt;</span></code> runs
 a file like this from the shell; <a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.run_from_yaml()</span></code></a> is the
 Python call behind that command. The <code class="docutils literal notranslate"><span class="pre">spec.stages</span></code> list is the stage
 list of the Python page, one entry per stage.</p>
@@ -723,8 +588,9 @@ the four training subjects are chosen here; the fifth demo subject is
 the new patient of the Python page.</p></li>
 <li><p>The loader keys the ROI mask by the <strong>first</strong> modality, so <code class="docutils literal notranslate"><span class="pre">LAP</span></code> (the
 series the tumour was drawn on) is listed first. The Python page lists
-<code class="docutils literal notranslate"><span class="pre">pre_contrast</span></code> first; only the column order differs, the habitat maps
-do not.</p></li>
+<code class="docutils literal notranslate"><span class="pre">pre_contrast</span></code> first; only the column order differs. Every
+preprocessing step works column by column, so the habitat maps do not
+change.</p></li>
 </ul>
 <section id="write-the-files-and-run-them">
 <h2>Write the files and run them<a class="headerlink" href="#write-the-files-and-run-them" title="Link to this heading"></a></h2>
@@ -732,35 +598,35 @@ do not.</p></li>
 document names the stages. <code class="docutils literal notranslate"><span class="pre">save=False</span></code> keeps the result in memory
 instead of writing <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>.
 sphinx_gallery_thumbnail_number = 1</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a></a></a>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a></a></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a></a></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a></a></a>
 
 <span class="c1"># Change DATA / SUBJECTS / MODALITIES / ROI to your preprocessed layout.</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">())</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span> <span class="s2">&quot;subj002&quot;</span><span class="p">,</span> <span class="s2">&quot;subj003&quot;</span><span class="p">,</span> <span class="s2">&quot;subj004&quot;</span><span class="p">]</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">]</span>  <span class="c1"># ROI series first</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a></a></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a></a></a><span class="p">(</span><a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a></a></a><span class="p">())</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a></a></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span> <span class="s2">&quot;subj002&quot;</span><span class="p">,</span> <span class="s2">&quot;subj003&quot;</span><span class="p">,</span> <span class="s2">&quot;subj004&quot;</span><span class="p">]</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a></a></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">]</span>  <span class="c1"># ROI series first</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a></a></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Manifest: one image folder per subject and modality, one ROI mask folder</span>
 <span class="c1"># per subject. auto_select_first_file picks the single file in each folder.</span>
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest_path</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out/quickstart_subjects.yaml&quot;</span><span class="p">)</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest</span></a> <span class="o">=</span> <span class="p">{</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest_path</span></a></a></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a></a></a><span class="p">(</span><span class="s2">&quot;out/quickstart_subjects.yaml&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest</span></a></a></a> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;auto_select_first_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="p">{</span><span class="n">m</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="si">}</span><span class="s2">/images/</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a><span class="p">},</span>
-    <span class="s2">&quot;masks&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="p">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="si">}</span><span class="s2">/masks/</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a><span class="p">},</span>
+    <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="p">{</span><span class="n">m</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a></a></a><span class="si">}</span><span class="s2">/images/</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a></a></a><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a></a></a><span class="p">},</span>
+    <span class="s2">&quot;masks&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="p">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a></a><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a></a></a><span class="si">}</span><span class="s2">/masks/</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a></a></a><span class="p">},</span>
 <span class="p">}</span>
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">manifest_path</span><span class="o">.</span><span class="n">write_text</span></a><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest</span></a><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">manifest_path</span><span class="o">.</span><span class="n">write_text</span></a></a></a><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest</span></a></a></a><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">yaml_path</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out/quickstart.yaml&quot;</span><span class="p">)</span>
-<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">yaml_path</span><span class="o">.</span><span class="n">write_text</span></a><span class="p">(</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">yaml_path</span></a></a></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a></a></a><span class="p">(</span><span class="s2">&quot;out/quickstart.yaml&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">yaml_path</span><span class="o">.</span><span class="n">write_text</span></a></a></a><span class="p">(</span>
     <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
 <span class="s2">version: &#39;1.0&#39;</span>
 <span class="s2">workflow: habitat</span>
@@ -770,7 +636,11 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="s2">  random_seed: 0</span>
 <span class="s2">  stages:</span>
 <span class="s2">    - name: extract</span>
-<span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: raw, params: </span><span class="se">{{</span><span class="s2">modalities: [</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">)</span><span class="si">}</span><span class="s2">], roi: </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="si">}</span><span class="se">}}}}</span>
+<span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: raw, params: </span><span class="se">{{</span><span class="s2">modalities: [</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a></a></a><span class="p">)</span><span class="si">}</span><span class="s2">], roi: </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a></a><span class="si">}</span><span class="se">}}}}</span>
+<span class="s2">    - name: preprocess</span>
+<span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: winsorize, params: </span><span class="se">{{</span><span class="s2">winsor_limits: [0.01, 0.01]</span><span class="se">}}}}</span>
+<span class="s2">    - name: preprocess2</span>
+<span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: zscore</span><span class="se">}}</span>
 <span class="s2">    - name: partition</span>
 <span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: kmeans, params: </span><span class="se">{{</span><span class="s2">n_supervoxels: 30</span><span class="se">}}}}</span>
 <span class="s2">    - name: pool</span>
@@ -788,22 +658,27 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="s2">    - name: graph</span>
 <span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: graph, params: </span><span class="se">{{</span><span class="s2">include_extended_metrics: false</span><span class="se">}}}}</span>
 <span class="s2">data:</span>
-<span class="s2">  source: </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.as_posix" title="pathlib.PurePath.as_posix" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">manifest_path</span><span class="o">.</span><span class="n">as_posix</span></a><span class="p">()</span><span class="si">}</span>
+<span class="s2">  source: </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.as_posix" title="pathlib.PurePath.as_posix" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.as_posix" title="pathlib.PurePath.as_posix" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.as_posix" title="pathlib.PurePath.as_posix" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">manifest_path</span><span class="o">.</span><span class="n">as_posix</span></a></a></a><span class="p">()</span><span class="si">}</span>
 <span class="s2">output:</span>
 <span class="s2">  out_dir: out/quickstart_yaml</span>
 <span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
     <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_text" title="pathlib.Path.read_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">yaml_path</span><span class="o">.</span><span class="n">read_text</span></a><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_text" title="pathlib.Path.read_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_text" title="pathlib.Path.read_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_text" title="pathlib.Path.read_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">yaml_path</span><span class="o">.</span><span class="n">read_text</span></a></a></a><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
 
 <span class="c1"># run_from_yaml parses the file into a HabitatSpec plus a cohort and runs</span>
 <span class="c1"># it -- the same call ``habit get-habitat`` makes.</span>
-<a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span></a> <span class="o">=</span> <a href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><span class="n">recipes</span><span class="o">.</span><span class="n">run_from_yaml</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">yaml_path</span></a><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
+<a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span></a></a></a> <span class="o">=</span> <a href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><a href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><a href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><span class="n">recipes</span><span class="o">.</span><span class="n">run_from_yaml</span></a></a></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">yaml_path</span></a></a></a><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a></a></a><span class="p">())</span>
 <span class="c1"># The same columns the Python page prints; the values match that table.</span>
-<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">set_index</span></a><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">)</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">columns</span></a> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span><span class="o">.</span><span class="n">columns</span></a> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_volume_fraction&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;ith_score&quot;</span><span class="p">,</span> <span class="s2">&quot;contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;graph_num_nodes_total&quot;</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a><span class="p">[</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">columns</span></a><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">set_index</span></a></a></a><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">columns</span></a></a></a> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span><span class="o">.</span><span class="n">columns</span></a></a></a> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_volume_fraction&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;ith_score&quot;</span><span class="p">,</span> <span class="s2">&quot;contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;graph_num_nodes_total&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a></a></a><span class="p">[</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">columns</span></a></a></a><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<span class="c1"># The graph stage adds HABIT&#39;s habitat-network features (explained on the</span>
+<span class="c1"># Python page): one family per habitat (single_h*) and per habitat pair</span>
+<span class="c1"># (pair_h*_h*).</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">graph_columns</span></a></a></a> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span><span class="o">.</span><span class="n">columns</span></a></a></a> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;single_h&quot;</span><span class="p">,</span> <span class="s2">&quot;pair_h&quot;</span><span class="p">,</span> <span class="s2">&quot;graph_&quot;</span><span class="p">))]</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">graph_columns</span></a></a></a><span class="p">),</span> <span class="s2">&quot;graph columns, e.g.&quot;</span><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">graph_columns</span></a></a></a><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>HABIT demo data (cached)
@@ -837,6 +712,10 @@ spec:
   stages:
     - name: extract
       component: {name: raw, params: {modalities: [LAP, pre_contrast, PVP, delay_3min], roi: LAP}}
+    - name: preprocess
+      component: {name: winsorize, params: {winsor_limits: [0.01, 0.01]}}
+    - name: preprocess2
+      component: {name: zscore}
     - name: partition
       component: {name: kmeans, params: {n_supervoxels: 30}}
     - name: pool
@@ -858,21 +737,21 @@ data:
 output:
   out_dir: out/quickstart_yaml
 
-Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored=&#39;2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160&#39;, current=&#39;1e2b8eee427137d5dc23169dc59cefef9c2fd1edf001edb3b80785edf3cfbec2&#39;. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
+Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored=&#39;2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160&#39;, current=&#39;b81b70fbe479038dc5625c6b8ecc598c7a72a2f54af9d2544ea5d8369dd88fc3&#39;. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:00&lt;00:00, 10.18it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:00&lt;00:00, 11.00it/s]
-Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:00&lt;00:00, 11.24it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:00&lt;00:00, 11.23it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:00&lt;00:00, 11.23it/s]
+Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:03&lt;00:10,  3.64s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:05&lt;00:05,  2.68s/it]
+Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:06&lt;00:02,  2.28s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:08&lt;00:00,  2.08s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:08&lt;00:00,  2.08s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00&lt;00:00,  6.15it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00&lt;00:00,  6.11it/s]
-Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00&lt;00:00,  5.96it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  6.10it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  6.09it/s]
+Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00&lt;00:00,  5.68it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00&lt;00:00,  5.44it/s]
+Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00&lt;00:00,  5.44it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  5.49it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  5.49it/s]
 HabitatModel kmeans-b01ecfd00139f26e
   habitats           : 5
   features (4)    : LAP, pre_contrast, PVP, delay_3min
@@ -889,6 +768,7 @@ subj001                      0.090                      0.110                   
 subj002                      0.000                      0.171                      0.196                      0.117                      0.516      0.850     2.295                  125.0
 subj003                      0.000                      0.424                      0.000                      0.576                      0.000      0.796     1.639                   47.0
 subj004                      0.178                      0.169                      0.550                      0.000                      0.104      0.862     1.461                  105.0
+608 graph columns, e.g. [&#39;graph_num_habitats&#39;, &#39;graph_num_nodes_total&#39;, &#39;single_h1_n_nodes&#39;, &#39;single_h1_n_edges&#39;]
 </pre></div>
 </div>
 </section>
@@ -897,24 +777,68 @@ subj004                      0.178                      0.169                   
 <p>The anatomy comes from the same folder the YAML named. The saved model
 (<code class="docutils literal notranslate"><span class="pre">save=True</span></code> writes it under <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>) labels a new patient the
 way the Python page shows in its last section.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)</span>
-<a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">subject_id</span> <span class="o">==</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
-    <a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
-    <a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">: habitats (YAML)&quot;</span><span class="p">,</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a></a></a> <span class="o">=</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a></a></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a></a></a> <span class="o">=</span> <a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a></a></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a></a></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a></a><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a></a><span class="p">)</span>
+<a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a></a></a> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a></a></a> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">subject_id</span> <span class="o">==</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a></a></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a></a> <span class="o">=</span> <a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a></a></a><span class="p">(</span>
+    <a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a></a></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a></a></a><span class="p">),</span>
+    <a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a></a></a><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span></a></a></a><span class="si">}</span><span class="s2">: habitats (YAML)&quot;</span><span class="p">,</span>
     <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/quickstart_yaml_overlay.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a></a></a><span class="p">(</span><span class="s2">&quot;out/quickstart_yaml_overlay.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a></a></a><span class="p">()</span>
 </pre></div>
 </div>
 <img src="../_images/sphx_glr_plot_quickstart_yaml_001.png" srcset="../_images/sphx_glr_plot_quickstart_yaml_001.png" alt="subj001: habitats (YAML), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.122 seconds)</p>
+</section>
+<section id="the-same-analysis-from-the-shell">
+<h2>The same analysis from the shell<a class="headerlink" href="#the-same-analysis-from-the-shell" title="Link to this heading"></a></h2>
+<p>No Python needed: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> (see
+<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a>), then in a conda terminal, from a folder
+you own:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
+<span class="n">habit</span> <span class="n">fetch</span><span class="o">-</span><span class="n">demo</span> <span class="o">--</span><span class="n">work</span><span class="o">-</span><span class="nb">dir</span> <span class="o">.</span>
+<span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_quickstart_v1</span><span class="o">.</span><span class="n">yaml</span>
+<span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_quickstart_v1</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">copy-demo-config</span></code> writes <code class="docutils literal notranslate"><span class="pre">config/</span></code>; <code class="docutils literal notranslate"><span class="pre">fetch-demo</span></code> downloads the
+demo pack once (about 473 MB, cached under <code class="docutils literal notranslate"><span class="pre">~/.habit_data</span></code>) and links
+it as <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code>. <code class="docutils literal notranslate"><span class="pre">config_habitat_quickstart_v1.yaml</span></code>
+holds the stage list above, fitted on <code class="docutils literal notranslate"><span class="pre">subj001</span></code> to <code class="docutils literal notranslate"><span class="pre">subj004</span></code>; it
+gives the same habitat maps (voxel by voxel) and the same feature values
+as this page and the Python page. The maps, <code class="docutils literal notranslate"><span class="pre">habitat_features.csv</span></code>
+(including the graph columns) and <code class="docutils literal notranslate"><span class="pre">habitat_model.habitatmodel</span></code> land in
+<code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_quickstart/</span></code>. Look at one map without
+opening a window:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">view</span> <span class="o">--</span><span class="n">backend</span> <span class="n">matplotlib</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">LAP</span><span class="o">/</span><span class="n">WATER__WATER__Ax_Dyn_LAVA_Flex</span><span class="o">+</span><span class="n">C_Series0009</span><span class="o">.</span><span class="n">nrrd</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_quickstart</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span> <span class="o">-</span><span class="n">o</span> <span class="n">quickstart_cli_view</span><span class="o">.</span><span class="n">png</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="nb">open</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/quickstart_cli_view.png"><img alt="subj001 habitat map from config_habitat_quickstart_v1.yaml on the LAP image" src="../_images/quickstart_cli_view.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">subj001</span></code> habitats written by <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> and drawn by the
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code> command above.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Without <code class="docutils literal notranslate"><span class="pre">--backend</span> <span class="pre">matplotlib</span></code>, <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code> opens napari when it is
+installed. Every command and option: <a class="reference internal" href="../reference/cli.html"><span class="doc">Command reference</span></a>; every YAML
+field: <a class="reference internal" href="../configuration/index.html"><span class="doc">CLI and YAML</span></a>.</p>
+</section>
+<section id="where-to-go-next">
+<h2>Where to go next<a class="headerlink" href="#where-to-go-next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The Python page with every result explained, including the habitat
+graph network: <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>.</p></li>
+<li><p>Complete analyses, one scenario per page:
+<a class="reference internal" href="../auto_examples/01_building_habitat_maps/index.html"><span class="doc">Building habitat maps</span></a>.</p></li>
+</ul>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 9.993 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-quickstart-plot-quickstart-yaml-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/c284b1fa506e8b75c41fc4b328f96ec0/plot_quickstart_yaml.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_quickstart_yaml.ipynb</span></code></a></p>
@@ -935,7 +859,7 @@ way the Python page shows in its last section.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="plot_quickstart_python.html" class="btn btn-neutral float-left" title="Quickstart: Python API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../tutorial/quickstart.html" class="btn btn-neutral float-right" title="Quickstart: run the demo (YAML + CLI)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../tutorial/installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

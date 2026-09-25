@@ -14,12 +14,12 @@ Each page: **Output** → **Definition** → **Formula** (if any) → **Output c
 
 Light built-in families (``volume``, ``msi``, ``ith_score``, ``graph``) are
 peers in ``feature_types``. Topology walk-through:
-:doc:`../../examples/graph_features`. CLI / YAML bookmark:
+:doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`. CLI / YAML bookmark:
 :doc:`../../how_to/graph_features`.
 
 Voxel-level texture used as **habitat inputs** (``voxel_radiomics``)
 is a different product surface — slice figures live under
-:doc:`../../examples/voxel_texture`, not as a ``feature_types`` CSV family.
+:doc:`/auto_examples/02_features/plot_02_texture_feature_maps`, not as a ``feature_types`` CSV family.
 Registered extractor names (input side and map-side):
 :doc:`../../how_to/habitat_components`.
 

@@ -118,7 +118,7 @@ These APIs collect errors instead of raising immediately:
    default ``cohort.map(op, backend=...)`` **still raises** ``ProcessingError``
    if any slot failed. Pass ``raise_on_failure=False`` (recipes / CLI) or call
    the backend directly for soft failure (see
-   :doc:`../examples/fault_tolerance`).
+   :doc:`/auto_examples/07_advanced/plot_08_backends`).
 
 Probe optional stacks without importing heavy backends:
 

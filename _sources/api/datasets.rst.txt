@@ -11,7 +11,7 @@
 .. currentmodule:: habit.datasets
 
 **User guide:** :doc:`python_api` · Habitat Guide
-:doc:`../auto_examples/01_data_in/plot_01_directory`.
+:doc:`../auto_examples/06_manipulating_images/plot_01_directory`.
 
 Official imaging pack (:func:`~habit.datasets.fetch_demo`, downloaded once)
 plus deterministic synthetic builders for tests and in-memory API

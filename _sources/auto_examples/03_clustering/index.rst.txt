@@ -1,0 +1,87 @@
+
+
+.. _sphx_glr_auto_examples_03_clustering:
+
+Clustering
+==========
+
+Supervoxel method and count, what a supervoxel summarizes, and the
+habitat clustering algorithm with selection metrics.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. In the two-step design every tumour is first cut into supervoxels, and only those supervoxels are clustered into habitats. The supervoxel step therefore decides which voxels always travel together: two voxels in the same supervoxel can never end up in different habitats. Changing the supervoxel method or their number can move habitat borders, change the number of habitats the elbow picks, and change every downstream feature.">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_clustering/images/thumb/sphx_glr_plot_01_supervoxel_method_and_count_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_clustering/plot_01_supervoxel_method_and_count`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Supervoxel method and count</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The cohort model clusters supervoxels, not voxels, so each supervoxel needs its own row of numbers. That row can be a simple summary of its voxels (mean, median, SD) or radiomics texture computed on the supervoxel as a small ROI.">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_clustering/images/thumb/sphx_glr_plot_02_what_supervoxel_summarizes_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_clustering/plot_02_what_supervoxel_summarizes`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The fit stage clusters the pooled supervoxels of the training patients into habitats. Two choices are made there: the clustering algorithm (k-means or a Gaussian mixture) and the number of habitats K. HABIT tries every K in a range and keeps the one a validation criterion prefers. Different criteria measure different things, so on the same data they can pick different Ks.">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_clustering/images/thumb/sphx_glr_plot_03_clustering_algorithm_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Clustering algorithm and number of habitats</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/03_clustering/plot_01_supervoxel_method_and_count
+   /auto_examples/03_clustering/plot_02_what_supervoxel_summarizes
+   /auto_examples/03_clustering/plot_03_clustering_algorithm
+

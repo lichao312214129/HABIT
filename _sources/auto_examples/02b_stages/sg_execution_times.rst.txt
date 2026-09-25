@@ -1,0 +1,79 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_02b_stages_sg_execution_times:
+
+
+Computation times
+=================
+**00:00.000** total execution time for 15 files **from auto_examples\02b_stages**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_01_voxel_intensities.py` (``plot_01_voxel_intensities.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_02_feature_routes.py` (``plot_02_feature_routes.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_03_expression.py` (``plot_03_expression.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_04_voxel_texture.py` (``plot_04_voxel_texture.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_05_voxel_texture_gpu.py` (``plot_05_voxel_texture_gpu.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_06_derived_map.py` (``plot_06_derived_map.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_07_texture_habitats.py` (``plot_07_texture_habitats.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_08_preprocess_features.py` (``plot_08_preprocess_features.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_09_feature_preprocessing.py` (``plot_09_feature_preprocessing.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_10_texture_preprocessing.py` (``plot_10_texture_preprocessing.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_11_preprocess_compare.py` (``plot_11_preprocess_compare.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_12_supervoxels.py` (``plot_12_supervoxels.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_13_supervoxel_features.py` (``plot_13_supervoxel_features.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_14_fit_model.py` (``plot_14_fit_model.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02b_stages_plot_15_assign_labels.py` (``plot_15_assign_labels.py``)
+     - 00:00.000
+     - 0.0

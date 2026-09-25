@@ -8,8 +8,8 @@
 
 .. currentmodule:: habit.voxel_features
 
-**User guide:** Habitat Guide :doc:`../auto_examples/02_stages/plot_01_feature_routes`
-· :doc:`../auto_examples/02_stages/plot_03_voxel_texture` ·
+**User guide:** Habitat Guide :doc:`../auto_examples/02_features/plot_04_combining_features`
+· :doc:`../auto_examples/02_features/plot_02_texture_feature_maps` ·
 :doc:`domain_habitat`. Component names:
 :doc:`../how_to/habitat_components`.
 

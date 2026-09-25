@@ -131,7 +131,7 @@ Load from one image file and one ROI file
 There is no single ``load(image, roi)`` helper. Read the two files, or wrap
 the same paths as lazy references on a :class:`~habit.contracts.Subject`.
 NIfTI (``.nii`` / ``.nii.gz``), NRRD, and MetaImage all work. Walk-through:
-:doc:`/auto_examples/01_data_in/plot_04_nifti_files`.
+:doc:`/auto_examples/06_manipulating_images/plot_02_nifti`.
 
 .. code-block:: python
 

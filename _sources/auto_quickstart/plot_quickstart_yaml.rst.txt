@@ -18,15 +18,16 @@
 .. _sphx_glr_auto_quickstart_plot_quickstart_yaml.py:
 
 
-Quickstart: YAML
-================
+Quickstart: YAML and CLI
+========================
 
 **Background.** A YAML file is a plain-text way to write the same stage list
-you would build in Python, so an analysis can be run from the shell, shared,
-and kept next to the results.
+you would build in Python, so an analysis can be run from the shell with the
+``habit`` command, shared, and kept next to the results.
 
 **Purpose.** You get the two-step habitat maps and a volume-fraction / MSI /
-ITH / graph table from a YAML file, plus one habitat overlay.
+ITH / graph table from a YAML file, plus one habitat overlay. The last
+section runs the shipped quickstart config with ``habit get-habitat``.
 
 **Key terms.**
 
@@ -36,12 +37,16 @@ ITH / graph table from a YAML file, plus one habitat overlay.
 * **Stage / Spec / HabitatSpec** -- see
   :doc:`/auto_quickstart/plot_quickstart_python`; each YAML stage entry is
   one ``Stage``, and its ``component`` is the ``Spec``.
+* **subject-level / cohort-level preprocessing** -- a ``preprocess``
+  entry before ``pool`` rescales each patient on its own; one after
+  ``pool`` is learned on the training cohort and saved in the model
+  (:doc:`/tutorial/concepts`).
 
 The same analysis as :doc:`plot_quickstart_python`, written as a YAML
 file: same stages, same seed, fitted on the same four subjects. It gives
 the same habitat maps and feature values as the Python page, and as
 ``habit get-habitat`` with ``config/habitat/config_habitat_quickstart_v1.yaml``
-on :doc:`/tutorial/quickstart`. ``habit get-habitat --config <file>`` runs
+(last section of this page). ``habit get-habitat --config <file>`` runs
 a file like this from the shell; :func:`habit.recipes.run_from_yaml` is the
 Python call behind that command. The ``spec.stages`` list is the stage
 list of the Python page, one entry per stage.
@@ -56,10 +61,11 @@ of the YAML loader:
   the new patient of the Python page.
 * The loader keys the ROI mask by the **first** modality, so ``LAP`` (the
   series the tumour was drawn on) is listed first. The Python page lists
-  ``pre_contrast`` first; only the column order differs, the habitat maps
-  do not.
+  ``pre_contrast`` first; only the column order differs. Every
+  preprocessing step works column by column, so the habitat maps do not
+  change.
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-51
+.. GENERATED FROM PYTHON SOURCE LINES 51-57
 
 Write the files and run them
 ----------------------------
@@ -68,7 +74,7 @@ document names the stages. ``save=False`` keeps the result in memory
 instead of writing ``out_dir``.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-124
+.. GENERATED FROM PYTHON SOURCE LINES 57-139
 
 .. code-block:: Python
 
@@ -111,6 +117,10 @@ sphinx_gallery_thumbnail_number = 1
       stages:
         - name: extract
           component: {{name: raw, params: {{modalities: [{", ".join(MODALITIES)}], roi: {ROI}}}}}
+        - name: preprocess
+          component: {{name: winsorize, params: {{winsor_limits: [0.01, 0.01]}}}}
+        - name: preprocess2
+          component: {{name: zscore}}
         - name: partition
           component: {{name: kmeans, params: {{n_supervoxels: 30}}}}
         - name: pool
@@ -144,6 +154,11 @@ sphinx_gallery_thumbnail_number = 1
     table = result.features.frame.set_index("subject")
     columns = [c for c in table.columns if c.endswith("_volume_fraction")] + ["ith_score", "contrast", "graph_num_nodes_total"]
     print(table[columns].round(3).to_string())
+    # The graph stage adds HABIT's habitat-network features (explained on the
+    # Python page): one family per habitat (single_h*) and per habitat pair
+    # (pair_h*_h*).
+    graph_columns = [c for c in table.columns if c.startswith(("single_h", "pair_h", "graph_"))]
+    print(len(graph_columns), "graph columns, e.g.", graph_columns[:4])
 
 
 
@@ -184,6 +199,10 @@ sphinx_gallery_thumbnail_number = 1
       stages:
         - name: extract
           component: {name: raw, params: {modalities: [LAP, pre_contrast, PVP, delay_3min], roi: LAP}}
+        - name: preprocess
+          component: {name: winsorize, params: {winsor_limits: [0.01, 0.01]}}
+        - name: preprocess2
+          component: {name: zscore}
         - name: partition
           component: {name: kmeans, params: {n_supervoxels: 30}}
         - name: pool
@@ -205,9 +224,9 @@ sphinx_gallery_thumbnail_number = 1
     output:
       out_dir: out/quickstart_yaml
 
-    Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored='2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160', current='1e2b8eee427137d5dc23169dc59cefef9c2fd1edf001edb3b80785edf3cfbec2'. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:00<00:00, 10.18it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:00<00:00, 11.00it/s]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:00<00:00, 11.24it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:00<00:00, 11.23it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:00<00:00, 11.23it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00<00:00,  6.15it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00<00:00,  6.11it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00<00:00,  5.96it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  6.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  6.09it/s]
+    Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored='2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160', current='b81b70fbe479038dc5625c6b8ecc598c7a72a2f54af9d2544ea5d8369dd88fc3'. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:03<00:10,  3.64s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:05<00:05,  2.68s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:06<00:02,  2.28s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:08<00:00,  2.08s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:08<00:00,  2.08s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00<00:00,  5.68it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00<00:00,  5.44it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00<00:00,  5.44it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  5.49it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  5.49it/s]
     HabitatModel kmeans-b01ecfd00139f26e
       habitats           : 5
       features (4)    : LAP, pre_contrast, PVP, delay_3min
@@ -224,11 +243,12 @@ sphinx_gallery_thumbnail_number = 1
     subj002                      0.000                      0.171                      0.196                      0.117                      0.516      0.850     2.295                  125.0
     subj003                      0.000                      0.424                      0.000                      0.576                      0.000      0.796     1.639                   47.0
     subj004                      0.178                      0.169                      0.550                      0.000                      0.104      0.862     1.461                  105.0
+    608 graph columns, e.g. ['graph_num_habitats', 'graph_num_nodes_total', 'single_h1_n_nodes', 'single_h1_n_edges']
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 125-130
+.. GENERATED FROM PYTHON SOURCE LINES 140-145
 
 Look at one habitat map
 -----------------------
@@ -236,7 +256,7 @@ The anatomy comes from the same folder the YAML named. The saved model
 (``save=True`` writes it under ``out_dir``) labels a new patient the
 way the Python page shows in its last section.
 
-.. GENERATED FROM PYTHON SOURCE LINES 130-141
+.. GENERATED FROM PYTHON SOURCE LINES 145-157
 
 .. code-block:: Python
 
@@ -251,6 +271,7 @@ way the Python page shows in its last section.
     )
     fig.savefig("out/quickstart_yaml_overlay.png", dpi=150, bbox_inches="tight")
     plt.show()
+
 
 
 
@@ -270,10 +291,55 @@ way the Python page shows in its last section.
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 158-191
+
+The same analysis from the shell
+--------------------------------
+No Python needed: ``pip install habitat-analysis`` (see
+:doc:`/tutorial/installation`), then in a conda terminal, from a folder
+you own::
+
+    habit copy-demo-config --dest .
+    habit fetch-demo --work-dir .
+    habit check-config --config config/habitat/config_habitat_quickstart_v1.yaml
+    habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml
+
+``copy-demo-config`` writes ``config/``; ``fetch-demo`` downloads the
+demo pack once (about 473 MB, cached under ``~/.habit_data``) and links
+it as ``demo_data/preprocessed``. ``config_habitat_quickstart_v1.yaml``
+holds the stage list above, fitted on ``subj001`` to ``subj004``; it
+gives the same habitat maps (voxel by voxel) and the same feature values
+as this page and the Python page. The maps, ``habitat_features.csv``
+(including the graph columns) and ``habitat_model.habitatmodel`` land in
+``demo_data/results/habitat_quickstart/``. Look at one map without
+opening a window::
+
+    habit view --backend matplotlib demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_quickstart/subj001_habitats.nrrd -o quickstart_cli_view.png --no-open
+
+.. figure:: /_static/images/quickstart_cli_view.png
+   :alt: subj001 habitat map from config_habitat_quickstart_v1.yaml on the LAP image
+   :width: 100%
+
+   ``subj001`` habitats written by ``habit get-habitat`` and drawn by the
+   ``habit view`` command above.
+
+Without ``--backend matplotlib``, ``habit view`` opens napari when it is
+installed. Every command and option: :doc:`/reference/cli`; every YAML
+field: :doc:`/configuration/index`.
+
+.. GENERATED FROM PYTHON SOURCE LINES 193-199
+
+Where to go next
+----------------
+* The Python page with every result explained, including the habitat
+  graph network: :doc:`/auto_quickstart/plot_quickstart_python`.
+* Complete analyses, one scenario per page:
+  :doc:`/auto_examples/01_building_habitat_maps/index`.
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.122 seconds)
+   **Total running time of the script:** (0 minutes 9.993 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_yaml.py:

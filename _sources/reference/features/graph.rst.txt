@@ -1044,4 +1044,4 @@ See also
 
 * How-to: :doc:`../../how_to/graph_features`
 * Configuration: :doc:`../../configuration/feature_extraction`
-* Example: :doc:`../../examples/graph_features`
+* Example: :doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`

@@ -1,0 +1,49 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_02_features_sg_execution_times:
+
+
+Computation times
+=================
+**01:21.483** total execution time for 5 files **from auto_examples\02_features**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_02_features_plot_02_texture_feature_maps.py` (``plot_02_texture_feature_maps.py``)
+     - 00:46.642
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_features_plot_04_combining_features.py` (``plot_04_combining_features.py``)
+     - 00:14.288
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_features_plot_05_own_feature_extractor.py` (``plot_05_own_feature_extractor.py``)
+     - 00:11.122
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_features_plot_01_multi_sequence_intensities.py` (``plot_01_multi_sequence_intensities.py``)
+     - 00:09.431
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_02_features_plot_03_enhancement_patterns.py` (``plot_03_enhancement_patterns.py``)
+     - 00:00.000
+     - 0.0

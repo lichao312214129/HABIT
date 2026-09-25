@@ -1,0 +1,105 @@
+
+
+.. _sphx_glr_auto_examples_05_validation_and_reuse:
+
+Validation and reuse
+====================
+
+Train / save / predict, matching habitat labels, precise features and
+stability, and reusing a published ``.habitatmodel``.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat study usually has a training set, where the habitat definition is learned, and new patients, where that definition is only applied. The new patients must never influence the definition: no refitted centroids, no refitted bin edges. The .habitatmodel file is what carries the definition from one side to the other, so a later cohort (or a colleague) gets habitat ids that mean the same thing as in the training set.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_01_train_save_predict_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_validation_and_reuse/plot_01_train_save_predict`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Train, save, and predict new patients</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A clustering run numbers its habitats in arbitrary order. Fit the same analysis twice on different patients and the same kind of tissue can be habitat 1 in one fit and habitat 3 in the other (label switching). The two fits may even choose a different number of habitats. Anything that compares habitats by id -- a Dice score, a &quot;volume fraction of habitat 2&quot; column, a pooled table from two sites or two time windows -- is wrong until the ids are matched.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_02_matching_labels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Matching habitat labels between two fits</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Voxel-wise texture features are noisy. Clustering on features that flip under a simulated re-acquisition produces habitats nobody can reproduce. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep only features whose lower confidence limit (LCL) of ICC clears a threshold under three experiments: repeatability (original vs simulated retest), kernel-radius reproducibility, and bin-width reproducibility. The same page then asks whether the habitat map stays stable when the image is lightly perturbed.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_03_precise_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Precise features and habitat stability</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat definition published with a paper is a .habitatmodel file. Whoever receives it should be able to see what it declares (which images, which features, how many habitats, how it was trained), know that their HABIT can read it, check that their own data can enter its feature space, and then label their patients with it -- without refitting anything and without the authors&#x27; code.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_04_reuse_published_model_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_validation_and_reuse/plot_04_reuse_published_model`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Reuse a published habitat model</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/05_validation_and_reuse/plot_01_train_save_predict
+   /auto_examples/05_validation_and_reuse/plot_02_matching_labels
+   /auto_examples/05_validation_and_reuse/plot_03_precise_features
+   /auto_examples/05_validation_and_reuse/plot_04_reuse_published_model
+

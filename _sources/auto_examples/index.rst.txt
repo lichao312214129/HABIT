@@ -1,42 +1,25 @@
 :orphan:
 
-Habitat Guide
-=============
+Examples
+========
 
-**Background.** A habitat is a sub-region inside the tumour (the ROI)
-whose voxels behave alike across the input images. Habitat analysis
-paints every ROI voxel with a habitat id, then turns the habitat map
-into numbers (volume, spatial mixing, heterogeneity, radiomics) that can
-enter statistics or a model.
+Executed tutorials and how-tos for habitat analysis (Nilearn-style
+sphinx-gallery). Each page is a lesson: Background, Purpose, When to
+use, Key terms, then one step per cell.
 
-**Purpose.** Start with the complete analysis, then open one stage at a
-time. Copy the Python, swap ``DATA`` / ``MODALITIES`` / ``ROI``. Figures
-on a page come from that page's ``plot_*`` call.
+Default science on pages that fit habitats: subject-level winsorize
+1% then z-score (no cohort-level z-score or binning), modalities
+pre_contrast / LAP / PVP / delay_3min, ROI LAP, random_seed=0, and a
+serial RunPolicy with on_subject_failure="continue".
 
-* :doc:`0. Complete analysis </auto_examples/00_full_pipeline/index>` —
-  one two-step study, from images to habitat maps, a feature table and a
-  saved model.
-* :doc:`1. Data In </auto_examples/01_data_in/index>` — build the cohort
-  from a folder, image files, SimpleITK images or NumPy arrays.
-* :doc:`2. Each stage </auto_examples/02_stages/index>` — what extract,
-  preprocess, partition, fit and assign each do, one page per option.
-* :doc:`3. Habitat Quantification </auto_examples/03_quantify/index>` —
-  turn a habitat map into volume, MSI, ITH, graph and radiomics features.
-* :doc:`4. Three habitat designs </auto_examples/04_designs/index>` —
-  two-step, clustering inside each subject, or pooling voxels directly.
-* :doc:`5. Apply a saved model </auto_examples/05_apply/index>` — label
-  new patients with a saved ``.habitatmodel`` without fitting again.
-* :doc:`6. Matching Habitat Labels </auto_examples/06_matching/index>` —
-  make habitat ids comparable when they come from separate fits.
-* :doc:`7. Running a whole cohort </auto_examples/07_parallel/index>` —
-  backends, failed subjects, checkpoint resume, timeouts, and when
-  parallel is worth it.
-* :doc:`8. Precise Feature Screening </auto_examples/08_precision/index>` —
-  keep only features that stay repeatable under simulated retest.
-
-Every example loads the official pack with
-:func:`~habit.datasets.fetch_demo` (downloads once). CLI / YAML:
-:doc:`/tutorial/quickstart` and :doc:`/configuration/index`.
+* :doc:`/auto_examples/00_introductory_tutorials/index` -- first success
+* :doc:`/auto_examples/01_building_habitat_maps/index` -- Spec and atomic
+* :doc:`/auto_examples/02_features/index` -- voxel features
+* :doc:`/auto_examples/03_clustering/index` -- supervoxels and habitats
+* :doc:`/auto_examples/04_quantifying_habitats/index` -- volume / MSI / ITH / graph / radiomics
+* :doc:`/auto_examples/05_validation_and_reuse/index` -- train, match, precise, reuse
+* :doc:`/auto_examples/06_manipulating_images/index` -- load data
+* :doc:`/auto_examples/07_advanced/index` -- stages, backends, export
 
 
 .. raw:: html
@@ -56,14 +39,15 @@ Every example loads the official pack with
 
     </div>
 
-0. Complete analysis
-====================
+Introductory tutorials
+======================
 
-Read this page first. It is one two-step study from images to a feature
-table and a saved model. Later sections open the same
-:class:`~habit.spec.HabitatSpec` one stage at a time.
+Complete first-success lessons. Each page saves habitat maps and
+feature tables. Subject-level winsorize 1% + z-score; serial backend.
 
-:doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`
+* Two-step habitats
+* Habitats inside each subject
+* Habitats from pooled voxels
 
 
 .. raw:: html
@@ -79,18 +63,52 @@ table and a saved model. Later sections open the same
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. A tumour is not uniform: some parts enhance strongly, some wash out, some are necrotic. Habitat analysis splits the ROI into a few sub-regions (habitats) whose voxels behave alike across the DCE phases, using one definition shared by every patient, and then describes each patient by how much of each habitat they have and how the habitats are arranged.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Including new-patient prediction.">
 
 .. only:: html
 
-  .. image:: /auto_examples/00_full_pipeline/images/thumb/sphx_glr_plot_01_full_pipeline_thumb.png
+  .. image:: /auto_examples/00_introductory_tutorials/images/thumb/sphx_glr_plot_01_two_step_thumb.png
     :alt:
 
-  :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`
+  :doc:`/auto_examples/00_introductory_tutorials/plot_01_two_step`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">A complete habitat analysis</div>
+      <div class="sphx-glr-thumbnail-title">Two-step habitats</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A per-patient heterogeneity score.">
+
+.. only:: html
+
+  .. image:: /auto_examples/00_introductory_tutorials/images/thumb/sphx_glr_plot_02_inside_each_subject_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/00_introductory_tutorials/plot_02_inside_each_subject`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitats inside each subject</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The two-step design first cuts every tumour into supervoxels and clusters those. The pooled-voxel design (also called direct pooling) skips that step: every ROI voxel of every training patient goes into one matrix, and one cohort model is fitted on it. Habitat ids are still shared across patients.">
+
+.. only:: html
+
+  .. image:: /auto_examples/00_introductory_tutorials/images/thumb/sphx_glr_plot_03_pooled_voxels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/00_introductory_tutorials/plot_03_pooled_voxels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitats from pooled voxels</div>
     </div>
 
 
@@ -100,41 +118,15 @@ table and a saved model. Later sections open the same
 
     </div>
 
-1. Data In
-==========
+Building habitat maps
+=====================
 
-**Background.** Every habitat analysis starts by telling HABIT which images
-and which tumour mask belong to which patient. **Purpose.** Each page turns
-files or arrays you already have into a :class:`~habit.contracts.Cohort`;
-terms are defined on :doc:`/auto_examples/01_data_in/plot_01_directory`.
+Spec pages declare the analysis; atomic pages rebuild it from
+components and check voxel agreement. Then QC and cleaning.
 
-The :doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
-starts from a :class:`~habit.contracts.Cohort`. Every route on this
-section ends in one. Each page shows
-two assemblies: ``Cohort([one_subject])`` and ``Cohort([several_subjects])``.
-Pass that cohort to ``fit`` / ``fit_predict``. A Python list is not a cohort.
-
-Pick the page that matches the files you already have.
-
-* **HABIT directory** — ``images/<subject>/<series>/<one file>`` and
-  ``masks/<subject>/<roi>/<one file>``. One series or several. The mask
-  folder name can differ from the series name.
-  :doc:`/auto_examples/01_data_in/plot_01_directory`.
-* **Loose NIfTI, NRRD, or MetaImage** — one pair or many. You choose the
-  series name and the ROI name. Image and mask grids may differ.
-  :doc:`/auto_examples/01_data_in/plot_04_nifti_files`.
-* **SimpleITK images already in memory** —
-  :doc:`/auto_examples/01_data_in/plot_02_simpleitk`.
-* **NumPy arrays or deep-learning tensors** — axis order ``(z, y, x)``,
-  integer mask, ``0`` = background.
-  :doc:`/auto_examples/01_data_in/plot_03_numpy_arrays`.
-
-DICOM, and series that still need resampling or bias correction, are not a
-load route. Preprocess them first (:doc:`/how_to/preprocess`), then use the
-directory page. The official demo pack is already preprocessed.
-
-``read_image`` / ``read_mask`` accept what SimpleITK reads
-(``.nii``, ``.nii.gz``, ``.nrrd``, ``.mha``, ``.mhd``).
+Order: two-step Spec, two-step atomic, inside-each-subject Spec,
+inside-each-subject atomic, pooled Spec, pooled atomic, quality
+control, cleaning.
 
 
 .. raw:: html
@@ -150,69 +142,137 @@ directory page. The official demo pack is already preprocessed.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Before any habitat can be found, HABIT needs to know which images and which tumour mask belong to each patient. The simplest way is a fixed folder layout that HABIT reads in one call.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Including new-patient prediction.">
 
 .. only:: html
 
-  .. image:: /auto_examples/01_data_in/images/thumb/sphx_glr_plot_01_directory_thumb.png
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_01_two_step_spec_thumb.png
     :alt:
 
-  :doc:`/auto_examples/01_data_in/plot_01_directory`
+  :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Load from directory</div>
+      <div class="sphx-glr-thumbnail-title">Two-step habitats with a Spec</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Many imaging scripts already hold images as SimpleITK objects. HABIT can wrap those objects directly, keeping their spacing, origin and direction, so no files have to be rearranged.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_01_two_step_spec declares a whole habitat study in one HabitatSpec and runs it with one Study(spec).fit_predict(...) call (serial RunPolicy, continue on subject failure). Behind that call sit a handful of ordinary Python objects: a voxel feature extractor, two preprocessing chains, a supervoxelizer, a habitat model fitter, an assigner and four habitat feature extractors. Each of them is public and can be called on one subject, in memory, without a spec, a YAML file or an output folder.">
 
 .. only:: html
 
-  .. image:: /auto_examples/01_data_in/images/thumb/sphx_glr_plot_02_simpleitk_thumb.png
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_02_atomic_two_step_thumb.png
     :alt:
 
-  :doc:`/auto_examples/01_data_in/plot_02_simpleitk`
+  :doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Load from SimpleITK</div>
+      <div class="sphx-glr-thumbnail-title">Two-step habitats from atomic components</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Deep-learning and custom pipelines often hold images as NumPy arrays (or tensors converted to NumPy). An array has no voxel size or position, so HABIT pairs it with a Geometry that records spacing, origin and direction.">
+    <div class="sphx-glr-thumbcontainer" tooltip="A per-patient heterogeneity score.">
 
 .. only:: html
 
-  .. image:: /auto_examples/01_data_in/images/thumb/sphx_glr_plot_03_numpy_arrays_thumb.png
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_03_inside_each_subject_spec_thumb.png
     :alt:
 
-  :doc:`/auto_examples/01_data_in/plot_03_numpy_arrays`
+  :doc:`/auto_examples/01_building_habitat_maps/plot_03_inside_each_subject_spec`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Load from NumPy arrays</div>
+      <div class="sphx-glr-thumbnail-title">Habitats inside each subject with a Spec</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Images and masks often sit as loose files (NIfTI, NRRD, MetaImage) rather than in the HABIT folder layout. HABIT can point at each file directly and reads the voxels only when a stage needs them.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step rebuilds the two-step design from HABIT&#x27;s individual components and shows it matches Study. The two other designs use the same components with fewer steps: the per-subject (one-step) design of /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject fits one model per patient on that patient&#x27;s voxels, and the pooled-voxel design of /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels fits one cohort model on every patient&#x27;s voxels. Neither has a supervoxelizer.">
 
 .. only:: html
 
-  .. image:: /auto_examples/01_data_in/images/thumb/sphx_glr_plot_04_nifti_files_thumb.png
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_04_atomic_inside_each_subject_thumb.png
     :alt:
 
-  :doc:`/auto_examples/01_data_in/plot_04_nifti_files`
+  :doc:`/auto_examples/01_building_habitat_maps/plot_04_atomic_inside_each_subject`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
+      <div class="sphx-glr-thumbnail-title">Habitats inside each subject from atomic components</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The two-step design first cuts every tumour into supervoxels and clusters those. The pooled-voxel design (also called direct pooling) skips that step: every ROI voxel of every training patient goes into one matrix, and one cohort model is fitted on it. Habitat ids are still shared across patients.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_05_pooled_voxels_spec_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_05_pooled_voxels_spec`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Pooled-voxel habitats with a Spec</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step rebuilds the two-step design from HABIT&#x27;s individual components and shows it matches Study. The two other designs use the same components with fewer steps: the per-subject (one-step) design of /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject fits one model per patient on that patient&#x27;s voxels, and the pooled-voxel design of /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels fits one cohort model on every patient&#x27;s voxels. Neither has a supervoxelizer.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_06_atomic_pooled_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_06_atomic_pooled`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Pooled-voxel habitats from atomic components</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat model always returns a map, even when the definition behind it is poor. Two failure patterns are common and easy to miss if you only read the feature table: a one-block map, where most of a tumour falls into a single habitat (often because the scan is globally brighter or darker than the training scans), and a fragmented map, where habitats break into many tiny specks that no reader would call a region. Both still produce volume fractions, MSI and ITH numbers, so they must be caught by looking and by simple checks.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_07_quality_control_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_07_quality_control`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Quality control of habitat maps</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat assignment paints every ROI voxel with a nearest centroid id. That can leave tiny islands of a few voxels that no reader would call a region, and that inflate ITH and graph metrics. Connected- component cleanup drops islands smaller than a size cut-off and fills those voxels with neighbouring habitat ids, so the map stays the same definition with less speck.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_08_cleaning_maps_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_08_cleaning_maps`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Cleaning habitat maps (connected components)</div>
     </div>
 
 
@@ -222,36 +282,12 @@ directory page. The official demo pack is already preprocessed.
 
     </div>
 
-2. Each stage
-=============
+Features
+========
 
-**Background.** A two-step habitat analysis is a chain of stages:
-extract voxel features, preprocess them, partition each tumour into
-supervoxels, pool the cohort, fit one habitat model, assign labels.
-
-**Purpose.** Each page runs one stage on demo data so you can see its
-input, its output, and the parameters that matter.
-
-These pages open the stage list of the
-:doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`.
-``Stage``'s first argument is a label. ``Spec`` names the component.
-
-* **extract** — :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`,
-  :doc:`/auto_examples/02_stages/plot_01_feature_routes`,
-  :doc:`/auto_examples/02_stages/plot_02_expression`,
-  :doc:`/auto_examples/02_stages/plot_02_custom_features`,
-  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`,
-  :doc:`/auto_examples/02_stages/plot_07_voxel_texture`,
-  :doc:`/auto_examples/02_stages/plot_08_derived_map`,
-  :doc:`/auto_examples/02_stages/plot_09_texture_habitats`.
-* **preprocess** — :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`,
-  :doc:`/auto_examples/02_stages/plot_10_preprocess_features`,
-  :doc:`/auto_examples/02_stages/plot_11_preprocess_compare`,
-  :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`.
-* **partition** — :doc:`/auto_examples/02_stages/plot_12_supervoxels`,
-  :doc:`/auto_examples/02_stages/plot_05_supervoxel_features`.
-* **fit** — :doc:`/auto_examples/02_stages/plot_13_fit_model`.
-* **assign** — :doc:`/auto_examples/02_stages/plot_14_assign_labels`.
+Multi-sequence intensities (default), texture maps on one sequence
+(all texture families), enhancement patterns, combining features, and
+a plugin extractor without editing HABIT source.
 
 
 .. raw:: html
@@ -264,6 +300,57 @@ These pages open the stage list of the
     <div class="sphx-glr-thumbnails">
 
 .. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Many studies have only one usable MR sequence, for example a single post-contrast series. Habitat analysis still works, but with one feature column the habitats mean something narrower: they are intensity strata inside the tumour, not enhancement-kinetics patterns (which need several phases).">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_01_multi_sequence_intensities_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_features/plot_01_multi_sequence_intensities`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitats from a single sequence</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Two regions of a tumour can have the same mean brightness but a different local pattern: one smooth, one speckled. Intensity alone cannot separate them. Voxel-wise texture gives every voxel a few numbers that describe its small neighbourhood. Those numbers can replace the intensity in the feature table that the habitat model clusters, or sit next to it.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_02_texture_feature_maps_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_features/plot_02_texture_feature_maps`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Texture feature maps, alone and with intensity</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Dynamic contrast-enhanced (DCE) MRI records how a tumour takes up and washes out contrast across several phases. Raw intensities mix absolute brightness with that kinetic pattern. Derived maps (ratios, differences, averages, kinetic slopes, or free expressions) put the pattern into the feature table that habitats use.">
+
+.. only:: html
+
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_03_enhancement_patterns_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/02_features/plot_03_enhancement_patterns`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Enhancement patterns</div>
+    </div>
+
 
 .. raw:: html
 
@@ -271,10 +358,10 @@ These pages open the stage list of the
 
 .. only:: html
 
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_01_feature_routes_thumb.png
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_04_combining_features_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_stages/plot_01_feature_routes`
+  :doc:`/auto_examples/02_features/plot_04_combining_features`
 
 .. raw:: html
 
@@ -284,256 +371,18 @@ These pages open the stage list of the
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Built-in extractors cover intensities and texture. When your study needs its own voxel formula (here, liver DCE enhancement and wash-out), you write a small extractor class, register it under a name, and use that name in a Spec like any built-in one.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Built-in voxel extractors cover intensities, formulas, kinetics and texture. When your study needs its own voxel-level computation (here, liver DCE enhancement and wash-out ratios), you write a small extractor class, register it under a name, and use that name in a Spec exactly like a built-in one. The same class can later be shipped as a pip-installable package, so other groups use it by name without copying code or editing HABIT.">
 
 .. only:: html
 
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_02_custom_features_thumb.png
+  .. image:: /auto_examples/02_features/images/thumb/sphx_glr_plot_05_own_feature_extractor_thumb.png
     :alt:
 
-  :doc:`/auto_examples/02_stages/plot_02_custom_features`
+  :doc:`/auto_examples/02_features/plot_05_own_feature_extractor`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Custom features</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Clinicians often read DCE images as ratios (how much a voxel enhances, how fast it washes out) rather than raw signal. An expression extractor computes such ratios per voxel from a formula string, without writing a class.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_02_expression_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_02_expression`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Expression voxel features</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Intensity alone cannot tell a smooth region from a mottled one of the same brightness. Voxel texture computes a radiomics feature in a small cube around every ROI voxel, giving one texture map per feature that clustering can use as a column.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_03_voxel_texture_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Voxel texture and GPU</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. k-means groups rows by distance, so a column with large numbers (or a few extreme voxels) can decide the habitats on its own. Preprocessing rescales or clips the feature columns first; HABIT lets you do this at three points of the two-step analysis.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_04_feature_preprocessing_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Feature preprocessing</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. The cohort model clusters supervoxels, not voxels, so each supervoxel needs its own row of numbers. That row can be a simple summary of its voxels (mean, median, SD) or radiomics texture computed on the supervoxel as a small ROI.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_05_supervoxel_features_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_05_supervoxel_features`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Texture columns have very different ranges, so the preprocess stage matters even more for texture than for intensity. Where the scaling state is learned (inside each subject, or once on the pooled cohort) also changes what the habitats mean.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_06_texture_preprocessing_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_06_texture_preprocessing`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Preprocessing voxel texture before clustering</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat analysis clusters voxels by what they look like across the input images. The first stage, extract, turns each voxel inside the ROI into a row of numbers that later stages can cluster.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_06_voxel_intensities_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. A voxel texture value describes how grey levels vary in a small cube around each ROI voxel, which intensity alone does not show. Here it is computed with one function call on an image and a mask.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_07_voxel_texture_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_07_voxel_texture`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitats follow whatever columns the extract stage produces. Clustering derived DCE maps (enhancement and wash-out ratios) instead of raw intensities groups voxels by their enhancement pattern (contrast uptake and wash-out) rather than by absolute signal.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_08_derived_map_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_08_derived_map`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Texture maps can be clustered like intensities: each ROI voxel becomes one row of texture values, and k-means groups voxels with similar local patterns into habitats.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_09_texture_habitats_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_09_texture_habitats`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Raw intensities differ in range between phases and contain a few extreme voxels. The preprocess stage rescales the feature columns before clustering so that no single column dominates the distance.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_10_preprocess_features_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_10_preprocess_features`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Preprocessing features before clustering</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Preprocessing changes the distances k-means sees, so it can change the habitats. To see by how much, fit the same design twice, once with and once without preprocessing, and compare the two maps.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_11_preprocess_compare_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_11_preprocess_compare`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Comparing habitat maps with and without preprocessing</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. A tumour has tens of thousands of voxels. The two-step design first groups them, inside each subject, into small patches of similar voxels, so the cohort model later clusters a few rows per subject instead of every voxel.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_12_supervoxels_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_12_supervoxels`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. After every subject is cut into supervoxels, fit learns one habitat definition from all of them together. Because the same model labels every patient, habitat 2 means the same feature profile in each subject.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_13_fit_model_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_13_fit_model`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Fitting a cohort habitat model</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. A fitted model only stores centroids. assign turns that into a picture: every supervoxel of a subject gets the id of its nearest centroid, and every voxel inherits the id of its supervoxel.">
-
-.. only:: html
-
-  .. image:: /auto_examples/02_stages/images/thumb/sphx_glr_plot_14_assign_labels_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/02_stages/plot_14_assign_labels`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
+      <div class="sphx-glr-thumbnail-title">Your own feature extractor as a plugin</div>
     </div>
 
 
@@ -543,23 +392,86 @@ These pages open the stage list of the
 
     </div>
 
-3. Habitat Quantification
-=========================
+Clustering
+==========
 
-**Background.** A habitat map is a picture; statistics and prediction models
-need numbers. **Purpose.** Each page turns one subject's habitat map into a
-row of features (sizes, spatial mixing, fragmentation, network shape,
-radiomics, embeddings) that you can join to outcomes downstream.
+Supervoxel method and count, what a supervoxel summarizes, and the
+habitat clustering algorithm with selection metrics.
 
-These metrics are the quantify stages of the
-:doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
-(volume, MSI, ITH, graph). Each page refits a small cohort so it can be
-copied on its own, then computes one family from the label map.
 
-Quantify habitats with atomic functions: volume and fractions,
-multiregional spatial interaction (MSI, Wu et al. 2018), intratumoral
-heterogeneity (ITH), graph topology networks, per-habitat radiomics,
-whole-habitat radiomics, and deep-learning masked embeddings.
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. In the two-step design every tumour is first cut into supervoxels, and only those supervoxels are clustered into habitats. The supervoxel step therefore decides which voxels always travel together: two voxels in the same supervoxel can never end up in different habitats. Changing the supervoxel method or their number can move habitat borders, change the number of habitats the elbow picks, and change every downstream feature.">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_clustering/images/thumb/sphx_glr_plot_01_supervoxel_method_and_count_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_clustering/plot_01_supervoxel_method_and_count`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Supervoxel method and count</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The cohort model clusters supervoxels, not voxels, so each supervoxel needs its own row of numbers. That row can be a simple summary of its voxels (mean, median, SD) or radiomics texture computed on the supervoxel as a small ROI.">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_clustering/images/thumb/sphx_glr_plot_02_what_supervoxel_summarizes_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_clustering/plot_02_what_supervoxel_summarizes`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The fit stage clusters the pooled supervoxels of the training patients into habitats. Two choices are made there: the clustering algorithm (k-means or a Gaussian mixture) and the number of habitats K. HABIT tries every K in a range and keeps the one a validation criterion prefers. Different criteria measure different things, so on the same data they can pick different Ks.">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_clustering/images/thumb/sphx_glr_plot_03_clustering_algorithm_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Clustering algorithm and number of habitats</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+Quantifying habitats
+====================
+
+Volume fractions, MSI, ITH, HABIT graph-network features, and habitat
+radiomics (each habitat + whole map).
 
 
 .. raw:: html
@@ -579,10 +491,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_01_volume_fractions_thumb.png
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_01_volume_fractions_thumb.png
     :alt:
 
-  :doc:`/auto_examples/03_quantify/plot_01_volume_fractions`
+  :doc:`/auto_examples/04_quantifying_habitats/plot_01_volume_fractions`
 
 .. raw:: html
 
@@ -596,10 +508,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_02_msi_thumb.png
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_02_msi_thumb.png
     :alt:
 
-  :doc:`/auto_examples/03_quantify/plot_02_msi`
+  :doc:`/auto_examples/04_quantifying_habitats/plot_02_msi`
 
 .. raw:: html
 
@@ -613,10 +525,10 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. only:: html
 
-  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_03_ith_thumb.png
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_03_ith_thumb.png
     :alt:
 
-  :doc:`/auto_examples/03_quantify/plot_03_ith`
+  :doc:`/auto_examples/04_quantifying_habitats/plot_03_ith`
 
 .. raw:: html
 
@@ -626,69 +538,35 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat map can also be read as a network: small pieces of habitat are the nodes, and pieces lying close together are linked. Network statistics then describe whether a habitat is one well-connected mass or a scatter of isolated islands, and how two habitats interleave.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Volume fractions say how much of each habitat a tumour has; they do not say how the habitat is arranged. The same 30 % of a habitat can be one compact mass or a scatter of small islands. HABIT&#x27;s graph family turns the habitat map into a network and measures that arrangement with standard network statistics.">
 
 .. only:: html
 
-  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_04_graph_features_thumb.png
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_04_graph_network_features_thumb.png
     :alt:
 
-  :doc:`/auto_examples/03_quantify/plot_04_graph_features`
+  :doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Graph features</div>
+      <div class="sphx-glr-thumbnail-title">Habitat graph network features</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Classic radiomics computes intensity and texture features over the whole tumour. Per-habitat radiomics computes the same PyRadiomics features separately inside each habitat, so every sub-region gets its own intensity and texture description.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Once every voxel has a habitat id, a patient can be described in several complementary ways: how much of each habitat there is (volume), how the habitats border each other (MSI), how fragmented they are (ITH score), and what the image intensities look like inside each habitat (per-habitat radiomics). A statistics tool needs all of them as columns of one table, one row per patient.">
 
 .. only:: html
 
-  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_05_each_habitat_radiomics_thumb.png
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_05_habitat_radiomics_thumb.png
     :alt:
 
-  :doc:`/auto_examples/03_quantify/plot_05_each_habitat_radiomics`
+  :doc:`/auto_examples/04_quantifying_habitats/plot_05_habitat_radiomics`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Per-habitat radiomics describes the MRI inside each habitat. Whole-habitat radiomics instead describes the habitat map itself: the label image (habitat ids as grey values) is fed to PyRadiomics as the image, and the whole labelled region as the mask.">
-
-.. only:: html
-
-  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/03_quantify/plot_06_whole_habitat_radiomics`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Whole-habitat radiomics</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Deep-learning encoders turn an image into a stack of feature maps (channels). Averaging those channels inside each habitat gives every habitat a learned descriptor that can sit next to hand-crafted radiomics in a downstream model.">
-
-.. only:: html
-
-  .. image:: /auto_examples/03_quantify/images/thumb/sphx_glr_plot_07_deep_learning_embeddings_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/03_quantify/plot_07_deep_learning_embeddings`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Deep-learning habitat embeddings</div>
+      <div class="sphx-glr-thumbnail-title">Habitat radiomics with volume, MSI and ITH</div>
     </div>
 
 
@@ -698,37 +576,11 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
     </div>
 
-4. Three habitat designs
-========================
+Validation and reuse
+====================
 
-**Background.** A habitat design decides which rows are clustered and
-whether one model is shared by the whole cohort or fitted per subject.
-**Purpose.** Run the same data through each design and see what changes:
-shared vs. per-subject habitat ids, supervoxels vs. voxels.
-
-The complete analysis is two-step: ``partition``, then ``pool``, then
-``fit``. These pages change that stage list and nothing else.
-
-====================  =============  ========  =====================
-Design                ``partition``  ``pool``  ``fit`` runs on
-====================  =============  ========  =====================
-two-step              yes            yes       supervoxels, cohort
-inside each subject   no             no        voxels, one subject
-pooling voxels        no             yes       voxels, cohort
-====================  =============  ========  =====================
-
-``two_step_habitat``, ``one_step_habitat`` and ``direct_pooling_habitat``
-build those lists. Habitat ids match across subjects only when ``fit``
-ran once on the cohort. Otherwise match labels first
-(:doc:`/auto_examples/06_matching/index`).
-
-* **Two steps** — :doc:`/auto_examples/04_designs/plot_01_two_step`.
-* **Inside each subject** —
-  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`.
-* **Pooling voxels** — :doc:`/auto_examples/04_designs/plot_03_pool_voxels`.
-
-Applying a saved model is the next section. Opening each stage is
-:doc:`/auto_examples/02_stages/index`.
+Train / save / predict, matching habitat labels, precise features and
+stability, and reusing a published ``.habitatmodel``.
 
 
 .. raw:: html
@@ -744,52 +596,69 @@ Applying a saved model is the next section. Opening each stage is
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. The two-step design is the complete analysis used across this Guide: each tumour is first cut into supervoxels, then the supervoxels of all subjects are clustered together once, so habitat ids mean the same thing in every patient.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat study usually has a training set, where the habitat definition is learned, and new patients, where that definition is only applied. The new patients must never influence the definition: no refitted centroids, no refitted bin edges. The .habitatmodel file is what carries the definition from one side to the other, so a later cohort (or a colleague) gets habitat ids that mean the same thing as in the training set.">
 
 .. only:: html
 
-  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_01_two_step_thumb.png
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_01_train_save_predict_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_designs/plot_01_two_step`
+  :doc:`/auto_examples/05_validation_and_reuse/plot_01_train_save_predict`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Defining habitats in two steps</div>
+      <div class="sphx-glr-thumbnail-title">Train, save, and predict new patients</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. In the one-step design each tumour is clustered on its own voxels: no supervoxels, no pooling, and no model shared by the cohort.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A clustering run numbers its habitats in arbitrary order. Fit the same analysis twice on different patients and the same kind of tissue can be habitat 1 in one fit and habitat 3 in the other (label switching). The two fits may even choose a different number of habitats. Anything that compares habitats by id -- a Dice score, a &quot;volume fraction of habitat 2&quot; column, a pooled table from two sites or two time windows -- is wrong until the ids are matched.">
 
 .. only:: html
 
-  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_02_inside_each_subject_thumb.png
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_02_matching_labels_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`
+  :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Defining habitats inside each subject</div>
+      <div class="sphx-glr-thumbnail-title">Matching habitat labels between two fits</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Direct pooling skips supervoxels: every ROI voxel of every subject goes into one matrix and one cohort model is fitted on it, so habitat ids are shared across patients.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Voxel-wise texture features are noisy. Clustering on features that flip under a simulated re-acquisition produces habitats nobody can reproduce. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep only features whose lower confidence limit (LCL) of ICC clears a threshold under three experiments: repeatability (original vs simulated retest), kernel-radius reproducibility, and bin-width reproducibility. The same page then asks whether the habitat map stays stable when the image is lightly perturbed.">
 
 .. only:: html
 
-  .. image:: /auto_examples/04_designs/images/thumb/sphx_glr_plot_03_pool_voxels_thumb.png
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_03_precise_features_thumb.png
     :alt:
 
-  :doc:`/auto_examples/04_designs/plot_03_pool_voxels`
+  :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Pooling voxels across the cohort</div>
+      <div class="sphx-glr-thumbnail-title">Precise features and habitat stability</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat definition published with a paper is a .habitatmodel file. Whoever receives it should be able to see what it declares (which images, which features, how many habitats, how it was trained), know that their HABIT can read it, check that their own data can enter its feature space, and then label their patients with it -- without refitting anything and without the authors&#x27; code.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_04_reuse_published_model_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_validation_and_reuse/plot_04_reuse_published_model`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Reuse a published habitat model</div>
     </div>
 
 
@@ -799,18 +668,11 @@ Applying a saved model is the next section. Opening each stage is
 
     </div>
 
-5. Apply a saved model
-======================
+Manipulating images
+===================
 
-**Background.** A fitted habitat model can be saved and reused, so later or
-external subjects get the same habitat ids as the training cohort.
-**Purpose.** Save the model once, reload it, and label new subjects with the
-training centroids without refitting.
-
-Train the habitat definition, write a ``.habitatmodel`` file, and label
-later subjects without fitting again.
-
-:doc:`/auto_examples/05_apply/plot_04_apply_saved_model`
+Load a directory, NIfTI, SimpleITK, NumPy arrays, and named masks
+(user-supplied peritumoral mask).
 
 
 .. raw:: html
@@ -826,18 +688,86 @@ later subjects without fitting again.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat ids only mean the same thing in two cohorts when both are labelled with the same centroids. Saving the fitted model lets a later or external cohort be labelled with the training definition instead of a new, incomparable fit.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Before any habitat can be found, HABIT needs to know which images and which tumour mask belong to each patient. The simplest way is a fixed folder layout that HABIT reads in one call.">
 
 .. only:: html
 
-  .. image:: /auto_examples/05_apply/images/thumb/sphx_glr_plot_04_apply_saved_model_thumb.png
+  .. image:: /auto_examples/06_manipulating_images/images/thumb/sphx_glr_plot_01_directory_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_apply/plot_04_apply_saved_model`
+  :doc:`/auto_examples/06_manipulating_images/plot_01_directory`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Applying a saved habitat model</div>
+      <div class="sphx-glr-thumbnail-title">Load from directory</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Images and masks often sit as loose files (NIfTI, NRRD, MetaImage) rather than in the HABIT folder layout. HABIT can point at each file directly and reads the voxels only when a stage needs them.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_manipulating_images/images/thumb/sphx_glr_plot_02_nifti_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_manipulating_images/plot_02_nifti`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Many imaging scripts already hold images as SimpleITK objects. HABIT can wrap those objects directly, keeping their spacing, origin and direction, so no files have to be rearranged.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_manipulating_images/images/thumb/sphx_glr_plot_03_simpleitk_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_manipulating_images/plot_03_simpleitk`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load from SimpleITK</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Deep-learning and custom pipelines often hold images as NumPy arrays (or tensors converted to NumPy). An array has no voxel size or position, so HABIT pairs it with a Geometry that records spacing, origin and direction.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_manipulating_images/images/thumb/sphx_glr_plot_04_numpy_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_manipulating_images/plot_04_numpy`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load from NumPy arrays</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat analysis needs a region of interest (ROI). The ROI is often the tumour, but studies also use a user-drawn peritumoral ring or other named mask that already exists on disk.">
+
+.. only:: html
+
+  .. image:: /auto_examples/06_manipulating_images/images/thumb/sphx_glr_plot_05_named_masks_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/06_manipulating_images/plot_05_named_masks`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Named masks</div>
     </div>
 
 
@@ -847,37 +777,12 @@ later subjects without fitting again.
 
     </div>
 
-6. Matching Habitat Labels
-==========================
+Advanced
+========
 
-**Background.** A clustering run numbers its habitats in arbitrary order,
-so the same tissue can be habitat 1 in one run or patient and habitat 3 in
-another (**label switching**). **Purpose.** These pages show how HABIT
-matches the ids so that Dice, volume fractions and cohort tables compare
-like with like.
-
-Calling it on a fitted study:
-:doc:`/auto_examples/06_matching/plot_07_match_labels`.
-The pages below show why ids switch and how each matcher works.
-
-Habitat ids from independent clusterings are arbitrary: habitat 1 of one
-fit can be habitat 3 of another. Anything that compares habitats by id
-(Dice, volume fractions, a cohort feature table) must match the ids
-first. HABIT has two matchers, chosen by what the two sides share:
-
-* **Voxel overlap** -- the maps label the *same voxels* (a restart,
-  another ``k``, another feature set, a perturbed image, a second reader).
-  Hungarian assignment on the voxel-overlap table.
-  :func:`~habit.precision.align_habitat_map`,
-  :func:`~habit.precision.habitat_stability`.
-* **Shared prototypes** -- the maps label *different subjects*. Each
-  subject's habitat summaries are matched one-to-one onto ``K`` shared
-  prototypes, iterated until stable; prototypes can be frozen to name a
-  new cohort. :func:`~habit.precision.align_habitat_maps_to_prototypes`.
-
-A shared cohort model (two-step, direct pooling, an applied saved model)
-already uses one id space and needs neither. Formulas, proofs, and
-literature: :doc:`/reference/habitat_matching`.
+Each analysis stage (extract through postprocess), backends (process,
+resume, GPU cap, failure isolation), embedding HABIT in your pipeline,
+and exporting results with ``describe_methods``.
 
 
 .. raw:: html
@@ -893,225 +798,171 @@ literature: :doc:`/reference/habitat_matching`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Clustering algorithms such as k-means number their clusters in arbitrary order, so two fits of the same tumour can give the same region different habitat ids. Any comparison by id (Dice, volume per habitat, a cohort table) needs the ids matched first.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat analysis clusters voxels by what they look like across the input images. The first stage, extract, turns each voxel inside the ROI into a row of numbers that later stages can cluster.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_01_label_switching_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_01_extract_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_matching/plot_01_label_switching`
+  :doc:`/auto_examples/07_advanced/plot_01_extract`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Why habitat ids must be matched</div>
+      <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. When two habitat maps cover the same voxels, their ids can be matched by counting shared voxels alone, even if the two fits used a different number of habitats or different features.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Raw intensities differ in range between phases and contain a few extreme voxels. Before clustering, each patient&#x27;s feature columns are winsorized (1%) and z-scored with that patient&#x27;s own statistics so a darker scan does not collapse into one habitat.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_02_overlap_cases_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_02_subject_preprocess_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_matching/plot_02_overlap_cases`
+  :doc:`/auto_examples/07_advanced/plot_02_subject_preprocess`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Matching maps of the same voxels by overlap</div>
+      <div class="sphx-glr-thumbnail-title">Subject-level preprocessing</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Two patients share no voxels, so their habitats cannot be matched by overlap. Instead each habitat is described by a summary row and all subjects are named against one shared set of reference rows.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A tumour has tens of thousands of voxels. The two-step design first groups them, inside each subject, into small patches of similar voxels, so the cohort model later clusters a few rows per subject instead of every voxel.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_03_prototype_steps_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_03_supervoxels_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`
+  :doc:`/auto_examples/07_advanced/plot_03_supervoxels`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Prototype matching step by step</div>
+      <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Prototype matching needs a rule for how far a habitat is from a prototype. The default compares feature values; the alternatives trade that for robustness to outliers or for comparing curve shape only.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. After each subject has been turned into clustering units (supervoxels or voxels), pool stacks those rows into one matrix so a single cohort model can be fitted.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_04_prototype_metrics_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_04_pooling_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_matching/plot_04_prototype_metrics`
+  :doc:`/auto_examples/07_advanced/plot_04_pooling`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Choosing the distance for prototype matching</div>
+      <div class="sphx-glr-thumbnail-title">Pooling</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Once prototypes are learned on a training cohort, they define what each habitat id means. New patients should be named against those fixed prototypes rather than refitting them.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. After every subject is cut into supervoxels, fit learns one habitat definition from all of them together. Because the same model labels every patient, habitat 2 means the same feature profile in each subject.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_05_frozen_prototypes_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_05_fit_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_matching/plot_05_frozen_prototypes`
+  :doc:`/auto_examples/07_advanced/plot_05_fit`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Naming a new cohort with frozen prototypes</div>
+      <div class="sphx-glr-thumbnail-title">Fitting a cohort habitat model</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat features are usually analysed as a table with one row per patient and one column per habitat. That only works if a column refers to the same kind of habitat in every patient.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A fitted model only stores centroids. assign turns that into a picture: every supervoxel of a subject gets the id of its nearest centroid, and every voxel inherits the id of its supervoxel.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_06_downstream_tables_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_06_assign_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_matching/plot_06_downstream_tables`
+  :doc:`/auto_examples/07_advanced/plot_06_assign`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">What matching changes in a cohort feature table</div>
+      <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. In a one_step study each patient is clustered on its own, so habitat ids are not comparable between patients until they are matched onto shared prototypes.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat assignment paints every ROI voxel with a nearest centroid id. That can leave tiny islands of a few voxels that no reader would call a region, and that inflate ITH and graph metrics. Connected- component cleanup drops islands smaller than a size cut-off and fills those voxels with neighbouring habitat ids, so the map stays the same definition with less speck.">
 
 .. only:: html
 
-  .. image:: /auto_examples/06_matching/images/thumb/sphx_glr_plot_07_match_labels_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_07_postprocess_thumb.png
     :alt:
 
-  :doc:`/auto_examples/06_matching/plot_07_match_labels`
+  :doc:`/auto_examples/07_advanced/plot_07_postprocess`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Matching habitat labels across subjects</div>
+      <div class="sphx-glr-thumbnail-title">Cleaning habitat maps (connected components)</div>
     </div>
 
 
-.. thumbnail-parent-div-close
-
 .. raw:: html
 
-    </div>
-
-7. Running a whole cohort
-=========================
-
-**Background.** A real study has tens to hundreds of subjects. Running
-them is a scheduling question, not a scientific one: the backend and
-run policy change speed and failure handling, never the habitat labels.
-
-**Purpose.** Run the same study on the serial and process backends and
-check the labels match; see what happens when one subject fails
-(``on_subject_failure``), resume from checkpoints, set a per-subject
-timeout, cap workers to the GPUs, and learn when parallel is actually
-worth it (on a tiny cohort serial can be faster because Windows spawn
-start-up dominates).
-
-:doc:`/auto_examples/07_parallel/plot_01_backends`
-
-
-.. raw:: html
-
-  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbnails">
-
-.. thumbnail-parent-div-open
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Once a study is declared, HABIT still has to run it on every subject. This page is about that scheduling layer. Switching the backend or RunPolicy changes speed and how failures are handled; it does not change the science, so the habitat labels must come out identical.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Study never loops over patients itself. It hands each subject-level step to an execution backend, which calls the step once per subject and returns one result slot per subject. The backends are public, so the same machinery runs any per-subject function you write from HABIT&#x27;s atomic components: backend.map(function, cohort).">
 
 .. only:: html
 
-  .. image:: /auto_examples/07_parallel/images/thumb/sphx_glr_plot_01_backends_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_08_backends_thumb.png
     :alt:
 
-  :doc:`/auto_examples/07_parallel/plot_01_backends`
+  :doc:`/auto_examples/07_advanced/plot_08_backends`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Running the same study on each backend</div>
+      <div class="sphx-glr-thumbnail-title">Atomic components on execution backends</div>
     </div>
 
 
-.. thumbnail-parent-div-close
-
 .. raw:: html
 
-    </div>
-
-8. Precise Feature Screening
-============================
-
-**Background.** Some voxel features change a lot when the same tumour is
-rescanned or computed with slightly different settings; habitats built on
-them are unstable. **Purpose.** Keep only features that agree under a
-simulated retest and across settings (measured by ICC), then check whether
-habitats built on them are more stable on this demo.
-
-Repeatability and reproducibility screening (Prior et al., 2024):
-simulated image retest perturbation (noise, translation, rotation) and
-ROI contour edge perturbation, evaluated across kernel radii and bin
-widths with multi-panel ICC forest plots.
-
-The main gallery page also clusters habitats on the same subject with and
-without the precise whitelist under the Appendix S2 retest: without
-precise, original and perturbed habitat maps disagree; with precise, mean
-Dice rises and labelled-voxel disagreement falls on this demo (modestly).
-
-
-.. raw:: html
-
-  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbnails">
-
-.. thumbnail-parent-div-open
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. A voxel feature is only useful for habitats if it gives nearly the same value when the same tumour is imaged again and when its computation settings change slightly. Precise screening measures this and keeps only the features that pass.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Most imaging projects already have their own loader: a PACS export script, a MONAI dataset, a segmentation network that returns a NumPy mask. HABIT does not need its folder layout to run. Its analysis objects take images that are already in memory, and they give back a label array with the geometry of the input image, which you can turn into whatever image type your pipeline uses.">
 
 .. only:: html
 
-  .. image:: /auto_examples/08_precision/images/thumb/sphx_glr_plot_01_precise_features_thumb.png
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_09_own_pipeline_thumb.png
     :alt:
 
-  :doc:`/auto_examples/08_precision/plot_01_precise_features`
+  :doc:`/auto_examples/07_advanced/plot_09_own_pipeline`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
+      <div class="sphx-glr-thumbnail-title">HABIT inside your own pipeline</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A finished habitat run leaves three things a paper or a collaborator needs: the habitat maps, a one-row-per-patient feature table, and a written description of what actually ran. HABIT stores the stage list, seeds and software versions in the run manifest;  describe_methods() turns that record into a draft methods paragraph. StudyResult.save writes the conventional on-disk layout so nothing is left only in memory.">
+
+.. only:: html
+
+  .. image:: /auto_examples/07_advanced/images/thumb/sphx_glr_plot_10_export_results_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/07_advanced/plot_10_export_results`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Export results and draft the methods paragraph</div>
     </div>
 
 
@@ -1127,15 +978,14 @@ Dice rises and labelled-voxel disagreement falls on this demo (modestly).
    :includehidden:
 
 
-   /auto_examples/00_full_pipeline/index.rst
-   /auto_examples/01_data_in/index.rst
-   /auto_examples/02_stages/index.rst
-   /auto_examples/03_quantify/index.rst
-   /auto_examples/04_designs/index.rst
-   /auto_examples/05_apply/index.rst
-   /auto_examples/06_matching/index.rst
-   /auto_examples/07_parallel/index.rst
-   /auto_examples/08_precision/index.rst
+   /auto_examples/00_introductory_tutorials/index.rst
+   /auto_examples/01_building_habitat_maps/index.rst
+   /auto_examples/02_features/index.rst
+   /auto_examples/03_clustering/index.rst
+   /auto_examples/04_quantifying_habitats/index.rst
+   /auto_examples/05_validation_and_reuse/index.rst
+   /auto_examples/06_manipulating_images/index.rst
+   /auto_examples/07_advanced/index.rst
 
 
 
