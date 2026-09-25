@@ -1,0 +1,44 @@
+# Habitat input manifest for the quickstart (config_habitat_quickstart_v1.yaml).
+#
+# Lists the four demo subjects the quickstart fits on (subj001-subj004);
+# subj005 is kept out so it can play the "new patient" on the Python page.
+# Relative paths resolve from THIS file's folder, so ../../demo_data/...
+# means <work_dir>/demo_data/... (created by `habit fetch-demo --work-dir .`).
+#
+# Only the LAP mask is listed: LAP is the series the tumour was drawn on and
+# the ROI of the quickstart analysis.
+
+# Each entry below is a series folder holding one file; pick that file.
+auto_select_first_file: true
+
+images:
+  subj001:
+    LAP: ../../demo_data/preprocessed/images/subj001/LAP
+    pre_contrast: ../../demo_data/preprocessed/images/subj001/pre_contrast
+    PVP: ../../demo_data/preprocessed/images/subj001/PVP
+    delay_3min: ../../demo_data/preprocessed/images/subj001/delay_3min
+  subj002:
+    LAP: ../../demo_data/preprocessed/images/subj002/LAP
+    pre_contrast: ../../demo_data/preprocessed/images/subj002/pre_contrast
+    PVP: ../../demo_data/preprocessed/images/subj002/PVP
+    delay_3min: ../../demo_data/preprocessed/images/subj002/delay_3min
+  subj003:
+    LAP: ../../demo_data/preprocessed/images/subj003/LAP
+    pre_contrast: ../../demo_data/preprocessed/images/subj003/pre_contrast
+    PVP: ../../demo_data/preprocessed/images/subj003/PVP
+    delay_3min: ../../demo_data/preprocessed/images/subj003/delay_3min
+  subj004:
+    LAP: ../../demo_data/preprocessed/images/subj004/LAP
+    pre_contrast: ../../demo_data/preprocessed/images/subj004/pre_contrast
+    PVP: ../../demo_data/preprocessed/images/subj004/PVP
+    delay_3min: ../../demo_data/preprocessed/images/subj004/delay_3min
+
+masks:
+  subj001:
+    LAP: ../../demo_data/preprocessed/masks/subj001/LAP
+  subj002:
+    LAP: ../../demo_data/preprocessed/masks/subj002/LAP
+  subj003:
+    LAP: ../../demo_data/preprocessed/masks/subj003/LAP
+  subj004:
+    LAP: ../../demo_data/preprocessed/masks/subj004/LAP
