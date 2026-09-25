@@ -110,7 +110,7 @@ The stage list decides the design (:doc:`/auto_examples/00_introductory_tutorial
 * **One-step** -- no ``pool``: each patient is clustered on its own.
   Habitat ids are not comparable across patients; use label-free
   summaries (ITH score, number of habitats) or match labels first
-  (:doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`).
+  (:doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`).
 * **Direct pooling** -- ``pool`` then ``fit`` with no ``partition``: every
   voxel of every patient is clustered together. Shared ids, but the
   matrix grows with every voxel.

@@ -9,22 +9,7 @@ clustering **algorithm** (k-means or a Gaussian mixture) and the
 one a validation criterion prefers. Different criteria measure
 different things, so on the same data they can pick different Ks.
 
-**Elbow / Kneedle caveat.** HABIT validation ``elbow`` is the same rule
-as ``kneedle``. It runs ``KneeLocator`` on k-means inertia
-(within-cluster sum of squares), curve convex, direction decreasing
-(Satopaa, Albrecht, Irwin, and Raghavan, 2011, *Finding a "Kneedle" in
-a Haystack*, IEEE ICDCS Workshops). Normalize ``k`` and inertia to the
-unit square, draw the chord from the first point to the last, and take
-the ``k`` farthest from that chord; a smooth curve often places this
-knee to the right of the bend a person sees. In the clustering
-literature, *elbow* usually means looking at within-cluster dispersion
-versus ``k`` and choosing where extra clusters stop helping (Thorndike
-RL, 1953, *Who belongs in the family?*, Psychometrika 18(4):267–276).
-Do not claim Thorndike published a second-difference formula. The
-**discrete-curvature elbow** (visual elbow, computed) is the ``k`` that
-maximizes the second difference of inertia — the rule HABIT used before
-v1.0; it is not a “Thorndike formula”. See
-:doc:`/user_guide/building_habitat_maps`.
+**Elbow / Kneedle caveat.** HABIT validation ``elbow`` is Kneedle on inertia (Satopaa et al. 2011). The visual elbow is the discrete-curvature reading associated with Thorndike 1953, not a formula Thorndike published.
 
 **Purpose.** Starting from the analysis of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`, you will change
@@ -362,6 +347,6 @@ for seed, (k, scores) in seed_rows.items():
 #   :doc:`/auto_examples/07_advanced/plot_05_fit`,
 #   :doc:`/auto_examples/07_advanced/plot_06_assign`.
 # * Matching habitat numbers between two fits:
-#   :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+#   :doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`.
 # * Cleaning the final maps:
 #   :doc:`/auto_examples/01_building_habitat_maps/plot_08_cleaning_maps`.

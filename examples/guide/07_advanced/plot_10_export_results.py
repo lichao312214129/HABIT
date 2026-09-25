@@ -236,7 +236,7 @@ print("cohort subjects:", model.cohort_fingerprint.n_subjects)
 # * Train / save / predict with a held-out split:
 #   :doc:`/auto_examples/05_validation_and_reuse/plot_01_train_save_predict`.
 # * Hand a published ``.habitatmodel`` to another site:
-#   :doc:`/auto_examples/05_validation_and_reuse/plot_04_reuse_published_model`.
+#   :doc:`/auto_examples/05_validation_and_reuse/plot_06_reuse_published_model`.
 # * The reference analysis this export came from:
 #   :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
 # * Per-habitat radiomics columns in the same table:

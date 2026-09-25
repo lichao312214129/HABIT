@@ -9,17 +9,18 @@
 .. currentmodule:: habit.precision
 
 **User guide:** Habitat Guide
-:doc:`../auto_examples/05_validation_and_reuse/plot_03_precise_features` ·
-:doc:`../auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+:doc:`../auto_examples/05_validation_and_reuse/plot_05_precise_features` ·
+:doc:`../auto_examples/05_validation_and_reuse/plot_02_match_same_subject` ·
+:doc:`../auto_examples/05_validation_and_reuse/plot_03_match_two_subjects` ·
+:doc:`../auto_examples/05_validation_and_reuse/plot_04_match_group`.
 Recipe wrapper: :func:`~habit.recipes.identify_precise_voxel_features`.
 
 Simulated-retest perturbations and the ICC intersection that decides
 which extracted voxel columns may define habitats (Prior et al.,
-Radiol Artif Intell 2024;6(2):e230118). Label matching lives here too:
-``align_habitat_map`` (voxel overlap) for two maps of the same voxels and
-``align_habitat_maps_to_prototypes`` for different subjects, including
-naming a new cohort with frozen prototypes. Method
-choice, algorithm, and literature: :doc:`../reference/habitat_matching`.
+Radiol Artif Intell 2024;6(2):e230118). Guide matching examples use
+:func:`~habit.precision.align_habitat_maps_to_prototypes`. Two-step and
+pooled-voxel fits share one model and do not need matching. Short pointer:
+:doc:`../reference/habitat_matching`.
 
 Classes
 -------

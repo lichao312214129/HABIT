@@ -261,7 +261,7 @@ Mask-only contour methods (``morphological``, ``gradient_weighted``,
 ``slice_extent``) must be called on a
 :class:`~habit.contracts.subject.Subject` via
 :class:`~habit.precision.ImagePerturbationRegistry` — see
-:doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`. ``extract_voxel_texture`` is one
+:doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`. ``extract_voxel_texture`` is one
 voxel-radiomics pass; paper combinations are repeated calls (R1 vs R3,
 B12 vs B25, original vs perturbed). Then compose ICC panels:
 
@@ -292,7 +292,7 @@ chain is :func:`~habit.precision.prior2024_retest_perturbation`
 ``PreciseFeatureSet.preprocessor()`` returns a ``FeatureWhitelist``.
 The one-call recipe is
 :func:`habit.recipes.identify_precise_voxel_features`; the runnable tour
-is :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
+is :doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`.
 
 Randomness (``Seedable``)
 -------------------------

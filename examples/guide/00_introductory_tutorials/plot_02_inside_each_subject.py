@@ -24,7 +24,7 @@ use it if you need to compare *habitat 2* across patients (e.g. "the
 fraction of the enhancing habitat"): use the two-step design of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`, or match the
 per-patient habitats first
-(:doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`).
+(:doc:`/auto_examples/05_validation_and_reuse/plot_04_match_group`).
 
 **Analysis definition.** The reference analysis of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec` with three
@@ -323,7 +323,7 @@ print("wrote out/inside_each_subject/")
 # * Shared ids without supervoxels:
 #   :doc:`/auto_examples/00_introductory_tutorials/plot_03_pooled_voxels`.
 # * Matching per-patient habitats before comparing them:
-#   :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+#   :doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`.
 # * This design rebuilt from individual components:
 #   :doc:`/auto_examples/01_building_habitat_maps/plot_04_atomic_inside_each_subject`.
 # * What ITH and MSI measure: :doc:`/auto_examples/04_quantifying_habitats/plot_03_ith`

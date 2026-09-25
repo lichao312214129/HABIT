@@ -215,7 +215,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         The simulated-retest perturbation used to *define* those precise features
         is :func:`~habit.precision.prior2024_retest_perturbation` (MIRP 1.2.0
         Appendix S2: noise + 0.5-voxel translation fraction + 0.5° z-rotation).
-        See :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
+        See :doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`.
 
       - **Example**: ``concat(voxel_radiomics(T2))`` with ``params: {}`` (CT R3B12 defaults); override example: ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` in ``params``
 

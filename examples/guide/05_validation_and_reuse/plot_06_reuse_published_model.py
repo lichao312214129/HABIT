@@ -59,7 +59,7 @@ from habit.execution import backend_from_policy
 from habit.recipes import Study
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.policy import RunPolicy
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_cluster_validation_from_report, plot_habitat_overlay
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout.
 DATA = fetch_demo()
@@ -103,18 +103,9 @@ published.save("out/published", write_maps=False)
 # %%
 # Elbow / Kneedle caveat (authors' fit before publish)
 # ----------------------------------------------------
-# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
-# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
-# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
-# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
-# Normalize k and inertia to the unit square, draw the chord from the
-# first point to the last, and take the k farthest from that chord; a
-# smooth curve often places this knee to the right of the bend a person
-# sees. Literature "elbow" means inspecting within-cluster dispersion
-# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
-# 18(4):267-276) — not a second-difference formula. The discrete-curvature
-# elbow (visual elbow, computed) maximizes the second difference of
-# inertia (HABIT pre-v1.0 elbow). The published map K is Kneedle.
+# HABIT validation elbow is Kneedle on inertia (Satopaa et al. 2011).
+# The visual elbow is the discrete-curvature reading associated with
+# Thorndike 1953, not a formula Thorndike published.
 _report = published.habitat_model.preprocessing_state["selection_report"]
 _cand = [int(k) for k in _report["candidates"]]
 _iner = np.asarray(_report["scores"][_report["methods"][0]], dtype=float)
@@ -130,6 +121,29 @@ for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
 print("K by criterion (published fit; skip gap):")
 for _n, _k in _k_table.items():
     print(f"  {_n}: {_k}")
+
+_criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+_vote = _KF(min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10)
+_vote.set_random_state(0)
+_vote_report = dict(_vote.fit(published.units, cohort=cohort[:2]).preprocessing_state["selection_report"])
+_vote_report["selected"] = {
+    "elbow": _k_kn,
+    "silhouette": _k_table["silhouette"],
+    "calinski_harabasz": _k_table["calinski_harabasz"],
+    "davies_bouldin": _k_table["davies_bouldin"],
+}
+fig = plot_cluster_validation_from_report(
+    _vote_report, title="Published-fit K criteria (elbow: x = Kneedle)"
+)
+fig.axes[0].plot(
+    _k_dc, float(_iner[_cand.index(_k_dc)]),
+    marker="o", markersize=8, markerfacecolor="none",
+    markeredgecolor="C2", markeredgewidth=1.4, linestyle="none",
+    label=f"discrete-curvature k={_k_dc}",
+)
+fig.axes[0].legend(loc="best", fontsize=8)
+fig.savefig("out/reuse_published_k_criteria.png", dpi=150, bbox_inches="tight")
+plt.show()
 
 # From here on, pretend this path is a file you downloaded.
 downloaded = Path("out/published/habitat_model.habitatmodel")
@@ -304,7 +318,7 @@ plt.show()
 # * Train, save and label held-out patients yourself:
 #   :doc:`/auto_examples/05_validation_and_reuse/plot_01_train_save_predict`.
 # * Two separately fitted models need their ids matched:
-#   :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+#   :doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`.
 # * Export the results and write the methods paragraph:
 #   :doc:`/auto_examples/07_advanced/plot_10_export_results`.
 # * Introductory two-step tutorial:

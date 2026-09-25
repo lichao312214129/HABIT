@@ -255,7 +255,7 @@ composes translation+rotation into one affine (MIRP ≥ 2).
 
 Subject-level wrappers (``morphological``, ``gradient_weighted``,
 ``slice_extent``) live on :class:`~habit.precision.ImagePerturbationRegistry`.
-Copy-ready demo and figures: :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
+Copy-ready demo and figures: :doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`.
 
 .. figure:: ../_static/images/examples/contour_morphological_grow.png
    :alt: Uniform morphological grow of an ROI contour
@@ -332,7 +332,10 @@ two matchers, chosen by what the maps share:
   :func:`~habit.precision.align_habitat_maps_to_prototypes`. Method and
   references: :doc:`../reference/habitat_matching`.
 
-Copy-ready walkthrough: :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+Copy-ready walkthroughs (all prototype matching):
+:doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`,
+:doc:`/auto_examples/05_validation_and_reuse/plot_03_match_two_subjects`,
+:doc:`/auto_examples/05_validation_and_reuse/plot_04_match_group`.
 
 .. code-block:: python
 

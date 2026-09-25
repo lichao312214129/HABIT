@@ -214,8 +214,9 @@ for subject, habitat_map in zip(train, result.habitat_maps):
 # %%
 # Feature table
 # -------------
-# One row per patient. Volume fractions can be compared across rows
-# because the ids come from one shared model.
+# One row per patient. Pooled-voxel fits assign labels from one shared
+# model, so habitat ids are already comparable across subjects and do
+# not need matching (matching is for separate fits / one-step).
 table = result.features.frame.set_index("subject")
 columns = [c for c in table.columns if c.endswith("_volume_fraction")] + [
     "ith_score",
@@ -258,11 +259,12 @@ print("wrote out/pooled_voxels/")
 # ----------------------
 # * The model was fitted on pooled voxels from the training pair; the
 #   elbow rule kept a small K in this run (print ``model.summary()``).
-# * Volume fractions are comparable across rows because ids are shared.
+# * Volume fractions are comparable across rows because ids come from
+#   one shared model (no matching step).
 # * ITH is often high without supervoxels: single voxels at borders form
 #   many small fragments.
-# * Habitat numbering is not the same as on the two-step page unless you
-#   match labels deliberately.
+# * Habitat numbering need not match a two-step run on the same data;
+#   each design has its own shared model.
 
 # %%
 # Where to go next
