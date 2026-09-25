@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,29 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="fitting-a-cohort-habitat-model">
 <span id="sphx-glr-auto-examples-02-stages-plot-13-fit-model-py"></span><h1>Fitting a cohort habitat model<a class="headerlink" href="#fitting-a-cohort-habitat-model" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> After every subject is cut into supervoxels, <code class="docutils literal notranslate"><span class="pre">fit</span></code>
+learns one habitat definition from all of them together. Because the
+same model labels every patient, habitat 2 means the same feature
+profile in each subject.</p>
+<p><strong>Purpose.</strong> You get a fitted <a class="reference internal" href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a>
+with three habitats, its printed summary, and a bar chart of the first
+feature of each centroid (what each habitat looks like on average).</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>supervoxel</strong> – see <a class="reference internal" href="plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a>.</p></li>
+<li><p><strong>pool</strong> – stacks every training subject’s rows into one matrix so one
+model is fitted to the whole cohort and habitat ids mean the same thing
+in every patient.</p></li>
+<li><p><strong>fit</strong> – learns the habitat definition (for k-means: the number of
+habitats and their centroids).</p></li>
+<li><p><strong>centroid</strong> – the mean feature vector of one habitat; new rows are
+labelled by the centroid they are closest to.</p></li>
+<li><p><strong>elbow</strong> – a rule for picking the number of habitats: the candidate
+count after which adding one more habitat stops reducing
+within-cluster spread much. This page fixes <code class="docutils literal notranslate"><span class="pre">n_habitats=3</span></code>, so no
+selection runs; the complete analysis passes <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> /
+<code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> with <code class="docutils literal notranslate"><span class="pre">validation=&quot;elbow&quot;</span></code> instead.</p></li>
+</ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">fit</span></code> stage of
 <a class="reference internal" href="../00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">A complete habitat analysis</span></a>.
 Input: one <a class="reference internal" href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization"><code class="xref py py-class docutils literal notranslate"><span class="pre">Supervoxelization</span></code></a> per subject.
@@ -766,8 +789,11 @@ subj002: 97 supervoxels
 </section>
 <section id="fit-one-shared-model">
 <h2>Fit one shared model<a class="headerlink" href="#fit-one-shared-model" title="Link to this heading"></a></h2>
-<p>The fitter pools every subject’s units and learns one set of centroids.</p>
+<p>The fitter pools every subject’s units and learns one set of centroids.
+n_habitats=3 fixes the count; n_init=3 restarts k-means three times and
+keeps the run with the lowest within-cluster spread (inertia).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span><span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="c1"># Fixing the seed makes a rerun give the same centroids (and ids).</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.fit" title="habit.habitat_model.KMeansHabitatModelFitter.fit" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">fit</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="o">=</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
@@ -798,7 +824,7 @@ subj002: 97 supervoxels
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_13_fit_model_001.png" srcset="../../_images/sphx_glr_plot_13_fit_model_001.png" alt="habitat centroids" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 45.683 seconds)</p>
+<img src="../../_images/sphx_glr_plot_13_fit_model_001.png" srcset="../../_images/sphx_glr_plot_13_fit_model_001.png" alt="habitat centroids" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 46.445 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-13-fit-model-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/b87155e38ce406030f1eb64afa368979/plot_13_fit_model.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_13_fit_model.ipynb</span></code></a></p>

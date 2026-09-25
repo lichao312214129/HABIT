@@ -21,6 +21,22 @@
 Voxel features
 ==============
 
+**Background.** The ``extract`` stage decides which numbers describe each
+voxel; habitats can only separate what those columns show. The simplest
+choice is the image intensities themselves.
+
+**Purpose.** You see the voxel-feature table and matrix that clustering
+receives with ``raw``, a habitat overlay fitted on it, and how
+``concat`` joins two extractors into one wider table.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **raw** -- one column per listed modality, the intensities unchanged.
+* **concat** -- runs several extractors on the same ROI voxels and joins
+  their columns side by side.
+
 Clustering uses the voxel field you define — not a fixed T1 image.
 This page is the intensity pair: ``raw`` (concatenate modality intensities
 inside the ROI) and ``concat`` (join families column-wise).
@@ -28,12 +44,12 @@ inside the ROI) and ``concat`` (join families column-wise).
 Custom formulas and plugins live on the next page. Texture maps follow
 that. This page is only ``raw`` vs ``concat``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-16
+.. GENERATED FROM PYTHON SOURCE LINES 30-32
 
 Load two demo subjects. ``raw`` concatenates LAP and PVP intensities
 inside the ROI.
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-34
+.. GENERATED FROM PYTHON SOURCE LINES 32-50
 
 .. code-block:: Python
 
@@ -90,13 +106,13 @@ inside the ROI.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-38
+.. GENERATED FROM PYTHON SOURCE LINES 51-54
 
 ``raw(modalities)``: one column per series. Print the first voxel rows
 so you can see the intensities clustering will use (before any
 feature preprocessor).
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-62
+.. GENERATED FROM PYTHON SOURCE LINES 54-80
 
 .. code-block:: Python
 
@@ -115,6 +131,8 @@ feature preprocessor).
         habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
         random_seed=11,
     )
+    # Build the components the spec names and call only the extractor on one
+    # subject, to look at the table before any clustering runs.
     raw_field = (
         build_habitat_components(raw_spec)
         .pipeline(assigner=None)
@@ -132,7 +150,7 @@ feature preprocessor).
 
  .. code-block:: none
 
-    F:\work\habit_project\examples\guide\02_stages\plot_01_feature_routes.py:38: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+    F:\work\habit_project\examples\guide\02_stages\plot_01_feature_routes.py:54: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
       raw_spec = HabitatSpec(
     raw feature table:
           LAP     PVP
@@ -201,12 +219,12 @@ feature preprocessor).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-65
+.. GENERATED FROM PYTHON SOURCE LINES 81-83
 
 The matrix clustering sees: one row per ROI voxel, one column per
 modality (rows subsampled so the heatmap stays legible).
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-79
+.. GENERATED FROM PYTHON SOURCE LINES 83-97
 
 .. code-block:: Python
 
@@ -236,11 +254,13 @@ modality (rows subsampled so the heatmap stays legible).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-81
+.. GENERATED FROM PYTHON SOURCE LINES 98-101
 
 Fit the ``raw`` route and overlay habitats.
+fit_predict runs every stage of the spec on both subjects: partition,
+pooled fit (elbow over 2..3 habitats), assign, then the feature stages.
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-92
+.. GENERATED FROM PYTHON SOURCE LINES 101-112
 
 .. code-block:: Python
 
@@ -268,8 +288,8 @@ Fit the ``raw`` route and overlay habitats.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.19s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.16s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.77it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.69it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.69it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.02s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.03s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.03s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.83it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.79it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.79it/s]
     HabitatModel kmeans-eb51fe90351b084b
       habitats           : 3
       features (2)    : LAP, PVP
@@ -286,12 +306,12 @@ Fit the ``raw`` route and overlay habitats.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-95
+.. GENERATED FROM PYTHON SOURCE LINES 113-115
 
 ``concat`` joins two ``raw`` extractors column-wise. The head() table
 should show the same number of rows and more columns.
 
-.. GENERATED FROM PYTHON SOURCE LINES 95-126
+.. GENERATED FROM PYTHON SOURCE LINES 115-146
 
 .. code-block:: Python
 
@@ -334,7 +354,7 @@ should show the same number of rows and more columns.
 
  .. code-block:: none
 
-    F:\work\habit_project\examples\guide\02_stages\plot_01_feature_routes.py:96: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+    F:\work\habit_project\examples\guide\02_stages\plot_01_feature_routes.py:116: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
       concat_spec = HabitatSpec(
     concat feature table:
           LAP     PVP
@@ -343,8 +363,8 @@ should show the same number of rows and more columns.
     2  1077.0  1088.0
     3  1073.0  1072.0
     4  1033.0  1132.0
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.39s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.34s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.34s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.73it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.61it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.61it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.39s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.35s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.35s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.66it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.56it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.56it/s]
     concat habitats: 3
 
 
@@ -353,7 +373,7 @@ should show the same number of rows and more columns.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 12.982 seconds)
+   **Total running time of the script:** (0 minutes 12.486 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_01_feature_routes.py:

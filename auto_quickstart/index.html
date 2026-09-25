@@ -158,7 +158,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -684,13 +684,17 @@
              
   <section id="get-started">
 <h1>Get started<a class="headerlink" href="#get-started" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A habitat map splits a tumour into sub-regions whose voxels
+behave alike across the input images.
+<strong>Purpose.</strong> Build your first habitat map and feature table from the demo
+pack, first in Python, then from a YAML file.</p>
 <p>First habitat map from the official demo pack. Install HABIT first
 (<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a>). The next page loads the same kind of
 analysis from a v1 YAML document. CLI twin: <a class="reference internal" href="../tutorial/quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="A short list of stages declares the analysis; one call fits it on a cohort. Everything after that is looking at the result: the habitat map, the per-habitat features a paper would report, and reusing the fitted model on a new patient. No YAML."><img alt="" src="../_images/sphx_glr_plot_quickstart_python_thumb.png" />
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat analysis splits a tumour into sub-regions that behave alike across the input images (here, DCE phases), then describes each tumour by how much of each sub-region it has and how they are arranged."><img alt="" src="../_images/sphx_glr_plot_quickstart_python_thumb.png" />
 <p><a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a></p>
   <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The same two-step analysis as plot_quickstart_python, written as a YAML file. habit get-habitat --config &lt;file&gt; runs it from the shell; habit.recipes.run_from_yaml is the Python call behind that command. The spec.stages list is the stage list of the Python page, one entry per stage."><img alt="" src="../_images/sphx_glr_plot_quickstart_yaml_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A YAML file is a plain-text way to write the same stage list you would build in Python, so an analysis can be run from the shell, shared, and kept next to the results."><img alt="" src="../_images/sphx_glr_plot_quickstart_yaml_thumb.png" />
 <p><a class="reference internal" href="plot_quickstart_yaml.html"><span class="doc">Quickstart: YAML</span></a></p>
   <div class="sphx-glr-thumbnail-title">Quickstart: YAML</div>
 </div></div><div class="toctree-wrapper compound">

@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -686,6 +686,16 @@
              
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> HABIT is a Python package that splits tumours into habitats
+(sub-regions whose voxels behave alike across images) and quantifies them.</p>
+<p><strong>Purpose.</strong> At the end you have a conda environment named <code class="docutils literal notranslate"><span class="pre">habit</span></code> in
+which <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--version</span></code> prints the installed version.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>conda environment</strong> – a separate folder with its own Python and
+packages; <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> switches the terminal to it, so HABIT’s
+dependencies do not clash with other software.</p></li>
+</ul>
 <p>This page is for absolute beginners on Windows (macOS / Linux notes where
 they differ). HABIT must run in a <strong>conda-activated</strong> terminal. On Windows
 use <strong>Anaconda Prompt</strong> or <strong>Anaconda PowerShell Prompt</strong> (Miniconda:

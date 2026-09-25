@@ -5,6 +5,11 @@
 1. Data In
 ==========
 
+**Background.** Every habitat analysis starts by telling HABIT which images
+and which tumour mask belong to which patient. **Purpose.** Each page turns
+files or arrays you already have into a :class:`~habit.contracts.Cohort`;
+terms are defined on :doc:`/auto_examples/01_data_in/plot_01_directory`.
+
 The :doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
 starts from a :class:`~habit.contracts.Cohort`. Every route on this
 section ends in one. Each page shows
@@ -47,7 +52,7 @@ directory page. The official demo pack is already preprocessed.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Build a Cohort from a folder tree with cohort_from_directory. The tree is images/&lt;subject&gt;/&lt;series&gt;/&lt;one file&gt; and masks/&lt;subject&gt;/&lt;roi&gt;/&lt;one file&gt;. Below: several people from the tree, then one person taken from that cohort.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Before any habitat can be found, HABIT needs to know which images and which tumour mask belong to each patient. The simplest way is a fixed folder layout that HABIT reads in one call.">
 
 .. only:: html
 
@@ -64,7 +69,7 @@ directory page. The official demo pack is already preprocessed.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Read an image file and a mask file with SimpleITK, then put the volumes on a Subject. modality= is the series or ROI name. One person and several people are each a Cohort.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Many imaging scripts already hold images as SimpleITK objects. HABIT can wrap those objects directly, keeping their spacing, origin and direction, so no files have to be rearranged.">
 
 .. only:: html
 
@@ -81,7 +86,7 @@ directory page. The official demo pack is already preprocessed.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Arrays use axis order (z, y, x). The mask is integer labels, 0 = background. One person and several people are each a Cohort.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Deep-learning and custom pipelines often hold images as NumPy arrays (or tensors converted to NumPy). An array has no voxel size or position, so HABIT pairs it with a Geometry that records spacing, origin and direction.">
 
 .. only:: html
 
@@ -98,7 +103,7 @@ directory page. The official demo pack is already preprocessed.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Point at one image file and one mask file (``.nii``, .nii.gz, .nrrd, .mha, .mhd). Change the paths below to your own files. One person and several people are each a Cohort.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Images and masks often sit as loose files (NIfTI, NRRD, MetaImage) rather than in the HABIT folder layout. HABIT can point at each file directly and reads the voxels only when a stage needs them.">
 
 .. only:: html
 

@@ -2,6 +2,24 @@
 Defining habitats inside each subject
 ======================================
 
+**Background.** In the one-step design each tumour is clustered on its own
+voxels: no supervoxels, no pooling, and no model shared by the cohort.
+
+**Purpose.** You get one private habitat model and one habitat map per
+subject, plus their volume fractions, drawn side by side.
+
+**When to use.** You want to describe how heterogeneous each tumour is by
+itself (e.g. how many habitats, how fragmented). Skip it if habitat ids
+must mean the same thing across patients; use
+:doc:`/auto_examples/04_designs/plot_01_two_step` instead.
+
+**Key terms.**
+
+* **one-step** -- ``fit`` and ``assign`` run inside each subject, so every
+  subject gets its own centroids.
+* **label switching** -- independent clusterings number the same habitat
+  differently, so ids must be matched before comparing subjects.
+
 Input: one subject at a time. Output: a
 :class:`~habit.contracts.HabitatMap` whose integer ids belong to that
 subject only. The stage list has no ``pool``, so ``fit`` runs inside each
@@ -55,6 +73,8 @@ spec = HabitatSpec(
     ),
     random_seed=0,
 )
+# Without pool, fit_predict keeps one model per subject (subject_models)
+# instead of a single cohort habitat_model.
 result = Study(spec).fit_predict(cohort)
 print(f"Per-subject models: {list(result.subject_models)}")
 for habitat_map in result.habitat_maps:

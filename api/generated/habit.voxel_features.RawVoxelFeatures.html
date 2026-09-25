@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -757,31 +757,31 @@ source label: the <code class="docutils literal notranslate"><span class="pre">a
 
 <section id="examples-using-habit-voxel-features-rawvoxelfeatures">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.voxel_features.RawVoxelFeatures</span></code><a class="headerlink" href="#examples-using-habit-voxel-features-rawvoxelfeatures" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Arrays use axis order (z, y, x). The mask is integer labels, 0 = background. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_03_numpy_arrays_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Deep-learning and custom pipelines often hold images as NumPy arrays (or tensors converted to NumPy). An array has no voxel size or position, so HABIT pairs it with a Geometry that records spacing, origin and direction."><img alt="" src="../../_images/sphx_glr_plot_03_numpy_arrays_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/01_data_in/plot_03_numpy_arrays.html"><span class="doc">Load from NumPy arrays</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from NumPy arrays</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Clustering operates on preprocessed feature matrices, not raw intensities. HabitatSpec exposes three ordered chains:"><img alt="" src="../../_images/sphx_glr_plot_04_feature_preprocessing_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. k-means groups rows by distance, so a column with large numbers (or a few extreme voxels) can decide the habitats on its own. Preprocessing rescales or clips the feature columns first; HABIT lets you do this at three points of the two-step analysis."><img alt="" src="../../_images/sphx_glr_plot_04_feature_preprocessing_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_04_feature_preprocessing.html"><span class="doc">Feature preprocessing</span></a></p>
   <div class="sphx-glr-thumbnail-title">Feature preprocessing</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels. Each supervoxel must then be summarized into a quantitative feature vector before cohort pooling and clustering."><img alt="" src="../../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. The cohort model clusters supervoxels, not voxels, so each supervoxel needs its own row of numbers. That row can be a simple summary of its voxels (mean, median, SD) or radiomics texture computed on the supervoxel as a small ROI."><img alt="" src="../../_images/sphx_glr_plot_05_supervoxel_features_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_05_supervoxel_features.html"><span class="doc">Supervoxel feature extraction and acceleration</span></a></p>
   <div class="sphx-glr-thumbnail-title">Supervoxel feature extraction and acceleration</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField. Stage: extract_voxel_features with raw."><img alt="" src="../../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat analysis clusters voxels by what they look like across the input images. The first stage, extract, turns each voxel inside the ROI into a row of numbers that later stages can cluster."><img alt="" src="../../_images/sphx_glr_plot_06_voxel_intensities_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a></p>
   <div class="sphx-glr-thumbnail-title">Extracting voxel intensities</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a raw VoxelFeatureField. Output: a HabitatMap built from the preprocessed features. Stage: voxel_feature_preprocessors, then partition, fit, assign."><img alt="" src="../../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Raw intensities differ in range between phases and contain a few extreme voxels. The preprocess stage rescales the feature columns before clustering so that no single column dominates the distance."><img alt="" src="../../_images/sphx_glr_plot_10_preprocess_features_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_10_preprocess_features.html"><span class="doc">Preprocessing features before clustering</span></a></p>
   <div class="sphx-glr-thumbnail-title">Preprocessing features before clustering</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a VoxelFeatureField. Output: a Supervoxelization. Stage: partition with slic."><img alt="" src="../../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A tumour has tens of thousands of voxels. The two-step design first groups them, inside each subject, into small patches of similar voxels, so the cohort model later clusters a few rows per subject instead of every voxel."><img alt="" src="../../_images/sphx_glr_plot_12_supervoxels_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a></p>
   <div class="sphx-glr-thumbnail-title">Partitioning a ROI into supervoxels</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The fit stage of /auto_examples/00_full_pipeline/plot_01_full_pipeline. Input: one Supervoxelization per subject. Output: a HabitatModel."><img alt="" src="../../_images/sphx_glr_plot_13_fit_model_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. After every subject is cut into supervoxels, fit learns one habitat definition from all of them together. Because the same model labels every patient, habitat 2 means the same feature profile in each subject."><img alt="" src="../../_images/sphx_glr_plot_13_fit_model_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a></p>
   <div class="sphx-glr-thumbnail-title">Fitting a cohort habitat model</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a fitted HabitatModel and one Supervoxelization. Output: a HabitatMap. Stage: assign with nearest_centroid."><img alt="" src="../../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A fitted model only stores centroids. assign turns that into a picture: every supervoxel of a subject gets the id of its nearest centroid, and every voxel inherits the id of its supervoxel."><img alt="" src="../../_images/sphx_glr_plot_14_assign_labels_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a></p>
   <div class="sphx-glr-thumbnail-title">Assigning habitat labels</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel overlap is the matcher whenever two maps label the same voxels: a k-means restart, another k, another feature set, a perturbed image, a second reader. It needs no features at all, only the two label images, so it also works when the two fits live in different feature spaces."><img alt="" src="../../_images/sphx_glr_plot_02_overlap_cases_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. When two habitat maps cover the same voxels, their ids can be matched by counting shared voxels alone, even if the two fits used a different number of habitats or different features."><img alt="" src="../../_images/sphx_glr_plot_02_overlap_cases_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_02_overlap_cases.html"><span class="doc">Matching maps of the same voxels by overlap</span></a></p>
   <div class="sphx-glr-thumbnail-title">Matching maps of the same voxels by overlap</div>
 </div></div><div style="clear:both"></div></section>

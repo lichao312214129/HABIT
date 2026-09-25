@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -811,22 +811,22 @@ stored one for frozen runs).</p>
 
 <section id="examples-using-habit-precision-align-habitat-maps-to-prototypes">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.precision.align_habitat_maps_to_prototypes</span></code><a class="headerlink" href="#examples-using-habit-precision-align-habitat-maps-to-prototypes" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat map can also be read as a network: small pieces of habitat are the nodes, and pieces lying close together are linked. Network statistics then describe whether a habitat is one well-connected mass or a scatter of isolated islands, and how two habitats interleave."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/03_quantify/plot_04_graph_features.html"><span class="doc">Graph features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Graph features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Between different subjects there is no shared voxel, so habitats are matched by what describes them: one summary row per habitat (a centroid, a mean feature vector). HABIT names every subject against K shared prototypes, K = the largest habitat count, by alternating two steps:"><img alt="" src="../../_images/sphx_glr_plot_03_prototype_steps_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Two patients share no voxels, so their habitats cannot be matched by overlap. Instead each habitat is described by a summary row and all subjects are named against one shared set of reference rows."><img alt="" src="../../_images/sphx_glr_plot_03_prototype_steps_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_03_prototype_steps.html"><span class="doc">Prototype matching step by step</span></a></p>
   <div class="sphx-glr-thumbnail-title">Prototype matching step by step</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="The prototype matcher accepts four distances. Each comes with the prototype update that minimises it, so the loop still converges:"><img alt="" src="../../_images/sphx_glr_plot_04_prototype_metrics_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Prototype matching needs a rule for how far a habitat is from a prototype. The default compares feature values; the alternatives trade that for robustness to outliers or for comparing curve shape only."><img alt="" src="../../_images/sphx_glr_plot_04_prototype_metrics_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_04_prototype_metrics.html"><span class="doc">Choosing the distance for prototype matching</span></a></p>
   <div class="sphx-glr-thumbnail-title">Choosing the distance for prototype matching</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Habitat names learned on a training cohort are part of the model definition. A validation or external cohort must be named with those names, not refitted together with the training subjects: refitting moves the prototypes, so &quot;habitat 2&quot; would mean something slightly different in every analysis."><img alt="" src="../../_images/sphx_glr_plot_05_frozen_prototypes_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Once prototypes are learned on a training cohort, they define what each habitat id means. New patients should be named against those fixed prototypes rather than refitting them."><img alt="" src="../../_images/sphx_glr_plot_05_frozen_prototypes_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_05_frozen_prototypes.html"><span class="doc">Naming a new cohort with frozen prototypes</span></a></p>
   <div class="sphx-glr-thumbnail-title">Naming a new cohort with frozen prototypes</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A cohort habitat table has one column per habitat id: H1_volume, H2_mean_enhancement, ... A column is only one variable if H2 means the same habitat in every row. With per-subject (``one_step``) fits it does not, until the ids are matched."><img alt="" src="../../_images/sphx_glr_plot_06_downstream_tables_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat features are usually analysed as a table with one row per patient and one column per habitat. That only works if a column refers to the same kind of habitat in every patient."><img alt="" src="../../_images/sphx_glr_plot_06_downstream_tables_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_06_downstream_tables.html"><span class="doc">What matching changes in a cohort feature table</span></a></p>
   <div class="sphx-glr-thumbnail-title">What matching changes in a cohort feature table</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="With one_step habitats every subject is clustered on its own, so habitat 1 of one patient need not be habitat 1 of another, and patients may even have different habitat counts. align_habitat_maps_to_prototypes gives every subject one shared set of names:"><img alt="" src="../../_images/sphx_glr_plot_07_match_labels_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. In a one_step study each patient is clustered on its own, so habitat ids are not comparable between patients until they are matched onto shared prototypes."><img alt="" src="../../_images/sphx_glr_plot_07_match_labels_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a></p>
   <div class="sphx-glr-thumbnail-title">Matching habitat labels across subjects</div>
 </div></div><div style="clear:both"></div></section>

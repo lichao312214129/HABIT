@@ -2,6 +2,24 @@
 What matching changes in a cohort feature table
 ===============================================
 
+**Background.** Habitat features are usually analysed as a table with one
+row per patient and one column per habitat. That only works if a column
+refers to the same kind of habitat in every patient.
+
+**Purpose.** You build one cohort table from five demo subjects with raw
+and with prototype-matched ids, compare the spread of one column, and see
+how ``max_distance`` can leave poorly matching habitats out of the shared
+columns.
+
+**Key terms.**
+
+* **prototype** -- see
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+* **volume fraction** -- the share of ROI voxels that belong to one
+  habitat.
+* **max_distance** -- an optional cutoff: a habitat farther than this from
+  every free prototype keeps a subject-local id instead of a shared one.
+
 A cohort habitat table has one column per habitat id: ``H1_volume``,
 ``H2_mean_enhancement``, ... A column is only one variable if ``H2``
 means the same habitat in every row. With per-subject (``one_step``)
@@ -56,6 +74,7 @@ for subject in cohort:
     model = fitter.fit([units], cohort=Cohort([subject], name=subject.subject_id))
     maps.append(model.assigner()(units))
     models.append(model)
+# Shared names for all five subjects, from their fitted centroids.
 matched = align_habitat_maps_to_prototypes(maps, models=models)
 
 

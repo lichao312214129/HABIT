@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,23 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="deep-learning-habitat-embeddings">
 <span id="sphx-glr-auto-examples-03-quantify-plot-07-deep-learning-embeddings-py"></span><h1>Deep-learning habitat embeddings<a class="headerlink" href="#deep-learning-habitat-embeddings" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Deep-learning encoders turn an image into a stack of
+feature maps (channels). Averaging those channels inside each habitat gives
+every habitat a learned descriptor that can sit next to hand-crafted
+radiomics in a downstream model.</p>
+<p><strong>Purpose.</strong> You get a table with one row per habitat and one column per
+channel (64 here), and a heatmap of the first 16 dimensions. The feature
+volume on this page is random noise, so the numbers only show the mechanics,
+not meaningful biology.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>embedding</strong> – a fixed-length vector of learned numbers describing a
+region; here one 64-D vector per habitat.</p></li>
+<li><p><strong>masked spatial average pooling</strong> – the mean of each channel over the
+voxels where the habitat mask is non-zero.</p></li>
+<li><p><strong>(C, z, y, x)</strong> – channels first, then the same spatial axes as the
+habitat label array; the two must match voxel for voxel.</p></li>
+</ul>
 <p>Bridge HABIT habitat maps to deep-learning pipelines: extract a binary
 mask per habitat and apply <strong>masked spatial average pooling</strong> on a 3-D
 feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch
@@ -769,6 +786,7 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rows</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></a><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">:</span>
+        <span class="c1"># Binary mask of this one habitat; absent habitats pool to NaN.</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="n">label_array</span> <span class="o">==</span> <span class="n">hid</span>
         <span class="n">rows</span><span class="p">[</span><span class="n">hid</span><span class="p">]</span> <span class="o">=</span> <span class="n">masked_spatial_average_pooling</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">feature_map</span></a><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
     <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_channels</span></a> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">feature_map</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -829,8 +847,8 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.31s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.31s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.27s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.27s/it]
 Embedding shape: (3, 64) (habitats x 64-D)
             emb_0  emb_1  emb_2  emb_3  emb_4  emb_5
 habitat_id
@@ -923,7 +941,7 @@ habitat_id
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_07_deep_learning_embeddings_001.png" srcset="../../_images/sphx_glr_plot_07_deep_learning_embeddings_001.png" alt="Masked spatial average pooling (64-D, first 16 shown)" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 18.048 seconds)</p>
+<img src="../../_images/sphx_glr_plot_07_deep_learning_embeddings_001.png" srcset="../../_images/sphx_glr_plot_07_deep_learning_embeddings_001.png" alt="Masked spatial average pooling (64-D, first 16 shown)" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 20.251 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-quantify-plot-07-deep-learning-embeddings-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/07bd0dc16a8540328bb2943238bcdbf0/plot_07_deep_learning_embeddings.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_07_deep_learning_embeddings.ipynb</span></code></a></p>

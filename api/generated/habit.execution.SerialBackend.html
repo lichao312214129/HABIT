@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -756,7 +756,10 @@ and recorded failures are honoured only when this backend’s
 
 <section id="examples-using-habit-execution-serialbackend">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.execution.SerialBackend</span></code><a class="headerlink" href="#examples-using-habit-execution-serialbackend" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The study is the two-step list from /auto_examples/00_full_pipeline/plot_01_full_pipeline, with the habitat count fixed at 3 so this page can refit it on every backend. Only backend= / RunPolicy settings change. Habitat labels must match."><img alt="" src="../../_images/sphx_glr_plot_01_backends_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Texture columns have very different ranges, so the preprocess stage matters even more for texture than for intensity. Where the scaling state is learned (inside each subject, or once on the pooled cohort) also changes what the habitats mean."><img alt="" src="../../_images/sphx_glr_plot_06_texture_preprocessing_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/02_stages/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Preprocessing voxel texture before clustering</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Once a study is declared, HABIT still has to run it on every subject. This page is about that scheduling layer. Switching the backend or RunPolicy changes speed and how failures are handled; it does not change the science, so the habitat labels must come out identical."><img alt="" src="../../_images/sphx_glr_plot_01_backends_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html"><span class="doc">Running the same study on each backend</span></a></p>
   <div class="sphx-glr-thumbnail-title">Running the same study on each backend</div>
 </div></div><div style="clear:both"></div></section>

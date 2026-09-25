@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,21 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="clustering-habitats-from-a-derived-map">
 <span id="sphx-glr-auto-examples-02-stages-plot-08-derived-map-py"></span><h1>Clustering habitats from a derived map<a class="headerlink" href="#clustering-habitats-from-a-derived-map" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Habitats follow whatever columns the <code class="docutils literal notranslate"><span class="pre">extract</span></code> stage
+produces. Clustering derived DCE maps (enhancement and wash-out ratios)
+instead of raw intensities groups voxels by their enhancement pattern
+(contrast uptake and wash-out) rather than by absolute signal.</p>
+<p><strong>Purpose.</strong> You get three habitats for one subject fitted directly on
+its voxels, a relative-enhancement map, and the habitat overlay.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>derived map</strong> – see <a class="reference internal" href="plot_02_expression.html"><span class="doc">Expression voxel features</span></a>.</p></li>
+<li><p><strong>fit</strong> / <strong>assign</strong> – see
+<a class="reference internal" href="plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a> and
+<a class="reference internal" href="plot_14_assign_labels.html"><span class="doc">Assigning habitat labels</span></a>.</p></li>
+<li><p><strong>per-subject fit</strong> – the model is fitted on this one subject only, so
+its habitat ids are not comparable with other patients.</p></li>
+</ul>
 <p>Input: one <a class="reference internal" href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> with the four DCE phases.
 Output: a <a class="reference internal" href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatMap</span></code></a>. The voxel field is
 <a class="reference internal" href="../../api/generated/habit.voxel_features.ExpressionVoxelFeatures.html#habit.voxel_features.ExpressionVoxelFeatures" title="habit.voxel_features.ExpressionVoxelFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpressionVoxelFeatures</span></code></a> (see
@@ -781,6 +796,7 @@ breaking the ratio.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a> <span class="o">=</span> <a href="../../api/generated/habit.pipeline.voxel_units.html#habit.pipeline.voxel_units" title="habit.pipeline.voxel_units" class="sphx-glr-backref-module-habit-pipeline sphx-glr-backref-type-py-function"><span class="n">voxel_units</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a><span class="p">)</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span><span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># A one-subject cohort: the habitats are defined inside this patient only.</span>
 <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.fit" title="habit.habitat_model.KMeansHabitatModelFitter.fit" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">fit</span></a><span class="p">([</span><a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">],</span> <span class="n">cohort</span><span class="o">=</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Cohort</span></a><span class="p">([</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;one&quot;</span><span class="p">))</span>
 <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.assigner" title="habit.contracts.HabitatModel.assigner" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">model</span><span class="o">.</span><span class="n">assigner</span></a><span class="p">()(</span><a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
@@ -835,7 +851,7 @@ breaking the ratio.</p>
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.460 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.589 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-08-derived-map-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/d62abaa1dc872de3f26c61c65611b9f8/plot_08_derived_map.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_08_derived_map.ipynb</span></code></a></p>

@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -716,13 +716,13 @@ array contains no non-background voxel.</p>
 
 <section id="examples-using-habit-kernels-habitat-volume-fractions">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.kernels.habitat_volume_fractions</span></code><a class="headerlink" href="#examples-using-habit-kernels-habitat-volume-fractions" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Input: the same cohort, the same two-step design, the same k and seed. The only change is the voxel-feature preprocessor chain."><img alt="" src="../../_images/sphx_glr_plot_11_preprocess_compare_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Preprocessing changes the distances k-means sees, so it can change the habitats. To see by how much, fit the same design twice, once with and once without preprocessing, and compare the two maps."><img alt="" src="../../_images/sphx_glr_plot_11_preprocess_compare_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_11_preprocess_compare.html"><span class="doc">Comparing habitat maps with and without preprocessing</span></a></p>
   <div class="sphx-glr-thumbnail-title">Comparing habitat maps with and without preprocessing</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats."><img alt="" src="../../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. The simplest habitat number is how much of the tumour each habitat occupies. Volume fractions let you ask, for example, whether a larger share of one habitat goes with a worse outcome."><img alt="" src="../../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/03_quantify/plot_01_volume_fractions.html"><span class="doc">Volume and fractions</span></a></p>
   <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A cohort habitat table has one column per habitat id: H1_volume, H2_mean_enhancement, ... A column is only one variable if H2 means the same habitat in every row. With per-subject (``one_step``) fits it does not, until the ids are matched."><img alt="" src="../../_images/sphx_glr_plot_06_downstream_tables_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat features are usually analysed as a table with one row per patient and one column per habitat. That only works if a column refers to the same kind of habitat in every patient."><img alt="" src="../../_images/sphx_glr_plot_06_downstream_tables_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_06_downstream_tables.html"><span class="doc">What matching changes in a cohort feature table</span></a></p>
   <div class="sphx-glr-thumbnail-title">What matching changes in a cohort feature table</div>
 </div></div><div style="clear:both"></div></section>

@@ -21,16 +21,37 @@
 Whole-habitat radiomics
 =======================
 
+**Background.** Per-habitat radiomics describes the MRI inside each habitat.
+Whole-habitat radiomics instead describes the habitat map itself: the label
+image (habitat ids as grey values) is fed to PyRadiomics as the image, and
+the whole labelled region as the mask.
+
+**Purpose.** You get one row of features describing the partition (here
+first-order ``Mean`` / ``Entropy`` of the labels and ``shape`` features such
+as ``Sphericity`` and ``SurfaceArea``), a habitat overlay, and a map of local
+label entropy.
+
+**Key terms.**
+
+* **shape feature** -- geometry of the labelled region (e.g. how close it is
+  to a sphere, its surface area), independent of intensity.
+* **label entropy** -- how mixed the ids are in a small window around each
+  voxel; zero inside one uniform habitat, higher where habitats (or the
+  background at the tumour edge) meet.
+* **habitat / one-step habitats** -- see
+  :doc:`/auto_examples/03_quantify/plot_01_volume_fractions` and
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`.
+
 Quantify the **shape and spatial distribution of the partition map itself**
 using :class:`~habit.habitat_features.WholeHabitatRadiomicsFeatures`.
 The habitat label image plays both intensity and mask roles.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-13
+.. GENERATED FROM PYTHON SOURCE LINES 32-34
 
 One-step habitats, then whole-map PyRadiomics on the label field.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-50
+.. GENERATED FROM PYTHON SOURCE LINES 34-72
 
 .. code-block:: Python
 
@@ -63,6 +84,7 @@ sphinx_gallery_thumbnail_number = 2
             "firstorder": ["Mean", "Entropy"],
             "shape": ["Sphericity", "SurfaceArea"],
         },
+        # binWidth=1 keeps each integer habitat id in its own grey-level bin.
         "setting": {"binWidth": 1, "voxelArrayShift": 0},
     }
     table = WholeHabitatRadiomicsFeatures(params=params)(subject, habitat_map)
@@ -101,7 +123,7 @@ sphinx_gallery_thumbnail_number = 2
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.40s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.40s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.29s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.29s/it]
     Whole-habitat radiomics:
     subject                            subj001
     original_shape_Sphericity         0.719657
@@ -118,13 +140,13 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-54
+.. GENERATED FROM PYTHON SOURCE LINES 73-76
 
 Same objects as the table: habitat IDs are the intensity image.
 First figure: the partition. Second: local entropy of those discrete
 labels (not of the MRI), cropped to the same ROI.
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-85
+.. GENERATED FROM PYTHON SOURCE LINES 76-108
 
 .. code-block:: Python
 
@@ -142,6 +164,7 @@ labels (not of the MRI), cropped to the same ROI.
 
     label_intensity: np.ndarray = np.asarray(habitat_map.label_array, dtype=np.float64)
     n_label_bins: int = max(int(label_intensity.max()) + 1, 2)
+    # 5x5x5 window; one histogram bin per id (background 0 included).
     entropy = local_entropy_map(label_intensity, kernel_size=5, bins=n_label_bins)
     habitat_roi = MaskVolume.from_geometry(
         (habitat_map.label_array > 0).astype(np.uint8),
@@ -195,7 +218,7 @@ labels (not of the MRI), cropped to the same ROI.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 23.554 seconds)
+   **Total running time of the script:** (0 minutes 22.960 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_quantify_plot_06_whole_habitat_radiomics.py:

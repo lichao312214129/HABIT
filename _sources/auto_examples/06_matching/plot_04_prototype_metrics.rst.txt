@@ -21,6 +21,26 @@
 Choosing the distance for prototype matching
 ============================================
 
+**Background.** Prototype matching needs a rule for how far a habitat is
+from a prototype. The default compares feature values; the alternatives
+trade that for robustness to outliers or for comparing curve shape only.
+
+**Purpose.** On synthetic habitats with known types you see which of the
+four distances names each type consistently, and when a shape-only
+distance cannot tell two habitats apart.
+
+**When to use.** Only if the default ``"sqeuclidean"`` does not fit your
+features; most enhancement-based studies can keep the default.
+
+**Key terms.**
+
+* **prototype** -- see
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+* **metric** -- the distance used to compare a habitat's summary row with
+  a prototype.
+* **outlier** -- a habitat whose values are far from the others of its
+  type (here, one subject's strong habitat doubled).
+
 The prototype matcher accepts four distances. Each comes with the
 prototype update that minimises it, so the loop still converges:
 
@@ -43,13 +63,13 @@ delayed) and four known types make the difference visible:
 * one subject's strong habitat is an outlier, which pulls a mean
   prototype but not a median one.
 
-.. GENERATED FROM PYTHON SOURCE LINES 29-32
+.. GENERATED FROM PYTHON SOURCE LINES 49-52
 
 Five subjects, known habitat types
 ----------------------------------
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 32-62
+.. GENERATED FROM PYTHON SOURCE LINES 52-82
 
 .. code-block:: Python
 
@@ -90,18 +110,21 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-67
+.. GENERATED FROM PYTHON SOURCE LINES 83-88
 
 Match with every metric
 -----------------------
 ``truth`` is only used to score the result: a perfect naming puts each
-habitat type under exactly one prototype.
+habitat type under exactly one prototype. The same five subjects are
+matched once per distance.
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-78
+.. GENERATED FROM PYTHON SOURCE LINES 88-101
 
 .. code-block:: Python
 
     results = {metric: match_rows_to_prototypes(blocks, metric=metric) for metric in PROTOTYPE_METRICS}
+    # Purity: for each prototype name, count habitats of its most common true
+    # type, then sum over names (20 = every habitat named consistently).
     purity = {}
     for metric, result in results.items():
         table = pd.crosstab(
@@ -153,7 +176,7 @@ habitat type under exactly one prototype.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-85
+.. GENERATED FROM PYTHON SOURCE LINES 102-108
 
 The four namings in the arterial / portal plane
 -----------------------------------------------
@@ -162,7 +185,7 @@ Crosses are fitted prototypes (means for ``sqeuclidean``, medians for
 point on a ray is identical to cosine. Correlation prototypes live in
 row-centred space, so only the colours are shown.
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-93
+.. GENERATED FROM PYTHON SOURCE LINES 108-116
 
 .. code-block:: Python
 
@@ -186,7 +209,7 @@ row-centred space, so only the colours are shown.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 94-99
+.. GENERATED FROM PYTHON SOURCE LINES 117-122
 
 Mean vs median prototype of the strong habitats
 -----------------------------------------------
@@ -194,7 +217,7 @@ The outlier drags the ``sqeuclidean`` mean away from the other four
 strong habitats; the ``manhattan`` median stays with them. Both still
 name the outlier "strong": it cannot be dropped, only matched.
 
-.. GENERATED FROM PYTHON SOURCE LINES 99-105
+.. GENERATED FROM PYTHON SOURCE LINES 122-128
 
 .. code-block:: Python
 
@@ -218,7 +241,7 @@ name the outlier "strong": it cannot be dropped, only matched.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-119
+.. GENERATED FROM PYTHON SOURCE LINES 129-142
 
 When cosine / correlation are the right choice
 ----------------------------------------------
@@ -234,7 +257,7 @@ three features, but with **one** feature of constant sign every row has
 the same cosine direction (all distances 0, names arbitrary) and every
 row is constant for correlation (undefined, so it raises):
 
-.. GENERATED FROM PYTHON SOURCE LINES 119-126
+.. GENERATED FROM PYTHON SOURCE LINES 142-149
 
 .. code-block:: Python
 
@@ -259,12 +282,12 @@ row is constant for correlation (undefined, so it raises):
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 127-129
+.. GENERATED FROM PYTHON SOURCE LINES 150-152
 
 With **two** features a row-centred vector is ``(+d, -d)``, so
 correlation only sees which feature is larger (r = +1 or -1).
 
-.. GENERATED FROM PYTHON SOURCE LINES 129-132
+.. GENERATED FROM PYTHON SOURCE LINES 152-155
 
 .. code-block:: Python
 
@@ -287,7 +310,7 @@ correlation only sees which feature is larger (r = +1 or -1).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.985 seconds)
+   **Total running time of the script:** (0 minutes 1.946 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_matching_plot_04_prototype_metrics.py:

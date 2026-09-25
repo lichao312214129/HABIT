@@ -21,11 +21,28 @@
 Intratumoral heterogeneity (ITH)
 ================================
 
+**Background.** Intratumoral heterogeneity (ITH) describes how mixed a
+tumour is. Here it is measured from the habitat map as fragmentation: do
+habitats form a few compact blobs, or many scattered pieces?
+
+**Purpose.** You get one ITH score for the whole tumour plus one dispersion
+value per habitat, as a table and a summary figure.
+
+**Key terms.**
+
+* **ITH score** -- intratumoral heterogeneity as fragmentation: 0 when each
+  habitat is one connected blob, approaching 1 when habitats break into many
+  small pieces. Formula: ``1 - sum_i(S_i,max / n_i) / S_total``, with
+  ``S_i,max`` the largest piece of habitat ``i``, ``n_i`` its number of
+  face-connected pieces and ``S_total`` all non-background voxels.
+* **per-habitat dispersion** -- the same idea for one habitat,
+  ``1 - (S_i,max / n_i) / S_i``; the ITH score is their volume-weighted mean.
+
 Atomic ITH metrics from a habitat label map:
 :func:`~habit.kernels.ith_score` and
 :func:`~habit.kernels.habitat_ith_dispersion`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-18
+.. GENERATED FROM PYTHON SOURCE LINES 28-35
 
 One-step habitats
 -----------------
@@ -35,7 +52,7 @@ extract ``Spec("raw")``, fit ``Spec("kmeans", {"n_habitats": 3})``,
 assign ``Spec("nearest_centroid")``.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-38
+.. GENERATED FROM PYTHON SOURCE LINES 35-55
 
 .. code-block:: Python
 
@@ -89,17 +106,18 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.29s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.29s/it]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-41
+.. GENERATED FROM PYTHON SOURCE LINES 56-59
 
 ITH score and per-habitat dispersion
 ------------------------------------
+One tumour-level number, then one value per habitat id (same formula).
 
-.. GENERATED FROM PYTHON SOURCE LINES 41-55
+.. GENERATED FROM PYTHON SOURCE LINES 59-73
 
 .. code-block:: Python
 
@@ -143,7 +161,7 @@ ITH score and per-habitat dispersion
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.861 seconds)
+   **Total running time of the script:** (0 minutes 1.823 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_quantify_plot_03_ith.py:

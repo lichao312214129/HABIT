@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,21 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="intratumoral-heterogeneity-ith">
 <span id="sphx-glr-auto-examples-03-quantify-plot-03-ith-py"></span><h1>Intratumoral heterogeneity (ITH)<a class="headerlink" href="#intratumoral-heterogeneity-ith" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Intratumoral heterogeneity (ITH) describes how mixed a
+tumour is. Here it is measured from the habitat map as fragmentation: do
+habitats form a few compact blobs, or many scattered pieces?</p>
+<p><strong>Purpose.</strong> You get one ITH score for the whole tumour plus one dispersion
+value per habitat, as a table and a summary figure.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>ITH score</strong> – intratumoral heterogeneity as fragmentation: 0 when each
+habitat is one connected blob, approaching 1 when habitats break into many
+small pieces. Formula: <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">sum_i(S_i,max</span> <span class="pre">/</span> <span class="pre">n_i)</span> <span class="pre">/</span> <span class="pre">S_total</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">S_i,max</span></code> the largest piece of habitat <code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">n_i</span></code> its number of
+face-connected pieces and <code class="docutils literal notranslate"><span class="pre">S_total</span></code> all non-background voxels.</p></li>
+<li><p><strong>per-habitat dispersion</strong> – the same idea for one habitat,
+<code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">(S_i,max</span> <span class="pre">/</span> <span class="pre">n_i)</span> <span class="pre">/</span> <span class="pre">S_i</span></code>; the ITH score is their volume-weighted mean.</p></li>
+</ul>
 <p>Atomic ITH metrics from a habitat label map:
 <a class="reference internal" href="../../api/generated/habit.kernels.ith_score.html#habit.kernels.ith_score" title="habit.kernels.ith_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">ith_score()</span></code></a> and
 <a class="reference internal" href="../../api/generated/habit.kernels.habitat_ith_dispersion.html#habit.kernels.habitat_ith_dispersion" title="habit.kernels.habitat_ith_dispersion"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_ith_dispersion()</span></code></a>.</p>
@@ -748,13 +763,14 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.35s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.35s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.29s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.29s/it]
 </pre></div>
 </div>
 </section>
 <section id="ith-score-and-per-habitat-dispersion">
 <h2>ITH score and per-habitat dispersion<a class="headerlink" href="#ith-score-and-per-habitat-dispersion" title="Link to this heading"></a></h2>
+<p>One tumour-level number, then one value per habitat id (same formula).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ith</span></a> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><a href="../../api/generated/habit.kernels.ith_score.html#habit.kernels.ith_score" title="habit.kernels.ith_score" class="sphx-glr-backref-module-habit-kernels sphx-glr-backref-type-py-function"><span class="n">ith_score</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a><span class="p">))</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dispersion</span></a> <span class="o">=</span> <a href="../../api/generated/habit.kernels.habitat_ith_dispersion.html#habit.kernels.habitat_ith_dispersion" title="habit.kernels.habitat_ith_dispersion" class="sphx-glr-backref-module-habit-kernels sphx-glr-backref-type-py-function"><span class="n">habitat_ith_dispersion</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a><span class="p">)</span>
 <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ith_table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
@@ -779,7 +795,7 @@ habitat    score
      H3 0.954187
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.861 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.823 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-quantify-plot-03-ith-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/60fdcd05697f81db8399fe84a42d283f/plot_03_ith.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_03_ith.ipynb</span></code></a></p>

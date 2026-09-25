@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -776,28 +776,28 @@ when <code class="docutils literal notranslate"><span class="pre">crop_to=&quot;
 
 <section id="examples-using-habit-viz-plot-voxel-texture-slice">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_voxel_texture_slice</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-voxel-texture-slice" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Three liver DCE maps: arterial relative enhancement, arterial-to-portal wash-out, and arterial-to-delayed wash-out."><img alt="" src="../../_images/sphx_glr_plot_02_custom_features_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Built-in extractors cover intensities and texture. When your study needs its own voxel formula (here, liver DCE enhancement and wash-out), you write a small extractor class, register it under a name, and use that name in a Spec like any built-in one."><img alt="" src="../../_images/sphx_glr_plot_02_custom_features_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_02_custom_features.html"><span class="doc">Custom features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Custom features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="ExpressionVoxelFeatures builds one column per formula. Names in the formula are modality keys on the subject (``LAP``, pre_contrast, ...). eps keeps a zero denominator from breaking a ratio."><img alt="" src="../../_images/sphx_glr_plot_02_expression_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Clinicians often read DCE images as ratios (how much a voxel enhances, how fast it washes out) rather than raw signal. An expression extractor computes such ratios per voxel from a formula string, without writing a class."><img alt="" src="../../_images/sphx_glr_plot_02_expression_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_02_expression.html"><span class="doc">Expression voxel features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Expression voxel features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Texture maps are inputs to clustering, not post-label tables. GPU is a faster implementation of the same IBSI / PyRadiomics definition — the numbers do not change because of GPU."><img alt="" src="../../_images/sphx_glr_plot_03_voxel_texture_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Intensity alone cannot tell a smooth region from a mottled one of the same brightness. Voxel texture computes a radiomics feature in a small cube around every ROI voxel, giving one texture map per feature that clustering can use as a column."><img alt="" src="../../_images/sphx_glr_plot_03_voxel_texture_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a></p>
   <div class="sphx-glr-thumbnail-title">Voxel texture and GPU</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject. Output: a VoxelFeatureField of per-voxel GLCM Contrast. Stage: extract_voxel_texture."><img alt="" src="../../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A voxel texture value describes how grey levels vary in a small cube around each ROI voxel, which intensity alone does not show. Here it is computed with one function call on an image and a mask."><img alt="" src="../../_images/sphx_glr_plot_07_voxel_texture_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_07_voxel_texture.html"><span class="doc">Extracting a voxel texture</span></a></p>
   <div class="sphx-glr-thumbnail-title">Extracting a voxel texture</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: one Subject with the four DCE phases. Output: a HabitatMap. The voxel field is ExpressionVoxelFeatures (see /auto_examples/02_stages/plot_02_expression). Stage: extract_voxel_features with expression, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Habitats follow whatever columns the extract stage produces. Clustering derived DCE maps (enhancement and wash-out ratios) instead of raw intensities groups voxels by their enhancement pattern (contrast uptake and wash-out) rather than by absolute signal."><img alt="" src="../../_images/sphx_glr_plot_08_derived_map_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a></p>
   <div class="sphx-glr-thumbnail-title">Clustering habitats from a derived map</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Input: a per-voxel GLCM VoxelFeatureField. Output: a HabitatMap. Stages: extract_voxel_texture, then a per-subject fit."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Texture maps can be clustered like intensities: each ROI voxel becomes one row of texture values, and k-means groups voxels with similar local patterns into habitats."><img alt="" src="../../_images/sphx_glr_plot_09_texture_habitats_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/02_stages/plot_09_texture_habitats.html"><span class="doc">Clustering habitats from a texture field</span></a></p>
   <div class="sphx-glr-thumbnail-title">Clustering habitats from a texture field</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Classic radiomics computes intensity and texture features over the whole tumour. Per-habitat radiomics computes the same PyRadiomics features separately inside each habitat, so every sub-region gets its own intensity and texture description."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/03_quantify/plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
   <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Quantify the shape and spatial distribution of the partition map itself using WholeHabitatRadiomicsFeatures. The habitat label image plays both intensity and mask roles."><img alt="" src="../../_images/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Per-habitat radiomics describes the MRI inside each habitat. Whole-habitat radiomics instead describes the habitat map itself: the label image (habitat ids as grey values) is fed to PyRadiomics as the image, and the whole labelled region as the mask."><img alt="" src="../../_images/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/03_quantify/plot_06_whole_habitat_radiomics.html"><span class="doc">Whole-habitat radiomics</span></a></p>
   <div class="sphx-glr-thumbnail-title">Whole-habitat radiomics</div>
 </div></div><div style="clear:both"></div></section>

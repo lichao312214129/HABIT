@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,22 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="supervoxel-feature-extraction-and-acceleration">
 <span id="sphx-glr-auto-examples-02-stages-plot-05-supervoxel-features-py"></span><h1>Supervoxel feature extraction and acceleration<a class="headerlink" href="#supervoxel-feature-extraction-and-acceleration" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> The cohort model clusters supervoxels, not voxels, so
+each supervoxel needs its own row of numbers. That row can be a simple
+summary of its voxels (mean, median, SD) or radiomics texture computed on
+the supervoxel as a small ROI.</p>
+<p><strong>Purpose.</strong> You get 24 SLIC supervoxels of one subject, a table of
+their mean / median / SD intensity, and a timing plus value-by-value
+comparison of HABIT’s C-extension texture path against PyRadiomics
+<code class="docutils literal notranslate"><span class="pre">execute()</span></code>.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>supervoxel</strong> – see <a class="reference internal" href="plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a>.</p></li>
+<li><p><strong>supervoxel feature</strong> – one value per supervoxel, summarising the
+voxels inside it; one column per feature.</p></li>
+<li><p><strong>parity</strong> – whether two implementations give the same numbers; here
+measured as the maximum absolute difference per feature.</p></li>
+</ul>
 <p>In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels.
 Each supervoxel must then be summarized into a quantitative feature vector
 before cohort pooling and clustering.</p>
@@ -900,7 +916,9 @@ Each extractor binds the voxel field and aggregates voxel intensities within eac
 </div>
 <br />
 <br /><p>Approach 2: Supervoxel Radiomics texture and high-throughput acceleration.
-Compare HABIT native C-extension against PyRadiomics for time and numerical parity.</p>
+Compare HABIT native C-extension against PyRadiomics for time and numerical parity.
+Same PyRadiomics settings for both paths; normalize=False keeps the
+intensities as stored (no PyRadiomics intensity normalisation).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">texture_params</span></a> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;imageType&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Original&quot;</span><span class="p">:</span> <span class="p">{}},</span>
     <span class="s2">&quot;featureClass&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -967,9 +985,9 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Extraction time for 24 supervoxels:
-  HABIT Native C-extension : 0.582 s
-  Reference PyRadiomics    : 1.180 s
-  Speedup factor           : 2.03x faster
+  HABIT Native C-extension : 0.577 s
+  Reference PyRadiomics    : 1.081 s
+  Speedup factor           : 1.87x faster
 
 Maximum absolute difference across all features: 1.44e-10
 
@@ -1022,7 +1040,7 @@ original_firstorder_Skewness-LAP  1.076916e-14   3.681372e-15
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" srcset="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" alt="Supervoxel texture benchmark (2.0x speedup), Numerical parity: JointEntropy-LAP" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 14.919 seconds)</p>
+<img src="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" srcset="../../_images/sphx_glr_plot_05_supervoxel_features_002.png" alt="Supervoxel texture benchmark (1.9x speedup), Numerical parity: JointEntropy-LAP" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 14.424 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-05-supervoxel-features-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/cd80090d6b8696eaf4f82549a374cddc/plot_05_supervoxel_features.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_05_supervoxel_features.ipynb</span></code></a></p>

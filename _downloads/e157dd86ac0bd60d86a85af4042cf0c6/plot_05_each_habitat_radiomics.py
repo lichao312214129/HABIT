@@ -2,6 +2,29 @@
 Per-habitat radiomics
 =====================
 
+**Background.** Classic radiomics computes intensity and texture features
+over the whole tumour. Per-habitat radiomics computes the same PyRadiomics
+features separately inside each habitat, so every sub-region gets its own
+intensity and texture description.
+
+**Purpose.** You get one row per subject with columns
+``habitat_{id}_{feature}_of_{modality}`` (plus ``has_habitat_{id}``), maps
+of voxel-wise GLCM Id inside each habitat, and a bar chart comparing the
+habitats feature by feature.
+
+**Key terms.**
+
+* **first-order feature** -- a statistic of the voxel intensities alone
+  (e.g. ``Mean``, ``Energy``), ignoring their spatial arrangement.
+* **GLCM feature** -- texture from the grey-level co-occurrence matrix, i.e.
+  how often pairs of neighbouring voxels share grey levels (e.g. ``Id``).
+* **binWidth** -- width of the intensity bins used before texture features;
+  bins are set per habitat, as in PyRadiomics ``execute(label=id)``.
+* **one-step habitats** -- see
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`; match ids
+  before comparing ``habitat_1_*`` across patients
+  (:doc:`/auto_examples/06_matching/plot_07_match_labels`).
+
 Extract first-order and GLCM features **within each habitat subregion**
 using :class:`~habit.habitat_features.EachHabitatRadiomicsFeatures`.
 """
@@ -42,6 +65,7 @@ params: Dict[str, Any] = {
     },
     "setting": {"binWidth": 25, "voxelArrayShift": 0},
 }
+# One PyRadiomics pass per habitat id, using the habitat map as the mask.
 table = EachHabitatRadiomicsFeatures(params=params)(subject, habitat_map)
 row = table.frame.iloc[0]
 display_cols = [

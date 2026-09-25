@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,23 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="load-from-simpleitk">
 <span id="sphx-glr-auto-examples-01-data-in-plot-02-simpleitk-py"></span><h1>Load from SimpleITK<a class="headerlink" href="#load-from-simpleitk" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Many imaging scripts already hold images as SimpleITK
+objects. HABIT can wrap those objects directly, keeping their spacing,
+origin and direction, so no files have to be rearranged.</p>
+<p><strong>Purpose.</strong> You get a <a class="reference internal" href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cohort</span></code></a> built from
+SimpleITK images, plus a quick one-step habitat map on one patient to
+show the cohort is usable.</p>
+<p><strong>When to use.</strong> Use this when your code already calls
+<code class="docutils literal notranslate"><span class="pre">sitk.ReadImage</span></code> or produces SimpleITK images; if your files follow the
+HABIT folder layout, <a class="reference internal" href="plot_01_directory.html"><span class="doc">Load from directory</span></a>
+is shorter.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>cohort / subject / ROI</strong> – see
+<a class="reference internal" href="plot_01_directory.html"><span class="doc">Load from directory</span></a>.</p></li>
+<li><p><strong>one-step habitats</strong> – habitats clustered inside one subject only; see
+<a class="reference internal" href="../04_designs/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a>.</p></li>
+</ul>
 <p>Read an image file and a mask file with SimpleITK, then put the volumes on
 a <a class="reference internal" href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a>. <code class="docutils literal notranslate"><span class="pre">modality=</span></code> is the series or ROI
 name. One person and several people are each a
@@ -711,8 +728,10 @@ name. One person and several people are each a
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">()</span>
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">IMAGE</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">/</span> <span class="s2">&quot;images&quot;</span> <span class="o">/</span> <span class="s2">&quot;subj001&quot;</span> <span class="o">/</span> <span class="s2">&quot;LAP&quot;</span> <span class="o">/</span> <span class="s2">&quot;WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd&quot;</span>
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MASK</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">/</span> <span class="s2">&quot;masks&quot;</span> <span class="o">/</span> <span class="s2">&quot;subj001&quot;</span> <span class="o">/</span> <span class="s2">&quot;LAP&quot;</span> <span class="o">/</span> <span class="s2">&quot;WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd&quot;</span>
+<span class="c1"># from_sitk keeps spacing / origin / direction, so voxel sizes stay physical.</span>
 <a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">volume</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume.from_sitk" title="habit.contracts.ImageVolume.from_sitk" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">ImageVolume</span><span class="o">.</span><span class="n">from_sitk</span></a><span class="p">(</span><span class="n">sitk</span><span class="o">.</span><span class="n">ReadImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">IMAGE</span></a><span class="p">)),</span> <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
 <a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">roi</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume.from_sitk" title="habit.contracts.MaskVolume.from_sitk" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">MaskVolume</span><span class="o">.</span><span class="n">from_sitk</span></a><span class="p">(</span><span class="n">sitk</span><span class="o">.</span><span class="n">ReadImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MASK</span></a><span class="p">)),</span> <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
+<span class="c1"># Dictionary keys are the names later stages use (modalities=..., roi=...).</span>
 <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Subject</span></a><span class="p">(</span>
     <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span>
     <span class="n">images</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;LAP&quot;</span><span class="p">:</span> <a href="../../api/generated/habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.ImageVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">volume</span></a><span class="p">},</span>
@@ -747,7 +766,8 @@ same as one image series (here LAP).
 Cohort(1 subjects [subj001], name=&#39;one&#39;)
 </pre></div>
 </div>
-<p>One-step habitats on this one person, then overlay.</p>
+<p>One-step habitats on this one person, then overlay. This only proves the
+cohort works end to end; habitat stages are explained in section 2.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sitk_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat" title="habit.recipes.one_step_habitat" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><span class="n">one_step_habitat</span></a><span class="p">(</span>
     <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,),</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">roi</span></a><span class="o">=</span><span class="s2">&quot;LAP&quot;</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one</span></a><span class="p">)</span>
@@ -773,8 +793,8 @@ Cohort(1 subjects [subj001], name=&#39;one&#39;)
 <li><img src="../../_images/sphx_glr_plot_02_simpleitk_002.png" srcset="../../_images/sphx_glr_plot_02_simpleitk_002.png" alt="Habitats from SimpleITK, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-multi-img"/></li>
 </ul>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:00&lt;00:00,  1.33it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:00&lt;00:00,  1.33it/s]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:00&lt;00:00,  1.35it/s]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:00&lt;00:00,  1.35it/s]
 F:\work\habit_project\habit\viz\diagrams.py:245: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
@@ -798,7 +818,7 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort(2 subjects [subj001, subj002], name=&#39;many&#39;)
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.149 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.021 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-data-in-plot-02-simpleitk-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/2a1dd070c2323c873e1489bca8e6e38f/plot_02_simpleitk.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_02_simpleitk.ipynb</span></code></a></p>

@@ -21,6 +21,37 @@
 Precise voxel features
 ======================
 
+**Background.** A voxel feature is only useful for habitats if it gives
+nearly the same value when the same tumour is imaged again and when its
+computation settings change slightly. Precise screening measures this and
+keeps only the features that pass.
+
+**Purpose.** You get ICC forest plots for three experiments on one demo
+subject, the list of kept and dropped features, and a side-by-side check of
+habitats clustered with all features vs only the precise ones (mean Dice
+and disagreement under the same simulated retest).
+
+**Key terms.**
+
+* **retest perturbation** -- a simulated repeat scan: Gaussian noise, a
+  half-voxel shift and a 0.5 degree in-plane rotation applied to the image
+  (Prior et al. Appendix S2); the original ROI is kept.
+* **repeatability / reproducibility** -- agreement between original and
+  retest image / between two settings (kernel radius 1 vs 3, bin width 12
+  vs 25).
+* **ICC** (intraclass correlation coefficient) -- agreement of a feature
+  between two measurements of the same voxels; near 1 means repeatable.
+  HABIT uses ICC(3A,1) (absolute agreement) for repeatability and
+  ICC(3C,1) (consistency) for reproducibility, after min-max scaling each
+  feature map.
+* **LCL** -- lower limit of the ICC's 95% confidence interval; a feature is
+  precise here when LCL >= 0.5 in all three experiments.
+* **whitelist** -- the list of precise features; a preprocessing step that
+  drops every other column before clustering.
+* **Dice** -- overlap between two label maps (0 = none, 1 = identical),
+  scored after matching ids (see
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`).
+
 Decide **which voxel features may define habitats**, then cluster only
 those robust features. This is the Prior et al. precision screen (*Radiol Artif Intell*
 2024;6(2):e230118; `DOI <https://doi.org/10.1148/ryai.230118>`__).
@@ -41,13 +72,13 @@ An optional MONAI ``bspline_deform`` ROI edge perturbation is shown later
 to inspect contour deformations; that is separate from the Appendix S2
 retest used for the habitat stability comparison.
 
-.. GENERATED FROM PYTHON SOURCE LINES 27-30
+.. GENERATED FROM PYTHON SOURCE LINES 58-61
 
 Load one demo subject. ``extract_voxel_texture`` crops to the ROI box
 internally (``crop_to_roi=True``).
 sphinx_gallery_thumbnail_number = 5
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-69
+.. GENERATED FROM PYTHON SOURCE LINES 61-100
 
 .. code-block:: Python
 
@@ -125,12 +156,12 @@ sphinx_gallery_thumbnail_number = 5
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-72
+.. GENERATED FROM PYTHON SOURCE LINES 101-103
 
 Appendix S2 retest chain on one shared RNG.
 Sequentially applies Gaussian noise -> translation -> rotation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-93
+.. GENERATED FROM PYTHON SOURCE LINES 103-124
 
 .. code-block:: Python
 
@@ -175,11 +206,11 @@ Sequentially applies Gaussian noise -> translation -> rotation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 94-95
+.. GENERATED FROM PYTHON SOURCE LINES 125-126
 
 Extract texture features at base R3/B12 and the two reproducibility contrasts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 95-120
+.. GENERATED FROM PYTHON SOURCE LINES 126-153
 
 .. code-block:: Python
 
@@ -193,6 +224,8 @@ Extract texture features at base R3/B12 and the two reproducibility contrasts.
             "DifferenceEntropy",
         ),
     }
+    # Base setting R3/B12 is compared with R1 (kernel radius), B25 (bin width)
+    # and the perturbed image; every other setting is held fixed.
     feat_r1 = extract_voxel_texture(
         image, mask, kernel_radius=1, bin_width=12, feature_classes=FEATURE_CLASSES
     )
@@ -216,286 +249,286 @@ Extract texture features at base R3/B12 and the two reproducibility contrasts.
 
  .. code-block:: none
 
-    voxel_radiomics: firstorder batch 1/35 0.267s peak=3MiB
-    voxel_radiomics: firstorder batch 2/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 3/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 4/35 0.005s peak=3MiB
-    voxel_radiomics: firstorder batch 5/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 6/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 7/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 8/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 9/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 10/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 11/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 12/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 13/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 14/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 15/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 16/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 17/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 18/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 19/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 20/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 21/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 22/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 23/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 24/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 25/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 26/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 27/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 28/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 29/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 30/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 31/35 0.004s peak=3MiB
-    voxel_radiomics: firstorder batch 32/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 33/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 34/35 0.003s peak=3MiB
-    voxel_radiomics: firstorder batch 35/35 0.003s peak=2MiB
-    voxel_radiomics: glcm batch 1/35 0.298s peak=1MiB
-    voxel_radiomics: glcm batch 2/35 0.020s peak=2MiB
-    voxel_radiomics: glcm batch 3/35 0.019s peak=3MiB
-    voxel_radiomics: glcm batch 4/35 0.021s peak=4MiB
-    voxel_radiomics: glcm batch 5/35 0.021s peak=4MiB
-    voxel_radiomics: glcm batch 6/35 0.020s peak=5MiB
-    voxel_radiomics: glcm batch 7/35 0.021s peak=6MiB
-    voxel_radiomics: glcm batch 8/35 0.021s peak=7MiB
-    voxel_radiomics: glcm batch 9/35 0.021s peak=8MiB
-    voxel_radiomics: glcm batch 10/35 0.021s peak=9MiB
-    voxel_radiomics: glcm batch 11/35 0.019s peak=10MiB
-    voxel_radiomics: glcm batch 12/35 0.021s peak=11MiB
-    voxel_radiomics: glcm batch 13/35 0.023s peak=12MiB
-    voxel_radiomics: glcm batch 14/35 0.021s peak=13MiB
-    voxel_radiomics: glcm batch 15/35 0.016s peak=13MiB
-    voxel_radiomics: glcm batch 16/35 0.017s peak=14MiB
-    voxel_radiomics: glcm batch 17/35 0.017s peak=15MiB
-    voxel_radiomics: glcm batch 18/35 0.019s peak=16MiB
-    voxel_radiomics: glcm batch 19/35 0.017s peak=17MiB
-    voxel_radiomics: glcm batch 20/35 0.018s peak=18MiB
-    voxel_radiomics: glcm batch 21/35 0.019s peak=19MiB
-    voxel_radiomics: glcm batch 22/35 0.016s peak=20MiB
-    voxel_radiomics: glcm batch 23/35 0.017s peak=21MiB
-    voxel_radiomics: glcm batch 24/35 0.017s peak=22MiB
-    voxel_radiomics: glcm batch 25/35 0.017s peak=22MiB
-    voxel_radiomics: glcm batch 26/35 0.017s peak=23MiB
-    voxel_radiomics: glcm batch 27/35 0.016s peak=24MiB
-    voxel_radiomics: glcm batch 28/35 0.016s peak=25MiB
-    voxel_radiomics: glcm batch 29/35 0.016s peak=26MiB
-    voxel_radiomics: glcm batch 30/35 0.016s peak=27MiB
-    voxel_radiomics: glcm batch 31/35 0.016s peak=28MiB
-    voxel_radiomics: glcm batch 32/35 0.017s peak=29MiB
-    voxel_radiomics: glcm batch 33/35 0.017s peak=30MiB
-    voxel_radiomics: glcm batch 34/35 0.018s peak=31MiB
-    voxel_radiomics: glcm batch 35/35 0.016s peak=31MiB
-    voxel_radiomics: firstorder batch 1/35 0.015s peak=37MiB
-    voxel_radiomics: firstorder batch 2/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 3/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 4/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 5/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 6/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 7/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 8/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 9/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 10/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 11/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 12/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 13/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 14/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 15/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 16/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 17/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 18/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 19/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 20/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 21/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 22/35 0.006s peak=37MiB
-    voxel_radiomics: firstorder batch 23/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 24/35 0.006s peak=37MiB
-    voxel_radiomics: firstorder batch 25/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 26/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 27/35 0.006s peak=37MiB
-    voxel_radiomics: firstorder batch 28/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 29/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 30/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 31/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 32/35 0.005s peak=37MiB
-    voxel_radiomics: firstorder batch 33/35 0.006s peak=37MiB
-    voxel_radiomics: firstorder batch 34/35 0.006s peak=37MiB
-    voxel_radiomics: firstorder batch 35/35 0.005s peak=36MiB
-    voxel_radiomics: glcm batch 1/35 0.052s peak=33MiB
-    voxel_radiomics: glcm batch 2/35 0.051s peak=34MiB
-    voxel_radiomics: glcm batch 3/35 0.050s peak=35MiB
-    voxel_radiomics: glcm batch 4/35 0.051s peak=36MiB
-    voxel_radiomics: glcm batch 5/35 0.052s peak=37MiB
-    voxel_radiomics: glcm batch 6/35 0.052s peak=38MiB
-    voxel_radiomics: glcm batch 7/35 0.055s peak=40MiB
-    voxel_radiomics: glcm batch 8/35 0.051s peak=41MiB
-    voxel_radiomics: glcm batch 9/35 0.052s peak=42MiB
-    voxel_radiomics: glcm batch 10/35 0.055s peak=43MiB
-    voxel_radiomics: glcm batch 11/35 0.054s peak=44MiB
-    voxel_radiomics: glcm batch 12/35 0.054s peak=45MiB
-    voxel_radiomics: glcm batch 13/35 0.054s peak=46MiB
-    voxel_radiomics: glcm batch 14/35 0.056s peak=48MiB
-    voxel_radiomics: glcm batch 15/35 0.052s peak=49MiB
-    voxel_radiomics: glcm batch 16/35 0.054s peak=50MiB
-    voxel_radiomics: glcm batch 17/35 0.055s peak=51MiB
-    voxel_radiomics: glcm batch 18/35 0.052s peak=52MiB
-    voxel_radiomics: glcm batch 19/35 0.052s peak=53MiB
-    voxel_radiomics: glcm batch 20/35 0.054s peak=54MiB
-    voxel_radiomics: glcm batch 21/35 0.052s peak=56MiB
-    voxel_radiomics: glcm batch 22/35 0.052s peak=57MiB
-    voxel_radiomics: glcm batch 23/35 0.050s peak=58MiB
-    voxel_radiomics: glcm batch 24/35 0.051s peak=59MiB
-    voxel_radiomics: glcm batch 25/35 0.049s peak=60MiB
-    voxel_radiomics: glcm batch 26/35 0.050s peak=61MiB
-    voxel_radiomics: glcm batch 27/35 0.052s peak=63MiB
-    voxel_radiomics: glcm batch 28/35 0.050s peak=64MiB
-    voxel_radiomics: glcm batch 29/35 0.049s peak=65MiB
-    voxel_radiomics: glcm batch 30/35 0.048s peak=1MiB
-    voxel_radiomics: glcm batch 31/35 0.046s peak=2MiB
-    voxel_radiomics: glcm batch 32/35 0.048s peak=3MiB
-    voxel_radiomics: glcm batch 33/35 0.045s peak=5MiB
-    voxel_radiomics: glcm batch 34/35 0.040s peak=6MiB
-    voxel_radiomics: glcm batch 35/35 0.026s peak=7MiB
-    voxel_radiomics: firstorder batch 1/35 0.010s peak=13MiB
+    voxel_radiomics: firstorder batch 1/35 0.203s peak=13MiB
     voxel_radiomics: firstorder batch 2/35 0.004s peak=13MiB
     voxel_radiomics: firstorder batch 3/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 4/35 0.005s peak=13MiB
+    voxel_radiomics: firstorder batch 4/35 0.004s peak=13MiB
     voxel_radiomics: firstorder batch 5/35 0.004s peak=13MiB
     voxel_radiomics: firstorder batch 6/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 7/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 7/35 0.005s peak=13MiB
     voxel_radiomics: firstorder batch 8/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 9/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 9/35 0.005s peak=13MiB
     voxel_radiomics: firstorder batch 10/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 11/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 12/35 0.006s peak=13MiB
-    voxel_radiomics: firstorder batch 13/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 11/35 0.003s peak=13MiB
+    voxel_radiomics: firstorder batch 12/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 13/35 0.005s peak=13MiB
     voxel_radiomics: firstorder batch 14/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 15/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 16/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 15/35 0.005s peak=13MiB
+    voxel_radiomics: firstorder batch 16/35 0.005s peak=13MiB
     voxel_radiomics: firstorder batch 17/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 18/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 19/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 20/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 18/35 0.003s peak=13MiB
+    voxel_radiomics: firstorder batch 19/35 0.005s peak=13MiB
+    voxel_radiomics: firstorder batch 20/35 0.005s peak=13MiB
     voxel_radiomics: firstorder batch 21/35 0.004s peak=13MiB
     voxel_radiomics: firstorder batch 22/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 23/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 24/35 0.005s peak=13MiB
+    voxel_radiomics: firstorder batch 23/35 0.005s peak=13MiB
+    voxel_radiomics: firstorder batch 24/35 0.003s peak=13MiB
     voxel_radiomics: firstorder batch 25/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 26/35 0.005s peak=13MiB
-    voxel_radiomics: firstorder batch 27/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 26/35 0.003s peak=13MiB
+    voxel_radiomics: firstorder batch 27/35 0.006s peak=13MiB
     voxel_radiomics: firstorder batch 28/35 0.004s peak=13MiB
     voxel_radiomics: firstorder batch 29/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 30/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 30/35 0.005s peak=13MiB
     voxel_radiomics: firstorder batch 31/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 32/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 33/35 0.004s peak=13MiB
+    voxel_radiomics: firstorder batch 32/35 0.005s peak=13MiB
+    voxel_radiomics: firstorder batch 33/35 0.005s peak=13MiB
     voxel_radiomics: firstorder batch 34/35 0.004s peak=13MiB
-    voxel_radiomics: firstorder batch 35/35 0.003s peak=12MiB
-    voxel_radiomics: glcm batch 1/35 0.040s peak=8MiB
-    voxel_radiomics: glcm batch 2/35 0.035s peak=9MiB
-    voxel_radiomics: glcm batch 3/35 0.034s peak=10MiB
-    voxel_radiomics: glcm batch 4/35 0.034s peak=11MiB
-    voxel_radiomics: glcm batch 5/35 0.035s peak=13MiB
-    voxel_radiomics: glcm batch 6/35 0.036s peak=14MiB
-    voxel_radiomics: glcm batch 7/35 0.033s peak=15MiB
-    voxel_radiomics: glcm batch 8/35 0.034s peak=16MiB
-    voxel_radiomics: glcm batch 9/35 0.035s peak=17MiB
-    voxel_radiomics: glcm batch 10/35 0.038s peak=18MiB
-    voxel_radiomics: glcm batch 11/35 0.038s peak=20MiB
-    voxel_radiomics: glcm batch 12/35 0.036s peak=21MiB
-    voxel_radiomics: glcm batch 13/35 0.035s peak=22MiB
-    voxel_radiomics: glcm batch 14/35 0.036s peak=23MiB
-    voxel_radiomics: glcm batch 15/35 0.032s peak=24MiB
-    voxel_radiomics: glcm batch 16/35 0.035s peak=25MiB
-    voxel_radiomics: glcm batch 17/35 0.035s peak=26MiB
-    voxel_radiomics: glcm batch 18/35 0.037s peak=28MiB
-    voxel_radiomics: glcm batch 19/35 0.032s peak=29MiB
-    voxel_radiomics: glcm batch 20/35 0.036s peak=30MiB
-    voxel_radiomics: glcm batch 21/35 0.034s peak=31MiB
-    voxel_radiomics: glcm batch 22/35 0.035s peak=32MiB
-    voxel_radiomics: glcm batch 23/35 0.032s peak=33MiB
-    voxel_radiomics: glcm batch 24/35 0.033s peak=34MiB
-    voxel_radiomics: glcm batch 25/35 0.033s peak=36MiB
-    voxel_radiomics: glcm batch 26/35 0.032s peak=37MiB
-    voxel_radiomics: glcm batch 27/35 0.034s peak=38MiB
-    voxel_radiomics: glcm batch 28/35 0.033s peak=39MiB
-    voxel_radiomics: glcm batch 29/35 0.032s peak=40MiB
-    voxel_radiomics: glcm batch 30/35 0.031s peak=41MiB
-    voxel_radiomics: glcm batch 31/35 0.030s peak=43MiB
-    voxel_radiomics: glcm batch 32/35 0.032s peak=44MiB
-    voxel_radiomics: glcm batch 33/35 0.031s peak=45MiB
-    voxel_radiomics: glcm batch 34/35 0.030s peak=46MiB
-    voxel_radiomics: glcm batch 35/35 0.019s peak=47MiB
-    voxel_radiomics: firstorder batch 1/35 0.013s peak=53MiB
-    voxel_radiomics: firstorder batch 2/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 3/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 4/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 5/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 6/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 7/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 8/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 9/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 10/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 11/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 12/35 0.007s peak=53MiB
-    voxel_radiomics: firstorder batch 13/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 14/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 15/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 16/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 17/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 18/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 19/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 20/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 21/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 22/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 23/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 24/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 25/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 26/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 27/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 28/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 29/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 30/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 31/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 32/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 33/35 0.006s peak=53MiB
-    voxel_radiomics: firstorder batch 34/35 0.005s peak=53MiB
-    voxel_radiomics: firstorder batch 35/35 0.004s peak=52MiB
-    voxel_radiomics: glcm batch 1/35 0.053s peak=48MiB
-    voxel_radiomics: glcm batch 2/35 0.048s peak=49MiB
-    voxel_radiomics: glcm batch 3/35 0.049s peak=51MiB
-    voxel_radiomics: glcm batch 4/35 0.049s peak=52MiB
-    voxel_radiomics: glcm batch 5/35 0.052s peak=53MiB
-    voxel_radiomics: glcm batch 6/35 0.049s peak=54MiB
-    voxel_radiomics: glcm batch 7/35 0.053s peak=55MiB
-    voxel_radiomics: glcm batch 8/35 0.051s peak=56MiB
-    voxel_radiomics: glcm batch 9/35 0.048s peak=57MiB
-    voxel_radiomics: glcm batch 10/35 0.053s peak=59MiB
-    voxel_radiomics: glcm batch 11/35 0.053s peak=60MiB
-    voxel_radiomics: glcm batch 12/35 0.053s peak=61MiB
-    voxel_radiomics: glcm batch 13/35 0.052s peak=62MiB
-    voxel_radiomics: glcm batch 14/35 0.051s peak=63MiB
-    voxel_radiomics: glcm batch 15/35 0.054s peak=64MiB
-    voxel_radiomics: glcm batch 16/35 0.051s peak=66MiB
-    voxel_radiomics: glcm batch 17/35 0.052s peak=67MiB
-    voxel_radiomics: glcm batch 18/35 0.055s peak=68MiB
-    voxel_radiomics: glcm batch 19/35 0.053s peak=69MiB
-    voxel_radiomics: glcm batch 20/35 0.053s peak=70MiB
-    voxel_radiomics: glcm batch 21/35 0.053s peak=71MiB
-    voxel_radiomics: glcm batch 22/35 0.051s peak=72MiB
-    voxel_radiomics: glcm batch 23/35 0.050s peak=74MiB
-    voxel_radiomics: glcm batch 24/35 0.051s peak=1MiB
-    voxel_radiomics: glcm batch 25/35 0.051s peak=2MiB
-    voxel_radiomics: glcm batch 26/35 0.049s peak=3MiB
-    voxel_radiomics: glcm batch 27/35 0.062s peak=5MiB
-    voxel_radiomics: glcm batch 28/35 0.061s peak=6MiB
-    voxel_radiomics: glcm batch 29/35 0.082s peak=7MiB
-    voxel_radiomics: glcm batch 30/35 0.147s peak=8MiB
-    voxel_radiomics: glcm batch 31/35 0.064s peak=9MiB
-    voxel_radiomics: glcm batch 32/35 0.050s peak=10MiB
-    voxel_radiomics: glcm batch 33/35 0.047s peak=11MiB
-    voxel_radiomics: glcm batch 34/35 0.043s peak=13MiB
-    voxel_radiomics: glcm batch 35/35 0.035s peak=14MiB
+    voxel_radiomics: firstorder batch 35/35 0.004s peak=13MiB
+    voxel_radiomics: glcm batch 1/35 0.066s peak=12MiB
+    voxel_radiomics: glcm batch 2/35 0.023s peak=13MiB
+    voxel_radiomics: glcm batch 3/35 0.023s peak=13MiB
+    voxel_radiomics: glcm batch 4/35 0.022s peak=14MiB
+    voxel_radiomics: glcm batch 5/35 0.025s peak=15MiB
+    voxel_radiomics: glcm batch 6/35 0.027s peak=16MiB
+    voxel_radiomics: glcm batch 7/35 0.022s peak=17MiB
+    voxel_radiomics: glcm batch 8/35 0.023s peak=18MiB
+    voxel_radiomics: glcm batch 9/35 0.020s peak=19MiB
+    voxel_radiomics: glcm batch 10/35 0.020s peak=20MiB
+    voxel_radiomics: glcm batch 11/35 0.019s peak=21MiB
+    voxel_radiomics: glcm batch 12/35 0.021s peak=22MiB
+    voxel_radiomics: glcm batch 13/35 0.019s peak=22MiB
+    voxel_radiomics: glcm batch 14/35 0.020s peak=23MiB
+    voxel_radiomics: glcm batch 15/35 0.019s peak=24MiB
+    voxel_radiomics: glcm batch 16/35 0.026s peak=25MiB
+    voxel_radiomics: glcm batch 17/35 0.025s peak=26MiB
+    voxel_radiomics: glcm batch 18/35 0.024s peak=27MiB
+    voxel_radiomics: glcm batch 19/35 0.025s peak=28MiB
+    voxel_radiomics: glcm batch 20/35 0.019s peak=29MiB
+    voxel_radiomics: glcm batch 21/35 0.023s peak=30MiB
+    voxel_radiomics: glcm batch 22/35 0.022s peak=31MiB
+    voxel_radiomics: glcm batch 23/35 0.020s peak=31MiB
+    voxel_radiomics: glcm batch 24/35 0.019s peak=32MiB
+    voxel_radiomics: glcm batch 25/35 0.021s peak=33MiB
+    voxel_radiomics: glcm batch 26/35 0.021s peak=34MiB
+    voxel_radiomics: glcm batch 27/35 0.017s peak=35MiB
+    voxel_radiomics: glcm batch 28/35 0.019s peak=36MiB
+    voxel_radiomics: glcm batch 29/35 0.019s peak=37MiB
+    voxel_radiomics: glcm batch 30/35 0.018s peak=38MiB
+    voxel_radiomics: glcm batch 31/35 0.019s peak=39MiB
+    voxel_radiomics: glcm batch 32/35 0.018s peak=40MiB
+    voxel_radiomics: glcm batch 33/35 0.018s peak=40MiB
+    voxel_radiomics: glcm batch 34/35 0.020s peak=41MiB
+    voxel_radiomics: glcm batch 35/35 0.017s peak=42MiB
+    voxel_radiomics: firstorder batch 1/35 0.017s peak=48MiB
+    voxel_radiomics: firstorder batch 2/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 3/35 0.009s peak=48MiB
+    voxel_radiomics: firstorder batch 4/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 5/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 6/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 7/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 8/35 0.009s peak=48MiB
+    voxel_radiomics: firstorder batch 9/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 10/35 0.008s peak=48MiB
+    voxel_radiomics: firstorder batch 11/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 12/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 13/35 0.005s peak=48MiB
+    voxel_radiomics: firstorder batch 14/35 0.005s peak=48MiB
+    voxel_radiomics: firstorder batch 15/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 16/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 17/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 18/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 19/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 20/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 21/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 22/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 23/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 24/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 25/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 26/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 27/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 28/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 29/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 30/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 31/35 0.008s peak=48MiB
+    voxel_radiomics: firstorder batch 32/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 33/35 0.007s peak=48MiB
+    voxel_radiomics: firstorder batch 34/35 0.006s peak=48MiB
+    voxel_radiomics: firstorder batch 35/35 0.008s peak=47MiB
+    voxel_radiomics: glcm batch 1/35 0.064s peak=43MiB
+    voxel_radiomics: glcm batch 2/35 0.061s peak=45MiB
+    voxel_radiomics: glcm batch 3/35 0.061s peak=46MiB
+    voxel_radiomics: glcm batch 4/35 0.061s peak=47MiB
+    voxel_radiomics: glcm batch 5/35 0.063s peak=48MiB
+    voxel_radiomics: glcm batch 6/35 0.063s peak=49MiB
+    voxel_radiomics: glcm batch 7/35 0.066s peak=50MiB
+    voxel_radiomics: glcm batch 8/35 0.061s peak=51MiB
+    voxel_radiomics: glcm batch 9/35 0.059s peak=53MiB
+    voxel_radiomics: glcm batch 10/35 0.063s peak=54MiB
+    voxel_radiomics: glcm batch 11/35 0.062s peak=55MiB
+    voxel_radiomics: glcm batch 12/35 0.062s peak=56MiB
+    voxel_radiomics: glcm batch 13/35 0.062s peak=57MiB
+    voxel_radiomics: glcm batch 14/35 0.064s peak=58MiB
+    voxel_radiomics: glcm batch 15/35 0.064s peak=59MiB
+    voxel_radiomics: glcm batch 16/35 0.065s peak=61MiB
+    voxel_radiomics: glcm batch 17/35 0.066s peak=62MiB
+    voxel_radiomics: glcm batch 18/35 0.064s peak=1MiB
+    voxel_radiomics: glcm batch 19/35 0.063s peak=2MiB
+    voxel_radiomics: glcm batch 20/35 0.064s peak=3MiB
+    voxel_radiomics: glcm batch 21/35 0.064s peak=5MiB
+    voxel_radiomics: glcm batch 22/35 0.060s peak=6MiB
+    voxel_radiomics: glcm batch 23/35 0.059s peak=7MiB
+    voxel_radiomics: glcm batch 24/35 0.062s peak=8MiB
+    voxel_radiomics: glcm batch 25/35 0.060s peak=9MiB
+    voxel_radiomics: glcm batch 26/35 0.060s peak=10MiB
+    voxel_radiomics: glcm batch 27/35 0.061s peak=11MiB
+    voxel_radiomics: glcm batch 28/35 0.062s peak=13MiB
+    voxel_radiomics: glcm batch 29/35 0.060s peak=14MiB
+    voxel_radiomics: glcm batch 30/35 0.056s peak=15MiB
+    voxel_radiomics: glcm batch 31/35 0.055s peak=16MiB
+    voxel_radiomics: glcm batch 32/35 0.060s peak=17MiB
+    voxel_radiomics: glcm batch 33/35 0.055s peak=18MiB
+    voxel_radiomics: glcm batch 34/35 0.046s peak=20MiB
+    voxel_radiomics: glcm batch 35/35 0.032s peak=21MiB
+    voxel_radiomics: firstorder batch 1/35 0.010s peak=26MiB
+    voxel_radiomics: firstorder batch 2/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 3/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 4/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 5/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 6/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 7/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 8/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 9/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 10/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 11/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 12/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 13/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 14/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 15/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 16/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 17/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 18/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 19/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 20/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 21/35 0.007s peak=26MiB
+    voxel_radiomics: firstorder batch 22/35 0.007s peak=26MiB
+    voxel_radiomics: firstorder batch 23/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 24/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 25/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 26/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 27/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 28/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 29/35 0.006s peak=26MiB
+    voxel_radiomics: firstorder batch 30/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 31/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 32/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 33/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 34/35 0.005s peak=26MiB
+    voxel_radiomics: firstorder batch 35/35 0.004s peak=26MiB
+    voxel_radiomics: glcm batch 1/35 0.045s peak=22MiB
+    voxel_radiomics: glcm batch 2/35 0.042s peak=23MiB
+    voxel_radiomics: glcm batch 3/35 0.042s peak=24MiB
+    voxel_radiomics: glcm batch 4/35 0.041s peak=25MiB
+    voxel_radiomics: glcm batch 5/35 0.040s peak=26MiB
+    voxel_radiomics: glcm batch 6/35 0.040s peak=28MiB
+    voxel_radiomics: glcm batch 7/35 0.043s peak=29MiB
+    voxel_radiomics: glcm batch 8/35 0.041s peak=30MiB
+    voxel_radiomics: glcm batch 9/35 0.041s peak=31MiB
+    voxel_radiomics: glcm batch 10/35 0.042s peak=32MiB
+    voxel_radiomics: glcm batch 11/35 0.042s peak=33MiB
+    voxel_radiomics: glcm batch 12/35 0.040s peak=34MiB
+    voxel_radiomics: glcm batch 13/35 0.041s peak=36MiB
+    voxel_radiomics: glcm batch 14/35 0.043s peak=37MiB
+    voxel_radiomics: glcm batch 15/35 0.039s peak=38MiB
+    voxel_radiomics: glcm batch 16/35 0.042s peak=39MiB
+    voxel_radiomics: glcm batch 17/35 0.041s peak=40MiB
+    voxel_radiomics: glcm batch 18/35 0.045s peak=41MiB
+    voxel_radiomics: glcm batch 19/35 0.041s peak=43MiB
+    voxel_radiomics: glcm batch 20/35 0.045s peak=44MiB
+    voxel_radiomics: glcm batch 21/35 0.042s peak=45MiB
+    voxel_radiomics: glcm batch 22/35 0.040s peak=46MiB
+    voxel_radiomics: glcm batch 23/35 0.037s peak=47MiB
+    voxel_radiomics: glcm batch 24/35 0.039s peak=48MiB
+    voxel_radiomics: glcm batch 25/35 0.037s peak=49MiB
+    voxel_radiomics: glcm batch 26/35 0.036s peak=51MiB
+    voxel_radiomics: glcm batch 27/35 0.038s peak=52MiB
+    voxel_radiomics: glcm batch 28/35 0.037s peak=53MiB
+    voxel_radiomics: glcm batch 29/35 0.036s peak=54MiB
+    voxel_radiomics: glcm batch 30/35 0.034s peak=55MiB
+    voxel_radiomics: glcm batch 31/35 0.034s peak=56MiB
+    voxel_radiomics: glcm batch 32/35 0.034s peak=57MiB
+    voxel_radiomics: glcm batch 33/35 0.033s peak=59MiB
+    voxel_radiomics: glcm batch 34/35 0.031s peak=60MiB
+    voxel_radiomics: glcm batch 35/35 0.022s peak=61MiB
+    voxel_radiomics: firstorder batch 1/35 0.014s peak=67MiB
+    voxel_radiomics: firstorder batch 2/35 0.005s peak=67MiB
+    voxel_radiomics: firstorder batch 3/35 0.008s peak=67MiB
+    voxel_radiomics: firstorder batch 4/35 0.005s peak=67MiB
+    voxel_radiomics: firstorder batch 5/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 6/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 7/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 8/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 9/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 10/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 11/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 12/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 13/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 14/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 15/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 16/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 17/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 18/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 19/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 20/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 21/35 0.005s peak=67MiB
+    voxel_radiomics: firstorder batch 22/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 23/35 0.005s peak=67MiB
+    voxel_radiomics: firstorder batch 24/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 25/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 26/35 0.007s peak=67MiB
+    voxel_radiomics: firstorder batch 27/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 28/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 29/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 30/35 0.005s peak=67MiB
+    voxel_radiomics: firstorder batch 31/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 32/35 0.005s peak=67MiB
+    voxel_radiomics: firstorder batch 33/35 0.005s peak=67MiB
+    voxel_radiomics: firstorder batch 34/35 0.006s peak=67MiB
+    voxel_radiomics: firstorder batch 35/35 0.005s peak=66MiB
+    voxel_radiomics: glcm batch 1/35 0.056s peak=62MiB
+    voxel_radiomics: glcm batch 2/35 0.056s peak=63MiB
+    voxel_radiomics: glcm batch 3/35 0.058s peak=64MiB
+    voxel_radiomics: glcm batch 4/35 0.058s peak=66MiB
+    voxel_radiomics: glcm batch 5/35 0.063s peak=67MiB
+    voxel_radiomics: glcm batch 6/35 0.062s peak=68MiB
+    voxel_radiomics: glcm batch 7/35 0.060s peak=69MiB
+    voxel_radiomics: glcm batch 8/35 0.059s peak=70MiB
+    voxel_radiomics: glcm batch 9/35 0.060s peak=71MiB
+    voxel_radiomics: glcm batch 10/35 0.062s peak=72MiB
+    voxel_radiomics: glcm batch 11/35 0.062s peak=74MiB
+    voxel_radiomics: glcm batch 12/35 0.065s peak=1MiB
+    voxel_radiomics: glcm batch 13/35 0.061s peak=2MiB
+    voxel_radiomics: glcm batch 14/35 0.061s peak=3MiB
+    voxel_radiomics: glcm batch 15/35 0.063s peak=5MiB
+    voxel_radiomics: glcm batch 16/35 0.060s peak=6MiB
+    voxel_radiomics: glcm batch 17/35 0.060s peak=7MiB
+    voxel_radiomics: glcm batch 18/35 0.063s peak=8MiB
+    voxel_radiomics: glcm batch 19/35 0.062s peak=9MiB
+    voxel_radiomics: glcm batch 20/35 0.064s peak=10MiB
+    voxel_radiomics: glcm batch 21/35 0.060s peak=11MiB
+    voxel_radiomics: glcm batch 22/35 0.061s peak=13MiB
+    voxel_radiomics: glcm batch 23/35 0.059s peak=14MiB
+    voxel_radiomics: glcm batch 24/35 0.059s peak=15MiB
+    voxel_radiomics: glcm batch 25/35 0.056s peak=16MiB
+    voxel_radiomics: glcm batch 26/35 0.060s peak=17MiB
+    voxel_radiomics: glcm batch 27/35 0.059s peak=18MiB
+    voxel_radiomics: glcm batch 28/35 0.057s peak=20MiB
+    voxel_radiomics: glcm batch 29/35 0.057s peak=21MiB
+    voxel_radiomics: glcm batch 30/35 0.055s peak=22MiB
+    voxel_radiomics: glcm batch 31/35 0.053s peak=23MiB
+    voxel_radiomics: glcm batch 32/35 0.057s peak=24MiB
+    voxel_radiomics: glcm batch 33/35 0.054s peak=25MiB
+    voxel_radiomics: glcm batch 34/35 0.050s peak=26MiB
+    voxel_radiomics: glcm batch 35/35 0.030s peak=28MiB
     Texture features (10): ['original_firstorder_Entropy-LAP', 'original_firstorder_Mean-LAP', 'original_firstorder_Variance-LAP', 'original_firstorder_Skewness-LAP', 'original_firstorder_Kurtosis-LAP', 'original_glcm_Contrast-LAP', 'original_glcm_Correlation-LAP', 'original_glcm_JointEntropy-LAP', 'original_glcm_Idm-LAP', 'original_glcm_DifferenceEntropy-LAP']
 
 
@@ -605,11 +638,14 @@ Extract texture features at base R3/B12 and the two reproducibility contrasts.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-122
+.. GENERATED FROM PYTHON SOURCE LINES 154-158
 
 Precise screening = Lower Confidence Limit (LCL) >= 0.5 across all 3 ICC experiments.
+Each ``precision_panel`` is one subject's per-feature ICC table;
+``aggregate_panels`` takes the per-feature median over subjects (here a
+single subject, so the median is that subject's value).
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-143
+.. GENERATED FROM PYTHON SOURCE LINES 158-179
 
 .. code-block:: Python
 
@@ -984,11 +1020,11 @@ Precise screening = Lower Confidence Limit (LCL) >= 0.5 across all 3 ICC experim
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-145
+.. GENERATED FROM PYTHON SOURCE LINES 180-181
 
 Plot one ICC forest per experiment to inspect lower confidence limits.
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-170
+.. GENERATED FROM PYTHON SOURCE LINES 181-206
 
 .. code-block:: Python
 
@@ -1048,14 +1084,14 @@ Plot one ICC forest per experiment to inspect lower confidence limits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 171-175
+.. GENERATED FROM PYTHON SOURCE LINES 207-211
 
 Same subject, same Appendix S2 perturbation, same k / seed: only the
 feature set changes. Without precise, habitats can shift under the
 retest; with the precise whitelist they should agree more -- check the
 printed mean Dice and labelled-voxel disagreement before claiming that.
 
-.. GENERATED FROM PYTHON SOURCE LINES 175-259
+.. GENERATED FROM PYTHON SOURCE LINES 211-295
 
 .. code-block:: Python
 
@@ -1156,150 +1192,150 @@ printed mean Dice and labelled-voxel disagreement before claiming that.
 
  .. code-block:: none
 
-    F:\work\habit_project\examples\guide\08_precision\plot_01_precise_features.py:211: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+    F:\work\habit_project\examples\guide\08_precision\plot_01_precise_features.py:247: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
       spec_all = HabitatSpec(
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.031s peak=20MiB
-    voxel_radiomics: firstorder batch 2/35 0.017s peak=20MiB
-    voxel_radiomics: firstorder batch 3/35 0.019s peak=20MiB
-    voxel_radiomics: firstorder batch 4/35 0.016s peak=20MiB
-    voxel_radiomics: firstorder batch 5/35 0.018s peak=20MiB
-    voxel_radiomics: firstorder batch 6/35 0.017s peak=20MiB
-    voxel_radiomics: firstorder batch 7/35 0.017s peak=20MiB
-    voxel_radiomics: firstorder batch 8/35 0.014s peak=20MiB
-    voxel_radiomics: firstorder batch 9/35 0.026s peak=20MiB
-    voxel_radiomics: firstorder batch 10/35 0.014s peak=20MiB
-    voxel_radiomics: firstorder batch 11/35 0.014s peak=20MiB
-    voxel_radiomics: firstorder batch 12/35 0.017s peak=20MiB
-    voxel_radiomics: firstorder batch 13/35 0.017s peak=20MiB
-    voxel_radiomics: firstorder batch 14/35 0.018s peak=20MiB
-    voxel_radiomics: firstorder batch 15/35 0.015s peak=20MiB
-    voxel_radiomics: firstorder batch 16/35 0.014s peak=20MiB
-    voxel_radiomics: firstorder batch 17/35 0.007s peak=20MiB
-    voxel_radiomics: firstorder batch 18/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 19/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 20/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 21/35 0.005s peak=20MiB
-    voxel_radiomics: firstorder batch 22/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 23/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 24/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 25/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 26/35 0.005s peak=20MiB
-    voxel_radiomics: firstorder batch 27/35 0.008s peak=20MiB
-    voxel_radiomics: firstorder batch 28/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 29/35 0.005s peak=20MiB
-    voxel_radiomics: firstorder batch 30/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 31/35 0.006s peak=20MiB
-    voxel_radiomics: firstorder batch 32/35 0.007s peak=20MiB
-    voxel_radiomics: firstorder batch 33/35 0.007s peak=20MiB
-    voxel_radiomics: firstorder batch 34/35 0.005s peak=20MiB
-    voxel_radiomics: firstorder batch 35/35 0.005s peak=19MiB
-    voxel_radiomics: glcm batch 1/35 0.060s peak=15MiB
-    voxel_radiomics: glcm batch 2/35 0.050s peak=16MiB
-    voxel_radiomics: glcm batch 3/35 0.049s peak=17MiB
-    voxel_radiomics: glcm batch 4/35 0.051s peak=18MiB
-    voxel_radiomics: glcm batch 5/35 0.050s peak=20MiB
-    voxel_radiomics: glcm batch 6/35 0.053s peak=21MiB
-    voxel_radiomics: glcm batch 7/35 0.052s peak=22MiB
-    voxel_radiomics: glcm batch 8/35 0.051s peak=23MiB
-    voxel_radiomics: glcm batch 9/35 0.051s peak=24MiB
-    voxel_radiomics: glcm batch 10/35 0.054s peak=25MiB
-    voxel_radiomics: glcm batch 11/35 0.051s peak=26MiB
-    voxel_radiomics: glcm batch 12/35 0.053s peak=28MiB
-    voxel_radiomics: glcm batch 13/35 0.053s peak=29MiB
-    voxel_radiomics: glcm batch 14/35 0.053s peak=30MiB
-    voxel_radiomics: glcm batch 15/35 0.053s peak=31MiB
-    voxel_radiomics: glcm batch 16/35 0.054s peak=32MiB
-    voxel_radiomics: glcm batch 17/35 0.055s peak=33MiB
-    voxel_radiomics: glcm batch 18/35 0.051s peak=34MiB
-    voxel_radiomics: glcm batch 19/35 0.053s peak=36MiB
-    voxel_radiomics: glcm batch 20/35 0.053s peak=37MiB
-    voxel_radiomics: glcm batch 21/35 0.052s peak=38MiB
-    voxel_radiomics: glcm batch 22/35 0.052s peak=39MiB
-    voxel_radiomics: glcm batch 23/35 0.050s peak=40MiB
-    voxel_radiomics: glcm batch 24/35 0.052s peak=41MiB
-    voxel_radiomics: glcm batch 25/35 0.051s peak=43MiB
-    voxel_radiomics: glcm batch 26/35 0.053s peak=44MiB
-    voxel_radiomics: glcm batch 27/35 0.054s peak=45MiB
-    voxel_radiomics: glcm batch 28/35 0.051s peak=46MiB
-    voxel_radiomics: glcm batch 29/35 0.048s peak=47MiB
-    voxel_radiomics: glcm batch 30/35 0.050s peak=48MiB
-    voxel_radiomics: glcm batch 31/35 0.046s peak=49MiB
-    voxel_radiomics: glcm batch 32/35 0.047s peak=51MiB
-    voxel_radiomics: glcm batch 33/35 0.046s peak=52MiB
-    voxel_radiomics: glcm batch 34/35 0.041s peak=53MiB
-    voxel_radiomics: glcm batch 35/35 0.028s peak=54MiB
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.06s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.06s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.013s peak=60MiB
-    voxel_radiomics: firstorder batch 2/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 3/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 4/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 5/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 6/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 7/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 8/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 9/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 10/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 11/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 12/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 13/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 14/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 15/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 16/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 17/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 18/35 0.006s peak=60MiB
-    voxel_radiomics: firstorder batch 19/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 20/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 21/35 0.006s peak=60MiB
-    voxel_radiomics: firstorder batch 22/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 23/35 0.006s peak=60MiB
-    voxel_radiomics: firstorder batch 24/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 25/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 26/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 27/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 28/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 29/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 30/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 31/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 32/35 0.007s peak=60MiB
-    voxel_radiomics: firstorder batch 33/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 34/35 0.005s peak=60MiB
-    voxel_radiomics: firstorder batch 35/35 0.005s peak=59MiB
-    voxel_radiomics: glcm batch 1/35 0.053s peak=55MiB
-    voxel_radiomics: glcm batch 2/35 0.052s peak=56MiB
-    voxel_radiomics: glcm batch 3/35 0.049s peak=57MiB
-    voxel_radiomics: glcm batch 4/35 0.050s peak=59MiB
-    voxel_radiomics: glcm batch 5/35 0.054s peak=60MiB
-    voxel_radiomics: glcm batch 6/35 0.052s peak=61MiB
-    voxel_radiomics: glcm batch 7/35 0.052s peak=62MiB
-    voxel_radiomics: glcm batch 8/35 0.051s peak=63MiB
-    voxel_radiomics: glcm batch 9/35 0.050s peak=64MiB
-    voxel_radiomics: glcm batch 10/35 0.052s peak=66MiB
-    voxel_radiomics: glcm batch 11/35 0.052s peak=67MiB
-    voxel_radiomics: glcm batch 12/35 0.053s peak=68MiB
-    voxel_radiomics: glcm batch 13/35 0.052s peak=69MiB
-    voxel_radiomics: glcm batch 14/35 0.052s peak=70MiB
-    voxel_radiomics: glcm batch 15/35 0.054s peak=71MiB
-    voxel_radiomics: glcm batch 16/35 0.054s peak=72MiB
-    voxel_radiomics: glcm batch 17/35 0.052s peak=74MiB
-    voxel_radiomics: glcm batch 18/35 0.054s peak=1MiB
-    voxel_radiomics: glcm batch 19/35 0.054s peak=2MiB
-    voxel_radiomics: glcm batch 20/35 0.052s peak=3MiB
-    voxel_radiomics: glcm batch 21/35 0.053s peak=5MiB
-    voxel_radiomics: glcm batch 22/35 0.053s peak=6MiB
-    voxel_radiomics: glcm batch 23/35 0.051s peak=7MiB
-    voxel_radiomics: glcm batch 24/35 0.052s peak=8MiB
-    voxel_radiomics: glcm batch 25/35 0.053s peak=9MiB
-    voxel_radiomics: glcm batch 26/35 0.050s peak=10MiB
-    voxel_radiomics: glcm batch 27/35 0.051s peak=11MiB
-    voxel_radiomics: glcm batch 28/35 0.050s peak=13MiB
-    voxel_radiomics: glcm batch 29/35 0.049s peak=14MiB
-    voxel_radiomics: glcm batch 30/35 0.048s peak=15MiB
-    voxel_radiomics: glcm batch 31/35 0.046s peak=16MiB
-    voxel_radiomics: glcm batch 32/35 0.048s peak=17MiB
-    voxel_radiomics: glcm batch 33/35 0.050s peak=18MiB
-    voxel_radiomics: glcm batch 34/35 0.041s peak=20MiB
-    voxel_radiomics: glcm batch 35/35 0.026s peak=21MiB
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:03<00:00,  3.72s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:03<00:00,  3.72s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.029s peak=34MiB
+    voxel_radiomics: firstorder batch 2/35 0.013s peak=34MiB
+    voxel_radiomics: firstorder batch 3/35 0.033s peak=34MiB
+    voxel_radiomics: firstorder batch 4/35 0.022s peak=34MiB
+    voxel_radiomics: firstorder batch 5/35 0.013s peak=34MiB
+    voxel_radiomics: firstorder batch 6/35 0.015s peak=34MiB
+    voxel_radiomics: firstorder batch 7/35 0.016s peak=34MiB
+    voxel_radiomics: firstorder batch 8/35 0.016s peak=34MiB
+    voxel_radiomics: firstorder batch 9/35 0.014s peak=34MiB
+    voxel_radiomics: firstorder batch 10/35 0.012s peak=34MiB
+    voxel_radiomics: firstorder batch 11/35 0.014s peak=34MiB
+    voxel_radiomics: firstorder batch 12/35 0.011s peak=34MiB
+    voxel_radiomics: firstorder batch 13/35 0.015s peak=34MiB
+    voxel_radiomics: firstorder batch 14/35 0.013s peak=34MiB
+    voxel_radiomics: firstorder batch 15/35 0.021s peak=34MiB
+    voxel_radiomics: firstorder batch 16/35 0.016s peak=34MiB
+    voxel_radiomics: firstorder batch 17/35 0.016s peak=34MiB
+    voxel_radiomics: firstorder batch 18/35 0.011s peak=34MiB
+    voxel_radiomics: firstorder batch 19/35 0.007s peak=34MiB
+    voxel_radiomics: firstorder batch 20/35 0.007s peak=34MiB
+    voxel_radiomics: firstorder batch 21/35 0.008s peak=34MiB
+    voxel_radiomics: firstorder batch 22/35 0.010s peak=34MiB
+    voxel_radiomics: firstorder batch 23/35 0.007s peak=34MiB
+    voxel_radiomics: firstorder batch 24/35 0.009s peak=34MiB
+    voxel_radiomics: firstorder batch 25/35 0.007s peak=34MiB
+    voxel_radiomics: firstorder batch 26/35 0.008s peak=34MiB
+    voxel_radiomics: firstorder batch 27/35 0.006s peak=34MiB
+    voxel_radiomics: firstorder batch 28/35 0.006s peak=34MiB
+    voxel_radiomics: firstorder batch 29/35 0.008s peak=34MiB
+    voxel_radiomics: firstorder batch 30/35 0.007s peak=34MiB
+    voxel_radiomics: firstorder batch 31/35 0.006s peak=34MiB
+    voxel_radiomics: firstorder batch 32/35 0.008s peak=34MiB
+    voxel_radiomics: firstorder batch 33/35 0.007s peak=34MiB
+    voxel_radiomics: firstorder batch 34/35 0.008s peak=34MiB
+    voxel_radiomics: firstorder batch 35/35 0.006s peak=33MiB
+    voxel_radiomics: glcm batch 1/35 0.065s peak=29MiB
+    voxel_radiomics: glcm batch 2/35 0.057s peak=30MiB
+    voxel_radiomics: glcm batch 3/35 0.059s peak=31MiB
+    voxel_radiomics: glcm batch 4/35 0.059s peak=32MiB
+    voxel_radiomics: glcm batch 5/35 0.062s peak=33MiB
+    voxel_radiomics: glcm batch 6/35 0.061s peak=34MiB
+    voxel_radiomics: glcm batch 7/35 0.062s peak=36MiB
+    voxel_radiomics: glcm batch 8/35 0.060s peak=37MiB
+    voxel_radiomics: glcm batch 9/35 0.062s peak=38MiB
+    voxel_radiomics: glcm batch 10/35 0.062s peak=39MiB
+    voxel_radiomics: glcm batch 11/35 0.062s peak=40MiB
+    voxel_radiomics: glcm batch 12/35 0.063s peak=41MiB
+    voxel_radiomics: glcm batch 13/35 0.060s peak=43MiB
+    voxel_radiomics: glcm batch 14/35 0.066s peak=44MiB
+    voxel_radiomics: glcm batch 15/35 0.070s peak=45MiB
+    voxel_radiomics: glcm batch 16/35 0.061s peak=46MiB
+    voxel_radiomics: glcm batch 17/35 0.062s peak=47MiB
+    voxel_radiomics: glcm batch 18/35 0.064s peak=48MiB
+    voxel_radiomics: glcm batch 19/35 0.061s peak=49MiB
+    voxel_radiomics: glcm batch 20/35 0.060s peak=51MiB
+    voxel_radiomics: glcm batch 21/35 0.059s peak=52MiB
+    voxel_radiomics: glcm batch 22/35 0.060s peak=53MiB
+    voxel_radiomics: glcm batch 23/35 0.058s peak=54MiB
+    voxel_radiomics: glcm batch 24/35 0.059s peak=55MiB
+    voxel_radiomics: glcm batch 25/35 0.061s peak=56MiB
+    voxel_radiomics: glcm batch 26/35 0.058s peak=57MiB
+    voxel_radiomics: glcm batch 27/35 0.060s peak=59MiB
+    voxel_radiomics: glcm batch 28/35 0.059s peak=60MiB
+    voxel_radiomics: glcm batch 29/35 0.059s peak=61MiB
+    voxel_radiomics: glcm batch 30/35 0.055s peak=62MiB
+    voxel_radiomics: glcm batch 31/35 0.053s peak=63MiB
+    voxel_radiomics: glcm batch 32/35 0.055s peak=64MiB
+    voxel_radiomics: glcm batch 33/35 0.054s peak=66MiB
+    voxel_radiomics: glcm batch 34/35 0.047s peak=67MiB
+    voxel_radiomics: glcm batch 35/35 0.034s peak=68MiB
+    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.49s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.49s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.029s peak=74MiB
+    voxel_radiomics: firstorder batch 2/35 0.014s peak=74MiB
+    voxel_radiomics: firstorder batch 3/35 0.015s peak=74MiB
+    voxel_radiomics: firstorder batch 4/35 0.014s peak=74MiB
+    voxel_radiomics: firstorder batch 5/35 0.015s peak=74MiB
+    voxel_radiomics: firstorder batch 6/35 0.011s peak=74MiB
+    voxel_radiomics: firstorder batch 7/35 0.014s peak=74MiB
+    voxel_radiomics: firstorder batch 8/35 0.015s peak=74MiB
+    voxel_radiomics: firstorder batch 9/35 0.015s peak=74MiB
+    voxel_radiomics: firstorder batch 10/35 0.012s peak=74MiB
+    voxel_radiomics: firstorder batch 11/35 0.013s peak=74MiB
+    voxel_radiomics: firstorder batch 12/35 0.015s peak=74MiB
+    voxel_radiomics: firstorder batch 13/35 0.013s peak=74MiB
+    voxel_radiomics: firstorder batch 14/35 0.014s peak=74MiB
+    voxel_radiomics: firstorder batch 15/35 0.014s peak=74MiB
+    voxel_radiomics: firstorder batch 16/35 0.011s peak=74MiB
+    voxel_radiomics: firstorder batch 17/35 0.014s peak=74MiB
+    voxel_radiomics: firstorder batch 18/35 0.015s peak=74MiB
+    voxel_radiomics: firstorder batch 19/35 0.008s peak=74MiB
+    voxel_radiomics: firstorder batch 20/35 0.007s peak=74MiB
+    voxel_radiomics: firstorder batch 21/35 0.008s peak=74MiB
+    voxel_radiomics: firstorder batch 22/35 0.006s peak=74MiB
+    voxel_radiomics: firstorder batch 23/35 0.005s peak=74MiB
+    voxel_radiomics: firstorder batch 24/35 0.006s peak=74MiB
+    voxel_radiomics: firstorder batch 25/35 0.007s peak=74MiB
+    voxel_radiomics: firstorder batch 26/35 0.008s peak=74MiB
+    voxel_radiomics: firstorder batch 27/35 0.005s peak=74MiB
+    voxel_radiomics: firstorder batch 28/35 0.006s peak=74MiB
+    voxel_radiomics: firstorder batch 29/35 0.006s peak=74MiB
+    voxel_radiomics: firstorder batch 30/35 0.009s peak=74MiB
+    voxel_radiomics: firstorder batch 31/35 0.005s peak=74MiB
+    voxel_radiomics: firstorder batch 32/35 0.007s peak=74MiB
+    voxel_radiomics: firstorder batch 33/35 0.006s peak=74MiB
+    voxel_radiomics: firstorder batch 34/35 0.007s peak=74MiB
+    voxel_radiomics: firstorder batch 35/35 0.005s peak=73MiB
+    voxel_radiomics: glcm batch 1/35 0.070s peak=69MiB
+    voxel_radiomics: glcm batch 2/35 0.057s peak=70MiB
+    voxel_radiomics: glcm batch 3/35 0.059s peak=71MiB
+    voxel_radiomics: glcm batch 4/35 0.058s peak=72MiB
+    voxel_radiomics: glcm batch 5/35 0.059s peak=74MiB
+    voxel_radiomics: glcm batch 6/35 0.060s peak=1MiB
+    voxel_radiomics: glcm batch 7/35 0.062s peak=2MiB
+    voxel_radiomics: glcm batch 8/35 0.060s peak=3MiB
+    voxel_radiomics: glcm batch 9/35 0.060s peak=5MiB
+    voxel_radiomics: glcm batch 10/35 0.059s peak=6MiB
+    voxel_radiomics: glcm batch 11/35 0.060s peak=7MiB
+    voxel_radiomics: glcm batch 12/35 0.058s peak=8MiB
+    voxel_radiomics: glcm batch 13/35 0.059s peak=9MiB
+    voxel_radiomics: glcm batch 14/35 0.063s peak=10MiB
+    voxel_radiomics: glcm batch 15/35 0.060s peak=11MiB
+    voxel_radiomics: glcm batch 16/35 0.063s peak=13MiB
+    voxel_radiomics: glcm batch 17/35 0.060s peak=14MiB
+    voxel_radiomics: glcm batch 18/35 0.063s peak=15MiB
+    voxel_radiomics: glcm batch 19/35 0.060s peak=16MiB
+    voxel_radiomics: glcm batch 20/35 0.063s peak=17MiB
+    voxel_radiomics: glcm batch 21/35 0.059s peak=18MiB
+    voxel_radiomics: glcm batch 22/35 0.059s peak=20MiB
+    voxel_radiomics: glcm batch 23/35 0.060s peak=21MiB
+    voxel_radiomics: glcm batch 24/35 0.061s peak=22MiB
+    voxel_radiomics: glcm batch 25/35 0.061s peak=23MiB
+    voxel_radiomics: glcm batch 26/35 0.056s peak=24MiB
+    voxel_radiomics: glcm batch 27/35 0.062s peak=25MiB
+    voxel_radiomics: glcm batch 28/35 0.060s peak=26MiB
+    voxel_radiomics: glcm batch 29/35 0.056s peak=28MiB
+    voxel_radiomics: glcm batch 30/35 0.055s peak=29MiB
+    voxel_radiomics: glcm batch 31/35 0.053s peak=30MiB
+    voxel_radiomics: glcm batch 32/35 0.056s peak=31MiB
+    voxel_radiomics: glcm batch 33/35 0.053s peak=32MiB
+    voxel_radiomics: glcm batch 34/35 0.047s peak=33MiB
+    voxel_radiomics: glcm batch 35/35 0.032s peak=34MiB
+    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.34s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.34s/it]
     Without precise (all texture features): mean Dice=0.787, labelled-voxel disagreement=0.210, ARI=0.442
     F:\work\habit_project\habit\viz\habitat_core.py:948: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
@@ -1307,11 +1343,11 @@ printed mean Dice and labelled-voxel disagreement before claiming that.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 260-261
+.. GENERATED FROM PYTHON SOURCE LINES 296-297
 
 --- With precise: whitelist only (precise on) ---
 
-.. GENERATED FROM PYTHON SOURCE LINES 261-376
+.. GENERATED FROM PYTHON SOURCE LINES 297-412
 
 .. code-block:: Python
 
@@ -1455,150 +1491,150 @@ printed mean Dice and labelled-voxel disagreement before claiming that.
 
  .. code-block:: none
 
-    F:\work\habit_project\examples\guide\08_precision\plot_01_precise_features.py:269: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+    F:\work\habit_project\examples\guide\08_precision\plot_01_precise_features.py:305: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
       spec_precise = HabitatSpec(
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.177s peak=27MiB
-    voxel_radiomics: firstorder batch 2/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 3/35 0.005s peak=27MiB
-    voxel_radiomics: firstorder batch 4/35 0.005s peak=27MiB
-    voxel_radiomics: firstorder batch 5/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 6/35 0.007s peak=27MiB
-    voxel_radiomics: firstorder batch 7/35 0.007s peak=27MiB
-    voxel_radiomics: firstorder batch 8/35 0.007s peak=27MiB
-    voxel_radiomics: firstorder batch 9/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 10/35 0.005s peak=27MiB
-    voxel_radiomics: firstorder batch 11/35 0.007s peak=27MiB
-    voxel_radiomics: firstorder batch 12/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 13/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 14/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 15/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 16/35 0.009s peak=27MiB
-    voxel_radiomics: firstorder batch 17/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 18/35 0.007s peak=27MiB
-    voxel_radiomics: firstorder batch 19/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 20/35 0.007s peak=27MiB
-    voxel_radiomics: firstorder batch 21/35 0.005s peak=27MiB
-    voxel_radiomics: firstorder batch 22/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 23/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 24/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 25/35 0.007s peak=27MiB
-    voxel_radiomics: firstorder batch 26/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 27/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 28/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 29/35 0.005s peak=27MiB
-    voxel_radiomics: firstorder batch 30/35 0.007s peak=27MiB
-    voxel_radiomics: firstorder batch 31/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 32/35 0.006s peak=27MiB
-    voxel_radiomics: firstorder batch 33/35 0.005s peak=27MiB
-    voxel_radiomics: firstorder batch 34/35 0.005s peak=27MiB
-    voxel_radiomics: firstorder batch 35/35 0.005s peak=26MiB
-    voxel_radiomics: glcm batch 1/35 0.057s peak=22MiB
-    voxel_radiomics: glcm batch 2/35 0.048s peak=23MiB
-    voxel_radiomics: glcm batch 3/35 0.052s peak=24MiB
-    voxel_radiomics: glcm batch 4/35 0.052s peak=25MiB
-    voxel_radiomics: glcm batch 5/35 0.055s peak=26MiB
-    voxel_radiomics: glcm batch 6/35 0.053s peak=28MiB
-    voxel_radiomics: glcm batch 7/35 0.054s peak=29MiB
-    voxel_radiomics: glcm batch 8/35 0.053s peak=30MiB
-    voxel_radiomics: glcm batch 9/35 0.052s peak=31MiB
-    voxel_radiomics: glcm batch 10/35 0.053s peak=32MiB
-    voxel_radiomics: glcm batch 11/35 0.053s peak=33MiB
-    voxel_radiomics: glcm batch 12/35 0.052s peak=34MiB
-    voxel_radiomics: glcm batch 13/35 0.053s peak=36MiB
-    voxel_radiomics: glcm batch 14/35 0.056s peak=37MiB
-    voxel_radiomics: glcm batch 15/35 0.054s peak=38MiB
-    voxel_radiomics: glcm batch 16/35 0.052s peak=39MiB
-    voxel_radiomics: glcm batch 17/35 0.053s peak=40MiB
-    voxel_radiomics: glcm batch 18/35 0.053s peak=41MiB
-    voxel_radiomics: glcm batch 19/35 0.051s peak=43MiB
-    voxel_radiomics: glcm batch 20/35 0.053s peak=44MiB
-    voxel_radiomics: glcm batch 21/35 0.053s peak=45MiB
-    voxel_radiomics: glcm batch 22/35 0.052s peak=46MiB
-    voxel_radiomics: glcm batch 23/35 0.050s peak=47MiB
-    voxel_radiomics: glcm batch 24/35 0.053s peak=48MiB
-    voxel_radiomics: glcm batch 25/35 0.049s peak=49MiB
-    voxel_radiomics: glcm batch 26/35 0.050s peak=51MiB
-    voxel_radiomics: glcm batch 27/35 0.053s peak=52MiB
-    voxel_radiomics: glcm batch 28/35 0.053s peak=53MiB
-    voxel_radiomics: glcm batch 29/35 0.051s peak=54MiB
-    voxel_radiomics: glcm batch 30/35 0.047s peak=55MiB
-    voxel_radiomics: glcm batch 31/35 0.048s peak=56MiB
-    voxel_radiomics: glcm batch 32/35 0.049s peak=57MiB
-    voxel_radiomics: glcm batch 33/35 0.045s peak=59MiB
-    voxel_radiomics: glcm batch 34/35 0.041s peak=60MiB
-    voxel_radiomics: glcm batch 35/35 0.029s peak=61MiB
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.08s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.08s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.026s peak=67MiB
-    voxel_radiomics: firstorder batch 2/35 0.009s peak=67MiB
-    voxel_radiomics: firstorder batch 3/35 0.012s peak=67MiB
-    voxel_radiomics: firstorder batch 4/35 0.010s peak=67MiB
-    voxel_radiomics: firstorder batch 5/35 0.009s peak=67MiB
-    voxel_radiomics: firstorder batch 6/35 0.012s peak=67MiB
-    voxel_radiomics: firstorder batch 7/35 0.009s peak=67MiB
-    voxel_radiomics: firstorder batch 8/35 0.013s peak=67MiB
-    voxel_radiomics: firstorder batch 9/35 0.009s peak=67MiB
-    voxel_radiomics: firstorder batch 10/35 0.013s peak=67MiB
-    voxel_radiomics: firstorder batch 11/35 0.011s peak=67MiB
-    voxel_radiomics: firstorder batch 12/35 0.009s peak=67MiB
-    voxel_radiomics: firstorder batch 13/35 0.013s peak=67MiB
-    voxel_radiomics: firstorder batch 14/35 0.012s peak=67MiB
-    voxel_radiomics: firstorder batch 15/35 0.011s peak=67MiB
-    voxel_radiomics: firstorder batch 16/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 17/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 18/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 19/35 0.008s peak=67MiB
-    voxel_radiomics: firstorder batch 20/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 21/35 0.009s peak=67MiB
-    voxel_radiomics: firstorder batch 22/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 23/35 0.009s peak=67MiB
-    voxel_radiomics: firstorder batch 24/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 25/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 26/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 27/35 0.008s peak=67MiB
-    voxel_radiomics: firstorder batch 28/35 0.006s peak=67MiB
-    voxel_radiomics: firstorder batch 29/35 0.008s peak=67MiB
-    voxel_radiomics: firstorder batch 30/35 0.008s peak=67MiB
-    voxel_radiomics: firstorder batch 31/35 0.008s peak=67MiB
-    voxel_radiomics: firstorder batch 32/35 0.007s peak=67MiB
-    voxel_radiomics: firstorder batch 33/35 0.008s peak=67MiB
-    voxel_radiomics: firstorder batch 34/35 0.010s peak=67MiB
-    voxel_radiomics: firstorder batch 35/35 0.007s peak=66MiB
-    voxel_radiomics: glcm batch 1/35 0.063s peak=62MiB
-    voxel_radiomics: glcm batch 2/35 0.049s peak=63MiB
-    voxel_radiomics: glcm batch 3/35 0.052s peak=64MiB
-    voxel_radiomics: glcm batch 4/35 0.050s peak=66MiB
-    voxel_radiomics: glcm batch 5/35 0.052s peak=67MiB
-    voxel_radiomics: glcm batch 6/35 0.052s peak=68MiB
-    voxel_radiomics: glcm batch 7/35 0.055s peak=69MiB
-    voxel_radiomics: glcm batch 8/35 0.051s peak=70MiB
-    voxel_radiomics: glcm batch 9/35 0.051s peak=71MiB
-    voxel_radiomics: glcm batch 10/35 0.052s peak=72MiB
-    voxel_radiomics: glcm batch 11/35 0.051s peak=74MiB
-    voxel_radiomics: glcm batch 12/35 0.052s peak=1MiB
-    voxel_radiomics: glcm batch 13/35 0.054s peak=2MiB
-    voxel_radiomics: glcm batch 14/35 0.054s peak=3MiB
-    voxel_radiomics: glcm batch 15/35 0.051s peak=5MiB
-    voxel_radiomics: glcm batch 16/35 0.052s peak=6MiB
-    voxel_radiomics: glcm batch 17/35 0.052s peak=7MiB
-    voxel_radiomics: glcm batch 18/35 0.052s peak=8MiB
-    voxel_radiomics: glcm batch 19/35 0.051s peak=9MiB
-    voxel_radiomics: glcm batch 20/35 0.054s peak=10MiB
-    voxel_radiomics: glcm batch 21/35 0.050s peak=11MiB
-    voxel_radiomics: glcm batch 22/35 0.050s peak=13MiB
-    voxel_radiomics: glcm batch 23/35 0.051s peak=14MiB
-    voxel_radiomics: glcm batch 24/35 0.050s peak=15MiB
-    voxel_radiomics: glcm batch 25/35 0.049s peak=16MiB
-    voxel_radiomics: glcm batch 26/35 0.053s peak=17MiB
-    voxel_radiomics: glcm batch 27/35 0.049s peak=18MiB
-    voxel_radiomics: glcm batch 28/35 0.048s peak=20MiB
-    voxel_radiomics: glcm batch 29/35 0.049s peak=21MiB
-    voxel_radiomics: glcm batch 30/35 0.046s peak=22MiB
-    voxel_radiomics: glcm batch 31/35 0.044s peak=23MiB
-    voxel_radiomics: glcm batch 32/35 0.047s peak=24MiB
-    voxel_radiomics: glcm batch 33/35 0.044s peak=25MiB
-    voxel_radiomics: glcm batch 34/35 0.041s peak=26MiB
-    voxel_radiomics: glcm batch 35/35 0.027s peak=28MiB
-    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:03<00:00,  3.85s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:03<00:00,  3.85s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.033s peak=41MiB
+    voxel_radiomics: firstorder batch 2/35 0.016s peak=41MiB
+    voxel_radiomics: firstorder batch 3/35 0.018s peak=41MiB
+    voxel_radiomics: firstorder batch 4/35 0.024s peak=41MiB
+    voxel_radiomics: firstorder batch 5/35 0.015s peak=41MiB
+    voxel_radiomics: firstorder batch 6/35 0.018s peak=41MiB
+    voxel_radiomics: firstorder batch 7/35 0.018s peak=41MiB
+    voxel_radiomics: firstorder batch 8/35 0.019s peak=41MiB
+    voxel_radiomics: firstorder batch 9/35 0.009s peak=41MiB
+    voxel_radiomics: firstorder batch 10/35 0.012s peak=41MiB
+    voxel_radiomics: firstorder batch 11/35 0.009s peak=41MiB
+    voxel_radiomics: firstorder batch 12/35 0.012s peak=41MiB
+    voxel_radiomics: firstorder batch 13/35 0.014s peak=41MiB
+    voxel_radiomics: firstorder batch 14/35 0.013s peak=41MiB
+    voxel_radiomics: firstorder batch 15/35 0.012s peak=41MiB
+    voxel_radiomics: firstorder batch 16/35 0.008s peak=41MiB
+    voxel_radiomics: firstorder batch 17/35 0.013s peak=41MiB
+    voxel_radiomics: firstorder batch 18/35 0.010s peak=41MiB
+    voxel_radiomics: firstorder batch 19/35 0.009s peak=41MiB
+    voxel_radiomics: firstorder batch 20/35 0.009s peak=41MiB
+    voxel_radiomics: firstorder batch 21/35 0.012s peak=41MiB
+    voxel_radiomics: firstorder batch 22/35 0.013s peak=41MiB
+    voxel_radiomics: firstorder batch 23/35 0.011s peak=41MiB
+    voxel_radiomics: firstorder batch 24/35 0.009s peak=41MiB
+    voxel_radiomics: firstorder batch 25/35 0.010s peak=41MiB
+    voxel_radiomics: firstorder batch 26/35 0.006s peak=41MiB
+    voxel_radiomics: firstorder batch 27/35 0.007s peak=41MiB
+    voxel_radiomics: firstorder batch 28/35 0.006s peak=41MiB
+    voxel_radiomics: firstorder batch 29/35 0.007s peak=41MiB
+    voxel_radiomics: firstorder batch 30/35 0.007s peak=41MiB
+    voxel_radiomics: firstorder batch 31/35 0.007s peak=41MiB
+    voxel_radiomics: firstorder batch 32/35 0.008s peak=41MiB
+    voxel_radiomics: firstorder batch 33/35 0.006s peak=41MiB
+    voxel_radiomics: firstorder batch 34/35 0.008s peak=41MiB
+    voxel_radiomics: firstorder batch 35/35 0.005s peak=40MiB
+    voxel_radiomics: glcm batch 1/35 0.068s peak=36MiB
+    voxel_radiomics: glcm batch 2/35 0.064s peak=37MiB
+    voxel_radiomics: glcm batch 3/35 0.059s peak=38MiB
+    voxel_radiomics: glcm batch 4/35 0.059s peak=39MiB
+    voxel_radiomics: glcm batch 5/35 0.061s peak=40MiB
+    voxel_radiomics: glcm batch 6/35 0.059s peak=41MiB
+    voxel_radiomics: glcm batch 7/35 0.061s peak=43MiB
+    voxel_radiomics: glcm batch 8/35 0.062s peak=44MiB
+    voxel_radiomics: glcm batch 9/35 0.062s peak=45MiB
+    voxel_radiomics: glcm batch 10/35 0.064s peak=46MiB
+    voxel_radiomics: glcm batch 11/35 0.062s peak=47MiB
+    voxel_radiomics: glcm batch 12/35 0.062s peak=48MiB
+    voxel_radiomics: glcm batch 13/35 0.061s peak=49MiB
+    voxel_radiomics: glcm batch 14/35 0.062s peak=51MiB
+    voxel_radiomics: glcm batch 15/35 0.065s peak=52MiB
+    voxel_radiomics: glcm batch 16/35 0.063s peak=53MiB
+    voxel_radiomics: glcm batch 17/35 0.063s peak=54MiB
+    voxel_radiomics: glcm batch 18/35 0.061s peak=55MiB
+    voxel_radiomics: glcm batch 19/35 0.060s peak=56MiB
+    voxel_radiomics: glcm batch 20/35 0.060s peak=57MiB
+    voxel_radiomics: glcm batch 21/35 0.060s peak=59MiB
+    voxel_radiomics: glcm batch 22/35 0.061s peak=60MiB
+    voxel_radiomics: glcm batch 23/35 0.059s peak=61MiB
+    voxel_radiomics: glcm batch 24/35 0.058s peak=62MiB
+    voxel_radiomics: glcm batch 25/35 0.059s peak=63MiB
+    voxel_radiomics: glcm batch 26/35 0.060s peak=64MiB
+    voxel_radiomics: glcm batch 27/35 0.061s peak=66MiB
+    voxel_radiomics: glcm batch 28/35 0.060s peak=67MiB
+    voxel_radiomics: glcm batch 29/35 0.058s peak=68MiB
+    voxel_radiomics: glcm batch 30/35 0.056s peak=69MiB
+    voxel_radiomics: glcm batch 31/35 0.052s peak=70MiB
+    voxel_radiomics: glcm batch 32/35 0.055s peak=71MiB
+    voxel_radiomics: glcm batch 33/35 0.051s peak=72MiB
+    voxel_radiomics: glcm batch 34/35 0.046s peak=74MiB
+    voxel_radiomics: glcm batch 35/35 0.032s peak=1MiB
+    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.46s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.46s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]voxel_radiomics: firstorder batch 1/35 0.028s peak=7MiB
+    voxel_radiomics: firstorder batch 2/35 0.011s peak=7MiB
+    voxel_radiomics: firstorder batch 3/35 0.014s peak=7MiB
+    voxel_radiomics: firstorder batch 4/35 0.020s peak=7MiB
+    voxel_radiomics: firstorder batch 5/35 0.019s peak=7MiB
+    voxel_radiomics: firstorder batch 6/35 0.015s peak=7MiB
+    voxel_radiomics: firstorder batch 7/35 0.016s peak=7MiB
+    voxel_radiomics: firstorder batch 8/35 0.013s peak=7MiB
+    voxel_radiomics: firstorder batch 9/35 0.014s peak=7MiB
+    voxel_radiomics: firstorder batch 10/35 0.012s peak=7MiB
+    voxel_radiomics: firstorder batch 11/35 0.014s peak=7MiB
+    voxel_radiomics: firstorder batch 12/35 0.015s peak=7MiB
+    voxel_radiomics: firstorder batch 13/35 0.009s peak=7MiB
+    voxel_radiomics: firstorder batch 14/35 0.007s peak=7MiB
+    voxel_radiomics: firstorder batch 15/35 0.007s peak=7MiB
+    voxel_radiomics: firstorder batch 16/35 0.006s peak=7MiB
+    voxel_radiomics: firstorder batch 17/35 0.007s peak=7MiB
+    voxel_radiomics: firstorder batch 18/35 0.007s peak=7MiB
+    voxel_radiomics: firstorder batch 19/35 0.006s peak=7MiB
+    voxel_radiomics: firstorder batch 20/35 0.005s peak=7MiB
+    voxel_radiomics: firstorder batch 21/35 0.005s peak=7MiB
+    voxel_radiomics: firstorder batch 22/35 0.007s peak=7MiB
+    voxel_radiomics: firstorder batch 23/35 0.007s peak=7MiB
+    voxel_radiomics: firstorder batch 24/35 0.009s peak=7MiB
+    voxel_radiomics: firstorder batch 25/35 0.006s peak=7MiB
+    voxel_radiomics: firstorder batch 26/35 0.006s peak=7MiB
+    voxel_radiomics: firstorder batch 27/35 0.006s peak=7MiB
+    voxel_radiomics: firstorder batch 28/35 0.008s peak=7MiB
+    voxel_radiomics: firstorder batch 29/35 0.005s peak=7MiB
+    voxel_radiomics: firstorder batch 30/35 0.006s peak=7MiB
+    voxel_radiomics: firstorder batch 31/35 0.008s peak=7MiB
+    voxel_radiomics: firstorder batch 32/35 0.005s peak=7MiB
+    voxel_radiomics: firstorder batch 33/35 0.008s peak=7MiB
+    voxel_radiomics: firstorder batch 34/35 0.006s peak=7MiB
+    voxel_radiomics: firstorder batch 35/35 0.006s peak=6MiB
+    voxel_radiomics: glcm batch 1/35 0.061s peak=2MiB
+    voxel_radiomics: glcm batch 2/35 0.055s peak=3MiB
+    voxel_radiomics: glcm batch 3/35 0.056s peak=5MiB
+    voxel_radiomics: glcm batch 4/35 0.057s peak=6MiB
+    voxel_radiomics: glcm batch 5/35 0.059s peak=7MiB
+    voxel_radiomics: glcm batch 6/35 0.058s peak=8MiB
+    voxel_radiomics: glcm batch 7/35 0.060s peak=9MiB
+    voxel_radiomics: glcm batch 8/35 0.062s peak=10MiB
+    voxel_radiomics: glcm batch 9/35 0.059s peak=11MiB
+    voxel_radiomics: glcm batch 10/35 0.062s peak=13MiB
+    voxel_radiomics: glcm batch 11/35 0.059s peak=14MiB
+    voxel_radiomics: glcm batch 12/35 0.062s peak=15MiB
+    voxel_radiomics: glcm batch 13/35 0.060s peak=16MiB
+    voxel_radiomics: glcm batch 14/35 0.061s peak=17MiB
+    voxel_radiomics: glcm batch 15/35 0.061s peak=18MiB
+    voxel_radiomics: glcm batch 16/35 0.064s peak=20MiB
+    voxel_radiomics: glcm batch 17/35 0.061s peak=21MiB
+    voxel_radiomics: glcm batch 18/35 0.064s peak=22MiB
+    voxel_radiomics: glcm batch 19/35 0.059s peak=23MiB
+    voxel_radiomics: glcm batch 20/35 0.062s peak=24MiB
+    voxel_radiomics: glcm batch 21/35 0.060s peak=25MiB
+    voxel_radiomics: glcm batch 22/35 0.058s peak=26MiB
+    voxel_radiomics: glcm batch 23/35 0.065s peak=28MiB
+    voxel_radiomics: glcm batch 24/35 0.060s peak=29MiB
+    voxel_radiomics: glcm batch 25/35 0.058s peak=30MiB
+    voxel_radiomics: glcm batch 26/35 0.058s peak=31MiB
+    voxel_radiomics: glcm batch 27/35 0.059s peak=32MiB
+    voxel_radiomics: glcm batch 28/35 0.061s peak=33MiB
+    voxel_radiomics: glcm batch 29/35 0.056s peak=34MiB
+    voxel_radiomics: glcm batch 30/35 0.053s peak=36MiB
+    voxel_radiomics: glcm batch 31/35 0.053s peak=37MiB
+    voxel_radiomics: glcm batch 32/35 0.059s peak=38MiB
+    voxel_radiomics: glcm batch 33/35 0.052s peak=39MiB
+    voxel_radiomics: glcm batch 34/35 0.044s peak=40MiB
+    voxel_radiomics: glcm batch 35/35 0.031s peak=41MiB
+    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.23s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:04<00:00,  4.23s/it]
     With precise (whitelist only): mean Dice=0.792, labelled-voxel disagreement=0.206, ARI=0.449
     F:\work\habit_project\habit\viz\habitat_core.py:948: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
@@ -1611,13 +1647,13 @@ printed mean Dice and labelled-voxel disagreement before claiming that.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 377-380
+.. GENERATED FROM PYTHON SOURCE LINES 413-416
 
 MONAI elastic / B-spline deformation of image and ROI mask.
 A realistic displacement field (magnitude_range=(35.0, 50.0) voxels) models
 anatomical and contour variation across repeat acquisitions or observer differences.
 
-.. GENERATED FROM PYTHON SOURCE LINES 380-416
+.. GENERATED FROM PYTHON SOURCE LINES 416-452
 
 .. code-block:: Python
 
@@ -1726,11 +1762,11 @@ anatomical and contour variation across repeat acquisitions or observer differen
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 417-418
+.. GENERATED FROM PYTHON SOURCE LINES 453-454
 
 Anatomy slice before and after the elastic deformation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 418-430
+.. GENERATED FROM PYTHON SOURCE LINES 454-466
 
 .. code-block:: Python
 
@@ -1765,11 +1801,11 @@ Anatomy slice before and after the elastic deformation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 431-432
+.. GENERATED FROM PYTHON SOURCE LINES 467-468
 
 Zoomed edge perturbation figure: Original vs Deformed ROI with XOR contour difference.
 
-.. GENERATED FROM PYTHON SOURCE LINES 432-477
+.. GENERATED FROM PYTHON SOURCE LINES 468-513
 
 .. code-block:: Python
 
@@ -1833,7 +1869,7 @@ Zoomed edge perturbation figure: Original vs Deformed ROI with XOR contour diffe
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 8.692 seconds)
+   **Total running time of the script:** (1 minutes 17.560 seconds)
 
 
 .. _sphx_glr_download_auto_examples_08_precision_plot_01_precise_features.py:

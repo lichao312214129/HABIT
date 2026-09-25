@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,32 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="why-habitat-ids-must-be-matched">
 <span id="sphx-glr-auto-examples-06-matching-plot-01-label-switching-py"></span><h1>Why habitat ids must be matched<a class="headerlink" href="#why-habitat-ids-must-be-matched" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Clustering algorithms such as k-means number their
+clusters in arbitrary order, so two fits of the same tumour can give the
+same region different habitat ids. Any comparison by id (Dice, volume per
+habitat, a cohort table) needs the ids matched first.</p>
+<p><strong>Purpose.</strong> You get two k-means maps of one demo subject shown with raw
+and with matched ids, the voxel-overlap table that decides the pairing,
+and a per-habitat Dice table.</p>
+<p><strong>When to use.</strong> Whenever two maps label the same voxels (a restart, a
+perturbed image, a second reader). For maps of different patients see
+<a class="reference internal" href="plot_03_prototype_steps.html"><span class="doc">Prototype matching step by step</span></a>.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>habitat</strong> – a sub-region inside the tumour (the ROI) whose voxels
+behave alike across the input images; each ROI voxel gets a habitat id
+(1, 2, 3, …).</p></li>
+<li><p><strong>label switching</strong> – independent clusterings number the same habitat
+differently (habitat 1 in one fit can be habitat 3 in another), so ids
+must be matched before comparing.</p></li>
+<li><p><strong>overlap table</strong> – for every pair of habitats (one from each map), the
+number of voxels they share.</p></li>
+<li><p><strong>Hungarian assignment</strong> – an exact algorithm (Kuhn-Munkres, SciPy’s
+<code class="docutils literal notranslate"><span class="pre">linear_sum_assignment</span></code>) that picks the one-to-one pairing of rows and
+columns with the best total; here, the largest total shared voxels.</p></li>
+<li><p><strong>Dice</strong> – overlap between two label maps or regions (0 = none,
+1 = identical).</p></li>
+</ul>
 <p>Cluster the same tumour twice with the same features and the same <code class="docutils literal notranslate"><span class="pre">k</span></code>,
 changing only the k-means random seed. The two maps describe the same
 tissue, but k-means numbers its clusters in arbitrary order, so habitat 1
@@ -731,10 +757,12 @@ sphinx_gallery_thumbnail_number = 2</p>
     <span class="p">},</span>
     <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">roi</span></a><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">,</span>
 <span class="p">)</span>
+<span class="c1"># One row per ROI voxel; both runs cluster exactly these rows.</span>
 <a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a> <span class="o">=</span> <a href="../../api/generated/habit.pipeline.voxel_units.html#habit.pipeline.voxel_units" title="habit.pipeline.voxel_units" class="sphx-glr-backref-module-habit-pipeline sphx-glr-backref-type-py-function"><span class="n">voxel_units</span></a><span class="p">(</span><a href="../../api/generated/habit.voxel_features.ExpressionVoxelFeatures.html#habit.voxel_features.ExpressionVoxelFeatures" title="habit.voxel_features.ExpressionVoxelFeatures" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">extractor</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">))</span>
 
 <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">runs</span></a> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">seed</span></a> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># n_init=1: a single k-means start per seed, so only the seed differs.</span>
     <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span><span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">seed</span></a><span class="p">)</span>
     <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.fit" title="habit.habitat_model.KMeansHabitatModelFitter.fit" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">fit</span></a><span class="p">([</span><a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">],</span> <span class="n">cohort</span><span class="o">=</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Cohort</span></a><span class="p">([</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">],</span> <span class="n">name</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span></a><span class="p">))</span>
@@ -927,7 +955,7 @@ matches internally.</p>
 </div>
 </div>
 <br />
-<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.521 seconds)</p>
+<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.507 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-matching-plot-01-label-switching-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/bcd8c7acd0063ca01c235ea054b6089b/plot_01_label_switching.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_label_switching.ipynb</span></code></a></p>

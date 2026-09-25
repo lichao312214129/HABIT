@@ -2,6 +2,41 @@
 Quickstart: Python API
 ======================
 
+**Background.** Habitat analysis splits a tumour into sub-regions that
+behave alike across the input images (here, DCE phases), then describes
+each tumour by how much of each sub-region it has and how they are arranged.
+
+**Purpose.** You get your first habitat maps, a per-subject feature table
+(volume fractions, MSI, ITH, graph), and a saved model that labels a new
+patient without refitting.
+
+**Key terms.**
+
+* **habitat** -- a sub-region inside the tumour (the ROI) whose voxels behave
+  alike across the input images; HABIT paints each ROI voxel with a habitat
+  id (1, 2, 3, ...).
+* **ROI / mask** -- the region of interest, usually the whole tumour, stored
+  as an integer mask; only voxels inside it are analysed (0 = background).
+* **voxel feature** -- the numbers that describe one voxel (here its
+  intensity in each DCE phase); one column per feature.
+* **supervoxel** -- a small patch of neighbouring voxels with similar
+  features, clustered inside one subject first (``partition``), so the cohort
+  model clusters tens of rows per subject instead of every voxel.
+* **pool** -- stacks every training subject's rows into one matrix so one
+  model is fitted to the whole cohort and habitat ids mean the same thing in
+  every patient.
+* **fit** -- learns the habitat definition (for k-means: the number of
+  habitats and their centroids).
+* **assign** -- gives every supervoxel / voxel the id of its nearest
+  centroid, producing the habitat map.
+* **Stage / Spec / HabitatSpec** -- a ``Stage`` is one step with a label you
+  choose; a ``Spec`` names a registered component and its parameters; a
+  ``HabitatSpec`` is the ordered list of stages plus ``random_seed``, i.e.
+  the whole study definition.
+* **elbow** -- a rule for picking the number of habitats: the candidate
+  count after which adding one more habitat stops reducing within-cluster
+  spread much.
+
 A short list of stages declares the analysis; one call fits it on a
 cohort. Everything after that is looking at the result: the habitat map,
 the per-habitat features a paper would report, and reusing the fitted
@@ -91,6 +126,8 @@ spec = HabitatSpec(
     # Seeds partition and fit. It is not a RunPolicy setting.
     random_seed=0,
 )
+# Study runs the spec: fit_predict learns the habitats on the four training
+# subjects and labels those same subjects in one call.
 result = Study(spec).fit_predict(train)
 print(result.habitat_model.summary())
 
@@ -175,8 +212,11 @@ plt.show()
 # --------------------------------
 # The ``.habitatmodel`` file is the habitat definition: load it anywhere
 # and the new patient gets the same habitat names. Nothing is refitted.
+# save writes the model archive and result tables under out/quickstart,
+# plus the habitat maps because write_maps=True.
 result.save("out/quickstart", write_maps=True)
 model = HabitatModel.load("out/quickstart/habitat_model.habitatmodel")
+# predict labels the held-out fifth subject with the saved centroids.
 prediction = Study.from_model(model).predict(new_patient)
 fig = plot_habitat_overlay(
     new_patient[0].image("LAP"),

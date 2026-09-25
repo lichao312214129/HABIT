@@ -2,6 +2,27 @@
 Whole-habitat radiomics
 =======================
 
+**Background.** Per-habitat radiomics describes the MRI inside each habitat.
+Whole-habitat radiomics instead describes the habitat map itself: the label
+image (habitat ids as grey values) is fed to PyRadiomics as the image, and
+the whole labelled region as the mask.
+
+**Purpose.** You get one row of features describing the partition (here
+first-order ``Mean`` / ``Entropy`` of the labels and ``shape`` features such
+as ``Sphericity`` and ``SurfaceArea``), a habitat overlay, and a map of local
+label entropy.
+
+**Key terms.**
+
+* **shape feature** -- geometry of the labelled region (e.g. how close it is
+  to a sphere, its surface area), independent of intensity.
+* **label entropy** -- how mixed the ids are in a small window around each
+  voxel; zero inside one uniform habitat, higher where habitats (or the
+  background at the tumour edge) meet.
+* **habitat / one-step habitats** -- see
+  :doc:`/auto_examples/03_quantify/plot_01_volume_fractions` and
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`.
+
 Quantify the **shape and spatial distribution of the partition map itself**
 using :class:`~habit.habitat_features.WholeHabitatRadiomicsFeatures`.
 The habitat label image plays both intensity and mask roles.
@@ -39,6 +60,7 @@ params: Dict[str, Any] = {
         "firstorder": ["Mean", "Entropy"],
         "shape": ["Sphericity", "SurfaceArea"],
     },
+    # binWidth=1 keeps each integer habitat id in its own grey-level bin.
     "setting": {"binWidth": 1, "voxelArrayShift": 0},
 }
 table = WholeHabitatRadiomicsFeatures(params=params)(subject, habitat_map)
@@ -65,6 +87,7 @@ plt.show()
 
 label_intensity: np.ndarray = np.asarray(habitat_map.label_array, dtype=np.float64)
 n_label_bins: int = max(int(label_intensity.max()) + 1, 2)
+# 5x5x5 window; one histogram bin per id (background 0 included).
 entropy = local_entropy_map(label_intensity, kernel_size=5, bins=n_label_bins)
 habitat_roi = MaskVolume.from_geometry(
     (habitat_map.label_array > 0).astype(np.uint8),

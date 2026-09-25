@@ -21,17 +21,36 @@
 Deep-learning habitat embeddings
 ================================
 
+**Background.** Deep-learning encoders turn an image into a stack of
+feature maps (channels). Averaging those channels inside each habitat gives
+every habitat a learned descriptor that can sit next to hand-crafted
+radiomics in a downstream model.
+
+**Purpose.** You get a table with one row per habitat and one column per
+channel (64 here), and a heatmap of the first 16 dimensions. The feature
+volume on this page is random noise, so the numbers only show the mechanics,
+not meaningful biology.
+
+**Key terms.**
+
+* **embedding** -- a fixed-length vector of learned numbers describing a
+  region; here one 64-D vector per habitat.
+* **masked spatial average pooling** -- the mean of each channel over the
+  voxels where the habitat mask is non-zero.
+* **(C, z, y, x)** -- channels first, then the same spatial axes as the
+  habitat label array; the two must match voxel for voxel.
+
 Bridge HABIT habitat maps to deep-learning pipelines: extract a binary
 mask per habitat and apply **masked spatial average pooling** on a 3-D
 feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch
 encoder output with the same ``(C, z, y, x)`` layout).
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-14
+.. GENERATED FROM PYTHON SOURCE LINES 31-33
 
 Habitat map from HABIT, synthetic 64-channel feature volume from a DL model.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-119
+.. GENERATED FROM PYTHON SOURCE LINES 33-139
 
 .. code-block:: Python
 
@@ -105,6 +124,7 @@ sphinx_gallery_thumbnail_number = 1
         """
         rows: Dict[int, np.ndarray] = {}
         for hid in habitat_ids:
+            # Binary mask of this one habitat; absent habitats pool to NaN.
             mask = label_array == hid
             rows[hid] = masked_spatial_average_pooling(feature_map, mask)
         n_channels = int(feature_map.shape[0])
@@ -170,7 +190,7 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.31s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.31s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.27s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.27s/it]
     Embedding shape: (3, 64) (habitats x 64-D)
                 emb_0  emb_1  emb_2  emb_3  emb_4  emb_5
     habitat_id                                          
@@ -252,11 +272,11 @@ sphinx_gallery_thumbnail_number = 1
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 120-121
+.. GENERATED FROM PYTHON SOURCE LINES 140-141
 
 Heatmap of the first 16 embedding dimensions per habitat (English labels only).
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-133
+.. GENERATED FROM PYTHON SOURCE LINES 141-153
 
 .. code-block:: Python
 
@@ -287,7 +307,7 @@ Heatmap of the first 16 embedding dimensions per habitat (English labels only).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 18.048 seconds)
+   **Total running time of the script:** (0 minutes 20.251 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_quantify_plot_07_deep_learning_embeddings.py:

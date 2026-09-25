@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -749,7 +749,19 @@ when <code class="docutils literal notranslate"><span class="pre">crop_to=&quot;
 
 <section id="examples-using-habit-viz-plot-habitat-label-compare">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_label_compare</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-habitat-label-compare" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Texture columns have very different ranges, so the preprocess stage matters even more for texture than for intensity. Where the scaling state is learned (inside each subject, or once on the pooled cohort) also changes what the habitats mean."><img alt="" src="../../_images/sphx_glr_plot_06_texture_preprocessing_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/02_stages/plot_06_texture_preprocessing.html"><span class="doc">Preprocessing voxel texture before clustering</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Preprocessing voxel texture before clustering</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Clustering algorithms such as k-means number their clusters in arbitrary order, so two fits of the same tumour can give the same region different habitat ids. Any comparison by id (Dice, volume per habitat, a cohort table) needs the ids matched first."><img alt="" src="../../_images/sphx_glr_plot_01_label_switching_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_matching/plot_01_label_switching.html"><span class="doc">Why habitat ids must be matched</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Why habitat ids must be matched</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. When two habitat maps cover the same voxels, their ids can be matched by counting shared voxels alone, even if the two fits used a different number of habitats or different features."><img alt="" src="../../_images/sphx_glr_plot_02_overlap_cases_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_matching/plot_02_overlap_cases.html"><span class="doc">Matching maps of the same voxels by overlap</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Matching maps of the same voxels by overlap</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Two patients share no voxels, so their habitats cannot be matched by overlap. Instead each habitat is described by a summary row and all subjects are named against one shared set of reference rows."><img alt="" src="../../_images/sphx_glr_plot_03_prototype_steps_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/06_matching/plot_03_prototype_steps.html"><span class="doc">Prototype matching step by step</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Prototype matching step by step</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A voxel feature is only useful for habitats if it gives nearly the same value when the same tumour is imaged again and when its computation settings change slightly. Precise screening measures this and keeps only the features that pass."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/08_precision/plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
 </div></div><div style="clear:both"></div></section>

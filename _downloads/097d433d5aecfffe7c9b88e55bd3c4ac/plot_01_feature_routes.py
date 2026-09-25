@@ -2,6 +2,22 @@
 Voxel features
 ==============
 
+**Background.** The ``extract`` stage decides which numbers describe each
+voxel; habitats can only separate what those columns show. The simplest
+choice is the image intensities themselves.
+
+**Purpose.** You see the voxel-feature table and matrix that clustering
+receives with ``raw``, a habitat overlay fitted on it, and how
+``concat`` joins two extractors into one wider table.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **raw** -- one column per listed modality, the intensities unchanged.
+* **concat** -- runs several extractors on the same ROI voxels and joins
+  their columns side by side.
+
 Clustering uses the voxel field you define — not a fixed T1 image.
 This page is the intensity pair: ``raw`` (concatenate modality intensities
 inside the ROI) and ``concat`` (join families column-wise).
@@ -50,6 +66,8 @@ raw_spec = HabitatSpec(
     habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
     random_seed=11,
 )
+# Build the components the spec names and call only the extractor on one
+# subject, to look at the table before any clustering runs.
 raw_field = (
     build_habitat_components(raw_spec)
     .pipeline(assigner=None)
@@ -78,6 +96,8 @@ plt.show()
 
 # %%
 # Fit the ``raw`` route and overlay habitats.
+# fit_predict runs every stage of the spec on both subjects: partition,
+# pooled fit (elbow over 2..3 habitats), assign, then the feature stages.
 raw_result = recipes.Study(spec=raw_spec).fit_predict(cohort)
 print(raw_result.habitat_model.summary())
 fig = plot_habitat_overlay(

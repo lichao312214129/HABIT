@@ -21,18 +21,37 @@
 Extracting voxel intensities
 ============================
 
+**Background.** Habitat analysis clusters voxels by what they look like
+across the input images. The first stage, ``extract``, turns each voxel
+inside the ROI into a row of numbers that later stages can cluster.
+
+**Purpose.** You get the voxel-feature table of one subject (one row per
+ROI voxel, one column per DCE phase) and a slice of the arterial phase
+with the ROI outline, so you can check which voxels enter the analysis.
+
+**Key terms.**
+
+* **ROI / mask** -- the region of interest, usually the whole tumour,
+  stored as an integer mask; only voxels inside it are analysed
+  (0 = background).
+* **voxel feature** -- the numbers that describe one voxel (for example
+  its intensity in each DCE phase, or a local texture value); one column
+  per feature.
+* **extract** stage -- turns images + ROI into a voxel-feature table.
+  ``raw`` is the simplest extractor: it copies the intensities unchanged.
+
 Input: one :class:`~habit.contracts.Subject`. Output: a
 :class:`~habit.contracts.VoxelFeatureField`. Stage:
 ``extract_voxel_features`` with ``raw``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-15
+.. GENERATED FROM PYTHON SOURCE LINES 30-34
 
 Load one subject
 ----------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-31
+.. GENERATED FROM PYTHON SOURCE LINES 34-52
 
 .. code-block:: Python
 
@@ -49,6 +68,8 @@ sphinx_gallery_thumbnail_number = 1
     # Three DCE phases: unenhanced, arterial, and portal-venous.
     MODALITIES = ("pre_contrast", "LAP", "PVP")
     ROI = "LAP"
+    # Read the folder tree into a Cohort and keep only the first subject;
+    # every extractor is called on one subject at a time.
     subject = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[0]
     print(subject.subject_id, sorted(subject.images))
 
@@ -87,15 +108,17 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 32-37
+.. GENERATED FROM PYTHON SOURCE LINES 53-60
 
 Read one row per ROI voxel
 --------------------------
 ``RawVoxelFeatures`` returns a field with one column per phase, plus
 the grid position of every row so the field can be drawn back into
 the image.
+The extractor is built once with its parameters, then called on the
+subject; this is the same component as Spec("raw", {...}) in a stage list.
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-41
+.. GENERATED FROM PYTHON SOURCE LINES 60-64
 
 .. code-block:: Python
 
@@ -183,13 +206,13 @@ the image.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-45
+.. GENERATED FROM PYTHON SOURCE LINES 65-68
 
 Arterial-phase slice
 --------------------
 The table above has one column per phase: pre_contrast, LAP, and PVP.
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-56
+.. GENERATED FROM PYTHON SOURCE LINES 68-79
 
 .. code-block:: Python
 
@@ -226,7 +249,7 @@ The table above has one column per phase: pre_contrast, LAP, and PVP.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.899 seconds)
+   **Total running time of the script:** (0 minutes 1.818 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_06_voxel_intensities.py:

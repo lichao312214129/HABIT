@@ -21,6 +21,25 @@
 Expression voxel features
 =========================
 
+**Background.** Clinicians often read DCE images as ratios (how much a
+voxel enhances, how fast it washes out) rather than raw signal. An
+expression extractor computes such ratios per voxel from a formula
+string, without writing a class.
+
+**Purpose.** You get a voxel-feature table with four derived columns and
+a map of arterial relative enhancement inside the ROI.
+
+**When to use.** When each new column is simple arithmetic on your
+modalities; for anything more, see
+:doc:`/auto_examples/02_stages/plot_02_custom_features`.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **derived map** -- a voxel-wise image computed from other images, such
+  as relative enhancement ``(LAP - pre_contrast) / pre_contrast``.
+
 :class:`~habit.voxel_features.ExpressionVoxelFeatures` builds one column
 per formula. Names in the formula are modality keys on the subject
 (``LAP``, ``pre_contrast``, ...). ``eps`` keeps a zero denominator from
@@ -29,12 +48,12 @@ breaking a ratio.
 Clustering those columns is a later page
 (:doc:`/auto_examples/02_stages/plot_08_derived_map`).
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-17
+.. GENERATED FROM PYTHON SOURCE LINES 34-36
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-33
+.. GENERATED FROM PYTHON SOURCE LINES 36-52
 
 .. code-block:: Python
 
@@ -89,11 +108,12 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-35
+.. GENERATED FROM PYTHON SOURCE LINES 53-55
 
 Each key becomes one column of the voxel field.
+Only ROI voxels are evaluated; the formulas use the modality keys above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-48
+.. GENERATED FROM PYTHON SOURCE LINES 55-68
 
 .. code-block:: Python
 
@@ -129,11 +149,11 @@ Each key becomes one column of the voxel field.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-50
+.. GENERATED FROM PYTHON SOURCE LINES 69-70
 
 Arterial relative enhancement inside the ROI.
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-61
+.. GENERATED FROM PYTHON SOURCE LINES 70-81
 
 .. code-block:: Python
 
@@ -170,7 +190,7 @@ Arterial relative enhancement inside the ROI.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.769 seconds)
+   **Total running time of the script:** (0 minutes 2.629 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_02_expression.py:

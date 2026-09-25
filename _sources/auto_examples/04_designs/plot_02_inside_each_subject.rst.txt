@@ -21,6 +21,24 @@
 Defining habitats inside each subject
 ======================================
 
+**Background.** In the one-step design each tumour is clustered on its own
+voxels: no supervoxels, no pooling, and no model shared by the cohort.
+
+**Purpose.** You get one private habitat model and one habitat map per
+subject, plus their volume fractions, drawn side by side.
+
+**When to use.** You want to describe how heterogeneous each tumour is by
+itself (e.g. how many habitats, how fragmented). Skip it if habitat ids
+must mean the same thing across patients; use
+:doc:`/auto_examples/04_designs/plot_01_two_step` instead.
+
+**Key terms.**
+
+* **one-step** -- ``fit`` and ``assign`` run inside each subject, so every
+  subject gets its own centroids.
+* **label switching** -- independent clusterings number the same habitat
+  differently, so ids must be matched before comparing subjects.
+
 Input: one subject at a time. Output: a
 :class:`~habit.contracts.HabitatMap` whose integer ids belong to that
 subject only. The stage list has no ``pool``, so ``fit`` runs inside each
@@ -31,14 +49,14 @@ Habitat 1 in the first subject is not habitat 1 in the second. Match
 labels before comparing people:
 :doc:`/auto_examples/06_matching/plot_07_match_labels`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-21
+.. GENERATED FROM PYTHON SOURCE LINES 35-39
 
 Load the cohort
 ---------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-39
+.. GENERATED FROM PYTHON SOURCE LINES 39-57
 
 .. code-block:: Python
 
@@ -95,7 +113,7 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-45
+.. GENERATED FROM PYTHON SOURCE LINES 58-63
 
 Fit a private model inside each subject
 ---------------------------------------
@@ -103,7 +121,7 @@ No ``partition`` and no ``pool``: each subject's ROI voxels are
 clustered on their own. Habitat 1 in the first subject is not habitat 1
 in the second. There is no shared centroid.
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-68
+.. GENERATED FROM PYTHON SOURCE LINES 63-88
 
 .. code-block:: Python
 
@@ -120,6 +138,8 @@ in the second. There is no shared centroid.
         ),
         random_seed=0,
     )
+    # Without pool, fit_predict keeps one model per subject (subject_models)
+    # instead of a single cohort habitat_model.
     result = Study(spec).fit_predict(cohort)
     print(f"Per-subject models: {list(result.subject_models)}")
     for habitat_map in result.habitat_maps:
@@ -138,7 +158,7 @@ in the second. There is no shared centroid.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  33%|███▎      | 1/3 [00:01<00:02,  1.47s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  67%|██████▋   | 2/3 [00:02<00:01,  1.41s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.44s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.44s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  33%|███▎      | 1/3 [00:01<00:02,  1.50s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  67%|██████▋   | 2/3 [00:02<00:01,  1.42s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.46s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 3/3 [00:04<00:00,  1.46s/it]
     Per-subject models: ['subj001', 'subj002', 'subj003']
     subj001 [1, 2, 3]
     subj002 [1, 2, 3]
@@ -219,12 +239,12 @@ in the second. There is no shared centroid.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 69-71
+.. GENERATED FROM PYTHON SOURCE LINES 89-91
 
 Show each subject's habitat map on its own anatomy. No comparison --
 just the three maps side by side.
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-85
+.. GENERATED FROM PYTHON SOURCE LINES 91-105
 
 .. code-block:: Python
 
@@ -287,7 +307,7 @@ just the three maps side by side.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.389 seconds)
+   **Total running time of the script:** (0 minutes 7.516 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_designs_plot_02_inside_each_subject.py:

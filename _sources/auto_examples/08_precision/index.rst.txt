@@ -5,6 +5,12 @@
 8. Precise Feature Screening
 ============================
 
+**Background.** Some voxel features change a lot when the same tumour is
+rescanned or computed with slightly different settings; habitats built on
+them are unstable. **Purpose.** Keep only features that agree under a
+simulated retest and across settings (measured by ICC), then check whether
+habitats built on them are more stable on this demo.
+
 Repeatability and reproducibility screening (Prior et al., 2024):
 simulated image retest perturbation (noise, translation, rotation) and
 ROI contour edge perturbation, evaluated across kernel radii and bin
@@ -29,7 +35,7 @@ Dice rises and labelled-voxel disagreement falls on this demo (modestly).
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI).">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A voxel feature is only useful for habitats if it gives nearly the same value when the same tumour is imaged again and when its computation settings change slightly. Precise screening measures this and keeps only the features that pass.">
 
 .. only:: html
 

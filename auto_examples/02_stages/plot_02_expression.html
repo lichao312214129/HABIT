@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,22 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="expression-voxel-features">
 <span id="sphx-glr-auto-examples-02-stages-plot-02-expression-py"></span><h1>Expression voxel features<a class="headerlink" href="#expression-voxel-features" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Clinicians often read DCE images as ratios (how much a
+voxel enhances, how fast it washes out) rather than raw signal. An
+expression extractor computes such ratios per voxel from a formula
+string, without writing a class.</p>
+<p><strong>Purpose.</strong> You get a voxel-feature table with four derived columns and
+a map of arterial relative enhancement inside the ROI.</p>
+<p><strong>When to use.</strong> When each new column is simple arithmetic on your
+modalities; for anything more, see
+<a class="reference internal" href="plot_02_custom_features.html"><span class="doc">Custom features</span></a>.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>voxel feature</strong> / <strong>extract</strong> – see
+<a class="reference internal" href="plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a>.</p></li>
+<li><p><strong>derived map</strong> – a voxel-wise image computed from other images, such
+as relative enhancement <code class="docutils literal notranslate"><span class="pre">(LAP</span> <span class="pre">-</span> <span class="pre">pre_contrast)</span> <span class="pre">/</span> <span class="pre">pre_contrast</span></code>.</p></li>
+</ul>
 <p><a class="reference internal" href="../../api/generated/habit.voxel_features.ExpressionVoxelFeatures.html#habit.voxel_features.ExpressionVoxelFeatures" title="habit.voxel_features.ExpressionVoxelFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExpressionVoxelFeatures</span></code></a> builds one column
 per formula. Names in the formula are modality keys on the subject
 (<code class="docutils literal notranslate"><span class="pre">LAP</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_contrast</span></code>, …). <code class="docutils literal notranslate"><span class="pre">eps</span></code> keeps a zero denominator from
@@ -743,7 +759,8 @@ same as one image series (here LAP).
 subj001 [&#39;LAP&#39;, &#39;PVP&#39;, &#39;delay_3min&#39;, &#39;pre_contrast&#39;]
 </pre></div>
 </div>
-<p>Each key becomes one column of the voxel field.</p>
+<p>Each key becomes one column of the voxel field.
+Only ROI voxels are evaluated; the formulas use the modality keys above.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.voxel_features.ExpressionVoxelFeatures.html#habit.voxel_features.ExpressionVoxelFeatures" title="habit.voxel_features.ExpressionVoxelFeatures" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">extractor</span></a> <span class="o">=</span> <a href="../../api/generated/habit.voxel_features.ExpressionVoxelFeatures.html#habit.voxel_features.ExpressionVoxelFeatures" title="habit.voxel_features.ExpressionVoxelFeatures" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-class"><span class="n">ExpressionVoxelFeatures</span></a><span class="p">(</span>
     <span class="n">features</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">&quot;rel_enh_lap&quot;</span><span class="p">:</span> <span class="s2">&quot;(LAP - pre_contrast) / (pre_contrast + eps)&quot;</span><span class="p">,</span>
@@ -785,7 +802,7 @@ subj001 [&#39;LAP&#39;, &#39;PVP&#39;, &#39;delay_3min&#39;, &#39;pre_contrast&#
   direction, spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.769 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.629 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-02-expression-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/61e878d066cad821023b4c6186cd973d/plot_02_expression.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_02_expression.ipynb</span></code></a></p>

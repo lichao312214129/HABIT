@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,22 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="assigning-habitat-labels">
 <span id="sphx-glr-auto-examples-02-stages-plot-14-assign-labels-py"></span><h1>Assigning habitat labels<a class="headerlink" href="#assigning-habitat-labels" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A fitted model only stores centroids. <code class="docutils literal notranslate"><span class="pre">assign</span></code> turns
+that into a picture: every supervoxel of a subject gets the id of its
+nearest centroid, and every voxel inherits the id of its supervoxel.</p>
+<p><strong>Purpose.</strong> You get a <a class="reference internal" href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatMap</span></code></a> for one
+subject, an overlay of the habitats on the arterial image, and the
+number of voxels in each habitat.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>assign</strong> – gives every supervoxel / voxel the id of its nearest
+centroid, producing the habitat map.</p></li>
+<li><p><strong>habitat</strong> – a sub-region inside the tumour (the ROI) whose voxels
+behave alike across the input images; HABIT paints each ROI voxel with
+a habitat id (1, 2, 3, …).</p></li>
+<li><p><strong>fit</strong> / <strong>centroid</strong> – see
+<a class="reference internal" href="plot_13_fit_model.html"><span class="doc">Fitting a cohort habitat model</span></a>.</p></li>
+</ul>
 <p>Input: a fitted <a class="reference internal" href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> and one
 <a class="reference internal" href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization"><code class="xref py py-class docutils literal notranslate"><span class="pre">Supervoxelization</span></code></a>. Output: a
 <a class="reference internal" href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatMap</span></code></a>. Stage: <code class="docutils literal notranslate"><span class="pre">assign</span></code> with
@@ -766,6 +782,7 @@ subj002: 97 supervoxels
 </section>
 <section id="fit-one-shared-model">
 <h2>Fit one shared model<a class="headerlink" href="#fit-one-shared-model" title="Link to this heading"></a></h2>
+<p>Same fit as the previous page: three habitats, fixed seed, both subjects.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span><span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.fit" title="habit.habitat_model.KMeansHabitatModelFitter.fit" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">fit</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="o">=</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">)</span>
@@ -791,6 +808,7 @@ subj002: 97 supervoxels
 centroid. The second subject’s units were used only to fit.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.assigner" title="habit.contracts.HabitatModel.assigner" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">model</span><span class="o">.</span><span class="n">assigner</span></a><span class="p">()(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a><span class="p">)</span>
+<span class="c1"># Count voxels per habitat id (0 is background outside the ROI).</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counts</span></a> <span class="o">=</span> <span class="p">[</span>
     <span class="nb">int</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.sum.html#numpy.sum" title="numpy.sum" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">sum</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span></a> <span class="o">==</span> <span class="n">habitat_id</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
@@ -834,7 +852,7 @@ voxels per habitat: [9424, 16304, 8966]
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_14_assign_labels_002.png" srcset="../../_images/sphx_glr_plot_14_assign_labels_002.png" alt="assigned habitat voxel counts" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 45.735 seconds)</p>
+<img src="../../_images/sphx_glr_plot_14_assign_labels_002.png" srcset="../../_images/sphx_glr_plot_14_assign_labels_002.png" alt="assigned habitat voxel counts" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 46.920 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-14-assign-labels-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/92854865727a14656a638e6ebed4fbe0/plot_14_assign_labels.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_14_assign_labels.ipynb</span></code></a></p>

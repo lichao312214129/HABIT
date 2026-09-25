@@ -2,6 +2,25 @@
 Expression voxel features
 =========================
 
+**Background.** Clinicians often read DCE images as ratios (how much a
+voxel enhances, how fast it washes out) rather than raw signal. An
+expression extractor computes such ratios per voxel from a formula
+string, without writing a class.
+
+**Purpose.** You get a voxel-feature table with four derived columns and
+a map of arterial relative enhancement inside the ROI.
+
+**When to use.** When each new column is simple arithmetic on your
+modalities; for anything more, see
+:doc:`/auto_examples/02_stages/plot_02_custom_features`.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **derived map** -- a voxel-wise image computed from other images, such
+  as relative enhancement ``(LAP - pre_contrast) / pre_contrast``.
+
 :class:`~habit.voxel_features.ExpressionVoxelFeatures` builds one column
 per formula. Names in the formula are modality keys on the subject
 (``LAP``, ``pre_contrast``, ...). ``eps`` keeps a zero denominator from
@@ -32,6 +51,7 @@ print(subject.subject_id, sorted(subject.images))
 
 # %%
 # Each key becomes one column of the voxel field.
+# Only ROI voxels are evaluated; the formulas use the modality keys above.
 extractor = ExpressionVoxelFeatures(
     features={
         "rel_enh_lap": "(LAP - pre_contrast) / (pre_contrast + eps)",

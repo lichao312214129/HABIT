@@ -2,6 +2,22 @@
 Clustering habitats from a texture field
 ========================================
 
+**Background.** Texture maps can be clustered like intensities: each ROI
+voxel becomes one row of texture values, and k-means groups voxels with
+similar local patterns into habitats.
+
+**Purpose.** You get three GLCM columns for one subject, three habitats
+fitted directly on its voxels, a GLCM Contrast map, and the habitat
+overlay.
+
+**Key terms.**
+
+* **GLCM Contrast** / **kernel radius** -- see
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
+* **Correlation / Idm** -- two more GLCM features: how linearly related
+  neighbouring grey levels are, and how homogeneous the neighbourhood is.
+* **per-subject fit** -- see :doc:`/auto_examples/02_stages/plot_08_derived_map`.
+
 Input: a per-voxel GLCM :class:`~habit.contracts.VoxelFeatureField`.
 Output: a :class:`~habit.contracts.HabitatMap`. Stages:
 :func:`~habit.voxel_features.extract_voxel_texture`, then a per-subject
@@ -51,6 +67,9 @@ print(field.feature_frame().head())
 # %%
 # Fit and assign on these voxels
 # ------------------------------
+# No partition: every ROI voxel is its own clustering unit. The three
+# columns are not rescaled here, so a column with a wider range weighs
+# more in the distance (see plot_06_texture_preprocessing).
 units = voxel_units(field)
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)

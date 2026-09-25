@@ -33,7 +33,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="8. Precise Feature Screening" href="../08_precision/index.html" />
-    <link rel="prev" title="7. Parallel runs" href="index.html" /> 
+    <link rel="prev" title="7. Running a whole cohort" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">7. Parallel runs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">7. Running a whole cohort</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -675,7 +675,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Habitat Guide</a></li>
-          <li class="breadcrumb-item"><a href="index.html">7. Parallel runs</a></li>
+          <li class="breadcrumb-item"><a href="index.html">7. Running a whole cohort</a></li>
       <li class="breadcrumb-item active">Running the same study on each backend</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/auto_examples/07_parallel/plot_01_backends.rst.txt" rel="nofollow"> View page source</a>
@@ -693,6 +693,31 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="running-the-same-study-on-each-backend">
 <span id="sphx-glr-auto-examples-07-parallel-plot-01-backends-py"></span><h1>Running the same study on each backend<a class="headerlink" href="#running-the-same-study-on-each-backend" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Once a study is declared, HABIT still has to run it on
+every subject. This page is about that scheduling layer. Switching the
+backend or <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code> changes speed and how failures are handled; it
+does not change the science, so the habitat labels must come out
+identical.</p>
+<p><strong>Purpose.</strong> You will run one study serially and with process workers
+and confirm the labels match, see why serial can win on a tiny cohort,
+keep a run going when one subject fails, resume from checkpoints, and
+build policies for GPU worker caps and per-subject timeouts.</p>
+<p><strong>When to use.</strong> Stay serial for a handful of subjects or while
+debugging one case. Switch to process workers when there are many
+subjects and each one is expensive.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>backend</strong> – what schedules the subjects: serial (one after another
+in this Python process) or a pool of worker processes.</p></li>
+<li><p><strong>RunPolicy</strong> – the settings object for a run: backend, number of
+workers, failure handling, timeouts, checkpoint and resume options.</p></li>
+<li><p><strong>spawn</strong> – how Windows starts a worker: a fresh Python interpreter
+that re-imports HABIT, which costs seconds per worker.</p></li>
+<li><p><strong>checkpoint</strong> – finished subject results saved on disk so an
+interrupted run resumes without recomputing them.</p></li>
+<li><p><strong>supervoxel / pool / fit / assign</strong> – the study stages; see
+<a class="reference internal" href="../00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">A complete habitat analysis</span></a>.</p></li>
+</ul>
 <p>The study is the two-step list from
 <a class="reference internal" href="../00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">A complete habitat analysis</span></a>, with the
 habitat count fixed at 3 so this page can refit it on every backend.
@@ -814,15 +839,15 @@ the other backends must match.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:05&lt;00:05,  5.87s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07&lt;00:00,  3.71s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07&lt;00:00,  3.71s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.10s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.77s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.78s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.17it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.26it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.26it/s]
-serial: 8.1 s, backend SerialBackend
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.26it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.19it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.19it/s]
+serial: 4.2 s, backend SerialBackend
    subject  ...  habitat_3_volume_fraction
 0  subj001  ...                   0.331844
 1  subj002  ...                   0.569182
@@ -855,15 +880,15 @@ the first call still pays the Windows spawn + import cost.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>ProcessPoolBackend workers 2 mode persistent
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:08&lt;00:08,  8.16s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09&lt;00:00,  4.69s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09&lt;00:00,  4.69s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:09&lt;00:09,  9.83s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:11&lt;00:00,  5.58s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:11&lt;00:00,  5.58s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.33it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.35it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.35it/s]
-process, persistent: 10.1 s
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.22it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.13it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.12it/s]
+process, persistent: 11.9 s
 subj001: serial == persistent: True
 subj002: serial == persistent: True
 </pre></div>
@@ -891,15 +916,15 @@ subject gets a new interpreter. Same labels, more start-up.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>ProcessPoolBackend mode isolated
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:07&lt;00:07,  7.85s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:08&lt;00:00,  4.26s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:08&lt;00:00,  4.26s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:08&lt;00:08,  8.48s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09&lt;00:00,  4.59s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09&lt;00:00,  4.59s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.43it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.43it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.43it/s]
-process, isolated: 9.2 s
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.13it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.15it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.15it/s]
+process, isolated: 9.9 s
 subj001: serial == isolated: True
 subj002: serial == isolated: True
 </pre></div>
@@ -932,9 +957,9 @@ multi-GPU table further down.</p>
     <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_01_backends_001.png" srcset="../../_images/sphx_glr_plot_01_backends_001.png" alt="serial vs process pool vs isolated (tiny cohort)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>serial: 8.1 s
-process, persistent: 10.1 s
-process, isolated: 9.2 s
+<img src="../../_images/sphx_glr_plot_01_backends_001.png" srcset="../../_images/sphx_glr_plot_01_backends_001.png" alt="serial vs process pool vs isolated (tiny cohort)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>serial: 4.2 s
+process, persistent: 11.9 s
+process, isolated: 9.9 s
 </pre></div>
 </div>
 </section>
@@ -1079,26 +1104,26 @@ cannot find <code class="docutils literal notranslate"><span class="pre">PVP</sp
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_01_backends_002.png" srcset="../../_images/sphx_glr_plot_01_backends_002.png" alt="subj001: habitats (run continued), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:06,  2.00s/it]
-Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03&lt;00:03,  1.67s/it]
-Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04&lt;00:01,  1.59s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05&lt;00:00,  1.44s/it][habitat.units] subject subj004_no_PVP failed: KeyError: &quot;Subject &#39;subj004_no_PVP&#39; has no modality &#39;PVP&#39;. Available: [&#39;LAP&#39;, &#39;delay_3min&#39;, &#39;pre_contrast&#39;].&quot;
+Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:06,  2.19s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03&lt;00:03,  1.82s/it]
+Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04&lt;00:01,  1.65s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05&lt;00:00,  1.46s/it][habitat.units] subject subj004_no_PVP failed: KeyError: &quot;Subject &#39;subj004_no_PVP&#39; has no modality &#39;PVP&#39;. Available: [&#39;LAP&#39;, &#39;delay_3min&#39;, &#39;pre_contrast&#39;].&quot;
 
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05&lt;00:00,  1.44s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:05&lt;00:00,  1.46s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:00&lt;00:00,  3.38it/s]
-Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:00&lt;00:00,  3.17it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:00&lt;00:00,  3.15it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:00&lt;00:00,  3.15it/s]
+Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:00&lt;00:00,  3.10it/s]
+Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:00&lt;00:00,  3.12it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:00&lt;00:00,  3.21it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:00&lt;00:00,  3.21it/s]
 maps: [&#39;subj001&#39;, &#39;subj002&#39;, &#39;subj003&#39;]
 outcomes: {&#39;subj001&#39;: &#39;success&#39;, &#39;subj002&#39;: &#39;success&#39;, &#39;subj003&#39;: &#39;success&#39;, &#39;subj004_no_PVP&#39;: &#39;KeyError: &quot;Subject \&#39;subj004_no_PVP\&#39; has no modality \&#39;PVP\&#39;. Available: [\&#39;LAP\&#39;, \&#39;delay_3min\&#39;, \&#39;pre_contrast\&#39;].&quot;&#39;}
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:01&lt;00:05,  1.91s/it]
-Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03&lt;00:03,  1.61s/it]
-Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04&lt;00:01,  1.47s/it]
-Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05&lt;00:01,  1.75s/it]
+Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:06,  2.03s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03&lt;00:03,  1.73s/it]
+Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04&lt;00:01,  1.57s/it]
+Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05&lt;00:01,  1.86s/it]
 stopped: &quot;Subject &#39;subj004_no_PVP&#39; has no modality &#39;PVP&#39;. Available: [&#39;LAP&#39;, &#39;delay_3min&#39;, &#39;pre_contrast&#39;].&quot;
 F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
@@ -1120,25 +1145,25 @@ and finishes faster. Resume skips subjects already stored — it does
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  2.00s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.71s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.71s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.25s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.90s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.90s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.10it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.11it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.11it/s]
-first run: 4.4 s
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.99it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.01it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.01it/s]
+first run: 4.9 s
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00&lt;00:00, 30.28it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 30.74it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 30.74it/s]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00&lt;00:00, 26.82it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 27.03it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 27.03it/s]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00, 14.53it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 15.00it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 15.00it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00, 13.91it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 14.30it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00, 14.19it/s]
 rerun: 0.3 s
 </pre></div>
 </div>
@@ -1162,7 +1187,7 @@ long cohort; this page does not wait for a real timeout.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>timeout_sec 600 on_failure continue
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 48.898 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 45.897 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-parallel-plot-01-backends-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/e824c36d91780ea183486e055fe76f11/plot_01_backends.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_backends.ipynb</span></code></a></p>
@@ -1182,7 +1207,7 @@ long cohort; this page does not wait for a real timeout.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="7. Parallel runs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="7. Running a whole cohort" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../08_precision/index.html" class="btn btn-neutral float-right" title="8. Precise Feature Screening" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

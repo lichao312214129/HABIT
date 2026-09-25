@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,29 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="graph-features">
 <span id="sphx-glr-auto-examples-03-quantify-plot-04-graph-features-py"></span><h1>Graph features<a class="headerlink" href="#graph-features" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A habitat map can also be read as a network: small pieces
+of habitat are the nodes, and pieces lying close together are linked. Network
+statistics then describe whether a habitat is one well-connected mass or a
+scatter of isolated islands, and how two habitats interleave.</p>
+<p><strong>Purpose.</strong> You get one row of graph features per subject: first from the
+study (before id alignment), then from the kernel function and from the
+component after aligning habitat ids across the two subjects. Overlay,
+lattice and network figures show one slice.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>node</strong> – the tumour bounding box is cut into cubes of <code class="docutils literal notranslate"><span class="pre">block_size</span></code>
+voxels per side (8 here); inside each cube, every connected piece of a
+habitat becomes one node, placed at that piece’s centroid.</p></li>
+<li><p><strong>edge</strong> – two nodes are linked when their closest voxels are at most
+<code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> voxels apart (default 5, in voxels, not mm).</p></li>
+<li><p><strong>single / pair graph</strong> – <code class="docutils literal notranslate"><span class="pre">single_h*</span></code> columns use the nodes of one
+habitat; <code class="docutils literal notranslate"><span class="pre">pair_h*_*</span></code> columns use the nodes of two habitats together.
+Each graph yields statistics such as <code class="docutils literal notranslate"><span class="pre">n_nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">n_edges</span></code>,
+<code class="docutils literal notranslate"><span class="pre">avg_degree</span></code> and <code class="docutils literal notranslate"><span class="pre">avg_edge_distance</span></code>.</p></li>
+<li><p><strong>one-step habitats / matching</strong> – see
+<a class="reference internal" href="../04_designs/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a> and
+<a class="reference internal" href="../06_matching/plot_07_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a>.</p></li>
+</ul>
 <p>After a habitat map exists, <a class="reference internal" href="../../api/generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features" title="habit.kernels.extract_graph_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code></a>
 summarises region topology (lattice nodes, closest-voxel edges).
 The same family is available as the scikit-learn-style component
@@ -743,6 +766,8 @@ sphinx_gallery_thumbnail_number = 3</p>
     <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
     <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">,</span>
+    <span class="c1"># Quantify inside the study: volume plus graph features. Extended</span>
+    <span class="c1"># metrics (efficiency, small-world, ...) are switched off to stay short.</span>
     <span class="n">habitat_features</span><span class="o">=</span><span class="p">[</span>
         <span class="s2">&quot;volume&quot;</span><span class="p">,</span>
         <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;include_extended_metrics&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
@@ -778,9 +803,9 @@ same as one image series (here LAP).
 Cohort: [&#39;subj001&#39;, &#39;subj002&#39;]
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.69s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.59s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.59s/it]
+Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.72s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.58s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.58s/it]
 Study graph columns before cross-tumour alignment (head):
    subject  ...  pair_h2_h3_contact_voxels_sum_per_pair_area_scale
 0  subj001  ...                                                0.0
@@ -1097,6 +1122,7 @@ Do not extract from a 2-D slice — the network figure is display-only.</p>
 <span class="k">for</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aligned_maps</span></a><span class="p">):</span>
     <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">feats</span></a> <span class="o">=</span> <a href="../../api/generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features" title="habit.kernels.extract_graph_features" class="sphx-glr-backref-module-habit-kernels sphx-glr-backref-type-py-function"><span class="n">extract_graph_features</span></a><span class="p">(</span>
         <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span></a><span class="p">,</span>
+        <span class="c1"># Report every habitat id, even if absent, so columns match across subjects.</span>
         <span class="n">expected_labels</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span></a><span class="p">,</span>
         <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
         <span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -1736,7 +1762,7 @@ Do not extract from a 2-D slice — the network figure is display-only.</p>
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.839 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.706 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-quantify-plot-04-graph-features-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/3013e15cba7ddd5897aba6b476dc9325/plot_04_graph_features.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_04_graph_features.ipynb</span></code></a></p>

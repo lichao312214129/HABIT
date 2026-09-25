@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,20 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="voxel-features">
 <span id="sphx-glr-auto-examples-02-stages-plot-01-feature-routes-py"></span><h1>Voxel features<a class="headerlink" href="#voxel-features" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> The <code class="docutils literal notranslate"><span class="pre">extract</span></code> stage decides which numbers describe each
+voxel; habitats can only separate what those columns show. The simplest
+choice is the image intensities themselves.</p>
+<p><strong>Purpose.</strong> You see the voxel-feature table and matrix that clustering
+receives with <code class="docutils literal notranslate"><span class="pre">raw</span></code>, a habitat overlay fitted on it, and how
+<code class="docutils literal notranslate"><span class="pre">concat</span></code> joins two extractors into one wider table.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>voxel feature</strong> / <strong>extract</strong> – see
+<a class="reference internal" href="plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a>.</p></li>
+<li><p><strong>raw</strong> – one column per listed modality, the intensities unchanged.</p></li>
+<li><p><strong>concat</strong> – runs several extractors on the same ROI voxels and joins
+their columns side by side.</p></li>
+</ul>
 <p>Clustering uses the voxel field you define — not a fixed T1 image.
 This page is the intensity pair: <code class="docutils literal notranslate"><span class="pre">raw</span></code> (concatenate modality intensities
 inside the ROI) and <code class="docutils literal notranslate"><span class="pre">concat</span></code> (join families column-wise).</p>
@@ -762,6 +776,8 @@ feature preprocessor).</p>
     <span class="n">habitat_features</span><span class="o">=</span><span class="p">(</span><a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">),</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">)),</span>
     <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="c1"># Build the components the spec names and call only the extractor on one</span>
+<span class="c1"># subject, to look at the table before any clustering runs.</span>
 <a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_field</span></a> <span class="o">=</span> <span class="p">(</span>
     <span class="n">build_habitat_components</span><span class="p">(</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a><span class="p">)</span>
     <span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -772,7 +788,7 @@ feature preprocessor).</p>
 <a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">raw_field</span><span class="o">.</span><span class="n">feature_frame</span></a><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\examples\guide\02_stages\plot_01_feature_routes.py:38: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\examples\guide\02_stages\plot_01_feature_routes.py:54: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
   raw_spec = HabitatSpec(
 raw feature table:
       LAP     PVP
@@ -854,7 +870,9 @@ modality (rows subsampled so the heatmap stays legible).</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_01_feature_routes_001.png" srcset="../../_images/sphx_glr_plot_01_feature_routes_001.png" alt="Voxel feature matrix (raw)" class = "sphx-glr-single-img"/><p>Fit the <code class="docutils literal notranslate"><span class="pre">raw</span></code> route and overlay habitats.</p>
+<img src="../../_images/sphx_glr_plot_01_feature_routes_001.png" srcset="../../_images/sphx_glr_plot_01_feature_routes_001.png" alt="Voxel feature matrix (raw)" class = "sphx-glr-single-img"/><p>Fit the <code class="docutils literal notranslate"><span class="pre">raw</span></code> route and overlay habitats.
+fit_predict runs every stage of the spec on both subjects: partition,
+pooled fit (elbow over 2..3 habitats), assign, then the feature stages.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">recipes</span><span class="o">.</span><span class="n">Study</span></a><span class="p">(</span><span class="n">spec</span><span class="o">=</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">raw_spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">raw_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
@@ -868,14 +886,14 @@ modality (rows subsampled so the heatmap stays legible).</p>
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_01_feature_routes_002.png" srcset="../../_images/sphx_glr_plot_01_feature_routes_002.png" alt="habitats (raw), Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.19s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.16s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.16s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.02s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.03s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.03s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.77it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.69it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.69it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.83it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.79it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.79it/s]
 HabitatModel kmeans-eb51fe90351b084b
   habitats           : 3
   features (2)    : LAP, PVP
@@ -925,7 +943,7 @@ should show the same number of rows and more columns.</p>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;concat habitats: </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">concat_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\examples\guide\02_stages\plot_01_feature_routes.py:96: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\examples\guide\02_stages\plot_01_feature_routes.py:116: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
   concat_spec = HabitatSpec(
 concat feature table:
       LAP     PVP
@@ -937,17 +955,17 @@ concat feature table:
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
 Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.39s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.34s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.34s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.35s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.35s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.73it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.61it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.61it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.66it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.56it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.56it/s]
 concat habitats: 3
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 12.982 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 12.486 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-01-feature-routes-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/844cba23ce6706a129e967d18fe21b94/plot_01_feature_routes.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_feature_routes.ipynb</span></code></a></p>

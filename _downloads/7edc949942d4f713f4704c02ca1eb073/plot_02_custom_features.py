@@ -2,6 +2,29 @@
 Custom features
 ===============
 
+**Background.** Built-in extractors cover intensities and texture. When
+your study needs its own voxel formula (here, liver DCE enhancement and
+wash-out), you write a small extractor class, register it under a name,
+and use that name in a ``Spec`` like any built-in one.
+
+**Purpose.** You get a registered ``dce_hemodynamics`` extractor, a map
+of arterial relative enhancement, the column means / SDs before and after
+z-score, and habitats fitted inside each subject from the three maps.
+
+**When to use.** When the columns you want are not a built-in extractor
+and a formula string (:doc:`/auto_examples/02_stages/plot_02_expression`)
+is not enough.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **registry** -- HABIT's lookup table from a name (``"dce_hemodynamics"``)
+  to a component class; ``Spec("dce_hemodynamics", ...)`` finds the class
+  through it.
+* **relative enhancement / wash-out** -- signal gain over the unenhanced
+  phase, and signal loss after the arterial phase, each as a ratio.
+
 Three liver DCE maps: arterial relative enhancement, arterial-to-portal
 wash-out, and arterial-to-delayed wash-out.
 """
@@ -75,6 +98,7 @@ class DCEHemodynamics:
 
     def __call__(self, subject: Subject) -> VoxelFeatureField:
         """Compute the three DCE columns inside the ROI."""
+        # Locate the ROI voxels once; every phase is read at these positions.
         mask, inside, voxel_index = roi_voxels(subject, self.roi)
         owner = "dce_hemodynamics"
         pre, lap, pvp, delay = (
@@ -88,6 +112,8 @@ class DCEHemodynamics:
                 (lap - delay) / (lap - pre + self.eps),
             ]
         ).astype(np.float64, copy=False)
+        # Wrap the values with their grid positions and this extractor's
+        # Spec, so the field can be drawn back into the image and traced.
         return build_voxel_field(
             subject,
             mask,
@@ -129,6 +155,8 @@ before = dce_field.feature_frame()
 print("before zscore (mean / std):")
 print(before.agg(["mean", "std"]).round(4))
 print(before.head())
+# Ratios live on different scales; z-score each column to mean 0 / SD 1
+# so no single map dominates the k-means distance.
 scaler = ZScoreScaling(across_features=False)
 after = scaler.transform(before, scaler.fit(before))
 print("after zscore (mean / std):")

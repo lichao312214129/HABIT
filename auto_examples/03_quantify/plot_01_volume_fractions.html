@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,24 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="volume-and-fractions">
 <span id="sphx-glr-auto-examples-03-quantify-plot-01-volume-fractions-py"></span><h1>Volume and fractions<a class="headerlink" href="#volume-and-fractions" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> The simplest habitat number is how much of the tumour each
+habitat occupies. Volume fractions let you ask, for example, whether a
+larger share of one habitat goes with a worse outcome.</p>
+<p><strong>Purpose.</strong> You get a table with one row per habitat (volume fraction,
+number of separate pieces, size of the largest piece), an overlay of the
+habitat map, and a bar chart of the fractions.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>habitat</strong> – a sub-region inside the tumour (the ROI) whose voxels behave
+alike across the input images; HABIT paints each ROI voxel with a habitat
+id (1, 2, 3, …).</p></li>
+<li><p><strong>volume fraction</strong> – voxels of one habitat divided by all non-background
+voxels of the map; fractions sum to 1.</p></li>
+<li><p><strong>region</strong> – one face-connected piece of a habitat; <code class="docutils literal notranslate"><span class="pre">num_regions</span></code> counts
+the pieces and <code class="docutils literal notranslate"><span class="pre">largest_region_voxels</span></code> is the size of the biggest one.</p></li>
+<li><p><strong>one-step habitats</strong> – clustered inside this one subject; see
+<a class="reference internal" href="../04_designs/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a>.</p></li>
+</ul>
 <p>Atomic volume metrics from a habitat label map:
 <a class="reference internal" href="../../api/generated/habit.kernels.habitat_volume_fractions.html#habit.kernels.habitat_volume_fractions" title="habit.kernels.habitat_volume_fractions"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_volume_fractions()</span></code></a> and
 <a class="reference internal" href="../../api/generated/habit.kernels.habitat_region_stats.html#habit.kernels.habitat_region_stats" title="habit.kernels.habitat_region_stats"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_region_stats()</span></code></a>.</p>
@@ -744,13 +762,16 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.36s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.36s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.35s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.35s/it]
 </pre></div>
 </div>
-<p>Volume fractions and connected-component stats per habitat id.</p>
+<p>Volume fractions and connected-component stats per habitat id.
+Collect the non-background ids actually present in this map.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">({</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">}))</span>
+<span class="c1"># Share of the ROI per habitat: {habitat id: fraction in [0, 1]}.</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frac</span></a> <span class="o">=</span> <a href="../../api/generated/habit.kernels.habitat_volume_fractions.html#habit.kernels.habitat_volume_fractions" title="habit.kernels.habitat_volume_fractions" class="sphx-glr-backref-module-habit-kernels sphx-glr-backref-type-py-function"><span class="n">habitat_volume_fractions</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a><span class="p">)</span>
+<span class="c1"># Fragmentation per habitat: {habitat id: (num_regions, largest_region_voxels)}.</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stats</span></a> <span class="o">=</span> <a href="../../api/generated/habit.kernels.habitat_region_stats.html#habit.kernels.habitat_region_stats" title="habit.kernels.habitat_region_stats" class="sphx-glr-backref-module-habit-kernels sphx-glr-backref-type-py-function"><span class="n">habitat_region_stats</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a><span class="p">)</span>
 <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
     <span class="p">[</span>
@@ -790,7 +811,7 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.993 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.660 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-quantify-plot-01-volume-fractions-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/3d1289819d4a38c2ac0ad3a10255a85b/plot_01_volume_fractions.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_volume_fractions.ipynb</span></code></a></p>

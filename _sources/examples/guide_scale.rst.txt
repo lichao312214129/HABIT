@@ -1,6 +1,6 @@
 :orphan:
 
-5. Parallel runs
-================
+Running a whole cohort
+======================
 
 Moved to :doc:`/auto_examples/07_parallel/index`.

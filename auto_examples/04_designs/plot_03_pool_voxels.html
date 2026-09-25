@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,22 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="pooling-voxels-across-the-cohort">
 <span id="sphx-glr-auto-examples-04-designs-plot-03-pool-voxels-py"></span><h1>Pooling voxels across the cohort<a class="headerlink" href="#pooling-voxels-across-the-cohort" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Direct pooling skips supervoxels: every ROI voxel of every
+subject goes into one matrix and one cohort model is fitted on it, so
+habitat ids are shared across patients.</p>
+<p><strong>Purpose.</strong> You get one shared habitat model fitted on voxels, a habitat
+map and volume fractions per subject, and a histogram of the arterial-phase
+intensities inside each habitat.</p>
+<p><strong>When to use.</strong> You want shared ids without the supervoxel step, and the
+pooled voxel matrix is small enough to cluster (it grows with every voxel
+of every subject). Otherwise the two-step design
+(<a class="reference internal" href="plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a>) clusters far fewer rows.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>direct pooling</strong> – <code class="docutils literal notranslate"><span class="pre">pool</span></code> then <code class="docutils literal notranslate"><span class="pre">fit</span></code> with no <code class="docutils literal notranslate"><span class="pre">partition</span></code>; each
+voxel is its own clustering unit.</p></li>
+<li><p><strong>pool</strong> – see <a class="reference internal" href="plot_01_two_step.html"><span class="doc">Defining habitats in two steps</span></a>.</p></li>
+</ul>
 <p>Input: a cohort of at least two subjects. Output: one shared
 <a class="reference internal" href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> fitted on voxels, and one
 <a class="reference internal" href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatMap</span></code></a> per subject. The stage list is
@@ -765,6 +781,8 @@ puts the voxels of every subject together and one model is fit on them.</p>
     <span class="p">),</span>
     <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="c1"># One shared habitat_model, as in two-step, but its centroids were learnt</span>
+<span class="c1"># on voxels rather than supervoxels.</span>
 <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span></a><span class="p">)</span>
@@ -772,14 +790,14 @@ puts the voxels of every subject together and one model is fit on them.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.01it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.01it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.01it/s]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.11s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.07s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.07s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.33it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.12it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.11it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.31it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.26it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.26it/s]
 HabitatModel kmeans-3fb1a8736ca6964a
   habitats           : 3
   features (3)    : pre_contrast, LAP, PVP
@@ -902,7 +920,7 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.290 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.131 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-designs-plot-03-pool-voxels-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/b885764f881281257734a090d2a8bf3d/plot_03_pool_voxels.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_03_pool_voxels.ipynb</span></code></a></p>

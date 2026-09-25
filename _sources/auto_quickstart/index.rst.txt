@@ -3,6 +3,11 @@
 Get started
 ===========
 
+**Background.** A habitat map splits a tumour into sub-regions whose voxels
+behave alike across the input images.
+**Purpose.** Build your first habitat map and feature table from the demo
+pack, first in Python, then from a YAML file.
+
 First habitat map from the official demo pack. Install HABIT first
 (:doc:`/tutorial/installation`). The next page loads the same kind of
 analysis from a v1 YAML document. CLI twin: :doc:`/tutorial/quickstart`.
@@ -21,7 +26,7 @@ analysis from a v1 YAML document. CLI twin: :doc:`/tutorial/quickstart`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A short list of stages declares the analysis; one call fits it on a cohort. Everything after that is looking at the result: the habitat map, the per-habitat features a paper would report, and reusing the fitted model on a new patient. No YAML.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat analysis splits a tumour into sub-regions that behave alike across the input images (here, DCE phases), then describes each tumour by how much of each sub-region it has and how they are arranged.">
 
 .. only:: html
 
@@ -38,7 +43,7 @@ analysis from a v1 YAML document. CLI twin: :doc:`/tutorial/quickstart`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The same two-step analysis as plot_quickstart_python, written as a YAML file. habit get-habitat --config &lt;file&gt; runs it from the shell; habit.recipes.run_from_yaml is the Python call behind that command. The spec.stages list is the stage list of the Python page, one entry per stage.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A YAML file is a plain-text way to write the same stage list you would build in Python, so an analysis can be run from the shell, shared, and kept next to the results.">
 
 .. only:: html
 

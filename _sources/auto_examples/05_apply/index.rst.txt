@@ -5,6 +5,11 @@
 5. Apply a saved model
 ======================
 
+**Background.** A fitted habitat model can be saved and reused, so later or
+external subjects get the same habitat ids as the training cohort.
+**Purpose.** Save the model once, reload it, and label new subjects with the
+training centroids without refitting.
+
 Train the habitat definition, write a ``.habitatmodel`` file, and label
 later subjects without fitting again.
 
@@ -24,7 +29,7 @@ later subjects without fitting again.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat ids only mean the same thing in two cohorts when both are labelled with the same centroids. Saving the fitted model lets a later or external cohort be labelled with the training definition instead of a new, incomparable fit.">
 
 .. only:: html
 

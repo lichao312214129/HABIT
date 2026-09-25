@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,21 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="extracting-a-voxel-texture">
 <span id="sphx-glr-auto-examples-02-stages-plot-07-voxel-texture-py"></span><h1>Extracting a voxel texture<a class="headerlink" href="#extracting-a-voxel-texture" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A voxel texture value describes how grey levels vary in
+a small cube around each ROI voxel, which intensity alone does not show.
+Here it is computed with one function call on an image and a mask.</p>
+<p><strong>Purpose.</strong> You get a voxel-feature table with one GLCM Contrast column
+and a map of it on the arterial slice.</p>
+<p><strong>When to use.</strong> When you already hold an image and a mask and want a
+single texture map; the full runtime story is on
+<a class="reference internal" href="plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>voxel feature</strong> / <strong>extract</strong> – see
+<a class="reference internal" href="plot_06_voxel_intensities.html"><span class="doc">Extracting voxel intensities</span></a>.</p></li>
+<li><p><strong>GLCM Contrast</strong> / <strong>kernel radius</strong> / <strong>bin width</strong> – see
+<a class="reference internal" href="plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>.</p></li>
+</ul>
 <p>Input: one <a class="reference internal" href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a>. Output: a
 <a class="reference internal" href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code></a> of per-voxel GLCM Contrast.
 Stage: <a class="reference internal" href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_voxel_texture()</span></code></a>.</p>
@@ -762,40 +777,40 @@ subj001
 <a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">field</span><span class="o">.</span><span class="n">feature_frame</span></a><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>voxel_radiomics: glcm batch 1/35 0.087s peak=32MiB
-voxel_radiomics: glcm batch 2/35 0.091s peak=33MiB
-voxel_radiomics: glcm batch 3/35 0.065s peak=34MiB
-voxel_radiomics: glcm batch 4/35 0.019s peak=35MiB
-voxel_radiomics: glcm batch 5/35 0.020s peak=36MiB
-voxel_radiomics: glcm batch 6/35 0.018s peak=37MiB
-voxel_radiomics: glcm batch 7/35 0.018s peak=38MiB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>voxel_radiomics: glcm batch 1/35 0.231s peak=32MiB
+voxel_radiomics: glcm batch 2/35 0.019s peak=33MiB
+voxel_radiomics: glcm batch 3/35 0.017s peak=34MiB
+voxel_radiomics: glcm batch 4/35 0.016s peak=35MiB
+voxel_radiomics: glcm batch 5/35 0.016s peak=36MiB
+voxel_radiomics: glcm batch 6/35 0.019s peak=37MiB
+voxel_radiomics: glcm batch 7/35 0.017s peak=38MiB
 voxel_radiomics: glcm batch 8/35 0.018s peak=39MiB
-voxel_radiomics: glcm batch 9/35 0.018s peak=40MiB
-voxel_radiomics: glcm batch 10/35 0.018s peak=40MiB
-voxel_radiomics: glcm batch 11/35 0.018s peak=41MiB
-voxel_radiomics: glcm batch 12/35 0.015s peak=42MiB
-voxel_radiomics: glcm batch 13/35 0.017s peak=43MiB
-voxel_radiomics: glcm batch 14/35 0.016s peak=44MiB
-voxel_radiomics: glcm batch 15/35 0.022s peak=45MiB
-voxel_radiomics: glcm batch 16/35 0.017s peak=46MiB
-voxel_radiomics: glcm batch 17/35 0.017s peak=47MiB
-voxel_radiomics: glcm batch 18/35 0.016s peak=48MiB
-voxel_radiomics: glcm batch 19/35 0.017s peak=49MiB
-voxel_radiomics: glcm batch 20/35 0.017s peak=49MiB
-voxel_radiomics: glcm batch 21/35 0.019s peak=50MiB
-voxel_radiomics: glcm batch 22/35 0.020s peak=51MiB
-voxel_radiomics: glcm batch 23/35 0.019s peak=52MiB
-voxel_radiomics: glcm batch 24/35 0.017s peak=53MiB
-voxel_radiomics: glcm batch 25/35 0.015s peak=54MiB
+voxel_radiomics: glcm batch 9/35 0.016s peak=40MiB
+voxel_radiomics: glcm batch 10/35 0.016s peak=40MiB
+voxel_radiomics: glcm batch 11/35 0.017s peak=41MiB
+voxel_radiomics: glcm batch 12/35 0.019s peak=42MiB
+voxel_radiomics: glcm batch 13/35 0.018s peak=43MiB
+voxel_radiomics: glcm batch 14/35 0.017s peak=44MiB
+voxel_radiomics: glcm batch 15/35 0.016s peak=45MiB
+voxel_radiomics: glcm batch 16/35 0.016s peak=46MiB
+voxel_radiomics: glcm batch 17/35 0.015s peak=47MiB
+voxel_radiomics: glcm batch 18/35 0.015s peak=48MiB
+voxel_radiomics: glcm batch 19/35 0.016s peak=49MiB
+voxel_radiomics: glcm batch 20/35 0.015s peak=49MiB
+voxel_radiomics: glcm batch 21/35 0.015s peak=50MiB
+voxel_radiomics: glcm batch 22/35 0.014s peak=51MiB
+voxel_radiomics: glcm batch 23/35 0.016s peak=52MiB
+voxel_radiomics: glcm batch 24/35 0.015s peak=53MiB
+voxel_radiomics: glcm batch 25/35 0.016s peak=54MiB
 voxel_radiomics: glcm batch 26/35 0.016s peak=55MiB
-voxel_radiomics: glcm batch 27/35 0.015s peak=56MiB
+voxel_radiomics: glcm batch 27/35 0.017s peak=56MiB
 voxel_radiomics: glcm batch 28/35 0.015s peak=57MiB
 voxel_radiomics: glcm batch 29/35 0.015s peak=58MiB
-voxel_radiomics: glcm batch 30/35 0.016s peak=1MiB
-voxel_radiomics: glcm batch 31/35 0.015s peak=2MiB
+voxel_radiomics: glcm batch 30/35 0.015s peak=1MiB
+voxel_radiomics: glcm batch 31/35 0.014s peak=2MiB
 voxel_radiomics: glcm batch 32/35 0.015s peak=3MiB
-voxel_radiomics: glcm batch 33/35 0.014s peak=4MiB
-voxel_radiomics: glcm batch 34/35 0.014s peak=4MiB
+voxel_radiomics: glcm batch 33/35 0.015s peak=4MiB
+voxel_radiomics: glcm batch 34/35 0.016s peak=4MiB
 voxel_radiomics: glcm batch 35/35 0.014s peak=5MiB
 34694 voxels, columns: [&#39;original_glcm_Contrast-LAP&#39;]
    original_glcm_Contrast-LAP
@@ -873,7 +888,7 @@ voxel_radiomics: glcm batch 35/35 0.014s peak=5MiB
   direction, spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.505 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.606 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-07-voxel-texture-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/9e1d4384a68c5caa31112cb1e6a26a47/plot_07_voxel_texture.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_07_voxel_texture.ipynb</span></code></a></p>

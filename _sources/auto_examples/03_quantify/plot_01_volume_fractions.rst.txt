@@ -21,16 +21,36 @@
 Volume and fractions
 ====================
 
+**Background.** The simplest habitat number is how much of the tumour each
+habitat occupies. Volume fractions let you ask, for example, whether a
+larger share of one habitat goes with a worse outcome.
+
+**Purpose.** You get a table with one row per habitat (volume fraction,
+number of separate pieces, size of the largest piece), an overlay of the
+habitat map, and a bar chart of the fractions.
+
+**Key terms.**
+
+* **habitat** -- a sub-region inside the tumour (the ROI) whose voxels behave
+  alike across the input images; HABIT paints each ROI voxel with a habitat
+  id (1, 2, 3, ...).
+* **volume fraction** -- voxels of one habitat divided by all non-background
+  voxels of the map; fractions sum to 1.
+* **region** -- one face-connected piece of a habitat; ``num_regions`` counts
+  the pieces and ``largest_region_voxels`` is the size of the biggest one.
+* **one-step habitats** -- clustered inside this one subject; see
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`.
+
 Atomic volume metrics from a habitat label map:
 :func:`~habit.kernels.habitat_volume_fractions` and
 :func:`~habit.kernels.habitat_region_stats`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-13
+.. GENERATED FROM PYTHON SOURCE LINES 31-33
 
 One-step habitats give a map to quantify.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-34
+.. GENERATED FROM PYTHON SOURCE LINES 33-54
 
 .. code-block:: Python
 
@@ -85,21 +105,24 @@ sphinx_gallery_thumbnail_number = 2
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.36s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.36s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-36
+.. GENERATED FROM PYTHON SOURCE LINES 55-57
 
 Volume fractions and connected-component stats per habitat id.
+Collect the non-background ids actually present in this map.
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-63
+.. GENERATED FROM PYTHON SOURCE LINES 57-86
 
 .. code-block:: Python
 
     ids = tuple(sorted({int(v) for v in labels.ravel() if int(v) != 0}))
+    # Share of the ROI per habitat: {habitat id: fraction in [0, 1]}.
     frac = habitat_volume_fractions(labels, ids)
+    # Fragmentation per habitat: {habitat id: (num_regions, largest_region_voxels)}.
     stats = habitat_region_stats(labels)
     table = pd.DataFrame(
         [
@@ -163,7 +186,7 @@ Volume fractions and connected-component stats per habitat id.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.993 seconds)
+   **Total running time of the script:** (0 minutes 6.660 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_quantify_plot_01_volume_fractions.py:

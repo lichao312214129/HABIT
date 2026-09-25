@@ -21,6 +21,28 @@
 Prototype matching step by step
 ===============================
 
+**Background.** Two patients share no voxels, so their habitats cannot be
+matched by overlap. Instead each habitat is described by a summary row and
+all subjects are named against one shared set of reference rows.
+
+**Purpose.** You watch the matching loop round by round on synthetic data,
+confirm it equals the one-line HABIT call, and see three demo tumours
+before and after their ids are put on one shared scale.
+
+**Key terms.**
+
+* **prototype** -- a shared reference habitat: one feature row (for
+  example mean arterial and portal-venous enhancement) that every subject's
+  habitats are compared with; habitat ``k`` after matching means "closest
+  to prototype ``Pk``".
+* **Hungarian assignment** -- see
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`; here it
+  minimises total squared distance instead of maximising shared voxels.
+* **objective** -- the sum of squared distances from every habitat to its
+  assigned prototype; lower means tighter groups.
+* **centroid** -- the mean feature row of one habitat as fitted by
+  k-means.
+
 Between **different subjects** there is no shared voxel, so habitats are
 matched by what describes them: one summary row per habitat (a centroid,
 a mean feature vector). HABIT names every subject against ``K`` shared
@@ -43,7 +65,7 @@ Then the two-subject case, where the method reduces to pairwise
 Hungarian matching on squared distance, and finally three real tumours
 before and after matching.
 
-.. GENERATED FROM PYTHON SOURCE LINES 29-36
+.. GENERATED FROM PYTHON SOURCE LINES 51-58
 
 Five subjects, 2-4 habitats each
 --------------------------------
@@ -53,7 +75,7 @@ them in a clean form, and the noise is large enough that the first
 guess is wrong.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-55
+.. GENERATED FROM PYTHON SOURCE LINES 58-78
 
 .. code-block:: Python
 
@@ -70,6 +92,7 @@ sphinx_gallery_thumbnail_number = 1
     types = np.array([[0.6, 0.7], [1.2, 2.2], [2.2, 0.9], [2.4, 2.4]])
     present = [(0, 1), (0, 2, 3), (0, 1, 2, 3), (0, 1, 2, 3), (1, 2, 3)]
     rng = np.random.default_rng(54)
+    # One block per subject: row i is habitat i's summary, in that subject's own order.
     blocks = [np.round(types[list(p)] + rng.normal(0, 0.38, (len(p), 2)), 2) for p in present]
     names = [f"S{i + 1}" for i in range(len(blocks))]
     for name, block in zip(names, blocks):
@@ -93,7 +116,7 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-62
+.. GENERATED FROM PYTHON SOURCE LINES 79-85
 
 The loop by hand
 ----------------
@@ -102,7 +125,7 @@ assign step is :func:`~habit.kernels.habitat_label_match.match_rows_to_prototype
 with ``prototypes=`` fixed (one assignment pass, no update); the update
 step is a plain mean.
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-85
+.. GENERATED FROM PYTHON SOURCE LINES 85-108
 
 .. code-block:: Python
 
@@ -143,13 +166,13 @@ step is a plain mean.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-89
+.. GENERATED FROM PYTHON SOURCE LINES 109-112
 
 Each panel is one assign step: colours are the names given, crosses
 the prototypes they were matched to. Watch habitats change colour as the
 prototypes move toward the true groups.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-106
+.. GENERATED FROM PYTHON SOURCE LINES 112-129
 
 .. code-block:: Python
 
@@ -182,7 +205,7 @@ prototypes move toward the true groups.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 107-113
+.. GENERATED FROM PYTHON SOURCE LINES 130-136
 
 The one-line call
 -----------------
@@ -191,7 +214,7 @@ runs the same loop from **every** subject with ``K`` habitats and keeps
 the lowest objective, so the result does not depend on who starts.
 Prototypes are then sorted by feature 1 (then 2) for stable numbering.
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-125
+.. GENERATED FROM PYTHON SOURCE LINES 136-148
 
 .. code-block:: Python
 
@@ -227,7 +250,7 @@ Prototypes are then sorted by feature 1 (then 2) for stable numbering.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 126-132
+.. GENERATED FROM PYTHON SOURCE LINES 149-155
 
 Two subjects: a special case
 ----------------------------
@@ -236,7 +259,7 @@ squared distance to its midpoint is :math:`\tfrac12\lVert a-b\rVert^2`.
 Minimising the objective is therefore pairwise Hungarian on **squared**
 distance -- and the loop reaches that global optimum.
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-145
+.. GENERATED FROM PYTHON SOURCE LINES 155-168
 
 .. code-block:: Python
 
@@ -269,14 +292,14 @@ distance -- and the loop reaches that global optimum.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-150
+.. GENERATED FROM PYTHON SOURCE LINES 169-173
 
 Plain distance prefers a different pairing here: it tolerates one long
 link to keep two short ones, squared distance penalises the long link.
 The two agree in most cohorts; when they disagree, the prototype method
 follows squared distance.
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-154
+.. GENERATED FROM PYTHON SOURCE LINES 173-177
 
 .. code-block:: Python
 
@@ -296,7 +319,7 @@ follows squared distance.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 155-163
+.. GENERATED FROM PYTHON SOURCE LINES 178-186
 
 The same on real tumours
 ------------------------
@@ -307,7 +330,7 @@ relative arterial and portal-venous enhancement. Before matching,
 is prototype ``Pk`` in every tumour, so a colour means the same
 enhancement pattern across the three figures below.
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-195
+.. GENERATED FROM PYTHON SOURCE LINES 186-220
 
 .. code-block:: Python
 
@@ -333,6 +356,7 @@ enhancement pattern across the three figures below.
     )
     raw_maps, models = [], []
     for subject in cohort:
+        # Per-subject fit: each tumour numbers its own 3 habitats independently.
         units = voxel_units(extractor(subject))
         fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
         fitter.set_random_state(0)
@@ -340,6 +364,7 @@ enhancement pattern across the three figures below.
         raw_maps.append(model.assigner()(units))
         models.append(model)
 
+    # models= describes each habitat by its fitted k-means centroid.
     matched = align_habitat_maps_to_prototypes(raw_maps, models=models)
     print(matched.assignments.to_string(index=False))
 
@@ -387,12 +412,12 @@ enhancement pattern across the three figures below.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 196-198
+.. GENERATED FROM PYTHON SOURCE LINES 221-223
 
 Left: the tumour's own k-means ids. Right: the same voxels renamed onto
 the shared prototypes. Compare the right-hand panels across tumours.
 
-.. GENERATED FROM PYTHON SOURCE LINES 198-210
+.. GENERATED FROM PYTHON SOURCE LINES 223-235
 
 .. code-block:: Python
 
@@ -453,7 +478,7 @@ the shared prototypes. Compare the right-hand panels across tumours.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 9.413 seconds)
+   **Total running time of the script:** (0 minutes 8.921 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_matching_plot_03_prototype_steps.py:

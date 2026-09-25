@@ -1,6 +1,18 @@
 Installation
 ============
 
+**Background.** HABIT is a Python package that splits tumours into habitats
+(sub-regions whose voxels behave alike across images) and quantifies them.
+
+**Purpose.** At the end you have a conda environment named ``habit`` in
+which ``habit --version`` prints the installed version.
+
+**Key terms.**
+
+* **conda environment** -- a separate folder with its own Python and
+  packages; ``conda activate habit`` switches the terminal to it, so HABIT's
+  dependencies do not clash with other software.
+
 This page is for absolute beginners on Windows (macOS / Linux notes where
 they differ). HABIT must run in a **conda-activated** terminal. On Windows
 use **Anaconda Prompt** or **Anaconda PowerShell Prompt** (Miniconda:

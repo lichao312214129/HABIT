@@ -21,6 +21,24 @@
 What matching changes in a cohort feature table
 ===============================================
 
+**Background.** Habitat features are usually analysed as a table with one
+row per patient and one column per habitat. That only works if a column
+refers to the same kind of habitat in every patient.
+
+**Purpose.** You build one cohort table from five demo subjects with raw
+and with prototype-matched ids, compare the spread of one column, and see
+how ``max_distance`` can leave poorly matching habitats out of the shared
+columns.
+
+**Key terms.**
+
+* **prototype** -- see
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+* **volume fraction** -- the share of ROI voxels that belong to one
+  habitat.
+* **max_distance** -- an optional cutoff: a habitat farther than this from
+  every free prototype keeps a subject-local id instead of a shared one.
+
 A cohort habitat table has one column per habitat id: ``H1_volume``,
 ``H2_mean_enhancement``, ... A column is only one variable if ``H2``
 means the same habitat in every row. With per-subject (``one_step``)
@@ -32,13 +50,13 @@ subjects. It ends with ``max_distance``: how a habitat that resembles no
 prototype can be left out of the shared columns instead of being forced
 into one.
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-21
+.. GENERATED FROM PYTHON SOURCE LINES 36-39
 
 Per-subject habitats for five subjects
 --------------------------------------
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-86
+.. GENERATED FROM PYTHON SOURCE LINES 39-105
 
 .. code-block:: Python
 
@@ -80,6 +98,7 @@ sphinx_gallery_thumbnail_number = 1
         model = fitter.fit([units], cohort=Cohort([subject], name=subject.subject_id))
         maps.append(model.assigner()(units))
         models.append(model)
+    # Shared names for all five subjects, from their fitted centroids.
     matched = align_habitat_maps_to_prototypes(maps, models=models)
 
 
@@ -141,14 +160,14 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-91
+.. GENERATED FROM PYTHON SOURCE LINES 106-110
 
 The same table, raw ids vs matched ids
 --------------------------------------
 Raw: habitat ``k`` is row ``k`` of each subject's own centroids.
 Matched: the assignment table says which prototype id each habitat got.
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-105
+.. GENERATED FROM PYTHON SOURCE LINES 110-124
 
 .. code-block:: Python
 
@@ -195,7 +214,7 @@ Matched: the assignment table says which prototype id each habitat got.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-112
+.. GENERATED FROM PYTHON SOURCE LINES 125-131
 
 Spread of the enhancement columns across subjects. With raw ids a column
 mixes weakly and strongly enhancing habitats. After matching a column
@@ -204,7 +223,7 @@ between-subject variation plus habitats that resemble no prototype well
 but still had to take a name (one-to-one matching never merges two
 habitats of a subject). The last section shows how to find those.
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-138
+.. GENERATED FROM PYTHON SOURCE LINES 131-157
 
 .. code-block:: Python
 
@@ -301,7 +320,7 @@ habitats of a subject). The last section shows how to find those.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-146
+.. GENERATED FROM PYTHON SOURCE LINES 158-165
 
 Leaving outliers unnamed with ``max_distance``
 ----------------------------------------------
@@ -311,7 +330,7 @@ farther than that from every free prototype keeps a subject-local id
 above ``K`` and ``prototype_id`` NA. It then belongs to no shared
 column. Off by default: when set, report how many habitats it removed.
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-158
+.. GENERATED FROM PYTHON SOURCE LINES 165-177
 
 .. code-block:: Python
 
@@ -352,7 +371,7 @@ column. Off by default: when set, report how many habitats it removed.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 38.209 seconds)
+   **Total running time of the script:** (0 minutes 33.703 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_matching_plot_06_downstream_tables.py:

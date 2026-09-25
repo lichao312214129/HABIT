@@ -2,6 +2,35 @@
 Why habitat ids must be matched
 ===============================
 
+**Background.** Clustering algorithms such as k-means number their
+clusters in arbitrary order, so two fits of the same tumour can give the
+same region different habitat ids. Any comparison by id (Dice, volume per
+habitat, a cohort table) needs the ids matched first.
+
+**Purpose.** You get two k-means maps of one demo subject shown with raw
+and with matched ids, the voxel-overlap table that decides the pairing,
+and a per-habitat Dice table.
+
+**When to use.** Whenever two maps label the same voxels (a restart, a
+perturbed image, a second reader). For maps of different patients see
+:doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+
+**Key terms.**
+
+* **habitat** -- a sub-region inside the tumour (the ROI) whose voxels
+  behave alike across the input images; each ROI voxel gets a habitat id
+  (1, 2, 3, ...).
+* **label switching** -- independent clusterings number the same habitat
+  differently (habitat 1 in one fit can be habitat 3 in another), so ids
+  must be matched before comparing.
+* **overlap table** -- for every pair of habitats (one from each map), the
+  number of voxels they share.
+* **Hungarian assignment** -- an exact algorithm (Kuhn-Munkres, SciPy's
+  ``linear_sum_assignment``) that picks the one-to-one pairing of rows and
+  columns with the best total; here, the largest total shared voxels.
+* **Dice** -- overlap between two label maps or regions (0 = none,
+  1 = identical).
+
 Cluster the same tumour twice with the same features and the same ``k``,
 changing only the k-means random seed. The two maps describe the same
 tissue, but k-means numbers its clusters in arbitrary order, so habitat 1
@@ -44,10 +73,12 @@ extractor = ExpressionVoxelFeatures(
     },
     roi=ROI,
 )
+# One row per ROI voxel; both runs cluster exactly these rows.
 units = voxel_units(extractor(subject))
 
 runs = []
 for seed in (0, 1):
+    # n_init=1: a single k-means start per seed, so only the seed differs.
     fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=1)
     fitter.set_random_state(seed)
     model = fitter.fit([units], cohort=Cohort([subject], name=subject.subject_id))

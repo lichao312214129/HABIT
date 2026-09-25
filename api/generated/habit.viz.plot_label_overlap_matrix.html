@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -735,10 +735,10 @@ habitats are as readable as large ones. Numbers stay counts.</p></li>
 
 <section id="examples-using-habit-viz-plot-label-overlap-matrix">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_label_overlap_matrix</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-label-overlap-matrix" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Cluster the same tumour twice with the same features and the same k, changing only the k-means random seed. The two maps describe the same tissue, but k-means numbers its clusters in arbitrary order, so habitat 1 of one run is habitat 2 or 3 of the other. This is label switching. Comparing the maps by raw id reports disagreement that is not there."><img alt="" src="../../_images/sphx_glr_plot_01_label_switching_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Clustering algorithms such as k-means number their clusters in arbitrary order, so two fits of the same tumour can give the same region different habitat ids. Any comparison by id (Dice, volume per habitat, a cohort table) needs the ids matched first."><img alt="" src="../../_images/sphx_glr_plot_01_label_switching_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_01_label_switching.html"><span class="doc">Why habitat ids must be matched</span></a></p>
   <div class="sphx-glr-thumbnail-title">Why habitat ids must be matched</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel overlap is the matcher whenever two maps label the same voxels: a k-means restart, another k, another feature set, a perturbed image, a second reader. It needs no features at all, only the two label images, so it also works when the two fits live in different feature spaces."><img alt="" src="../../_images/sphx_glr_plot_02_overlap_cases_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. When two habitat maps cover the same voxels, their ids can be matched by counting shared voxels alone, even if the two fits used a different number of habitats or different features."><img alt="" src="../../_images/sphx_glr_plot_02_overlap_cases_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/06_matching/plot_02_overlap_cases.html"><span class="doc">Matching maps of the same voxels by overlap</span></a></p>
   <div class="sphx-glr-thumbnail-title">Matching maps of the same voxels by overlap</div>
 </div></div><div style="clear:both"></div></section>

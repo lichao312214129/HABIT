@@ -25,7 +25,7 @@ table and a saved model. Later sections open the same
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="One HabitatSpec declares the whole study. One fit_predict runs it. The stage list below is the same two-step analysis as /auto_quickstart/plot_quickstart_python: raw DCE intensities, 30 supervoxels, one shared model, then volume, MSI, ITH and graph features.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A tumour is not uniform: some parts enhance strongly, some wash out, some are necrotic. Habitat analysis splits the ROI into a few sub-regions (habitats) whose voxels behave alike across the DCE phases, using one definition shared by every patient, and then describes each patient by how much of each habitat they have and how the habitats are arranged.">
 
 .. only:: html
 

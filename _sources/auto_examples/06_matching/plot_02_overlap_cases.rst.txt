@@ -21,6 +21,23 @@
 Matching maps of the same voxels by overlap
 ===========================================
 
+**Background.** When two habitat maps cover the same voxels, their ids can
+be matched by counting shared voxels alone, even if the two fits used a
+different number of habitats or different features.
+
+**Purpose.** You see three matched comparisons on one demo subject (3 vs 4
+habitats, two feature sets, five k-means restarts) and a per-habitat Dice
+plot that shows which habitats are stable over restarts.
+
+**Key terms.**
+
+* **label switching**, **overlap table**, **Hungarian assignment** -- see
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`.
+* **restart** -- rerunning k-means with another random seed on the same
+  data.
+* **Dice** -- overlap between two label maps or regions (0 = none,
+  1 = identical).
+
 Voxel overlap is the matcher whenever two maps label **the same voxels**:
 a k-means restart, another ``k``, another feature set, a perturbed image,
 a second reader. It needs no features at all, only the two label images,
@@ -38,13 +55,13 @@ Overlap is **not** usable between two patients: their voxels are
 different tissue. See
 :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 24-27
+.. GENERATED FROM PYTHON SOURCE LINES 41-44
 
 One subject, two voxel feature sets
 -----------------------------------
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 27-78
+.. GENERATED FROM PYTHON SOURCE LINES 44-96
 
 .. code-block:: Python
 
@@ -76,6 +93,7 @@ sphinx_gallery_thumbnail_number = 1
             roi=ROI,
         )(subject)
     )
+    # Second feature set on the same voxels: raw LAP / PVP signal, not ratios.
     raw_signal = voxel_units(RawVoxelFeatures(modalities=("LAP", "PVP"), roi=ROI)(subject))
 
 
@@ -133,7 +151,7 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-85
+.. GENERATED FROM PYTHON SOURCE LINES 97-103
 
 Case 1 -- three habitats vs four
 --------------------------------
@@ -142,7 +160,7 @@ several reference habitats (row marked "new") loses: every reference
 habitat has a better partner. It is renamed to id 4, so no two habitats
 merge; the other three take the ``k = 3`` ids.
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-96
+.. GENERATED FROM PYTHON SOURCE LINES 103-116
 
 .. code-block:: Python
 
@@ -154,6 +172,8 @@ merge; the other three take the ``k = 3`` ids.
     fig.savefig("out/overlap_k3_vs_k4.png", dpi=150, bbox_inches="tight")
     plt.show()
 
+    # force=True: align even if both maps carry the same model_id (maps with one
+    # model_id are otherwise returned unchanged; see the label-switching page).
     aligned_k4 = align_habitat_map(map_k3, map_k4, force=True)
     print("k=4 ids after matching:", aligned_k4.habitat_ids)
 
@@ -175,12 +195,12 @@ merge; the other three take the ``k = 3`` ids.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 97-99
+.. GENERATED FROM PYTHON SOURCE LINES 117-119
 
 The matched ``k = 4`` map keeps the ``k = 3`` colours for the three
 paired habitats; the extra one is the tissue ``k = 4`` split off.
 
-.. GENERATED FROM PYTHON SOURCE LINES 99-110
+.. GENERATED FROM PYTHON SOURCE LINES 119-130
 
 .. code-block:: Python
 
@@ -214,7 +234,7 @@ paired habitats; the extra one is the tissue ``k = 4`` split off.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-116
+.. GENERATED FROM PYTHON SOURCE LINES 131-136
 
 Case 2 -- raw signal vs relative enhancement
 --------------------------------------------
@@ -222,7 +242,7 @@ One model's centroids are in signal units, the other's are ratios, so
 centroid distance between them means nothing. The overlap table does
 not care: it only counts voxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 116-130
+.. GENERATED FROM PYTHON SOURCE LINES 136-150
 
 .. code-block:: Python
 
@@ -261,14 +281,14 @@ not care: it only counts voxels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-135
+.. GENERATED FROM PYTHON SOURCE LINES 151-155
 
 Case 3 -- how stable is each habitat over restarts?
 ---------------------------------------------------
 Five more seeds, each matched to seed 0 by overlap and scored by Dice.
 ``habitat_stability`` takes the unmatched maps and pairs them itself.
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-141
+.. GENERATED FROM PYTHON SOURCE LINES 155-161
 
 .. code-block:: Python
 
@@ -346,12 +366,12 @@ Five more seeds, each matched to seed 0 by overlap and scored by Dice.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-144
+.. GENERATED FROM PYTHON SOURCE LINES 162-164
 
 Dice per habitat and restart. A habitat with low Dice is not a stable
 region of this tumour at this ``k``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-157
+.. GENERATED FROM PYTHON SOURCE LINES 164-177
 
 .. code-block:: Python
 
@@ -383,7 +403,7 @@ region of this tumour at this ``k``.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.208 seconds)
+   **Total running time of the script:** (0 minutes 6.761 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_matching_plot_02_overlap_cases.py:

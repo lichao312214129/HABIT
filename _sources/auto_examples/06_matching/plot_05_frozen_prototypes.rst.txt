@@ -21,6 +21,26 @@
 Naming a new cohort with frozen prototypes
 ==========================================
 
+**Background.** Once prototypes are learned on a training cohort, they
+define what each habitat id means. New patients should be named against
+those fixed prototypes rather than refitting them.
+
+**Purpose.** You fit prototypes on three demo subjects, name two more with
+them unchanged, and see why refitting on everyone or changing a matching
+setting is avoided or refused.
+
+**When to use.** For validation, external or newly arriving subjects after
+the training analysis is fixed.
+
+**Key terms.**
+
+* **prototype** -- see
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+* **frozen prototypes** -- stored prototypes reused as they are: one
+  assignment pass, no update step.
+* **model_id** -- the identifier of a habitat definition; maps named with
+  the same frozen prototypes share it.
+
 Habitat names learned on a training cohort are part of the model
 definition. A validation or external cohort must be named **with those
 names**, not refitted together with the training subjects: refitting
@@ -32,7 +52,7 @@ Pass the training :class:`~habit.precision.HabitatPrototypeAlignment` as
 prototypes (no update), inherit the training ``model_id``, and must use
 the same features and matching settings.
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-23
+.. GENERATED FROM PYTHON SOURCE LINES 38-43
 
 Per-subject habitats for five subjects
 --------------------------------------
@@ -40,7 +60,7 @@ Relative enhancement, each subject chooses its own ``k`` (silhouette
 over 2..5), as in :doc:`/auto_examples/06_matching/plot_07_match_labels`.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 23-62
+.. GENERATED FROM PYTHON SOURCE LINES 43-82
 
 .. code-block:: Python
 
@@ -122,19 +142,21 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-65
+.. GENERATED FROM PYTHON SOURCE LINES 83-85
 
 Train on three subjects, name two new ones
 ------------------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-74
+.. GENERATED FROM PYTHON SOURCE LINES 85-96
 
 .. code-block:: Python
 
     train_maps, train_models = maps[:3], models[:3]
     new_maps, new_models = maps[3:], models[3:]
 
+    # Fit prototypes on the training subjects only.
     trained = align_habitat_maps_to_prototypes(train_maps, models=train_models)
+    # prototypes=trained: assign the new subjects to the stored prototypes, no refit.
     named = align_habitat_maps_to_prototypes(new_maps, models=new_models, prototypes=trained)
     print(f"training prototypes (K={trained.prototypes.shape[0]}):\n{trained.prototypes.round(3)}")
     print(named.assignments.to_string(index=False))
@@ -162,12 +184,12 @@ Train on three subjects, name two new ones
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-77
+.. GENERATED FROM PYTHON SOURCE LINES 97-99
 
 Left: how the training subjects defined the prototypes. Right: the new
 subjects' habitats pulled onto those same, unmoved prototypes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-91
+.. GENERATED FROM PYTHON SOURCE LINES 99-113
 
 .. code-block:: Python
 
@@ -197,7 +219,7 @@ subjects' habitats pulled onto those same, unmoved prototypes.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-100
+.. GENERATED FROM PYTHON SOURCE LINES 114-122
 
 Frozen naming still names every habitat. Read the ``distance`` column:
 a new habitat far from every prototype resembles no training habitat,
@@ -208,7 +230,7 @@ habitats unnamed instead
 A new subject's map in training ids. Habitat ``k`` has the colour of
 prototype ``Pk`` above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 100-107
+.. GENERATED FROM PYTHON SOURCE LINES 122-129
 
 .. code-block:: Python
 
@@ -238,14 +260,14 @@ prototype ``Pk`` above.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 108-112
+.. GENERATED FROM PYTHON SOURCE LINES 130-134
 
 Why not just refit on everyone?
 -------------------------------
 Refitting with the new subjects moves the prototypes, i.e. changes the
 definition the training analysis was reported with.
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-120
+.. GENERATED FROM PYTHON SOURCE LINES 134-142
 
 .. code-block:: Python
 
@@ -271,7 +293,7 @@ definition the training analysis was reported with.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-126
+.. GENERATED FROM PYTHON SOURCE LINES 143-148
 
 Settings are part of the definition
 -----------------------------------
@@ -279,7 +301,7 @@ Naming with another metric (or other features, z-score, reduction)
 would compare against prototypes built under different rules, so it is
 refused instead of silently re-interpreted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 126-130
+.. GENERATED FROM PYTHON SOURCE LINES 148-152
 
 .. code-block:: Python
 
@@ -303,7 +325,7 @@ refused instead of silently re-interpreted.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 39.158 seconds)
+   **Total running time of the script:** (0 minutes 33.466 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_matching_plot_05_frozen_prototypes.py:

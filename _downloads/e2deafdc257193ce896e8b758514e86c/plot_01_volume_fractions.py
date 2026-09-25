@@ -2,6 +2,26 @@
 Volume and fractions
 ====================
 
+**Background.** The simplest habitat number is how much of the tumour each
+habitat occupies. Volume fractions let you ask, for example, whether a
+larger share of one habitat goes with a worse outcome.
+
+**Purpose.** You get a table with one row per habitat (volume fraction,
+number of separate pieces, size of the largest piece), an overlay of the
+habitat map, and a bar chart of the fractions.
+
+**Key terms.**
+
+* **habitat** -- a sub-region inside the tumour (the ROI) whose voxels behave
+  alike across the input images; HABIT paints each ROI voxel with a habitat
+  id (1, 2, 3, ...).
+* **volume fraction** -- voxels of one habitat divided by all non-background
+  voxels of the map; fractions sum to 1.
+* **region** -- one face-connected piece of a habitat; ``num_regions`` counts
+  the pieces and ``largest_region_voxels`` is the size of the biggest one.
+* **one-step habitats** -- clustered inside this one subject; see
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`.
+
 Atomic volume metrics from a habitat label map:
 :func:`~habit.kernels.habitat_volume_fractions` and
 :func:`~habit.kernels.habitat_region_stats`.
@@ -33,8 +53,11 @@ labels = habitat_map.label_array
 
 # %%
 # Volume fractions and connected-component stats per habitat id.
+# Collect the non-background ids actually present in this map.
 ids = tuple(sorted({int(v) for v in labels.ravel() if int(v) != 0}))
+# Share of the ROI per habitat: {habitat id: fraction in [0, 1]}.
 frac = habitat_volume_fractions(labels, ids)
+# Fragmentation per habitat: {habitat id: (num_regions, largest_region_voxels)}.
 stats = habitat_region_stats(labels)
 table = pd.DataFrame(
     [

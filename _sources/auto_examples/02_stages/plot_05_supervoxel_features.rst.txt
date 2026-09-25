@@ -21,6 +21,24 @@
 Supervoxel feature extraction and acceleration
 ==============================================
 
+**Background.** The cohort model clusters supervoxels, not voxels, so
+each supervoxel needs its own row of numbers. That row can be a simple
+summary of its voxels (mean, median, SD) or radiomics texture computed on
+the supervoxel as a small ROI.
+
+**Purpose.** You get 24 SLIC supervoxels of one subject, a table of
+their mean / median / SD intensity, and a timing plus value-by-value
+comparison of HABIT's C-extension texture path against PyRadiomics
+``execute()``.
+
+**Key terms.**
+
+* **supervoxel** -- see :doc:`/auto_examples/02_stages/plot_12_supervoxels`.
+* **supervoxel feature** -- one value per supervoxel, summarising the
+  voxels inside it; one column per feature.
+* **parity** -- whether two implementations give the same numbers; here
+  measured as the maximum absolute difference per feature.
+
 In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels.
 Each supervoxel must then be summarized into a quantitative feature vector
 before cohort pooling and clustering.
@@ -47,12 +65,12 @@ against official PyRadiomics without single-precision (``float32``) quantization
 This page benchmarks extraction time, confirms multi-fold speedup, and proves exact
 numerical parity against PyRadiomics.
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-35
+.. GENERATED FROM PYTHON SOURCE LINES 51-53
 
 Load one demo subject and generate SLIC supervoxels.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-84
+.. GENERATED FROM PYTHON SOURCE LINES 53-102
 
 .. code-block:: Python
 
@@ -148,12 +166,12 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-87
+.. GENERATED FROM PYTHON SOURCE LINES 103-105
 
 Approach 1: Statistical feature extraction (Mean, Median, Std).
 Each extractor binds the voxel field and aggregates voxel intensities within each parcel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-111
+.. GENERATED FROM PYTHON SOURCE LINES 105-129
 
 .. code-block:: Python
 
@@ -268,12 +286,14 @@ Each extractor binds the voxel field and aggregates voxel intensities within eac
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-114
+.. GENERATED FROM PYTHON SOURCE LINES 130-134
 
 Approach 2: Supervoxel Radiomics texture and high-throughput acceleration.
 Compare HABIT native C-extension against PyRadiomics for time and numerical parity.
+Same PyRadiomics settings for both paths; normalize=False keeps the
+intensities as stored (no PyRadiomics intensity normalisation).
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-178
+.. GENERATED FROM PYTHON SOURCE LINES 134-198
 
 .. code-block:: Python
 
@@ -351,9 +371,9 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
 
 
     Extraction time for 24 supervoxels:
-      HABIT Native C-extension : 0.582 s
-      Reference PyRadiomics    : 1.180 s
-      Speedup factor           : 2.03x faster
+      HABIT Native C-extension : 0.577 s
+      Reference PyRadiomics    : 1.081 s
+      Speedup factor           : 1.87x faster
 
     Maximum absolute difference across all features: 1.44e-10
 
@@ -369,11 +389,11 @@ Compare HABIT native C-extension against PyRadiomics for time and numerical pari
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 179-180
+.. GENERATED FROM PYTHON SOURCE LINES 199-200
 
 Visual comparison: execution time and numerical parity correlation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 180-216
+.. GENERATED FROM PYTHON SOURCE LINES 200-236
 
 .. code-block:: Python
 
@@ -417,7 +437,7 @@ Visual comparison: execution time and numerical parity correlation.
 
 
 .. image-sg:: /auto_examples/02_stages/images/sphx_glr_plot_05_supervoxel_features_002.png
-   :alt: Supervoxel texture benchmark (2.0x speedup), Numerical parity: JointEntropy-LAP
+   :alt: Supervoxel texture benchmark (1.9x speedup), Numerical parity: JointEntropy-LAP
    :srcset: /auto_examples/02_stages/images/sphx_glr_plot_05_supervoxel_features_002.png
    :class: sphx-glr-single-img
 
@@ -428,7 +448,7 @@ Visual comparison: execution time and numerical parity correlation.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 14.919 seconds)
+   **Total running time of the script:** (0 minutes 14.424 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_05_supervoxel_features.py:

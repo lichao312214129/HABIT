@@ -2,6 +2,24 @@
 Preprocessing features before clustering
 ========================================
 
+**Background.** Raw intensities differ in range between phases and
+contain a few extreme voxels. The ``preprocess`` stage rescales the
+feature columns before clustering so that no single column dominates
+the distance.
+
+**Purpose.** You see the feature table and the histogram of one column
+before and after winsorize + min-max, then the habitat map built from
+the preprocessed features.
+
+**Key terms.**
+
+* **preprocess** stage -- rescales / transforms feature columns (e.g.
+  z-score, winsorize) so no column dominates the distance used by
+  clustering. The three chains are compared on
+  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`.
+* **winsorize** -- clips each column at its 5th and 95th percentile here.
+* **min-max** -- rescales each column to [0, 1].
+
 Input: a raw :class:`~habit.contracts.VoxelFeatureField`. Output: a
 :class:`~habit.contracts.HabitatMap` built from the preprocessed features.
 Stage: ``voxel_feature_preprocessors``, then ``partition``, ``fit``,
@@ -64,6 +82,8 @@ scaled_field = raw_field.with_feature_frame(
     produced_by="cohort_feature_preprocessor",
     spec_fingerprint=chain.spec.fingerprint,
 )
+# Supervoxels are built on the scaled columns, so the preprocessing also
+# shapes the patches, not only the final habitats.
 units = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)(scaled_field)
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)

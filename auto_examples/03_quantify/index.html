@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -687,6 +687,10 @@
              
   <section id="habitat-quantification">
 <span id="sphx-glr-auto-examples-03-quantify"></span><h1>3. Habitat Quantification<a class="headerlink" href="#habitat-quantification" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A habitat map is a picture; statistics and prediction models
+need numbers. <strong>Purpose.</strong> Each page turns one subject’s habitat map into a
+row of features (sizes, spatial mixing, fragmentation, network shape,
+radiomics, embeddings) that you can join to outcomes downstream.</p>
 <p>These metrics are the quantify stages of the
 <a class="reference internal" href="../00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">complete analysis</span></a>
 (volume, MSI, ITH, graph). Each page refits a small cohort so it can be
@@ -695,25 +699,25 @@ copied on its own, then computes one family from the label map.</p>
 multiregional spatial interaction (MSI, Wu et al. 2018), intratumoral
 heterogeneity (ITH), graph topology networks, per-habitat radiomics,
 whole-habitat radiomics, and deep-learning masked embeddings.</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats."><img alt="" src="../../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. The simplest habitat number is how much of the tumour each habitat occupies. Volume fractions let you ask, for example, whether a larger share of one habitat goes with a worse outcome."><img alt="" src="../../_images/sphx_glr_plot_01_volume_fractions_thumb.png" />
 <p><a class="reference internal" href="plot_01_volume_fractions.html"><span class="doc">Volume and fractions</span></a></p>
   <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix."><img alt="" src="../../_images/sphx_glr_plot_02_msi_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Two tumours can have the same habitat fractions but a different spatial arrangement: habitats mixed together, or kept apart. MSI measures that arrangement by counting which habitats touch which."><img alt="" src="../../_images/sphx_glr_plot_02_msi_thumb.png" />
 <p><a class="reference internal" href="plot_02_msi.html"><span class="doc">Multiregional spatial interaction (MSI)</span></a></p>
   <div class="sphx-glr-thumbnail-title">Multiregional spatial interaction (MSI)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic ITH metrics from a habitat label map: ith_score and habitat_ith_dispersion."><img alt="" src="../../_images/sphx_glr_plot_03_ith_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Intratumoral heterogeneity (ITH) describes how mixed a tumour is. Here it is measured from the habitat map as fragmentation: do habitats form a few compact blobs, or many scattered pieces?"><img alt="" src="../../_images/sphx_glr_plot_03_ith_thumb.png" />
 <p><a class="reference internal" href="plot_03_ith.html"><span class="doc">Intratumoral heterogeneity (ITH)</span></a></p>
   <div class="sphx-glr-thumbnail-title">Intratumoral heterogeneity (ITH)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat map can also be read as a network: small pieces of habitat are the nodes, and pieces lying close together are linked. Network statistics then describe whether a habitat is one well-connected mass or a scatter of isolated islands, and how two habitats interleave."><img alt="" src="../../_images/sphx_glr_plot_04_graph_features_thumb.png" />
 <p><a class="reference internal" href="plot_04_graph_features.html"><span class="doc">Graph features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Graph features</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Classic radiomics computes intensity and texture features over the whole tumour. Per-habitat radiomics computes the same PyRadiomics features separately inside each habitat, so every sub-region gets its own intensity and texture description."><img alt="" src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_thumb.png" />
 <p><a class="reference internal" href="plot_05_each_habitat_radiomics.html"><span class="doc">Per-habitat radiomics</span></a></p>
   <div class="sphx-glr-thumbnail-title">Per-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Quantify the shape and spatial distribution of the partition map itself using WholeHabitatRadiomicsFeatures. The habitat label image plays both intensity and mask roles."><img alt="" src="../../_images/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Per-habitat radiomics describes the MRI inside each habitat. Whole-habitat radiomics instead describes the habitat map itself: the label image (habitat ids as grey values) is fed to PyRadiomics as the image, and the whole labelled region as the mask."><img alt="" src="../../_images/sphx_glr_plot_06_whole_habitat_radiomics_thumb.png" />
 <p><a class="reference internal" href="plot_06_whole_habitat_radiomics.html"><span class="doc">Whole-habitat radiomics</span></a></p>
   <div class="sphx-glr-thumbnail-title">Whole-habitat radiomics</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Bridge HABIT habitat maps to deep-learning pipelines: extract a binary mask per habitat and apply masked spatial average pooling on a 3-D feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch encoder output with the same (C, z, y, x) layout)."><img alt="" src="../../_images/sphx_glr_plot_07_deep_learning_embeddings_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Deep-learning encoders turn an image into a stack of feature maps (channels). Averaging those channels inside each habitat gives every habitat a learned descriptor that can sit next to hand-crafted radiomics in a downstream model."><img alt="" src="../../_images/sphx_glr_plot_07_deep_learning_embeddings_thumb.png" />
 <p><a class="reference internal" href="plot_07_deep_learning_embeddings.html"><span class="doc">Deep-learning habitat embeddings</span></a></p>
   <div class="sphx-glr-thumbnail-title">Deep-learning habitat embeddings</div>
 </div></div><div class="toctree-wrapper compound">

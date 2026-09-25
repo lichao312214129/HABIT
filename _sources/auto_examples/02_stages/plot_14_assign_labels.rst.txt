@@ -21,19 +21,37 @@
 Assigning habitat labels
 ========================
 
+**Background.** A fitted model only stores centroids. ``assign`` turns
+that into a picture: every supervoxel of a subject gets the id of its
+nearest centroid, and every voxel inherits the id of its supervoxel.
+
+**Purpose.** You get a :class:`~habit.contracts.HabitatMap` for one
+subject, an overlay of the habitats on the arterial image, and the
+number of voxels in each habitat.
+
+**Key terms.**
+
+* **assign** -- gives every supervoxel / voxel the id of its nearest
+  centroid, producing the habitat map.
+* **habitat** -- a sub-region inside the tumour (the ROI) whose voxels
+  behave alike across the input images; HABIT paints each ROI voxel with
+  a habitat id (1, 2, 3, ...).
+* **fit** / **centroid** -- see
+  :doc:`/auto_examples/02_stages/plot_13_fit_model`.
+
 Input: a fitted :class:`~habit.contracts.HabitatModel` and one
 :class:`~habit.contracts.Supervoxelization`. Output: a
 :class:`~habit.contracts.HabitatMap`. Stage: ``assign`` with
 ``nearest_centroid``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-16
+.. GENERATED FROM PYTHON SOURCE LINES 30-34
 
 Load the cohort
 ---------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-37
+.. GENERATED FROM PYTHON SOURCE LINES 34-55
 
 .. code-block:: Python
 
@@ -94,12 +112,12 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-40
+.. GENERATED FROM PYTHON SOURCE LINES 56-58
 
 Partition each subject
 ----------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-46
+.. GENERATED FROM PYTHON SOURCE LINES 58-64
 
 .. code-block:: Python
 
@@ -123,12 +141,13 @@ Partition each subject
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-49
+.. GENERATED FROM PYTHON SOURCE LINES 65-68
 
 Fit one shared model
 --------------------
+Same fit as the previous page: three habitats, fixed seed, both subjects.
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-54
+.. GENERATED FROM PYTHON SOURCE LINES 68-73
 
 .. code-block:: Python
 
@@ -159,19 +178,20 @@ Fit one shared model
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-59
+.. GENERATED FROM PYTHON SOURCE LINES 74-78
 
 Assign the first subject
 ------------------------
 ``assigner`` maps one subject's units to a habitat map by the nearest
 centroid. The second subject's units were used only to fit.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-69
+.. GENERATED FROM PYTHON SOURCE LINES 78-89
 
 .. code-block:: Python
 
     habitat_map = model.assigner()(units[0])
     print(habitat_map.subject_id)
+    # Count voxels per habitat id (0 is background outside the ROI).
     counts = [
         int(np.sum(habitat_map.label_array == habitat_id))
         for habitat_id in sorted(
@@ -194,12 +214,12 @@ centroid. The second subject's units were used only to fit.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-72
+.. GENERATED FROM PYTHON SOURCE LINES 90-92
 
 Overlay
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-82
+.. GENERATED FROM PYTHON SOURCE LINES 92-102
 
 .. code-block:: Python
 
@@ -232,12 +252,12 @@ Overlay
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-85
+.. GENERATED FROM PYTHON SOURCE LINES 103-105
 
 Voxel counts
 ------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-92
+.. GENERATED FROM PYTHON SOURCE LINES 105-112
 
 .. code-block:: Python
 
@@ -263,7 +283,7 @@ Voxel counts
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 45.735 seconds)
+   **Total running time of the script:** (0 minutes 46.920 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_14_assign_labels.py:

@@ -21,6 +21,27 @@
 Matching habitat labels across subjects
 =======================================
 
+**Background.** In a ``one_step`` study each patient is clustered on its
+own, so habitat ids are not comparable between patients until they are
+matched onto shared prototypes.
+
+**Purpose.** This is the practical page: one call gives every demo subject
+shared habitat ids, and you see the renames, a centroid plot before and
+after naming, and the optional settings (``max_distance``, frozen
+prototypes, other distances).
+
+**When to use.** After per-subject (``one_step``) fits. Skip it for
+two-step or direct-pooling studies, which already share one id space.
+
+**Key terms.**
+
+* **one_step** -- habitats are clustered separately inside each subject,
+  with no shared cohort model.
+* **prototype** -- a shared reference habitat (one feature row); see
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+* **label switching** -- see
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`.
+
 With ``one_step`` habitats every subject is clustered on its own, so
 habitat 1 of one patient need not be habitat 1 of another, and patients
 may even have different habitat counts.
@@ -42,7 +63,7 @@ prototypes, effect on cohort tables): :doc:`/auto_examples/06_matching/index`.
 A shared cohort model (two-step, direct pooling) already uses one id
 space and does not need this step.
 
-.. GENERATED FROM PYTHON SOURCE LINES 28-35
+.. GENERATED FROM PYTHON SOURCE LINES 49-56
 
 One-step habitats on comparable features
 ----------------------------------------
@@ -52,7 +73,7 @@ picks its own habitat count (silhouette over 2..5), as ``one_step`` with
 ``n_habitats="auto"`` does.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-74
+.. GENERATED FROM PYTHON SOURCE LINES 56-96
 
 .. code-block:: Python
 
@@ -85,6 +106,7 @@ sphinx_gallery_thumbnail_number = 1
     for subject in cohort:
         field = extractor(subject)
         units = voxel_units(field)
+        # Per-subject k-means; silhouette picks k in 2..5 for this subject alone.
         fitter = KMeansHabitatModelFitter(
             min_habitats=2, max_habitats=5, validation="silhouette", n_init=3
         )
@@ -134,14 +156,14 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-79
+.. GENERATED FROM PYTHON SOURCE LINES 97-101
 
 Name every subject against shared prototypes
 --------------------------------------------
 ``models=`` reads each fitted ``HabitatModel.centroids``: the habitats are
 named by the same features that defined them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-88
+.. GENERATED FROM PYTHON SOURCE LINES 101-110
 
 .. code-block:: Python
 
@@ -183,11 +205,11 @@ named by the same features that defined them.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-90
+.. GENERATED FROM PYTHON SOURCE LINES 111-112
 
 Every subject keeps its habitat count; ids now share one meaning.
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-96
+.. GENERATED FROM PYTHON SOURCE LINES 112-118
 
 .. code-block:: Python
 
@@ -214,7 +236,7 @@ Every subject keeps its habitat count; ids now share one meaning.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 97-102
+.. GENERATED FROM PYTHON SOURCE LINES 119-124
 
 Same call with voxel features instead of fitted centroids
 ---------------------------------------------------------
@@ -222,7 +244,7 @@ Same call with voxel features instead of fitted centroids
 is the clustering field itself, so the prototypes agree with the
 ``models=`` result up to k-means convergence.
 
-.. GENERATED FROM PYTHON SOURCE LINES 102-106
+.. GENERATED FROM PYTHON SOURCE LINES 124-128
 
 .. code-block:: Python
 
@@ -243,12 +265,12 @@ is the clustering field itself, so the prototypes agree with the
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 107-109
+.. GENERATED FROM PYTHON SOURCE LINES 129-131
 
 Centroids before and after naming
 ---------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-143
+.. GENERATED FROM PYTHON SOURCE LINES 131-165
 
 .. code-block:: Python
 
@@ -298,7 +320,7 @@ Centroids before and after naming
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-150
+.. GENERATED FROM PYTHON SOURCE LINES 166-172
 
 Optional: refuse far matches
 ----------------------------
@@ -307,7 +329,7 @@ a habitat unnamed when every free prototype is farther than that; its
 ``prototype_id`` is NA and its voxels get a subject-local id above K.
 Keep it off when the aligned maps feed a cohort feature table.
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-153
+.. GENERATED FROM PYTHON SOURCE LINES 172-175
 
 .. code-block:: Python
 
@@ -329,7 +351,7 @@ Keep it off when the aligned maps feed a cohort feature table.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 154-160
+.. GENERATED FROM PYTHON SOURCE LINES 176-182
 
 Name new subjects with frozen prototypes
 ----------------------------------------
@@ -338,7 +360,7 @@ refitted together with it. Fit prototypes on the first three subjects,
 then pass that result as ``prototypes=``: the last two subjects are
 assigned to the stored prototypes and share the training ``model_id``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 160-166
+.. GENERATED FROM PYTHON SOURCE LINES 182-188
 
 .. code-block:: Python
 
@@ -367,7 +389,7 @@ assigned to the stored prototypes and share the training ``model_id``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 167-174
+.. GENERATED FROM PYTHON SOURCE LINES 189-196
 
 Other distances
 ---------------
@@ -377,7 +399,7 @@ shape of the feature vector and ignore its level, which for two
 enhancement features would merge weak and strong habitats; keep the
 default ``"sqeuclidean"`` for such features.
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-176
+.. GENERATED FROM PYTHON SOURCE LINES 196-198
 
 .. code-block:: Python
 
@@ -401,7 +423,7 @@ default ``"sqeuclidean"`` for such features.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 36.107 seconds)
+   **Total running time of the script:** (0 minutes 35.141 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_matching_plot_07_match_labels.py:

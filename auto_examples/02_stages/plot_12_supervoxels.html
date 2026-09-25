@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,25 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="partitioning-a-roi-into-supervoxels">
 <span id="sphx-glr-auto-examples-02-stages-plot-12-supervoxels-py"></span><h1>Partitioning a ROI into supervoxels<a class="headerlink" href="#partitioning-a-roi-into-supervoxels" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A tumour has tens of thousands of voxels. The two-step
+design first groups them, inside each subject, into small patches of
+similar voxels, so the cohort model later clusters a few rows per
+subject instead of every voxel.</p>
+<p><strong>Purpose.</strong> You get about 100 supervoxels for one subject, a table with
+one mean feature vector per supervoxel, and an overlay showing the
+patches on the arterial image.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>supervoxel</strong> – a small patch of neighbouring voxels with similar
+features, clustered inside one subject first (<code class="docutils literal notranslate"><span class="pre">partition</span></code>), so the
+cohort model clusters tens of rows per subject instead of every voxel,
+which is faster and less noisy.</p></li>
+<li><p><strong>partition</strong> stage – the stage that builds supervoxels; <code class="docutils literal notranslate"><span class="pre">slic</span></code> and
+<code class="docutils literal notranslate"><span class="pre">kmeans</span></code> are two registered partitioners.</p></li>
+<li><p><strong>SLIC</strong> (simple linear iterative clustering) – grows supervoxels from
+a regular grid of seeds; <code class="docutils literal notranslate"><span class="pre">compactness</span></code> trades feature similarity
+against spatial closeness (higher gives rounder, more regular patches).</p></li>
+</ul>
 <p>Input: a <a class="reference internal" href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code></a>. Output: a
 <a class="reference internal" href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization"><code class="xref py py-class docutils literal notranslate"><span class="pre">Supervoxelization</span></code></a>. Stage: <code class="docutils literal notranslate"><span class="pre">partition</span></code> with
 <code class="docutils literal notranslate"><span class="pre">slic</span></code>.</p>
@@ -750,6 +769,8 @@ subj001
 <code class="docutils literal notranslate"><span class="pre">units.features</span></code> is the mean vector of one supervoxel.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a> <span class="o">=</span> <a href="../../api/generated/habit.voxel_features.RawVoxelFeatures.html#habit.voxel_features.RawVoxelFeatures" title="habit.voxel_features.RawVoxelFeatures" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-class"><span class="n">RawVoxelFeatures</span></a><span class="p">(</span><span class="n">modalities</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">),</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> voxels, columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span><span class="o">.</span><span class="n">feature_names</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># n_supervoxels is a target, not an exact count (SLIC may return a few</span>
+<span class="c1"># more or fewer patches); compactness=10.0 is the default value.</span>
 <a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a> <span class="o">=</span> <a href="../../api/generated/habit.supervoxel.SlicSupervoxelizer.html#habit.supervoxel.SlicSupervoxelizer" title="habit.supervoxel.SlicSupervoxelizer" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class"><span class="n">SlicSupervoxelizer</span></a><span class="p">(</span><span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">compactness</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_supervoxels=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span><span class="o">.</span><span class="n">features</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">units</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">head</span></a><span class="p">())</span>
@@ -784,7 +805,7 @@ supervoxel
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 24.858 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 25.276 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-12-supervoxels-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/7538668ea6294acf38c85f0b1358f03e/plot_12_supervoxels.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_12_supervoxels.ipynb</span></code></a></p>

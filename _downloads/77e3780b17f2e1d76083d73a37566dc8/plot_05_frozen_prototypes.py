@@ -2,6 +2,26 @@
 Naming a new cohort with frozen prototypes
 ==========================================
 
+**Background.** Once prototypes are learned on a training cohort, they
+define what each habitat id means. New patients should be named against
+those fixed prototypes rather than refitting them.
+
+**Purpose.** You fit prototypes on three demo subjects, name two more with
+them unchanged, and see why refitting on everyone or changing a matching
+setting is avoided or refused.
+
+**When to use.** For validation, external or newly arriving subjects after
+the training analysis is fixed.
+
+**Key terms.**
+
+* **prototype** -- see
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+* **frozen prototypes** -- stored prototypes reused as they are: one
+  assignment pass, no update step.
+* **model_id** -- the identifier of a habitat definition; maps named with
+  the same frozen prototypes share it.
+
 Habitat names learned on a training cohort are part of the model
 definition. A validation or external cohort must be named **with those
 names**, not refitted together with the training subjects: refitting
@@ -65,7 +85,9 @@ for subject in cohort:
 train_maps, train_models = maps[:3], models[:3]
 new_maps, new_models = maps[3:], models[3:]
 
+# Fit prototypes on the training subjects only.
 trained = align_habitat_maps_to_prototypes(train_maps, models=train_models)
+# prototypes=trained: assign the new subjects to the stored prototypes, no refit.
 named = align_habitat_maps_to_prototypes(new_maps, models=new_models, prototypes=trained)
 print(f"training prototypes (K={trained.prototypes.shape[0]}):\n{trained.prototypes.round(3)}")
 print(named.assignments.to_string(index=False))

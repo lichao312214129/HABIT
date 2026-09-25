@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,20 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="clustering-habitats-from-a-texture-field">
 <span id="sphx-glr-auto-examples-02-stages-plot-09-texture-habitats-py"></span><h1>Clustering habitats from a texture field<a class="headerlink" href="#clustering-habitats-from-a-texture-field" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Texture maps can be clustered like intensities: each ROI
+voxel becomes one row of texture values, and k-means groups voxels with
+similar local patterns into habitats.</p>
+<p><strong>Purpose.</strong> You get three GLCM columns for one subject, three habitats
+fitted directly on its voxels, a GLCM Contrast map, and the habitat
+overlay.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>GLCM Contrast</strong> / <strong>kernel radius</strong> – see
+<a class="reference internal" href="plot_03_voxel_texture.html"><span class="doc">Voxel texture and GPU</span></a>.</p></li>
+<li><p><strong>Correlation / Idm</strong> – two more GLCM features: how linearly related
+neighbouring grey levels are, and how homogeneous the neighbourhood is.</p></li>
+<li><p><strong>per-subject fit</strong> – see <a class="reference internal" href="plot_08_derived_map.html"><span class="doc">Clustering habitats from a derived map</span></a>.</p></li>
+</ul>
 <p>Input: a per-voxel GLCM <a class="reference internal" href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code></a>.
 Output: a <a class="reference internal" href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatMap</span></code></a>. Stages:
 <a class="reference internal" href="../../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_voxel_texture()</span></code></a>, then a per-subject
@@ -763,40 +777,40 @@ subj001
 <span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">field</span><span class="o">.</span><span class="n">feature_frame</span></a><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>voxel_radiomics: glcm batch 1/35 0.105s peak=6MiB
-voxel_radiomics: glcm batch 2/35 0.082s peak=7MiB
-voxel_radiomics: glcm batch 3/35 0.058s peak=8MiB
-voxel_radiomics: glcm batch 4/35 0.016s peak=9MiB
-voxel_radiomics: glcm batch 5/35 0.016s peak=10MiB
-voxel_radiomics: glcm batch 6/35 0.015s peak=11MiB
-voxel_radiomics: glcm batch 7/35 0.019s peak=12MiB
-voxel_radiomics: glcm batch 8/35 0.015s peak=13MiB
-voxel_radiomics: glcm batch 9/35 0.015s peak=13MiB
-voxel_radiomics: glcm batch 10/35 0.015s peak=14MiB
-voxel_radiomics: glcm batch 11/35 0.019s peak=15MiB
-voxel_radiomics: glcm batch 12/35 0.017s peak=16MiB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>voxel_radiomics: glcm batch 1/35 0.128s peak=6MiB
+voxel_radiomics: glcm batch 2/35 0.018s peak=7MiB
+voxel_radiomics: glcm batch 3/35 0.017s peak=8MiB
+voxel_radiomics: glcm batch 4/35 0.017s peak=9MiB
+voxel_radiomics: glcm batch 5/35 0.018s peak=10MiB
+voxel_radiomics: glcm batch 6/35 0.019s peak=11MiB
+voxel_radiomics: glcm batch 7/35 0.017s peak=12MiB
+voxel_radiomics: glcm batch 8/35 0.019s peak=13MiB
+voxel_radiomics: glcm batch 9/35 0.016s peak=13MiB
+voxel_radiomics: glcm batch 10/35 0.019s peak=14MiB
+voxel_radiomics: glcm batch 11/35 0.016s peak=15MiB
+voxel_radiomics: glcm batch 12/35 0.016s peak=16MiB
 voxel_radiomics: glcm batch 13/35 0.015s peak=17MiB
 voxel_radiomics: glcm batch 14/35 0.016s peak=18MiB
-voxel_radiomics: glcm batch 15/35 0.017s peak=19MiB
-voxel_radiomics: glcm batch 16/35 0.019s peak=20MiB
-voxel_radiomics: glcm batch 17/35 0.019s peak=21MiB
-voxel_radiomics: glcm batch 18/35 0.019s peak=22MiB
-voxel_radiomics: glcm batch 19/35 0.018s peak=22MiB
-voxel_radiomics: glcm batch 20/35 0.019s peak=23MiB
-voxel_radiomics: glcm batch 21/35 0.017s peak=24MiB
-voxel_radiomics: glcm batch 22/35 0.018s peak=25MiB
-voxel_radiomics: glcm batch 23/35 0.015s peak=26MiB
-voxel_radiomics: glcm batch 24/35 0.017s peak=27MiB
-voxel_radiomics: glcm batch 25/35 0.018s peak=28MiB
-voxel_radiomics: glcm batch 26/35 0.020s peak=29MiB
-voxel_radiomics: glcm batch 27/35 0.016s peak=30MiB
+voxel_radiomics: glcm batch 15/35 0.016s peak=19MiB
+voxel_radiomics: glcm batch 16/35 0.016s peak=20MiB
+voxel_radiomics: glcm batch 17/35 0.016s peak=21MiB
+voxel_radiomics: glcm batch 18/35 0.016s peak=22MiB
+voxel_radiomics: glcm batch 19/35 0.014s peak=22MiB
+voxel_radiomics: glcm batch 20/35 0.015s peak=23MiB
+voxel_radiomics: glcm batch 21/35 0.015s peak=24MiB
+voxel_radiomics: glcm batch 22/35 0.015s peak=25MiB
+voxel_radiomics: glcm batch 23/35 0.016s peak=26MiB
+voxel_radiomics: glcm batch 24/35 0.015s peak=27MiB
+voxel_radiomics: glcm batch 25/35 0.015s peak=28MiB
+voxel_radiomics: glcm batch 26/35 0.017s peak=29MiB
+voxel_radiomics: glcm batch 27/35 0.014s peak=30MiB
 voxel_radiomics: glcm batch 28/35 0.015s peak=31MiB
-voxel_radiomics: glcm batch 29/35 0.016s peak=31MiB
+voxel_radiomics: glcm batch 29/35 0.018s peak=31MiB
 voxel_radiomics: glcm batch 30/35 0.015s peak=32MiB
 voxel_radiomics: glcm batch 31/35 0.015s peak=33MiB
-voxel_radiomics: glcm batch 32/35 0.015s peak=34MiB
+voxel_radiomics: glcm batch 32/35 0.016s peak=34MiB
 voxel_radiomics: glcm batch 33/35 0.015s peak=35MiB
-voxel_radiomics: glcm batch 34/35 0.016s peak=36MiB
+voxel_radiomics: glcm batch 34/35 0.015s peak=36MiB
 voxel_radiomics: glcm batch 35/35 0.016s peak=37MiB
 34694 voxels, columns: [&#39;original_glcm_Contrast-LAP&#39;, &#39;original_glcm_Correlation-LAP&#39;, &#39;original_glcm_Idm-LAP&#39;]
    original_glcm_Contrast-LAP  ...  original_glcm_Idm-LAP
@@ -812,6 +826,9 @@ voxel_radiomics: glcm batch 35/35 0.016s peak=37MiB
 </section>
 <section id="fit-and-assign-on-these-voxels">
 <h2>Fit and assign on these voxels<a class="headerlink" href="#fit-and-assign-on-these-voxels" title="Link to this heading"></a></h2>
+<p>No partition: every ROI voxel is its own clustering unit. The three
+columns are not rescaled here, so a column with a wider range weighs
+more in the distance (see plot_06_texture_preprocessing).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a> <span class="o">=</span> <a href="../../api/generated/habit.pipeline.voxel_units.html#habit.pipeline.voxel_units" title="habit.pipeline.voxel_units" class="sphx-glr-backref-module-habit-pipeline sphx-glr-backref-type-py-function"><span class="n">voxel_units</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a><span class="p">)</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span><span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -869,7 +886,7 @@ voxel_radiomics: glcm batch 35/35 0.016s peak=37MiB
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.406 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.422 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-09-texture-habitats-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/bb69411e678975fa75bb8ccfbacf2727/plot_09_texture_habitats.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_09_texture_habitats.ipynb</span></code></a></p>

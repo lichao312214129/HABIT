@@ -21,16 +21,35 @@
 Load from NIfTI files
 =====================
 
+**Background.** Images and masks often sit as loose files (NIfTI, NRRD,
+MetaImage) rather than in the HABIT folder layout. HABIT can point at each
+file directly and reads the voxels only when a stage needs them.
+
+**Purpose.** You get a geometry report that says whether image and mask
+grids agree, a :class:`~habit.contracts.Cohort` built from file paths, and
+a figure of the loaded pair.
+
+**When to use.** Use this when your files are scattered or named freely;
+you choose the series and ROI names yourself. The demo pack happens to use
+``.nrrd``; ``.nii`` / ``.nii.gz`` work the same way.
+
+**Key terms.**
+
+* **cohort / subject / ROI** -- see
+  :doc:`/auto_examples/01_data_in/plot_01_directory`.
+* **geometry check** -- compares shape, spacing, origin and direction of
+  image and mask; ``validate_geometry`` only reports, it changes nothing.
+
 Point at one image file and one mask file (``.nii``, ``.nii.gz``, ``.nrrd``,
 ``.mha``, ``.mhd``). Change the paths below to your own files. One person
 and several people are each a :class:`~habit.contracts.Cohort`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-13
+.. GENERATED FROM PYTHON SOURCE LINES 30-32
 
 One person. ``role_name`` is the series or ROI name stored on the volume.
 Use the same string as the dictionary key.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-59
+.. GENERATED FROM PYTHON SOURCE LINES 32-82
 
 .. code-block:: Python
 
@@ -58,17 +77,21 @@ Use the same string as the dictionary key.
 
     image = read_image(IMAGE, modality="LAP")
     mask = read_mask(MASK)
+    # Report-only check: lists which of shape / spacing / origin / direction differ.
     report = validate_geometry(image, mask)
     print(report.compatible, report.mismatches)
     if report.compatible:
         pair = ImageMaskPair(image, mask, report)
     else:
+        # Explicit fix only when grids differ: resample the mask onto the image grid.
         pair = align_image_mask(
             ImageMaskPair(image, mask),
             policy=GeometryPolicy.RESAMPLE_MASK,
         )
     print(pair.image.data.shape, pair.mask.data.shape)
 
+    # FileImageRef stores only the path; voxels are read when a stage needs them,
+    # so large cohorts stay light in memory.
     subject = Subject(
         subject_id="subj001",
         images={"LAP": FileImageRef(IMAGE, is_mask=False, role_name="LAP")},
@@ -117,13 +140,13 @@ Use the same string as the dictionary key.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-63
+.. GENERATED FROM PYTHON SOURCE LINES 83-86
 
 Visual summary of this route: the image/mask file pair becomes a plottable
 Subject (right panel zooms to the ROI). Pass the
 :class:`~habit.image.ImageVolume` (not ``.data``).
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-68
+.. GENERATED FROM PYTHON SOURCE LINES 86-91
 
 .. code-block:: Python
 
@@ -151,13 +174,13 @@ Subject (right panel zooms to the ROI). Pass the
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 69-72
+.. GENERATED FROM PYTHON SOURCE LINES 92-95
 
 Several people. One :class:`~habit.contracts.Subject` per person, then one
 cohort. ``subject_id`` values must be unique. Pass ``many`` to
 ``fit_predict``, not a list.
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-81
+.. GENERATED FROM PYTHON SOURCE LINES 95-104
 
 .. code-block:: Python
 
@@ -186,7 +209,7 @@ cohort. ``subject_id`` values must be unique. Pass ``many`` to
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.652 seconds)
+   **Total running time of the script:** (0 minutes 1.623 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_04_nifti_files.py:

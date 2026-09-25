@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,22 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="what-matching-changes-in-a-cohort-feature-table">
 <span id="sphx-glr-auto-examples-06-matching-plot-06-downstream-tables-py"></span><h1>What matching changes in a cohort feature table<a class="headerlink" href="#what-matching-changes-in-a-cohort-feature-table" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Habitat features are usually analysed as a table with one
+row per patient and one column per habitat. That only works if a column
+refers to the same kind of habitat in every patient.</p>
+<p><strong>Purpose.</strong> You build one cohort table from five demo subjects with raw
+and with prototype-matched ids, compare the spread of one column, and see
+how <code class="docutils literal notranslate"><span class="pre">max_distance</span></code> can leave poorly matching habitats out of the shared
+columns.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>prototype</strong> – see
+<a class="reference internal" href="plot_03_prototype_steps.html"><span class="doc">Prototype matching step by step</span></a>.</p></li>
+<li><p><strong>volume fraction</strong> – the share of ROI voxels that belong to one
+habitat.</p></li>
+<li><p><strong>max_distance</strong> – an optional cutoff: a habitat farther than this from
+every free prototype keeps a subject-local id instead of a shared one.</p></li>
+</ul>
 <p>A cohort habitat table has one column per habitat id: <code class="docutils literal notranslate"><span class="pre">H1_volume</span></code>,
 <code class="docutils literal notranslate"><span class="pre">H2_mean_enhancement</span></code>, … A column is only one variable if <code class="docutils literal notranslate"><span class="pre">H2</span></code>
 means the same habitat in every row. With per-subject (<code class="docutils literal notranslate"><span class="pre">one_step</span></code>)
@@ -743,6 +759,7 @@ into one.</p>
     <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.fit" title="habit.habitat_model.KMeansHabitatModelFitter.fit" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">fit</span></a><span class="p">([</span><a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">],</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="o">=</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">Cohort</span></a><span class="p">([</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">],</span> <span class="n">name</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span></a><span class="p">))</span>
     <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">maps</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.assigner" title="habit.contracts.HabitatModel.assigner" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">model</span><span class="o">.</span><span class="n">assigner</span></a><span class="p">()(</span><a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a><span class="p">))</span>
     <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">models</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a><span class="p">)</span>
+<span class="c1"># Shared names for all five subjects, from their fitted centroids.</span>
 <a href="../../api/generated/habit.precision.HabitatPrototypeAlignment.html#habit.precision.HabitatPrototypeAlignment" title="habit.precision.HabitatPrototypeAlignment" class="sphx-glr-backref-module-habit-precision sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">matched</span></a> <span class="o">=</span> <a href="../../api/generated/habit.precision.align_habitat_maps_to_prototypes.html#habit.precision.align_habitat_maps_to_prototypes" title="habit.precision.align_habitat_maps_to_prototypes" class="sphx-glr-backref-module-habit-precision sphx-glr-backref-type-py-function"><span class="n">align_habitat_maps_to_prototypes</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">maps</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">models</span></a><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">models</span></a><span class="p">)</span>
 
 
@@ -945,7 +962,7 @@ subj003: ids [4] are subject-local (not a cohort column)
 subj005: ids [4] are subject-local (not a cohort column)
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 38.209 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 33.703 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-matching-plot-06-downstream-tables-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/e380e0e29cc652286f19da9a5c2ad9aa/plot_06_downstream_tables.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_06_downstream_tables.ipynb</span></code></a></p>

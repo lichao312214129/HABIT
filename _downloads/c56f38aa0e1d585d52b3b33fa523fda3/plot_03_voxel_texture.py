@@ -2,6 +2,30 @@
 Voxel texture and GPU
 =====================
 
+**Background.** Intensity alone cannot tell a smooth region from a
+mottled one of the same brightness. Voxel texture computes a radiomics
+feature in a small cube around every ROI voxel, giving one texture map
+per feature that clustering can use as a column.
+
+**Purpose.** You get a per-voxel GLCM Contrast map of one subject, a live
+CPU (and, if CUDA is present, GPU) timing and parity table, and a
+recorded benchmark of three runtimes on a larger lesion.
+
+**When to use.** When your habitats should reflect local heterogeneity;
+texture is much slower than intensity, so read the runtime section
+before running a large cohort.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **kernel radius** -- half-width of the cube around each voxel;
+  ``kernel_radius=1`` is a 3×3×3 cube.
+* **GLCM Contrast** -- from the grey-level co-occurrence matrix: large
+  when neighbouring voxels differ strongly in grey level.
+* **binWidth** -- width of the grey-level bins intensities are grouped
+  into before texture is computed.
+
 Texture maps are **inputs to clustering**, not post-label tables.
 GPU is a faster implementation of the same IBSI / PyRadiomics definition —
 the numbers do not change because of GPU.
@@ -56,6 +80,8 @@ Path("out").mkdir(exist_ok=True)
 # :doc:`/tutorial/installation` steps 5–6.
 #
 # Below, we define a unified extraction helper that selects among these runtimes.
+# PyRadiomics-style settings: original image only, one GLCM feature, and
+# grey levels grouped in bins of width 25 (the same on every runtime).
 RADIOMICS_PARAMS: Dict[str, Any] = {
     "imageType": {"Original": {}},
     "featureClass": {"glcm": ["Contrast"]},
@@ -81,6 +107,9 @@ def extract_voxel_radiomics(
     Returns:
         Voxel-by-feature field (one row per ROI voxel).
     """
+    # Only the runtime flags differ between calls; the feature definition
+    # (modality, radius, params) is identical, which is what makes the
+    # timing comparison fair.
     return VoxelFeatureExtractorRegistry.create(
         "voxel_radiomics",
         modality=MODALITY,

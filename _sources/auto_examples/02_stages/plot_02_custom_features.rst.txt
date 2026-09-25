@@ -21,17 +21,40 @@
 Custom features
 ===============
 
+**Background.** Built-in extractors cover intensities and texture. When
+your study needs its own voxel formula (here, liver DCE enhancement and
+wash-out), you write a small extractor class, register it under a name,
+and use that name in a ``Spec`` like any built-in one.
+
+**Purpose.** You get a registered ``dce_hemodynamics`` extractor, a map
+of arterial relative enhancement, the column means / SDs before and after
+z-score, and habitats fitted inside each subject from the three maps.
+
+**When to use.** When the columns you want are not a built-in extractor
+and a formula string (:doc:`/auto_examples/02_stages/plot_02_expression`)
+is not enough.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **registry** -- HABIT's lookup table from a name (``"dce_hemodynamics"``)
+  to a component class; ``Spec("dce_hemodynamics", ...)`` finds the class
+  through it.
+* **relative enhancement / wash-out** -- signal gain over the unenhanced
+  phase, and signal loss after the arterial phase, each as a ratio.
+
 Three liver DCE maps: arterial relative enhancement, arterial-to-portal
 wash-out, and arterial-to-delayed wash-out.
 
-.. GENERATED FROM PYTHON SOURCE LINES 10-14
+.. GENERATED FROM PYTHON SOURCE LINES 33-37
 
 Register the DCE extractor
 --------------------------
 Three formulas become the columns clustering sees. The class is
 registered under the name used by ``Spec("dce_hemodynamics")`` below.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-101
+.. GENERATED FROM PYTHON SOURCE LINES 37-127
 
 .. code-block:: Python
 
@@ -99,6 +122,7 @@ registered under the name used by ``Spec("dce_hemodynamics")`` below.
 
         def __call__(self, subject: Subject) -> VoxelFeatureField:
             """Compute the three DCE columns inside the ROI."""
+            # Locate the ROI voxels once; every phase is read at these positions.
             mask, inside, voxel_index = roi_voxels(subject, self.roi)
             owner = "dce_hemodynamics"
             pre, lap, pvp, delay = (
@@ -112,6 +136,8 @@ registered under the name used by ``Spec("dce_hemodynamics")`` below.
                     (lap - delay) / (lap - pre + self.eps),
                 ]
             ).astype(np.float64, copy=False)
+            # Wrap the values with their grid positions and this extractor's
+            # Spec, so the field can be drawn back into the image and traced.
             return build_voxel_field(
                 subject,
                 mask,
@@ -129,12 +155,12 @@ registered under the name used by ``Spec("dce_hemodynamics")`` below.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 102-104
+.. GENERATED FROM PYTHON SOURCE LINES 128-130
 
 Load two subjects
 -----------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 104-108
+.. GENERATED FROM PYTHON SOURCE LINES 130-134
 
 .. code-block:: Python
 
@@ -176,14 +202,14 @@ Load two subjects
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-113
+.. GENERATED FROM PYTHON SOURCE LINES 135-139
 
 Arterial enhancement map
 ------------------------
 The extractor returns a :class:`~habit.contracts.VoxelFeatureField`,
 which :func:`~habit.viz.plot_voxel_texture_slice` draws directly.
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-138
+.. GENERATED FROM PYTHON SOURCE LINES 139-166
 
 .. code-block:: Python
 
@@ -206,6 +232,8 @@ which :func:`~habit.viz.plot_voxel_texture_slice` draws directly.
     print("before zscore (mean / std):")
     print(before.agg(["mean", "std"]).round(4))
     print(before.head())
+    # Ratios live on different scales; z-score each column to mean 0 / SD 1
+    # so no single map dominates the k-means distance.
     scaler = ZScoreScaling(across_features=False)
     after = scaler.transform(before, scaler.fit(before))
     print("after zscore (mean / std):")
@@ -251,14 +279,14 @@ which :func:`~habit.viz.plot_voxel_texture_slice` draws directly.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-143
+.. GENERATED FROM PYTHON SOURCE LINES 167-171
 
 Cluster the three DCE maps
 --------------------------
 extract uses the extractor registered above. preprocess is per-subject
 z-score. There is no pool, so fit runs inside each subject.
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-184
+.. GENERATED FROM PYTHON SOURCE LINES 171-212
 
 .. code-block:: Python
 
@@ -316,7 +344,7 @@ z-score. There is no pool, so fit runs inside each subject.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01<00:01,  1.70s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.61s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.61s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01<00:01,  1.69s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]
     subj001: n_habitats=4
     subj002: n_habitats=4
     overlay labels [1, 2, 3, 4]
@@ -329,7 +357,7 @@ z-score. There is no pool, so fit runs inside each subject.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.869 seconds)
+   **Total running time of the script:** (0 minutes 6.702 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_02_custom_features.py:

@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,25 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="whole-habitat-radiomics">
 <span id="sphx-glr-auto-examples-03-quantify-plot-06-whole-habitat-radiomics-py"></span><h1>Whole-habitat radiomics<a class="headerlink" href="#whole-habitat-radiomics" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Per-habitat radiomics describes the MRI inside each habitat.
+Whole-habitat radiomics instead describes the habitat map itself: the label
+image (habitat ids as grey values) is fed to PyRadiomics as the image, and
+the whole labelled region as the mask.</p>
+<p><strong>Purpose.</strong> You get one row of features describing the partition (here
+first-order <code class="docutils literal notranslate"><span class="pre">Mean</span></code> / <code class="docutils literal notranslate"><span class="pre">Entropy</span></code> of the labels and <code class="docutils literal notranslate"><span class="pre">shape</span></code> features such
+as <code class="docutils literal notranslate"><span class="pre">Sphericity</span></code> and <code class="docutils literal notranslate"><span class="pre">SurfaceArea</span></code>), a habitat overlay, and a map of local
+label entropy.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>shape feature</strong> – geometry of the labelled region (e.g. how close it is
+to a sphere, its surface area), independent of intensity.</p></li>
+<li><p><strong>label entropy</strong> – how mixed the ids are in a small window around each
+voxel; zero inside one uniform habitat, higher where habitats (or the
+background at the tumour edge) meet.</p></li>
+<li><p><strong>habitat / one-step habitats</strong> – see
+<a class="reference internal" href="plot_01_volume_fractions.html"><span class="doc">Volume and fractions</span></a> and
+<a class="reference internal" href="../04_designs/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a>.</p></li>
+</ul>
 <p>Quantify the <strong>shape and spatial distribution of the partition map itself</strong>
 using <a class="reference internal" href="../../api/generated/habit.habitat_features.WholeHabitatRadiomicsFeatures.html#habit.habitat_features.WholeHabitatRadiomicsFeatures" title="habit.habitat_features.WholeHabitatRadiomicsFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">WholeHabitatRadiomicsFeatures</span></code></a>.
 The habitat label image plays both intensity and mask roles.</p>
@@ -727,6 +746,7 @@ sphinx_gallery_thumbnail_number = 2</p>
         <span class="s2">&quot;firstorder&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Mean&quot;</span><span class="p">,</span> <span class="s2">&quot;Entropy&quot;</span><span class="p">],</span>
         <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Sphericity&quot;</span><span class="p">,</span> <span class="s2">&quot;SurfaceArea&quot;</span><span class="p">],</span>
     <span class="p">},</span>
+    <span class="c1"># binWidth=1 keeps each integer habitat id in its own grey-level bin.</span>
     <span class="s2">&quot;setting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;binWidth&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;voxelArrayShift&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
 <span class="p">}</span>
 <a href="../../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_features.WholeHabitatRadiomicsFeatures.html#habit.habitat_features.WholeHabitatRadiomicsFeatures" title="habit.habitat_features.WholeHabitatRadiomicsFeatures" class="sphx-glr-backref-module-habit-habitat_features sphx-glr-backref-type-py-class"><span class="n">WholeHabitatRadiomicsFeatures</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">params</span></a><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">params</span></a><span class="p">)(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a><span class="p">)</span>
@@ -760,8 +780,8 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.40s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.40s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.29s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.29s/it]
 Whole-habitat radiomics:
 subject                            subj001
 original_shape_Sphericity         0.719657
@@ -794,6 +814,7 @@ labels (not of the MRI), cropped to the same ROI.</p>
 
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label_intensity</span></a><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span></a><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">np</span><span class="o">.</span><span class="n">float64</span></a><span class="p">)</span>
 <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_label_bins</span></a><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label_intensity</span></a><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="c1"># 5x5x5 window; one histogram bin per id (background 0 included).</span>
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">entropy</span></a> <span class="o">=</span> <a href="../../api/generated/habit.kernels.local_entropy_map.html#habit.kernels.local_entropy_map" title="habit.kernels.local_entropy_map" class="sphx-glr-backref-module-habit-kernels sphx-glr-backref-type-py-function"><span class="n">local_entropy_map</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label_intensity</span></a><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_label_bins</span></a><span class="p">)</span>
 <a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.MaskVolume" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_roi</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.MaskVolume.html#habit.contracts.MaskVolume.from_geometry" title="habit.contracts.MaskVolume.from_geometry" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">MaskVolume</span><span class="o">.</span><span class="n">from_geometry</span></a><span class="p">(</span>
     <span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span></a> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.uint8" title="numpy.uint8" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">np</span><span class="o">.</span><span class="n">uint8</span></a><span class="p">),</span>
@@ -823,7 +844,7 @@ F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geom
   direction, spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 23.554 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 22.960 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-quantify-plot-06-whole-habitat-radiomics-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/48fe76d3ceb9ee4776a91c724d7716e3/plot_06_whole_habitat_radiomics.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_06_whole_habitat_radiomics.ipynb</span></code></a></p>

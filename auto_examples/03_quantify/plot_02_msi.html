@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,24 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="multiregional-spatial-interaction-msi">
 <span id="sphx-glr-auto-examples-03-quantify-plot-02-msi-py"></span><h1>Multiregional spatial interaction (MSI)<a class="headerlink" href="#multiregional-spatial-interaction-msi" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Two tumours can have the same habitat fractions but a
+different spatial arrangement: habitats mixed together, or kept apart.
+MSI measures that arrangement by counting which habitats touch which.</p>
+<p><strong>Purpose.</strong> You get the MSI matrix as a table and heatmap, plus a
+dictionary of scalar MSI features (one value per name) ready to use as
+columns in a statistics or model table.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>MSI</strong> (multiregional spatial interaction, Wu et al. 2018) – counts how
+often voxels of each habitat touch voxels of each other habitat (face
+neighbours), describing how habitats are arranged in space.</p></li>
+<li><p><strong>MSI matrix</strong> – entry <code class="docutils literal notranslate"><span class="pre">[i,</span> <span class="pre">j]</span></code> is the number of face-neighbour voxel
+pairs labelled <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code>; row/column 0 is background, so it records
+how much of each habitat lies on the tumour border.</p></li>
+<li><p><strong>MSI scalars</strong> – <code class="docutils literal notranslate"><span class="pre">firstorder_*</span></code> are the matrix entries (raw and
+normalised); <code class="docutils literal notranslate"><span class="pre">contrast</span></code> / <code class="docutils literal notranslate"><span class="pre">homogeneity</span></code> / <code class="docutils literal notranslate"><span class="pre">correlation</span></code> / <code class="docutils literal notranslate"><span class="pre">energy</span></code>
+are texture-style summaries of the normalised matrix.</p></li>
+</ul>
 <p>Atomic MSI from a habitat label map (Wu et al., <em>Radiology</em> 2018):
 <a class="reference internal" href="../../api/generated/habit.kernels.spatial_interaction_matrix.html#habit.kernels.spatial_interaction_matrix" title="habit.kernels.spatial_interaction_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">spatial_interaction_matrix()</span></code></a> and
 <a class="reference internal" href="../../api/generated/habit.kernels.msi_features_from_matrix.html#habit.kernels.msi_features_from_matrix" title="habit.kernels.msi_features_from_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">msi_features_from_matrix()</span></code></a>.</p>
@@ -719,6 +737,7 @@ sphinx_gallery_thumbnail_number = 1</p>
 <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span></a>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">({</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">}))</span>
+<span class="c1"># Matrix size includes background (class 0), hence the + 1.</span>
 <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_classes</span></a> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ids</span></a><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
 </pre></div>
 </div>
@@ -746,8 +765,8 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.35s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.35s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.29s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.29s/it]
 </pre></div>
 </div>
 <p>MSI matrix (background row/column 0) and derived scalar features.</p>
@@ -761,6 +780,7 @@ Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1
 <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.round.html#pandas.DataFrame.round" title="pandas.DataFrame.round" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">msi_table</span><span class="o">.</span><span class="n">round</span></a><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">msi_table</span><span class="o">.</span><span class="n">head</span></a><span class="p">()</span>
 
+<span class="c1"># Flatten the matrix into named scalars (same keys as HABIT v0.1 MSI output).</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">features</span></a> <span class="o">=</span> <a href="../../api/generated/habit.kernels.msi_features_from_matrix.html#habit.kernels.msi_features_from_matrix" title="habit.kernels.msi_features_from_matrix" class="sphx-glr-backref-module-habit-kernels sphx-glr-backref-type-py-function"><span class="n">msi_features_from_matrix</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">matrix</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MSI scalars:&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">features</span></a><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
@@ -779,7 +799,7 @@ H3    2349   6837     30  53256
 MSI scalars: {&#39;firstorder_0_and_1&#39;: 3261.0, &#39;firstorder_0_and_2&#39;: 3212.0, &#39;firstorder_0_and_3&#39;: 2349.0, &#39;firstorder_1_and_2&#39;: 7194.0, &#39;firstorder_1_and_3&#39;: 6837.0, &#39;firstorder_2_and_3&#39;: 30.0, &#39;firstorder_1_and_1&#39;: 68220.0, &#39;firstorder_2_and_2&#39;: 49744.0, &#39;firstorder_3_and_3&#39;: 53256.0, &#39;firstorder_normalized_0_and_1&#39;: 0.0168, &#39;firstorder_normalized_0_and_2&#39;: 0.0165, &#39;firstorder_normalized_0_and_3&#39;: 0.0121, &#39;firstorder_normalized_1_and_2&#39;: 0.0371, &#39;firstorder_normalized_1_and_3&#39;: 0.0352, &#39;firstorder_normalized_2_and_3&#39;: 0.0002, &#39;firstorder_normalized_1_and_1&#39;: 0.3515, &#39;firstorder_normalized_2_and_2&#39;: 0.2563, &#39;firstorder_normalized_3_and_3&#39;: 0.2744, &#39;contrast&#39;: 0.74, &#39;homogeneity&#39;: 2.8914, &#39;correlation&#39;: 0.0115, &#39;energy&#39;: 4.0042}
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.952 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 5.116 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-quantify-plot-02-msi-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/81b6f055d36e1309599eecae6dac056e/plot_02_msi.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_02_msi.ipynb</span></code></a></p>

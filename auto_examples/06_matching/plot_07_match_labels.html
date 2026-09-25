@@ -32,7 +32,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="7. Parallel runs" href="../07_parallel/index.html" />
+    <link rel="next" title="7. Running a whole cohort" href="../07_parallel/index.html" />
     <link rel="prev" title="What matching changes in a cohort feature table" href="plot_06_downstream_tables.html" /> 
 </head>
 
@@ -160,7 +160,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,24 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="matching-habitat-labels-across-subjects">
 <span id="sphx-glr-auto-examples-06-matching-plot-07-match-labels-py"></span><h1>Matching habitat labels across subjects<a class="headerlink" href="#matching-habitat-labels-across-subjects" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> In a <code class="docutils literal notranslate"><span class="pre">one_step</span></code> study each patient is clustered on its
+own, so habitat ids are not comparable between patients until they are
+matched onto shared prototypes.</p>
+<p><strong>Purpose.</strong> This is the practical page: one call gives every demo subject
+shared habitat ids, and you see the renames, a centroid plot before and
+after naming, and the optional settings (<code class="docutils literal notranslate"><span class="pre">max_distance</span></code>, frozen
+prototypes, other distances).</p>
+<p><strong>When to use.</strong> After per-subject (<code class="docutils literal notranslate"><span class="pre">one_step</span></code>) fits. Skip it for
+two-step or direct-pooling studies, which already share one id space.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>one_step</strong> – habitats are clustered separately inside each subject,
+with no shared cohort model.</p></li>
+<li><p><strong>prototype</strong> – a shared reference habitat (one feature row); see
+<a class="reference internal" href="plot_03_prototype_steps.html"><span class="doc">Prototype matching step by step</span></a>.</p></li>
+<li><p><strong>label switching</strong> – see
+<a class="reference internal" href="plot_01_label_switching.html"><span class="doc">Why habitat ids must be matched</span></a>.</p></li>
+</ul>
 <p>With <code class="docutils literal notranslate"><span class="pre">one_step</span></code> habitats every subject is clustered on its own, so
 habitat 1 of one patient need not be habitat 1 of another, and patients
 may even have different habitat counts.
@@ -749,6 +767,7 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="k">for</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a> <span class="ow">in</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">:</span>
     <a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a> <span class="o">=</span> <a href="../../api/generated/habit.voxel_features.ExpressionVoxelFeatures.html#habit.voxel_features.ExpressionVoxelFeatures" title="habit.voxel_features.ExpressionVoxelFeatures" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">extractor</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">)</span>
     <a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a> <span class="o">=</span> <a href="../../api/generated/habit.pipeline.voxel_units.html#habit.pipeline.voxel_units" title="habit.pipeline.voxel_units" class="sphx-glr-backref-module-habit-pipeline sphx-glr-backref-type-py-function"><span class="n">voxel_units</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a><span class="p">)</span>
+    <span class="c1"># Per-subject k-means; silhouette picks k in 2..5 for this subject alone.</span>
     <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span>
         <span class="n">min_habitats</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_habitats</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">3</span>
     <span class="p">)</span>
@@ -946,7 +965,7 @@ default <code class="docutils literal notranslate"><span class="pre">&quot;sqeuc
  [2.348 2.522]]
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 36.107 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 35.141 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-matching-plot-07-match-labels-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/0740ec9dd9bd833c72ffd27fa24e56a7/plot_07_match_labels.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_07_match_labels.ipynb</span></code></a></p>
@@ -967,7 +986,7 @@ default <code class="docutils literal notranslate"><span class="pre">&quot;sqeuc
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="plot_06_downstream_tables.html" class="btn btn-neutral float-left" title="What matching changes in a cohort feature table" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../07_parallel/index.html" class="btn btn-neutral float-right" title="7. Parallel runs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../07_parallel/index.html" class="btn btn-neutral float-right" title="7. Running a whole cohort" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

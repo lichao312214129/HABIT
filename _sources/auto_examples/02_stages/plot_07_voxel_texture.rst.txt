@@ -21,6 +21,24 @@
 Extracting a voxel texture
 ==========================
 
+**Background.** A voxel texture value describes how grey levels vary in
+a small cube around each ROI voxel, which intensity alone does not show.
+Here it is computed with one function call on an image and a mask.
+
+**Purpose.** You get a voxel-feature table with one GLCM Contrast column
+and a map of it on the arterial slice.
+
+**When to use.** When you already hold an image and a mask and want a
+single texture map; the full runtime story is on
+:doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **GLCM Contrast** / **kernel radius** / **bin width** -- see
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
+
 Input: one :class:`~habit.contracts.Subject`. Output: a
 :class:`~habit.contracts.VoxelFeatureField` of per-voxel GLCM Contrast.
 Stage: :func:`~habit.voxel_features.extract_voxel_texture`.
@@ -28,7 +46,7 @@ Stage: :func:`~habit.voxel_features.extract_voxel_texture`.
 GPU paths for the same IBSI texture are in
 :doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-19
+.. GENERATED FROM PYTHON SOURCE LINES 32-37
 
 Load one subject
 ----------------
@@ -36,7 +54,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 Radius 1 is a 3x3x3 neighbourhood; ``bin_width=25`` matches the GPU page.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-36
+.. GENERATED FROM PYTHON SOURCE LINES 37-54
 
 .. code-block:: Python
 
@@ -92,13 +110,13 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-40
+.. GENERATED FROM PYTHON SOURCE LINES 55-58
 
 Extract GLCM Contrast
 ---------------------
 Radius 1 is a 3×3×3 neighbourhood. ``bin_width=25`` is the grey-level width.
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-51
+.. GENERATED FROM PYTHON SOURCE LINES 58-69
 
 .. code-block:: Python
 
@@ -121,40 +139,40 @@ Radius 1 is a 3×3×3 neighbourhood. ``bin_width=25`` is the grey-level width.
 
  .. code-block:: none
 
-    voxel_radiomics: glcm batch 1/35 0.087s peak=32MiB
-    voxel_radiomics: glcm batch 2/35 0.091s peak=33MiB
-    voxel_radiomics: glcm batch 3/35 0.065s peak=34MiB
-    voxel_radiomics: glcm batch 4/35 0.019s peak=35MiB
-    voxel_radiomics: glcm batch 5/35 0.020s peak=36MiB
-    voxel_radiomics: glcm batch 6/35 0.018s peak=37MiB
-    voxel_radiomics: glcm batch 7/35 0.018s peak=38MiB
+    voxel_radiomics: glcm batch 1/35 0.231s peak=32MiB
+    voxel_radiomics: glcm batch 2/35 0.019s peak=33MiB
+    voxel_radiomics: glcm batch 3/35 0.017s peak=34MiB
+    voxel_radiomics: glcm batch 4/35 0.016s peak=35MiB
+    voxel_radiomics: glcm batch 5/35 0.016s peak=36MiB
+    voxel_radiomics: glcm batch 6/35 0.019s peak=37MiB
+    voxel_radiomics: glcm batch 7/35 0.017s peak=38MiB
     voxel_radiomics: glcm batch 8/35 0.018s peak=39MiB
-    voxel_radiomics: glcm batch 9/35 0.018s peak=40MiB
-    voxel_radiomics: glcm batch 10/35 0.018s peak=40MiB
-    voxel_radiomics: glcm batch 11/35 0.018s peak=41MiB
-    voxel_radiomics: glcm batch 12/35 0.015s peak=42MiB
-    voxel_radiomics: glcm batch 13/35 0.017s peak=43MiB
-    voxel_radiomics: glcm batch 14/35 0.016s peak=44MiB
-    voxel_radiomics: glcm batch 15/35 0.022s peak=45MiB
-    voxel_radiomics: glcm batch 16/35 0.017s peak=46MiB
-    voxel_radiomics: glcm batch 17/35 0.017s peak=47MiB
-    voxel_radiomics: glcm batch 18/35 0.016s peak=48MiB
-    voxel_radiomics: glcm batch 19/35 0.017s peak=49MiB
-    voxel_radiomics: glcm batch 20/35 0.017s peak=49MiB
-    voxel_radiomics: glcm batch 21/35 0.019s peak=50MiB
-    voxel_radiomics: glcm batch 22/35 0.020s peak=51MiB
-    voxel_radiomics: glcm batch 23/35 0.019s peak=52MiB
-    voxel_radiomics: glcm batch 24/35 0.017s peak=53MiB
-    voxel_radiomics: glcm batch 25/35 0.015s peak=54MiB
+    voxel_radiomics: glcm batch 9/35 0.016s peak=40MiB
+    voxel_radiomics: glcm batch 10/35 0.016s peak=40MiB
+    voxel_radiomics: glcm batch 11/35 0.017s peak=41MiB
+    voxel_radiomics: glcm batch 12/35 0.019s peak=42MiB
+    voxel_radiomics: glcm batch 13/35 0.018s peak=43MiB
+    voxel_radiomics: glcm batch 14/35 0.017s peak=44MiB
+    voxel_radiomics: glcm batch 15/35 0.016s peak=45MiB
+    voxel_radiomics: glcm batch 16/35 0.016s peak=46MiB
+    voxel_radiomics: glcm batch 17/35 0.015s peak=47MiB
+    voxel_radiomics: glcm batch 18/35 0.015s peak=48MiB
+    voxel_radiomics: glcm batch 19/35 0.016s peak=49MiB
+    voxel_radiomics: glcm batch 20/35 0.015s peak=49MiB
+    voxel_radiomics: glcm batch 21/35 0.015s peak=50MiB
+    voxel_radiomics: glcm batch 22/35 0.014s peak=51MiB
+    voxel_radiomics: glcm batch 23/35 0.016s peak=52MiB
+    voxel_radiomics: glcm batch 24/35 0.015s peak=53MiB
+    voxel_radiomics: glcm batch 25/35 0.016s peak=54MiB
     voxel_radiomics: glcm batch 26/35 0.016s peak=55MiB
-    voxel_radiomics: glcm batch 27/35 0.015s peak=56MiB
+    voxel_radiomics: glcm batch 27/35 0.017s peak=56MiB
     voxel_radiomics: glcm batch 28/35 0.015s peak=57MiB
     voxel_radiomics: glcm batch 29/35 0.015s peak=58MiB
-    voxel_radiomics: glcm batch 30/35 0.016s peak=1MiB
-    voxel_radiomics: glcm batch 31/35 0.015s peak=2MiB
+    voxel_radiomics: glcm batch 30/35 0.015s peak=1MiB
+    voxel_radiomics: glcm batch 31/35 0.014s peak=2MiB
     voxel_radiomics: glcm batch 32/35 0.015s peak=3MiB
-    voxel_radiomics: glcm batch 33/35 0.014s peak=4MiB
-    voxel_radiomics: glcm batch 34/35 0.014s peak=4MiB
+    voxel_radiomics: glcm batch 33/35 0.015s peak=4MiB
+    voxel_radiomics: glcm batch 34/35 0.016s peak=4MiB
     voxel_radiomics: glcm batch 35/35 0.014s peak=5MiB
     34694 voxels, columns: ['original_glcm_Contrast-LAP']
        original_glcm_Contrast-LAP
@@ -217,12 +235,12 @@ Radius 1 is a 3×3×3 neighbourhood. ``bin_width=25`` is the grey-level width.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-54
+.. GENERATED FROM PYTHON SOURCE LINES 70-72
 
 Contrast on the arterial slice
 ------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-64
+.. GENERATED FROM PYTHON SOURCE LINES 72-82
 
 .. code-block:: Python
 
@@ -258,7 +276,7 @@ Contrast on the arterial slice
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.505 seconds)
+   **Total running time of the script:** (0 minutes 3.606 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_07_voxel_texture.py:

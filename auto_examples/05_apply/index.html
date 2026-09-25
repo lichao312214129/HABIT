@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -687,10 +687,14 @@
              
   <section id="apply-a-saved-model">
 <span id="sphx-glr-auto-examples-05-apply"></span><h1>5. Apply a saved model<a class="headerlink" href="#apply-a-saved-model" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A fitted habitat model can be saved and reused, so later or
+external subjects get the same habitat ids as the training cohort.
+<strong>Purpose.</strong> Save the model once, reload it, and label new subjects with the
+training centroids without refitting.</p>
 <p>Train the habitat definition, write a <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> file, and label
 later subjects without fitting again.</p>
 <p><a class="reference internal" href="plot_04_apply_saved_model.html"><span class="doc">Applying a saved habitat model</span></a></p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Train a two-step habitat definition, round-trip the HabitatModel through a .habitatmodel archive, and project it onto later subjects."><img alt="" src="../../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat ids only mean the same thing in two cohorts when both are labelled with the same centroids. Saving the fitted model lets a later or external cohort be labelled with the training definition instead of a new, incomparable fit."><img alt="" src="../../_images/sphx_glr_plot_04_apply_saved_model_thumb.png" />
 <p><a class="reference internal" href="plot_04_apply_saved_model.html"><span class="doc">Applying a saved habitat model</span></a></p>
   <div class="sphx-glr-thumbnail-title">Applying a saved habitat model</div>
 </div></div><div class="toctree-wrapper compound">

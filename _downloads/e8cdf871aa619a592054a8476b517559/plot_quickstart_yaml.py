@@ -2,6 +2,22 @@
 Quickstart: YAML
 ================
 
+**Background.** A YAML file is a plain-text way to write the same stage list
+you would build in Python, so an analysis can be run from the shell, shared,
+and kept next to the results.
+
+**Purpose.** You get the two-step habitat maps and a volume-fraction / MSI /
+ITH table from a YAML file, plus one habitat overlay.
+
+**Key terms.**
+
+* **YAML config** -- a text file whose ``spec:`` block is a
+  ``HabitatSpec`` (``name``, ``random_seed``, ``stages``), and whose
+  ``data:`` / ``output:`` blocks say where to read subjects and write results.
+* **Stage / Spec / HabitatSpec** -- see
+  :doc:`/auto_quickstart/plot_quickstart_python`; each YAML stage entry is
+  one ``Stage``, and its ``component`` is the ``Spec``.
+
 The same two-step analysis as :doc:`plot_quickstart_python`, written as a
 YAML file. ``habit get-habitat --config <file>`` runs it from the shell;
 :func:`habit.recipes.run_from_yaml` is the Python call behind that
@@ -68,6 +84,8 @@ output:
 )
 print(yaml_path.read_text(encoding="utf-8"))
 
+# run_from_yaml parses the file into a HabitatSpec plus a cohort and runs
+# it -- the same call ``habit get-habitat`` makes.
 result = recipes.run_from_yaml(yaml_path, workflow="habitat", save=False)
 print(result.habitat_model.summary())
 table = result.features.frame.set_index("subject")

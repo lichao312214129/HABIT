@@ -21,6 +21,31 @@
 Graph features
 ===============
 
+**Background.** A habitat map can also be read as a network: small pieces
+of habitat are the nodes, and pieces lying close together are linked. Network
+statistics then describe whether a habitat is one well-connected mass or a
+scatter of isolated islands, and how two habitats interleave.
+
+**Purpose.** You get one row of graph features per subject: first from the
+study (before id alignment), then from the kernel function and from the
+component after aligning habitat ids across the two subjects. Overlay,
+lattice and network figures show one slice.
+
+**Key terms.**
+
+* **node** -- the tumour bounding box is cut into cubes of ``block_size``
+  voxels per side (8 here); inside each cube, every connected piece of a
+  habitat becomes one node, placed at that piece's centroid.
+* **edge** -- two nodes are linked when their closest voxels are at most
+  ``distance_threshold`` voxels apart (default 5, in voxels, not mm).
+* **single / pair graph** -- ``single_h*`` columns use the nodes of one
+  habitat; ``pair_h*_*`` columns use the nodes of two habitats together.
+  Each graph yields statistics such as ``n_nodes``, ``n_edges``,
+  ``avg_degree`` and ``avg_edge_distance``.
+* **one-step habitats / matching** -- see
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject` and
+  :doc:`/auto_examples/06_matching/plot_07_match_labels`.
+
 After a habitat map exists, :func:`~habit.kernels.extract_graph_features`
 summarises region topology (lattice nodes, closest-voxel edges).
 The same family is available as the scikit-learn-style component
@@ -41,14 +66,14 @@ caveats: :doc:`/auto_examples/06_matching/plot_07_match_labels` and
 2-D network figures are display-only (one representative slice). Tables
 use the full 3-D :class:`~habit.contracts.HabitatMap`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 27-31
+.. GENERATED FROM PYTHON SOURCE LINES 52-56
 
 One-step habitats with a known K so the graph has a fixed number of
 labels. Graph option fields are passed as flat kwargs — no separate
 options object is required.
 sphinx_gallery_thumbnail_number = 3
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-69
+.. GENERATED FROM PYTHON SOURCE LINES 56-96
 
 .. code-block:: Python
 
@@ -81,6 +106,8 @@ sphinx_gallery_thumbnail_number = 3
         n_habitats=3,
         random_seed=0,
         roi=ROI,
+        # Quantify inside the study: volume plus graph features. Extended
+        # metrics (efficiency, small-world, ...) are switched off to stay short.
         habitat_features=[
             "volume",
             Spec("graph", {"include_extended_metrics": False}),
@@ -121,7 +148,7 @@ sphinx_gallery_thumbnail_number = 3
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
     Cohort: ['subj001', 'subj002']
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01<00:01,  1.69s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.59s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.59s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:01<00:01,  1.72s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]
     Study graph columns before cross-tumour alignment (head):
        subject  ...  pair_h2_h3_contact_voxels_sum_per_pair_area_scale
     0  subj001  ...                                                0.0
@@ -411,7 +438,7 @@ sphinx_gallery_thumbnail_number = 3
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-75
+.. GENERATED FROM PYTHON SOURCE LINES 97-102
 
 Name every subject's habitats against shared prototypes so habitat
 integers mean one phenotype across the cohort. ``models=`` reads each
@@ -419,7 +446,7 @@ subject's fitted clustering centroids. This demo clusters raw LAP to
 stay short; in a real study cluster on features that are comparable
 across patients (see the matching page).
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-82
+.. GENERATED FROM PYTHON SOURCE LINES 102-109
 
 .. code-block:: Python
 
@@ -449,14 +476,14 @@ across patients (see the matching page).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-87
+.. GENERATED FROM PYTHON SOURCE LINES 110-114
 
 Two idiomatic extraction paths on the **aligned** full 3-D label arrays.
 Do not extract from a 2-D slice — the network figure is display-only.
 
 1) Direct kernel function with flat kwargs (sklearn-style keyword API):
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-101
+.. GENERATED FROM PYTHON SOURCE LINES 114-129
 
 .. code-block:: Python
 
@@ -464,6 +491,7 @@ Do not extract from a 2-D slice — the network figure is display-only.
     for subject, habitat_map in zip(cohort, aligned_maps):
         feats = extract_graph_features(
             habitat_map.label_array,
+            # Report every habitat id, even if absent, so columns match across subjects.
             expected_labels=habitat_map.habitat_ids,
             block_size=8,
             include_extended_metrics=False,
@@ -771,11 +799,11 @@ Do not extract from a 2-D slice — the network figure is display-only.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 102-103
+.. GENERATED FROM PYTHON SOURCE LINES 130-131
 
 2) Scikit-learn style component — construct once, call per subject:
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-116
+.. GENERATED FROM PYTHON SOURCE LINES 131-144
 
 .. code-block:: Python
 
@@ -1089,12 +1117,12 @@ Do not extract from a 2-D slice — the network figure is display-only.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-119
+.. GENERATED FROM PYTHON SOURCE LINES 145-147
 
 Overlay, lattice slice, and 2-D network — also flat kwargs, no options object.
 ``block_size=8`` is the library default for both extraction and display.
 
-.. GENERATED FROM PYTHON SOURCE LINES 119-147
+.. GENERATED FROM PYTHON SOURCE LINES 147-175
 
 .. code-block:: Python
 
@@ -1167,7 +1195,7 @@ Overlay, lattice slice, and 2-D network — also flat kwargs, no options object.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.839 seconds)
+   **Total running time of the script:** (0 minutes 7.706 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_quantify_plot_04_graph_features.py:

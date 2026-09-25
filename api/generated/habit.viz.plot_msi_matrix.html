@@ -161,7 +161,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -735,13 +735,13 @@ is True for <code class="docutils literal notranslate"><span class="pre">linear<
 
 <section id="examples-using-habit-viz-plot-msi-matrix">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_msi_matrix</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-msi-matrix" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="One HabitatSpec declares the whole study. One fit_predict runs it. The stage list below is the same two-step analysis as /auto_quickstart/plot_quickstart_python: raw DCE intensities, 30 supervoxels, one shared model, then volume, MSI, ITH and graph features."><img alt="" src="../../_images/sphx_glr_plot_01_full_pipeline_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. A tumour is not uniform: some parts enhance strongly, some wash out, some are necrotic. Habitat analysis splits the ROI into a few sub-regions (habitats) whose voxels behave alike across the DCE phases, using one definition shared by every patient, and then describes each patient by how much of each habitat they have and how the habitats are arranged."><img alt="" src="../../_images/sphx_glr_plot_01_full_pipeline_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/00_full_pipeline/plot_01_full_pipeline.html"><span class="doc">A complete habitat analysis</span></a></p>
   <div class="sphx-glr-thumbnail-title">A complete habitat analysis</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix."><img alt="" src="../../_images/sphx_glr_plot_02_msi_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Two tumours can have the same habitat fractions but a different spatial arrangement: habitats mixed together, or kept apart. MSI measures that arrangement by counting which habitats touch which."><img alt="" src="../../_images/sphx_glr_plot_02_msi_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/03_quantify/plot_02_msi.html"><span class="doc">Multiregional spatial interaction (MSI)</span></a></p>
   <div class="sphx-glr-thumbnail-title">Multiregional spatial interaction (MSI)</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="A short list of stages declares the analysis; one call fits it on a cohort. Everything after that is looking at the result: the habitat map, the per-habitat features a paper would report, and reusing the fitted model on a new patient. No YAML."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat analysis splits a tumour into sub-regions that behave alike across the input images (here, DCE phases), then describes each tumour by how much of each sub-region it has and how they are arranged."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
 <p><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a></p>
   <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>
 </div></div><div style="clear:both"></div></section>

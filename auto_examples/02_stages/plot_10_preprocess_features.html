@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,22 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="preprocessing-features-before-clustering">
 <span id="sphx-glr-auto-examples-02-stages-plot-10-preprocess-features-py"></span><h1>Preprocessing features before clustering<a class="headerlink" href="#preprocessing-features-before-clustering" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Raw intensities differ in range between phases and
+contain a few extreme voxels. The <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> stage rescales the
+feature columns before clustering so that no single column dominates
+the distance.</p>
+<p><strong>Purpose.</strong> You see the feature table and the histogram of one column
+before and after winsorize + min-max, then the habitat map built from
+the preprocessed features.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>preprocess</strong> stage – rescales / transforms feature columns (e.g.
+z-score, winsorize) so no column dominates the distance used by
+clustering. The three chains are compared on
+<a class="reference internal" href="plot_04_feature_preprocessing.html"><span class="doc">Feature preprocessing</span></a>.</p></li>
+<li><p><strong>winsorize</strong> – clips each column at its 5th and 95th percentile here.</p></li>
+<li><p><strong>min-max</strong> – rescales each column to [0, 1].</p></li>
+</ul>
 <p>Input: a raw <a class="reference internal" href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code></a>. Output: a
 <a class="reference internal" href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatMap</span></code></a> built from the preprocessed features.
 Stage: <code class="docutils literal notranslate"><span class="pre">voxel_feature_preprocessors</span></code>, then <code class="docutils literal notranslate"><span class="pre">partition</span></code>, <code class="docutils literal notranslate"><span class="pre">fit</span></code>,
@@ -790,6 +806,8 @@ partition into supervoxels, fit a habitat model, and assign labels.</p>
     <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;cohort_feature_preprocessor&quot;</span><span class="p">,</span>
     <span class="n">spec_fingerprint</span><span class="o">=</span><a href="../../api/generated/habit.feature_preprocessing.CohortPreprocessingChain.html#habit.feature_preprocessing.CohortPreprocessingChain.spec" title="habit.feature_preprocessing.CohortPreprocessingChain.spec" class="sphx-glr-backref-module-habit-feature_preprocessing sphx-glr-backref-type-py-property"><span class="n">chain</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span></a><span class="p">,</span>
 <span class="p">)</span>
+<span class="c1"># Supervoxels are built on the scaled columns, so the preprocessing also</span>
+<span class="c1"># shapes the patches, not only the final habitats.</span>
 <a href="../../api/generated/habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.Supervoxelization" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units</span></a> <span class="o">=</span> <a href="../../api/generated/habit.supervoxel.SlicSupervoxelizer.html#habit.supervoxel.SlicSupervoxelizer" title="habit.supervoxel.SlicSupervoxelizer" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class"><span class="n">SlicSupervoxelizer</span></a><span class="p">(</span><span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">compactness</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">scaled_field</span></a><span class="p">)</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span><span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -821,7 +839,7 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 27.084 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 25.352 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-10-preprocess-features-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/7376691dee4d1a32037cdd358c733d35/plot_10_preprocess_features.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_10_preprocess_features.ipynb</span></code></a></p>

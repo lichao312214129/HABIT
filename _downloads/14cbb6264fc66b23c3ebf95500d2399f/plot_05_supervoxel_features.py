@@ -2,6 +2,24 @@
 Supervoxel feature extraction and acceleration
 ==============================================
 
+**Background.** The cohort model clusters supervoxels, not voxels, so
+each supervoxel needs its own row of numbers. That row can be a simple
+summary of its voxels (mean, median, SD) or radiomics texture computed on
+the supervoxel as a small ROI.
+
+**Purpose.** You get 24 SLIC supervoxels of one subject, a table of
+their mean / median / SD intensity, and a timing plus value-by-value
+comparison of HABIT's C-extension texture path against PyRadiomics
+``execute()``.
+
+**Key terms.**
+
+* **supervoxel** -- see :doc:`/auto_examples/02_stages/plot_12_supervoxels`.
+* **supervoxel feature** -- one value per supervoxel, summarising the
+  voxels inside it; one column per feature.
+* **parity** -- whether two implementations give the same numbers; here
+  measured as the maximum absolute difference per feature.
+
 In two-step habitat analysis, the tumor ROI is first partitioned into supervoxels.
 Each supervoxel must then be summarized into a quantitative feature vector
 before cohort pooling and clustering.
@@ -111,6 +129,8 @@ stats_table.head(5)
 # %%
 # Approach 2: Supervoxel Radiomics texture and high-throughput acceleration.
 # Compare HABIT native C-extension against PyRadiomics for time and numerical parity.
+# Same PyRadiomics settings for both paths; normalize=False keeps the
+# intensities as stored (no PyRadiomics intensity normalisation).
 texture_params = {
     "imageType": {"Original": {}},
     "featureClass": {

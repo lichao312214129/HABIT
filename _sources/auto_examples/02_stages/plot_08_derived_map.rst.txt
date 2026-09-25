@@ -21,20 +21,37 @@
 Clustering habitats from a derived map
 ======================================
 
+**Background.** Habitats follow whatever columns the ``extract`` stage
+produces. Clustering derived DCE maps (enhancement and wash-out ratios)
+instead of raw intensities groups voxels by their enhancement pattern
+(contrast uptake and wash-out) rather than by absolute signal.
+
+**Purpose.** You get three habitats for one subject fitted directly on
+its voxels, a relative-enhancement map, and the habitat overlay.
+
+**Key terms.**
+
+* **derived map** -- see :doc:`/auto_examples/02_stages/plot_02_expression`.
+* **fit** / **assign** -- see
+  :doc:`/auto_examples/02_stages/plot_13_fit_model` and
+  :doc:`/auto_examples/02_stages/plot_14_assign_labels`.
+* **per-subject fit** -- the model is fitted on this one subject only, so
+  its habitat ids are not comparable with other patients.
+
 Input: one :class:`~habit.contracts.Subject` with the four DCE phases.
 Output: a :class:`~habit.contracts.HabitatMap`. The voxel field is
 :class:`~habit.voxel_features.ExpressionVoxelFeatures` (see
 :doc:`/auto_examples/02_stages/plot_02_expression`). Stage:
 ``extract_voxel_features`` with ``expression``, then a per-subject ``fit``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-17
+.. GENERATED FROM PYTHON SOURCE LINES 30-34
 
 Load one subject
 ----------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-35
+.. GENERATED FROM PYTHON SOURCE LINES 34-52
 
 .. code-block:: Python
 
@@ -91,14 +108,14 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-40
+.. GENERATED FROM PYTHON SOURCE LINES 53-57
 
 Build the four derived maps
 ---------------------------
 Each key becomes one column. ``eps`` keeps a zero denominator from
 breaking the ratio.
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-53
+.. GENERATED FROM PYTHON SOURCE LINES 57-70
 
 .. code-block:: Python
 
@@ -134,19 +151,20 @@ breaking the ratio.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-57
+.. GENERATED FROM PYTHON SOURCE LINES 71-74
 
 Fit and assign on these voxels
 ------------------------------
 ``voxel_units`` makes every ROI voxel its own clustering unit.
 
-.. GENERATED FROM PYTHON SOURCE LINES 57-64
+.. GENERATED FROM PYTHON SOURCE LINES 74-82
 
 .. code-block:: Python
 
     units = voxel_units(field)
     fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
     fitter.set_random_state(0)
+    # A one-subject cohort: the habitats are defined inside this patient only.
     model = fitter.fit([units], cohort=Cohort([subject], name="one"))
     habitat_map = model.assigner()(units)
     print(model.summary())
@@ -173,12 +191,12 @@ Fit and assign on these voxels
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-67
+.. GENERATED FROM PYTHON SOURCE LINES 83-85
 
 Relative enhancement
 --------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-79
+.. GENERATED FROM PYTHON SOURCE LINES 85-97
 
 .. code-block:: Python
 
@@ -213,12 +231,12 @@ Relative enhancement
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-82
+.. GENERATED FROM PYTHON SOURCE LINES 98-100
 
 Habitats from the derived maps
 ------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 82-90
+.. GENERATED FROM PYTHON SOURCE LINES 100-108
 
 .. code-block:: Python
 
@@ -252,7 +270,7 @@ Habitats from the derived maps
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.460 seconds)
+   **Total running time of the script:** (0 minutes 3.589 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_08_derived_map.py:

@@ -2,6 +2,24 @@
 Assigning habitat labels
 ========================
 
+**Background.** A fitted model only stores centroids. ``assign`` turns
+that into a picture: every supervoxel of a subject gets the id of its
+nearest centroid, and every voxel inherits the id of its supervoxel.
+
+**Purpose.** You get a :class:`~habit.contracts.HabitatMap` for one
+subject, an overlay of the habitats on the arterial image, and the
+number of voxels in each habitat.
+
+**Key terms.**
+
+* **assign** -- gives every supervoxel / voxel the id of its nearest
+  centroid, producing the habitat map.
+* **habitat** -- a sub-region inside the tumour (the ROI) whose voxels
+  behave alike across the input images; HABIT paints each ROI voxel with
+  a habitat id (1, 2, 3, ...).
+* **fit** / **centroid** -- see
+  :doc:`/auto_examples/02_stages/plot_13_fit_model`.
+
 Input: a fitted :class:`~habit.contracts.HabitatModel` and one
 :class:`~habit.contracts.Supervoxelization`. Output: a
 :class:`~habit.contracts.HabitatMap`. Stage: ``assign`` with
@@ -46,6 +64,7 @@ for one in units:
 # %%
 # Fit one shared model
 # --------------------
+# Same fit as the previous page: three habitats, fixed seed, both subjects.
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
 model = fitter.fit(units, cohort=cohort)
@@ -58,6 +77,7 @@ print(model.summary())
 # centroid. The second subject's units were used only to fit.
 habitat_map = model.assigner()(units[0])
 print(habitat_map.subject_id)
+# Count voxels per habitat id (0 is background outside the ROI).
 counts = [
     int(np.sum(habitat_map.label_array == habitat_id))
     for habitat_id in sorted(

@@ -21,6 +21,26 @@
 Preprocessing voxel texture before clustering
 =============================================
 
+**Background.** Texture columns have very different ranges, so the
+``preprocess`` stage matters even more for texture than for intensity.
+Where the scaling state is learned (inside each subject, or once on the
+pooled cohort) also changes what the habitats mean.
+
+**Purpose.** You get one texture extraction, five preprocessed versions
+of it, their histograms, habitat maps for each, and a table of mean Dice
+against the subject z-score map on this demo.
+
+**Key terms.**
+
+* **preprocess** stage -- see
+  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`.
+* **robust scaling** -- centres each column on its median and divides by
+  its interquartile range, so outliers pull less than with z-score.
+* **Dice** -- overlap between two label maps (0 = none, 1 = identical).
+* **label switching** -- independent clusterings number the same
+  habitat differently (habitat 1 in one fit can be habitat 3 in another),
+  so ids must be matched before comparing.
+
 Voxel texture columns live on very different scales: GLCM contrast runs
 into the hundreds, correlation stays within [-1, 1]. Clustering then sees
 mostly the large columns, so a preprocessing step comes first.
@@ -38,14 +58,14 @@ subject z-score map by voxel overlap. The last cell shows that a
 :class:`~habit.spec.HabitatSpec` produces the same labels as the atomic
 calls.
 
-.. GENERATED FROM PYTHON SOURCE LINES 24-28
+.. GENERATED FROM PYTHON SOURCE LINES 44-48
 
 Load the cohort
 ---------------
 Four DCE series, arterial-phase ROI, two subjects.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 28-61
+.. GENERATED FROM PYTHON SOURCE LINES 48-81
 
 .. code-block:: Python
 
@@ -117,7 +137,7 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-69
+.. GENERATED FROM PYTHON SOURCE LINES 82-89
 
 Extract voxel texture once
 --------------------------
@@ -127,7 +147,7 @@ looks like ``original_glcm_Contrast-LAP``. The device is left at its
 default (``"auto"``): CUDA when available, otherwise CPU. How the two
 paths compare numerically: :doc:`/how_to/voxel_texture`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 69-91
+.. GENERATED FROM PYTHON SOURCE LINES 89-111
 
 .. code-block:: Python
 
@@ -174,7 +194,7 @@ paths compare numerically: :doc:`/how_to/voxel_texture`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-99
+.. GENERATED FROM PYTHON SOURCE LINES 112-119
 
 Five preprocessing chains
 -------------------------
@@ -184,7 +204,7 @@ is ``fit`` on the pooled rows of every training subject, then
 definition and has to travel with the model. Impute is inserted in front
 of each method automatically.
 
-.. GENERATED FROM PYTHON SOURCE LINES 99-136
+.. GENERATED FROM PYTHON SOURCE LINES 119-157
 
 .. code-block:: Python
 
@@ -201,6 +221,7 @@ of each method automatically.
             [Binning(n_bins=6, bin_strategy="uniform", across_features=False)]
         ),
     }
+    # Cohort chains learn their state from all training voxels stacked together.
     pooled = pd.concat([field.feature_frame() for field in fields], axis=0, ignore_index=True)
     for chain in cohort_chains.values():
         chain.fit(pooled)
@@ -232,7 +253,7 @@ of each method automatically.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 137-146
+.. GENERATED FROM PYTHON SOURCE LINES 158-167
 
 What each chain does to one column
 ----------------------------------
@@ -244,7 +265,7 @@ Uniform bins span min..max of the pool, so one extreme voxel (412 in
 subj002) stretches them and nearly all of subj001 falls into bins 0-1;
 ``bin_strategy="quantile"`` avoids that.
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-168
+.. GENERATED FROM PYTHON SOURCE LINES 167-189
 
 .. code-block:: Python
 
@@ -301,14 +322,14 @@ subj002) stretches them and nearly all of subj001 falls into bins 0-1;
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 169-173
+.. GENERATED FROM PYTHON SOURCE LINES 190-194
 
 Cluster each preprocessed field
 -------------------------------
 Same fitter and seed for every chain: 3 habitats on the pooled voxels.
 Assignment reuses the fitted units; texture is not extracted again.
 
-.. GENERATED FROM PYTHON SOURCE LINES 173-181
+.. GENERATED FROM PYTHON SOURCE LINES 194-203
 
 .. code-block:: Python
 
@@ -316,6 +337,7 @@ Assignment reuses the fitted units; texture is not extracted again.
     for name, values in processed.items():
         fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
         fitter.set_random_state(0)
+        # No partition here: every ROI voxel is its own clustering unit.
         units = [voxel_units(field) for field in values]
         model = fitter.fit(units, cohort=cohort)
         habitat_maps[name] = [slot.result() for slot in backend.map(model.assigner(), units)]
@@ -327,7 +349,7 @@ Assignment reuses the fitted units; texture is not extracted again.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 182-190
+.. GENERATED FROM PYTHON SOURCE LINES 204-212
 
 How far each map is from the subject z-score map
 ------------------------------------------------
@@ -338,7 +360,7 @@ habitats of each subject. Winsorizing keeps each column in its own units,
 so the large-valued columns still dominate the distance and the map moves
 furthest from the scaled chains.
 
-.. GENERATED FROM PYTHON SOURCE LINES 190-209
+.. GENERATED FROM PYTHON SOURCE LINES 212-231
 
 .. code-block:: Python
 
@@ -387,7 +409,7 @@ furthest from the scaled chains.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 210-216
+.. GENERATED FROM PYTHON SOURCE LINES 232-238
 
 The same analysis as a HabitatSpec
 ----------------------------------
@@ -396,7 +418,7 @@ same fitter; ``pool`` with no partition is the pooled-voxel fit and
 ``random_seed=0`` is ``set_random_state(0)``. The labels match the
 atomic calls voxel for voxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-247
+.. GENERATED FROM PYTHON SOURCE LINES 238-269
 
 .. code-block:: Python
 
@@ -439,8 +461,8 @@ atomic calls voxel for voxel.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.13s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.13s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.84it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.83it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.82it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.33s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.27s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.27s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.81it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.89it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.89it/s]
     subj001: spec labels == atomic labels: True
     subj002: spec labels == atomic labels: True
 
@@ -450,7 +472,7 @@ atomic calls voxel for voxel.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 16.052 seconds)
+   **Total running time of the script:** (0 minutes 16.670 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_06_texture_preprocessing.py:

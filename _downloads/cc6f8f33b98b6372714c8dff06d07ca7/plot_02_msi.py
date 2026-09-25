@@ -2,6 +2,26 @@
 Multiregional spatial interaction (MSI)
 =======================================
 
+**Background.** Two tumours can have the same habitat fractions but a
+different spatial arrangement: habitats mixed together, or kept apart.
+MSI measures that arrangement by counting which habitats touch which.
+
+**Purpose.** You get the MSI matrix as a table and heatmap, plus a
+dictionary of scalar MSI features (one value per name) ready to use as
+columns in a statistics or model table.
+
+**Key terms.**
+
+* **MSI** (multiregional spatial interaction, Wu et al. 2018) -- counts how
+  often voxels of each habitat touch voxels of each other habitat (face
+  neighbours), describing how habitats are arranged in space.
+* **MSI matrix** -- entry ``[i, j]`` is the number of face-neighbour voxel
+  pairs labelled ``i`` and ``j``; row/column 0 is background, so it records
+  how much of each habitat lies on the tumour border.
+* **MSI scalars** -- ``firstorder_*`` are the matrix entries (raw and
+  normalised); ``contrast`` / ``homogeneity`` / ``correlation`` / ``energy``
+  are texture-style summaries of the normalised matrix.
+
 Atomic MSI from a habitat label map (Wu et al., *Radiology* 2018):
 :func:`~habit.kernels.spatial_interaction_matrix` and
 :func:`~habit.kernels.msi_features_from_matrix`.
@@ -31,6 +51,7 @@ result = one_step_habitat(
 habitat_map = result.habitat_maps[0]
 labels = habitat_map.label_array
 ids = tuple(sorted({int(v) for v in labels.ravel() if int(v) != 0}))
+# Matrix size includes background (class 0), hence the + 1.
 n_classes = int(max(ids)) + 1
 
 # %%
@@ -45,6 +66,7 @@ print("MSI matrix:")
 print(msi_table.round(4).head())
 msi_table.head()
 
+# Flatten the matrix into named scalars (same keys as HABIT v0.1 MSI output).
 features = msi_features_from_matrix(matrix)
 print("MSI scalars:", {k: round(v, 4) for k, v in features.items()})
 

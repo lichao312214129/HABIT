@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,21 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="applying-a-saved-habitat-model">
 <span id="sphx-glr-auto-examples-05-apply-plot-04-apply-saved-model-py"></span><h1>Applying a saved habitat model<a class="headerlink" href="#applying-a-saved-habitat-model" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Habitat ids only mean the same thing in two cohorts when both
+are labelled with the same centroids. Saving the fitted model lets a later
+or external cohort be labelled with the training definition instead of a
+new, incomparable fit.</p>
+<p><strong>Purpose.</strong> You get a <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> file, the habitat map of a training
+subject, and the habitat map and feature table of two held-out subjects
+labelled from the reloaded file.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>.habitatmodel</strong> – the saved habitat definition (centroids plus the
+preprocessing state they depend on); loading it labels new subjects
+without refitting.</p></li>
+<li><p><strong>fit vs. predict</strong> – <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> learns the centroids and labels the
+training cohort; <code class="docutils literal notranslate"><span class="pre">predict</span></code> only labels subjects with an existing model.</p></li>
+</ul>
 <p>Train a two-step habitat definition, round-trip the
 <a class="reference internal" href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> through a <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code>
 archive, and project it onto later subjects.</p>
@@ -782,6 +797,8 @@ Train: [&#39;subj001&#39;, &#39;subj002&#39;, &#39;subj003&#39;]; apply: [&#39;s
 
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">archive</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out/habitat_model.habitatmodel&quot;</span><span class="p">)</span>
+<span class="c1"># Versioned, self-describing archive: this file is what you share or keep</span>
+<span class="c1"># next to a paper, not the Python objects above.</span>
 <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.save" title="habit.contracts.HabitatModel.save" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">train_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">save</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">archive</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">archive</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -796,16 +813,16 @@ Train: [&#39;subj001&#39;, &#39;subj002&#39;, &#39;subj003&#39;]; apply: [&#39;s
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_04_apply_saved_model_001.png" srcset="../../_images/sphx_glr_plot_04_apply_saved_model_001.png" alt="train habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/3 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:01&lt;00:02,  1.34s/it]
-Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:02&lt;00:01,  1.24s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03&lt;00:00,  1.20s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03&lt;00:00,  1.20s/it]
+Cohort.map[_ComputeUnits]:  33%|███▎      | 1/3 [00:01&lt;00:02,  1.20s/it]
+Cohort.map[_ComputeUnits]:  67%|██████▋   | 2/3 [00:02&lt;00:01,  1.15s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03&lt;00:00,  1.10s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 3/3 [00:03&lt;00:00,  1.10s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/3 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:00&lt;00:01,  1.72it/s]
-Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:01&lt;00:00,  1.74it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:01&lt;00:00,  1.75it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:01&lt;00:00,  1.75it/s]
+Cohort.map[_AssignPrecomputedUnits]:  33%|███▎      | 1/3 [00:00&lt;00:01,  1.81it/s]
+Cohort.map[_AssignPrecomputedUnits]:  67%|██████▋   | 2/3 [00:01&lt;00:00,  1.80it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:01&lt;00:00,  1.80it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 3/3 [00:01&lt;00:00,  1.80it/s]
 HabitatModel kmeans-8a84cd5253eb126f
   habitats           : 3
   features (3)    : pre_contrast, LAP, PVP
@@ -829,6 +846,10 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
 </div>
 <p>Reload and label held-out subjects. No fitting after the reload.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.load" title="habit.contracts.HabitatModel.load" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">HabitatModel</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">archive</span></a><span class="p">)</span>
+<span class="c1"># from_model pairs the loaded centroids with the same spec, so the new</span>
+<span class="c1"># subjects&#39; features are extracted and preprocessed as in training;</span>
+<span class="c1"># predict still builds each new subject&#39;s supervoxels, but assigns them to</span>
+<span class="c1"># the saved centroids; the habitat model is never refitted.</span>
 <a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study.from_model" title="habit.recipes.Study.from_model" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-method"><span class="n">recipes</span><span class="o">.</span><span class="n">Study</span><span class="o">.</span><span class="n">from_model</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">new_cohort</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Applied to </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">subject_id</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">prediction</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span></a><span class="p">())</span>
@@ -845,9 +866,9 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_04_apply_saved_model_002.png" srcset="../../_images/sphx_glr_plot_04_apply_saved_model_002.png" alt="applied habitats, Axis 0 (axial-like) @ 81, Axis 1 (coronal-like) @ 224, Axis 2 (sagittal-like) @ 130" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_LabelAndDescribe]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.90s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:04&lt;00:00,  2.02s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:04&lt;00:00,  2.02s/it]
+Cohort.map[_LabelAndDescribe]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.86s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.98s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.98s/it]
 Applied to [&#39;subj004&#39;, &#39;subj005&#39;]
    subject  habitat_1_voxel_count  ...    energy  ith_score
 0  subj004                  889.0  ...  3.489069   0.820012
@@ -858,7 +879,7 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 11.252 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 10.837 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-apply-plot-04-apply-saved-model-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/57a081604c2d69dc32e2a5bee1c65be1/plot_04_apply_saved_model.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_04_apply_saved_model.ipynb</span></code></a></p>

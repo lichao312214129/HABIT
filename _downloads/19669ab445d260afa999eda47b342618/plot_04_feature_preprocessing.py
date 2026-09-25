@@ -2,6 +2,28 @@
 Feature preprocessing
 =====================
 
+**Background.** k-means groups rows by distance, so a column with large
+numbers (or a few extreme voxels) can decide the habitats on its own.
+Preprocessing rescales or clips the feature columns first; HABIT lets you
+do this at three points of the two-step analysis.
+
+**Purpose.** You see the same rows before and after each chain (voxel,
+supervoxel, cohort), the fitted cohort state stored on the model, a chain
+diagram, and the resulting habitat overlay.
+
+**Key terms.**
+
+* **preprocess** stage -- rescales / transforms feature columns (e.g.
+  z-score, winsorize) so no column dominates the distance used by
+  clustering.
+* **z-score / min-max / winsorize / binning** -- subtract the mean and
+  divide by the SD; rescale to [0, 1]; clip the lowest and highest 5 %
+  here; replace values by bin indices.
+* **cohort state** -- numbers a cohort chain learns on the pooled
+  training rows (e.g. bin edges); they are saved with the
+  ``.habitatmodel`` so new subjects are transformed the same way.
+* **supervoxel** -- see :doc:`/auto_examples/02_stages/plot_12_supervoxels`.
+
 Clustering operates on **preprocessed feature matrices**, not raw
 intensities. :class:`~habit.spec.HabitatSpec` exposes three ordered chains:
 

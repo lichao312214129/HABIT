@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,23 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="choosing-the-distance-for-prototype-matching">
 <span id="sphx-glr-auto-examples-06-matching-plot-04-prototype-metrics-py"></span><h1>Choosing the distance for prototype matching<a class="headerlink" href="#choosing-the-distance-for-prototype-matching" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Prototype matching needs a rule for how far a habitat is
+from a prototype. The default compares feature values; the alternatives
+trade that for robustness to outliers or for comparing curve shape only.</p>
+<p><strong>Purpose.</strong> On synthetic habitats with known types you see which of the
+four distances names each type consistently, and when a shape-only
+distance cannot tell two habitats apart.</p>
+<p><strong>When to use.</strong> Only if the default <code class="docutils literal notranslate"><span class="pre">&quot;sqeuclidean&quot;</span></code> does not fit your
+features; most enhancement-based studies can keep the default.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>prototype</strong> – see
+<a class="reference internal" href="plot_03_prototype_steps.html"><span class="doc">Prototype matching step by step</span></a>.</p></li>
+<li><p><strong>metric</strong> – the distance used to compare a habitat’s summary row with
+a prototype.</p></li>
+<li><p><strong>outlier</strong> – a habitat whose values are far from the others of its
+type (here, one subject’s strong habitat doubled).</p></li>
+</ul>
 <p>The prototype matcher accepts four distances. Each comes with the
 prototype update that minimises it, so the loop still converges:</p>
 <table class="docutils align-default">
@@ -769,8 +786,11 @@ prototype but not a median one.</p></li>
 <section id="match-with-every-metric">
 <h2>Match with every metric<a class="headerlink" href="#match-with-every-metric" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">truth</span></code> is only used to score the result: a perfect naming puts each
-habitat type under exactly one prototype.</p>
+habitat type under exactly one prototype. The same five subjects are
+matched once per distance.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">results</span></a> <span class="o">=</span> <span class="p">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">metric</span></a><span class="p">:</span> <span class="n">match_rows_to_prototypes</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">blocks</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">metric</span></a><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">metric</span></a><span class="p">)</span> <span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">metric</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">PROTOTYPE_METRICS</span></a><span class="p">}</span>
+<span class="c1"># Purity: for each prototype name, count habitats of its most common true</span>
+<span class="c1"># type, then sum over names (20 = every habitat named consistently).</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">purity</span></a> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">metric</span></a><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">results</span></a><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.crosstab.html#pandas.crosstab" title="pandas.crosstab" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span></a><span class="p">(</span>
@@ -881,7 +901,7 @@ correlation only sees which feature is larger (r = +1 or -1).</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>correlation, 2 features, distances: [0. 2.]
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.985 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.946 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-06-matching-plot-04-prototype-metrics-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/38f4d3b3d7736f224a92db19913a840d/plot_04_prototype_metrics.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_04_prototype_metrics.ipynb</span></code></a></p>

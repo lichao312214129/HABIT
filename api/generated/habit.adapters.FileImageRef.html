@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -734,7 +734,7 @@ semantics downstream).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.adapters.FileImageRef.load_volume">
-<span class="sig-name descname"><span class="pre">load_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.ImageVolume.html#habit.contracts.ImageVolume" title="habit.contracts.image.ImageVolume"><span class="pre">ImageVolume</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="habit.contracts.MaskVolume.html#habit.contracts.MaskVolume" title="habit.contracts.image.MaskVolume"><span class="pre">MaskVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/adapters/image_refs.html#FileImageRef.load_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.adapters.FileImageRef.load_volume" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.image.ImageVolume.html#habit.image.ImageVolume" title="habit.contracts.image.ImageVolume"><span class="pre">ImageVolume</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="habit.image.MaskVolume.html#habit.image.MaskVolume" title="habit.contracts.image.MaskVolume"><span class="pre">MaskVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/adapters/image_refs.html#FileImageRef.load_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.adapters.FileImageRef.load_volume" title="Link to this definition"></a></dt>
 <dd><p>Materialise with full physical metadata in one read.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -748,7 +748,7 @@ reference was created for a mask file.</p>
 
 <section id="examples-using-habit-adapters-fileimageref">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.adapters.FileImageRef</span></code><a class="headerlink" href="#examples-using-habit-adapters-fileimageref" title="Link to this heading"></a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Point at one image file and one mask file (``.nii``, .nii.gz, .nrrd, .mha, .mhd). Change the paths below to your own files. One person and several people are each a Cohort."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Images and masks often sit as loose files (NIfTI, NRRD, MetaImage) rather than in the HABIT folder layout. HABIT can point at each file directly and reads the voxels only when a stage needs them."><img alt="" src="../../_images/sphx_glr_plot_04_nifti_files_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/01_data_in/plot_04_nifti_files.html"><span class="doc">Load from NIfTI files</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load from NIfTI files</div>
 </div></div><div style="clear:both"></div></section>

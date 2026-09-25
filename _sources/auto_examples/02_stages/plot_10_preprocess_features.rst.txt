@@ -21,17 +21,35 @@
 Preprocessing features before clustering
 ========================================
 
+**Background.** Raw intensities differ in range between phases and
+contain a few extreme voxels. The ``preprocess`` stage rescales the
+feature columns before clustering so that no single column dominates
+the distance.
+
+**Purpose.** You see the feature table and the histogram of one column
+before and after winsorize + min-max, then the habitat map built from
+the preprocessed features.
+
+**Key terms.**
+
+* **preprocess** stage -- rescales / transforms feature columns (e.g.
+  z-score, winsorize) so no column dominates the distance used by
+  clustering. The three chains are compared on
+  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`.
+* **winsorize** -- clips each column at its 5th and 95th percentile here.
+* **min-max** -- rescales each column to [0, 1].
+
 Input: a raw :class:`~habit.contracts.VoxelFeatureField`. Output: a
 :class:`~habit.contracts.HabitatMap` built from the preprocessed features.
 Stage: ``voxel_feature_preprocessors``, then ``partition``, ``fit``,
 ``assign``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-14
+.. GENERATED FROM PYTHON SOURCE LINES 30-32
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-47
+.. GENERATED FROM PYTHON SOURCE LINES 32-65
 
 .. code-block:: Python
 
@@ -116,11 +134,11 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-49
+.. GENERATED FROM PYTHON SOURCE LINES 66-67
 
 Histogram of the first feature before and after preprocessing.
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-59
+.. GENERATED FROM PYTHON SOURCE LINES 67-77
 
 .. code-block:: Python
 
@@ -146,12 +164,12 @@ Histogram of the first feature before and after preprocessing.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-62
+.. GENERATED FROM PYTHON SOURCE LINES 78-80
 
 Continue: put the scaled features back into a VoxelFeatureField,
 partition into supervoxels, fit a habitat model, and assign labels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-82
+.. GENERATED FROM PYTHON SOURCE LINES 80-102
 
 .. code-block:: Python
 
@@ -160,6 +178,8 @@ partition into supervoxels, fit a habitat model, and assign labels.
         produced_by="cohort_feature_preprocessor",
         spec_fingerprint=chain.spec.fingerprint,
     )
+    # Supervoxels are built on the scaled columns, so the preprocessing also
+    # shapes the patches, not only the final habitats.
     units = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)(scaled_field)
     fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
     fitter.set_random_state(0)
@@ -207,7 +227,7 @@ partition into supervoxels, fit a habitat model, and assign labels.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 27.084 seconds)
+   **Total running time of the script:** (0 minutes 25.352 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_10_preprocess_features.py:

@@ -21,18 +21,39 @@
 Partitioning a ROI into supervoxels
 ===================================
 
+**Background.** A tumour has tens of thousands of voxels. The two-step
+design first groups them, inside each subject, into small patches of
+similar voxels, so the cohort model later clusters a few rows per
+subject instead of every voxel.
+
+**Purpose.** You get about 100 supervoxels for one subject, a table with
+one mean feature vector per supervoxel, and an overlay showing the
+patches on the arterial image.
+
+**Key terms.**
+
+* **supervoxel** -- a small patch of neighbouring voxels with similar
+  features, clustered inside one subject first (``partition``), so the
+  cohort model clusters tens of rows per subject instead of every voxel,
+  which is faster and less noisy.
+* **partition** stage -- the stage that builds supervoxels; ``slic`` and
+  ``kmeans`` are two registered partitioners.
+* **SLIC** (simple linear iterative clustering) -- grows supervoxels from
+  a regular grid of seeds; ``compactness`` trades feature similarity
+  against spatial closeness (higher gives rounder, more regular patches).
+
 Input: a :class:`~habit.contracts.VoxelFeatureField`. Output: a
 :class:`~habit.contracts.Supervoxelization`. Stage: ``partition`` with
 ``slic``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-15
+.. GENERATED FROM PYTHON SOURCE LINES 32-36
 
 Load one subject
 ----------------
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-32
+.. GENERATED FROM PYTHON SOURCE LINES 36-53
 
 .. code-block:: Python
 
@@ -88,19 +109,21 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-37
+.. GENERATED FROM PYTHON SOURCE LINES 54-58
 
 Read intensities, then partition
 --------------------------------
 SLIC groups nearby voxels with similar intensity. Each row of
 ``units.features`` is the mean vector of one supervoxel.
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-43
+.. GENERATED FROM PYTHON SOURCE LINES 58-66
 
 .. code-block:: Python
 
     field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
     print(f"{field.values.shape[0]} voxels, columns: {list(field.feature_names)}")
+    # n_supervoxels is a target, not an exact count (SLIC may return a few
+    # more or fewer patches); compactness=10.0 is the default value.
     units = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)(field)
     print(f"n_supervoxels={len(units.features)}")
     print(units.features.head())
@@ -126,12 +149,12 @@ SLIC groups nearby voxels with similar intensity. Each row of
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-46
+.. GENERATED FROM PYTHON SOURCE LINES 67-69
 
 Supervoxel overlay
 ------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-55
+.. GENERATED FROM PYTHON SOURCE LINES 69-78
 
 .. code-block:: Python
 
@@ -166,7 +189,7 @@ Supervoxel overlay
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 24.858 seconds)
+   **Total running time of the script:** (0 minutes 25.276 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_12_supervoxels.py:

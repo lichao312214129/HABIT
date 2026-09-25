@@ -2,6 +2,23 @@
 Clustering habitats from a derived map
 ======================================
 
+**Background.** Habitats follow whatever columns the ``extract`` stage
+produces. Clustering derived DCE maps (enhancement and wash-out ratios)
+instead of raw intensities groups voxels by their enhancement pattern
+(contrast uptake and wash-out) rather than by absolute signal.
+
+**Purpose.** You get three habitats for one subject fitted directly on
+its voxels, a relative-enhancement map, and the habitat overlay.
+
+**Key terms.**
+
+* **derived map** -- see :doc:`/auto_examples/02_stages/plot_02_expression`.
+* **fit** / **assign** -- see
+  :doc:`/auto_examples/02_stages/plot_13_fit_model` and
+  :doc:`/auto_examples/02_stages/plot_14_assign_labels`.
+* **per-subject fit** -- the model is fitted on this one subject only, so
+  its habitat ids are not comparable with other patients.
+
 Input: one :class:`~habit.contracts.Subject` with the four DCE phases.
 Output: a :class:`~habit.contracts.HabitatMap`. The voxel field is
 :class:`~habit.voxel_features.ExpressionVoxelFeatures` (see
@@ -57,6 +74,7 @@ print(field.feature_frame().head())
 units = voxel_units(field)
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
 fitter.set_random_state(0)
+# A one-subject cohort: the habitats are defined inside this patient only.
 model = fitter.fit([units], cohort=Cohort([subject], name="one"))
 habitat_map = model.assigner()(units)
 print(model.summary())

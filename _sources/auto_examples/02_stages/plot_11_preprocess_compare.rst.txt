@@ -21,6 +21,25 @@
 Comparing habitat maps with and without preprocessing
 =====================================================
 
+**Background.** Preprocessing changes the distances k-means sees, so it
+can change the habitats. To see by how much, fit the same design twice,
+once with and once without preprocessing, and compare the two maps.
+
+**Purpose.** You get a table that pairs the habitat ids of the two fits
+with a Dice score per pair, two overlays on shared slices, and volume
+fractions per matched habitat for each subject on this demo.
+
+**Key terms.**
+
+* **preprocess** stage -- see
+  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`.
+* **label switching** -- independent clusterings number the same
+  habitat differently (habitat 1 in one fit can be habitat 3 in another),
+  so ids must be matched before comparing.
+* **Dice** -- overlap between two label maps (0 = none, 1 = identical).
+* **volume fraction** -- the share of ROI voxels that belong to one
+  habitat.
+
 Input: the same cohort, the same two-step design, the same ``k`` and
 seed. The only change is the voxel-feature preprocessor chain.
 
@@ -32,12 +51,12 @@ overlap counts). Centroid distance is not usable here: one model lives
 in raw-intensity space, the other in winsorised min-max space.
 Which matcher fits which situation: :doc:`/reference/habitat_matching`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-20
+.. GENERATED FROM PYTHON SOURCE LINES 37-39
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 20-95
+.. GENERATED FROM PYTHON SOURCE LINES 39-114
 
 .. code-block:: Python
 
@@ -150,12 +169,12 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-98
+.. GENERATED FROM PYTHON SOURCE LINES 115-117
 
 Two fits on the same cohort: one on raw intensities, one after
 winsorising and min-max scaling every feature.
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-105
+.. GENERATED FROM PYTHON SOURCE LINES 117-124
 
 .. code-block:: Python
 
@@ -174,15 +193,15 @@ winsorising and min-max scaling every feature.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.22s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.24s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.24s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.86it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.98it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.98it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.12s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.08s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.08s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.05it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.32it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.32it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.57it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.52it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.52it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.09s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.09s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.54it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.54it/s]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-112
+.. GENERATED FROM PYTHON SOURCE LINES 125-131
 
 Step 1 -- match habitat ids (before any comparison)
 ----------------------------------------------------
@@ -191,7 +210,7 @@ subject. Stack the voxels of all subjects into one long vector per fit
 and pair ids by maximal overlap on that pooled vector. ``dice`` scores
 how well each matched pair agrees (1 = identical voxels).
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-128
+.. GENERATED FROM PYTHON SOURCE LINES 131-149
 
 .. code-block:: Python
 
@@ -201,6 +220,8 @@ how well each matched pair agrees (1 = identical voxels).
     prepped_voxels = np.concatenate(
         [np.asarray(m.label_array).ravel() for m in prepped.habitat_maps]
     )
+    # mapping pairs each preprocessed id with the unpreprocessed id it
+    # overlaps most (one-to-one, Hungarian assignment).
     mapping = match_labels_by_overlap(plain_voxels, prepped_voxels)
 
     match_table = pd.DataFrame(
@@ -286,12 +307,12 @@ how well each matched pair agrees (1 = identical voxels).
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 129-131
+.. GENERATED FROM PYTHON SOURCE LINES 150-152
 
 Rename every preprocessed map into the unpreprocessed ids. From here on
 habitat ``H1`` means the same tissue in both fits.
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-138
+.. GENERATED FROM PYTHON SOURCE LINES 152-159
 
 .. code-block:: Python
 
@@ -309,7 +330,7 @@ habitat ``H1`` means the same tissue in both fits.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-144
+.. GENERATED FROM PYTHON SOURCE LINES 160-165
 
 Step 2 -- compare the maps of one subject
 -----------------------------------------
@@ -317,7 +338,7 @@ Both overlays share one crop (the union of the two label maps) and one
 axial / coronal / sagittal index, so they frame the same anatomy.
 Colours follow the matched ids.
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-169
+.. GENERATED FROM PYTHON SOURCE LINES 165-190
 
 .. code-block:: Python
 
@@ -366,11 +387,11 @@ Colours follow the matched ids.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 170-171
+.. GENERATED FROM PYTHON SOURCE LINES 191-192
 
 With preprocessing, same crop and the same slices.
 
-.. GENERATED FROM PYTHON SOURCE LINES 171-184
+.. GENERATED FROM PYTHON SOURCE LINES 192-205
 
 .. code-block:: Python
 
@@ -406,7 +427,7 @@ With preprocessing, same crop and the same slices.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-190
+.. GENERATED FROM PYTHON SOURCE LINES 206-211
 
 Step 3 -- compare volume fractions on the matched ids
 -----------------------------------------------------
@@ -414,7 +435,7 @@ One row per subject and habitat. Comparing fractions on the raw k-means
 ids (or on unmatched feature-table columns) would compare different
 habitats.
 
-.. GENERATED FROM PYTHON SOURCE LINES 190-227
+.. GENERATED FROM PYTHON SOURCE LINES 211-248
 
 .. code-block:: Python
 
@@ -482,7 +503,7 @@ habitats.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 8.607 seconds)
+   **Total running time of the script:** (0 minutes 8.724 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_11_preprocess_compare.py:

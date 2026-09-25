@@ -21,6 +21,35 @@
 Why habitat ids must be matched
 ===============================
 
+**Background.** Clustering algorithms such as k-means number their
+clusters in arbitrary order, so two fits of the same tumour can give the
+same region different habitat ids. Any comparison by id (Dice, volume per
+habitat, a cohort table) needs the ids matched first.
+
+**Purpose.** You get two k-means maps of one demo subject shown with raw
+and with matched ids, the voxel-overlap table that decides the pairing,
+and a per-habitat Dice table.
+
+**When to use.** Whenever two maps label the same voxels (a restart, a
+perturbed image, a second reader). For maps of different patients see
+:doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+
+**Key terms.**
+
+* **habitat** -- a sub-region inside the tumour (the ROI) whose voxels
+  behave alike across the input images; each ROI voxel gets a habitat id
+  (1, 2, 3, ...).
+* **label switching** -- independent clusterings number the same habitat
+  differently (habitat 1 in one fit can be habitat 3 in another), so ids
+  must be matched before comparing.
+* **overlap table** -- for every pair of habitats (one from each map), the
+  number of voxels they share.
+* **Hungarian assignment** -- an exact algorithm (Kuhn-Munkres, SciPy's
+  ``linear_sum_assignment``) that picks the one-to-one pairing of rows and
+  columns with the best total; here, the largest total shared voxels.
+* **Dice** -- overlap between two label maps or regions (0 = none,
+  1 = identical).
+
 Cluster the same tumour twice with the same features and the same ``k``,
 changing only the k-means random seed. The two maps describe the same
 tissue, but k-means numbers its clusters in arbitrary order, so habitat 1
@@ -31,7 +60,7 @@ Because both maps label the same voxels, the ids are matched by voxel
 overlap: count the voxels shared by every pair of habitats, then pick the
 one-to-one pairing with the largest total (Hungarian assignment).
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-22
+.. GENERATED FROM PYTHON SOURCE LINES 46-51
 
 Two k-means runs on one subject
 -------------------------------
@@ -39,7 +68,7 @@ Relative enhancement in the arterial (LAP) and portal-venous (PVP)
 phases, ``k = 3``, seeds 0 and 1.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 22-58
+.. GENERATED FROM PYTHON SOURCE LINES 51-89
 
 .. code-block:: Python
 
@@ -68,10 +97,12 @@ sphinx_gallery_thumbnail_number = 2
         },
         roi=ROI,
     )
+    # One row per ROI voxel; both runs cluster exactly these rows.
     units = voxel_units(extractor(subject))
 
     runs = []
     for seed in (0, 1):
+        # n_init=1: a single k-means start per seed, so only the seed differs.
         fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=1)
         fitter.set_random_state(seed)
         model = fitter.fit([units], cohort=Cohort([subject], name=subject.subject_id))
@@ -121,12 +152,12 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-61
+.. GENERATED FROM PYTHON SOURCE LINES 90-92
 
 Same centroids, different order: row 1 of seed 0 is row 3 of seed 1.
 Raw ids therefore disagree on most voxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-66
+.. GENERATED FROM PYTHON SOURCE LINES 92-97
 
 .. code-block:: Python
 
@@ -148,14 +179,14 @@ Raw ids therefore disagree on most voxels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-71
+.. GENERATED FROM PYTHON SOURCE LINES 98-102
 
 Raw ids side by side
 --------------------
 ``align_labels=False`` draws both maps as they came out of k-means: the
 colours differ although the regions are the same.
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-84
+.. GENERATED FROM PYTHON SOURCE LINES 102-115
 
 .. code-block:: Python
 
@@ -191,7 +222,7 @@ colours differ although the regions are the same.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-91
+.. GENERATED FROM PYTHON SOURCE LINES 116-122
 
 The overlap table decides the pairing
 -------------------------------------
@@ -200,7 +231,7 @@ habitat ``j`` (seed 0). The outlined cells are the Hungarian pairs:
 every habitat gets exactly one partner and the outlined total is the
 largest possible.
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-95
+.. GENERATED FROM PYTHON SOURCE LINES 122-126
 
 .. code-block:: Python
 
@@ -220,7 +251,7 @@ largest possible.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-101
+.. GENERATED FROM PYTHON SOURCE LINES 127-132
 
 Rename seed 1 into the seed-0 ids
 ---------------------------------
@@ -228,7 +259,7 @@ Both runs share a ``model_id`` (it digests the spec and subject, not the
 random seed), so :func:`~habit.precision.align_habitat_map` would treat
 them as one definition and do nothing. ``force=True`` aligns anyway.
 
-.. GENERATED FROM PYTHON SOURCE LINES 101-117
+.. GENERATED FROM PYTHON SOURCE LINES 132-148
 
 .. code-block:: Python
 
@@ -269,7 +300,7 @@ them as one definition and do nothing. ``force=True`` aligns anyway.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-123
+.. GENERATED FROM PYTHON SOURCE LINES 149-154
 
 Dice per habitat
 ----------------
@@ -277,7 +308,7 @@ Dice per habitat
 overlap rule and scores each pair. Pass the *original* moving map; it
 matches internally.
 
-.. GENERATED FROM PYTHON SOURCE LINES 123-126
+.. GENERATED FROM PYTHON SOURCE LINES 154-157
 
 .. code-block:: Python
 
@@ -365,7 +396,7 @@ matches internally.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.521 seconds)
+   **Total running time of the script:** (0 minutes 3.507 seconds)
 
 
 .. _sphx_glr_download_auto_examples_06_matching_plot_01_label_switching.py:

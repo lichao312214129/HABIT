@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,31 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="a-complete-habitat-analysis">
 <span id="sphx-glr-auto-examples-00-full-pipeline-plot-01-full-pipeline-py"></span><h1>A complete habitat analysis<a class="headerlink" href="#a-complete-habitat-analysis" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A tumour is not uniform: some parts enhance strongly,
+some wash out, some are necrotic. Habitat analysis splits the ROI into
+a few sub-regions (habitats) whose voxels behave alike across the DCE
+phases, using one definition shared by every patient, and then
+describes each patient by how much of each habitat they have and how
+the habitats are arranged.</p>
+<p><strong>Purpose.</strong> You will fit habitats on two demo patients, pick the
+number of habitats with the elbow rule, view the habitat maps, get a
+one-row-per-patient feature table (volume fractions, MSI, ITH, graph),
+save the model as a <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> file, and label a third patient
+with it.</p>
+<p><strong>Key terms.</strong> Each term has its own page later in the Guide; the
+beginner definitions are on <a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>.</p>
+<ul class="simple">
+<li><p><strong>supervoxel</strong> – a small patch of similar neighbouring voxels,
+clustered inside each patient first so the cohort model has fewer,
+less noisy rows.</p></li>
+<li><p><strong>pool / fit / assign</strong> – stack all patients’ supervoxels, learn the
+habitat centroids once, then give every voxel the id of its nearest
+centroid.</p></li>
+<li><p><strong>MSI</strong> – how often each pair of habitats touch; <strong>ITH score</strong> –
+how fragmented the habitats are (0 = one blob each).</p></li>
+<li><p><strong>.habitatmodel</strong> – the saved habitat definition; loading it labels
+new patients without refitting.</p></li>
+</ul>
 <p>One <a class="reference internal" href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> declares the whole study. One
 <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> runs it. The stage list below is the same two-step
 analysis as <a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>: raw DCE
@@ -828,14 +853,14 @@ voxels are clustered directly (direct pooling). Those two designs are
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:05&lt;00:05,  5.99s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07&lt;00:00,  3.72s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07&lt;00:00,  3.72s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:06&lt;00:06,  6.07s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07&lt;00:00,  3.88s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07&lt;00:00,  3.88s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.42s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.14s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.14s/it]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.66s/it]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.23s/it]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.23s/it]
 HabitatModel kmeans-3432f3b65bfec11a
   habitats           : 5
   features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -971,13 +996,13 @@ not refit. The new patient gets the training centroids.</p>
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_01_full_pipeline_010.png" srcset="../../_images/sphx_glr_plot_01_full_pipeline_010.png" alt="subj003: habitats from the saved model, Axis 0 (axial-like) @ 46, Axis 1 (coronal-like) @ 121, Axis 2 (sagittal-like) @ 200" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.05s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.05s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.25s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.25s/it]
 F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 19.922 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 20.449 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-00-full-pipeline-plot-01-full-pipeline-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/d4bd5ccc60b2bdad041ffb063b3dfa49/plot_01_full_pipeline.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_full_pipeline.ipynb</span></code></a></p>

@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -687,6 +687,11 @@
              
   <section id="precise-feature-screening">
 <span id="sphx-glr-auto-examples-08-precision"></span><h1>8. Precise Feature Screening<a class="headerlink" href="#precise-feature-screening" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Some voxel features change a lot when the same tumour is
+rescanned or computed with slightly different settings; habitats built on
+them are unstable. <strong>Purpose.</strong> Keep only features that agree under a
+simulated retest and across settings (measured by ICC), then check whether
+habitats built on them are more stable on this demo.</p>
 <p>Repeatability and reproducibility screening (Prior et al., 2024):
 simulated image retest perturbation (noise, translation, rotation) and
 ROI contour edge perturbation, evaluated across kernel radii and bin
@@ -695,7 +700,7 @@ widths with multi-panel ICC forest plots.</p>
 without the precise whitelist under the Appendix S2 retest: without
 precise, original and perturbed habitat maps disagree; with precise, mean
 Dice rises and labelled-voxel disagreement falls on this demo (modestly).</p>
-<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Decide which voxel features may define habitats, then cluster only those robust features. This is the Prior et al. precision screen (Radiol Artif Intell 2024;6(2):e230118; DOI)."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. A voxel feature is only useful for habitats if it gives nearly the same value when the same tumour is imaged again and when its computation settings change slightly. Precise screening measures this and keeps only the features that pass."><img alt="" src="../../_images/sphx_glr_plot_01_precise_features_thumb.png" />
 <p><a class="reference internal" href="plot_01_precise_features.html"><span class="doc">Precise voxel features</span></a></p>
   <div class="sphx-glr-thumbnail-title">Precise voxel features</div>
 </div></div><div class="toctree-wrapper compound">

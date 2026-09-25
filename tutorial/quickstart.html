@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -686,6 +686,24 @@
              
   <section id="quickstart-run-the-demo-yaml-cli">
 <h1>Quickstart: run the demo (YAML + CLI)<a class="headerlink" href="#quickstart-run-the-demo-yaml-cli" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A habitat map paints every voxel inside the tumour with a
+habitat id, so the tumour is split into sub-regions that behave alike across
+the input images.</p>
+<p><strong>Purpose.</strong> Run the two-step demo from a YAML file with the <code class="docutils literal notranslate"><span class="pre">habit</span></code>
+command and get habitat maps plus a habitat feature table under
+<code class="docutils literal notranslate"><span class="pre">demo_data/results/</span></code>.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>habitat</strong> – a sub-region inside the tumour (the ROI) whose voxels
+behave alike across the input images; HABIT paints each ROI voxel with a
+habitat id (1, 2, 3, …).</p></li>
+<li><p><strong>YAML config</strong> – a text file that lists the analysis stages and says
+where to read the data and write the results;
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">&lt;file&gt;</span></code> runs it.</p></li>
+<li><p><strong>two-step</strong> – each tumour is first cut into supervoxels, then the
+supervoxels of all subjects are clustered together once, so habitat ids
+mean the same thing in every patient.</p></li>
+</ul>
 <p>No Python required. Install first (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>).
 You do <strong>not</strong> need a git clone: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> is enough.</p>
 <section id="work-directory-and-demo-configs">

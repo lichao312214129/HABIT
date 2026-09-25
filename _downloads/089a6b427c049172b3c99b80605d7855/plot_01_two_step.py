@@ -2,6 +2,31 @@
 Defining habitats in two steps
 ==============================
 
+**Background.** The two-step design is the complete analysis used across
+this Guide: each tumour is
+first cut into supervoxels, then the supervoxels of all subjects are
+clustered together once, so habitat ids mean the same thing in every
+patient.
+
+**Purpose.** You get one shared habitat model, a habitat map and a
+volume-fraction table per subject, a supervoxel / habitat triptych, and an
+elbow plot for choosing the habitat count.
+
+**When to use.** You want habitats that are comparable across patients
+(e.g. volume fractions as cohort features) and whole-cohort voxel
+clustering would be slow or noisy.
+
+**Key terms.**
+
+* **supervoxel** -- a small patch of neighbouring voxels with similar
+  features, clustered inside one subject first (``partition``); see
+  :doc:`/auto_examples/02_stages/plot_12_supervoxels`.
+* **pool** -- stacks every training subject's rows into one matrix so one
+  model is fitted to the whole cohort.
+* **SLIC** -- a supervoxel method that grows compact regions from a regular
+  grid of seeds, trading intensity similarity against spatial distance.
+* **elbow** -- see :doc:`/auto_quickstart/plot_quickstart_python`.
+
 Input: a cohort of at least two subjects. Output: one shared
 :class:`~habit.contracts.HabitatModel` and one
 :class:`~habit.contracts.HabitatMap` per subject. The design is the
@@ -61,9 +86,11 @@ spec = HabitatSpec(
         # quantify: per-subject volume fractions of those ids.
         Stage("volume", Spec("volume")),
     ),
-    # Seeds partition and fit so a rerun paints the same map.
+    # Seeds the stochastic stages (here the k-means fit) so a rerun paints the same map.
     random_seed=0,
 )
+# fit_predict: learn the shared centroids on the cohort, then label every
+# subject with them in the same call.
 result = Study(spec).fit_predict(cohort)
 print(result.habitat_model.summary())
 print(result.features.frame)
@@ -95,6 +122,8 @@ elbow_spec = HabitatSpec(
     random_seed=0,
 )
 elbow = Study(elbow_spec).fit_predict(cohort)
+# The fitter stores its per-count scores inside the model, so the chosen
+# count can be audited later.
 report = (elbow.habitat_model.preprocessing_state or {}).get("selection_report")
 print(elbow.habitat_model.summary())
 fig_k = plot_cluster_validation_from_report(report)

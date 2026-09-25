@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,26 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="feature-preprocessing">
 <span id="sphx-glr-auto-examples-02-stages-plot-04-feature-preprocessing-py"></span><h1>Feature preprocessing<a class="headerlink" href="#feature-preprocessing" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> k-means groups rows by distance, so a column with large
+numbers (or a few extreme voxels) can decide the habitats on its own.
+Preprocessing rescales or clips the feature columns first; HABIT lets you
+do this at three points of the two-step analysis.</p>
+<p><strong>Purpose.</strong> You see the same rows before and after each chain (voxel,
+supervoxel, cohort), the fitted cohort state stored on the model, a chain
+diagram, and the resulting habitat overlay.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>preprocess</strong> stage – rescales / transforms feature columns (e.g.
+z-score, winsorize) so no column dominates the distance used by
+clustering.</p></li>
+<li><p><strong>z-score / min-max / winsorize / binning</strong> – subtract the mean and
+divide by the SD; rescale to [0, 1]; clip the lowest and highest 5 %
+here; replace values by bin indices.</p></li>
+<li><p><strong>cohort state</strong> – numbers a cohort chain learns on the pooled
+training rows (e.g. bin edges); they are saved with the
+<code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> so new subjects are transformed the same way.</p></li>
+<li><p><strong>supervoxel</strong> – see <a class="reference internal" href="plot_12_supervoxels.html"><span class="doc">Partitioning a ROI into supervoxels</span></a>.</p></li>
+</ul>
 <p>Clustering operates on <strong>preprocessed feature matrices</strong>, not raw
 intensities. <a class="reference internal" href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> exposes three ordered chains:</p>
 <ul class="simple">
@@ -785,7 +805,7 @@ z-score. Cohort: uniform binning (fitted on pooled training units).</p>
 <a href="../../api/generated/habit.pipeline.SubjectPipeline.html#habit.pipeline.SubjectPipeline" title="habit.pipeline.SubjectPipeline" class="sphx-glr-backref-module-habit-pipeline sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pipe</span></a> <span class="o">=</span> <span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\examples\guide\02_stages\plot_04_feature_preprocessing.py:52: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 3.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\examples\guide\02_stages\plot_04_feature_preprocessing.py:74: HabitDeprecationWarning: HabitatSpec named-field constructor is deprecated since version 2.0.0 and will be removed in version 4.0.0. Use HabitatSpec(..., stages=(Stage(...), ...)) instead. Named-field YAML / from_dict payloads still load and keep their historical fingerprints.
   spec = HabitatSpec(
 </pre></div>
 </div>
@@ -1101,14 +1121,14 @@ replays that fitted chain at assign (one subject shown here).</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.13s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.09s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.09s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.11s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.04s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.04s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.66it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.69it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.69it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.73it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.73it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.73it/s]
 HabitatModel kmeans-ffce5e56f4bce59d
   habitats           : 3
   features (2)    : LAP, PVP
@@ -1223,7 +1243,7 @@ the resulting habitat map.</p>
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.556 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.446 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-stages-plot-04-feature-preprocessing-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/363dd066f76cd0bde941f7d2bbc700c3/plot_04_feature_preprocessing.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_04_feature_preprocessing.ipynb</span></code></a></p>

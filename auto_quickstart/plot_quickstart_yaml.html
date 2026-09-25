@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -691,6 +691,20 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="quickstart-yaml">
 <span id="sphx-glr-auto-quickstart-plot-quickstart-yaml-py"></span><h1>Quickstart: YAML<a class="headerlink" href="#quickstart-yaml" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> A YAML file is a plain-text way to write the same stage list
+you would build in Python, so an analysis can be run from the shell, shared,
+and kept next to the results.</p>
+<p><strong>Purpose.</strong> You get the two-step habitat maps and a volume-fraction / MSI /
+ITH table from a YAML file, plus one habitat overlay.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>YAML config</strong> – a text file whose <code class="docutils literal notranslate"><span class="pre">spec:</span></code> block is a
+<code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> (<code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>, <code class="docutils literal notranslate"><span class="pre">stages</span></code>), and whose
+<code class="docutils literal notranslate"><span class="pre">data:</span></code> / <code class="docutils literal notranslate"><span class="pre">output:</span></code> blocks say where to read subjects and write results.</p></li>
+<li><p><strong>Stage / Spec / HabitatSpec</strong> – see
+<a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>; each YAML stage entry is
+one <code class="docutils literal notranslate"><span class="pre">Stage</span></code>, and its <code class="docutils literal notranslate"><span class="pre">component</span></code> is the <code class="docutils literal notranslate"><span class="pre">Spec</span></code>.</p></li>
+</ul>
 <p>The same two-step analysis as <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>, written as a
 YAML file. <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">&lt;file&gt;</span></code> runs it from the shell;
 <a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.run_from_yaml()</span></code></a> is the Python call behind that
@@ -753,6 +767,8 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_text" title="pathlib.Path.read_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">yaml_path</span><span class="o">.</span><span class="n">read_text</span></a><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
 
+<span class="c1"># run_from_yaml parses the file into a HabitatSpec plus a cohort and runs</span>
+<span class="c1"># it -- the same call ``habit get-habitat`` makes.</span>
 <a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span></a> <span class="o">=</span> <a href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><span class="n">recipes</span><span class="o">.</span><span class="n">run_from_yaml</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">yaml_path</span></a><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
 <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">set_index</span></a><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">)</span>
@@ -812,20 +828,20 @@ output:
 Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored=&#39;2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160&#39;, current=&#39;61f6e8d3d7ec436881357ce5cc68b1f62ac51070c0d01dad8703deba121f093a&#39;. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:00&lt;00:00, 11.09it/s]
-Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:00&lt;00:00, 11.36it/s]
-Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:00&lt;00:00, 11.89it/s]
-Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:00&lt;00:00, 12.11it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00&lt;00:00, 11.84it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00&lt;00:00, 11.84it/s]
+Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:00&lt;00:00, 10.25it/s]
+Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:00&lt;00:00, 10.81it/s]
+Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:00&lt;00:00, 10.57it/s]
+Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:00&lt;00:00, 10.54it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00&lt;00:00, 10.23it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00&lt;00:00, 10.23it/s]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:00,  5.38it/s]
-Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:00,  5.13it/s]
-Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00&lt;00:00,  5.22it/s]
-Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:00&lt;00:00,  5.08it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  4.94it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01&lt;00:00,  4.94it/s]
+Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:00,  6.56it/s]
+Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:00,  6.11it/s]
+Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00&lt;00:00,  6.11it/s]
+Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:00&lt;00:00,  6.12it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:00&lt;00:00,  6.03it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:00&lt;00:00,  6.03it/s]
 HabitatModel kmeans-b116f5fc90857e1b
   habitats           : 4
   features (4)    : LAP, pre_contrast, PVP, delay_3min
@@ -866,7 +882,7 @@ subj005                      0.518                      0.000                   
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.610 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.574 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-quickstart-plot-quickstart-yaml-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/c284b1fa506e8b75c41fc4b328f96ec0/plot_quickstart_yaml.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_quickstart_yaml.ipynb</span></code></a></p>

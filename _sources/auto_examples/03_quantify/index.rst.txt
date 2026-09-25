@@ -5,6 +5,11 @@
 3. Habitat Quantification
 =========================
 
+**Background.** A habitat map is a picture; statistics and prediction models
+need numbers. **Purpose.** Each page turns one subject's habitat map into a
+row of features (sizes, spatial mixing, fragmentation, network shape,
+radiomics, embeddings) that you can join to outcomes downstream.
+
 These metrics are the quantify stages of the
 :doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
 (volume, MSI, ITH, graph). Each page refits a small cohort so it can be
@@ -29,7 +34,7 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Atomic volume metrics from a habitat label map: habitat_volume_fractions and habitat_region_stats.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The simplest habitat number is how much of the tumour each habitat occupies. Volume fractions let you ask, for example, whether a larger share of one habitat goes with a worse outcome.">
 
 .. only:: html
 
@@ -46,7 +51,7 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Atomic MSI from a habitat label map (Wu et al., Radiology 2018): spatial_interaction_matrix and msi_features_from_matrix.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Two tumours can have the same habitat fractions but a different spatial arrangement: habitats mixed together, or kept apart. MSI measures that arrangement by counting which habitats touch which.">
 
 .. only:: html
 
@@ -63,7 +68,7 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Atomic ITH metrics from a habitat label map: ith_score and habitat_ith_dispersion.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Intratumoral heterogeneity (ITH) describes how mixed a tumour is. Here it is measured from the habitat map as fragmentation: do habitats form a few compact blobs, or many scattered pieces?">
 
 .. only:: html
 
@@ -80,7 +85,7 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="After a habitat map exists, extract_graph_features summarises region topology (lattice nodes, closest-voxel edges). The same family is available as the scikit-learn-style component GraphHabitatFeatures, or as Spec(&quot;graph&quot;) on a study.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat map can also be read as a network: small pieces of habitat are the nodes, and pieces lying close together are linked. Network statistics then describe whether a habitat is one well-connected mass or a scatter of isolated islands, and how two habitats interleave.">
 
 .. only:: html
 
@@ -97,7 +102,7 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Extract first-order and GLCM features within each habitat subregion using EachHabitatRadiomicsFeatures.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Classic radiomics computes intensity and texture features over the whole tumour. Per-habitat radiomics computes the same PyRadiomics features separately inside each habitat, so every sub-region gets its own intensity and texture description.">
 
 .. only:: html
 
@@ -114,7 +119,7 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Quantify the shape and spatial distribution of the partition map itself using WholeHabitatRadiomicsFeatures. The habitat label image plays both intensity and mask roles.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Per-habitat radiomics describes the MRI inside each habitat. Whole-habitat radiomics instead describes the habitat map itself: the label image (habitat ids as grey values) is fed to PyRadiomics as the image, and the whole labelled region as the mask.">
 
 .. only:: html
 
@@ -131,7 +136,7 @@ whole-habitat radiomics, and deep-learning masked embeddings.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Bridge HABIT habitat maps to deep-learning pipelines: extract a binary mask per habitat and apply masked spatial average pooling on a 3-D feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch encoder output with the same (C, z, y, x) layout).">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Deep-learning encoders turn an image into a stack of feature maps (channels). Averaging those channels inside each habitat gives every habitat a learned descriptor that can sit next to hand-crafted radiomics in a downstream model.">
 
 .. only:: html
 

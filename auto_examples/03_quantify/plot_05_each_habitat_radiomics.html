@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -693,6 +693,27 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="per-habitat-radiomics">
 <span id="sphx-glr-auto-examples-03-quantify-plot-05-each-habitat-radiomics-py"></span><h1>Per-habitat radiomics<a class="headerlink" href="#per-habitat-radiomics" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Classic radiomics computes intensity and texture features
+over the whole tumour. Per-habitat radiomics computes the same PyRadiomics
+features separately inside each habitat, so every sub-region gets its own
+intensity and texture description.</p>
+<p><strong>Purpose.</strong> You get one row per subject with columns
+<code class="docutils literal notranslate"><span class="pre">habitat_{id}_{feature}_of_{modality}</span></code> (plus <code class="docutils literal notranslate"><span class="pre">has_habitat_{id}</span></code>), maps
+of voxel-wise GLCM Id inside each habitat, and a bar chart comparing the
+habitats feature by feature.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>first-order feature</strong> – a statistic of the voxel intensities alone
+(e.g. <code class="docutils literal notranslate"><span class="pre">Mean</span></code>, <code class="docutils literal notranslate"><span class="pre">Energy</span></code>), ignoring their spatial arrangement.</p></li>
+<li><p><strong>GLCM feature</strong> – texture from the grey-level co-occurrence matrix, i.e.
+how often pairs of neighbouring voxels share grey levels (e.g. <code class="docutils literal notranslate"><span class="pre">Id</span></code>).</p></li>
+<li><p><strong>binWidth</strong> – width of the intensity bins used before texture features;
+bins are set per habitat, as in PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute(label=id)</span></code>.</p></li>
+<li><p><strong>one-step habitats</strong> – see
+<a class="reference internal" href="../04_designs/plot_02_inside_each_subject.html"><span class="doc">Defining habitats inside each subject</span></a>; match ids
+before comparing <code class="docutils literal notranslate"><span class="pre">habitat_1_*</span></code> across patients
+(<a class="reference internal" href="../06_matching/plot_07_match_labels.html"><span class="doc">Matching habitat labels across subjects</span></a>).</p></li>
+</ul>
 <p>Extract first-order and GLCM features <strong>within each habitat subregion</strong>
 using <a class="reference internal" href="../../api/generated/habit.habitat_features.EachHabitatRadiomicsFeatures.html#habit.habitat_features.EachHabitatRadiomicsFeatures" title="habit.habitat_features.EachHabitatRadiomicsFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">EachHabitatRadiomicsFeatures</span></code></a>.</p>
 <p>One-step habitats, then per-habitat PyRadiomics on the intensity image.
@@ -730,6 +751,7 @@ sphinx_gallery_thumbnail_number = 1</p>
     <span class="p">},</span>
     <span class="s2">&quot;setting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;binWidth&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;voxelArrayShift&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
 <span class="p">}</span>
+<span class="c1"># One PyRadiomics pass per habitat id, using the habitat map as the mask.</span>
 <a href="../../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_features.EachHabitatRadiomicsFeatures.html#habit.habitat_features.EachHabitatRadiomicsFeatures" title="habit.habitat_features.EachHabitatRadiomicsFeatures" class="sphx-glr-backref-module-habit-habitat_features sphx-glr-backref-type-py-class"><span class="n">EachHabitatRadiomicsFeatures</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">params</span></a><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">params</span></a><span class="p">)(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a><span class="p">)</span>
 <a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">row</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="pandas.DataFrame.iloc" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-property"><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">iloc</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">display_cols</span></a> <span class="o">=</span> <span class="p">[</span>
@@ -766,8 +788,8 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.25s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.25s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.21s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.21s/it]
 Per-habitat radiomics (sample columns):
 habitat_1_original_firstorder_Mean_of_LAP            864.629175
 habitat_1_original_firstorder_Energy_of_LAP       10697090209.0
@@ -839,41 +861,41 @@ habitat, these maps use a 3x3x3 kernel around each voxel.</p>
 <li><img src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_002.png" srcset="../../_images/sphx_glr_plot_05_each_habitat_radiomics_002.png" alt="habitat 2 GLCM Id" class = "sphx-glr-multi-img"/></li>
 <li><img src="../../_images/sphx_glr_plot_05_each_habitat_radiomics_003.png" srcset="../../_images/sphx_glr_plot_05_each_habitat_radiomics_003.png" alt="habitat 3 GLCM Id" class = "sphx-glr-multi-img"/></li>
 </ul>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>voxel_radiomics: glcm batch 1/35 0.098s peak=38MiB
-voxel_radiomics: glcm batch 2/35 0.077s peak=39MiB
-voxel_radiomics: glcm batch 3/35 0.072s peak=40MiB
-voxel_radiomics: glcm batch 4/35 0.065s peak=40MiB
-voxel_radiomics: glcm batch 5/35 0.078s peak=41MiB
-voxel_radiomics: glcm batch 6/35 0.026s peak=42MiB
-voxel_radiomics: glcm batch 7/35 0.015s peak=43MiB
-voxel_radiomics: glcm batch 8/35 0.015s peak=44MiB
-voxel_radiomics: glcm batch 9/35 0.014s peak=45MiB
-voxel_radiomics: glcm batch 10/35 0.014s peak=46MiB
-voxel_radiomics: glcm batch 11/35 0.015s peak=47MiB
-voxel_radiomics: glcm batch 12/35 0.015s peak=48MiB
-voxel_radiomics: glcm batch 13/35 0.014s peak=49MiB
-voxel_radiomics: glcm batch 14/35 0.014s peak=49MiB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>voxel_radiomics: glcm batch 1/35 0.208s peak=38MiB
+voxel_radiomics: glcm batch 2/35 0.015s peak=39MiB
+voxel_radiomics: glcm batch 3/35 0.019s peak=40MiB
+voxel_radiomics: glcm batch 4/35 0.020s peak=40MiB
+voxel_radiomics: glcm batch 5/35 0.016s peak=41MiB
+voxel_radiomics: glcm batch 6/35 0.017s peak=42MiB
+voxel_radiomics: glcm batch 7/35 0.017s peak=43MiB
+voxel_radiomics: glcm batch 8/35 0.019s peak=44MiB
+voxel_radiomics: glcm batch 9/35 0.018s peak=45MiB
+voxel_radiomics: glcm batch 10/35 0.017s peak=46MiB
+voxel_radiomics: glcm batch 11/35 0.019s peak=47MiB
+voxel_radiomics: glcm batch 12/35 0.018s peak=48MiB
+voxel_radiomics: glcm batch 13/35 0.016s peak=49MiB
+voxel_radiomics: glcm batch 14/35 0.016s peak=49MiB
 voxel_radiomics: glcm batch 15/35 0.015s peak=50MiB
-voxel_radiomics: glcm batch 16/35 0.015s peak=51MiB
+voxel_radiomics: glcm batch 16/35 0.016s peak=51MiB
 voxel_radiomics: glcm batch 17/35 0.015s peak=52MiB
-voxel_radiomics: glcm batch 18/35 0.014s peak=53MiB
-voxel_radiomics: glcm batch 19/35 0.016s peak=54MiB
+voxel_radiomics: glcm batch 18/35 0.017s peak=53MiB
+voxel_radiomics: glcm batch 19/35 0.015s peak=54MiB
 voxel_radiomics: glcm batch 20/35 0.015s peak=55MiB
-voxel_radiomics: glcm batch 21/35 0.016s peak=56MiB
+voxel_radiomics: glcm batch 21/35 0.015s peak=56MiB
 voxel_radiomics: glcm batch 22/35 0.015s peak=57MiB
-voxel_radiomics: glcm batch 23/35 0.015s peak=58MiB
-voxel_radiomics: glcm batch 24/35 0.017s peak=1MiB
+voxel_radiomics: glcm batch 23/35 0.017s peak=58MiB
+voxel_radiomics: glcm batch 24/35 0.015s peak=1MiB
 voxel_radiomics: glcm batch 25/35 0.015s peak=2MiB
 voxel_radiomics: glcm batch 26/35 0.016s peak=3MiB
-voxel_radiomics: glcm batch 27/35 0.015s peak=4MiB
+voxel_radiomics: glcm batch 27/35 0.014s peak=4MiB
 voxel_radiomics: glcm batch 28/35 0.015s peak=4MiB
-voxel_radiomics: glcm batch 29/35 0.016s peak=5MiB
+voxel_radiomics: glcm batch 29/35 0.014s peak=5MiB
 voxel_radiomics: glcm batch 30/35 0.015s peak=6MiB
 voxel_radiomics: glcm batch 31/35 0.015s peak=7MiB
 voxel_radiomics: glcm batch 32/35 0.015s peak=8MiB
-voxel_radiomics: glcm batch 33/35 0.016s peak=9MiB
-voxel_radiomics: glcm batch 34/35 0.015s peak=10MiB
-voxel_radiomics: glcm batch 35/35 0.014s peak=11MiB
+voxel_radiomics: glcm batch 33/35 0.015s peak=9MiB
+voxel_radiomics: glcm batch 34/35 0.014s peak=10MiB
+voxel_radiomics: glcm batch 35/35 0.015s peak=11MiB
 F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   direction, spacing = resolve_display_geometry(
 </pre></div>
@@ -944,7 +966,7 @@ must not share a single y-axis — Energy dominates and hides the rest).</p>
      H3 GLCM Id 5.060708e-01
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.030 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.053 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-quantify-plot-05-each-habitat-radiomics-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/8024faecadb1a60c03dfbd44e5379e58/plot_05_each_habitat_radiomics.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_05_each_habitat_radiomics.ipynb</span></code></a></p>

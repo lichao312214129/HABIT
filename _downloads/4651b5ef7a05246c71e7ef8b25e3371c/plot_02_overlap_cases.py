@@ -2,6 +2,23 @@
 Matching maps of the same voxels by overlap
 ===========================================
 
+**Background.** When two habitat maps cover the same voxels, their ids can
+be matched by counting shared voxels alone, even if the two fits used a
+different number of habitats or different features.
+
+**Purpose.** You see three matched comparisons on one demo subject (3 vs 4
+habitats, two feature sets, five k-means restarts) and a per-habitat Dice
+plot that shows which habitats are stable over restarts.
+
+**Key terms.**
+
+* **label switching**, **overlap table**, **Hungarian assignment** -- see
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`.
+* **restart** -- rerunning k-means with another random seed on the same
+  data.
+* **Dice** -- overlap between two label maps or regions (0 = none,
+  1 = identical).
+
 Voxel overlap is the matcher whenever two maps label **the same voxels**:
 a k-means restart, another ``k``, another feature set, a perturbed image,
 a second reader. It needs no features at all, only the two label images,
@@ -52,6 +69,7 @@ enhancement = voxel_units(
         roi=ROI,
     )(subject)
 )
+# Second feature set on the same voxels: raw LAP / PVP signal, not ratios.
 raw_signal = voxel_units(RawVoxelFeatures(modalities=("LAP", "PVP"), roi=ROI)(subject))
 
 
@@ -90,6 +108,8 @@ fig = plot_label_overlap_matrix(
 fig.savefig("out/overlap_k3_vs_k4.png", dpi=150, bbox_inches="tight")
 plt.show()
 
+# force=True: align even if both maps carry the same model_id (maps with one
+# model_id are otherwise returned unchanged; see the label-switching page).
 aligned_k4 = align_habitat_map(map_k3, map_k4, force=True)
 print("k=4 ids after matching:", aligned_k4.habitat_ids)
 

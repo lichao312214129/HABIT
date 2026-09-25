@@ -2,6 +2,31 @@
 Graph features
 ===============
 
+**Background.** A habitat map can also be read as a network: small pieces
+of habitat are the nodes, and pieces lying close together are linked. Network
+statistics then describe whether a habitat is one well-connected mass or a
+scatter of isolated islands, and how two habitats interleave.
+
+**Purpose.** You get one row of graph features per subject: first from the
+study (before id alignment), then from the kernel function and from the
+component after aligning habitat ids across the two subjects. Overlay,
+lattice and network figures show one slice.
+
+**Key terms.**
+
+* **node** -- the tumour bounding box is cut into cubes of ``block_size``
+  voxels per side (8 here); inside each cube, every connected piece of a
+  habitat becomes one node, placed at that piece's centroid.
+* **edge** -- two nodes are linked when their closest voxels are at most
+  ``distance_threshold`` voxels apart (default 5, in voxels, not mm).
+* **single / pair graph** -- ``single_h*`` columns use the nodes of one
+  habitat; ``pair_h*_*`` columns use the nodes of two habitats together.
+  Each graph yields statistics such as ``n_nodes``, ``n_edges``,
+  ``avg_degree`` and ``avg_edge_distance``.
+* **one-step habitats / matching** -- see
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject` and
+  :doc:`/auto_examples/06_matching/plot_07_match_labels`.
+
 After a habitat map exists, :func:`~habit.kernels.extract_graph_features`
 summarises region topology (lattice nodes, closest-voxel edges).
 The same family is available as the scikit-learn-style component
@@ -57,6 +82,8 @@ result = one_step_habitat(
     n_habitats=3,
     random_seed=0,
     roi=ROI,
+    # Quantify inside the study: volume plus graph features. Extended
+    # metrics (efficiency, small-world, ...) are switched off to stay short.
     habitat_features=[
         "volume",
         Spec("graph", {"include_extended_metrics": False}),
@@ -88,6 +115,7 @@ rows = []
 for subject, habitat_map in zip(cohort, aligned_maps):
     feats = extract_graph_features(
         habitat_map.label_array,
+        # Report every habitat id, even if absent, so columns match across subjects.
         expected_labels=habitat_map.habitat_ids,
         block_size=8,
         include_extended_metrics=False,

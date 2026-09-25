@@ -21,6 +21,22 @@
 Quickstart: YAML
 ================
 
+**Background.** A YAML file is a plain-text way to write the same stage list
+you would build in Python, so an analysis can be run from the shell, shared,
+and kept next to the results.
+
+**Purpose.** You get the two-step habitat maps and a volume-fraction / MSI /
+ITH table from a YAML file, plus one habitat overlay.
+
+**Key terms.**
+
+* **YAML config** -- a text file whose ``spec:`` block is a
+  ``HabitatSpec`` (``name``, ``random_seed``, ``stages``), and whose
+  ``data:`` / ``output:`` blocks say where to read subjects and write results.
+* **Stage / Spec / HabitatSpec** -- see
+  :doc:`/auto_quickstart/plot_quickstart_python`; each YAML stage entry is
+  one ``Stage``, and its ``component`` is the ``Spec``.
+
 The same two-step analysis as :doc:`plot_quickstart_python`, written as a
 YAML file. ``habit get-habitat --config <file>`` runs it from the shell;
 :func:`habit.recipes.run_from_yaml` is the Python call behind that
@@ -32,7 +48,7 @@ the series folders under ``images/<subject>/``. The YAML loader reads the
 ROI mask from the folder of the **first** modality, so ``LAP`` (the
 series the tumour was drawn on) is listed first.
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-25
+.. GENERATED FROM PYTHON SOURCE LINES 34-41
 
 Write the file and run it
 -------------------------
@@ -42,7 +58,7 @@ four. ``save=False`` keeps the result in memory instead of writing
 ``out_dir``.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 25-76
+.. GENERATED FROM PYTHON SOURCE LINES 41-94
 
 .. code-block:: Python
 
@@ -92,6 +108,8 @@ sphinx_gallery_thumbnail_number = 1
     )
     print(yaml_path.read_text(encoding="utf-8"))
 
+    # run_from_yaml parses the file into a HabitatSpec plus a cohort and runs
+    # it -- the same call ``habit get-habitat`` makes.
     result = recipes.run_from_yaml(yaml_path, workflow="habitat", save=False)
     print(result.habitat_model.summary())
     table = result.features.frame.set_index("subject")
@@ -156,8 +174,8 @@ sphinx_gallery_thumbnail_number = 1
       out_dir: out/quickstart_yaml
 
     Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored='2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160', current='61f6e8d3d7ec436881357ce5cc68b1f62ac51070c0d01dad8703deba121f093a'. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
-    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:00<00:00, 11.09it/s]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:00<00:00, 11.36it/s]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:00<00:00, 11.89it/s]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:00<00:00, 12.11it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 11.84it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 11.84it/s]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:00,  5.38it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:00,  5.13it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00<00:00,  5.22it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:00<00:00,  5.08it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  4.94it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:01<00:00,  4.94it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:00<00:00, 10.25it/s]    Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:00<00:00, 10.81it/s]    Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:00<00:00, 10.57it/s]    Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:00<00:00, 10.54it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 10.23it/s]    Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00<00:00, 10.23it/s]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00<00:00,  6.56it/s]    Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00<00:00,  6.11it/s]    Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00<00:00,  6.11it/s]    Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:00<00:00,  6.12it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:00<00:00,  6.03it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:00<00:00,  6.03it/s]
     HabitatModel kmeans-b116f5fc90857e1b
       habitats           : 4
       features (4)    : LAP, pre_contrast, PVP, delay_3min
@@ -179,13 +197,13 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-80
+.. GENERATED FROM PYTHON SOURCE LINES 95-98
 
 Look at one habitat map
 -----------------------
 The anatomy comes from the same folder the YAML named.
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-91
+.. GENERATED FROM PYTHON SOURCE LINES 98-109
 
 .. code-block:: Python
 
@@ -222,7 +240,7 @@ The anatomy comes from the same folder the YAML named.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.610 seconds)
+   **Total running time of the script:** (0 minutes 2.574 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_yaml.py:

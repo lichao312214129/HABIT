@@ -160,7 +160,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/06_matching/plot_07_match_labels.html">Matching habitat labels across subjects</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Parallel runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/07_parallel/index.html">7. Running a whole cohort</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../auto_examples/07_parallel/plot_01_backends.html">Running the same study on each backend</a></li>
 </ul>
 </li>
@@ -691,6 +691,39 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="quickstart-python-api">
 <span id="sphx-glr-auto-quickstart-plot-quickstart-python-py"></span><h1>Quickstart: Python API<a class="headerlink" href="#quickstart-python-api" title="Link to this heading"></a></h1>
+<p><strong>Background.</strong> Habitat analysis splits a tumour into sub-regions that
+behave alike across the input images (here, DCE phases), then describes
+each tumour by how much of each sub-region it has and how they are arranged.</p>
+<p><strong>Purpose.</strong> You get your first habitat maps, a per-subject feature table
+(volume fractions, MSI, ITH, graph), and a saved model that labels a new
+patient without refitting.</p>
+<p><strong>Key terms.</strong></p>
+<ul class="simple">
+<li><p><strong>habitat</strong> – a sub-region inside the tumour (the ROI) whose voxels behave
+alike across the input images; HABIT paints each ROI voxel with a habitat
+id (1, 2, 3, …).</p></li>
+<li><p><strong>ROI / mask</strong> – the region of interest, usually the whole tumour, stored
+as an integer mask; only voxels inside it are analysed (0 = background).</p></li>
+<li><p><strong>voxel feature</strong> – the numbers that describe one voxel (here its
+intensity in each DCE phase); one column per feature.</p></li>
+<li><p><strong>supervoxel</strong> – a small patch of neighbouring voxels with similar
+features, clustered inside one subject first (<code class="docutils literal notranslate"><span class="pre">partition</span></code>), so the cohort
+model clusters tens of rows per subject instead of every voxel.</p></li>
+<li><p><strong>pool</strong> – stacks every training subject’s rows into one matrix so one
+model is fitted to the whole cohort and habitat ids mean the same thing in
+every patient.</p></li>
+<li><p><strong>fit</strong> – learns the habitat definition (for k-means: the number of
+habitats and their centroids).</p></li>
+<li><p><strong>assign</strong> – gives every supervoxel / voxel the id of its nearest
+centroid, producing the habitat map.</p></li>
+<li><p><strong>Stage / Spec / HabitatSpec</strong> – a <code class="docutils literal notranslate"><span class="pre">Stage</span></code> is one step with a label you
+choose; a <code class="docutils literal notranslate"><span class="pre">Spec</span></code> names a registered component and its parameters; a
+<code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is the ordered list of stages plus <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>, i.e.
+the whole study definition.</p></li>
+<li><p><strong>elbow</strong> – a rule for picking the number of habitats: the candidate
+count after which adding one more habitat stops reducing within-cluster
+spread much.</p></li>
+</ul>
 <p>A short list of stages declares the analysis; one call fits it on a
 cohort. Everything after that is looking at the result: the habitat map,
 the per-habitat features a paper would report, and reusing the fitted
@@ -804,23 +837,25 @@ patient. Drop <code class="docutils literal notranslate"><span class="pre">pool<
     <span class="c1"># Seeds partition and fit. It is not a RunPolicy setting.</span>
     <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="c1"># Study runs the spec: fit_predict learns the habitats on the four training</span>
+<span class="c1"># subjects and labels those same subjects in one call.</span>
 <a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span></a> <span class="o">=</span> <a href="../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><a href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">spec</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:07,  2.54s/it]
-Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:04&lt;00:04,  2.15s/it]
-Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05&lt;00:01,  1.96s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07&lt;00:00,  1.84s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07&lt;00:00,  1.84s/it]
+Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:07,  2.33s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03&lt;00:03,  1.99s/it]
+Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05&lt;00:01,  1.83s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07&lt;00:00,  1.77s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07&lt;00:00,  1.77s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
 Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01&lt;00:03,  1.10s/it]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:01&lt;00:01,  1.03it/s]
-Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02&lt;00:00,  1.12it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03&lt;00:00,  1.15it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03&lt;00:00,  1.15it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:01&lt;00:01,  1.04it/s]
+Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02&lt;00:00,  1.13it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03&lt;00:00,  1.16it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03&lt;00:00,  1.16it/s]
 HabitatModel kmeans-b01ecfd00139f26e
   habitats           : 5
   features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -843,18 +878,18 @@ the other designs. Both give the same habitat maps:</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:06,  2.05s/it]
-Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03&lt;00:03,  1.77s/it]
-Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:04&lt;00:01,  1.61s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06&lt;00:00,  1.53s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06&lt;00:00,  1.53s/it]
+Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:06,  2.23s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03&lt;00:03,  1.93s/it]
+Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05&lt;00:01,  1.77s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06&lt;00:00,  1.65s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06&lt;00:00,  1.65s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00&lt;00:00,  3.82it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00&lt;00:00,  4.02it/s]
-Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00&lt;00:00,  4.16it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  4.25it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  4.25it/s]
+Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00&lt;00:00,  4.55it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00&lt;00:00,  4.45it/s]
+Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00&lt;00:00,  4.54it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  4.60it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  4.60it/s]
 stages == shortcut: True
 </pre></div>
 </div>
@@ -961,9 +996,12 @@ the same label map with the kernels the table uses.</p>
 <section id="reuse-the-model-on-a-new-patient">
 <h2>Reuse the model on a new patient<a class="headerlink" href="#reuse-the-model-on-a-new-patient" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> file is the habitat definition: load it anywhere
-and the new patient gets the same habitat names. Nothing is refitted.</p>
+and the new patient gets the same habitat names. Nothing is refitted.
+save writes the model archive and result tables under out/quickstart,
+plus the habitat maps because write_maps=True.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult.save" title="habit.recipes.StudyResult.save" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">save</span></a><span class="p">(</span><span class="s2">&quot;out/quickstart&quot;</span><span class="p">,</span> <span class="n">write_maps</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a> <span class="o">=</span> <a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.load" title="habit.contracts.HabitatModel.load" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">HabitatModel</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><span class="s2">&quot;out/quickstart/habitat_model.habitatmodel&quot;</span><span class="p">)</span>
+<span class="c1"># predict labels the held-out fifth subject with the saved centroids.</span>
 <a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction</span></a> <span class="o">=</span> <a href="../api/generated/habit.recipes.Study.html#habit.recipes.Study.from_model" title="habit.recipes.Study.from_model" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-method"><span class="n">Study</span><span class="o">.</span><span class="n">from_model</span></a><span class="p">(</span><a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">new_patient</span></a><span class="p">)</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
     <a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">new_patient</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">),</span>
@@ -976,8 +1014,8 @@ and the new patient gets the same habitat names. Nothing is refitted.</p>
 </pre></div>
 </div>
 <img src="../_images/sphx_glr_plot_quickstart_python_010.png" srcset="../_images/sphx_glr_plot_quickstart_python_010.png" alt="subj005: habitats from the saved model, Axis 0 (axial-like) @ 95, Axis 1 (coronal-like) @ 166, Axis 2 (sagittal-like) @ 106" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04&lt;00:00,  4.59s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04&lt;00:00,  4.59s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04&lt;00:00,  4.86s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04&lt;00:00,  4.86s/it]
 F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
@@ -997,7 +1035,7 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
 </div>
 </li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 32.630 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 33.547 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-quickstart-plot-quickstart-python-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/dadf04e4a1da1b0eb72eece9a50b7c9d/plot_quickstart_python.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_quickstart_python.ipynb</span></code></a></p>

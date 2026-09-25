@@ -21,16 +21,36 @@
 Load from SimpleITK
 ===================
 
+**Background.** Many imaging scripts already hold images as SimpleITK
+objects. HABIT can wrap those objects directly, keeping their spacing,
+origin and direction, so no files have to be rearranged.
+
+**Purpose.** You get a :class:`~habit.contracts.Cohort` built from
+SimpleITK images, plus a quick one-step habitat map on one patient to
+show the cohort is usable.
+
+**When to use.** Use this when your code already calls
+``sitk.ReadImage`` or produces SimpleITK images; if your files follow the
+HABIT folder layout, :doc:`/auto_examples/01_data_in/plot_01_directory`
+is shorter.
+
+**Key terms.**
+
+* **cohort / subject / ROI** -- see
+  :doc:`/auto_examples/01_data_in/plot_01_directory`.
+* **one-step habitats** -- habitats clustered inside one subject only; see
+  :doc:`/auto_examples/04_designs/plot_02_inside_each_subject`.
+
 Read an image file and a mask file with SimpleITK, then put the volumes on
 a :class:`~habit.contracts.Subject`. ``modality=`` is the series or ROI
 name. One person and several people are each a
 :class:`~habit.contracts.Cohort`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-13
+.. GENERATED FROM PYTHON SOURCE LINES 32-33
 
 One person. Change the two paths to your files.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-36
+.. GENERATED FROM PYTHON SOURCE LINES 33-58
 
 .. code-block:: Python
 
@@ -47,8 +67,10 @@ One person. Change the two paths to your files.
     DATA = fetch_demo()
     IMAGE = DATA / "images" / "subj001" / "LAP" / "WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd"
     MASK = DATA / "masks" / "subj001" / "LAP" / "WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd"
+    # from_sitk keeps spacing / origin / direction, so voxel sizes stay physical.
     volume = ImageVolume.from_sitk(sitk.ReadImage(str(IMAGE)), modality="LAP")
     roi = MaskVolume.from_sitk(sitk.ReadImage(str(MASK)), modality="LAP")
+    # Dictionary keys are the names later stages use (modalities=..., roi=...).
     subject = Subject(
         subject_id="subj001",
         images={"LAP": volume},
@@ -92,11 +114,12 @@ One person. Change the two paths to your files.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-38
+.. GENERATED FROM PYTHON SOURCE LINES 59-61
 
-One-step habitats on this one person, then overlay.
+One-step habitats on this one person, then overlay. This only proves the
+cohort works end to end; habitat stages are explained in section 2.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-57
+.. GENERATED FROM PYTHON SOURCE LINES 61-80
 
 .. code-block:: Python
 
@@ -144,7 +167,7 @@ One-step habitats on this one person, then overlay.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:00<00:00,  1.33it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:00<00:00,  1.33it/s]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:00<00:00,  1.35it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:00<00:00,  1.35it/s]
     F:\work\habit_project\habit\viz\diagrams.py:245: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
@@ -153,11 +176,11 @@ One-step habitats on this one person, then overlay.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-59
+.. GENERATED FROM PYTHON SOURCE LINES 81-82
 
 Several people. Same construction, one Subject per person.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-70
+.. GENERATED FROM PYTHON SOURCE LINES 82-93
 
 .. code-block:: Python
 
@@ -188,7 +211,7 @@ Several people. Same construction, one Subject per person.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.149 seconds)
+   **Total running time of the script:** (0 minutes 3.021 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_data_in_plot_02_simpleitk.py:

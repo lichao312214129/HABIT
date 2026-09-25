@@ -21,16 +21,36 @@
 Multiregional spatial interaction (MSI)
 =======================================
 
+**Background.** Two tumours can have the same habitat fractions but a
+different spatial arrangement: habitats mixed together, or kept apart.
+MSI measures that arrangement by counting which habitats touch which.
+
+**Purpose.** You get the MSI matrix as a table and heatmap, plus a
+dictionary of scalar MSI features (one value per name) ready to use as
+columns in a statistics or model table.
+
+**Key terms.**
+
+* **MSI** (multiregional spatial interaction, Wu et al. 2018) -- counts how
+  often voxels of each habitat touch voxels of each other habitat (face
+  neighbours), describing how habitats are arranged in space.
+* **MSI matrix** -- entry ``[i, j]`` is the number of face-neighbour voxel
+  pairs labelled ``i`` and ``j``; row/column 0 is background, so it records
+  how much of each habitat lies on the tumour border.
+* **MSI scalars** -- ``firstorder_*`` are the matrix entries (raw and
+  normalised); ``contrast`` / ``homogeneity`` / ``correlation`` / ``energy``
+  are texture-style summaries of the normalised matrix.
+
 Atomic MSI from a habitat label map (Wu et al., *Radiology* 2018):
 :func:`~habit.kernels.spatial_interaction_matrix` and
 :func:`~habit.kernels.msi_features_from_matrix`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-13
+.. GENERATED FROM PYTHON SOURCE LINES 31-33
 
 Build a habitat map, then compute the MSI matrix and scalar summaries.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-36
+.. GENERATED FROM PYTHON SOURCE LINES 33-57
 
 .. code-block:: Python
 
@@ -55,6 +75,7 @@ sphinx_gallery_thumbnail_number = 1
     habitat_map = result.habitat_maps[0]
     labels = habitat_map.label_array
     ids = tuple(sorted({int(v) for v in labels.ravel() if int(v) != 0}))
+    # Matrix size includes background (class 0), hence the + 1.
     n_classes = int(max(ids)) + 1
 
 
@@ -87,16 +108,16 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.35s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.29s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.29s/it]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-38
+.. GENERATED FROM PYTHON SOURCE LINES 58-59
 
 MSI matrix (background row/column 0) and derived scalar features.
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-55
+.. GENERATED FROM PYTHON SOURCE LINES 59-77
 
 .. code-block:: Python
 
@@ -110,6 +131,7 @@ MSI matrix (background row/column 0) and derived scalar features.
     print(msi_table.round(4).head())
     msi_table.head()
 
+    # Flatten the matrix into named scalars (same keys as HABIT v0.1 MSI output).
     features = msi_features_from_matrix(matrix)
     print("MSI scalars:", {k: round(v, 4) for k, v in features.items()})
 
@@ -144,7 +166,7 @@ MSI matrix (background row/column 0) and derived scalar features.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.952 seconds)
+   **Total running time of the script:** (0 minutes 5.116 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_quantify_plot_02_msi.py:

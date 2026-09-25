@@ -2,6 +2,26 @@
 Preprocessing voxel texture before clustering
 =============================================
 
+**Background.** Texture columns have very different ranges, so the
+``preprocess`` stage matters even more for texture than for intensity.
+Where the scaling state is learned (inside each subject, or once on the
+pooled cohort) also changes what the habitats mean.
+
+**Purpose.** You get one texture extraction, five preprocessed versions
+of it, their histograms, habitat maps for each, and a table of mean Dice
+against the subject z-score map on this demo.
+
+**Key terms.**
+
+* **preprocess** stage -- see
+  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`.
+* **robust scaling** -- centres each column on its median and divides by
+  its interquartile range, so outliers pull less than with z-score.
+* **Dice** -- overlap between two label maps (0 = none, 1 = identical).
+* **label switching** -- independent clusterings number the same
+  habitat differently (habitat 1 in one fit can be habitat 3 in another),
+  so ids must be matched before comparing.
+
 Voxel texture columns live on very different scales: GLCM contrast runs
 into the hundreds, correlation stays within [-1, 1]. Clustering then sees
 mostly the large columns, so a preprocessing step comes first.
@@ -109,6 +129,7 @@ cohort_chains = {
         [Binning(n_bins=6, bin_strategy="uniform", across_features=False)]
     ),
 }
+# Cohort chains learn their state from all training voxels stacked together.
 pooled = pd.concat([field.feature_frame() for field in fields], axis=0, ignore_index=True)
 for chain in cohort_chains.values():
     chain.fit(pooled)
@@ -174,6 +195,7 @@ habitat_maps = {}
 for name, values in processed.items():
     fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
     fitter.set_random_state(0)
+    # No partition here: every ROI voxel is its own clustering unit.
     units = [voxel_units(field) for field in values]
     model = fitter.fit(units, cohort=cohort)
     habitat_maps[name] = [slot.result() for slot in backend.map(model.assigner(), units)]

@@ -21,12 +21,28 @@
 Clustering habitats from a texture field
 ========================================
 
+**Background.** Texture maps can be clustered like intensities: each ROI
+voxel becomes one row of texture values, and k-means groups voxels with
+similar local patterns into habitats.
+
+**Purpose.** You get three GLCM columns for one subject, three habitats
+fitted directly on its voxels, a GLCM Contrast map, and the habitat
+overlay.
+
+**Key terms.**
+
+* **GLCM Contrast** / **kernel radius** -- see
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
+* **Correlation / Idm** -- two more GLCM features: how linearly related
+  neighbouring grey levels are, and how homogeneous the neighbourhood is.
+* **per-subject fit** -- see :doc:`/auto_examples/02_stages/plot_08_derived_map`.
+
 Input: a per-voxel GLCM :class:`~habit.contracts.VoxelFeatureField`.
 Output: a :class:`~habit.contracts.HabitatMap`. Stages:
 :func:`~habit.voxel_features.extract_voxel_texture`, then a per-subject
 ``fit``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-18
+.. GENERATED FROM PYTHON SOURCE LINES 28-34
 
 Load one subject
 ----------------
@@ -35,7 +51,7 @@ Contrast, Correlation, and Idm share one GLCM, so this is one texture
 pass rather than three.
 sphinx_gallery_thumbnail_number = 2
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-37
+.. GENERATED FROM PYTHON SOURCE LINES 34-53
 
 .. code-block:: Python
 
@@ -93,13 +109,13 @@ sphinx_gallery_thumbnail_number = 2
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-41
+.. GENERATED FROM PYTHON SOURCE LINES 54-57
 
 Extract three GLCM features in one pass
 ---------------------------------------
 Contrast, Correlation, and Idm share one grey-level matrix.
 
-.. GENERATED FROM PYTHON SOURCE LINES 41-51
+.. GENERATED FROM PYTHON SOURCE LINES 57-67
 
 .. code-block:: Python
 
@@ -121,40 +137,40 @@ Contrast, Correlation, and Idm share one grey-level matrix.
 
  .. code-block:: none
 
-    voxel_radiomics: glcm batch 1/35 0.105s peak=6MiB
-    voxel_radiomics: glcm batch 2/35 0.082s peak=7MiB
-    voxel_radiomics: glcm batch 3/35 0.058s peak=8MiB
-    voxel_radiomics: glcm batch 4/35 0.016s peak=9MiB
-    voxel_radiomics: glcm batch 5/35 0.016s peak=10MiB
-    voxel_radiomics: glcm batch 6/35 0.015s peak=11MiB
-    voxel_radiomics: glcm batch 7/35 0.019s peak=12MiB
-    voxel_radiomics: glcm batch 8/35 0.015s peak=13MiB
-    voxel_radiomics: glcm batch 9/35 0.015s peak=13MiB
-    voxel_radiomics: glcm batch 10/35 0.015s peak=14MiB
-    voxel_radiomics: glcm batch 11/35 0.019s peak=15MiB
-    voxel_radiomics: glcm batch 12/35 0.017s peak=16MiB
+    voxel_radiomics: glcm batch 1/35 0.128s peak=6MiB
+    voxel_radiomics: glcm batch 2/35 0.018s peak=7MiB
+    voxel_radiomics: glcm batch 3/35 0.017s peak=8MiB
+    voxel_radiomics: glcm batch 4/35 0.017s peak=9MiB
+    voxel_radiomics: glcm batch 5/35 0.018s peak=10MiB
+    voxel_radiomics: glcm batch 6/35 0.019s peak=11MiB
+    voxel_radiomics: glcm batch 7/35 0.017s peak=12MiB
+    voxel_radiomics: glcm batch 8/35 0.019s peak=13MiB
+    voxel_radiomics: glcm batch 9/35 0.016s peak=13MiB
+    voxel_radiomics: glcm batch 10/35 0.019s peak=14MiB
+    voxel_radiomics: glcm batch 11/35 0.016s peak=15MiB
+    voxel_radiomics: glcm batch 12/35 0.016s peak=16MiB
     voxel_radiomics: glcm batch 13/35 0.015s peak=17MiB
     voxel_radiomics: glcm batch 14/35 0.016s peak=18MiB
-    voxel_radiomics: glcm batch 15/35 0.017s peak=19MiB
-    voxel_radiomics: glcm batch 16/35 0.019s peak=20MiB
-    voxel_radiomics: glcm batch 17/35 0.019s peak=21MiB
-    voxel_radiomics: glcm batch 18/35 0.019s peak=22MiB
-    voxel_radiomics: glcm batch 19/35 0.018s peak=22MiB
-    voxel_radiomics: glcm batch 20/35 0.019s peak=23MiB
-    voxel_radiomics: glcm batch 21/35 0.017s peak=24MiB
-    voxel_radiomics: glcm batch 22/35 0.018s peak=25MiB
-    voxel_radiomics: glcm batch 23/35 0.015s peak=26MiB
-    voxel_radiomics: glcm batch 24/35 0.017s peak=27MiB
-    voxel_radiomics: glcm batch 25/35 0.018s peak=28MiB
-    voxel_radiomics: glcm batch 26/35 0.020s peak=29MiB
-    voxel_radiomics: glcm batch 27/35 0.016s peak=30MiB
+    voxel_radiomics: glcm batch 15/35 0.016s peak=19MiB
+    voxel_radiomics: glcm batch 16/35 0.016s peak=20MiB
+    voxel_radiomics: glcm batch 17/35 0.016s peak=21MiB
+    voxel_radiomics: glcm batch 18/35 0.016s peak=22MiB
+    voxel_radiomics: glcm batch 19/35 0.014s peak=22MiB
+    voxel_radiomics: glcm batch 20/35 0.015s peak=23MiB
+    voxel_radiomics: glcm batch 21/35 0.015s peak=24MiB
+    voxel_radiomics: glcm batch 22/35 0.015s peak=25MiB
+    voxel_radiomics: glcm batch 23/35 0.016s peak=26MiB
+    voxel_radiomics: glcm batch 24/35 0.015s peak=27MiB
+    voxel_radiomics: glcm batch 25/35 0.015s peak=28MiB
+    voxel_radiomics: glcm batch 26/35 0.017s peak=29MiB
+    voxel_radiomics: glcm batch 27/35 0.014s peak=30MiB
     voxel_radiomics: glcm batch 28/35 0.015s peak=31MiB
-    voxel_radiomics: glcm batch 29/35 0.016s peak=31MiB
+    voxel_radiomics: glcm batch 29/35 0.018s peak=31MiB
     voxel_radiomics: glcm batch 30/35 0.015s peak=32MiB
     voxel_radiomics: glcm batch 31/35 0.015s peak=33MiB
-    voxel_radiomics: glcm batch 32/35 0.015s peak=34MiB
+    voxel_radiomics: glcm batch 32/35 0.016s peak=34MiB
     voxel_radiomics: glcm batch 33/35 0.015s peak=35MiB
-    voxel_radiomics: glcm batch 34/35 0.016s peak=36MiB
+    voxel_radiomics: glcm batch 34/35 0.015s peak=36MiB
     voxel_radiomics: glcm batch 35/35 0.016s peak=37MiB
     34694 voxels, columns: ['original_glcm_Contrast-LAP', 'original_glcm_Correlation-LAP', 'original_glcm_Idm-LAP']
        original_glcm_Contrast-LAP  ...  original_glcm_Idm-LAP
@@ -169,12 +185,15 @@ Contrast, Correlation, and Idm share one grey-level matrix.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-54
+.. GENERATED FROM PYTHON SOURCE LINES 68-73
 
 Fit and assign on these voxels
 ------------------------------
+No partition: every ROI voxel is its own clustering unit. The three
+columns are not rescaled here, so a column with a wider range weighs
+more in the distance (see plot_06_texture_preprocessing).
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-61
+.. GENERATED FROM PYTHON SOURCE LINES 73-80
 
 .. code-block:: Python
 
@@ -207,12 +226,12 @@ Fit and assign on these voxels
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 62-64
+.. GENERATED FROM PYTHON SOURCE LINES 81-83
 
 GLCM Contrast
 -------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-76
+.. GENERATED FROM PYTHON SOURCE LINES 83-95
 
 .. code-block:: Python
 
@@ -247,12 +266,12 @@ GLCM Contrast
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-79
+.. GENERATED FROM PYTHON SOURCE LINES 96-98
 
 Habitats from the texture field
 -------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-87
+.. GENERATED FROM PYTHON SOURCE LINES 98-106
 
 .. code-block:: Python
 
@@ -286,7 +305,7 @@ Habitats from the texture field
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.406 seconds)
+   **Total running time of the script:** (0 minutes 4.422 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_stages_plot_09_texture_habitats.py:
