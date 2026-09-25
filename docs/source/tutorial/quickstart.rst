@@ -1,6 +1,26 @@
 Quickstart: run the demo (YAML + CLI)
 ======================================
 
+**Background.** A habitat map paints every voxel inside the tumour with a
+habitat id, so the tumour is split into sub-regions that behave alike across
+the input images.
+
+**Purpose.** Run the two-step demo from a YAML file with the ``habit``
+command and get habitat maps plus a habitat feature table under
+``demo_data/results/``.
+
+**Key terms.**
+
+* **habitat** -- a sub-region inside the tumour (the ROI) whose voxels
+  behave alike across the input images; HABIT paints each ROI voxel with a
+  habitat id (1, 2, 3, ...).
+* **YAML config** -- a text file that lists the analysis stages and says
+  where to read the data and write the results;
+  ``habit get-habitat --config <file>`` runs it.
+* **two-step** -- each tumour is first cut into supervoxels, then the
+  supervoxels of all subjects are clustered together once, so habitat ids
+  mean the same thing in every patient.
+
 No Python required. Install first (:doc:`installation`).
 You do **not** need a git clone: ``pip install habitat-analysis`` is enough.
 

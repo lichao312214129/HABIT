@@ -2,6 +2,33 @@
 A complete habitat analysis
 ===========================
 
+**Background.** A tumour is not uniform: some parts enhance strongly,
+some wash out, some are necrotic. Habitat analysis splits the ROI into
+a few sub-regions (habitats) whose voxels behave alike across the DCE
+phases, using one definition shared by every patient, and then
+describes each patient by how much of each habitat they have and how
+the habitats are arranged.
+
+**Purpose.** You will fit habitats on two demo patients, pick the
+number of habitats with the elbow rule, view the habitat maps, get a
+one-row-per-patient feature table (volume fractions, MSI, ITH, graph),
+save the model as a ``.habitatmodel`` file, and label a third patient
+with it.
+
+**Key terms.** Each term has its own page later in the Guide; the
+beginner definitions are on :doc:`/auto_quickstart/plot_quickstart_python`.
+
+* **supervoxel** -- a small patch of similar neighbouring voxels,
+  clustered inside each patient first so the cohort model has fewer,
+  less noisy rows.
+* **pool / fit / assign** -- stack all patients' supervoxels, learn the
+  habitat centroids once, then give every voxel the id of its nearest
+  centroid.
+* **MSI** -- how often each pair of habitats touch; **ITH score** --
+  how fragmented the habitats are (0 = one blob each).
+* **.habitatmodel** -- the saved habitat definition; loading it labels
+  new patients without refitting.
+
 One :class:`~habit.spec.HabitatSpec` declares the whole study. One
 ``fit_predict`` runs it. The stage list below is the same two-step
 analysis as :doc:`/auto_quickstart/plot_quickstart_python`: raw DCE

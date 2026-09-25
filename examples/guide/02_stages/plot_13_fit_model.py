@@ -2,6 +2,31 @@
 Fitting a cohort habitat model
 ==============================
 
+**Background.** After every subject is cut into supervoxels, ``fit``
+learns one habitat definition from all of them together. Because the
+same model labels every patient, habitat 2 means the same feature
+profile in each subject.
+
+**Purpose.** You get a fitted :class:`~habit.contracts.HabitatModel`
+with three habitats, its printed summary, and a bar chart of the first
+feature of each centroid (what each habitat looks like on average).
+
+**Key terms.**
+
+* **supervoxel** -- see :doc:`/auto_examples/02_stages/plot_12_supervoxels`.
+* **pool** -- stacks every training subject's rows into one matrix so one
+  model is fitted to the whole cohort and habitat ids mean the same thing
+  in every patient.
+* **fit** -- learns the habitat definition (for k-means: the number of
+  habitats and their centroids).
+* **centroid** -- the mean feature vector of one habitat; new rows are
+  labelled by the centroid they are closest to.
+* **elbow** -- a rule for picking the number of habitats: the candidate
+  count after which adding one more habitat stops reducing
+  within-cluster spread much. This page fixes ``n_habitats=3``, so no
+  selection runs; the complete analysis passes ``min_habitats`` /
+  ``max_habitats`` with ``validation="elbow"`` instead.
+
 The ``fit`` stage of
 :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
 Input: one :class:`~habit.contracts.Supervoxelization` per subject.
@@ -49,7 +74,10 @@ for one in units:
 # Fit one shared model
 # --------------------
 # The fitter pools every subject's units and learns one set of centroids.
+# n_habitats=3 fixes the count; n_init=3 restarts k-means three times and
+# keeps the run with the lowest within-cluster spread (inertia).
 fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
+# Fixing the seed makes a rerun give the same centroids (and ids).
 fitter.set_random_state(0)
 model = fitter.fit(units, cohort=cohort)
 print(model.summary())

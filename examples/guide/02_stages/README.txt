@@ -1,6 +1,13 @@
 2. Each stage
 =============
 
+**Background.** A two-step habitat analysis is a chain of stages:
+extract voxel features, preprocess them, partition each tumour into
+supervoxels, pool the cohort, fit one habitat model, assign labels.
+
+**Purpose.** Each page runs one stage on demo data so you can see its
+input, its output, and the parameters that matter.
+
 These pages open the stage list of the
 :doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`.
 ``Stage``'s first argument is a label. ``Spec`` names the component.

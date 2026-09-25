@@ -1,6 +1,11 @@
 1. Data In
 ==========
 
+**Background.** Every habitat analysis starts by telling HABIT which images
+and which tumour mask belong to which patient. **Purpose.** Each page turns
+files or arrays you already have into a :class:`~habit.contracts.Cohort`;
+terms are defined on :doc:`/auto_examples/01_data_in/plot_01_directory`.
+
 The :doc:`complete analysis </auto_examples/00_full_pipeline/plot_01_full_pipeline>`
 starts from a :class:`~habit.contracts.Cohort`. Every route on this
 section ends in one. Each page shows

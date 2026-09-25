@@ -409,9 +409,9 @@ _write_plugin_catalog_include()
 
 # sphinx-gallery nested_sections=True writes one hidden toctree of subsection
 # index files at the *end* of auto_examples/index.rst, after the last inlined
-# heading ("6. Parallel runs"). Sphinx attaches a toctree to the nearest
+# heading (the last numbered section). Sphinx attaches a toctree to the nearest
 # preceding section, so sphinx_rtd_theme nests the whole Habitat Guide under
-# Parallel runs. Lift that toctree to the gallery root heading instead.
+# that section. Lift that toctree to the gallery root heading instead.
 _GALLERY_NESTED_TOCTREE_RE = re.compile(
     r"\n\.\. toctree::\n"
     r"   :hidden:\n"

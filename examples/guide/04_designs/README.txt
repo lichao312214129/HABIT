@@ -1,6 +1,11 @@
 4. Three habitat designs
 ========================
 
+**Background.** A habitat design decides which rows are clustered and
+whether one model is shared by the whole cohort or fitted per subject.
+**Purpose.** Run the same data through each design and see what changes:
+shared vs. per-subject habitat ids, supervoxels vs. voxels.
+
 The complete analysis is two-step: ``partition``, then ``pool``, then
 ``fit``. These pages change that stage list and nothing else.
 

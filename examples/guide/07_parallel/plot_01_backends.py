@@ -2,6 +2,34 @@
 Running the same study on each backend
 ======================================
 
+**Background.** Once a study is declared, HABIT still has to run it on
+every subject. This page is about that scheduling layer. Switching the
+backend or ``RunPolicy`` changes speed and how failures are handled; it
+does not change the science, so the habitat labels must come out
+identical.
+
+**Purpose.** You will run one study serially and with process workers
+and confirm the labels match, see why serial can win on a tiny cohort,
+keep a run going when one subject fails, resume from checkpoints, and
+build policies for GPU worker caps and per-subject timeouts.
+
+**When to use.** Stay serial for a handful of subjects or while
+debugging one case. Switch to process workers when there are many
+subjects and each one is expensive.
+
+**Key terms.**
+
+* **backend** -- what schedules the subjects: serial (one after another
+  in this Python process) or a pool of worker processes.
+* **RunPolicy** -- the settings object for a run: backend, number of
+  workers, failure handling, timeouts, checkpoint and resume options.
+* **spawn** -- how Windows starts a worker: a fresh Python interpreter
+  that re-imports HABIT, which costs seconds per worker.
+* **checkpoint** -- finished subject results saved on disk so an
+  interrupted run resumes without recomputing them.
+* **supervoxel / pool / fit / assign** -- the study stages; see
+  :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
+
 The study is the two-step list from
 :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`, with the
 habitat count fixed at 3 so this page can refit it on every backend.

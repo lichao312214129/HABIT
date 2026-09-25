@@ -2,6 +2,28 @@
 Prototype matching step by step
 ===============================
 
+**Background.** Two patients share no voxels, so their habitats cannot be
+matched by overlap. Instead each habitat is described by a summary row and
+all subjects are named against one shared set of reference rows.
+
+**Purpose.** You watch the matching loop round by round on synthetic data,
+confirm it equals the one-line HABIT call, and see three demo tumours
+before and after their ids are put on one shared scale.
+
+**Key terms.**
+
+* **prototype** -- a shared reference habitat: one feature row (for
+  example mean arterial and portal-venous enhancement) that every subject's
+  habitats are compared with; habitat ``k`` after matching means "closest
+  to prototype ``Pk``".
+* **Hungarian assignment** -- see
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`; here it
+  minimises total squared distance instead of maximising shared voxels.
+* **objective** -- the sum of squared distances from every habitat to its
+  assigned prototype; lower means tighter groups.
+* **centroid** -- the mean feature row of one habitat as fitted by
+  k-means.
+
 Between **different subjects** there is no shared voxel, so habitats are
 matched by what describes them: one summary row per habitat (a centroid,
 a mean feature vector). HABIT names every subject against ``K`` shared
@@ -46,6 +68,7 @@ from habit.viz import plot_prototype_matching
 types = np.array([[0.6, 0.7], [1.2, 2.2], [2.2, 0.9], [2.4, 2.4]])
 present = [(0, 1), (0, 2, 3), (0, 1, 2, 3), (0, 1, 2, 3), (1, 2, 3)]
 rng = np.random.default_rng(54)
+# One block per subject: row i is habitat i's summary, in that subject's own order.
 blocks = [np.round(types[list(p)] + rng.normal(0, 0.38, (len(p), 2)), 2) for p in present]
 names = [f"S{i + 1}" for i in range(len(blocks))]
 for name, block in zip(names, blocks):
@@ -182,6 +205,7 @@ extractor = ExpressionVoxelFeatures(
 )
 raw_maps, models = [], []
 for subject in cohort:
+    # Per-subject fit: each tumour numbers its own 3 habitats independently.
     units = voxel_units(extractor(subject))
     fitter = KMeansHabitatModelFitter(n_habitats=3, n_init=3)
     fitter.set_random_state(0)
@@ -189,6 +213,7 @@ for subject in cohort:
     raw_maps.append(model.assigner()(units))
     models.append(model)
 
+# models= describes each habitat by its fitted k-means centroid.
 matched = align_habitat_maps_to_prototypes(raw_maps, models=models)
 print(matched.assignments.to_string(index=False))
 

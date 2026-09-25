@@ -2,6 +2,26 @@
 Choosing the distance for prototype matching
 ============================================
 
+**Background.** Prototype matching needs a rule for how far a habitat is
+from a prototype. The default compares feature values; the alternatives
+trade that for robustness to outliers or for comparing curve shape only.
+
+**Purpose.** On synthetic habitats with known types you see which of the
+four distances names each type consistently, and when a shape-only
+distance cannot tell two habitats apart.
+
+**When to use.** Only if the default ``"sqeuclidean"`` does not fit your
+features; most enhancement-based studies can keep the default.
+
+**Key terms.**
+
+* **prototype** -- see
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+* **metric** -- the distance used to compare a habitat's summary row with
+  a prototype.
+* **outlier** -- a habitat whose values are far from the others of its
+  type (here, one subject's strong habitat doubled).
+
 The prototype matcher accepts four distances. Each comes with the
 prototype update that minimises it, so the loop still converges:
 
@@ -63,8 +83,11 @@ names = [f"S{i + 1}" for i in range(len(blocks))]
 # Match with every metric
 # -----------------------
 # ``truth`` is only used to score the result: a perfect naming puts each
-# habitat type under exactly one prototype.
+# habitat type under exactly one prototype. The same five subjects are
+# matched once per distance.
 results = {metric: match_rows_to_prototypes(blocks, metric=metric) for metric in PROTOTYPE_METRICS}
+# Purity: for each prototype name, count habitats of its most common true
+# type, then sum over names (20 = every habitat named consistently).
 purity = {}
 for metric, result in results.items():
     table = pd.crosstab(

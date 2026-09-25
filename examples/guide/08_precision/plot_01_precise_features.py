@@ -2,6 +2,37 @@
 Precise voxel features
 ======================
 
+**Background.** A voxel feature is only useful for habitats if it gives
+nearly the same value when the same tumour is imaged again and when its
+computation settings change slightly. Precise screening measures this and
+keeps only the features that pass.
+
+**Purpose.** You get ICC forest plots for three experiments on one demo
+subject, the list of kept and dropped features, and a side-by-side check of
+habitats clustered with all features vs only the precise ones (mean Dice
+and disagreement under the same simulated retest).
+
+**Key terms.**
+
+* **retest perturbation** -- a simulated repeat scan: Gaussian noise, a
+  half-voxel shift and a 0.5 degree in-plane rotation applied to the image
+  (Prior et al. Appendix S2); the original ROI is kept.
+* **repeatability / reproducibility** -- agreement between original and
+  retest image / between two settings (kernel radius 1 vs 3, bin width 12
+  vs 25).
+* **ICC** (intraclass correlation coefficient) -- agreement of a feature
+  between two measurements of the same voxels; near 1 means repeatable.
+  HABIT uses ICC(3A,1) (absolute agreement) for repeatability and
+  ICC(3C,1) (consistency) for reproducibility, after min-max scaling each
+  feature map.
+* **LCL** -- lower limit of the ICC's 95% confidence interval; a feature is
+  precise here when LCL >= 0.5 in all three experiments.
+* **whitelist** -- the list of precise features; a preprocessing step that
+  drops every other column before clustering.
+* **Dice** -- overlap between two label maps (0 = none, 1 = identical),
+  scored after matching ids (see
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`).
+
 Decide **which voxel features may define habitats**, then cluster only
 those robust features. This is the Prior et al. precision screen (*Radiol Artif Intell*
 2024;6(2):e230118; `DOI <https://doi.org/10.1148/ryai.230118>`__).
@@ -102,6 +133,8 @@ FEATURE_CLASSES: Dict[str, Tuple[str, ...]] = {
         "DifferenceEntropy",
     ),
 }
+# Base setting R3/B12 is compared with R1 (kernel radius), B25 (bin width)
+# and the perturbed image; every other setting is held fixed.
 feat_r1 = extract_voxel_texture(
     image, mask, kernel_radius=1, bin_width=12, feature_classes=FEATURE_CLASSES
 )
@@ -119,6 +152,9 @@ feat_r3.feature_frame().head()
 
 # %%
 # Precise screening = Lower Confidence Limit (LCL) >= 0.5 across all 3 ICC experiments.
+# Each ``precision_panel`` is one subject's per-feature ICC table;
+# ``aggregate_panels`` takes the per-feature median over subjects (here a
+# single subject, so the median is that subject's value).
 precise = identify_precise_features(
     {
         "repeatability": aggregate_panels(

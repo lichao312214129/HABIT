@@ -2,6 +2,23 @@
 Applying a saved habitat model
 ==============================
 
+**Background.** Habitat ids only mean the same thing in two cohorts when both
+are labelled with the same centroids. Saving the fitted model lets a later
+or external cohort be labelled with the training definition instead of a
+new, incomparable fit.
+
+**Purpose.** You get a ``.habitatmodel`` file, the habitat map of a training
+subject, and the habitat map and feature table of two held-out subjects
+labelled from the reloaded file.
+
+**Key terms.**
+
+* **.habitatmodel** -- the saved habitat definition (centroids plus the
+  preprocessing state they depend on); loading it labels new subjects
+  without refitting.
+* **fit vs. predict** -- ``fit_predict`` learns the centroids and labels the
+  training cohort; ``predict`` only labels subjects with an existing model.
+
 Train a two-step habitat definition, round-trip the
 :class:`~habit.contracts.HabitatModel` through a ``.habitatmodel``
 archive, and project it onto later subjects.
@@ -70,6 +87,8 @@ train_result.features.frame.head()
 
 Path("out").mkdir(exist_ok=True)
 archive = Path("out/habitat_model.habitatmodel")
+# Versioned, self-describing archive: this file is what you share or keep
+# next to a paper, not the Python objects above.
 train_result.habitat_model.save(archive)
 print(f"Saved {archive}")
 
@@ -85,6 +104,10 @@ plt.show()
 # %%
 # Reload and label held-out subjects. No fitting after the reload.
 model = HabitatModel.load(archive)
+# from_model pairs the loaded centroids with the same spec, so the new
+# subjects' features are extracted and preprocessed as in training;
+# predict still builds each new subject's supervoxels, but assigns them to
+# the saved centroids; the habitat model is never refitted.
 prediction = recipes.Study.from_model(model, spec).predict(new_cohort)
 print(f"Applied to {list(s.subject_id for s in prediction.habitat_maps)}")
 print(prediction.features.frame.head())

@@ -2,6 +2,32 @@
 Load from directory
 ===================
 
+**Background.** Before any habitat can be found, HABIT needs to know which
+images and which tumour mask belong to each patient. The simplest way is a
+fixed folder layout that HABIT reads in one call.
+
+**Purpose.** You get a :class:`~habit.contracts.Cohort` (printed), a
+summary figure of the loaded subject, and a greyscale slice with the ROI
+contour to check that image and mask line up.
+
+**When to use.** Use this when your preprocessed files already follow the
+HABIT folder layout (the official demo pack does). For loose files or
+arrays, see the other pages in this section.
+
+**Key terms.**
+
+* **cohort** -- HABIT's list of subjects (``Cohort``), each with its images
+  and ROI mask; this is what ``fit`` / ``fit_predict`` take.
+* **subject** -- one patient (``Subject``): an id plus a dictionary of images
+  and a dictionary of masks.
+* **series / modality** -- one image of that patient, such as the arterial
+  (``LAP``) or portal-venous (``PVP``) phase; the folder name under
+  ``images/<subject>/`` is the name you pass in ``modalities=``.
+* **ROI / mask** -- the region of interest, usually the whole tumour, stored
+  as an integer mask; only voxels inside it are analysed (0 = background).
+  The folder name under ``masks/<subject>/`` is the name you pass in
+  ``roi=``.
+
 Build a :class:`~habit.contracts.Cohort` from a folder tree with
 :func:`~habit.contracts.cohort_from_directory`. The tree is
 ``images/<subject>/<series>/<one file>`` and
@@ -27,6 +53,7 @@ from habit.viz import plot_directory_ingest, plot_intensity_slice
 DATA = fetch_demo()
 print(inspect_preprocessed_root(DATA))
 # Several people: every subject folder under DATA.
+# ``modalities`` picks the image folders to load; ``roi`` picks the mask folder.
 many = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP", name="many")
 print(many)
 

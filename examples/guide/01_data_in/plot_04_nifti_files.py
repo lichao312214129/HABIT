@@ -2,6 +2,25 @@
 Load from NIfTI files
 =====================
 
+**Background.** Images and masks often sit as loose files (NIfTI, NRRD,
+MetaImage) rather than in the HABIT folder layout. HABIT can point at each
+file directly and reads the voxels only when a stage needs them.
+
+**Purpose.** You get a geometry report that says whether image and mask
+grids agree, a :class:`~habit.contracts.Cohort` built from file paths, and
+a figure of the loaded pair.
+
+**When to use.** Use this when your files are scattered or named freely;
+you choose the series and ROI names yourself. The demo pack happens to use
+``.nrrd``; ``.nii`` / ``.nii.gz`` work the same way.
+
+**Key terms.**
+
+* **cohort / subject / ROI** -- see
+  :doc:`/auto_examples/01_data_in/plot_01_directory`.
+* **geometry check** -- compares shape, spacing, origin and direction of
+  image and mask; ``validate_geometry`` only reports, it changes nothing.
+
 Point at one image file and one mask file (``.nii``, ``.nii.gz``, ``.nrrd``,
 ``.mha``, ``.mhd``). Change the paths below to your own files. One person
 and several people are each a :class:`~habit.contracts.Cohort`.
@@ -34,17 +53,21 @@ MASK = DATA / "masks" / "subj001" / "LAP" / "WATER__BH_Ax_LAVA_Flex_10min_Series
 
 image = read_image(IMAGE, modality="LAP")
 mask = read_mask(MASK)
+# Report-only check: lists which of shape / spacing / origin / direction differ.
 report = validate_geometry(image, mask)
 print(report.compatible, report.mismatches)
 if report.compatible:
     pair = ImageMaskPair(image, mask, report)
 else:
+    # Explicit fix only when grids differ: resample the mask onto the image grid.
     pair = align_image_mask(
         ImageMaskPair(image, mask),
         policy=GeometryPolicy.RESAMPLE_MASK,
     )
 print(pair.image.data.shape, pair.mask.data.shape)
 
+# FileImageRef stores only the path; voxels are read when a stage needs them,
+# so large cohorts stay light in memory.
 subject = Subject(
     subject_id="subj001",
     images={"LAP": FileImageRef(IMAGE, is_mask=False, role_name="LAP")},

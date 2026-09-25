@@ -2,6 +2,25 @@
 Pooling voxels across the cohort
 ================================
 
+**Background.** Direct pooling skips supervoxels: every ROI voxel of every
+subject goes into one matrix and one cohort model is fitted on it, so
+habitat ids are shared across patients.
+
+**Purpose.** You get one shared habitat model fitted on voxels, a habitat
+map and volume fractions per subject, and a histogram of the arterial-phase
+intensities inside each habitat.
+
+**When to use.** You want shared ids without the supervoxel step, and the
+pooled voxel matrix is small enough to cluster (it grows with every voxel
+of every subject). Otherwise the two-step design
+(:doc:`/auto_examples/04_designs/plot_01_two_step`) clusters far fewer rows.
+
+**Key terms.**
+
+* **direct pooling** -- ``pool`` then ``fit`` with no ``partition``; each
+  voxel is its own clustering unit.
+* **pool** -- see :doc:`/auto_examples/04_designs/plot_01_two_step`.
+
 Input: a cohort of at least two subjects. Output: one shared
 :class:`~habit.contracts.HabitatModel` fitted on voxels, and one
 :class:`~habit.contracts.HabitatMap` per subject. The stage list is
@@ -51,6 +70,8 @@ spec = HabitatSpec(
     ),
     random_seed=0,
 )
+# One shared habitat_model, as in two-step, but its centroids were learnt
+# on voxels rather than supervoxels.
 result = Study(spec).fit_predict(cohort)
 print(result.habitat_model.summary())
 print(result.features.frame)

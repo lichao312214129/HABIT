@@ -2,6 +2,24 @@
 Extracting a voxel texture
 ==========================
 
+**Background.** A voxel texture value describes how grey levels vary in
+a small cube around each ROI voxel, which intensity alone does not show.
+Here it is computed with one function call on an image and a mask.
+
+**Purpose.** You get a voxel-feature table with one GLCM Contrast column
+and a map of it on the arterial slice.
+
+**When to use.** When you already hold an image and a mask and want a
+single texture map; the full runtime story is on
+:doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
+
+**Key terms.**
+
+* **voxel feature** / **extract** -- see
+  :doc:`/auto_examples/02_stages/plot_06_voxel_intensities`.
+* **GLCM Contrast** / **kernel radius** / **bin width** -- see
+  :doc:`/auto_examples/02_stages/plot_03_voxel_texture`.
+
 Input: one :class:`~habit.contracts.Subject`. Output: a
 :class:`~habit.contracts.VoxelFeatureField` of per-voxel GLCM Contrast.
 Stage: :func:`~habit.voxel_features.extract_voxel_texture`.

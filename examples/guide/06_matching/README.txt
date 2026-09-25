@@ -1,6 +1,12 @@
 6. Matching Habitat Labels
 ==========================
 
+**Background.** A clustering run numbers its habitats in arbitrary order,
+so the same tissue can be habitat 1 in one run or patient and habitat 3 in
+another (**label switching**). **Purpose.** These pages show how HABIT
+matches the ids so that Dice, volume fractions and cohort tables compare
+like with like.
+
 Calling it on a fitted study:
 :doc:`/auto_examples/06_matching/plot_07_match_labels`.
 The pages below show why ids switch and how each matcher works.

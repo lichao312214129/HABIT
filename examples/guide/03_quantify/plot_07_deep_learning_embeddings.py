@@ -2,6 +2,25 @@
 Deep-learning habitat embeddings
 ================================
 
+**Background.** Deep-learning encoders turn an image into a stack of
+feature maps (channels). Averaging those channels inside each habitat gives
+every habitat a learned descriptor that can sit next to hand-crafted
+radiomics in a downstream model.
+
+**Purpose.** You get a table with one row per habitat and one column per
+channel (64 here), and a heatmap of the first 16 dimensions. The feature
+volume on this page is random noise, so the numbers only show the mechanics,
+not meaningful biology.
+
+**Key terms.**
+
+* **embedding** -- a fixed-length vector of learned numbers describing a
+  region; here one 64-D vector per habitat.
+* **masked spatial average pooling** -- the mean of each channel over the
+  voxels where the habitat mask is non-zero.
+* **(C, z, y, x)** -- channels first, then the same spatial axes as the
+  habitat label array; the two must match voxel for voxel.
+
 Bridge HABIT habitat maps to deep-learning pipelines: extract a binary
 mask per habitat and apply **masked spatial average pooling** on a 3-D
 feature tensor (simulated here with NumPy; swap in a MONAI / PyTorch
@@ -81,6 +100,7 @@ def habitat_embedding_table(
     """
     rows: Dict[int, np.ndarray] = {}
     for hid in habitat_ids:
+        # Binary mask of this one habitat; absent habitats pool to NaN.
         mask = label_array == hid
         rows[hid] = masked_spatial_average_pooling(feature_map, mask)
     n_channels = int(feature_map.shape[0])

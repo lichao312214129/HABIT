@@ -2,6 +2,25 @@
 Comparing habitat maps with and without preprocessing
 =====================================================
 
+**Background.** Preprocessing changes the distances k-means sees, so it
+can change the habitats. To see by how much, fit the same design twice,
+once with and once without preprocessing, and compare the two maps.
+
+**Purpose.** You get a table that pairs the habitat ids of the two fits
+with a Dice score per pair, two overlays on shared slices, and volume
+fractions per matched habitat for each subject on this demo.
+
+**Key terms.**
+
+* **preprocess** stage -- see
+  :doc:`/auto_examples/02_stages/plot_04_feature_preprocessing`.
+* **label switching** -- independent clusterings number the same
+  habitat differently (habitat 1 in one fit can be habitat 3 in another),
+  so ids must be matched before comparing.
+* **Dice** -- overlap between two label maps (0 = none, 1 = identical).
+* **volume fraction** -- the share of ROI voxels that belong to one
+  habitat.
+
 Input: the same cohort, the same two-step design, the same ``k`` and
 seed. The only change is the voxel-feature preprocessor chain.
 
@@ -115,6 +134,8 @@ plain_voxels = np.concatenate(
 prepped_voxels = np.concatenate(
     [np.asarray(m.label_array).ravel() for m in prepped.habitat_maps]
 )
+# mapping pairs each preprocessed id with the unpreprocessed id it
+# overlaps most (one-to-one, Hungarian assignment).
 mapping = match_labels_by_overlap(plain_voxels, prepped_voxels)
 
 match_table = pd.DataFrame(

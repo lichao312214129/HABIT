@@ -2,6 +2,27 @@
 Matching habitat labels across subjects
 =======================================
 
+**Background.** In a ``one_step`` study each patient is clustered on its
+own, so habitat ids are not comparable between patients until they are
+matched onto shared prototypes.
+
+**Purpose.** This is the practical page: one call gives every demo subject
+shared habitat ids, and you see the renames, a centroid plot before and
+after naming, and the optional settings (``max_distance``, frozen
+prototypes, other distances).
+
+**When to use.** After per-subject (``one_step``) fits. Skip it for
+two-step or direct-pooling studies, which already share one id space.
+
+**Key terms.**
+
+* **one_step** -- habitats are clustered separately inside each subject,
+  with no shared cohort model.
+* **prototype** -- a shared reference habitat (one feature row); see
+  :doc:`/auto_examples/06_matching/plot_03_prototype_steps`.
+* **label switching** -- see
+  :doc:`/auto_examples/06_matching/plot_01_label_switching`.
+
 With ``one_step`` habitats every subject is clustered on its own, so
 habitat 1 of one patient need not be habitat 1 of another, and patients
 may even have different habitat counts.
@@ -61,6 +82,7 @@ maps, models, fields = [], [], []
 for subject in cohort:
     field = extractor(subject)
     units = voxel_units(field)
+    # Per-subject k-means; silhouette picks k in 2..5 for this subject alone.
     fitter = KMeansHabitatModelFitter(
         min_habitats=2, max_habitats=5, validation="silhouette", n_init=3
     )

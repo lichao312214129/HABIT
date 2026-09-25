@@ -2,6 +2,23 @@
 Intratumoral heterogeneity (ITH)
 ================================
 
+**Background.** Intratumoral heterogeneity (ITH) describes how mixed a
+tumour is. Here it is measured from the habitat map as fragmentation: do
+habitats form a few compact blobs, or many scattered pieces?
+
+**Purpose.** You get one ITH score for the whole tumour plus one dispersion
+value per habitat, as a table and a summary figure.
+
+**Key terms.**
+
+* **ITH score** -- intratumoral heterogeneity as fragmentation: 0 when each
+  habitat is one connected blob, approaching 1 when habitats break into many
+  small pieces. Formula: ``1 - sum_i(S_i,max / n_i) / S_total``, with
+  ``S_i,max`` the largest piece of habitat ``i``, ``n_i`` its number of
+  face-connected pieces and ``S_total`` all non-background voxels.
+* **per-habitat dispersion** -- the same idea for one habitat,
+  ``1 - (S_i,max / n_i) / S_i``; the ITH score is their volume-weighted mean.
+
 Atomic ITH metrics from a habitat label map:
 :func:`~habit.kernels.ith_score` and
 :func:`~habit.kernels.habitat_ith_dispersion`.
@@ -38,6 +55,7 @@ labels = result.habitat_maps[0].label_array
 # %%
 # ITH score and per-habitat dispersion
 # ------------------------------------
+# One tumour-level number, then one value per habitat id (same formula).
 ith = float(ith_score(labels))
 dispersion = habitat_ith_dispersion(labels)
 ith_table = pd.DataFrame(

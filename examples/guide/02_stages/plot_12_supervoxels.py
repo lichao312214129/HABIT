@@ -2,6 +2,27 @@
 Partitioning a ROI into supervoxels
 ===================================
 
+**Background.** A tumour has tens of thousands of voxels. The two-step
+design first groups them, inside each subject, into small patches of
+similar voxels, so the cohort model later clusters a few rows per
+subject instead of every voxel.
+
+**Purpose.** You get about 100 supervoxels for one subject, a table with
+one mean feature vector per supervoxel, and an overlay showing the
+patches on the arterial image.
+
+**Key terms.**
+
+* **supervoxel** -- a small patch of neighbouring voxels with similar
+  features, clustered inside one subject first (``partition``), so the
+  cohort model clusters tens of rows per subject instead of every voxel,
+  which is faster and less noisy.
+* **partition** stage -- the stage that builds supervoxels; ``slic`` and
+  ``kmeans`` are two registered partitioners.
+* **SLIC** (simple linear iterative clustering) -- grows supervoxels from
+  a regular grid of seeds; ``compactness`` trades feature similarity
+  against spatial closeness (higher gives rounder, more regular patches).
+
 Input: a :class:`~habit.contracts.VoxelFeatureField`. Output: a
 :class:`~habit.contracts.Supervoxelization`. Stage: ``partition`` with
 ``slic``.
@@ -36,6 +57,8 @@ print(subject.subject_id)
 # ``units.features`` is the mean vector of one supervoxel.
 field = RawVoxelFeatures(modalities=list(MODALITIES), roi=ROI)(subject)
 print(f"{field.values.shape[0]} voxels, columns: {list(field.feature_names)}")
+# n_supervoxels is a target, not an exact count (SLIC may return a few
+# more or fewer patches); compactness=10.0 is the default value.
 units = SlicSupervoxelizer(n_supervoxels=100, compactness=10.0)(field)
 print(f"n_supervoxels={len(units.features)}")
 print(units.features.head())
