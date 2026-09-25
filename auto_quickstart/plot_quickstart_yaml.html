@@ -84,7 +84,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart: YAML</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#write-the-file-and-run-it">Write the file and run it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#write-the-files-and-run-them">Write the files and run them</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#look-at-one-habitat-map">Look at one habitat map</a></li>
 </ul>
 </li>
@@ -695,7 +695,7 @@ to download the full example code.</p>
 you would build in Python, so an analysis can be run from the shell, shared,
 and kept next to the results.</p>
 <p><strong>Purpose.</strong> You get the two-step habitat maps and a volume-fraction / MSI /
-ITH table from a YAML file, plus one habitat overlay.</p>
+ITH / graph table from a YAML file, plus one habitat overlay.</p>
 <p><strong>Key terms.</strong></p>
 <ul class="simple">
 <li><p><strong>YAML config</strong> – a text file whose <code class="docutils literal notranslate"><span class="pre">spec:</span></code> block is a
@@ -705,33 +705,60 @@ ITH table from a YAML file, plus one habitat overlay.</p>
 <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>; each YAML stage entry is
 one <code class="docutils literal notranslate"><span class="pre">Stage</span></code>, and its <code class="docutils literal notranslate"><span class="pre">component</span></code> is the <code class="docutils literal notranslate"><span class="pre">Spec</span></code>.</p></li>
 </ul>
-<p>The same two-step analysis as <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>, written as a
-YAML file. <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">&lt;file&gt;</span></code> runs it from the shell;
-<a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.run_from_yaml()</span></code></a> is the Python call behind that
-command. The <code class="docutils literal notranslate"><span class="pre">spec.stages</span></code> list is the stage list of the Python page,
-one entry per stage.</p>
-<p>Change <code class="docutils literal notranslate"><span class="pre">source</span></code> to your preprocessed root, and the modality names to
-the series folders under <code class="docutils literal notranslate"><span class="pre">images/&lt;subject&gt;/</span></code>. The YAML loader reads the
-ROI mask from the folder of the <strong>first</strong> modality, so <code class="docutils literal notranslate"><span class="pre">LAP</span></code> (the
-series the tumour was drawn on) is listed first.</p>
-<section id="write-the-file-and-run-it">
-<h2>Write the file and run it<a class="headerlink" href="#write-the-file-and-run-it" title="Link to this heading"></a></h2>
-<p>The YAML runs every subject under <code class="docutils literal notranslate"><span class="pre">source</span></code> (all five demo lesions),
-so the habitat count can differ from the Python page, which fits on
-four. <code class="docutils literal notranslate"><span class="pre">save=False</span></code> keeps the result in memory instead of writing
-<code class="docutils literal notranslate"><span class="pre">out_dir</span></code>.
+<p>The same analysis as <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>, written as a YAML
+file: same stages, same seed, fitted on the same four subjects. It gives
+the same habitat maps and feature values as the Python page, and as
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> with <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_quickstart_v1.yaml</span></code>
+on <a class="reference internal" href="../tutorial/quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>. <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">&lt;file&gt;</span></code> runs
+a file like this from the shell; <a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.run_from_yaml()</span></code></a> is the
+Python call behind that command. The <code class="docutils literal notranslate"><span class="pre">spec.stages</span></code> list is the stage
+list of the Python page, one entry per stage.</p>
+<p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> to your preprocessed root, <code class="docutils literal notranslate"><span class="pre">SUBJECTS</span></code> to your subject
+folders, and <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your series names. Two details
+of the YAML loader:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data.source</span></code> is either a folder (every subject under it) or a
+<strong>manifest</strong> YAML that lists subjects and files. The manifest is how
+the four training subjects are chosen here; the fifth demo subject is
+the new patient of the Python page.</p></li>
+<li><p>The loader keys the ROI mask by the <strong>first</strong> modality, so <code class="docutils literal notranslate"><span class="pre">LAP</span></code> (the
+series the tumour was drawn on) is listed first. The Python page lists
+<code class="docutils literal notranslate"><span class="pre">pre_contrast</span></code> first; only the column order differs, the habitat maps
+do not.</p></li>
+</ul>
+<section id="write-the-files-and-run-them">
+<h2>Write the files and run them<a class="headerlink" href="#write-the-files-and-run-them" title="Link to this heading"></a></h2>
+<p>The manifest names the four subjects and their LAP masks; the YAML
+document names the stages. <code class="docutils literal notranslate"><span class="pre">save=False</span></code> keeps the result in memory
+instead of writing <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>.
 sphinx_gallery_thumbnail_number = 1</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a>
 
+<span class="c1"># Change DATA / SUBJECTS / MODALITIES / ROI to your preprocessed layout.</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><a href="../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">())</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span> <span class="s2">&quot;subj002&quot;</span><span class="p">,</span> <span class="s2">&quot;subj003&quot;</span><span class="p">,</span> <span class="s2">&quot;subj004&quot;</span><span class="p">]</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">]</span>  <span class="c1"># ROI series first</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Manifest: one image folder per subject and modality, one ROI mask folder</span>
+<span class="c1"># per subject. auto_select_first_file picks the single file in each folder.</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest_path</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out/quickstart_subjects.yaml&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;auto_select_first_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="p">{</span><span class="n">m</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="si">}</span><span class="s2">/images/</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a><span class="p">},</span>
+    <span class="s2">&quot;masks&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="p">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="si">}</span><span class="s2">/masks/</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SUBJECTS</span></a><span class="p">},</span>
+<span class="p">}</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">manifest_path</span><span class="o">.</span><span class="n">write_text</span></a><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">manifest</span></a><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">yaml_path</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out/quickstart.yaml&quot;</span><span class="p">)</span>
 <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text" title="pathlib.Path.write_text" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">yaml_path</span><span class="o">.</span><span class="n">write_text</span></a><span class="p">(</span>
     <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
@@ -743,7 +770,7 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="s2">  random_seed: 0</span>
 <span class="s2">  stages:</span>
 <span class="s2">    - name: extract</span>
-<span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: raw, params: </span><span class="se">{{</span><span class="s2">modalities: [LAP, pre_contrast, PVP, delay_3min], roi: LAP</span><span class="se">}}}}</span>
+<span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: raw, params: </span><span class="se">{{</span><span class="s2">modalities: [</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">)</span><span class="si">}</span><span class="s2">], roi: </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="si">}</span><span class="se">}}}}</span>
 <span class="s2">    - name: partition</span>
 <span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: kmeans, params: </span><span class="se">{{</span><span class="s2">n_supervoxels: 30</span><span class="se">}}}}</span>
 <span class="s2">    - name: pool</span>
@@ -758,8 +785,10 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: msi</span><span class="se">}}</span>
 <span class="s2">    - name: ith</span>
 <span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: ith_score</span><span class="se">}}</span>
+<span class="s2">    - name: graph</span>
+<span class="s2">      component: </span><span class="se">{{</span><span class="s2">name: graph, params: </span><span class="se">{{</span><span class="s2">include_extended_metrics: false</span><span class="se">}}}}</span>
 <span class="s2">data:</span>
-<span class="s2">  source: </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="si">}</span>
+<span class="s2">  source: </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.as_posix" title="pathlib.PurePath.as_posix" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">manifest_path</span><span class="o">.</span><span class="n">as_posix</span></a><span class="p">()</span><span class="si">}</span>
 <span class="s2">output:</span>
 <span class="s2">  out_dir: out/quickstart_yaml</span>
 <span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
@@ -771,8 +800,10 @@ sphinx_gallery_thumbnail_number = 1</p>
 <span class="c1"># it -- the same call ``habit get-habitat`` makes.</span>
 <a href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span></a> <span class="o">=</span> <a href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-function"><span class="n">recipes</span><span class="o">.</span><span class="n">run_from_yaml</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">yaml_path</span></a><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.summary" title="habit.contracts.HabitatModel.summary" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span></a><span class="p">())</span>
+<span class="c1"># The same columns the Python page prints; the values match that table.</span>
 <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">set_index</span></a><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a><span class="p">[[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span><span class="o">.</span><span class="n">columns</span></a> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_volume_fraction&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;ith_score&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">columns</span></a> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span><span class="o">.</span><span class="n">columns</span></a> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_volume_fraction&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;ith_score&quot;</span><span class="p">,</span> <span class="s2">&quot;contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;graph_num_nodes_total&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a><span class="p">[</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">columns</span></a><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>HABIT demo data (cached)
@@ -820,56 +851,57 @@ spec:
       component: {name: msi}
     - name: ith
       component: {name: ith_score}
+    - name: graph
+      component: {name: graph, params: {include_extended_metrics: false}}
 data:
-  source: C:/Users/dongm/.habit_data/demo-data-v1/preprocessed
+  source: out/quickstart_subjects.yaml
 output:
   out_dir: out/quickstart_yaml
 
-Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored=&#39;2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160&#39;, current=&#39;61f6e8d3d7ec436881357ce5cc68b1f62ac51070c0d01dad8703deba121f093a&#39;. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
+Checkpoint fingerprint mismatch under out\quickstart_yaml\.habitat_checkpoint: stored=&#39;2efc96a8f587fa8e7eb3ad17ffbebede21694e7c08b55c872d4526f331e91160&#39;, current=&#39;1e2b8eee427137d5dc23169dc59cefef9c2fd1edf001edb3b80785edf3cfbec2&#39;. Cannot resume with strict_checkpoint_hash=True. Incompatible entries remain on disk but are unreachable via fingerprint-scoped cache keys.
 
-Cohort.map[_ComputeUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  20%|██        | 1/5 [00:00&lt;00:00, 10.25it/s]
-Cohort.map[_ComputeUnits]:  40%|████      | 2/5 [00:00&lt;00:00, 10.81it/s]
-Cohort.map[_ComputeUnits]:  60%|██████    | 3/5 [00:00&lt;00:00, 10.57it/s]
-Cohort.map[_ComputeUnits]:  80%|████████  | 4/5 [00:00&lt;00:00, 10.54it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00&lt;00:00, 10.23it/s]
-Cohort.map[_ComputeUnits]: 100%|██████████| 5/5 [00:00&lt;00:00, 10.23it/s]
+Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
+Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:00&lt;00:00, 10.18it/s]
+Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:00&lt;00:00, 11.00it/s]
+Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:00&lt;00:00, 11.24it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:00&lt;00:00, 11.23it/s]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:00&lt;00:00, 11.23it/s]
 
-Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  20%|██        | 1/5 [00:00&lt;00:00,  6.56it/s]
-Cohort.map[_AssignPrecomputedUnits]:  40%|████      | 2/5 [00:00&lt;00:00,  6.11it/s]
-Cohort.map[_AssignPrecomputedUnits]:  60%|██████    | 3/5 [00:00&lt;00:00,  6.11it/s]
-Cohort.map[_AssignPrecomputedUnits]:  80%|████████  | 4/5 [00:00&lt;00:00,  6.12it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:00&lt;00:00,  6.03it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 5/5 [00:00&lt;00:00,  6.03it/s]
-HabitatModel kmeans-b116f5fc90857e1b
-  habitats           : 4
+Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
+Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00&lt;00:00,  6.15it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00&lt;00:00,  6.11it/s]
+Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00&lt;00:00,  5.96it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  6.10it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00&lt;00:00,  6.09it/s]
+HabitatModel kmeans-b01ecfd00139f26e
+  habitats           : 5
   features (4)    : LAP, pre_contrast, PVP, delay_3min
-  defining cohort    : n=5
+  defining cohort    : n=4
   modalities         : LAP, pre_contrast, PVP, delay_3min
-  cohort digest      : 29bb088d9c7c93b8...
+  cohort digest      : 81dc6515a9f2b393...
   produced by        : habitat_model_fitter.kmeans
   habit version      : 3.0.0
   random seed        : 0
   preprocessing state: inertia, selection_report, validation
-         habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  ith_score
+         habitat_1_volume_fraction  habitat_2_volume_fraction  habitat_3_volume_fraction  habitat_4_volume_fraction  habitat_5_volume_fraction  ith_score  contrast  graph_num_nodes_total
 subject
-subj001                      0.047                      0.450                       0.00                      0.503      0.913
-subj002                      0.000                      0.270                       0.00                      0.730      0.833
-subj003                      0.000                      0.898                       0.00                      0.102      0.726
-subj004                      0.117                      0.054                       0.00                      0.829      0.557
-subj005                      0.518                      0.000                       0.27                      0.211      0.965
+subj001                      0.090                      0.110                      0.182                      0.182                      0.436      0.949     1.424                  498.0
+subj002                      0.000                      0.171                      0.196                      0.117                      0.516      0.850     2.295                  125.0
+subj003                      0.000                      0.424                      0.000                      0.576                      0.000      0.796     1.639                   47.0
+subj004                      0.178                      0.169                      0.550                      0.000                      0.104      0.862     1.461                  105.0
 </pre></div>
 </div>
 </section>
 <section id="look-at-one-habitat-map">
 <h2>Look at one habitat map<a class="headerlink" href="#look-at-one-habitat-map" title="Link to this heading"></a></h2>
-<p>The anatomy comes from the same folder the YAML named.</p>
+<p>The anatomy comes from the same folder the YAML named. The saved model
+(<code class="docutils literal notranslate"><span class="pre">save=True</span></code> writes it under <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>) labels a new patient the
+way the Python page shows in its last section.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
+<a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)</span>
 <a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <a href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">subject_id</span> <span class="o">==</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span></a><span class="p">)</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
-    <a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">),</span>
+    <a href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
     <a href="../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a><span class="p">,</span>
     <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">: habitats (YAML)&quot;</span><span class="p">,</span>
     <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span>
@@ -882,7 +914,7 @@ subj005                      0.518                      0.000                   
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.574 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.122 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-quickstart-plot-quickstart-yaml-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/c284b1fa506e8b75c41fc4b328f96ec0/plot_quickstart_yaml.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_quickstart_yaml.ipynb</span></code></a></p>

@@ -211,8 +211,8 @@ patient. Drop ``pool`` and every subject is clustered on its own
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:07,  2.33s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.99s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.83s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.77s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.77s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:03,  1.10s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:01<00:01,  1.04it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02<00:00,  1.13it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.16it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.16it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:05<00:17,  5.74s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:07<00:07,  3.59s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:08<00:02,  2.83s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:09<00:00,  2.46s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:09<00:00,  2.46s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:04,  1.41s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:02<00:02,  1.10s/it]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02<00:00,  1.02it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.09it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.09it/s]
     HabitatModel kmeans-b01ecfd00139f26e
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -250,8 +250,8 @@ the other designs. Both give the same habitat maps:
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.23s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.93s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.77s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.65s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.65s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00<00:00,  4.55it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00<00:00,  4.45it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00<00:00,  4.54it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.60it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.60it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.02s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.92s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.70s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.61s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:06<00:00,  1.61s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:00<00:00,  4.49it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:00<00:00,  4.61it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:00<00:00,  4.67it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.71it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:00<00:00,  4.71it/s]
     stages == shortcut: True
 
 
@@ -498,19 +498,22 @@ plus the habitat maps because write_maps=True.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.86s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.86s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.63s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:04<00:00,  4.63s/it]
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-241
+.. GENERATED FROM PYTHON SOURCE LINES 231-244
 
 Where to go next
 ----------------
 * The same analysis from a YAML file:
-  :doc:`/auto_quickstart/plot_quickstart_yaml`.
+  :doc:`/auto_quickstart/plot_quickstart_yaml`, and from the shell with
+  ``habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml``
+  (:doc:`/tutorial/quickstart`). Both fit the same four subjects and give
+  the same habitat maps as this page.
 * The same stages, then each one opened up:
   :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
 * Interactive 3-D view (``pip install "habitat-analysis[view]"``)::
@@ -521,7 +524,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 33.547 seconds)
+   **Total running time of the script:** (0 minutes 35.247 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_python.py:

@@ -7,7 +7,8 @@ the input images.
 
 **Purpose.** Run the two-step demo from a YAML file with the ``habit``
 command and get habitat maps plus a habitat feature table under
-``demo_data/results/``.
+``demo_data/results/``. It is the same analysis as the Python and YAML
+quickstart pages, with the same result.
 
 **Key terms.**
 
@@ -85,39 +86,51 @@ Stay in the conda env from :doc:`installation`. From ``<work_dir>``::
 4. Run
 ------
 
-For parquet, ``pip install pyarrow`` (or write CSV). See :doc:`installation`.
+``config/habitat/config_habitat_quickstart_v1.yaml`` is the analysis of the
+Python and YAML quickstart pages
+(:doc:`/auto_quickstart/plot_quickstart_python`,
+:doc:`/auto_quickstart/plot_quickstart_yaml`): raw intensities of the four
+DCE phases inside the LAP ROI, 30 supervoxels per tumour, one k-means fit
+over the pooled supervoxels (2 to 10 habitats, elbow), seed 0, fitted on
+``subj001`` to ``subj004``. The subjects are listed in the manifest
+``config/habitat/file_habitat_quickstart.yaml``. All three pages give the
+same habitat maps (5 habitats, identical labels voxel by voxel) and the
+same feature values. From ``<work_dir>``::
 
-::
+   habit check-config --config config/habitat/config_habitat_quickstart_v1.yaml
+   habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml
 
-   habit check-config --config config/habitat/config_habitat_two_step.yaml
+The habitat maps, ``habitat_features.csv`` (volume fractions, MSI, ITH,
+graph) and ``habitat_model.habitatmodel`` land in
+``demo_data/results/habitat_quickstart/``. Look at one map::
+
+   habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_quickstart/subj001_habitats.nrrd
+
+``habit view`` opens napari if installed (select the habitats Labels layer;
+Contour ``0`` = filled regions); otherwise it writes a PNG. The figure
+below is that PNG, written without opening a window::
+
+   habit view --backend matplotlib demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_quickstart/subj001_habitats.nrrd -o quickstart_cli_view.png --no-open
+
+.. figure:: ../_static/images/quickstart_cli_view.png
+   :alt: subj001 habitat map from config_habitat_quickstart_v1.yaml on the LAP image
+   :width: 100%
+
+   ``subj001`` habitats from ``config_habitat_quickstart_v1.yaml``.
+
+``config/habitat/config_habitat_two_step.yaml`` is a fuller two-step
+configuration: per-subject winsorize and min-max scaling, cohort binning
+(10 bins), 50 supervoxels, connected-component clean-up, seed 42, all
+five subjects, ROI from the ``pre_contrast`` mask. It defines different
+habitats by design; run it the same way::
+
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml
-
-   habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
-
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
-``habit extract`` uses the habitat maps from ``get-habitat`` to extract volume, MSI, ITH, and graph features.
-
-``habit view`` opens napari if installed; otherwise it writes a PNG. In
-napari, select the habitats Labels layer (Contour ``0`` = filled regions).
-
-.. list-table::
-   :widths: 50 50
-   :align: center
-
-   * - .. figure:: ../_static/images/habitat_view_napari_region.png
-          :alt: napari habitat view with filled region labels
-          :width: 100%
-
-          Filled labels.
-
-     - .. figure:: ../_static/images/habitat_view_napari_contour.png
-          :alt: napari habitat view with contour outlines
-          :width: 100%
-
-          Contour outlines.
-
-Outputs land under ``demo_data/results/``.
+``habit extract`` reads the habitat maps that ``config_habitat_two_step.yaml``
+writes (``demo_data/results/habitat_two_step/``) and extracts volume, MSI,
+ITH, and graph features. For parquet outputs, ``pip install pyarrow`` (see
+:doc:`installation`).
 
 Next
 ----

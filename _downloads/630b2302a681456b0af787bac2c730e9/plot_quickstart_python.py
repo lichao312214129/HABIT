@@ -231,7 +231,10 @@ plt.show()
 # Where to go next
 # ----------------
 # * The same analysis from a YAML file:
-#   :doc:`/auto_quickstart/plot_quickstart_yaml`.
+#   :doc:`/auto_quickstart/plot_quickstart_yaml`, and from the shell with
+#   ``habit get-habitat --config config/habitat/config_habitat_quickstart_v1.yaml``
+#   (:doc:`/tutorial/quickstart`). Both fit the same four subjects and give
+#   the same habitat maps as this page.
 # * The same stages, then each one opened up:
 #   :doc:`/auto_examples/00_full_pipeline/plot_01_full_pipeline`.
 # * Interactive 3-D view (``pip install "habitat-analysis[view]"``)::
