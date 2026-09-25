@@ -214,7 +214,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -1433,7 +1433,7 @@ composes translation+rotation into one affine (MIRP ≥ 2).</p>
 </div>
 <p>Subject-level wrappers (<code class="docutils literal notranslate"><span class="pre">morphological</span></code>, <code class="docutils literal notranslate"><span class="pre">gradient_weighted</span></code>,
 <code class="docutils literal notranslate"><span class="pre">slice_extent</span></code>) live on <a class="reference internal" href="generated/habit.precision.ImagePerturbationRegistry.html#habit.precision.ImagePerturbationRegistry" title="habit.precision.ImagePerturbationRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePerturbationRegistry</span></code></a>.
-Copy-ready demo and figures: <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_03_precise_features.html"><span class="doc">Precise features and habitat stability</span></a>.</p>
+Copy-ready demo and figures: <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_05_precise_features.html"><span class="doc">Precise features vs all textures under perturbation</span></a>.</p>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/contour_morphological_grow.png"><img alt="Uniform morphological grow of an ROI contour" src="../_images/contour_morphological_grow.png" style="width: 640px;" />
 </a>
@@ -1511,9 +1511,12 @@ squared Euclidean distance. Rescale columns first with
 <code class="xref py py-func docutils literal notranslate"><span class="pre">fit_feature_match_scale()</span></code>
 when features have different units. Domain wrapper:
 <a class="reference internal" href="generated/habit.precision.align_habitat_maps_to_prototypes.html#habit.precision.align_habitat_maps_to_prototypes" title="habit.precision.align_habitat_maps_to_prototypes"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_maps_to_prototypes()</span></code></a>. Method and
-references: <a class="reference internal" href="../reference/habitat_matching.html"><span class="doc">Matching habitat labels across fits and subjects</span></a>.</p></li>
+references: <a class="reference internal" href="../reference/habitat_matching.html"><span class="doc">Matching habitat labels</span></a>.</p></li>
 </ul>
-<p>Copy-ready walkthrough: <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_matching_labels.html"><span class="doc">Matching habitat labels between two fits</span></a>.</p>
+<p>Copy-ready walkthroughs (all prototype matching):
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">Same subject, two fits: prototype matching</span></a>,
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_03_match_two_subjects.html"><span class="doc">Two subjects, same Spec: prototype matching</span></a>,
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_04_match_group.html"><span class="doc">Group one-step fits: prototype matching</span></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_label_match</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">match_labels_by_overlap</span><span class="p">,</span>
     <span class="n">match_rows_to_prototypes</span><span class="p">,</span>

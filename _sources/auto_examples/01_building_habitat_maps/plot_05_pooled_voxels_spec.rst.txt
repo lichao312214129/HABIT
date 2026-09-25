@@ -199,8 +199,8 @@ before ``pool`` they are subject-level, after it cohort-level.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.13s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.13s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.20s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.06s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.10it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -318,13 +318,14 @@ on every pooled voxel instead of on 60 supervoxels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 201-204
+.. GENERATED FROM PYTHON SOURCE LINES 201-205
 
 One overlay per patient
 -----------------------
-Ids are shared, so the same colour is the same habitat in both maps.
+Ids come from one shared model, so the same colour is the same habitat
+in both maps (no matching step).
 
-.. GENERATED FROM PYTHON SOURCE LINES 204-214
+.. GENERATED FROM PYTHON SOURCE LINES 205-215
 
 .. code-block:: Python
 
@@ -371,14 +372,15 @@ Ids are shared, so the same colour is the same habitat in both maps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 215-219
+.. GENERATED FROM PYTHON SOURCE LINES 216-221
 
 Feature table
 -------------
-One row per patient. Volume fractions can be compared across rows
-because the ids come from one shared model.
+One row per patient. Pooled-voxel fits assign labels from one shared
+model, so habitat ids are already comparable across subjects and do
+not need matching (matching is for separate fits / one-step).
 
-.. GENERATED FROM PYTHON SOURCE LINES 219-227
+.. GENERATED FROM PYTHON SOURCE LINES 221-229
 
 .. code-block:: Python
 
@@ -407,7 +409,7 @@ because the ids come from one shared model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-234
+.. GENERATED FROM PYTHON SOURCE LINES 230-236
 
 Arterial-phase intensity inside each habitat
 --------------------------------------------
@@ -416,7 +418,7 @@ shows only one of them (the displayed LAP image, raw values, first
 patient) to give the habitats a physical reading. The label map sits
 on the image grid, so the two arrays can be indexed together.
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-250
+.. GENERATED FROM PYTHON SOURCE LINES 236-252
 
 .. code-block:: Python
 
@@ -458,7 +460,7 @@ on the image grid, so the two arrays can be indexed together.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 251-265
+.. GENERATED FROM PYTHON SOURCE LINES 253-267
 
 How to read the result
 ----------------------
@@ -475,7 +477,7 @@ How to read the result
   two designs fit different rows, so "habitat 1" here and there are
   unrelated unless you match them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 267-278
+.. GENERATED FROM PYTHON SOURCE LINES 269-280
 
 Where to go next
 ----------------
@@ -492,7 +494,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 50.045 seconds)
+   **Total running time of the script:** (0 minutes 30.474 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_05_pooled_voxels_spec.py:

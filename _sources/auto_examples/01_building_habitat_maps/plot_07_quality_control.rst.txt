@@ -248,9 +248,9 @@ centroids and the stored bin edges, without refitting.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.40s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.18s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.70it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.69it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.69it/s]
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:02<00:04,  2.02s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:04<00:02,  2.07s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:12<00:00,  4.24s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:12<00:00,  4.24s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.19s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.77s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.77s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.08it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.04it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.04it/s]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:01<00:03,  1.93s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:03<00:01,  1.95s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:08<00:00,  2.68s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:08<00:00,  2.68s/it]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -685,9 +685,9 @@ nearest its overall intensity level.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.27s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.50s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.50s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.88it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:01<00:03,  1.92s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:03<00:01,  1.92s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:11<00:00,  3.70s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:11<00:00,  3.70s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.07s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.75s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.75s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.99it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/3 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]:  33%|███▎      | 1/3 [00:01<00:03,  1.72s/it]    Cohort.map[_LabelAndDescribe]:  67%|██████▋   | 2/3 [00:03<00:01,  1.77s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:07<00:00,  2.45s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 3/3 [00:07<00:00,  2.45s/it]
     Poor definition, no subject-level normalization (K = 5):
     subject    h1    h2    h3    h4    h5  largest present  pieces  tiny_share   ith  one_block  missing_habitat  fragmented
     subj001 0.221 0.116 0.252 0.047 0.364    0.364     5/5     194       0.012 0.961      False            False       False
@@ -856,7 +856,7 @@ Where to go next
 * Remove tiny pieces from a map that the fragmented flag points at:
   :doc:`/auto_examples/01_building_habitat_maps/plot_08_cleaning_maps`.
 * How the maps react to a slightly larger or smaller ROI:
-  :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
+  :doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`.
 * Choosing the number of habitats with other criteria:
   :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
 * The volume fraction and ITH definitions:
@@ -866,7 +866,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 0.131 seconds)
+   **Total running time of the script:** (0 minutes 45.425 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_07_quality_control.py:

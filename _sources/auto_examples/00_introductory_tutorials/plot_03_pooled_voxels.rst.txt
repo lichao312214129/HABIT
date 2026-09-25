@@ -199,8 +199,8 @@ before ``pool`` they are subject-level, after it cohort-level.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.23s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.19s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.19s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.35s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.17s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.17s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.06s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.12s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.01it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.01it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -371,14 +371,15 @@ Ids are shared, so the same colour is the same habitat in both maps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 215-219
+.. GENERATED FROM PYTHON SOURCE LINES 215-220
 
 Feature table
 -------------
-One row per patient. Volume fractions can be compared across rows
-because the ids come from one shared model.
+One row per patient. Pooled-voxel fits assign labels from one shared
+model, so habitat ids are already comparable across subjects and do
+not need matching (matching is for separate fits / one-step).
 
-.. GENERATED FROM PYTHON SOURCE LINES 219-227
+.. GENERATED FROM PYTHON SOURCE LINES 220-228
 
 .. code-block:: Python
 
@@ -407,7 +408,7 @@ because the ids come from one shared model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-234
+.. GENERATED FROM PYTHON SOURCE LINES 229-235
 
 Arterial-phase intensity inside each habitat
 --------------------------------------------
@@ -416,7 +417,7 @@ shows only one of them (the displayed LAP image, raw values, first
 patient) to give the habitats a physical reading. The label map sits
 on the image grid, so the two arrays can be indexed together.
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-250
+.. GENERATED FROM PYTHON SOURCE LINES 235-251
 
 .. code-block:: Python
 
@@ -458,12 +459,12 @@ on the image grid, so the two arrays can be indexed together.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 251-253
+.. GENERATED FROM PYTHON SOURCE LINES 252-254
 
 Save maps, tables, and the model
 --------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 253-256
+.. GENERATED FROM PYTHON SOURCE LINES 254-257
 
 .. code-block:: Python
 
@@ -483,19 +484,20 @@ Save maps, tables, and the model
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-266
+.. GENERATED FROM PYTHON SOURCE LINES 258-268
 
 How to read the result
 ----------------------
 * The model was fitted on pooled voxels from the training pair; the
   elbow rule kept a small K in this run (print ``model.summary()``).
-* Volume fractions are comparable across rows because ids are shared.
+* Volume fractions are comparable across rows because ids come from
+  one shared model (no matching step).
 * ITH is often high without supervoxels: single voxels at borders form
   many small fragments.
-* Habitat numbering is not the same as on the two-step page unless you
-  match labels deliberately.
+* Habitat numbering need not match a two-step run on the same data;
+  each design has its own shared model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-279
+.. GENERATED FROM PYTHON SOURCE LINES 270-281
 
 Where to go next
 ----------------
@@ -512,7 +514,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 56.386 seconds)
+   **Total running time of the script:** (0 minutes 32.123 seconds)
 
 
 .. _sphx_glr_download_auto_examples_00_introductory_tutorials_plot_03_pooled_voxels.py:

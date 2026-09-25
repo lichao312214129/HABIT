@@ -200,7 +200,8 @@ plt.show()
 # %%
 # One overlay per patient
 # -----------------------
-# Ids are shared, so the same colour is the same habitat in both maps.
+# Ids come from one shared model, so the same colour is the same habitat
+# in both maps (no matching step).
 for subject, habitat_map in zip(train, result.habitat_maps):
     fig = plot_habitat_overlay(
         subject.image("LAP"),
@@ -214,8 +215,9 @@ for subject, habitat_map in zip(train, result.habitat_maps):
 # %%
 # Feature table
 # -------------
-# One row per patient. Volume fractions can be compared across rows
-# because the ids come from one shared model.
+# One row per patient. Pooled-voxel fits assign labels from one shared
+# model, so habitat ids are already comparable across subjects and do
+# not need matching (matching is for separate fits / one-step).
 table = result.features.frame.set_index("subject")
 columns = [c for c in table.columns if c.endswith("_volume_fraction")] + [
     "ith_score",

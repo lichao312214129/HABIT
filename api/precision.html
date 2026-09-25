@@ -214,7 +214,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -1115,16 +1115,17 @@ the same voxels onto a reference (overlap Hungarian);</p></li>
 subjects by iterative matching to shared (or frozen) prototypes.</p></li>
 </ul>
 <p><strong>User guide:</strong> Habitat Guide
-<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_03_precise_features.html"><span class="doc">Precise features and habitat stability</span></a> ·
-<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_matching_labels.html"><span class="doc">Matching habitat labels between two fits</span></a>.
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_05_precise_features.html"><span class="doc">Precise features vs all textures under perturbation</span></a> ·
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">Same subject, two fits: prototype matching</span></a> ·
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_03_match_two_subjects.html"><span class="doc">Two subjects, same Spec: prototype matching</span></a> ·
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_04_match_group.html"><span class="doc">Group one-step fits: prototype matching</span></a>.
 Recipe wrapper: <a class="reference internal" href="generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a>.</p>
 <p>Simulated-retest perturbations and the ICC intersection that decides
 which extracted voxel columns may define habitats (Prior et al.,
-Radiol Artif Intell 2024;6(2):e230118). Label matching lives here too:
-<code class="docutils literal notranslate"><span class="pre">align_habitat_map</span></code> (voxel overlap) for two maps of the same voxels and
-<code class="docutils literal notranslate"><span class="pre">align_habitat_maps_to_prototypes</span></code> for different subjects, including
-naming a new cohort with frozen prototypes. Method
-choice, algorithm, and literature: <a class="reference internal" href="../reference/habitat_matching.html"><span class="doc">Matching habitat labels across fits and subjects</span></a>.</p>
+Radiol Artif Intell 2024;6(2):e230118). Guide matching examples use
+<a class="reference internal" href="generated/habit.precision.align_habitat_maps_to_prototypes.html#habit.precision.align_habitat_maps_to_prototypes" title="habit.precision.align_habitat_maps_to_prototypes"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_maps_to_prototypes()</span></code></a>. Two-step and
+pooled-voxel fits share one model and do not need matching. Short pointer:
+<a class="reference internal" href="../reference/habitat_matching.html"><span class="doc">Matching habitat labels</span></a>.</p>
 <section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">

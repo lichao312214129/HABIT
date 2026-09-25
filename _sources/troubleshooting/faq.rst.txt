@@ -73,7 +73,11 @@ and what cohort-level preprocessing does and does not fix, is on
 (1) The same regions with different numbers: clustering numbers its
 habitats in arbitrary order, so "habitat 2" of one fit can be "habitat
 3" of another. The maps agree after matching the labels (Hungarian
-matching on overlap or on centroids): :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+prototype matching):
+:doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`,
+:doc:`/auto_examples/05_validation_and_reuse/plot_03_match_two_subjects`,
+or :doc:`/auto_examples/05_validation_and_reuse/plot_04_match_group`.
+Two-step and pooled-voxel fits already share one model and do not need matching.
 (2) Genuinely different regions: the two runs used a different
 definition (other stages, preprocessing, number of supervoxels, seed) or
 a different training cohort. Compare the two stage lists and the

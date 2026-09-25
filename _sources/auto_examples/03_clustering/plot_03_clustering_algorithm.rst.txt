@@ -28,22 +28,7 @@ clustering **algorithm** (k-means or a Gaussian mixture) and the
 one a validation criterion prefers. Different criteria measure
 different things, so on the same data they can pick different Ks.
 
-**Elbow / Kneedle caveat.** HABIT validation ``elbow`` is the same rule
-as ``kneedle``. It runs ``KneeLocator`` on k-means inertia
-(within-cluster sum of squares), curve convex, direction decreasing
-(Satopaa, Albrecht, Irwin, and Raghavan, 2011, *Finding a "Kneedle" in
-a Haystack*, IEEE ICDCS Workshops). Normalize ``k`` and inertia to the
-unit square, draw the chord from the first point to the last, and take
-the ``k`` farthest from that chord; a smooth curve often places this
-knee to the right of the bend a person sees. In the clustering
-literature, *elbow* usually means looking at within-cluster dispersion
-versus ``k`` and choosing where extra clusters stop helping (Thorndike
-RL, 1953, *Who belongs in the family?*, Psychometrika 18(4):267–276).
-Do not claim Thorndike published a second-difference formula. The
-**discrete-curvature elbow** (visual elbow, computed) is the ``k`` that
-maximizes the second difference of inertia — the rule HABIT used before
-v1.0; it is not a “Thorndike formula”. See
-:doc:`/user_guide/building_habitat_maps`.
+**Elbow / Kneedle caveat.** HABIT validation ``elbow`` is Kneedle on inertia (Satopaa et al. 2011). The visual elbow is the discrete-curvature reading associated with Thorndike 1953, not a formula Thorndike published.
 
 **Purpose.** Starting from the analysis of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`, you will change
@@ -90,7 +75,7 @@ are shown only in the table and markers.
    study. With so few rows the criteria disagree easily; the point of
    the page is how to run and report the comparison.
 
-.. GENERATED FROM PYTHON SOURCE LINES 76-83
+.. GENERATED FROM PYTHON SOURCE LINES 61-68
 
 The reference analysis
 ----------------------
@@ -100,7 +85,7 @@ quantify stage (the other feature families are not needed here).
 touching anything else.
 sphinx_gallery_thumbnail_number = 1
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-145
+.. GENERATED FROM PYTHON SOURCE LINES 68-130
 
 .. code-block:: Python
 
@@ -196,8 +181,8 @@ sphinx_gallery_thumbnail_number = 1
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.37s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.06s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.06s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.44it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.48it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.48it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.18s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.79s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.79s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.90it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.91it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.91it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -213,7 +198,7 @@ sphinx_gallery_thumbnail_number = 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-151
+.. GENERATED FROM PYTHON SOURCE LINES 131-136
 
 Check: refitting the reference fitter reproduces Study
 ------------------------------------------------------
@@ -221,7 +206,7 @@ Same rows, same settings, same seed. If the labels are identical, the
 criteria comparison below really compares criteria on the reference
 data and nothing else.
 
-.. GENERATED FROM PYTHON SOURCE LINES 151-181
+.. GENERATED FROM PYTHON SOURCE LINES 136-166
 
 .. code-block:: Python
 
@@ -268,7 +253,7 @@ data and nothing else.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 182-191
+.. GENERATED FROM PYTHON SOURCE LINES 167-176
 
 k-means: K selected by each criterion
 -------------------------------------
@@ -280,7 +265,7 @@ Directions: elbow/kneedle = Kneedle knee; silhouette, calinski_harabasz,
 gap = maximize; davies_bouldin = minimize. Gap is included here because
 this page already compares every supported criterion.
 
-.. GENERATED FROM PYTHON SOURCE LINES 191-267
+.. GENERATED FROM PYTHON SOURCE LINES 176-252
 
 .. code-block:: Python
 
@@ -386,7 +371,7 @@ this page already compares every supported criterion.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-273
+.. GENERATED FROM PYTHON SOURCE LINES 253-258
 
 Gaussian mixture: K selected by each criterion
 ----------------------------------------------
@@ -394,7 +379,7 @@ The same rows with ``GmmHabitatModelFitter`` (full covariance, the
 default; ``n_init=10`` as for k-means instead of the default 50, to
 keep the page fast). Its own default criterion is ``bic``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 273-291
+.. GENERATED FROM PYTHON SOURCE LINES 258-276
 
 .. code-block:: Python
 
@@ -434,7 +419,7 @@ keep the page fast). Its own default criterion is ``bic``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 292-297
+.. GENERATED FROM PYTHON SOURCE LINES 277-282
 
 Same K, different algorithm
 ---------------------------
@@ -442,7 +427,7 @@ When the two algorithms end up with the same K, are the habitats the
 same regions? Compare the reference k-means map (Kneedle elbow K) with
 the Gaussian mixture chosen by ``bic_elbow``, if that picked the same K.
 
-.. GENERATED FROM PYTHON SOURCE LINES 297-315
+.. GENERATED FROM PYTHON SOURCE LINES 282-300
 
 .. code-block:: Python
 
@@ -477,7 +462,7 @@ the Gaussian mixture chosen by ``bic_elbow``, if that picked the same K.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 316-321
+.. GENERATED FROM PYTHON SOURCE LINES 301-306
 
 Seed stability
 --------------
@@ -485,7 +470,7 @@ Seed stability
 robust definition should give similar maps for any seed. Rerun the
 whole Spec with seeds 1 and 2 and compare with seed 0.
 
-.. GENERATED FROM PYTHON SOURCE LINES 321-328
+.. GENERATED FROM PYTHON SOURCE LINES 306-313
 
 .. code-block:: Python
 
@@ -504,10 +489,10 @@ whole Spec with seeds 1 and 2 and compare with seed 0.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.63s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.68s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.68s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.61it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.60it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.60it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.02s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.87s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.87s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.54it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.54it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.20s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.79s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.79s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.78it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.72it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.72it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.80s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.80s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.70it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.73it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.72it/s]
     seed 0: K = 5, ARI vs seed 0 per patient = [1.0, 1.0]
     seed 1: K = 5, ARI vs seed 0 per patient = [0.67, 0.692]
     seed 2: K = 5, ARI vs seed 0 per patient = [0.702, 0.732]
@@ -515,7 +500,7 @@ whole Spec with seeds 1 and 2 and compare with seed 0.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 329-355
+.. GENERATED FROM PYTHON SOURCE LINES 314-340
 
 How to read the result
 ----------------------
@@ -544,7 +529,7 @@ Guidance for a study:
   seed stability, and, if habitats are interpreted biologically,
   check that neighbouring Ks tell the same story.
 
-.. GENERATED FROM PYTHON SOURCE LINES 357-368
+.. GENERATED FROM PYTHON SOURCE LINES 342-353
 
 Where to go next
 ----------------
@@ -554,14 +539,14 @@ Where to go next
   :doc:`/auto_examples/07_advanced/plot_05_fit`,
   :doc:`/auto_examples/07_advanced/plot_06_assign`.
 * Matching habitat numbers between two fits:
-  :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+  :doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`.
 * Cleaning the final maps:
   :doc:`/auto_examples/01_building_habitat_maps/plot_08_cleaning_maps`.
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 39.445 seconds)
+   **Total running time of the script:** (0 minutes 41.377 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_clustering_plot_03_clustering_algorithm.py:

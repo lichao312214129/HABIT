@@ -25,7 +25,7 @@ Featured examples
 
 * :doc:`auto_examples/00_introductory_tutorials/plot_01_two_step` — two-step habitats
 * :doc:`auto_examples/04_quantifying_habitats/plot_04_graph_network_features` — graph-network features
-* :doc:`auto_examples/05_validation_and_reuse/plot_04_reuse_published_model` — reuse a published model
+* :doc:`auto_examples/05_validation_and_reuse/plot_06_reuse_published_model` — reuse a published model
 
 .. toctree::
    :maxdepth: 1

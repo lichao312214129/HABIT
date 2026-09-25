@@ -214,7 +214,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -589,9 +589,11 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="05_validation_and_reuse/index.html">Validation and reuse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_01_train_save_predict.html">Train, save, and predict new patients</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_02_matching_labels.html">Matching habitat labels between two fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_03_precise_features.html">Precise features and habitat stability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_04_reuse_published_model.html">Reuse a published habitat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_02_match_same_subject.html">Same subject, two fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_03_match_two_subjects.html">Two subjects, same Spec: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_04_match_group.html">Group one-step fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_05_precise_features.html">Precise features vs all textures under perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_validation_and_reuse/plot_06_reuse_published_model.html">Reuse a published habitat model</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="06_manipulating_images/index.html">Manipulating images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -801,19 +803,26 @@ radiomics (each habitat + whole map).</p>
 </div></div></section>
 <section id="validation-and-reuse">
 <h2>Validation and reuse<a class="headerlink" href="#validation-and-reuse" title="Link to this heading">#</a></h2>
-<p>Train / save / predict, matching habitat labels, precise features and
-stability, and reusing a published <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code>.</p>
+<p>Train / save / predict, prototype-match habitat labels (same subject,
+two subjects, or a one-step group), precise features under perturbation,
+and reuse a published <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code>.</p>
 <div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat study usually has a training set, where the habitat definition is learned, and new patients, where that definition is only applied. The new patients must never influence the definition: no refitted centroids, no refitted bin edges. The .habitatmodel file is what carries the definition from one side to the other, so a later cohort (or a colleague) gets habitat ids that mean the same thing as in the training set."><img alt="" src="../_images/sphx_glr_plot_01_train_save_predict_thumb.png" />
 <p><a class="reference internal" href="05_validation_and_reuse/plot_01_train_save_predict.html"><span class="doc">Train, save, and predict new patients</span></a></p>
   <div class="sphx-glr-thumbnail-title">Train, save, and predict new patients</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A clustering run numbers its habitats in arbitrary order. Fit the same analysis twice on different patients and the same kind of tissue can be habitat 1 in one fit and habitat 3 in the other (label switching). The two fits may even choose a different number of habitats. Anything that compares habitats by id -- a Dice score, a &quot;volume fraction of habitat 2&quot; column, a pooled table from two sites or two time windows -- is wrong until the ids are matched."><img alt="" src="../_images/sphx_glr_plot_02_matching_labels_thumb.png" />
-<p><a class="reference internal" href="05_validation_and_reuse/plot_02_matching_labels.html"><span class="doc">Matching habitat labels between two fits</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Matching habitat labels between two fits</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Background. Voxel-wise texture features are noisy. Clustering on features that flip under a simulated re-acquisition produces habitats nobody can reproduce. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep only features whose lower confidence limit (LCL) of ICC clears a threshold under three experiments: repeatability (original vs simulated retest), kernel-radius reproducibility, and bin-width reproducibility. The same page then asks whether the habitat map stays stable when the image is lightly perturbed."><img alt="" src="../_images/sphx_glr_plot_03_precise_features_thumb.png" />
-<p><a class="reference internal" href="05_validation_and_reuse/plot_03_precise_features.html"><span class="doc">Precise features and habitat stability</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Precise features and habitat stability</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat definition published with a paper is a .habitatmodel file. Whoever receives it should be able to see what it declares (which images, which features, how many habitats, how it was trained), know that their HABIT can read it, check that their own data can enter its feature space, and then label their patients with it -- without refitting anything and without the authors&#x27; code."><img alt="" src="../_images/sphx_glr_plot_04_reuse_published_model_thumb.png" />
-<p><a class="reference internal" href="05_validation_and_reuse/plot_04_reuse_published_model.html"><span class="doc">Reuse a published habitat model</span></a></p>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Independent fits of the same patient permute habitat ids. Change only random_seed, then name both maps with align_habitat_maps_to_prototypes (centroid prototypes). Show overlays and volume-fraction columns before and after."><img alt="" src="../_images/sphx_glr_plot_02_match_same_subject_thumb.png" />
+<p><a class="reference internal" href="05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">Same subject, two fits: prototype matching</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Same subject, two fits: prototype matching</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="One-step fits of different patients with the same Spec and seed still number habitats independently. Name both maps with align_habitat_maps_to_prototypes."><img alt="" src="../_images/sphx_glr_plot_03_match_two_subjects_thumb.png" />
+<p><a class="reference internal" href="05_validation_and_reuse/plot_03_match_two_subjects.html"><span class="doc">Two subjects, same Spec: prototype matching</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Two subjects, same Spec: prototype matching</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Fit habitats inside each subject (one-step), then name the whole group with align_habitat_maps_to_prototypes so habitat ids mean the same prototype across people."><img alt="" src="../_images/sphx_glr_plot_04_match_group_thumb.png" />
+<p><a class="reference internal" href="05_validation_and_reuse/plot_04_match_group.html"><span class="doc">Group one-step fits: prototype matching</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Group one-step fits: prototype matching</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit clears a threshold."><img alt="" src="../_images/sphx_glr_plot_05_precise_features_thumb.png" />
+<p><a class="reference internal" href="05_validation_and_reuse/plot_05_precise_features.html"><span class="doc">Precise features vs all textures under perturbation</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Precise features vs all textures under perturbation</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat definition published with a paper is a .habitatmodel file. Whoever receives it should be able to see what it declares (which images, which features, how many habitats, how it was trained), know that their HABIT can read it, check that their own data can enter its feature space, and then label their patients with it -- without refitting anything and without the authors&#x27; code."><img alt="" src="../_images/sphx_glr_plot_06_reuse_published_model_thumb.png" />
+<p><a class="reference internal" href="05_validation_and_reuse/plot_06_reuse_published_model.html"><span class="doc">Reuse a published habitat model</span></a></p>
   <div class="sphx-glr-thumbnail-title">Reuse a published habitat model</div>
 </div></div></section>
 <section id="manipulating-images">

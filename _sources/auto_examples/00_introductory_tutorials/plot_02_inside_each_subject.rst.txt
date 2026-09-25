@@ -43,7 +43,7 @@ use it if you need to compare *habitat 2* across patients (e.g. "the
 fraction of the enhancing habitat"): use the two-step design of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`, or match the
 per-patient habitats first
-(:doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`).
+(:doc:`/auto_examples/05_validation_and_reuse/plot_04_match_group`).
 
 **Analysis definition.** The reference analysis of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec` with three
@@ -220,7 +220,7 @@ pooled training rows, and in this design nothing is pooled.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  20%|██        | 1/5 [00:06<00:26,  6.62s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  40%|████      | 2/5 [00:09<00:14,  4.69s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  60%|██████    | 3/5 [00:11<00:07,  3.96s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  80%|████████  | 4/5 [00:14<00:03,  3.62s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:27<00:00,  5.42s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:27<00:00,  5.42s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  20%|██        | 1/5 [00:03<00:15,  3.93s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  40%|████      | 2/5 [00:06<00:09,  3.19s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  60%|██████    | 3/5 [00:08<00:05,  2.85s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  80%|████████  | 4/5 [00:10<00:02,  2.72s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:16<00:00,  3.33s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:16<00:00,  3.33s/it]
     cohort-level model: None
     per-subject models: ['subj001', 'subj002', 'subj003', 'subj004', 'subj005']
 
@@ -541,7 +541,7 @@ Where to go next
 * Shared ids without supervoxels:
   :doc:`/auto_examples/00_introductory_tutorials/plot_03_pooled_voxels`.
 * Matching per-patient habitats before comparing them:
-  :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+  :doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`.
 * This design rebuilt from individual components:
   :doc:`/auto_examples/01_building_habitat_maps/plot_04_atomic_inside_each_subject`.
 * What ITH and MSI measure: :doc:`/auto_examples/04_quantifying_habitats/plot_03_ith`
@@ -550,7 +550,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 9.763 seconds)
+   **Total running time of the script:** (0 minutes 43.494 seconds)
 
 
 .. _sphx_glr_download_auto_examples_00_introductory_tutorials_plot_02_inside_each_subject.py:

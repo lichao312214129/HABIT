@@ -354,4 +354,4 @@ for name, variant in variants.items():
 # * Supervoxelizers on their own, with every option:
 #   :doc:`/auto_examples/07_advanced/plot_03_supervoxels`.
 # * Stability of habitats to a changed segmentation:
-#   :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
+#   :doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`.

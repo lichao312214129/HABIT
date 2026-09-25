@@ -474,7 +474,7 @@ for name, one_map, n_habitats in (
 # * Remove tiny pieces from a map that the fragmented flag points at:
 #   :doc:`/auto_examples/01_building_habitat_maps/plot_08_cleaning_maps`.
 # * How the maps react to a slightly larger or smaller ROI:
-#   :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`.
+#   :doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`.
 # * Choosing the number of habitats with other criteria:
 #   :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
 # * The volume fraction and ITH definitions:

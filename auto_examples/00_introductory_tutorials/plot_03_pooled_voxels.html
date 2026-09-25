@@ -214,7 +214,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -589,9 +589,11 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../05_validation_and_reuse/index.html">Validation and reuse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_01_train_save_predict.html">Train, save, and predict new patients</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_matching_labels.html">Matching habitat labels between two fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_precise_features.html">Precise features and habitat stability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_reuse_published_model.html">Reuse a published habitat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_match_same_subject.html">Same subject, two fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_match_two_subjects.html">Two subjects, same Spec: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_match_group.html">Group one-step fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_05_precise_features.html">Precise features vs all textures under perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_06_reuse_published_model.html">Reuse a published habitat model</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../06_manipulating_images/index.html">Manipulating images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -831,14 +833,14 @@ before <code class="docutils literal notranslate"><span class="pre">pool</span><
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.23s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.19s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.19s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.06s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.14s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.14s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.35s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.17s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.17s/it]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.12s/it]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.01it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.01it/s]
 HabitatModel kmeans-3432f3b65bfec11a
   habitats           : 5
   features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -962,8 +964,9 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
 </section>
 <section id="feature-table">
 <h2>Feature table<a class="headerlink" href="#feature-table" title="Link to this heading">#</a></h2>
-<p>One row per patient. Volume fractions can be compared across rows
-because the ids come from one shared model.</p>
+<p>One row per patient. Pooled-voxel fits assign labels from one shared
+model, so habitat ids are already comparable across subjects and do
+not need matching (matching is for separate fits / one-step).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">set_index</span></a><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">)</span>
 <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">columns</span></a> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span><span class="o">.</span><span class="n">columns</span></a> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_volume_fraction&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
     <span class="s2">&quot;ith_score&quot;</span><span class="p">,</span>
@@ -1027,11 +1030,12 @@ subj001 habitat 5: median LAP = 987.0
 <ul class="simple">
 <li><p>The model was fitted on pooled voxels from the training pair; the
 elbow rule kept a small K in this run (print <code class="docutils literal notranslate"><span class="pre">model.summary()</span></code>).</p></li>
-<li><p>Volume fractions are comparable across rows because ids are shared.</p></li>
+<li><p>Volume fractions are comparable across rows because ids come from
+one shared model (no matching step).</p></li>
 <li><p>ITH is often high without supervoxels: single voxels at borders form
 many small fragments.</p></li>
-<li><p>Habitat numbering is not the same as on the two-step page unless you
-match labels deliberately.</p></li>
+<li><p>Habitat numbering need not match a two-step run on the same data;
+each design has its own shared model.</p></li>
 </ul>
 </section>
 <section id="where-to-go-next">
@@ -1047,7 +1051,7 @@ match labels deliberately.</p></li>
 <a class="reference internal" href="../07_advanced/plot_05_fit.html"><span class="doc">Fitting a cohort habitat model</span></a> and
 <a class="reference internal" href="../07_advanced/plot_06_assign.html"><span class="doc">Assigning habitat labels</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 56.386 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 32.123 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-00-introductory-tutorials-plot-03-pooled-voxels-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/71db3d2e9104f33fe62339d8ddeb7c43/plot_03_pooled_voxels.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_03_pooled_voxels.ipynb</span></code></a></p>

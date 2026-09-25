@@ -579,8 +579,9 @@ radiomics (each habitat + whole map).
 Validation and reuse
 ====================
 
-Train / save / predict, matching habitat labels, precise features and
-stability, and reusing a published ``.habitatmodel``.
+Train / save / predict, prototype-match habitat labels (same subject,
+two subjects, or a one-step group), precise features under perturbation,
+and reuse a published ``.habitatmodel``.
 
 
 .. raw:: html
@@ -613,35 +614,69 @@ stability, and reusing a published ``.habitatmodel``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. A clustering run numbers its habitats in arbitrary order. Fit the same analysis twice on different patients and the same kind of tissue can be habitat 1 in one fit and habitat 3 in the other (label switching). The two fits may even choose a different number of habitats. Anything that compares habitats by id -- a Dice score, a &quot;volume fraction of habitat 2&quot; column, a pooled table from two sites or two time windows -- is wrong until the ids are matched.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Independent fits of the same patient permute habitat ids. Change only random_seed, then name both maps with align_habitat_maps_to_prototypes (centroid prototypes). Show overlays and volume-fraction columns before and after.">
 
 .. only:: html
 
-  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_02_matching_labels_thumb.png
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_02_match_same_subject_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`
+  :doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Matching habitat labels between two fits</div>
+      <div class="sphx-glr-thumbnail-title">Same subject, two fits: prototype matching</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. Voxel-wise texture features are noisy. Clustering on features that flip under a simulated re-acquisition produces habitats nobody can reproduce. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep only features whose lower confidence limit (LCL) of ICC clears a threshold under three experiments: repeatability (original vs simulated retest), kernel-radius reproducibility, and bin-width reproducibility. The same page then asks whether the habitat map stays stable when the image is lightly perturbed.">
+    <div class="sphx-glr-thumbcontainer" tooltip="One-step fits of different patients with the same Spec and seed still number habitats independently. Name both maps with align_habitat_maps_to_prototypes.">
 
 .. only:: html
 
-  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_03_precise_features_thumb.png
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_03_match_two_subjects_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_validation_and_reuse/plot_03_precise_features`
+  :doc:`/auto_examples/05_validation_and_reuse/plot_03_match_two_subjects`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Precise features and habitat stability</div>
+      <div class="sphx-glr-thumbnail-title">Two subjects, same Spec: prototype matching</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Fit habitats inside each subject (one-step), then name the whole group with align_habitat_maps_to_prototypes so habitat ids mean the same prototype across people.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_04_match_group_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_validation_and_reuse/plot_04_match_group`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Group one-step fits: prototype matching</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit clears a threshold.">
+
+.. only:: html
+
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_05_precise_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Precise features vs all textures under perturbation</div>
     </div>
 
 
@@ -651,10 +686,10 @@ stability, and reusing a published ``.habitatmodel``.
 
 .. only:: html
 
-  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_04_reuse_published_model_thumb.png
+  .. image:: /auto_examples/05_validation_and_reuse/images/thumb/sphx_glr_plot_06_reuse_published_model_thumb.png
     :alt:
 
-  :doc:`/auto_examples/05_validation_and_reuse/plot_04_reuse_published_model`
+  :doc:`/auto_examples/05_validation_and_reuse/plot_06_reuse_published_model`
 
 .. raw:: html
 

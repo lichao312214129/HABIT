@@ -214,7 +214,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -589,9 +589,11 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../05_validation_and_reuse/index.html">Validation and reuse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_01_train_save_predict.html">Train, save, and predict new patients</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_matching_labels.html">Matching habitat labels between two fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_precise_features.html">Precise features and habitat stability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_reuse_published_model.html">Reuse a published habitat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_match_same_subject.html">Same subject, two fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_match_two_subjects.html">Two subjects, same Spec: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_match_group.html">Group one-step fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_05_precise_features.html">Precise features vs all textures under perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_06_reuse_published_model.html">Reuse a published habitat model</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../06_manipulating_images/index.html">Manipulating images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -704,7 +706,7 @@ use it if you need to compare <em>habitat 2</em> across patients (e.g. “the
 fraction of the enhancing habitat”): use the two-step design of
 <a class="reference internal" href="plot_01_two_step_spec.html"><span class="doc">Two-step habitats with a Spec</span></a>, or match the
 per-patient habitats first
-(<a class="reference internal" href="../05_validation_and_reuse/plot_02_matching_labels.html"><span class="doc">Matching habitat labels between two fits</span></a>).</p>
+(<a class="reference internal" href="../05_validation_and_reuse/plot_04_match_group.html"><span class="doc">Group one-step fits: prototype matching</span></a>).</p>
 <p><strong>Analysis definition.</strong> The reference analysis of
 <a class="reference internal" href="plot_01_two_step_spec.html"><span class="doc">Two-step habitats with a Spec</span></a> with three
 stages removed: no <code class="docutils literal notranslate"><span class="pre">partition</span></code> (voxels are clustered directly), no
@@ -850,12 +852,12 @@ pooled training rows, and in this design nothing is pooled.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/5 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]:  20%|██        | 1/5 [00:07&lt;00:28,  7.19s/it]
-Cohort.map[_DefineAndLabelWithinSubject]:  40%|████      | 2/5 [00:10&lt;00:15,  5.31s/it]
-Cohort.map[_DefineAndLabelWithinSubject]:  60%|██████    | 3/5 [00:13&lt;00:09,  4.58s/it]
-Cohort.map[_DefineAndLabelWithinSubject]:  80%|████████  | 4/5 [00:16&lt;00:04,  4.07s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:26&lt;00:00,  5.33s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:26&lt;00:00,  5.33s/it]
+Cohort.map[_DefineAndLabelWithinSubject]:  20%|██        | 1/5 [00:03&lt;00:15,  3.96s/it]
+Cohort.map[_DefineAndLabelWithinSubject]:  40%|████      | 2/5 [00:06&lt;00:09,  3.20s/it]
+Cohort.map[_DefineAndLabelWithinSubject]:  60%|██████    | 3/5 [00:08&lt;00:05,  2.87s/it]
+Cohort.map[_DefineAndLabelWithinSubject]:  80%|████████  | 4/5 [00:10&lt;00:02,  2.74s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:16&lt;00:00,  3.33s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:16&lt;00:00,  3.33s/it]
 cohort-level model: None
 per-subject models: [&#39;subj001&#39;, &#39;subj002&#39;, &#39;subj003&#39;, &#39;subj004&#39;, &#39;subj005&#39;]
 </pre></div>
@@ -1066,13 +1068,13 @@ not an association with anything clinical.</p></li>
 <li><p>Shared ids without supervoxels:
 <a class="reference internal" href="../00_introductory_tutorials/plot_03_pooled_voxels.html"><span class="doc">Habitats from pooled voxels</span></a>.</p></li>
 <li><p>Matching per-patient habitats before comparing them:
-<a class="reference internal" href="../05_validation_and_reuse/plot_02_matching_labels.html"><span class="doc">Matching habitat labels between two fits</span></a>.</p></li>
+<a class="reference internal" href="../05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">Same subject, two fits: prototype matching</span></a>.</p></li>
 <li><p>This design rebuilt from individual components:
 <a class="reference internal" href="plot_04_atomic_inside_each_subject.html"><span class="doc">Habitats inside each subject from atomic components</span></a>.</p></li>
 <li><p>What ITH and MSI measure: <a class="reference internal" href="../04_quantifying_habitats/plot_03_ith.html"><span class="doc">Intratumoral heterogeneity (ITH)</span></a>
 and <a class="reference internal" href="../04_quantifying_habitats/plot_02_msi.html"><span class="doc">Multiregional spatial interaction (MSI)</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 56.905 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 40.125 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-building-habitat-maps-plot-03-inside-each-subject-spec-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/4d39aa806bf0275f7541ae21c76ef258/plot_03_inside_each_subject_spec.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_03_inside_each_subject_spec.ipynb</span></code></a></p>

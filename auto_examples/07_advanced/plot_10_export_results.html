@@ -214,7 +214,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -589,9 +589,11 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../05_validation_and_reuse/index.html">Validation and reuse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_01_train_save_predict.html">Train, save, and predict new patients</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_matching_labels.html">Matching habitat labels between two fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_precise_features.html">Precise features and habitat stability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_reuse_published_model.html">Reuse a published habitat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_match_same_subject.html">Same subject, two fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_match_two_subjects.html">Two subjects, same Spec: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_match_group.html">Group one-step fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_05_precise_features.html">Precise features vs all textures under perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_06_reuse_published_model.html">Reuse a published habitat model</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../06_manipulating_images/index.html">Manipulating images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -807,14 +809,14 @@ same as one image series (here LAP).
 Cohort(2 subjects [subj001, subj002])
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04&lt;00:04,  4.42s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.04s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.04s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.18s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.76s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.76s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.08s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.00s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.00s/it]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.02it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.13it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.13it/s]
 HabitatModel kmeans-3432f3b65bfec11a
   habitats           : 5
   features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -1013,13 +1015,13 @@ the manifest identifies what actually ran.</p>
 <li><p>Train / save / predict with a held-out split:
 <a class="reference internal" href="../05_validation_and_reuse/plot_01_train_save_predict.html"><span class="doc">Train, save, and predict new patients</span></a>.</p></li>
 <li><p>Hand a published <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> to another site:
-<a class="reference internal" href="../05_validation_and_reuse/plot_04_reuse_published_model.html"><span class="doc">Reuse a published habitat model</span></a>.</p></li>
+<a class="reference internal" href="../05_validation_and_reuse/plot_06_reuse_published_model.html"><span class="doc">Reuse a published habitat model</span></a>.</p></li>
 <li><p>The reference analysis this export came from:
 <a class="reference internal" href="../01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">Two-step habitats with a Spec</span></a>.</p></li>
 <li><p>Per-habitat radiomics columns in the same table:
 <a class="reference internal" href="../04_quantifying_habitats/plot_05_habitat_radiomics.html"><span class="doc">Habitat radiomics with volume, MSI and ITH</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 10.998 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.723 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-07-advanced-plot-10-export-results-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/63f79294d6d78cd46e9b8721192987a5/plot_10_export_results.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_10_export_results.ipynb</span></code></a></p>

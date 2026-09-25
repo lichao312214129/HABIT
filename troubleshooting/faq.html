@@ -212,7 +212,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -651,7 +651,11 @@ and what cohort-level preprocessing does and does not fix, is on
 (1) The same regions with different numbers: clustering numbers its
 habitats in arbitrary order, so “habitat 2” of one fit can be “habitat
 3” of another. The maps agree after matching the labels (Hungarian
-matching on overlap or on centroids): <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_matching_labels.html"><span class="doc">Matching habitat labels between two fits</span></a>.
+prototype matching):
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">Same subject, two fits: prototype matching</span></a>,
+<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_03_match_two_subjects.html"><span class="doc">Two subjects, same Spec: prototype matching</span></a>,
+or <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_04_match_group.html"><span class="doc">Group one-step fits: prototype matching</span></a>.
+Two-step and pooled-voxel fits already share one model and do not need matching.
 (2) Genuinely different regions: the two runs used a different
 definition (other stages, preprocessing, number of supervoxels, seed) or
 a different training cohort. Compare the two stage lists and the

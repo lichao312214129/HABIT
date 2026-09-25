@@ -214,7 +214,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -589,9 +589,11 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../05_validation_and_reuse/index.html">Validation and reuse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_01_train_save_predict.html">Train, save, and predict new patients</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_matching_labels.html">Matching habitat labels between two fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_precise_features.html">Precise features and habitat stability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_reuse_published_model.html">Reuse a published habitat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_match_same_subject.html">Same subject, two fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_match_two_subjects.html">Two subjects, same Spec: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_match_group.html">Group one-step fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_05_precise_features.html">Precise features vs all textures under perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_06_reuse_published_model.html">Reuse a published habitat model</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../06_manipulating_images/index.html">Manipulating images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -895,14 +897,14 @@ only <code class="docutils literal notranslate"><span class="pre">partition</spa
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04&lt;00:04,  4.30s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.42s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.42s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.21s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.78s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.78s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.61s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.38s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.38s/it]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.08s/it]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.04it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.04it/s]
 HabitatModel kmeans-3432f3b65bfec11a
   habitats           : 5
   features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -997,9 +999,9 @@ habitat map uses Kneedle K = 5
 </section>
 <section id="habitat-maps">
 <h2>Habitat maps<a class="headerlink" href="#habitat-maps" title="Link to this heading">#</a></h2>
-<p>Supervoxels, then habitats, on one slice. The same colour is the same
-habitat in every patient because <code class="docutils literal notranslate"><span class="pre">pool</span></code> and <code class="docutils literal notranslate"><span class="pre">fit</span></code> ran once for
-the cohort.</p>
+<p>Supervoxels, then habitats, on one slice. Two-step assigns labels from
+one shared model, so habitat ids are already comparable across subjects
+and do not need matching (matching is for separate fits / one-step).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_partition_triptych.html#habit.viz.plot_partition_triptych" title="habit.viz.plot_partition_triptych" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_partition_triptych</span></a><span class="p">(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">),</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">units</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_map</span></a><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/two_step_spec_triptych.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
@@ -1139,8 +1141,8 @@ in the model (cohort-level stage), then given the training centroids.</p>
 <img src="../../_images/sphx_glr_plot_01_two_step_spec_010.png" srcset="../../_images/sphx_glr_plot_01_two_step_spec_010.png" alt="subj003: habitats from the saved model, Axis 0 (axial-like) @ 46, Axis 1 (coronal-like) @ 121, Axis 2 (sagittal-like) @ 200" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>stored in the model: [&#39;inertia&#39;, &#39;selection_report&#39;, &#39;validation&#39;]
 
 Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.62s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.62s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.05s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.05s/it]
 F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
@@ -1194,7 +1196,7 @@ centroids are the training ones read back from the file.</p></li>
 <li><p>Every component on its own, with its options:
 <a class="reference internal" href="../07_advanced/index.html"><span class="doc">Advanced</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 21.966 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 15.558 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-building-habitat-maps-plot-01-two-step-spec-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/189a87b2f4311917b99d49ee175bdb29/plot_01_two_step_spec.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_two_step_spec.ipynb</span></code></a></p>

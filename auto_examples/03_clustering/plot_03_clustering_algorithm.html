@@ -214,7 +214,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -434,7 +434,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../reference/habitat_matching.html">
-    Matching habitat labels across fits and subjects
+    Matching habitat labels
   </a>
 </li>
 
@@ -589,9 +589,11 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../05_validation_and_reuse/index.html">Validation and reuse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_01_train_save_predict.html">Train, save, and predict new patients</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_matching_labels.html">Matching habitat labels between two fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_precise_features.html">Precise features and habitat stability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_reuse_published_model.html">Reuse a published habitat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_match_same_subject.html">Same subject, two fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_match_two_subjects.html">Two subjects, same Spec: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_match_group.html">Group one-step fits: prototype matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_05_precise_features.html">Precise features vs all textures under perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_06_reuse_published_model.html">Reuse a published habitat model</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../06_manipulating_images/index.html">Manipulating images</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -691,22 +693,7 @@ clustering <strong>algorithm</strong> (k-means or a Gaussian mixture) and the
 <strong>number of habitats</strong> K. HABIT tries every K in a range and keeps the
 one a validation criterion prefers. Different criteria measure
 different things, so on the same data they can pick different Ks.</p>
-<p><strong>Elbow / Kneedle caveat.</strong> HABIT validation <code class="docutils literal notranslate"><span class="pre">elbow</span></code> is the same rule
-as <code class="docutils literal notranslate"><span class="pre">kneedle</span></code>. It runs <code class="docutils literal notranslate"><span class="pre">KneeLocator</span></code> on k-means inertia
-(within-cluster sum of squares), curve convex, direction decreasing
-(Satopaa, Albrecht, Irwin, and Raghavan, 2011, <em>Finding a “Kneedle” in
-a Haystack</em>, IEEE ICDCS Workshops). Normalize <code class="docutils literal notranslate"><span class="pre">k</span></code> and inertia to the
-unit square, draw the chord from the first point to the last, and take
-the <code class="docutils literal notranslate"><span class="pre">k</span></code> farthest from that chord; a smooth curve often places this
-knee to the right of the bend a person sees. In the clustering
-literature, <em>elbow</em> usually means looking at within-cluster dispersion
-versus <code class="docutils literal notranslate"><span class="pre">k</span></code> and choosing where extra clusters stop helping (Thorndike
-RL, 1953, <em>Who belongs in the family?</em>, Psychometrika 18(4):267–276).
-Do not claim Thorndike published a second-difference formula. The
-<strong>discrete-curvature elbow</strong> (visual elbow, computed) is the <code class="docutils literal notranslate"><span class="pre">k</span></code> that
-maximizes the second difference of inertia — the rule HABIT used before
-v1.0; it is not a “Thorndike formula”. See
-<a class="reference internal" href="../../user_guide/building_habitat_maps.html"><span class="doc">Building habitat maps</span></a>.</p>
+<p><strong>Elbow / Kneedle caveat.</strong> HABIT validation <code class="docutils literal notranslate"><span class="pre">elbow</span></code> is Kneedle on inertia (Satopaa et al. 2011). The visual elbow is the discrete-curvature reading associated with Thorndike 1953, not a formula Thorndike published.</p>
 <p><strong>Purpose.</strong> Starting from the analysis of
 <a class="reference internal" href="../01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">Two-step habitats with a Spec</span></a>, you will change
 ONLY the <code class="docutils literal notranslate"><span class="pre">fit</span></code> stage, on the SAME pooled supervoxels:</p>
@@ -844,14 +831,14 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04&lt;00:04,  4.37s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.06s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.06s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.18s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.79s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.79s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.44it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.48it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.48it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.90it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.91it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.91it/s]
 HabitatModel kmeans-3432f3b65bfec11a
   habitats           : 5
   features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -1073,24 +1060,24 @@ whole Spec with seeds 1 and 2 and compare with seed 0.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03&lt;00:03,  3.63s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05&lt;00:00,  2.68s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05&lt;00:00,  2.68s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.20s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.79s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.79s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.61it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.60it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.60it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.78it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.72it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.72it/s]
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04&lt;00:04,  4.02s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05&lt;00:00,  2.87s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05&lt;00:00,  2.87s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.16s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.80s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.80s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.55it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.54it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.54it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.70it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.73it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.72it/s]
 seed 0: K = 5, ARI vs seed 0 per patient = [1.0, 1.0]
 seed 1: K = 5, ARI vs seed 0 per patient = [0.67, 0.692]
 seed 2: K = 5, ARI vs seed 0 per patient = [0.702, 0.732]
@@ -1134,11 +1121,11 @@ check that neighbouring Ks tell the same story.</p></li>
 <a class="reference internal" href="../07_advanced/plot_05_fit.html"><span class="doc">Fitting a cohort habitat model</span></a>,
 <a class="reference internal" href="../07_advanced/plot_06_assign.html"><span class="doc">Assigning habitat labels</span></a>.</p></li>
 <li><p>Matching habitat numbers between two fits:
-<a class="reference internal" href="../05_validation_and_reuse/plot_02_matching_labels.html"><span class="doc">Matching habitat labels between two fits</span></a>.</p></li>
+<a class="reference internal" href="../05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">Same subject, two fits: prototype matching</span></a>.</p></li>
 <li><p>Cleaning the final maps:
 <a class="reference internal" href="../01_building_habitat_maps/plot_08_cleaning_maps.html"><span class="doc">Cleaning habitat maps (connected components)</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 39.445 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 41.377 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-clustering-plot-03-clustering-algorithm-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/5732744df5344b2862de5c00c8820560/plot_03_clustering_algorithm.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_03_clustering_algorithm.ipynb</span></code></a></p>

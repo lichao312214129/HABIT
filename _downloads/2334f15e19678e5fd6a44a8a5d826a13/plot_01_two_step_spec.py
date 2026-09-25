@@ -265,9 +265,9 @@ plt.show()
 # %%
 # Habitat maps
 # ------------
-# Supervoxels, then habitats, on one slice. The same colour is the same
-# habitat in every patient because ``pool`` and ``fit`` ran once for
-# the cohort.
+# Supervoxels, then habitats, on one slice. Two-step assigns labels from
+# one shared model, so habitat ids are already comparable across subjects
+# and do not need matching (matching is for separate fits / one-step).
 habitat_map = result.habitat_maps[0]
 fig = plot_partition_triptych(subject.image("LAP"), result.units[0], habitat_map, axis=0)
 fig.savefig("out/two_step_spec_triptych.png", dpi=150, bbox_inches="tight")

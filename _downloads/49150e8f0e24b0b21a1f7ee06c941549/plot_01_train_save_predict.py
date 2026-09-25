@@ -75,7 +75,7 @@ from habit.execution import backend_from_policy
 from habit.recipes import Study
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.policy import RunPolicy
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_cluster_validation_from_report, plot_habitat_overlay
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout.
 DATA = fetch_demo()
@@ -139,18 +139,9 @@ print(result.habitat_model.summary())
 # %%
 # Elbow / Kneedle caveat and criterion table
 # ------------------------------------------
-# HABIT validation ``elbow`` is the same rule as ``kneedle``. It runs
-# ``KneeLocator`` on k-means inertia (within-cluster sum of squares),
-# curve convex, direction decreasing (Satopaa, Albrecht, Irwin, and
-# Raghavan, 2011, Finding a "Kneedle" in a Haystack, IEEE ICDCS).
-# Normalize k and inertia to the unit square, draw the chord from the
-# first point to the last, and take the k farthest from that chord; a
-# smooth curve often places this knee to the right of the bend a person
-# sees. Literature "elbow" means inspecting within-cluster dispersion
-# versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
-# 18(4):267-276) — not a second-difference formula. The discrete-curvature
-# elbow (visual elbow, computed) maximizes the second difference of
-# inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
+# HABIT validation elbow is Kneedle on inertia (Satopaa et al. 2011).
+# The visual elbow is the discrete-curvature reading associated with
+# Thorndike 1953, not a formula Thorndike published.
 _report = result.habitat_model.preprocessing_state["selection_report"]
 _candidates = [int(k) for k in _report["candidates"]]
 _inertia = __import__("numpy").asarray(_report["scores"][_report["methods"][0]], dtype=float)
@@ -181,6 +172,33 @@ print("K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip
 for _name, _k in _k_table.items():
     print(f"  {_name}: {_k}")
 print(f"habitat map uses Kneedle K = {_k_kneedle}")
+
+_criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+_vote = _KMeansFitter(
+    min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+)
+_vote.set_random_state(0)
+_vote_report = dict(_vote.fit(result.units, cohort=train).preprocessing_state["selection_report"])
+_vote_report["selected"] = {
+    "elbow": _k_kneedle,
+    "silhouette": _k_table["silhouette"],
+    "calinski_harabasz": _k_table["calinski_harabasz"],
+    "davies_bouldin": _k_table["davies_bouldin"],
+}
+fig = plot_cluster_validation_from_report(
+    _vote_report,
+    title="K criteria (elbow panel: x = Kneedle)",
+)
+fig.axes[0].plot(
+    _k_discrete,
+    float(_inertia[_candidates.index(_k_discrete)]),
+    marker="o", markersize=8, markerfacecolor="none",
+    markeredgecolor="C2", markeredgewidth=1.4, linestyle="none",
+    label=f"discrete-curvature k={_k_discrete}",
+)
+fig.axes[0].legend(loc="best", fontsize=8)
+fig.savefig("out/train_save_predict_k_criteria.png", dpi=150, bbox_inches="tight")
+plt.show()
 
 # One training map, to compare colours with the held-out patients below.
 fig = plot_habitat_overlay(
@@ -355,9 +373,9 @@ print(list(prediction.features.frame.columns[:8]))
 #   :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
 # * Receive someone else's ``.habitatmodel`` and check it before use
 #   (format version, required modalities):
-#   :doc:`/auto_examples/05_validation_and_reuse/plot_04_reuse_published_model`.
+#   :doc:`/auto_examples/05_validation_and_reuse/plot_06_reuse_published_model`.
 # * Two models fitted separately need their ids matched:
-#   :doc:`/auto_examples/05_validation_and_reuse/plot_02_matching_labels`.
+#   :doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`.
 # * The same spec on a whole cohort with workers and checkpoints:
 #   :doc:`/auto_examples/07_advanced/plot_08_backends`.
 # * Each feature family in the table: :doc:`/auto_examples/04_quantifying_habitats/index`.
