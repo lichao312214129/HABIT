@@ -91,7 +91,7 @@ and reuse a published ``.habitatmodel``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across a large cohort, then drop Spearman-redundant columns (``select_precise_correlation_columns`` / precise_correlation_filter).">
+    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) screen features in two stages:">
 
 .. only:: html
 

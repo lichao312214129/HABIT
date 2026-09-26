@@ -4,24 +4,31 @@ Precise features vs all textures under perturbation
 
 Voxel texture features that flip under a simulated re-acquisition make
 unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118)
-keep features whose ICC lower confidence limit (LCL) clears a threshold
-**across a large cohort**, then drop Spearman-redundant columns
-(``select_precise_correlation_columns`` / ``precise_correlation_filter``).
+screen features in two stages:
+
+1. **ICC LCL** across a large cohort (Table 3 liver: ICC LCL >= 0.50,
+   plus Coarseness) — a published list of **26 names before Spearman**.
+2. **Per-lesion Spearman** immediately before habitat computation:
+   drop highly correlated features at signed r > 0.7 and P < .001
+   (``select_precise_correlation_columns`` /
+   ``precise_correlation_filter``; keep the later column). Surviving
+   columns differ by lesion; there is no published global post-Spearman
+   list of 26.
 
 This page has two separate parts:
 
-1. **Self-screen demo only** (5 demo subjects): run HABIT's ICC LCL screen
-   plus Prior-style Spearman redundancy filtering. ``n=5`` is too small,
+1. **Self-screen demo only** (5 demo subjects): ICC LCL then Spearman
+   with the library default ``p_threshold=0.001``. ``n=5`` is too small,
    so that whitelist is unstable and is **not** used for habitat maps.
 2. **Habitat comparison** (all 5 subjects): original vs Appendix S2
-   perturbation, once with **all** extracted textures and once with
-   Prior's **published** precise feature list
-   (``robust_names`` in radiomicsgroup/precise-habitats
-   ``habitat_computation.py``, 26 ICC-precise names, mapped to HABIT's
-   ``original_*`` columns with the modality suffix). Subject-level
-   winsorize 1 % then z-score; fixed ``n_habitats=3``. Dice is per
-   subject after Hungarian matching; the five-subject summary is the
-   **median** (not the mean).
+   perturbation, two arms that both apply **per-subject Spearman** after
+   winsorize 1 % + z-score (no cohort z-score), then cluster:
+
+   - all extracted textures → per-subject Spearman → habitats
+   - Table 3 precise 26 → per-subject Spearman → habitats
+
+   Fixed ``n_habitats=3``. Dice is per subject after Hungarian matching;
+   the five-subject summary is the **median** (not the mean).
 
 Intensity overlays use one subject only so the page stays readable.
 """
@@ -33,7 +40,7 @@ Intensity overlays use one subject only so the page stays readable.
 # Habitats and the self-screen demo both use every subject. Only the raw
 # intensity pair below is limited to the first subject for readability.
 from pathlib import Path
-from typing import List, Sequence, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -58,6 +65,7 @@ from habit.precision import (
     precision_panel,
 )
 from habit.recipes import Study
+from habit.recipes.result import StudyResult
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.policy import RunPolicy
 from habit.viz import plot_habitat_overlay, plot_intensity_slice
@@ -128,12 +136,11 @@ for vol, name, stem in (
 # Part 1 — Self-screen demo (ICC LCL + Spearman; not for habitats)
 # ----------------------------------------------------------------
 # Same three experiments as the paper (repeatability, kernel radius,
-# bin width). Then Prior-style Spearman redundancy filter on one
-# subject's LCL survivors: signed r > 0.7 and p < 0.05 drops the
-# *earlier* column and keeps the later one
+# bin width). Then Prior-style Spearman on one subject's LCL survivors:
+# signed r > 0.7 and p < 0.001 (HABIT default) drops the *earlier*
+# column and keeps the later one
 # (``PreciseCorrelationFilter`` / ``select_precise_correlation_columns``).
-# Caveat: n=5 is too small; do NOT use this whitelist for the habitat
-# comparison below.
+# Caveat: n=5 is too small; do NOT use this whitelist for habitats below.
 LCL_THRESHOLD = 0.5
 repeat_panels = []
 kernel_panels = []
@@ -176,13 +183,18 @@ demo_precise = identify_precise_features(
 lcl_names: Tuple[str, ...] = tuple(demo_precise.feature_names)
 print(f"self-screen LCL survivors (n={len(cohort)}): {len(lcl_names)}")
 
-# Spearman on the first subject's LCL columns (Prior habitat filtering rule).
+# %%
+# Self-screen Spearman (demo only; default p=0.001)
+# -------------------------------------------------
+# Library default matches Prior paper P < .001. This whitelist is NOT
+# used to draw habitats below.
 lcl_present = [n for n in lcl_names if n in feat_r1_example.feature_names]
-spearman_demo = PreciseCorrelationFilter(corr_threshold=0.7, p_threshold=0.05)
+# Default p_threshold=0.001 (paper); do not pass 0.05 here.
+spearman_demo = PreciseCorrelationFilter(corr_threshold=0.7)
 demo_frame = feat_r1_example.feature_frame()[lcl_present]
 spearman_kept: List[str] = list(spearman_demo.fit(demo_frame)["columns"])
 print(
-    f"self-screen after Spearman (r>0.7, p<0.05, keep later column): "
+    f"self-screen after Spearman (r>0.7, p<0.001, keep later column): "
     f"{len(spearman_kept)} of {len(lcl_present)}"
 )
 print(
@@ -191,12 +203,13 @@ print(
 )
 
 # %%
-# Part 2 — Prior published precise names (habitat whitelist)
-# ----------------------------------------------------------
-# Fixed list from Prior et al. 2024 GitHub
-# ``habitat_computation.py`` ``robust_names`` (26 ICC-precise features).
-# HABIT columns use the ``original_`` prefix. Missing names are reported;
-# they are not replaced with other features.
+# Part 2 — Table 3 precise parent set (ICC LCL list, before Spearman)
+# -------------------------------------------------------------------
+# Fixed list from Prior et al. 2024 Table 3 liver (ICC LCL >= 0.50)
+# plus Coarseness — 26 names **before** per-lesion Spearman. Same stems
+# appear as ``robust_names`` in radiomicsgroup/precise-habitats
+# ``habitat_computation.py``. HABIT columns use the ``original_`` prefix.
+# Missing names are reported; they are not replaced with other features.
 _PRIOR_ROBUST_STEMS: Tuple[str, ...] = (
     "firstorder_10Percentile",
     "firstorder_90Percentile",
@@ -232,7 +245,10 @@ PRIOR_PRECISE_FEATURES: Tuple[str, ...] = tuple(
 available = set(feat_r1_example.feature_names)
 prior_present = [n for n in PRIOR_PRECISE_FEATURES if n in available]
 prior_missing = [n for n in PRIOR_PRECISE_FEATURES if n not in available]
-print(f"Prior published precise features: {len(PRIOR_PRECISE_FEATURES)}")
+print(
+    f"Table 3 / robust_names (ICC LCL parent set, before Spearman): "
+    f"{len(PRIOR_PRECISE_FEATURES)}"
+)
 print(f"present in HABIT extract: {len(prior_present)}")
 if prior_missing:
     print("Prior features absent from extract (not substituted):", prior_missing)
@@ -244,10 +260,12 @@ if not prior_present:
 prior_whitelist = FeatureWhitelist(prior_present)
 
 # %%
-# Habitat Spec helpers (winsorize 1 % then z-score)
-# -------------------------------------------------
-# Clustering is subject-level only (no cohort z-score). The Prior arm
-# whitelists the published precise names above — not the demo self-screen.
+# Habitat Spec helpers (winsorize → z-score → per-lesion Spearman)
+# ----------------------------------------------------------------
+# Clustering is subject-level only (no cohort z-score). Both arms run
+# Spearman on the **scaled** matrix that enters clustering (after
+# winsorize 1 % and per-feature z-score). Do not cluster the raw 26
+# without this per-lesion step; do not use the n=5 self-screen whitelist.
 extract_stage = Stage(
     "extract",
     Spec(
@@ -259,6 +277,8 @@ scale_stages = (
     Stage("preprocess", Spec("winsorize", {"winsor_limits": [0.01, 0.01]})),
     Stage("preprocess2", Spec("zscore")),
 )
+# Default p_threshold=0.001 (paper); corr_threshold=0.7 (signed r > 0.7).
+spearman_stage = Stage("spearman", PreciseCorrelationFilter(corr_threshold=0.7).spec)
 fit_assign = (
     Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 5})),
     Stage("assign", Spec("nearest_centroid")),
@@ -266,20 +286,23 @@ fit_assign = (
 )
 
 
-def make_spec(name: str, *, use_prior_precise: bool) -> HabitatSpec:
-    """Build a one-step Spec with optional Prior precise whitelist.
+def make_spec(name: str, *, use_table3_precise: bool) -> HabitatSpec:
+    """Build a one-step Spec with optional Table-3 whitelist + Spearman.
 
     Args:
         name: Spec name.
-        use_prior_precise: If True, keep only Prior published precise columns.
+        use_table3_precise: If True, start from Table 3 ICC-LCL columns
+            before the per-lesion Spearman stage.
 
     Returns:
-        HabitatSpec for ``Study.fit_predict``.
+        HabitatSpec for ``Study.fit_predict`` (pooling=none).
     """
     stages: List[Stage] = [extract_stage]
-    if use_prior_precise:
+    if use_table3_precise:
         stages.append(Stage("whitelist", prior_whitelist.spec))
     stages.extend(scale_stages)
+    # Spearman after scaling: filter the same matrix k-means will see.
+    stages.append(spearman_stage)
     stages.extend(fit_assign)
     return HabitatSpec(
         name=name, stages=tuple(stages), random_seed=11, pooling="none"
@@ -287,6 +310,21 @@ def make_spec(name: str, *, use_prior_precise: bool) -> HabitatSpec:
 
 
 backend = backend_from_policy(RunPolicy(backend="serial", on_subject_failure="continue"))
+
+
+def kept_feature_counts(study_result: StudyResult) -> Dict[str, int]:
+    """Read post-Spearman feature counts from per-subject habitat models.
+
+    Args:
+        study_result: ``Study.fit_predict`` result (``pooling="none"``).
+
+    Returns:
+        ``subject_id -> n_features`` that entered k-means after Spearman.
+    """
+    counts: Dict[str, int] = {}
+    for sid, model in study_result.subject_models.items():
+        counts[str(sid)] = len(model.feature_names)
+    return counts
 
 
 def mean_dice_and_overlays(
@@ -300,7 +338,7 @@ def mean_dice_and_overlays(
     """Align perturbed maps, report per-subject mean Dice, save overlays.
 
     Args:
-        tag: Filename stem prefix (``all`` or ``prior``).
+        tag: Filename stem prefix (``all`` or ``table3``).
         title_prefix: Short English label in figure titles.
         maps_orig: Habitat maps on original images (one per subject).
         maps_pert: Habitat maps on perturbed images (same order).
@@ -342,18 +380,37 @@ def mean_dice_and_overlays(
 
 
 # %%
-# Full-feature habitats: original vs perturbed (all 5 subjects)
-# -------------------------------------------------------------
-# Fit/assign independently per subject (pooling="none").
-result_all_orig = Study(make_spec("all_original", use_prior_precise=False)).fit_predict(
+# All-features arm: extract → scale → per-subject Spearman → habitats
+# -------------------------------------------------------------------
+# Parent set = every extracted texture. Spearman is per subject on that
+# subject's own voxel rows (pooling="none"). Counts below are after
+# Spearman — not a universal feature count.
+result_all_orig = Study(make_spec("all_original", use_table3_precise=False)).fit_predict(
     cohort, backend=backend
 )
-result_all_pert = Study(make_spec("all_perturbed", use_prior_precise=False)).fit_predict(
+result_all_pert = Study(make_spec("all_perturbed", use_table3_precise=False)).fit_predict(
     pert_cohort, backend=backend
 )
+
+# %%
+# Per-subject Spearman kept-column counts (all-features arm)
+# ----------------------------------------------------------
+# Different subjects may keep different columns (paper: per-lesion step).
+counts_all = kept_feature_counts(result_all_orig)
+print("all-features arm: columns after per-subject Spearman (original images):")
+for sid in [s.subject_id for s in cohort]:
+    print(f"  {sid}: {counts_all.get(sid, 'missing')}")
+print(
+    "Note: these are post-Spearman counts, not a fixed global list. "
+    "Do not read them as '26 after Spearman'."
+)
+
+# %%
+# All-features habitats: original vs perturbed (all 5 subjects)
+# -------------------------------------------------------------
 dice_all_per = mean_dice_and_overlays(
     tag="all",
-    title_prefix="all features",
+    title_prefix="all features + Spearman",
     maps_orig=result_all_orig.habitat_maps,
     maps_pert=result_all_pert.habitat_maps,
     subjects_orig=tuple(cohort),
@@ -361,57 +418,80 @@ dice_all_per = mean_dice_and_overlays(
 median_all = float(np.median(dice_all_per))
 ids = [s.subject_id for s in cohort]
 print(
-    "per-subject mean Dice all-features:",
+    "per-subject mean Dice all-features+Spearman:",
     {sid: f"{d:.3f}" for sid, d in zip(ids, dice_all_per)},
 )
-print(f"median Dice all-features={median_all:.3f} (n={len(cohort)})")
+print(f"median Dice all-features+Spearman={median_all:.3f} (n={len(cohort)})")
 
 # %%
-# Prior-precise habitats: original vs perturbed (all 5 subjects)
-# --------------------------------------------------------------
-# Same K and preprocessing; columns restricted to Prior's published
-# precise list (not the 5-subject self-screen).
-result_pr_orig = Study(make_spec("prior_original", use_prior_precise=True)).fit_predict(
-    cohort, backend=backend
+# Table-3 arm: whitelist 26 → scale → per-subject Spearman → habitats
+# -------------------------------------------------------------------
+# Parent set = Table 3 ICC-LCL list (before Spearman). Still run
+# per-lesion Spearman before clustering — do not cluster the raw 26.
+result_pr_orig = Study(
+    make_spec("table3_original", use_table3_precise=True)
+).fit_predict(cohort, backend=backend)
+result_pr_pert = Study(
+    make_spec("table3_perturbed", use_table3_precise=True)
+).fit_predict(pert_cohort, backend=backend)
+
+# %%
+# Per-subject Spearman kept-column counts (Table-3 arm)
+# -----------------------------------------------------
+counts_pr = kept_feature_counts(result_pr_orig)
+print(
+    "Table-3 arm: columns after per-subject Spearman "
+    f"(parent set {len(prior_present)} ICC-LCL names):"
 )
-result_pr_pert = Study(make_spec("prior_perturbed", use_prior_precise=True)).fit_predict(
-    pert_cohort, backend=backend
+for sid in ids:
+    print(f"  {sid}: {counts_pr.get(sid, 'missing')}")
+print(
+    "Post-Spearman counts are per lesion; they are not a universal 26."
 )
+
+# %%
+# Table-3 + Spearman habitats: original vs perturbed (all 5 subjects)
+# -------------------------------------------------------------------
 dice_pr_per = mean_dice_and_overlays(
-    tag="prior",
-    title_prefix="Prior precise features",
+    tag="table3",
+    title_prefix="Table3 precise + Spearman",
     maps_orig=result_pr_orig.habitat_maps,
     maps_pert=result_pr_pert.habitat_maps,
     subjects_orig=tuple(cohort),
 )
 median_pr = float(np.median(dice_pr_per))
 print(
-    "per-subject mean Dice Prior-precise:",
+    "per-subject mean Dice Table3+Spearman:",
     {sid: f"{d:.3f}" for sid, d in zip(ids, dice_pr_per)},
 )
-print(f"median Dice Prior-precise={median_pr:.3f} (n={len(cohort)})")
+print(f"median Dice Table3+Spearman={median_pr:.3f} (n={len(cohort)})")
 
-# Per-subject table (mean Dice per subject; cohort summary = median).
+# %%
+# Dice summary (median across subjects; no overclaim)
+# ---------------------------------------------------
 table = pd.DataFrame(
     {
         "subject_id": ids,
-        "dice_all_features": dice_all_per,
-        "dice_prior_precise": dice_pr_per,
+        "n_kept_all_spearman": [counts_all.get(sid) for sid in ids],
+        "n_kept_table3_spearman": [counts_pr.get(sid) for sid in ids],
+        "dice_all_spearman": dice_all_per,
+        "dice_table3_spearman": dice_pr_per,
     }
 )
 print(table.round(3).to_string(index=False))
 cmp = (
-    f"median Dice all={median_all:.3f}; median Dice Prior-precise={median_pr:.3f}"
+    f"median Dice all+Spearman={median_all:.3f}; "
+    f"median Dice Table3+Spearman={median_pr:.3f}"
 )
 if median_pr > median_all:
-    cmp += " (Prior-precise median is higher on this demo)"
+    cmp += " (Table3+Spearman median is higher on this demo)"
 elif median_pr < median_all:
-    cmp += " (Prior-precise median is not higher on this demo)"
+    cmp += " (Table3+Spearman median is not higher on this demo)"
 else:
     cmp += " (medians equal on this demo)"
 print(cmp)
 print(
-    "Habitats used Prior published precise names "
-    f"({len(prior_present)}/{len(PRIOR_PRECISE_FEATURES)} present); "
-    "not the n=5 self-screen whitelist."
+    "Habitats used Table 3 ICC-LCL names as the parent set "
+    f"({len(prior_present)}/{len(PRIOR_PRECISE_FEATURES)} present), "
+    "then per-subject Spearman (p<0.001); not the n=5 self-screen whitelist."
 )
