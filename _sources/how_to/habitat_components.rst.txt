@@ -452,12 +452,27 @@ YAML::
 6. Fit habitats
 ---------------
 
-**Required.** Built-in names: ``kmeans`` and ``gmm``. Learns centroids
-(cohort-level when ``pool`` is present; per-subject otherwise).
+**Required.** Built-in names: ``kmeans``, ``gmm``, and ``consensus``.
+Learns centroids (cohort-level when ``pool`` is present; per-subject
+otherwise).
 
-Shared parameters: ``n_habitats``, ``min_habitats``, ``max_habitats``,
-``validation``, ``n_init``, ``max_iter``. ``gmm`` also takes
-``covariance_type`` (``full`` / ``tied`` / ``diag`` / ``spherical``).
+``consensus`` runs the vendored InMoose / Sajovic consensus clustering
+(**GPL-3.0-or-later**, not Apache-2.0; see ``NOTICE`` and
+``habit/third_party/inmoose/LICENSE``) on the pooled items, then stores
+the mean feature vector of each consensus group as a centroid. It is for
+supervoxels or subjects, not a voxel-level matrix. Worked figures:
+:doc:`/auto_examples/03_clustering/plot_04_consensus_clustering`.
+Parameters: ``n_habitats``, ``min_habitats``, ``max_habitats``,
+``n_resamples`` (default 50), ``resample_proportion`` (default 0.5),
+``inner`` (``kmeans`` or ``agglomerative``), ``n_init``, ``max_iter``,
+``max_items``. ``bestK`` follows the vendored CDF-area rule and is never
+``max_habitats`` itself.
+
+Shared parameters of ``kmeans`` and ``gmm``: ``n_habitats``,
+``min_habitats``, ``max_habitats``, ``validation``, ``n_init``,
+``max_iter``. ``gmm`` also takes ``covariance_type`` (``full`` /
+``tied`` / ``diag`` / ``spherical``). ``consensus`` does not take
+``validation``; it selects K with the vendored delta(k) rule.
 
 Omit ``n_habitats`` (or pass ``None``) to select K over
 ``min_habitats..max_habitats`` by ``validation``. There is no string

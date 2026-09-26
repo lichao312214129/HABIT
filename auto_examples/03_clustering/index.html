@@ -573,6 +573,7 @@
 <li class="toctree-l2"><a class="reference internal" href="plot_01_supervoxel_method_and_count.html">Supervoxel method and count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_02_what_supervoxel_summarizes.html">Supervoxel feature extraction and acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_03_clustering_algorithm.html">Clustering algorithm and number of habitats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_04_consensus_clustering.html">Consensus clustering of habitats</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../04_quantifying_habitats/index.html">Quantifying habitats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -686,6 +687,9 @@ habitat clustering algorithm with selection metrics.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Background. The fit stage clusters the pooled supervoxels of the training patients into habitats. Two choices are made there: the clustering algorithm (k-means or a Gaussian mixture) and the number of habitats K. HABIT tries every K in a range and keeps the one a validation criterion prefers. Different criteria measure different things, so on the same data they can pick different Ks."><img alt="" src="../../_images/sphx_glr_plot_03_clustering_algorithm_thumb.png" />
 <p><a class="reference internal" href="plot_03_clustering_algorithm.html"><span class="doc">Clustering algorithm and number of habitats</span></a></p>
   <div class="sphx-glr-thumbnail-title">Clustering algorithm and number of habitats</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. K-means and a Gaussian mixture pick a habitat count from a score curve (inertia, BIC, silhouette, ...). Consensus clustering (Monti et al., 2003) asks a different question: across many resamples of the same supervoxels, which pairs keep landing in the same cluster, and for which count K is that co-clustering stable?"><img alt="" src="../../_images/sphx_glr_plot_04_consensus_clustering_thumb.png" />
+<p><a class="reference internal" href="plot_04_consensus_clustering.html"><span class="doc">Consensus clustering of habitats</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Consensus clustering of habitats</div>
 </div></div><div class="toctree-wrapper compound">
 </div>
 </section>

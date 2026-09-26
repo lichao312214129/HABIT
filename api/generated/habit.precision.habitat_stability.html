@@ -668,6 +668,7 @@
 <li class="toctree-l2"><a class="reference internal" href="habit.habitat_model.HabitatModelFitter.html">HabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.habitat_model.KMeansHabitatModelFitter.html">KMeansHabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.habitat_model.GmmHabitatModelFitter.html">GmmHabitatModelFitter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habit.habitat_model.ConsensusHabitatModelFitter.html">ConsensusHabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.habitat_model.HabitatModelFitterRegistry.html">HabitatModelFitterRegistry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.habitat_model.HabitatAssigner.html">HabitatAssigner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.habitat_model.NearestCentroidAssigner.html">NearestCentroidAssigner</a></li>
@@ -794,6 +795,12 @@
 <li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_cluster_validation_curves.html">plot_cluster_validation_curves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_cluster_validation_from_report.html">plot_cluster_validation_from_report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_consensus_delta.html">plot_consensus_delta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_consensus_cdf.html">plot_consensus_cdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_consensus_matrix.html">plot_consensus_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_consensus_matrices.html">plot_consensus_matrices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_consensus_cluster_stability.html">plot_consensus_cluster_stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_consensus_item_stability.html">plot_consensus_item_stability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_habitat_volume_fractions.html">plot_habitat_volume_fractions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_msi_matrix.html">plot_msi_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
@@ -1140,7 +1147,7 @@ habitat: <code class="docutils literal notranslate"><span class="pre">perturbati
 
 <section id="examples-using-habit-precision-habitat-stability">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.precision.habitat_stability</span></code><a class="headerlink" href="#examples-using-habit-precision-habitat-stability" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across subjects, not inside one patient."><img alt="" src="../../_images/sphx_glr_plot_05_precise_features_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across a large cohort, then drop Spearman-redundant columns (``select_precise_correlation_columns`` / precise_correlation_filter)."><img alt="" src="../../_images/sphx_glr_plot_05_precise_features_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/05_validation_and_reuse/plot_05_precise_features.html"><span class="doc">Precise features vs all textures under perturbation</span></a></p>
   <div class="sphx-glr-thumbnail-title">Precise features vs all textures under perturbation</div>
 </div></div><div style="clear:both"></div></section>

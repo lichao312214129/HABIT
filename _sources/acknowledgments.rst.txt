@@ -93,6 +93,8 @@ HABIT relies on many excellent open-source projects, including but not limited t
 **pandas** & **numpy** — Data processing
 **matplotlib** & **seaborn** — Visualization
 
+**InMoose consensus clustering** (Žiga Sajovic; Solène Weill and Guillaume Appé) — the consensus-clustering routine shipped under GPL-3.0-or-later in ``habit/third_party/inmoose/``. The rest of HABIT remains Apache-2.0.
+
 We extend our sincere respect and gratitude to the developers and maintainers of these projects.
 
 How to contribute

@@ -22,6 +22,7 @@ Classes
    HabitatModelFitter
    KMeansHabitatModelFitter
    GmmHabitatModelFitter
+   ConsensusHabitatModelFitter
    HabitatModelFitterRegistry
    HabitatAssigner
    NearestCentroidAssigner

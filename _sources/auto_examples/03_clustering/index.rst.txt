@@ -71,6 +71,23 @@ habitat clustering algorithm with selection metrics.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. K-means and a Gaussian mixture pick a habitat count from a score curve (inertia, BIC, silhouette, ...). Consensus clustering (Monti et al., 2003) asks a different question: across many resamples of the same supervoxels, which pairs keep landing in the same cluster, and for which count K is that co-clustering stable?">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_clustering/images/thumb/sphx_glr_plot_04_consensus_clustering_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_clustering/plot_04_consensus_clustering`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Consensus clustering of habitats</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -84,4 +101,5 @@ habitat clustering algorithm with selection metrics.
    /auto_examples/03_clustering/plot_01_supervoxel_method_and_count
    /auto_examples/03_clustering/plot_02_what_supervoxel_summarizes
    /auto_examples/03_clustering/plot_03_clustering_algorithm
+   /auto_examples/03_clustering/plot_04_consensus_clustering
 

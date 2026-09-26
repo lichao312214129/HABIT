@@ -669,6 +669,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatModelFitter.html">HabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.KMeansHabitatModelFitter.html">KMeansHabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.GmmHabitatModelFitter.html">GmmHabitatModelFitter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.ConsensusHabitatModelFitter.html">ConsensusHabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatModelFitterRegistry.html">HabitatModelFitterRegistry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatAssigner.html">HabitatAssigner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.NearestCentroidAssigner.html">NearestCentroidAssigner</a></li>
@@ -795,6 +796,12 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_cluster_validation_curves.html">plot_cluster_validation_curves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_cluster_validation_from_report.html">plot_cluster_validation_from_report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_delta.html">plot_consensus_delta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_cdf.html">plot_consensus_cdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_matrix.html">plot_consensus_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_matrices.html">plot_consensus_matrices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_cluster_stability.html">plot_consensus_cluster_stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_item_stability.html">plot_consensus_item_stability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_volume_fractions.html">plot_habitat_volume_fractions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_msi_matrix.html">plot_msi_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
@@ -1187,6 +1194,24 @@ coronal/sagittal keep superior up).</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_cluster_validation_from_report.html#habit.viz.plot_cluster_validation_from_report" title="habit.viz.plot_cluster_validation_from_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_cluster_validation_from_report</span></code></a></p></td>
 <td><p>Draw validation curves from a habitat-model <code class="docutils literal notranslate"><span class="pre">selection_report</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_consensus_delta.html#habit.viz.plot_consensus_delta" title="habit.viz.plot_consensus_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_consensus_delta</span></code></a></p></td>
+<td><p>Plot the relative change in area under the consensus-index CDF.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_consensus_cdf.html#habit.viz.plot_consensus_cdf" title="habit.viz.plot_consensus_cdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_consensus_cdf</span></code></a></p></td>
+<td><p>Plot the empirical CDF of each consensus matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_consensus_matrix.html#habit.viz.plot_consensus_matrix" title="habit.viz.plot_consensus_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_consensus_matrix</span></code></a></p></td>
+<td><p>Plot one consensus matrix with items ordered by average linkage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_consensus_matrices.html#habit.viz.plot_consensus_matrices" title="habit.viz.plot_consensus_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_consensus_matrices</span></code></a></p></td>
+<td><p>Plot every candidate consensus matrix in one figure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_consensus_cluster_stability.html#habit.viz.plot_consensus_cluster_stability" title="habit.viz.plot_consensus_cluster_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_consensus_cluster_stability</span></code></a></p></td>
+<td><p>Plot per-cluster consensus (mean pairwise co-clustering inside a cluster).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_consensus_item_stability.html#habit.viz.plot_consensus_item_stability" title="habit.viz.plot_consensus_item_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_consensus_item_stability</span></code></a></p></td>
+<td><p>Plot item consensus for the selected <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_volume_fractions.html#habit.viz.plot_habitat_volume_fractions" title="habit.viz.plot_habitat_volume_fractions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_habitat_volume_fractions</span></code></a></p></td>
 <td><p>Bar chart of per-habitat volume fractions (of non-background VOI).</p></td>

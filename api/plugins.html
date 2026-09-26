@@ -668,6 +668,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatModelFitter.html">HabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.KMeansHabitatModelFitter.html">KMeansHabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.GmmHabitatModelFitter.html">GmmHabitatModelFitter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.ConsensusHabitatModelFitter.html">ConsensusHabitatModelFitter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatModelFitterRegistry.html">HabitatModelFitterRegistry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatAssigner.html">HabitatAssigner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.NearestCentroidAssigner.html">NearestCentroidAssigner</a></li>
@@ -794,6 +795,12 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_cluster_validation_curves.html">plot_cluster_validation_curves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_cluster_validation_from_report.html">plot_cluster_validation_from_report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_delta.html">plot_consensus_delta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_cdf.html">plot_consensus_cdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_matrix.html">plot_consensus_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_matrices.html">plot_consensus_matrices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_cluster_stability.html">plot_consensus_cluster_stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_item_stability.html">plot_consensus_item_stability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_volume_fractions.html">plot_habitat_volume_fractions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_msi_matrix.html">plot_msi_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
@@ -2397,6 +2404,74 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <section id="habitat-model-fitter">
 <h4>habitat_model_fitter<a class="headerlink" href="#habitat-model-fitter" title="Link to this heading">#</a></h4>
 <dl>
+<dt><strong>consensus</strong></dt><dd><p>Learn population habitats by Monti consensus clustering of pooled items.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">n_resamples,</span> <span class="pre">resample_proportion,</span> <span class="pre">inner,</span> <span class="pre">n_init,</span> <span class="pre">max_iter,</span> <span class="pre">max_items</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;consensus&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;consensus&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>int | None</p></td>
+<td><p>Fixed cluster count. <code class="docutils literal notranslate"><span class="pre">None</span></code> selects <code class="docutils literal notranslate"><span class="pre">bestK</span></code> between <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> and <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Smallest candidate count. Must be at least 2, matching the vendored implementation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Largest candidate count. Not selectable by <code class="docutils literal notranslate"><span class="pre">bestK</span></code>; see the class docstring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_resamples</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">50</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Resamples per candidate count. The vendored default is 50.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resample_proportion</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.5</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Fraction of items drawn without replacement on each resample. The vendored default is 0.5.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inner</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'kmeans'</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;agglomerative&quot;</span></code> (scikit-learn ward). This is the class passed into the vendored algorithm for both the resamples and the final cut of <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">consensus_matrix</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>K-means restarts when <code class="docutils literal notranslate"><span class="pre">inner</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code>. Ignored by agglomerative clustering.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>int</p></td>
+<td><p>K-means iteration cap when <code class="docutils literal notranslate"><span class="pre">inner</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_items</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2000</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Refuse to run when the pooled matrix has more rows than this. Consensus matrices are <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">n</span></code> per candidate <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
 <dt><strong>gmm</strong></dt><dd><p>Learn population habitats by a Gaussian mixture over pooled features.
 Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">validation,</span> <span class="pre">covariance_type,</span> <span class="pre">n_init,</span> <span class="pre">max_iter</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;gmm&quot;)</span></code>

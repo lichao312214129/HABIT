@@ -461,6 +461,23 @@ habitat clustering algorithm with selection metrics.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. K-means and a Gaussian mixture pick a habitat count from a score curve (inertia, BIC, silhouette, ...). Consensus clustering (Monti et al., 2003) asks a different question: across many resamples of the same supervoxels, which pairs keep landing in the same cluster, and for which count K is that co-clustering stable?">
+
+.. only:: html
+
+  .. image:: /auto_examples/03_clustering/images/thumb/sphx_glr_plot_04_consensus_clustering_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/03_clustering/plot_04_consensus_clustering`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Consensus clustering of habitats</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -665,7 +682,7 @@ and reuse a published ``.habitatmodel``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across subjects, not inside one patient.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across a large cohort, then drop Spearman-redundant columns (``select_precise_correlation_columns`` / precise_correlation_filter).">
 
 .. only:: html
 

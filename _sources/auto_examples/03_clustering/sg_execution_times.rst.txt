@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:46.939** total execution time for 3 files **from auto_examples\03_clustering**:
+**00:52.624** total execution time for 4 files **from auto_examples\03_clustering**:
 
 .. container::
 
@@ -32,12 +32,15 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_01_supervoxel_method_and_count.py` (``plot_01_supervoxel_method_and_count.py``)
-     - 00:46.939
+   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_03_clustering_algorithm.py` (``plot_03_clustering_algorithm.py``)
+     - 00:40.867
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_02_what_supervoxel_summarizes.py` (``plot_02_what_supervoxel_summarizes.py``)
+   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_04_consensus_clustering.py` (``plot_04_consensus_clustering.py``)
+     - 00:11.757
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_01_supervoxel_method_and_count.py` (``plot_01_supervoxel_method_and_count.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_03_clustering_algorithm.py` (``plot_03_clustering_algorithm.py``)
+   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_02_what_supervoxel_summarizes.py` (``plot_02_what_supervoxel_summarizes.py``)
      - 00:00.000
      - 0.0

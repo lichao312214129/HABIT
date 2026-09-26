@@ -577,6 +577,7 @@
 <li class="toctree-l2"><a class="reference internal" href="03_clustering/plot_01_supervoxel_method_and_count.html">Supervoxel method and count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_clustering/plot_02_what_supervoxel_summarizes.html">Supervoxel feature extraction and acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_clustering/plot_03_clustering_algorithm.html">Clustering algorithm and number of habitats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_clustering/plot_04_consensus_clustering.html">Consensus clustering of habitats</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="04_quantifying_habitats/index.html">Quantifying habitats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -780,6 +781,9 @@ habitat clustering algorithm with selection metrics.</p>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Background. The fit stage clusters the pooled supervoxels of the training patients into habitats. Two choices are made there: the clustering algorithm (k-means or a Gaussian mixture) and the number of habitats K. HABIT tries every K in a range and keeps the one a validation criterion prefers. Different criteria measure different things, so on the same data they can pick different Ks."><img alt="" src="../_images/sphx_glr_plot_03_clustering_algorithm_thumb.png" />
 <p><a class="reference internal" href="03_clustering/plot_03_clustering_algorithm.html"><span class="doc">Clustering algorithm and number of habitats</span></a></p>
   <div class="sphx-glr-thumbnail-title">Clustering algorithm and number of habitats</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. K-means and a Gaussian mixture pick a habitat count from a score curve (inertia, BIC, silhouette, ...). Consensus clustering (Monti et al., 2003) asks a different question: across many resamples of the same supervoxels, which pairs keep landing in the same cluster, and for which count K is that co-clustering stable?"><img alt="" src="../_images/sphx_glr_plot_04_consensus_clustering_thumb.png" />
+<p><a class="reference internal" href="03_clustering/plot_04_consensus_clustering.html"><span class="doc">Consensus clustering of habitats</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Consensus clustering of habitats</div>
 </div></div></section>
 <section id="quantifying-habitats">
 <h2>Quantifying habitats<a class="headerlink" href="#quantifying-habitats" title="Link to this heading">#</a></h2>
@@ -818,7 +822,7 @@ and reuse a published <code class="docutils literal notranslate"><span class="pr
 </div><div class="sphx-glr-thumbcontainer" tooltip="Fit habitats inside each subject (one-step), then name the whole group with align_habitat_maps_to_prototypes so habitat ids mean the same prototype across people."><img alt="" src="../_images/sphx_glr_plot_04_match_group_thumb.png" />
 <p><a class="reference internal" href="05_validation_and_reuse/plot_04_match_group.html"><span class="doc">Group one-step fits: prototype matching</span></a></p>
   <div class="sphx-glr-thumbnail-title">Group one-step fits: prototype matching</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across subjects, not inside one patient."><img alt="" src="../_images/sphx_glr_plot_05_precise_features_thumb.png" />
+</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across a large cohort, then drop Spearman-redundant columns (``select_precise_correlation_columns`` / precise_correlation_filter)."><img alt="" src="../_images/sphx_glr_plot_05_precise_features_thumb.png" />
 <p><a class="reference internal" href="05_validation_and_reuse/plot_05_precise_features.html"><span class="doc">Precise features vs all textures under perturbation</span></a></p>
   <div class="sphx-glr-thumbnail-title">Precise features vs all textures under perturbation</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat definition published with a paper is a .habitatmodel file. Whoever receives it should be able to see what it declares (which images, which features, how many habitats, how it was trained), know that their HABIT can read it, check that their own data can enter its feature space, and then label their patients with it -- without refitting anything and without the authors&#x27; code."><img alt="" src="../_images/sphx_glr_plot_06_reuse_published_model_thumb.png" />

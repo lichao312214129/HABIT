@@ -60,6 +60,12 @@ Habitat clustering and overlay
    plot_habitat_overlay
    plot_cluster_validation_curves
    plot_cluster_validation_from_report
+   plot_consensus_delta
+   plot_consensus_cdf
+   plot_consensus_matrix
+   plot_consensus_matrices
+   plot_consensus_cluster_stability
+   plot_consensus_item_stability
    plot_habitat_volume_fractions
    plot_msi_matrix
    plot_ith_summary
