@@ -76,7 +76,7 @@ from habit.execution import backend_from_policy
 from habit.recipes import Study
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.policy import RunPolicy
-from habit.viz import plot_habitat_overlay
+from habit.viz import plot_habitat_overlay, plot_cluster_validation_from_report
 from habit.voxel_features import RawVoxelFeatures
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout.
@@ -270,6 +270,37 @@ for _name in ("silhouette", "calinski_harabasz", "davies_bouldin"):
 print(f"{_sid0}: K by criterion (skip gap)")
 for _name, _k in _k_table.items():
     print(f"  {_name}: {_k}")
+
+_criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+_vote = _KMeansFitter(
+    min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+)
+_vote.set_random_state(SEED)
+_vote_report = dict(_vote.fit(_units0).preprocessing_state["selection_report"])
+_vote_report["selected"] = {
+    "elbow": _k_kneedle,
+    "silhouette": _k_table["silhouette"],
+    "calinski_harabasz": _k_table["calinski_harabasz"],
+    "davies_bouldin": _k_table["davies_bouldin"],
+}
+fig = plot_cluster_validation_from_report(
+    _vote_report,
+    title=f"{_sid0}: K criteria (elbow panel: x = Kneedle)",
+)
+fig.axes[0].plot(
+    _k_discrete,
+    float(_inertia[_candidates.index(_k_discrete)]),
+    marker="o",
+    markersize=8,
+    markerfacecolor="none",
+    markeredgecolor="C2",
+    markeredgewidth=1.4,
+    linestyle="none",
+    label=f"discrete-curvature k={_k_discrete}",
+)
+fig.axes[0].legend(loc="best", fontsize=8)
+fig.savefig("out/atomic_pooled_k_criteria.png", dpi=150, bbox_inches="tight")
+plt.show()
 
 # %%
 # Pooled-voxel design: the atomic loop
