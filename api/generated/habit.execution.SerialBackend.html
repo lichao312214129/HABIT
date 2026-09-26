@@ -1166,9 +1166,12 @@ and recorded failures are honoured only when this backend’s
 
 <section id="examples-using-habit-execution-serialbackend">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.execution.SerialBackend</span></code><a class="headerlink" href="#examples-using-habit-execution-serialbackend" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. Study never loops over patients itself. It hands each subject-level step to an execution backend, which calls the step once per subject and returns one result slot per subject. The backends are public, so the same machinery runs any per-subject function you write from HABIT&#x27;s atomic components: backend.map(function, cohort)."><img alt="" src="../../_images/sphx_glr_plot_08_backends_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">Atomic components on execution backends</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Atomic components on execution backends</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Independent fits of the same patient permute habitat ids. Change only random_seed, then name both maps with align_habitat_maps_to_prototypes (centroid prototypes). Show overlays and volume-fraction columns before and after."><img alt="" src="../../_images/sphx_glr_plot_02_match_same_subject_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">Same subject, two fits: prototype matching</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Same subject, two fits: prototype matching</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across subjects, not inside one patient."><img alt="" src="../../_images/sphx_glr_plot_05_precise_features_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/05_validation_and_reuse/plot_05_precise_features.html"><span class="doc">Precise features vs all textures under perturbation</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Precise features vs all textures under perturbation</div>
 </div></div><div style="clear:both"></div></section>
 </section>
 

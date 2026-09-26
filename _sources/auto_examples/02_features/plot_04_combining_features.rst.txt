@@ -63,7 +63,7 @@ inside the ROI.
     from habit.pipeline.assembly import build_habitat_components
     from habit.spec import HabitatSpec, Spec
     from habit.spec.policy import RunPolicy
-    from habit.viz import plot_habitat_overlay
+    from habit.viz import plot_habitat_overlay, plot_cluster_validation_from_report
     import habit.recipes as recipes
 
     DATA = fetch_demo()
@@ -295,8 +295,8 @@ pooled fit (elbow over 2..3 habitats), assign, then the feature stages.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.16s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.16s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.59it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.62it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.08s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.06s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.06s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.76it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.74it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.74it/s]
     HabitatModel kmeans-eb51fe90351b084b
       habitats           : 3
       features (2)    : LAP, PVP
@@ -376,8 +376,8 @@ should show the same number of rows and more columns.
     2  1077.0  1088.0
     3  1073.0  1072.0
     4  1033.0  1132.0
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.79s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.71s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.71s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.33it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.34it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.34it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.34s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.31s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.31s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.73it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.72it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.72it/s]
     concat habitats: 3
 
 
@@ -400,7 +400,7 @@ versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
 elbow (visual elbow, computed) maximizes the second difference of
 inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-204
+.. GENERATED FROM PYTHON SOURCE LINES 174-237
 
 .. code-block:: Python
 
@@ -435,7 +435,45 @@ inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
         print(f"  {_name}: {_k}")
     print(f"habitat map uses Kneedle K = {_k_kneedle}")
 
+    _criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+    _vote = _KMeansFitter(
+        min_habitats=2, max_habitats=3, validation=list(_criteria), n_init=3
+    )
+    _vote.set_random_state(0)
+    _vote_report = dict(
+        _vote.fit(concat_result.units, cohort=cohort).preprocessing_state["selection_report"]
+    )
+    _vote_report["selected"] = {
+        "elbow": _k_kneedle,
+        "silhouette": _k_table["silhouette"],
+        "calinski_harabasz": _k_table["calinski_harabasz"],
+        "davies_bouldin": _k_table["davies_bouldin"],
+    }
+    fig = plot_cluster_validation_from_report(
+        _vote_report,
+        title="K criteria (elbow panel: x = Kneedle)",
+    )
+    fig.axes[0].plot(
+        _k_discrete,
+        float(_inertia[_candidates.index(_k_discrete)]),
+        marker="o",
+        markersize=8,
+        markerfacecolor="none",
+        markeredgecolor="C2",
+        markeredgewidth=1.4,
+        linestyle="none",
+        label=f"discrete-curvature k={_k_discrete}",
+    )
+    fig.axes[0].legend(loc="best", fontsize=8)
+    fig.savefig("out/combining_features_k_criteria.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
+
+
+.. image-sg:: /auto_examples/02_features/images/sphx_glr_plot_04_combining_features_003.png
+   :alt: K criteria (elbow panel: x = Kneedle), elbow (selected k=3), silhouette (selected k=3), calinski_harabasz (selected k=3), davies_bouldin (selected k=3)
+   :srcset: /auto_examples/02_features/images/sphx_glr_plot_04_combining_features_003.png
+   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -456,7 +494,7 @@ inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 14.605 seconds)
+   **Total running time of the script:** (0 minutes 13.364 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_features_plot_04_combining_features.py:

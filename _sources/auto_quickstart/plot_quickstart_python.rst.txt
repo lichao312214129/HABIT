@@ -234,8 +234,8 @@ and keeps the elbow.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:03<00:11,  3.84s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:05<00:05,  2.77s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:06<00:02,  2.31s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:08<00:00,  2.09s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:08<00:00,  2.09s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:03,  1.23s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:02<00:02,  1.11s/it]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:03<00:01,  1.02s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.02it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.02it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:07,  2.55s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:04<00:04,  2.07s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.87s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.78s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.78s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:03,  1.08s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:01<00:01,  1.05it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02<00:00,  1.13it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.17it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.17it/s]
     HabitatModel kmeans-b01ecfd00139f26e
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -269,7 +269,7 @@ inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. The
 habitat map keeps the Kneedle K; other Ks are only in the table below.
 Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-226
+.. GENERATED FROM PYTHON SOURCE LINES 174-242
 
 .. code-block:: Python
 
@@ -307,8 +307,24 @@ Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm
         print(f"  {_name}: {_k}")
     print(f"habitat map uses Kneedle K = {k_kneedle}")
 
+    # Plot every supported k-means criterion (skip gap: expensive on this page).
+    _criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+    _vote = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+    )
+    _vote.set_random_state(0)
+    _vote_report = dict(
+        _vote.fit(result.units, cohort=train).preprocessing_state["selection_report"]
+    )
+    _vote_report["selected"] = {
+        "elbow": k_kneedle,
+        "silhouette": _k_table["silhouette"],
+        "calinski_harabasz": _k_table["calinski_harabasz"],
+        "davies_bouldin": _k_table["davies_bouldin"],
+    }
     fig = plot_cluster_validation_from_report(
-        report, title="Inertia: x = HABIT elbow/Kneedle"
+        _vote_report,
+        title="K criteria (elbow panel: x = Kneedle)",
     )
     fig.axes[0].plot(
         k_discrete,
@@ -329,7 +345,7 @@ Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm
 
 
 .. image-sg:: /auto_quickstart/images/sphx_glr_plot_quickstart_python_002.png
-   :alt: Inertia: x = HABIT elbow/Kneedle, elbow (selected k=5)
+   :alt: K criteria (elbow panel: x = Kneedle), elbow (selected k=5), silhouette (selected k=2), calinski_harabasz (selected k=2), davies_bouldin (selected k=2)
    :srcset: /auto_quickstart/images/sphx_glr_plot_quickstart_python_002.png
    :class: sphx-glr-single-img
 
@@ -349,14 +365,14 @@ Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 227-231
+.. GENERATED FROM PYTHON SOURCE LINES 243-247
 
 Habitat maps
 ------------
 From supervoxels to habitats on one slice, then the habitat map of two
 patients. Same colour, same habitat, in both.
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-246
+.. GENERATED FROM PYTHON SOURCE LINES 247-262
 
 .. code-block:: Python
 
@@ -417,7 +433,7 @@ patients. Same colour, same habitat, in both.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 247-252
+.. GENERATED FROM PYTHON SOURCE LINES 263-268
 
 The feature table
 -----------------
@@ -425,7 +441,7 @@ One row per subject, ready for statistics: volume fractions, the MSI
 (how habitats touch each other), the ITH score (how fragmented the
 tumour is) and graph topology. A few of the columns:
 
-.. GENERATED FROM PYTHON SOURCE LINES 252-257
+.. GENERATED FROM PYTHON SOURCE LINES 268-273
 
 .. code-block:: Python
 
@@ -453,14 +469,14 @@ tumour is) and graph topology. A few of the columns:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 258-262
+.. GENERATED FROM PYTHON SOURCE LINES 274-278
 
 What those numbers look like for one subject
 --------------------------------------------
 Volume fractions come straight from the table. MSI and ITH are drawn from
 the same label map with the kernels the table uses.
 
-.. GENERATED FROM PYTHON SOURCE LINES 262-277
+.. GENERATED FROM PYTHON SOURCE LINES 278-293
 
 .. code-block:: Python
 
@@ -510,7 +526,7 @@ the same label map with the kernels the table uses.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 278-303
+.. GENERATED FROM PYTHON SOURCE LINES 294-319
 
 Graph network features: the habitat layout as a network
 -------------------------------------------------------
@@ -538,7 +554,7 @@ are options of the graph component (for example
 ``node_method="component"`` and ``edge_method="adjacency"``); more on
 :doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 303-328
+.. GENERATED FROM PYTHON SOURCE LINES 319-344
 
 .. code-block:: Python
 
@@ -603,7 +619,7 @@ are options of the graph component (for example
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 329-337
+.. GENERATED FROM PYTHON SOURCE LINES 345-353
 
 How to read the graph features
 ------------------------------
@@ -614,7 +630,7 @@ between two habitats mean they interleave along a long shared border.
 Size-dependent columns also have ``*_norm`` / ``*_per_habitat_volume``
 companions so tumours of different size can be compared.
 
-.. GENERATED FROM PYTHON SOURCE LINES 339-348
+.. GENERATED FROM PYTHON SOURCE LINES 355-364
 
 Reuse the model on a new patient
 --------------------------------
@@ -626,7 +642,7 @@ centroids.
 save writes the model archive and result tables under out/quickstart,
 plus the habitat maps because write_maps=True.
 
-.. GENERATED FROM PYTHON SOURCE LINES 348-361
+.. GENERATED FROM PYTHON SOURCE LINES 364-377
 
 .. code-block:: Python
 
@@ -656,14 +672,14 @@ plus the habitat maps because write_maps=True.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:08<00:00,  8.59s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:08<00:00,  8.59s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05<00:00,  5.59s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05<00:00,  5.59s/it]
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 362-379
+.. GENERATED FROM PYTHON SOURCE LINES 378-395
 
 Where to go next
 ----------------
@@ -686,7 +702,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 33.864 seconds)
+   **Total running time of the script:** (0 minutes 31.072 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_python.py:

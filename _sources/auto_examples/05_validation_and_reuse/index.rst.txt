@@ -91,7 +91,7 @@ and reuse a published ``.habitatmodel``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit clears a threshold.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Voxel texture features that flip under a simulated re-acquisition make unstable habitats. Prior et al. (Radiol Artif Intell 2024;6(2):e230118) keep features whose ICC lower confidence limit (LCL) clears a threshold across subjects, not inside one patient.">
 
 .. only:: html
 

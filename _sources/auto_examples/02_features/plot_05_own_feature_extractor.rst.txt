@@ -320,7 +320,7 @@ subject-level winsorize step matters here: it clips each column to
 the patient's own 1st..99th percentile before min-max puts the three
 columns on the same 0..1 scale.
 
-.. GENERATED FROM PYTHON SOURCE LINES 210-305
+.. GENERATED FROM PYTHON SOURCE LINES 210-321
 
 .. code-block:: Python
 
@@ -401,8 +401,24 @@ columns on the same 0..1 scale.
     for _name, _k in _k_table.items():
         print(f"  {_name}: {_k}")
 
+    # Plot every supported k-means criterion (skip gap: expensive on this page).
+    _criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+    _vote = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+    )
+    _vote.set_random_state(0)
+    _vote_report = dict(
+        _vote.fit(result.units, cohort=train).preprocessing_state["selection_report"]
+    )
+    _vote_report["selected"] = {
+        "elbow": k_kneedle,
+        "silhouette": _k_table["silhouette"],
+        "calinski_harabasz": _k_table["calinski_harabasz"],
+        "davies_bouldin": _k_table["davies_bouldin"],
+    }
     fig = plot_cluster_validation_from_report(
-        report, title="Inertia: x = HABIT elbow/Kneedle"
+        _vote_report,
+        title="K criteria (elbow panel: x = Kneedle)",
     )
     fig.axes[0].plot(
         k_discrete,
@@ -423,7 +439,7 @@ columns on the same 0..1 scale.
 
 
 .. image-sg:: /auto_examples/02_features/images/sphx_glr_plot_05_own_feature_extractor_002.png
-   :alt: Inertia: x = HABIT elbow/Kneedle, elbow (selected k=4)
+   :alt: K criteria (elbow panel: x = Kneedle), elbow (selected k=4), silhouette (selected k=2), calinski_harabasz (selected k=2), davies_bouldin (selected k=2)
    :srcset: /auto_examples/02_features/images/sphx_glr_plot_05_own_feature_extractor_002.png
    :class: sphx-glr-single-img
 
@@ -432,8 +448,8 @@ columns on the same 0..1 scale.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.43s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.49s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:04<00:00,  2.49s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.58it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.02s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.66s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.66s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.02it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.91it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.91it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 4
       features (3)    : relative_enhancement_lap, relative_washout_pvp, relative_washout_delay
@@ -454,14 +470,14 @@ columns on the same 0..1 scale.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 306-310
+.. GENERATED FROM PYTHON SOURCE LINES 322-326
 
 Habitat maps and what they mean
 -------------------------------
 The centroid columns are the extractor's feature names, in bin units
 0..9 (after subject-level scaling and cohort-level binning).
 
-.. GENERATED FROM PYTHON SOURCE LINES 310-329
+.. GENERATED FROM PYTHON SOURCE LINES 326-345
 
 .. code-block:: Python
 
@@ -526,7 +542,7 @@ The centroid columns are the extractor's feature names, in bin units
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 330-338
+.. GENERATED FROM PYTHON SOURCE LINES 346-354
 
 Ship it as a package
 --------------------
@@ -537,7 +553,7 @@ the registry's entry-point group in that package's ``pyproject.toml``.
 The group name is ``"habit." + <registry domain>``; ask the registry
 rather than typing it:
 
-.. GENERATED FROM PYTHON SOURCE LINES 338-340
+.. GENERATED FROM PYTHON SOURCE LINES 354-356
 
 .. code-block:: Python
 
@@ -556,7 +572,7 @@ rather than typing it:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 341-356
+.. GENERATED FROM PYTHON SOURCE LINES 357-372
 
 Declare the entry point and load it
 -----------------------------------
@@ -574,7 +590,7 @@ decorator. After ``pip install my-dce-pkg``, a user calls
 installed HABIT entry point and reports what it loaded; here no such
 package is installed, so the list is empty.
 
-.. GENERATED FROM PYTHON SOURCE LINES 356-359
+.. GENERATED FROM PYTHON SOURCE LINES 372-375
 
 .. code-block:: Python
 
@@ -594,7 +610,7 @@ package is installed, so the list is empty.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 360-385
+.. GENERATED FROM PYTHON SOURCE LINES 376-401
 
 How to read the result
 ----------------------
@@ -622,7 +638,7 @@ When this page was built:
 These ratios are illustrative formulas on two demo patients, not a
 validated perfusion model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 387-396
+.. GENERATED FROM PYTHON SOURCE LINES 403-412
 
 Where to go next
 ----------------
@@ -637,7 +653,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 11.783 seconds)
+   **Total running time of the script:** (0 minutes 11.172 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_features_plot_05_own_feature_extractor.py:

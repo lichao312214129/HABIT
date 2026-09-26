@@ -197,8 +197,8 @@ levels, so the fitter clusters at most 10 distinct values.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.83s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.53s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.53s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.08s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.06it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.06it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.53s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.33s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.33s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.05it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.18it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.18it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 4
       features (1)    : LAP
@@ -234,7 +234,7 @@ Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm
 With one feature the Kneedle knee can sit at a different count than
 the four-phase analysis. Read K from the model rather than assuming it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-193
+.. GENERATED FROM PYTHON SOURCE LINES 145-209
 
 .. code-block:: Python
 
@@ -268,8 +268,24 @@ the four-phase analysis. Read K from the model rather than assuming it.
     for _name, _k in _k_table.items():
         print(f"  {_name}: {_k}")
 
+    # Plot every supported k-means criterion (skip gap: expensive on this page).
+    _criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+    _vote = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+    )
+    _vote.set_random_state(0)
+    _vote_report = dict(
+        _vote.fit(result.units, cohort=train).preprocessing_state["selection_report"]
+    )
+    _vote_report["selected"] = {
+        "elbow": k_kneedle,
+        "silhouette": _k_table["silhouette"],
+        "calinski_harabasz": _k_table["calinski_harabasz"],
+        "davies_bouldin": _k_table["davies_bouldin"],
+    }
     fig = plot_cluster_validation_from_report(
-        report, title="Inertia: x = HABIT elbow/Kneedle"
+        _vote_report,
+        title="K criteria (elbow panel: x = Kneedle)",
     )
     fig.axes[0].plot(
         k_discrete,
@@ -290,7 +306,7 @@ the four-phase analysis. Read K from the model rather than assuming it.
 
 
 .. image-sg:: /auto_examples/02_features/images/sphx_glr_plot_01_multi_sequence_intensities_001.png
-   :alt: Inertia: x = HABIT elbow/Kneedle, elbow (selected k=4)
+   :alt: K criteria (elbow panel: x = Kneedle), elbow (selected k=4), silhouette (selected k=2), calinski_harabasz (selected k=10), davies_bouldin (selected k=10)
    :srcset: /auto_examples/02_features/images/sphx_glr_plot_01_multi_sequence_intensities_001.png
    :class: sphx-glr-single-img
 
@@ -310,12 +326,12 @@ the four-phase analysis. Read K from the model rather than assuming it.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 194-196
+.. GENERATED FROM PYTHON SOURCE LINES 210-212
 
 A training patient
 ------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 196-207
+.. GENERATED FROM PYTHON SOURCE LINES 212-223
 
 .. code-block:: Python
 
@@ -349,7 +365,7 @@ A training patient
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 208-213
+.. GENERATED FROM PYTHON SOURCE LINES 224-229
 
 A new patient from the fitted model
 -----------------------------------
@@ -357,7 +373,7 @@ The new patient is normalized with its own statistics, binned with the
 training bin edges stored in the model, and given the training
 centroids. Nothing is refitted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 213-231
+.. GENERATED FROM PYTHON SOURCE LINES 229-247
 
 .. code-block:: Python
 
@@ -392,7 +408,7 @@ centroids. Nothing is refitted.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01<00:00,  1.78s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01<00:00,  1.78s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01<00:00,  1.76s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01<00:00,  1.76s/it]
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
     subj003 habitat 1: 0.117
@@ -403,7 +419,7 @@ centroids. Nothing is refitted.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 232-238
+.. GENERATED FROM PYTHON SOURCE LINES 248-254
 
 What each habitat means
 -----------------------
@@ -412,7 +428,7 @@ training patient. With one sequence the habitats are adjacent
 intensity bands. The habitat ids are arbitrary names, not a ranking:
 sort by the printed medians to read them from darkest to brightest.
 
-.. GENERATED FROM PYTHON SOURCE LINES 238-253
+.. GENERATED FROM PYTHON SOURCE LINES 254-269
 
 .. code-block:: Python
 
@@ -452,7 +468,7 @@ sort by the printed medians to read them from darkest to brightest.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 254-270
+.. GENERATED FROM PYTHON SOURCE LINES 270-286
 
 How to read the result
 ----------------------
@@ -471,7 +487,7 @@ The histograms overlap because habitats are assigned per supervoxel
 (a patch of voxels), not per voxel, and because normalization is per
 patient. Nothing here says how these bands relate to perfusion.
 
-.. GENERATED FROM PYTHON SOURCE LINES 272-280
+.. GENERATED FROM PYTHON SOURCE LINES 288-296
 
 Where to go next
 ----------------
@@ -485,7 +501,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 9.580 seconds)
+   **Total running time of the script:** (0 minutes 10.367 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_features_plot_01_multi_sequence_intensities.py:

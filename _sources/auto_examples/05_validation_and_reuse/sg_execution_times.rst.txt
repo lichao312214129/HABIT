@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:22.551** total execution time for 6 files **from auto_examples\05_validation_and_reuse**:
+**03:07.411** total execution time for 6 files **from auto_examples\05_validation_and_reuse**:
 
 .. container::
 
@@ -32,13 +32,13 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_06_reuse_published_model.py` (``plot_06_reuse_published_model.py``)
-     - 00:22.551
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_01_train_save_predict.py` (``plot_01_train_save_predict.py``)
-     - 00:00.000
+   * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_05_precise_features.py` (``plot_05_precise_features.py``)
+     - 03:01.625
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_02_match_same_subject.py` (``plot_02_match_same_subject.py``)
+     - 00:05.786
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_01_train_save_predict.py` (``plot_01_train_save_predict.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_03_match_two_subjects.py` (``plot_03_match_two_subjects.py``)
@@ -47,6 +47,6 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_04_match_group.py` (``plot_04_match_group.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_05_precise_features.py` (``plot_05_precise_features.py``)
+   * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_06_reuse_published_model.py` (``plot_06_reuse_published_model.py``)
      - 00:00.000
      - 0.0

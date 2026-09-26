@@ -31,7 +31,7 @@ from habit.precision import align_habitat_maps_to_prototypes
 from habit.recipes import Study
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.policy import RunPolicy
-from habit.viz import plot_habitat_label_compare
+from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout.
 DATA = fetch_demo()
@@ -98,6 +98,7 @@ model_b = result_b.subject_models[sid]
 print("features before matching (seed 0 / seed 1):")
 print(pd.DataFrame([volume_row(map_a), volume_row(map_b)], index=["seed_0", "seed_1"]))
 
+# Same anatomy under both label maps (before matching).
 fig = plot_habitat_label_compare(
     image,
     map_a,
@@ -125,6 +126,7 @@ print(
     )
 )
 
+# Same anatomy again after prototype matching.
 fig = plot_habitat_label_compare(
     image,
     map_a_m,
@@ -134,3 +136,14 @@ fig = plot_habitat_label_compare(
 )
 fig.savefig("out/match_same_subject_after.png", dpi=150, bbox_inches="tight")
 plt.show()
+
+# Single-map overlays on the same image (matched ids only).
+for one_map, title, stem in (
+    (map_a_m, f"{sid}: seed 0 after match", "match_same_subject_overlay_seed0"),
+    (map_b_m, f"{sid}: seed 1 after match", "match_same_subject_overlay_seed1"),
+):
+    fig = plot_habitat_overlay(
+        image, one_map, title=title, crop_to="labels"
+    )
+    fig.savefig(f"out/{stem}.png", dpi=150, bbox_inches="tight")
+    plt.show()

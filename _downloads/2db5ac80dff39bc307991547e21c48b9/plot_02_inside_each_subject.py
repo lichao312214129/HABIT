@@ -201,8 +201,24 @@ for _name, _k in _k_table.items():
     print(f"  {_name}: {_k}")
 print(f"habitat map for {first_id} uses Kneedle K = {k_kneedle}")
 
+# Plot every supported k-means criterion on this patient (skip gap).
+_criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+_vote = KMeansHabitatModelFitter(
+    min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+)
+_vote.set_random_state(0)
+_vote_report = dict(
+    _vote.fit(_units0, cohort=cohort[:1]).preprocessing_state["selection_report"]
+)
+_vote_report["selected"] = {
+    "elbow": k_kneedle,
+    "silhouette": _k_table["silhouette"],
+    "calinski_harabasz": _k_table["calinski_harabasz"],
+    "davies_bouldin": _k_table["davies_bouldin"],
+}
 fig = plot_cluster_validation_from_report(
-    report, title=f"{first_id}: inertia x = HABIT elbow/Kneedle"
+    _vote_report,
+    title=f"{first_id}: K criteria (elbow panel: x = Kneedle)",
 )
 fig.axes[0].plot(
     k_discrete,

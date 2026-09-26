@@ -77,6 +77,7 @@ from habit.execution import backend_from_policy
 from habit.recipes import Study
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.policy import RunPolicy
+from habit.viz import plot_cluster_validation_from_report
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout.
 DATA = fetch_demo()
@@ -202,6 +203,39 @@ print("K by criterion (elbow/kneedle=Kneedle; sil/CH maximize; DB minimize; skip
 for _name, _k in _k_table.items():
     print(f"  {_name}: {_k}")
 print(f"habitat map uses Kneedle K = {_k_kneedle}")
+
+_criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+_vote = _KMeansFitter(
+    min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+)
+_vote.set_random_state(0)
+_vote_report = dict(
+    _vote.fit(result.units, cohort=train).preprocessing_state["selection_report"]
+)
+_vote_report["selected"] = {
+    "elbow": _k_kneedle,
+    "silhouette": _k_table["silhouette"],
+    "calinski_harabasz": _k_table["calinski_harabasz"],
+    "davies_bouldin": _k_table["davies_bouldin"],
+}
+fig = plot_cluster_validation_from_report(
+    _vote_report,
+    title="K criteria (elbow panel: x = Kneedle)",
+)
+fig.axes[0].plot(
+    _k_discrete,
+    float(_inertia[_candidates.index(_k_discrete)]),
+    marker="o",
+    markersize=8,
+    markerfacecolor="none",
+    markeredgecolor="C2",
+    markeredgewidth=1.4,
+    linestyle="none",
+    label=f"discrete-curvature k={_k_discrete}",
+)
+fig.axes[0].legend(loc="best", fontsize=8)
+fig.savefig("out/habitat_radiomics_k_criteria.png", dpi=150, bbox_inches="tight")
+plt.show()
 
 # The other three patients are labelled with the fitted definition (no
 # refit); ``spec=`` runs the same quantify stages on them.

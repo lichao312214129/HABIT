@@ -199,8 +199,8 @@ before ``pool`` they are subject-level, after it cohort-level.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.06s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.12s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.01it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.01it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.12s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.05s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.06it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.06it/s]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -238,7 +238,7 @@ Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm
 The same HABIT elbow/Kneedle rule as on the two-step page, now scored
 on every pooled voxel instead of on 60 supervoxels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 148-200
+.. GENERATED FROM PYTHON SOURCE LINES 148-216
 
 .. code-block:: Python
 
@@ -276,8 +276,24 @@ on every pooled voxel instead of on 60 supervoxels.
         print(f"  {_name}: {_k}")
     print(f"habitat map uses Kneedle K = {k_kneedle}")
 
+    # Plot every supported k-means criterion (skip gap: expensive on this page).
+    _criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+    _vote = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+    )
+    _vote.set_random_state(0)
+    _vote_report = dict(
+        _vote.fit(result.units, cohort=train).preprocessing_state["selection_report"]
+    )
+    _vote_report["selected"] = {
+        "elbow": k_kneedle,
+        "silhouette": _k_table["silhouette"],
+        "calinski_harabasz": _k_table["calinski_harabasz"],
+        "davies_bouldin": _k_table["davies_bouldin"],
+    }
     fig = plot_cluster_validation_from_report(
-        report, title="Inertia: x = HABIT elbow/Kneedle"
+        _vote_report,
+        title="K criteria (elbow panel: x = Kneedle)",
     )
     fig.axes[0].plot(
         k_discrete,
@@ -298,7 +314,7 @@ on every pooled voxel instead of on 60 supervoxels.
 
 
 .. image-sg:: /auto_examples/00_introductory_tutorials/images/sphx_glr_plot_03_pooled_voxels_001.png
-   :alt: Inertia: x = HABIT elbow/Kneedle, elbow (selected k=5)
+   :alt: K criteria (elbow panel: x = Kneedle), elbow (selected k=5), silhouette (selected k=2), calinski_harabasz (selected k=2), davies_bouldin (selected k=2)
    :srcset: /auto_examples/00_introductory_tutorials/images/sphx_glr_plot_03_pooled_voxels_001.png
    :class: sphx-glr-single-img
 
@@ -318,13 +334,13 @@ on every pooled voxel instead of on 60 supervoxels.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 201-204
+.. GENERATED FROM PYTHON SOURCE LINES 217-220
 
 One overlay per patient
 -----------------------
 Ids are shared, so the same colour is the same habitat in both maps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 204-214
+.. GENERATED FROM PYTHON SOURCE LINES 220-230
 
 .. code-block:: Python
 
@@ -371,7 +387,7 @@ Ids are shared, so the same colour is the same habitat in both maps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 215-220
+.. GENERATED FROM PYTHON SOURCE LINES 231-236
 
 Feature table
 -------------
@@ -379,7 +395,7 @@ One row per patient. Pooled-voxel fits assign labels from one shared
 model, so habitat ids are already comparable across subjects and do
 not need matching (matching is for separate fits / one-step).
 
-.. GENERATED FROM PYTHON SOURCE LINES 220-228
+.. GENERATED FROM PYTHON SOURCE LINES 236-244
 
 .. code-block:: Python
 
@@ -408,7 +424,7 @@ not need matching (matching is for separate fits / one-step).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 229-235
+.. GENERATED FROM PYTHON SOURCE LINES 245-251
 
 Arterial-phase intensity inside each habitat
 --------------------------------------------
@@ -417,7 +433,7 @@ shows only one of them (the displayed LAP image, raw values, first
 patient) to give the habitats a physical reading. The label map sits
 on the image grid, so the two arrays can be indexed together.
 
-.. GENERATED FROM PYTHON SOURCE LINES 235-251
+.. GENERATED FROM PYTHON SOURCE LINES 251-267
 
 .. code-block:: Python
 
@@ -459,12 +475,12 @@ on the image grid, so the two arrays can be indexed together.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 252-254
+.. GENERATED FROM PYTHON SOURCE LINES 268-270
 
 Save maps, tables, and the model
 --------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 254-257
+.. GENERATED FROM PYTHON SOURCE LINES 270-273
 
 .. code-block:: Python
 
@@ -484,7 +500,7 @@ Save maps, tables, and the model
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 258-268
+.. GENERATED FROM PYTHON SOURCE LINES 274-284
 
 How to read the result
 ----------------------
@@ -497,7 +513,7 @@ How to read the result
 * Habitat numbering need not match a two-step run on the same data;
   each design has its own shared model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 270-281
+.. GENERATED FROM PYTHON SOURCE LINES 286-297
 
 Where to go next
 ----------------
@@ -514,7 +530,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 32.123 seconds)
+   **Total running time of the script:** (0 minutes 50.013 seconds)
 
 
 .. _sphx_glr_download_auto_examples_00_introductory_tutorials_plot_03_pooled_voxels.py:

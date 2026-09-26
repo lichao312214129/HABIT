@@ -830,14 +830,14 @@ levels, so the fitter clusters at most 10 distinct values.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.83s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.53s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.53s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.53s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.33s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.33s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.08s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.06it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.06it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.05it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.18it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.18it/s]
 HabitatModel kmeans-3432f3b65bfec11a
   habitats           : 4
   features (1)    : LAP
@@ -899,8 +899,24 @@ the four-phase analysis. Read K from the model rather than assuming it.</p>
 <span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_name</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_name</span></a><span class="si">}</span><span class="s2">: </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+<span class="c1"># Plot every supported k-means criterion (skip gap: expensive on this page).</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_criteria</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">,</span> <span class="s2">&quot;davies_bouldin&quot;</span><span class="p">)</span>
+<a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_vote</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span>
+    <span class="n">min_habitats</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_habitats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_criteria</span></a><span class="p">),</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+<a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">_vote</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_vote_report</span></a> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.fit" title="habit.habitat_model.KMeansHabitatModelFitter.fit" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">_vote</span><span class="o">.</span><span class="n">fit</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">units</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="o">=</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">)</span><span class="o">.</span><span class="n">preprocessing_state</span><span class="p">[</span><span class="s2">&quot;selection_report&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_vote_report</span></a><span class="p">[</span><span class="s2">&quot;selected&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;elbow&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_kneedle</span></a><span class="p">,</span>
+    <span class="s2">&quot;silhouette&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="p">[</span><span class="s2">&quot;silhouette&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="p">[</span><span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;davies_bouldin&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="p">[</span><span class="s2">&quot;davies_bouldin&quot;</span><span class="p">],</span>
+<span class="p">}</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_cluster_validation_from_report.html#habit.viz.plot_cluster_validation_from_report" title="habit.viz.plot_cluster_validation_from_report" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_cluster_validation_from_report</span></a><span class="p">(</span>
-    <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">report</span></a><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Inertia: x = HABIT elbow/Kneedle&quot;</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_vote_report</span></a><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;K criteria (elbow panel: x = Kneedle)&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.axes.html#matplotlib.figure.Figure.axes" title="matplotlib.figure.Figure.axes" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-property"><span class="n">fig</span><span class="o">.</span><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_discrete</span></a><span class="p">,</span>
@@ -918,7 +934,7 @@ the four-phase analysis. Read K from the model rather than assuming it.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_01_multi_sequence_intensities_001.png" srcset="../../_images/sphx_glr_plot_01_multi_sequence_intensities_001.png" alt="Inertia: x = HABIT elbow/Kneedle, elbow (selected k=4)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>habitats chosen by HABIT elbow/Kneedle: 4
+<img src="../../_images/sphx_glr_plot_01_multi_sequence_intensities_001.png" srcset="../../_images/sphx_glr_plot_01_multi_sequence_intensities_001.png" alt="K criteria (elbow panel: x = Kneedle), elbow (selected k=4), silhouette (selected k=2), calinski_harabasz (selected k=10), davies_bouldin (selected k=10)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>habitats chosen by HABIT elbow/Kneedle: 4
 K by criterion:
   elbow_kneedle: 4
   discrete_curvature_elbow: 3
@@ -972,8 +988,8 @@ centroids. Nothing is refitted.</p>
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_01_multi_sequence_intensities_003.png" srcset="../../_images/sphx_glr_plot_01_multi_sequence_intensities_003.png" alt="subj003: habitats from the fitted model, Axis 0 (axial-like) @ 46, Axis 1 (coronal-like) @ 121, Axis 2 (sagittal-like) @ 200" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.78s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.78s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.76s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:01&lt;00:00,  1.76s/it]
 F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 subj003 habitat 1: 0.117
@@ -1039,7 +1055,7 @@ patient. Nothing here says how these bands relate to perfusion.</p>
 <li><p>Choosing the preprocessing:
 <a class="reference internal" href="../07_advanced/plot_02_subject_preprocess.html"><span class="doc">Subject-level preprocessing</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 9.580 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 10.367 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-features-plot-01-multi-sequence-intensities-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/b36616c0cc7f8a0dd6efb417423df78a/plot_01_multi_sequence_intensities.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_01_multi_sequence_intensities.ipynb</span></code></a></p>

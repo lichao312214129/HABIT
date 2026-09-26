@@ -91,7 +91,7 @@ sphinx_gallery_thumbnail_number = 2
     from habit.recipes import Study
     from habit.spec import ROLE_POSTPROCESS_HABITAT, HabitatSpec, Spec, Stage
     from habit.spec.policy import RunPolicy
-    from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
+    from habit.viz import plot_habitat_label_compare, plot_habitat_overlay, plot_cluster_validation_from_report
 
     # Change DATA / MODALITIES / ROI to your preprocessed layout.
     DATA = fetch_demo()
@@ -256,10 +256,10 @@ Two definitions that differ only in cleanup
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.97s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.97s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.69it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.62it/s]
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.72s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.75s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:05<00:00,  2.75s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.07s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:07<00:00,  3.97s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:07<00:00,  3.97s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.14s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.77s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.77s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  2.75it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.75it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  2.75it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.09s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.73s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.73s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:03<00:03,  3.82s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:07<00:00,  3.75s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:07<00:00,  3.75s/it]
     HabitatModel kmeans-3432f3b65bfec11a
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -291,7 +291,7 @@ versus k (Thorndike RL, 1953, Who belongs in the family?, Psychometrika
 elbow (visual elbow, computed) maximizes the second difference of
 inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
 
-.. GENERATED FROM PYTHON SOURCE LINES 201-230
+.. GENERATED FROM PYTHON SOURCE LINES 201-263
 
 .. code-block:: Python
 
@@ -324,8 +324,46 @@ inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
     print(f"habitat map uses Kneedle K = {_k_kneedle}")
     print("cleanup Spec:", spec_clean.postprocess_habitat or "via stages")
 
+    _criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+    _vote = _KMeansFitter(
+        min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+    )
+    _vote.set_random_state(0)
+    _vote_report = dict(
+        _vote.fit(result_raw.units, cohort=train).preprocessing_state["selection_report"]
+    )
+    _vote_report["selected"] = {
+        "elbow": _k_kneedle,
+        "silhouette": _k_table["silhouette"],
+        "calinski_harabasz": _k_table["calinski_harabasz"],
+        "davies_bouldin": _k_table["davies_bouldin"],
+    }
+    fig = plot_cluster_validation_from_report(
+        _vote_report,
+        title="K criteria (elbow panel: x = Kneedle)",
+    )
+    fig.axes[0].plot(
+        _k_discrete,
+        float(_inertia[_candidates.index(_k_discrete)]),
+        marker="o",
+        markersize=8,
+        markerfacecolor="none",
+        markeredgecolor="C2",
+        markeredgewidth=1.4,
+        linestyle="none",
+        label=f"discrete-curvature k={_k_discrete}",
+    )
+    fig.axes[0].legend(loc="best", fontsize=8)
+    fig.savefig("out/cleaning_maps_k_criteria.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
 
+
+
+.. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_001.png
+   :alt: K criteria (elbow panel: x = Kneedle), elbow (selected k=5), silhouette (selected k=2), calinski_harabasz (selected k=2), davies_bouldin (selected k=2)
+   :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_001.png
+   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -344,7 +382,7 @@ inertia (HABIT pre-v1.0 elbow). Habitat maps keep the Kneedle K.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-236
+.. GENERATED FROM PYTHON SOURCE LINES 264-269
 
 Piece counts before and after cleanup
 -------------------------------------
@@ -352,7 +390,7 @@ The same voxels, the same centroids: only islands smaller than
 ``MIN_COMPONENT_SIZE`` are refilled. Volume fractions can move by those
 reassigned voxels; habitat ids that were present stay present.
 
-.. GENERATED FROM PYTHON SOURCE LINES 236-262
+.. GENERATED FROM PYTHON SOURCE LINES 269-295
 
 .. code-block:: Python
 
@@ -397,7 +435,7 @@ reassigned voxels; habitat ids that were present stay present.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 263-268
+.. GENERATED FROM PYTHON SOURCE LINES 296-301
 
 Side-by-side maps on one patient
 --------------------------------
@@ -405,7 +443,7 @@ Left = raw assignment; right = after connected-component cleanup.
 Ids come from two fits that share the stage list and seed except for
 cleanup, so colours match without Hungarian rematching.
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-291
+.. GENERATED FROM PYTHON SOURCE LINES 301-324
 
 .. code-block:: Python
 
@@ -440,16 +478,16 @@ cleanup, so colours match without Hungarian rematching.
 
     *
 
-      .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_001.png
+      .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_002.png
          :alt: Habitat label compare, Raw assignment, Cleaned (min size 30), Disagreement
-         :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_001.png
+         :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_002.png
          :class: sphx-glr-multi-img
 
     *
 
-      .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_002.png
+      .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_003.png
          :alt: subj001: cleaned habitats, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
-         :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_002.png
+         :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_08_cleaning_maps_003.png
          :class: sphx-glr-multi-img
 
 
@@ -465,7 +503,7 @@ cleanup, so colours match without Hungarian rematching.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 292-297
+.. GENERATED FROM PYTHON SOURCE LINES 325-330
 
 Volume fractions move only where voxels were reassigned
 -------------------------------------------------------
@@ -473,7 +511,7 @@ The ``volume`` stage columns come from the maps that actually left the
 pipeline. Cleanup can change a fraction by a few percent; a large jump
 means the cut-off removed a real region, not only speck.
 
-.. GENERATED FROM PYTHON SOURCE LINES 297-304
+.. GENERATED FROM PYTHON SOURCE LINES 330-337
 
 .. code-block:: Python
 
@@ -501,7 +539,7 @@ means the cut-off removed a real region, not only speck.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 305-319
+.. GENERATED FROM PYTHON SOURCE LINES 338-352
 
 How to read the result
 ----------------------
@@ -518,7 +556,7 @@ Measured on this run (K = 4 by elbow on subj001 + subj002;
 Choose the size cut-off for your cohort (and report it). Cleanup that
 changes fractions by tens of percent is too aggressive for that data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 321-331
+.. GENERATED FROM PYTHON SOURCE LINES 354-364
 
 Where to go next
 ----------------
@@ -534,7 +572,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 29.202 seconds)
+   **Total running time of the script:** (0 minutes 26.053 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_08_cleaning_maps.py:

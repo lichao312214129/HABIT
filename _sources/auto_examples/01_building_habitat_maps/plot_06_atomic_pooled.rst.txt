@@ -100,7 +100,7 @@ components are built once and reused for every subject.
     from habit.recipes import Study
     from habit.spec import HabitatSpec, Spec, Stage
     from habit.spec.policy import RunPolicy
-    from habit.viz import plot_habitat_overlay
+    from habit.viz import plot_habitat_overlay, plot_cluster_validation_from_report
     from habit.voxel_features import RawVoxelFeatures
 
     # Change DATA / MODALITIES / ROI to your preprocessed layout.
@@ -324,7 +324,7 @@ preprocess_cohort), run with ``Study`` on the same two patients.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:03<00:03,  3.35s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:06<00:00,  3.03s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:06<00:00,  3.03s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:02<00:02,  2.55s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.41s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.41s/it]
     per-subject subj002: labels identical = True, model_id equal = True
     per-subject subj003: labels identical = True, model_id equal = True
     per-subject feature table: same = True
@@ -350,7 +350,7 @@ elbow (visual elbow, computed) maximizes the second difference of
 inertia (HABIT pre-v1.0 elbow). Each patient's map keeps that patient's
 Kneedle K.
 
-.. GENERATED FROM PYTHON SOURCE LINES 251-274
+.. GENERATED FROM PYTHON SOURCE LINES 251-305
 
 .. code-block:: Python
 
@@ -377,8 +377,44 @@ Kneedle K.
     for _name, _k in _k_table.items():
         print(f"  {_name}: {_k}")
 
+    _criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+    _vote = _KMeansFitter(
+        min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+    )
+    _vote.set_random_state(SEED)
+    _vote_report = dict(_vote.fit(_units0).preprocessing_state["selection_report"])
+    _vote_report["selected"] = {
+        "elbow": _k_kneedle,
+        "silhouette": _k_table["silhouette"],
+        "calinski_harabasz": _k_table["calinski_harabasz"],
+        "davies_bouldin": _k_table["davies_bouldin"],
+    }
+    fig = plot_cluster_validation_from_report(
+        _vote_report,
+        title=f"{_sid0}: K criteria (elbow panel: x = Kneedle)",
+    )
+    fig.axes[0].plot(
+        _k_discrete,
+        float(_inertia[_candidates.index(_k_discrete)]),
+        marker="o",
+        markersize=8,
+        markerfacecolor="none",
+        markeredgecolor="C2",
+        markeredgewidth=1.4,
+        linestyle="none",
+        label=f"discrete-curvature k={_k_discrete}",
+    )
+    fig.axes[0].legend(loc="best", fontsize=8)
+    fig.savefig("out/atomic_pooled_k_criteria.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
 
+
+
+.. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_001.png
+   :alt: subj002: K criteria (elbow panel: x = Kneedle), elbow (selected k=4), silhouette (selected k=3), calinski_harabasz (selected k=3), davies_bouldin (selected k=3)
+   :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_001.png
+   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -395,7 +431,7 @@ Kneedle K.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 275-282
+.. GENERATED FROM PYTHON SOURCE LINES 306-313
 
 Pooled-voxel design: the atomic loop
 ------------------------------------
@@ -405,7 +441,7 @@ pooled TRAINING rows, and ONE fitter call defines the habitats for
 the cohort. ``cohort=train`` fingerprints the training patients into
 the model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 282-296
+.. GENERATED FROM PYTHON SOURCE LINES 313-327
 
 .. code-block:: Python
 
@@ -446,14 +482,14 @@ the model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 297-301
+.. GENERATED FROM PYTHON SOURCE LINES 328-332
 
 Pooled-voxel design: check against Study
 ----------------------------------------
 The spec of the pooled-voxel page (no partition), with the same three
 feature families as the atomic loop.
 
-.. GENERATED FROM PYTHON SOURCE LINES 301-336
+.. GENERATED FROM PYTHON SOURCE LINES 332-367
 
 .. code-block:: Python
 
@@ -500,8 +536,8 @@ feature families as the atomic loop.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.15s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.10s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.52it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.57it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.57it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.06s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.59it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.59it/s]
     pooled model_id: atomic kmeans-cf751438e76faa67 | Study kmeans-cf751438e76faa67
     pooled model_id equal = True
     pooled subj002: labels identical = True
@@ -512,7 +548,7 @@ feature families as the atomic loop.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 337-342
+.. GENERATED FROM PYTHON SOURCE LINES 368-373
 
 The two designs on one patient
 ------------------------------
@@ -520,7 +556,7 @@ Same patient, same features, two definitions. Left: habitats private
 to this patient. Right: habitats shared with the other training
 patient. The colours are NOT comparable between the two maps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 342-354
+.. GENERATED FROM PYTHON SOURCE LINES 373-385
 
 .. code-block:: Python
 
@@ -544,16 +580,16 @@ patient. The colours are NOT comparable between the two maps.
 
     *
 
-      .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_001.png
+      .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_002.png
          :alt: subj002: per-subject habitats (atomic), Axis 0 (axial-like) @ 86, Axis 1 (coronal-like) @ 233, Axis 2 (sagittal-like) @ 69
-         :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_001.png
+         :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_002.png
          :class: sphx-glr-multi-img
 
     *
 
-      .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_002.png
+      .. image-sg:: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_003.png
          :alt: subj002: pooled voxels habitats (atomic), Axis 0 (axial-like) @ 86, Axis 1 (coronal-like) @ 233, Axis 2 (sagittal-like) @ 69
-         :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_002.png
+         :srcset: /auto_examples/01_building_habitat_maps/images/sphx_glr_plot_06_atomic_pooled_003.png
          :class: sphx-glr-multi-img
 
 
@@ -569,7 +605,7 @@ patient. The colours are NOT comparable between the two maps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 355-372
+.. GENERATED FROM PYTHON SOURCE LINES 386-403
 
 How to read the result
 ----------------------
@@ -589,7 +625,7 @@ How to read the result
   the rows being clustered differ: two patients together versus one
   at a time. It is not a contradiction between the two paths.
 
-.. GENERATED FROM PYTHON SOURCE LINES 374-384
+.. GENERATED FROM PYTHON SOURCE LINES 405-415
 
 Where to go next
 ----------------
@@ -605,7 +641,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 46.510 seconds)
+   **Total running time of the script:** (0 minutes 54.185 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_06_atomic_pooled.py:

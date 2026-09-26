@@ -55,7 +55,7 @@ sphinx_gallery_thumbnail_number = 2
     from habit.recipes import Study
     from habit.spec import HabitatSpec, Spec, Stage
     from habit.spec.policy import RunPolicy
-    from habit.viz import plot_habitat_label_compare
+    from habit.viz import plot_habitat_label_compare, plot_habitat_overlay
 
     # Change DATA / MODALITIES / ROI to your preprocessed layout.
     DATA = fetch_demo()
@@ -147,7 +147,7 @@ Fit twice with different seeds
 ------------------------------
 Same Spec and data; only the seed changes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-111
+.. GENERATED FROM PYTHON SOURCE LINES 90-112
 
 .. code-block:: Python
 
@@ -162,6 +162,7 @@ Same Spec and data; only the seed changes.
     print("features before matching (seed 0 / seed 1):")
     print(pd.DataFrame([volume_row(map_a), volume_row(map_b)], index=["seed_0", "seed_1"]))
 
+    # Same anatomy under both label maps (before matching).
     fig = plot_habitat_label_compare(
         image,
         map_a,
@@ -185,8 +186,8 @@ Same Spec and data; only the seed changes.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.48s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.48s/it]
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.47s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.47s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.54s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.54s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.57s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 1/1 [00:01<00:00,  1.57s/it]
     features before matching (seed 0 / seed 1):
             habitat_1_volume_fraction  ...  habitat_3_volume_fraction
     seed_0                   0.427999  ...                   0.196057
@@ -199,14 +200,14 @@ Same Spec and data; only the seed changes.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-116
+.. GENERATED FROM PYTHON SOURCE LINES 113-117
 
 Prototype-match both fits
 -------------------------
 Shared prototypes from clustering centroids (not voxel-overlap
 Hungarian alone). After matching, the same id names the same prototype.
 
-.. GENERATED FROM PYTHON SOURCE LINES 116-137
+.. GENERATED FROM PYTHON SOURCE LINES 117-150
 
 .. code-block:: Python
 
@@ -222,6 +223,7 @@ Hungarian alone). After matching, the same id names the same prototype.
         )
     )
 
+    # Same anatomy again after prototype matching.
     fig = plot_habitat_label_compare(
         image,
         map_a_m,
@@ -232,12 +234,42 @@ Hungarian alone). After matching, the same id names the same prototype.
     fig.savefig("out/match_same_subject_after.png", dpi=150, bbox_inches="tight")
     plt.show()
 
+    # Single-map overlays on the same image (matched ids only).
+    for one_map, title, stem in (
+        (map_a_m, f"{sid}: seed 0 after match", "match_same_subject_overlay_seed0"),
+        (map_b_m, f"{sid}: seed 1 after match", "match_same_subject_overlay_seed1"),
+    ):
+        fig = plot_habitat_overlay(
+            image, one_map, title=title, crop_to="labels"
+        )
+        fig.savefig(f"out/{stem}.png", dpi=150, bbox_inches="tight")
+        plt.show()
 
 
-.. image-sg:: /auto_examples/05_validation_and_reuse/images/sphx_glr_plot_02_match_same_subject_002.png
-   :alt: Habitat label compare, seed 0 (after), seed 1 (after), Disagreement
-   :srcset: /auto_examples/05_validation_and_reuse/images/sphx_glr_plot_02_match_same_subject_002.png
-   :class: sphx-glr-single-img
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image-sg:: /auto_examples/05_validation_and_reuse/images/sphx_glr_plot_02_match_same_subject_002.png
+         :alt: Habitat label compare, seed 0 (after), seed 1 (after), Disagreement
+         :srcset: /auto_examples/05_validation_and_reuse/images/sphx_glr_plot_02_match_same_subject_002.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/05_validation_and_reuse/images/sphx_glr_plot_02_match_same_subject_003.png
+         :alt: subj001: seed 0 after match, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+         :srcset: /auto_examples/05_validation_and_reuse/images/sphx_glr_plot_02_match_same_subject_003.png
+         :class: sphx-glr-multi-img
+
+    *
+
+      .. image-sg:: /auto_examples/05_validation_and_reuse/images/sphx_glr_plot_02_match_same_subject_004.png
+         :alt: subj001: seed 1 after match, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71
+         :srcset: /auto_examples/05_validation_and_reuse/images/sphx_glr_plot_02_match_same_subject_004.png
+         :class: sphx-glr-multi-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -252,6 +284,10 @@ Hungarian alone). After matching, the same id names the same prototype.
     [2 rows x 3 columns]
     F:\work\habit_project\habit\viz\habitat_core.py:948: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
+    F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
+    F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+      resolved_direction, resolved_spacing = resolve_display_geometry(
 
 
 
@@ -259,7 +295,7 @@ Hungarian alone). After matching, the same id names the same prototype.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.419 seconds)
+   **Total running time of the script:** (0 minutes 5.786 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_validation_and_reuse_plot_02_match_same_subject.py:

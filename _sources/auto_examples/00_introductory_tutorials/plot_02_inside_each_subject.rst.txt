@@ -220,7 +220,7 @@ pooled training rows, and in this design nothing is pooled.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  20%|██        | 1/5 [00:03<00:15,  3.93s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  40%|████      | 2/5 [00:06<00:09,  3.19s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  60%|██████    | 3/5 [00:08<00:05,  2.85s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  80%|████████  | 4/5 [00:10<00:02,  2.72s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:16<00:00,  3.33s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:16<00:00,  3.33s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  20%|██        | 1/5 [00:04<00:16,  4.08s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  40%|████      | 2/5 [00:06<00:09,  3.32s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  60%|██████    | 3/5 [00:08<00:05,  2.98s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  80%|████████  | 4/5 [00:11<00:02,  2.88s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:17<00:00,  3.47s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:17<00:00,  3.47s/it]
     cohort-level model: None
     per-subject models: ['subj001', 'subj002', 'subj003', 'subj004', 'subj005']
 
@@ -248,7 +248,7 @@ inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. The
 habitat map keeps the Kneedle K; other Ks are only in the table below.
 Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 169-227
+.. GENERATED FROM PYTHON SOURCE LINES 169-243
 
 .. code-block:: Python
 
@@ -287,8 +287,24 @@ Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm
         print(f"  {_name}: {_k}")
     print(f"habitat map for {first_id} uses Kneedle K = {k_kneedle}")
 
+    # Plot every supported k-means criterion on this patient (skip gap).
+    _criteria = ("elbow", "silhouette", "calinski_harabasz", "davies_bouldin")
+    _vote = KMeansHabitatModelFitter(
+        min_habitats=2, max_habitats=10, validation=list(_criteria), n_init=10
+    )
+    _vote.set_random_state(0)
+    _vote_report = dict(
+        _vote.fit(_units0, cohort=cohort[:1]).preprocessing_state["selection_report"]
+    )
+    _vote_report["selected"] = {
+        "elbow": k_kneedle,
+        "silhouette": _k_table["silhouette"],
+        "calinski_harabasz": _k_table["calinski_harabasz"],
+        "davies_bouldin": _k_table["davies_bouldin"],
+    }
     fig = plot_cluster_validation_from_report(
-        report, title=f"{first_id}: inertia x = HABIT elbow/Kneedle"
+        _vote_report,
+        title=f"{first_id}: K criteria (elbow panel: x = Kneedle)",
     )
     fig.axes[0].plot(
         k_discrete,
@@ -314,7 +330,7 @@ Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm
 
 
 .. image-sg:: /auto_examples/00_introductory_tutorials/images/sphx_glr_plot_02_inside_each_subject_001.png
-   :alt: subj001: inertia x = HABIT elbow/Kneedle, elbow (selected k=5)
+   :alt: subj001: K criteria (elbow panel: x = Kneedle), elbow (selected k=5), silhouette (selected k=2), calinski_harabasz (selected k=2), davies_bouldin (selected k=2)
    :srcset: /auto_examples/00_introductory_tutorials/images/sphx_glr_plot_02_inside_each_subject_001.png
    :class: sphx-glr-single-img
 
@@ -339,7 +355,7 @@ Full comparison: :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-241
+.. GENERATED FROM PYTHON SOURCE LINES 244-257
 
 The per-patient heterogeneity table
 -----------------------------------
@@ -355,7 +371,7 @@ only label-free summaries:
 
 The other MSI summaries are not used on this page.
 
-.. GENERATED FROM PYTHON SOURCE LINES 241-253
+.. GENERATED FROM PYTHON SOURCE LINES 257-269
 
 .. code-block:: Python
 
@@ -390,7 +406,7 @@ The other MSI summaries are not used on this page.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 254-259
+.. GENERATED FROM PYTHON SOURCE LINES 270-275
 
 ITH score per patient
 ---------------------
@@ -398,7 +414,7 @@ One bar per patient, with the number of habitats written above it.
 Voxels are clustered directly (no supervoxels), so a small speckle
 of isolated voxels also counts as fragmentation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 259-279
+.. GENERATED FROM PYTHON SOURCE LINES 275-295
 
 .. code-block:: Python
 
@@ -434,14 +450,14 @@ of isolated voxels also counts as fragmentation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 280-284
+.. GENERATED FROM PYTHON SOURCE LINES 296-300
 
 Two patients' habitat maps
 --------------------------
 Colours are per patient: the same colour in two maps does not mean
 the same kind of tissue.
 
-.. GENERATED FROM PYTHON SOURCE LINES 284-294
+.. GENERATED FROM PYTHON SOURCE LINES 300-310
 
 .. code-block:: Python
 
@@ -488,14 +504,14 @@ the same kind of tissue.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 295-299
+.. GENERATED FROM PYTHON SOURCE LINES 311-315
 
 Save maps and the feature table
 -------------------------------
 One-step designs have no cohort ``.habitatmodel``. ``save`` still
 writes each subject's habitat map and the per-patient feature table.
 
-.. GENERATED FROM PYTHON SOURCE LINES 299-302
+.. GENERATED FROM PYTHON SOURCE LINES 315-318
 
 .. code-block:: Python
 
@@ -515,7 +531,7 @@ writes each subject's habitat map and the per-patient feature table.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 303-317
+.. GENERATED FROM PYTHON SOURCE LINES 319-333
 
 How to read the result
 ----------------------
@@ -532,7 +548,7 @@ How to read the result
 * Five demo patients and no outcomes: these numbers show the workflow,
   not an association with anything clinical.
 
-.. GENERATED FROM PYTHON SOURCE LINES 319-331
+.. GENERATED FROM PYTHON SOURCE LINES 335-347
 
 Where to go next
 ----------------
@@ -550,7 +566,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 43.494 seconds)
+   **Total running time of the script:** (1 minutes 2.046 seconds)
 
 
 .. _sphx_glr_download_auto_examples_00_introductory_tutorials_plot_02_inside_each_subject.py:
