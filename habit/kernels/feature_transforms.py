@@ -964,7 +964,7 @@ def select_correlation_columns(
 def select_precise_correlation_columns(
     block: pd.DataFrame,
     corr_threshold: float = 0.7,
-    p_threshold: float = 0.05,
+    p_threshold: float = 0.001,
 ) -> List[str]:
     """
     Drop columns the way Prior 2024 ``filtering()`` does.
@@ -973,14 +973,21 @@ def select_precise_correlation_columns(
     ``habitat_computation.py``) computes Spearman on the baseline matrix
     only, then drops a column when it has *signed* r above ``corr_threshold``
     and p below ``p_threshold`` with any *later* column. The later column is
-    kept. Negative correlations are not dropped. Paper text said r >= 0.7
-    and P < .001; the runnable code used r > 0.7 and P < 0.05. Defaults
-    follow the code.
+    kept. Negative correlations are not dropped.
+
+    Paper Methods (Prior et al., Radiol Artif Intell 2024): eliminate
+    highly correlated features at r >= 0.7 and P < .001. The runnable
+    GitHub snippet used r > 0.7 and P < 0.05; HABIT keeps the signed
+    ``r > corr_threshold`` inequality from that code, but the default
+    ``p_threshold`` is **0.001** to match the paper criterion (changed
+    from 0.05). Pass ``p_threshold=0.05`` explicitly to replay the
+    GitHub snippet.
 
     Args:
         block: Rows = voxels (or pooled units), columns = features.
         corr_threshold: Drop when Spearman r is strictly greater than this.
         p_threshold: Drop only when the Spearman p-value is below this.
+            Default ``0.001`` (paper P < .001).
 
     Returns:
         Surviving column names, original order. If the rule would empty

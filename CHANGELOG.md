@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- ``select_precise_correlation_columns`` / ``precise_correlation_filter`` /
+  ``PreciseCorrelationFilter``: default ``p_threshold`` is now ``0.001``
+  (Prior 2024 paper P < .001); previously ``0.05`` (GitHub snippet). Pass
+  ``p_threshold=0.05`` explicitly to replay the old gate.
+
 ### Fixed
 
 - ``RunManifest.describe_methods()``: each executed step is stated once, in

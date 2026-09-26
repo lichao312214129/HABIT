@@ -250,8 +250,18 @@ def test_correlation_filter_drops_redundant_later_column() -> None:
 
 
 @pytest.mark.unit
+def test_precise_correlation_filter_default_p_is_001() -> None:
+    """Table-level PreciseCorrelationFilter default matches paper P < .001."""
+    prep = PreciseCorrelationFilterPreprocessor()
+    assert prep.spec.params["p_threshold"] == 0.001
+
+
+@pytest.mark.unit
 def test_precise_correlation_filter_keeps_later_column_and_ignores_negative_r() -> None:
-    """Prior rule: drop the earlier of a +r pair; do not drop a -r pair."""
+    """Prior rule: drop the earlier of a +r pair; do not drop a -r pair.
+
+    p=0.05 is passed explicitly (GitHub-snippet gate); library default is 0.001.
+    """
     table = make_feature_table(n_noise=0)
     n = len(table.frame)
     rng = np.random.default_rng(0)

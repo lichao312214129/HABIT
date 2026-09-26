@@ -903,11 +903,17 @@ class PreciseCorrelationFilter:
 
     ``correlation_filter`` uses ``|r|`` and keeps the first column. This method
     copies ``filtering()`` in precise-habitats so a habitat spec can lock
-    the same column rule as that paper's published code.
+    the same column keep/drop rule as that paper's published code.
+
+    Paper Methods: drop when signed Spearman r is high and P < .001.
+    Default ``p_threshold`` is therefore ``0.001`` (changed from the GitHub
+    snippet's 0.05). The signed ``r > corr_threshold`` inequality still
+    follows the runnable code (paper wrote r >= 0.7).
 
     Args:
         corr_threshold: Signed Spearman cut-off; drop when r is greater.
         p_threshold: Spearman p-value cut-off; drop only when p is smaller.
+            Default ``0.001`` (Prior 2024 paper P < .001).
     """
 
     _name = "precise_correlation_filter"
@@ -916,7 +922,7 @@ class PreciseCorrelationFilter:
     def __init__(
         self,
         corr_threshold: float = 0.7,
-        p_threshold: float = 0.05,
+        p_threshold: float = 0.001,
     ) -> None:
         self._corr_threshold = float(corr_threshold)
         self._p_threshold = float(p_threshold)

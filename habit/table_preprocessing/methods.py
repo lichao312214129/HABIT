@@ -641,7 +641,8 @@ class PreciseCorrelationFilterPreprocessor(_FittedPreprocessor):
 
     Same kernel as the voxel-level ``precise_correlation_filter``: signed r,
     p-value gate, keep the later column. Fit on the training table and
-    replay the column list at transform time.
+    replay the column list at transform time. Default ``p_threshold`` is
+    ``0.001`` (Prior 2024 paper P < .001; changed from 0.05).
     """
 
     _spec_name = "precise_correlation_filter"
@@ -649,7 +650,7 @@ class PreciseCorrelationFilterPreprocessor(_FittedPreprocessor):
     def __init__(
         self,
         corr_threshold: float = 0.7,
-        p_threshold: float = 0.05,
+        p_threshold: float = 0.001,
     ) -> None:
         super().__init__()
         self._corr_threshold = float(corr_threshold)

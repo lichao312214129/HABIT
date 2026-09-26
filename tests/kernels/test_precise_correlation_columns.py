@@ -27,7 +27,7 @@ from habit.kernels.feature_transforms import select_precise_correlation_columns
 def _prior_filtering_drop(
     frame: pd.DataFrame,
     corr_threshold: float = 0.7,
-    p_threshold: float = 0.05,
+    p_threshold: float = 0.001,
 ) -> list[str]:
     """Byte-level copy of precise-habitats ``filtering()`` keep/drop."""
     corr_matrix, p_matrix = stats.spearmanr(frame)
@@ -45,8 +45,21 @@ def _prior_filtering_drop(
 
 
 @pytest.mark.unit
+def test_precise_correlation_default_p_threshold_is_paper_001() -> None:
+    """Library default must match Prior paper P < .001 (not GitHub 0.05)."""
+    import inspect
+
+    sig = inspect.signature(select_precise_correlation_columns)
+    assert sig.parameters["p_threshold"].default == 0.001
+
+
+@pytest.mark.unit
 def test_precise_kernel_matches_prior_filtering_on_mixed_signs() -> None:
-    """Keep-last + signed r + p-gate must equal their published snippet."""
+    """Keep-last + signed r + p-gate must equal their published snippet.
+
+    Uses p=0.05 explicitly: that is the GitHub snippet threshold, not the
+    HABIT default (0.001). The keep/drop rule itself is unchanged.
+    """
     rng = np.random.default_rng(2)
     n = 70
     a = rng.normal(size=n)
@@ -58,9 +71,29 @@ def test_precise_kernel_matches_prior_filtering_on_mixed_signs() -> None:
             "noise": rng.normal(size=n),
         }
     )
+    # Intentional p=0.05: exercise the GitHub-snippet significance gate.
     ours = select_precise_correlation_columns(frame, 0.7, 0.05)
     theirs = _prior_filtering_drop(frame, 0.7, 0.05)
     assert ours == theirs
     assert "a" not in ours
     assert "b" in ours
     assert "neg" in ours
+
+
+@pytest.mark.unit
+def test_precise_kernel_default_matches_explicit_001() -> None:
+    """Calling with no p_threshold must equal an explicit 0.001 pass."""
+    rng = np.random.default_rng(3)
+    n = 80
+    a = rng.normal(size=n)
+    frame = pd.DataFrame(
+        {
+            "a": a,
+            "b": a + rng.normal(scale=0.01, size=n),
+            "c": rng.normal(size=n),
+        }
+    )
+    assert select_precise_correlation_columns(frame) == select_precise_correlation_columns(
+        frame, 0.7, 0.001
+    )
+    assert select_precise_correlation_columns(frame) == _prior_filtering_drop(frame)

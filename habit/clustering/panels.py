@@ -148,15 +148,15 @@ def fit_one_habitat_panel(
     feature_names: Sequence[str],
     *,
     corr_threshold: float = 0.7,
-    p_threshold: float = 0.05,
+    p_threshold: float = 0.001,
 ) -> Dict[str, Any]:
     """Fit one named column panel on an already-loaded field.
 
-    Spearman de-correlation follows Prior 2024 ``filtering()``: drop a later
-    column when signed r is strictly above ``corr_threshold`` and p is
-    below ``p_threshold``. Defaults match their GitHub code (P < 0.05).
-    The paper text used P < 0.001; pass that explicitly to replicate the
-    published rule.
+    Spearman de-correlation follows Prior 2024 ``filtering()``: drop an
+    earlier column when signed r is strictly above ``corr_threshold`` and
+    p is below ``p_threshold`` (keep the later column). Default
+    ``p_threshold`` is ``0.001`` (paper P < .001; changed from the GitHub
+    snippet's 0.05). Pass ``p_threshold=0.05`` to replay that snippet.
 
     Args:
         field: Loaded voxel feature field. Not modified.
@@ -164,6 +164,7 @@ def fit_one_habitat_panel(
             one name must exist on the field.
         corr_threshold: Signed Spearman r cut-off (strictly greater).
         p_threshold: Drop only when the Spearman p-value is below this.
+            Default ``0.001``.
 
     Returns:
         Dict with ``labels`` (``np.ndarray`` of kept voxels), ``k``,

@@ -39,6 +39,7 @@ from habit.feature_preprocessing import (
     FeaturePreprocessingMethodRegistry,
     FeatureWhitelist,
     Impute,
+    PreciseCorrelationFilter,
     SubjectPreprocessingChain,
     build_methods,
 )
@@ -632,8 +633,19 @@ def test_feature_whitelist_builds_through_the_registry() -> None:
 
 
 @pytest.mark.unit
+def test_precise_correlation_filter_default_p_is_001() -> None:
+    """PreciseCorrelationFilter default p_threshold matches paper P < .001."""
+    filt = PreciseCorrelationFilter()
+    assert filt.spec.params["p_threshold"] == 0.001
+    assert filt.spec.params["corr_threshold"] == 0.7
+
+
+@pytest.mark.unit
 def test_precise_correlation_filter_matches_prior_keep_last_rule() -> None:
-    """Signed r>0.7 and p<0.05 drops the earlier column, not the later one."""
+    """Signed r>0.7 and p<0.05 drops the earlier column, not the later one.
+
+    p=0.05 is passed explicitly (GitHub-snippet gate); HABIT default is 0.001.
+    """
     rng = np.random.default_rng(1)
     n = 60
     early = rng.normal(size=n)
