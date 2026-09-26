@@ -43,6 +43,14 @@ Two consequences of that rule:
 
 from __future__ import annotations
 
+from habit.viz.consensus import (
+    plot_consensus_cdf,
+    plot_consensus_cluster_stability,
+    plot_consensus_delta,
+    plot_consensus_item_stability,
+    plot_consensus_matrices,
+    plot_consensus_matrix,
+)
 from habit.viz.classification import (
     net_benefit,
     plot_calibration,
@@ -180,6 +188,12 @@ __all__ = [
     # habitat core analysis figures (validation / map features / compare)
     "plot_cluster_validation_curves",
     "plot_cluster_validation_from_report",
+    "plot_consensus_delta",
+    "plot_consensus_cdf",
+    "plot_consensus_matrix",
+    "plot_consensus_matrices",
+    "plot_consensus_cluster_stability",
+    "plot_consensus_item_stability",
     "plot_habitat_volume_fractions",
     "plot_msi_matrix",
     "plot_ith_summary",

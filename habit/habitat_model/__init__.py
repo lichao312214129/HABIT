@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+from habit.habitat_model.consensus import ConsensusHabitatModelFitter
 from habit.habitat_model.gmm import GmmHabitatModelFitter
 from habit.habitat_model.kmeans import (
     KMeansHabitatModelFitter,
@@ -35,6 +36,7 @@ from habit._protocols import HabitatModelFitter, HabitatAssigner
 __all__ = [
     "HabitatAssigner",
     "HabitatModelFitter",
+    "ConsensusHabitatModelFitter",
     "GmmHabitatModelFitter",
     "KMeansHabitatModelFitter",
     "HabitatModelFitterRegistry",

@@ -341,6 +341,8 @@ for seed, (k, scores) in seed_rows.items():
 # %%
 # Where to go next
 # ----------------
+# * Consensus clustering (stability of K; GPL-3.0-or-later component):
+#   :doc:`/auto_examples/03_clustering/plot_04_consensus_clustering`.
 # * The supervoxel step before the fit:
 #   :doc:`/auto_examples/03_clustering/plot_01_supervoxel_method_and_count`.
 # * Fitting and assigning on their own pages:

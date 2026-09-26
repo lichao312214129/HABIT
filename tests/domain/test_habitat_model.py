@@ -356,7 +356,11 @@ def test_registry_creates_fitters_with_validation() -> None:
     assert kmeans.n_init == 5
     gmm = HabitatModelFitterRegistry.create("gmm", n_habitats=2)
     assert isinstance(gmm, GmmHabitatModelFitter)
-    assert set(HabitatModelFitterRegistry.available()) == {"gmm", "kmeans"}
+    assert set(HabitatModelFitterRegistry.available()) == {
+        "consensus",
+        "gmm",
+        "kmeans",
+    }
 
 
 @pytest.mark.unit

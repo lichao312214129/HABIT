@@ -338,6 +338,8 @@ setup(
         "habit.resources.demo_config": ["**/*"],
         # Upstream MIT text for the vendored PyTorchRadiomics modules.
         "habit.kernels.radiomics.torchradiomics": ["LICENSE"],
+        # Upstream GPL-3 text for the vendored InMoose consensus clustering.
+        "habit.third_party.inmoose": ["LICENSE"],
     },
     cmdclass={
         "build_ext": _OptionalBuildExt,

@@ -192,6 +192,50 @@ def test_notice_reproduces_vendored_upstream_licenses() -> None:
     assert "The above copyright notice and this permission notice shall be" in notice
 
 
+def test_notice_records_gpl_consensus_clustering() -> None:
+    """
+    The InMoose consensus-clustering sources are GPL-3.0-or-later.
+
+    NOTICE must name the path and the upstream copyrights, and the GPL text
+    must travel in the package, not only in the git tree.
+    """
+    notice = (PROJECT_ROOT / "NOTICE").read_text(encoding="utf-8")
+    assert "habit/third_party/inmoose/consensus_clustering.py" in notice
+    assert "GPL-3.0-or-later" in notice
+    assert "Copyright (C) 2019-2021 Ž. Sajovic" in notice
+    assert "Copyright (C) 2023 S. Weill and G. Appé" in notice
+    assert "https://github.com/epigenelabs/inmoose" in notice
+    assert "GNU GENERAL PUBLIC LICENSE" in notice
+    assert "https://github.com/ZigaSajovic/Consensus_Clustering" in notice
+
+    license_path = (
+        PROJECT_ROOT / "habit" / "third_party" / "inmoose" / "LICENSE"
+    )
+    assert license_path.is_file()
+    license_text = license_path.read_text(encoding="utf-8")
+    assert license_text.startswith("GNU GENERAL PUBLIC LICENSE")
+    assert "Version 3, 29 June 2007" in license_text
+
+    manifest = (PROJECT_ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+    assert "habit/third_party/inmoose/LICENSE" in manifest
+
+    setup_text = (PROJECT_ROOT / "setup.py").read_text(encoding="utf-8")
+    assert '"habit.third_party.inmoose": ["LICENSE"]' in setup_text
+
+    source = (
+        PROJECT_ROOT
+        / "habit"
+        / "third_party"
+        / "inmoose"
+        / "consensus_clustering.py"
+    ).read_text(encoding="utf-8")
+    assert "GNU General Public License" in source
+    assert "Copyright (C) 2019-2021 Ž. Sajovic" in source
+    assert "Copyright (C) 2023 S. Weill and G. Appé" in source
+    assert "https://github.com/epigenelabs/inmoose" in source
+    assert "Apache License" not in source
+
+
 def test_vendored_torchradiomics_retains_mit_copyright() -> None:
     """
     Every vendored torchradiomics module must name the upstream copyright.

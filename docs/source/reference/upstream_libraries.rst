@@ -47,6 +47,9 @@ Clustering, dimensionality reduction, and related steps rely heavily on **scikit
    * - K-Means / GMM / pipeline and metrics
      - scikit-learn
      - `Clustering <https://scikit-learn.org/stable/modules/clustering.html>`_ · `Metrics <https://scikit-learn.org/stable/modules/clustering.html#clustering-performance-evaluation>`_
+   * - Consensus clustering (``Spec("consensus")``)
+     - Vendored from InMoose under **GPL-3.0-or-later** (not Apache-2.0). Algorithm: Sajovic, based on Monti et al. 2003. Source in the install tree: ``habit/third_party/inmoose/``.
+     - `InMoose consensus clustering <https://inmoose.readthedocs.io/en/stable/clustering.html>`_ · `Monti et al. 2003 <https://doi.org/10.1023/A:1023949509487>`_ · HABIT example :doc:`/auto_examples/03_clustering/plot_04_consensus_clustering`
    * - Feature scaling, unsupervised preprocessing (sklearn pipeline concepts)
      - scikit-learn
      - `Preprocessing <https://scikit-learn.org/stable/modules/preprocessing.html>`_

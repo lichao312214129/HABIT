@@ -36,4 +36,4 @@ HABIT's functions fall into seven items.
 
 - Issues: [GitHub Issues](https://github.com/lichao312214129/HABIT/issues) · [lichao19870617@163.com](mailto:lichao19870617@163.com)
 - Citation: [CITATION.cff](CITATION.cff) · [Acknowledgments](https://lichao312214129.github.io/HABIT/acknowledgments.html)
-- License: [Apache-2.0](LICENSE). Free for academic and commercial use; keep the copyright and license notices and ship [NOTICE](NOTICE) with redistributions. Please cite HABIT when it supports scientific work.
+- License: [Apache-2.0](LICENSE) for HABIT, except the consensus-clustering module at `habit/third_party/inmoose/`, which is GPL-3.0-or-later (InMoose / Sajovic). Keep the copyright and license notices and ship [NOTICE](NOTICE) with redistributions. Please cite HABIT when it supports scientific work.

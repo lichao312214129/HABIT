@@ -49,7 +49,7 @@ _V1_BUILTINS = {
         "std",
         "percentile",
     },
-    "habitat_model_fitter": {"kmeans", "gmm"},
+    "habitat_model_fitter": {"kmeans", "gmm", "consensus"},
     "habitat_assigner": {"nearest_centroid"},
     "image_perturbation": {
         "gaussian_noise",

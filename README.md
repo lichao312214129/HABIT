@@ -36,4 +36,4 @@ HABIT的功能可归为七项。
 
 - 问题：[GitHub Issues](https://github.com/lichao312214129/HABIT/issues) · [lichao19870617@163.com](mailto:lichao19870617@163.com)
 - 引用：[CITATION.cff](CITATION.cff) · [致谢](https://lichao312214129.github.io/HABIT/acknowledgments.html)
-- 许可：[Apache-2.0](LICENSE)。学术与商业使用均可；再分发时保留版权、许可声明与 [NOTICE](NOTICE)。用于科研时请引用 HABIT。
+- 许可：HABIT 本体为 [Apache-2.0](LICENSE)。共识聚类模块 `habit/third_party/inmoose/` 为 GPL-3.0-or-later（InMoose / Sajovic），不随 Apache-2.0 重新许可。再分发时保留版权、许可声明与 [NOTICE](NOTICE)。用于科研时请引用 HABIT。

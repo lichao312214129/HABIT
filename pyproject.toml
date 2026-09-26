@@ -17,6 +17,9 @@ requires-python = ">=3.10,<3.15"
 authors = [
     { name = "Li Chao", email = "lichao19870617@163.com" },
 ]
+# HABIT itself is Apache-2.0. The consensus-clustering sources under
+# habit/third_party/inmoose/ are GPL-3.0-or-later and are not relicensed.
+# See NOTICE and habit/third_party/inmoose/LICENSE.
 license = { text = "Apache-2.0" }
 classifiers = [
     "Development Status :: 4 - Beta",
