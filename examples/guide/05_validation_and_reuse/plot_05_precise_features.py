@@ -13,24 +13,41 @@ This page:
    (Chang Gaussian noise, 0.5-voxel translation fraction, 0.5° z-rotation).
 2. Screens **all** bundled voxel radiomics families on the **full demo
    cohort** (5 subjects) with ICC LCL >= 0.5 in every experiment.
-3. Builds habitats on one example subject: all features vs precise
+3. Builds habitats on **all five** subjects: all features vs precise
    features, original vs perturbed. Subject-level winsorize 1 % then
-   z-score; fixed ``n_habitats=3``. Dice is reported after Hungarian
-   label matching; do not treat a small gain as a large one.
+   z-score; fixed ``n_habitats=3``. Dice is reported per subject after
+   Hungarian label matching; the five-subject summary is the **median**
+   of those scores (all-features 0.743, precise 0.708). The precise
+   median is not higher. A short original/perturbed **image** pair uses
+   one subject only so the page stays readable.
+
+On subj003, precise-feature mean Dice falls to 0.515 versus 0.749 with
+all features, while the other four subjects stay near their all-feature
+scores. The LCL whitelist is estimated on only five demo subjects
+(60 of 90 features pass), so the selected columns are a noisy cohort
+screen. A cohort-stable subset need not maximize Dice on every case;
+subj003 is one demo outlier, not a general precise-is-worse result.
 """
 
 # %%
 # Load the full demo cohort
 # -------------------------
 # sphinx_gallery_thumbnail_number = 4
-# The LCL screen needs every subject. Habitat figures below use only
-# the first subject after the whitelist is fixed on all five.
+# LCL screen and habitat maps both use every subject. Only the raw
+# intensity pair below is limited to the first subject for readability.
 from pathlib import Path
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from habit.contracts import Cohort, Subject, cohort_from_directory
+from habit.contracts import (
+    Cohort,
+    HabitatMap,
+    ImageVolume,
+    Subject,
+    cohort_from_directory,
+)
 from habit.datasets import fetch_demo
 from habit.execution import backend_from_policy
 from habit.precision import (
@@ -44,7 +61,7 @@ from habit.precision import (
 from habit.recipes import Study
 from habit.spec import HabitatSpec, Spec, Stage
 from habit.spec.policy import RunPolicy
-from habit.viz import plot_habitat_label_compare, plot_intensity_slice
+from habit.viz import plot_habitat_overlay, plot_intensity_slice
 from habit.voxel_features import extract_voxel_texture
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout.
@@ -57,6 +74,7 @@ if len(cohort) < 5:
     raise RuntimeError(
         f"expected at least 5 demo subjects for cohort LCL; got {len(cohort)}"
     )
+# Intensity pair only: first subject keeps the page readable.
 example = cohort[0]
 image = example.image(MODALITIES[0])
 mask = example.mask(ROI)
@@ -91,8 +109,8 @@ print(
 # %%
 # Original vs perturbed image (example subject only)
 # --------------------------------------------------
-# Display one subject so the page stays readable. The LCL screen still
-# uses all five subjects in the next cell.
+# Display one subject so the page stays readable. The LCL screen and
+# habitat panels below use all five subjects.
 for vol, name, stem in (
     (image, "original", "precise_image_original"),
     (perturbed, "perturbed (Appendix S2)", "precise_image_perturbed"),
@@ -197,67 +215,109 @@ def make_spec(name: str, *, whitelist: bool) -> HabitatSpec:
 
 
 backend = backend_from_policy(RunPolicy(backend="serial", on_subject_failure="continue"))
-example_cohort = Cohort(subjects=(example,))
-example_pert_cohort = Cohort(subjects=(example_pert,))
+
+
+def mean_dice_and_overlays(
+    *,
+    tag: str,
+    title_prefix: str,
+    maps_orig: Tuple[HabitatMap, ...],
+    maps_pert: Tuple[HabitatMap, ...],
+    subjects_orig: Tuple[Subject, ...],
+) -> List[float]:
+    """Align perturbed maps, report mean Dice, and save overlay pairs.
+
+    Args:
+        tag: Filename stem prefix (``all`` or ``precise``).
+        title_prefix: Short English label in figure titles.
+        maps_orig: Habitat maps on original images (one per subject).
+        maps_pert: Habitat maps on perturbed images (same order).
+        subjects_orig: Original subjects (anatomy for overlays).
+
+    Returns:
+        Per-subject mean Dice (Hungarian-matched habitats).
+    """
+    per_subject: List[float] = []
+    for map_o, map_p, subj in zip(maps_orig, maps_pert, subjects_orig):
+        sid = subj.subject_id
+        vol: ImageVolume = subj.image(MODALITIES[0])
+        map_p_aligned = align_habitat_map(map_o, map_p, force=True)
+        dice_df = habitat_stability(map_o, [map_p])
+        mean_dice = float(dice_df["dice"].mean())
+        per_subject.append(mean_dice)
+        print(f"Dice {tag}-features {sid} (per habitat):")
+        print(dice_df[["habitat_id", "matched_id", "dice"]].round(3).to_string(index=False))
+        print(f"mean Dice {tag}-features {sid}={mean_dice:.3f}")
+
+        # Same anatomy (original ImageVolume) for both overlays.
+        for one_map, kind, stem_suffix in (
+            (map_o, "original", "orig"),
+            (map_p_aligned, "perturbed (matched)", "pert"),
+        ):
+            fig = plot_habitat_overlay(
+                vol,
+                one_map,
+                title=f"{sid}: {title_prefix}, {kind}",
+                crop_to="labels",
+            )
+            fig.savefig(
+                f"out/precise_habitats_{tag}_{sid}_{stem_suffix}.png",
+                dpi=150,
+                bbox_inches="tight",
+            )
+            plt.show()
+    return per_subject
+
 
 # %%
-# Full-feature habitats: original vs perturbed
-# --------------------------------------------
-# One example subject only; the whitelist above was fit on all five.
+# Full-feature habitats: original vs perturbed (all 5 subjects)
+# -------------------------------------------------------------
+# Fit/assign independently per subject (pooling="none"). Overlay every
+# subject so the page matches the cohort used for the LCL screen.
 result_all_orig = Study(make_spec("all_original", whitelist=False)).fit_predict(
-    example_cohort, backend=backend
+    cohort, backend=backend
 )
 result_all_pert = Study(make_spec("all_perturbed", whitelist=False)).fit_predict(
-    example_pert_cohort, backend=backend
+    pert_cohort, backend=backend
 )
-map_all_o = result_all_orig.habitat_maps[0]
-map_all_p = result_all_pert.habitat_maps[0]
-map_all_p_aligned = align_habitat_map(map_all_o, map_all_p, force=True)
-dice_all = habitat_stability(map_all_o, [map_all_p])
-mean_all = float(dice_all["dice"].mean())
-print("Dice all-features (per habitat):")
-print(dice_all[["habitat_id", "matched_id", "dice"]].round(3).to_string(index=False))
-print(f"mean Dice all-features={mean_all:.3f}")
-
-fig = plot_habitat_label_compare(
-    image,
-    map_all_o,
-    map_all_p_aligned,
-    titles=("all features, original", "all features, perturbed (matched)"),
-    crop_to="labels",
+dice_all_per = mean_dice_and_overlays(
+    tag="all",
+    title_prefix="all features",
+    maps_orig=result_all_orig.habitat_maps,
+    maps_pert=result_all_pert.habitat_maps,
+    subjects_orig=tuple(cohort),
 )
-fig.savefig("out/precise_habitats_all_orig_vs_pert.png", dpi=150, bbox_inches="tight")
-plt.show()
+median_all = float(np.median(dice_all_per))
+print(
+    "per-subject mean Dice all-features:",
+    {sid: f"{d:.3f}" for sid, d in zip([s.subject_id for s in cohort], dice_all_per)},
+)
+print(f"median Dice all-features={median_all:.3f} (n={len(cohort)})")
 
 # %%
-# Precise-feature habitats: original vs perturbed
-# -----------------------------------------------
-# Same example subject and K; columns restricted to the cohort whitelist.
+# Precise-feature habitats: original vs perturbed (all 5 subjects)
+# ----------------------------------------------------------------
+# Same K and preprocessing; columns restricted to the cohort whitelist.
 result_prec_orig = Study(make_spec("precise_original", whitelist=True)).fit_predict(
-    example_cohort, backend=backend
+    cohort, backend=backend
 )
 result_prec_pert = Study(make_spec("precise_perturbed", whitelist=True)).fit_predict(
-    example_pert_cohort, backend=backend
+    pert_cohort, backend=backend
 )
-map_pr_o = result_prec_orig.habitat_maps[0]
-map_pr_p = result_prec_pert.habitat_maps[0]
-map_pr_p_aligned = align_habitat_map(map_pr_o, map_pr_p, force=True)
-dice_pr = habitat_stability(map_pr_o, [map_pr_p])
-mean_pr = float(dice_pr["dice"].mean())
-print("Dice precise-features (per habitat):")
-print(dice_pr[["habitat_id", "matched_id", "dice"]].round(3).to_string(index=False))
-print(f"mean Dice precise-features={mean_pr:.3f}")
+dice_pr_per = mean_dice_and_overlays(
+    tag="precise",
+    title_prefix="precise features",
+    maps_orig=result_prec_orig.habitat_maps,
+    maps_pert=result_prec_pert.habitat_maps,
+    subjects_orig=tuple(cohort),
+)
+median_pr = float(np.median(dice_pr_per))
 print(
-    f"mean Dice all={mean_all:.3f}; mean Dice precise={mean_pr:.3f} "
-    f"(screen on n={len(cohort)} subjects; maps for {example.subject_id})"
+    "per-subject mean Dice precise-features:",
+    {sid: f"{d:.3f}" for sid, d in zip([s.subject_id for s in cohort], dice_pr_per)},
 )
-
-fig = plot_habitat_label_compare(
-    image,
-    map_pr_o,
-    map_pr_p_aligned,
-    titles=("precise features, original", "precise features, perturbed (matched)"),
-    crop_to="labels",
+print(f"median Dice precise-features={median_pr:.3f} (n={len(cohort)})")
+print(
+    f"median Dice all={median_all:.3f}; median Dice precise={median_pr:.3f} "
+    f"(screen and maps on n={len(cohort)} subjects; precise median is not higher)"
 )
-fig.savefig("out/precise_habitats_precise_orig_vs_pert.png", dpi=150, bbox_inches="tight")
-plt.show()
