@@ -110,6 +110,9 @@ The stage list decides the design (:doc:`/auto_examples/00_introductory_tutorial
   patient, one model for the cohort. Habitat ids mean the same thing in
   every patient. This is the default.
 * **One-step** -- no ``pool``: each patient is clustered on its own.
+  Omit ``partition`` to cluster voxels. Add ``partition`` (and, when
+  you need more than the mean, a supervoxel-feature stage such as
+  ``supervoxel_radiomics``) to cluster that patient's supervoxels.
   Habitat ids are not comparable across patients; use label-free
   summaries (ITH score, number of habitats) or match labels first
   (:doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`).

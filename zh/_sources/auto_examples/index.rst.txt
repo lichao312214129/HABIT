@@ -193,6 +193,23 @@ Spec, pooled atomic, quality control, cleaning.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. One-step habitats are fit separately in every patient, so the habitat ids are not shared. The voxel form of that design clusters every ROI voxel. Cutting the tumour into supervoxels first makes each habitat a whole patch, and the rows that are clustered can be texture features instead of the mean intensity.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_03_supervoxels_inside_each_subject_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Supervoxels inside each subject</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step rebuilds the two-step design from HABIT&#x27;s individual components and shows it matches Study. The two other designs use the same components with fewer steps: the per-subject (one-step) design of /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject fits one model per patient on that patient&#x27;s voxels, and the pooled-voxel design of /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels fits one cohort model on every patient&#x27;s voxels. Neither has a supervoxelizer.">
 
 .. only:: html

@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**02:42.260** total execution time for 48 files **from all galleries**:
+**00:36.810** total execution time for 49 files **from all galleries**:
 
 .. container::
 
@@ -32,20 +32,8 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_06_atomic_pooled.py` (``..\..\examples\guide\01_building_habitat_maps\plot_06_atomic_pooled.py``)
-     - 00:53.786
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_04_atomic_inside_each_subject.py` (``..\..\examples\guide\01_building_habitat_maps\plot_04_atomic_inside_each_subject.py``)
-     - 00:38.961
-     - 0.0
-   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)
-     - 00:31.356
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_02_atomic_two_step.py` (``..\..\examples\guide\01_building_habitat_maps\plot_02_atomic_two_step.py``)
-     - 00:26.374
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_04_consensus_clustering.py` (``..\..\examples\guide\03_clustering\plot_04_consensus_clustering.py``)
-     - 00:11.783
+   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_03_supervoxels_inside_each_subject.py` (``..\..\examples\guide\01_building_habitat_maps\plot_03_supervoxels_inside_each_subject.py``)
+     - 00:36.810
      - 0.0
    * - :ref:`sphx_glr_auto_examples_00_introductory_tutorials_plot_01_two_step.py` (``..\..\examples\guide\00_introductory_tutorials\plot_01_two_step.py``)
      - 00:00.000
@@ -59,10 +47,19 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_01_two_step_spec.py` (``..\..\examples\guide\01_building_habitat_maps\plot_01_two_step_spec.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_02_atomic_two_step.py` (``..\..\examples\guide\01_building_habitat_maps\plot_02_atomic_two_step.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_03_inside_each_subject_spec.py` (``..\..\examples\guide\01_building_habitat_maps\plot_03_inside_each_subject_spec.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_04_atomic_inside_each_subject.py` (``..\..\examples\guide\01_building_habitat_maps\plot_04_atomic_inside_each_subject.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_05_pooled_voxels_spec.py` (``..\..\examples\guide\01_building_habitat_maps\plot_05_pooled_voxels_spec.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_06_atomic_pooled.py` (``..\..\examples\guide\01_building_habitat_maps\plot_06_atomic_pooled.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_07_quality_control.py` (``..\..\examples\guide\01_building_habitat_maps\plot_07_quality_control.py``)
@@ -93,6 +90,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_03_clustering_plot_03_clustering_algorithm.py` (``..\..\examples\guide\03_clustering\plot_03_clustering_algorithm.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_03_clustering_plot_04_consensus_clustering.py` (``..\..\examples\guide\03_clustering\plot_04_consensus_clustering.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_04_quantifying_habitats_plot_01_volume_fractions.py` (``..\..\examples\guide\04_quantifying_habitats\plot_01_volume_fractions.py``)
@@ -171,6 +171,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_07_advanced_plot_10_export_results.py` (``..\..\examples\guide\07_advanced\plot_10_export_results.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_python.py` (``..\..\examples\quickstart\plot_quickstart_python.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_quickstart_plot_quickstart_yaml.py` (``..\..\examples\quickstart\plot_quickstart_yaml.py``)

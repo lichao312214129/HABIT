@@ -81,11 +81,16 @@ Strategy is inferred from the sequence:
 
 * **two_step** — ``partition`` + ``pool``
 * **direct_pooling** — ``pool`` only (no partition)
-* **one_step** — neither partition nor pool (per-subject habitats)
+* **one_step** — no ``pool`` (per-subject habitats). ``partition`` is
+  optional: omit it to cluster voxels, or include it to cluster that
+  subject's supervoxels. Habitat ids are not comparable across subjects.
 
 ``kmeans`` and ``gmm`` exist in **two** domains (supervoxelizer and
-habitat-model fitter). Place them before ``pool`` to partition, or
-immediately before ``assign`` to fit habitats.
+habitat-model fitter). The earlier one, before a supervoxel-feature
+stage or before ``pool``, partitions. A later one immediately before
+``assign`` fits habitats. With ``partition`` and no ``pool``, both
+steps stay inside each subject
+(:doc:`/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject`).
 
 Python and YAML are the same document
 -------------------------------------
@@ -352,9 +357,12 @@ YAML::
 4. Supervoxel features
 ----------------------
 
-**two-step optional.** This stage describes **each supervoxel**, after
-``partition``. It does **not** replace voxel extraction: mixed T1/T2
-science is usually built in section 1, then aggregated here.
+**Optional, after ``partition``.** Two-step and one-step both use this
+stage. It describes **each supervoxel**. It does **not** replace voxel
+extraction: mixed T1/T2 science is usually built in section 1, then
+aggregated here. One-step with a partition and no ``pool`` clusters
+these rows inside each subject; see
+:doc:`/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject`.
 
 The default is to average the voxel field you already built
 (``mean_voxel_features``). Omit this stage unless you need a different
