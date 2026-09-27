@@ -326,6 +326,8 @@ for subject, habitat_map in list(zip(cohort, result.habitat_maps))[:2]:
 # %%
 # Where to go next
 # ----------------
+# * The same design on supervoxels, including texture features:
+#   :doc:`/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject`.
 # * Habitat ids shared by every patient (two-step):
 #   :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
 # * Shared ids without supervoxels:

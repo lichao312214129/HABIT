@@ -283,6 +283,7 @@ class KMeansHabitatModelFitter:
             cohort=cohort,
             random_seed=self._seed,
             preprocessing_state=preprocessing_state,
+            estimator_state={"rule": "kmeans"},
         )
 
 

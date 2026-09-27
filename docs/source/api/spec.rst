@@ -81,10 +81,11 @@ Strategy is **inferred from the stage sequence**:
      - ``pool`` only (no partition)
      - Post-pool feature preprocess is first-class
    * - one_step
-     - neither partition nor pool
-     - Per-subject fit/assign; habitat ids not comparable across subjects
+     - no ``pool``; ``partition`` optional
+     - Per-subject fit on voxels, or on supervoxels when ``partition`` is present. Habitat ids are not comparable across subjects.
 
-Partition without ``pool`` is rejected
+Partition without ``pool`` is one-step on supervoxels. Cohort-level
+preprocessing still requires ``pool``
 (:meth:`~habit.spec.HabitatSpec.validate_dataflow`).
 
 Primary entry: :meth:`~habit.recipes.Study.fit_predict`.

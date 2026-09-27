@@ -8,10 +8,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Habitat assignment uses the decision rule stored on the fitted model.
+  K-means calls ``sklearn.cluster.KMeans.predict``. A Gaussian mixture
+  stores weights and covariances and calls ``GaussianMixture.predict``
+  (maximum posterior) and ``predict_proba``; GMM habitat maps therefore
+  differ from Euclidean assignment to the mixture means. Consensus
+  clustering uses the consensus matrix only to choose K, then fits the
+  inner algorithm on the full training matrix at that K. Inner k-means
+  assigns with ``KMeans.predict``. Inner agglomerative clustering assigns
+  by distance to class centres (``metric``: ``euclidean`` mean,
+  ``manhattan`` median, ``cosine`` mean of L2-normalised rows).
+  ``.habitatmodel`` archives are written at ``format_version`` 2 so those
+  parameters round-trip. Version 1 files still load; a version-1 GMM model
+  has no mixture parameters and must be refit before assignment.
 - ``select_precise_correlation_columns`` / ``precise_correlation_filter`` /
   ``PreciseCorrelationFilter``: default ``p_threshold`` is now ``0.001``
   (Prior 2024 paper P < .001); previously ``0.05`` (GitHub snippet). Pass
   ``p_threshold=0.05`` explicitly to replay the old gate.
+
+### Added
+
+- One-step habitat analysis can include a per-subject supervoxel
+  partition. Pass ``n_supervoxels`` to ``one_step_habitat``, or list
+  ``partition`` without ``pool``. Omit the count to keep clustering
+  voxels. An optional supervoxel-feature stage (region statistics or
+  ``supervoxel_radiomics``) describes those rows before the per-subject
+  fit. YAML ``clustering_mode: one_step`` still drops a supervoxel block.
+- ``NearestCentroidAssigner.predict_proba``: per-supervoxel posterior from
+  ``GaussianMixture.predict_proba``, indexed by supervoxel id. K-means and
+  class-centre rules raise ``HABITAPIError`` because those estimators have
+  no probability.
 
 ### Fixed
 

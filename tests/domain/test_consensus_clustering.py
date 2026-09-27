@@ -111,6 +111,64 @@ def test_consensus_fixed_k_separates_two_blobs() -> None:
 
 
 @pytest.mark.unit
+def test_consensus_kmeans_inner_matches_sklearn_fit() -> None:
+    """After K is chosen, habitats are one KMeans fit on the training rows."""
+    from sklearn.cluster import KMeans
+
+    from habit.habitat_model._predict import predict_labels
+
+    units = two_cluster_units(supervoxels_per_subject=8)
+    matrix = np.vstack([unit.features.to_numpy(dtype=float) for unit in units])
+    fitter = _fitter(n_habitats=2)
+    fitter.set_random_state(3)
+    model = fitter.fit(units)
+    reference = KMeans(
+        n_clusters=2,
+        random_state=3,
+        n_init=fitter.n_init,
+        max_iter=fitter.max_iter,
+    )
+    reference.fit(matrix)
+    assert model.estimator_state["rule"] == "kmeans"
+    np.testing.assert_allclose(model.centroids, reference.cluster_centers_)
+    report = model.preprocessing_state["consensus"]
+    assert np.array_equal(report["habitat_training_labels"], reference.labels_)
+    assert np.array_equal(predict_labels(model, matrix), reference.predict(matrix))
+
+
+@pytest.mark.unit
+def test_consensus_agglomerative_uses_class_centres() -> None:
+    """Agglomerative final labels are distance to centres, not the linkage labels."""
+    from habit.habitat_model._predict import class_centers, predict_labels
+
+    units = two_cluster_units(supervoxels_per_subject=8)
+    matrix = np.vstack([unit.features.to_numpy(dtype=float) for unit in units])
+    fitter = ConsensusHabitatModelFitter(
+        n_habitats=2,
+        min_habitats=2,
+        max_habitats=3,
+        n_resamples=4,
+        resample_proportion=0.8,
+        inner="agglomerative",
+        metric="manhattan",
+        max_items=2000,
+    )
+    fitter.set_random_state(1)
+    model = fitter.fit(units)
+    report = model.preprocessing_state["consensus"]
+    partition = np.asarray(report["agglomerative_labels"])
+    np.testing.assert_allclose(
+        model.centroids, class_centers(matrix, partition, "manhattan")
+    )
+    assert model.estimator_state == {"rule": "nearest_centroid", "metric": "manhattan"}
+    assert np.array_equal(
+        predict_labels(model, matrix), report["habitat_training_labels"]
+    )
+    with pytest.raises(HABITAPIError, match="kmeans"):
+        ConsensusHabitatModelFitter(inner="kmeans", metric="manhattan")
+
+
+@pytest.mark.unit
 def test_consensus_refuses_voxel_scale_item_counts() -> None:
     """An n x n consensus matrix is refused above max_items."""
     units = two_cluster_units(supervoxels_per_subject=8)

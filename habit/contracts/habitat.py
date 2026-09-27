@@ -53,7 +53,11 @@ __all__ = [
 #: Bump ``_FORMAT_VERSION`` (and extend the loader) whenever the layout
 #: changes; older files must either load or fail with a clear message.
 _FORMAT_NAME = "habit.habitatmodel"
-_FORMAT_VERSION = 1
+#: Version 2 adds ``estimator_state``: JSON scalars in the manifest and one
+#: ``arrays/estimator_<key>.npy`` member per array (GMM weights and
+#: covariances). Version 1 archives still load; their state is empty, and a
+#: GMM model without those arrays cannot call ``GaussianMixture.predict``.
+_FORMAT_VERSION = 2
 _VOXEL_FIELD_FORMAT_NAME = "habit.voxelfeaturefield"
 _VOXEL_FIELD_FORMAT_VERSION = 1
 
@@ -499,6 +503,67 @@ def _from_jsonable(value: Any) -> Any:
     return value
 
 
+def _copy_estimator_state(state: Mapping[str, Any]) -> Dict[str, Any]:
+    """
+    Copy assignment parameters, duplicating any arrays.
+
+    Args:
+        state: ``HabitatModel.estimator_state`` as supplied by the caller.
+
+    Returns:
+        A new dict. NumPy arrays are copied so later in-place edits of the
+        caller's arrays cannot change the model.
+    """
+    copied: Dict[str, Any] = {}
+    for key, value in dict(state).items():
+        if isinstance(value, np.ndarray):
+            copied[str(key)] = np.array(value, copy=True)
+        else:
+            copied[str(key)] = value
+    return copied
+
+
+def _split_estimator_state(
+    state: Mapping[str, Any],
+) -> Tuple[Dict[str, Any], Dict[str, np.ndarray]]:
+    """
+    Separate JSON scalars from arrays in ``estimator_state``.
+
+    Args:
+        state: Assignment parameters stored on the model.
+
+    Returns:
+        ``(scalars, arrays)``. Arrays are written as their own ``.npy``
+        members so a covariance matrix is not expanded into JSON.
+
+    Raises:
+        HABITAPIError: If an array key is not a safe archive member name.
+    """
+    scalars: Dict[str, Any] = {}
+    arrays: Dict[str, np.ndarray] = {}
+    for key, value in state.items():
+        name = str(key)
+        if isinstance(value, np.ndarray):
+            if not name.isidentifier():
+                raise HABITAPIError(
+                    f"estimator_state array key {name!r} must be an identifier "
+                    "so it can be stored as arrays/estimator_<key>.npy."
+                )
+            arrays[name] = np.asarray(value)
+        else:
+            scalars[name] = value
+    return scalars, arrays
+
+
+def _npy_bytes(array: np.ndarray) -> bytes:
+    """Serialise ``array`` with ``np.save`` and ``allow_pickle=False``."""
+    import io
+
+    buffer = io.BytesIO()
+    np.save(buffer, np.asarray(array), allow_pickle=False)
+    return buffer.getvalue()
+
+
 def _provenance_to_dict(provenance: Provenance) -> Dict[str, Any]:
     """Serialise a provenance DAG into a nested JSON-able mapping."""
     return {
@@ -553,6 +618,11 @@ class HabitatModel:
         cohort_fingerprint: Non-identifiable description of the defining
             cohort.
         provenance: Software, dependency, and seed fingerprint.
+        estimator_state: Parameters the assignment rule needs beyond
+            ``centroids``. ``rule`` is ``"kmeans"``, ``"gmm"``, or
+            ``"nearest_centroid"``. A GMM also stores ``weights``,
+            ``covariances`` and ``covariance_type``. Class-centre assignment
+            stores ``metric`` (``euclidean`` / ``manhattan`` / ``cosine``).
 
     See Also
     --------
@@ -585,6 +655,7 @@ class HabitatModel:
     spec_payload: Mapping[str, Any]
     cohort_fingerprint: CohortFingerprint
     provenance: Provenance
+    estimator_state: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validate the centroid matrix against the declared dimensions."""
@@ -609,6 +680,9 @@ class HabitatModel:
             self, "preprocessing_state", dict(self.preprocessing_state)
         )
         object.__setattr__(self, "spec_payload", dict(self.spec_payload))
+        object.__setattr__(
+            self, "estimator_state", _copy_estimator_state(self.estimator_state)
+        )
 
     def summary(self) -> str:
         """
@@ -740,6 +814,8 @@ class HabitatModel:
         ``.habitatmodel`` file is a ZIP archive holding a JSON manifest
         (format name, format version, producing HABIT version, and every
         scalar field) plus the centroid matrix as a ``.npy`` member.
+        Array-valued ``estimator_state`` entries are further ``.npy``
+        members named ``arrays/estimator_<key>.npy``.
 
         Args:
             path: Destination file path.
@@ -765,8 +841,14 @@ class HabitatModel:
             "cohort_fingerprint": asdict(self.cohort_fingerprint),
             "provenance": _provenance_to_dict(self.provenance),
         }
+        state_scalars, state_arrays = _split_estimator_state(self.estimator_state)
+        manifest["estimator_state"] = _to_jsonable(state_scalars)
+        manifest["estimator_arrays"] = sorted(state_arrays)
         buffer = io.BytesIO()
         np.save(buffer, self.centroids, allow_pickle=False)
+        array_buffers = {
+            key: _npy_bytes(value) for key, value in state_arrays.items()
+        }
 
         def _write_archive(tmp_path: Path) -> None:
             # Temp file + atomic replace: a crash mid-write must not leave a
@@ -777,6 +859,8 @@ class HabitatModel:
                     json.dumps(manifest, indent=2, sort_keys=True),
                 )
                 zf.writestr("arrays/centroids.npy", buffer.getvalue())
+                for key, payload in array_buffers.items():
+                    zf.writestr(f"arrays/estimator_{key}.npy", payload)
 
         write_via_temp_then_replace(destination, _write_archive)
         return destination
@@ -836,6 +920,23 @@ class HabitatModel:
                 io.BytesIO(archive.read("arrays/centroids.npy")),
                 allow_pickle=False,
             )
+            estimator_state = _from_jsonable(manifest.get("estimator_state", {}))
+            if not isinstance(estimator_state, dict):
+                raise CompatibilityError(
+                    f"{source} estimator_state must be a JSON object."
+                )
+            for key in manifest.get("estimator_arrays", ()):
+                member = f"arrays/estimator_{key}.npy"
+                try:
+                    payload = archive.read(member)
+                except KeyError as exc:
+                    raise CompatibilityError(
+                        f"{source} lists estimator array {key!r} but has no "
+                        f"{member}."
+                    ) from exc
+                estimator_state[str(key)] = np.load(
+                    io.BytesIO(payload), allow_pickle=False
+                )
         fingerprint_payload = manifest["cohort_fingerprint"]
         return cls(
             model_id=str(manifest["model_id"]),
@@ -852,4 +953,5 @@ class HabitatModel:
                 description=fingerprint_payload.get("description"),
             ),
             provenance=_provenance_from_dict(manifest["provenance"]),
+            estimator_state=estimator_state,
         )

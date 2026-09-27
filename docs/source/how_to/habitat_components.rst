@@ -81,11 +81,16 @@ Strategy is inferred from the sequence:
 
 * **two_step** — ``partition`` + ``pool``
 * **direct_pooling** — ``pool`` only (no partition)
-* **one_step** — neither partition nor pool (per-subject habitats)
+* **one_step** — no ``pool`` (per-subject habitats). ``partition`` is
+  optional: omit it to cluster voxels, or include it to cluster that
+  subject's supervoxels. Habitat ids are not comparable across subjects.
 
 ``kmeans`` and ``gmm`` exist in **two** domains (supervoxelizer and
-habitat-model fitter). Place them before ``pool`` to partition, or
-immediately before ``assign`` to fit habitats.
+habitat-model fitter). The earlier one, before a supervoxel-feature
+stage or before ``pool``, partitions. A later one immediately before
+``assign`` fits habitats. With ``partition`` and no ``pool``, both
+steps stay inside each subject
+(:doc:`/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject`).
 
 Python and YAML are the same document
 -------------------------------------
@@ -352,9 +357,12 @@ YAML::
 4. Supervoxel features
 ----------------------
 
-**two-step optional.** This stage describes **each supervoxel**, after
-``partition``. It does **not** replace voxel extraction: mixed T1/T2
-science is usually built in section 1, then aggregated here.
+**Optional, after ``partition``.** Two-step and one-step both use this
+stage. It describes **each supervoxel**. It does **not** replace voxel
+extraction: mixed T1/T2 science is usually built in section 1, then
+aggregated here. One-step with a partition and no ``pool`` clusters
+these rows inside each subject; see
+:doc:`/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject`.
 
 The default is to average the voxel field you already built
 (``mean_voxel_features``). Omit this stage unless you need a different
@@ -458,15 +466,19 @@ otherwise).
 
 ``consensus`` runs the vendored InMoose / Sajovic consensus clustering
 (**GPL-3.0-or-later**, not Apache-2.0; see ``NOTICE`` and
-``habit/third_party/inmoose/LICENSE``) on the pooled items, then stores
-the mean feature vector of each consensus group as a centroid. It is for
+``habit/third_party/inmoose/LICENSE``) on the pooled items **to choose K**.
+It then fits the inner algorithm on every training row at that K. Inner
+``kmeans`` (the default) assigns with ``KMeans.predict``. Inner
+``agglomerative`` has no out-of-sample ``predict``; each class is stored
+as a centre and rows are labelled by ``metric`` (``euclidean`` mean,
+``manhattan`` median, ``cosine`` mean of L2-normalised rows). It is for
 supervoxels or subjects, not a voxel-level matrix. Worked figures:
 :doc:`/auto_examples/03_clustering/plot_04_consensus_clustering`.
 Parameters: ``n_habitats``, ``min_habitats``, ``max_habitats``,
 ``n_resamples`` (default 50), ``resample_proportion`` (default 0.5),
-``inner`` (``kmeans`` or ``agglomerative``), ``n_init``, ``max_iter``,
-``max_items``. ``bestK`` follows the vendored CDF-area rule and is never
-``max_habitats`` itself.
+``inner`` (``kmeans`` or ``agglomerative``), ``metric``, ``n_init``,
+``max_iter``, ``max_items``. ``bestK`` follows the vendored CDF-area rule
+and is never ``max_habitats`` itself.
 
 Shared parameters of ``kmeans`` and ``gmm``: ``n_habitats``,
 ``min_habitats``, ``max_habitats``, ``validation``, ``n_init``,
@@ -523,9 +535,22 @@ YAML::
 7. Assign
 ---------
 
-**Required.** Maps each unit to the nearest habitat centroid. The built-in
-name is ``nearest_centroid``. After ``fit``,
-``model.assigner()`` is the same object.
+**Required.** The stage name stays ``nearest_centroid``. After ``fit``,
+``model.assigner()`` reads the decision rule stored on the model:
+
+* ``kmeans`` — ``sklearn.cluster.KMeans.predict`` on the stored centres.
+  No probabilities.
+* ``gmm`` — rebuild ``sklearn.mixture.GaussianMixture`` from the stored
+  weights, means and covariances. Hard labels are ``predict`` (maximum
+  posterior). ``assigner.predict_proba(units)`` is ``predict_proba``,
+  one row per supervoxel.
+* ``nearest_centroid`` — distance to class centres. Used for agglomerative
+  consensus. ``metric`` is ``euclidean``, ``manhattan``, or ``cosine``.
+  No probabilities.
+
+A habitat id is that 0-based label plus one. Every voxel of a supervoxel
+receives the supervoxel's id. A GMM model saved before weights and
+covariances were stored cannot be assigned; refit it.
 
 Python::
 

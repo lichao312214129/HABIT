@@ -21,11 +21,12 @@ InMoose). Importing or calling this fitter uses that GPL component. The GPL
 text ships at ``habit/third_party/inmoose/LICENSE``. HABIT's Apache-2.0
 terms do not relicense it. See the repository ``NOTICE``.
 
-What this fitter returns is still a HABIT :class:`~habit.contracts.habitat.HabitatModel`:
-consensus labels exist only for the items that were clustered, so each
-consensus group is summarised by the mean of its feature rows. Those means
-are the centroids. Unseen subjects are labelled by nearest centroid, the
-same assignment path as k-means and the Gaussian mixture.
+The consensus matrix selects K. The habitat definition is then a fresh fit
+of the inner algorithm on the full training matrix at that K. Inner
+k-means stores a ``KMeans`` codebook and assigns with ``KMeans.predict``.
+Inner agglomerative clustering has no out-of-sample ``predict``; each
+class is replaced by the centre that matches ``metric``, and every row
+(training and new) is labelled by distance to those centres.
 """
 
 from __future__ import annotations
@@ -38,6 +39,11 @@ from habit.contracts.habitat import HabitatModel, Supervoxelization
 from habit.contracts.subject import Cohort
 from habit.exceptions import HABITAPIError
 from habit.habitat_model._base import build_habitat_model, pool_supervoxel_features
+from habit.habitat_model._predict import (
+    CENTROID_METRICS,
+    assign_to_centers,
+    class_centers,
+)
 from habit.habitat_model.registry import HabitatModelFitterRegistry
 from habit.spec.specs import Spec
 
@@ -154,10 +160,14 @@ class ConsensusHabitatModelFitter:
     CDF). Their delta curve is indexed on ``k = min_habitats .. max_habitats - 1``;
     ``max_habitats`` itself is never chosen by that rule.
 
-    The consensus cut labels only the fitted items. Each occupied group is
-    replaced by its mean feature vector so the result is a centroid model
-    that :class:`~habit.habitat_model.assignment.nearest_centroid.NearestCentroidAssigner`
-    can apply to a new subject.
+    The consensus matrix is used only to choose K (``bestK``, or the fixed
+    ``n_habitats``). A second fit of the inner algorithm on every training
+    row at that K is the habitat model. Inner ``kmeans`` assigns new rows
+    with ``KMeans.predict``. Inner ``agglomerative`` has no ``predict`` for
+    a new row: class centres are stored and rows are labelled by
+    ``metric`` (Euclidean mean, Manhattan median, or cosine on
+    L2-normalised rows). The consensus-matrix labels stay in the fit
+    report; they are not the habitat ids.
 
     The consensus step is GPL-3.0-or-later. See the module docstring.
 
@@ -173,8 +183,13 @@ class ConsensusHabitatModelFitter:
         resample_proportion: Fraction of items drawn without replacement on
             each resample. The vendored default is 0.5.
         inner: ``"kmeans"`` (default) or ``"agglomerative"`` (scikit-learn
-            ward). This is the class passed into the vendored algorithm for
-            both the resamples and the final cut of ``1 - consensus_matrix``.
+            ward). Used both inside each resample and for the final fit on
+            the full training matrix.
+        metric: Distance for the agglomerative final assignment.
+            ``"euclidean"`` (mean), ``"manhattan"`` (per-feature median),
+            or ``"cosine"`` (mean of L2-normalised rows). Inner ``kmeans``
+            always assigns with ``KMeans.predict`` and requires
+            ``metric="euclidean"``.
         n_init: K-means restarts when ``inner`` is ``"kmeans"``. Ignored by
             agglomerative clustering.
         max_iter: K-means iteration cap when ``inner`` is ``"kmeans"``.
@@ -190,6 +205,7 @@ class ConsensusHabitatModelFitter:
         n_resamples: int = 50,
         resample_proportion: float = 0.5,
         inner: str = "kmeans",
+        metric: str = "euclidean",
         n_init: int = 10,
         max_iter: int = 300,
         max_items: int = 2000,
@@ -206,6 +222,7 @@ class ConsensusHabitatModelFitter:
         self.n_resamples = int(n_resamples)
         self.resample_proportion = float(resample_proportion)
         self.inner = inner_name
+        self.metric = str(metric).strip().lower()
         self.n_init = int(n_init)
         self.max_iter = int(max_iter)
         self.max_items = int(max_items)
@@ -242,6 +259,17 @@ class ConsensusHabitatModelFitter:
             raise HABITAPIError(
                 f"consensus max_items must be at least 2 (got {self.max_items})."
             )
+        if self.metric not in CENTROID_METRICS:
+            raise HABITAPIError(
+                f"consensus metric must be one of {CENTROID_METRICS}; "
+                f"got {self.metric!r}."
+            )
+        if self.inner == "kmeans" and self.metric != "euclidean":
+            raise HABITAPIError(
+                "consensus inner='kmeans' assigns with KMeans.predict, which "
+                f"is Euclidean. metric={self.metric!r} applies only when "
+                "inner='agglomerative'."
+            )
 
     @property
     def spec(self) -> Spec:
@@ -255,6 +283,7 @@ class ConsensusHabitatModelFitter:
                 "n_resamples": self.n_resamples,
                 "resample_proportion": self.resample_proportion,
                 "inner": self.inner,
+                "metric": self.metric,
                 "n_init": self.n_init,
                 "max_iter": self.max_iter,
                 "max_items": self.max_items,
@@ -306,17 +335,18 @@ class ConsensusHabitatModelFitter:
         cohort: Optional[Cohort] = None,
     ) -> HabitatModel:
         """
-        Learn shared habitat centroids from consensus groups of all subjects.
+        Select K from the consensus matrix, then fit the inner algorithm.
 
         Args:
             units: Supervoxelizations in a defined, reproducible order.
             cohort: Cohort the units came from, fingerprinted into the model.
 
         Returns:
-            A centroid habitat model. ``preprocessing_state["consensus"]``
-            holds the CDF areas, delta curve, per-cluster consensus, the
-            training-item labels, and (when the item count is small) the
-            consensus matrices.
+            A habitat model whose assignment rule is the final inner fit.
+            ``preprocessing_state["consensus"]`` holds the CDF areas, delta
+            curve, per-cluster consensus, the consensus-matrix labels, and
+            (when the item count is small) the consensus matrices.
+            ``habitat_training_labels`` are the labels of the final fit.
 
         Raises:
             HABITAPIError: If there are too many items for an ``n x n``
@@ -362,9 +392,9 @@ class ConsensusHabitatModelFitter:
             raise HABITAPIError(
                 f"Consensus clustering returned no occupied cluster at k={selected}."
             )
-        centroids = np.vstack(
-            [matrix[labels == i].mean(axis=0) for i in present]
-        ).astype(np.float64)
+        centroids, estimator_state, habitat_labels, agglomerative_labels = (
+            self._fit_final_partition(matrix, selected)
+        )
 
         report = _consensus_report(
             cc,
@@ -378,6 +408,11 @@ class ConsensusHabitatModelFitter:
             n_resamples=self.n_resamples,
             resample_proportion=self.resample_proportion,
         )
+        report["assignment_rule"] = estimator_state["rule"]
+        report["metric"] = self.metric
+        report["habitat_training_labels"] = habitat_labels
+        if agglomerative_labels is not None:
+            report["agglomerative_labels"] = agglomerative_labels
         return build_habitat_model(
             fitter_name="consensus",
             spec=self.spec,
@@ -387,6 +422,57 @@ class ConsensusHabitatModelFitter:
             cohort=cohort,
             random_seed=self._seed,
             preprocessing_state={"consensus": report},
+            estimator_state=estimator_state,
+        )
+
+    def _fit_final_partition(
+        self,
+        matrix: np.ndarray,
+        n_habitats: int,
+    ) -> tuple:
+        """
+        Fit the inner algorithm on every training row at the chosen K.
+
+        Args:
+            matrix: Pooled feature rows, one per supervoxel.
+            n_habitats: K selected by the consensus matrix or fixed by the
+                caller.
+
+        Returns:
+            ``(centroids, estimator_state, habitat_labels, agglomerative_labels)``.
+            ``agglomerative_labels`` is ``None`` when the inner algorithm is
+            k-means. Habitat labels are 0-based and match ``predict`` on
+            these same rows.
+        """
+        if self.inner == "kmeans":
+            from sklearn.cluster import KMeans
+
+            estimator = KMeans(
+                n_clusters=int(n_habitats),
+                random_state=self._seed,
+                n_init=self.n_init,
+                max_iter=self.max_iter,
+            )
+            estimator.fit(matrix)
+            centroids = np.asarray(estimator.cluster_centers_, dtype=np.float64)
+            habitat_labels = np.asarray(estimator.labels_, dtype=np.int64)
+            return centroids, {"rule": "kmeans"}, habitat_labels, None
+
+        from sklearn.cluster import AgglomerativeClustering
+
+        # Ward labels the training rows only. sklearn has no predict for a
+        # new row, so the published definition is the class centres.
+        partition = np.asarray(
+            AgglomerativeClustering(n_clusters=int(n_habitats)).fit_predict(matrix),
+            dtype=np.int64,
+        )
+        centroids = class_centers(matrix, partition, self.metric)
+        habitat_labels = assign_to_centers(matrix, centroids, self.metric)
+        return (
+            centroids,
+            {"rule": "nearest_centroid", "metric": self.metric},
+            habitat_labels,
+            partition,
         )
 
 

@@ -411,7 +411,7 @@ def test_habitat_spec_from_dict_rejects_a_contradictory_level() -> None:
 
 @pytest.mark.unit
 def test_habitat_spec_validate_dataflow() -> None:
-    """Subject-level definition forbids supervoxels and cohort chains."""
+    """Subject-level definition allows supervoxels and forbids cohort chains."""
     _dataflow_spec().validate_dataflow()
     _dataflow_spec(pooling="cohort").validate_dataflow()
     _dataflow_spec(pooling="none").validate_dataflow()
@@ -419,8 +419,7 @@ def test_habitat_spec_validate_dataflow() -> None:
     with_supervoxels = _dataflow_spec(
         pooling="none", supervoxelizer=Spec(name="kmeans")
     )
-    with pytest.raises(HABITAPIError, match="supervoxelizer"):
-        with_supervoxels.validate_dataflow()
+    with_supervoxels.validate_dataflow()
 
     with_cohort_chain = _dataflow_spec(
         pooling="none",

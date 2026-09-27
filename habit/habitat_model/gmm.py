@@ -60,9 +60,10 @@ class GmmHabitatModelFitter:
 
     Probabilistic counterpart of the k-means fitter: habitat membership is a
     posterior distribution, and model selection uses an information
-    criterion. The model stores the mixture means as centroids; soft
-    assignment can be added by a dedicated assigner without changing the
-    model artefact.
+    criterion. The model stores the mixture means as ``centroids`` and the
+    weights and covariances in ``estimator_state``. Assignment calls
+    ``GaussianMixture.predict`` and ``predict_proba`` on that mixture, not
+    Euclidean distance to the means.
 
     The fitter is :class:`~habit._protocols.Seedable`; the seed is
     applied to mixture initialisation at fit time.
@@ -274,6 +275,12 @@ class GmmHabitatModelFitter:
             cohort=cohort,
             random_seed=self._seed,
             preprocessing_state=preprocessing_state,
+            estimator_state={
+                "rule": "gmm",
+                "covariance_type": self.covariance_type,
+                "weights": np.asarray(model.weights_, dtype=np.float64),
+                "covariances": np.asarray(model.covariances_, dtype=np.float64),
+            },
         )
 
 

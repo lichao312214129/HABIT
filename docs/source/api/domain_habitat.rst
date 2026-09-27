@@ -243,7 +243,10 @@ Domain: ``habitat_assigner``
    assigner = model.assigner()
    habitat_map = assigner(unit)
 
-* ``nearest_centroid`` → ``NearestCentroidAssigner`` (constructor arg: ``model``)
+* ``nearest_centroid`` → ``NearestCentroidAssigner`` (constructor arg: ``model``).
+  Hard labels follow the rule stored on the model (``KMeans.predict``,
+  ``GaussianMixture.predict``, or distance to class centres).
+  ``assigner.predict_proba(unit)`` is available for a Gaussian mixture.
 
 Habitat feature extractors
 --------------------------

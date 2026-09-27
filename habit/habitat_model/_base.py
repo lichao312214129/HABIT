@@ -22,7 +22,7 @@ k-means and GMM fitters only differ in the actual clustering call.
 from __future__ import annotations
 
 import hashlib
-from typing import List, Optional, Sequence, Tuple
+from typing import Any, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -106,6 +106,7 @@ def build_habitat_model(
     cohort: Optional[Cohort],
     random_seed: int,
     preprocessing_state: Optional[dict] = None,
+    estimator_state: Optional[Mapping[str, Any]] = None,
 ) -> HabitatModel:
     """
     Assemble the fitted :class:`HabitatModel` with full provenance.
@@ -123,6 +124,8 @@ def build_habitat_model(
         cohort: Originating cohort, when available.
         random_seed: Seed the fitter ran with.
         preprocessing_state: Optional state learned at fit time.
+        estimator_state: Assignment parameters beyond the centroid matrix
+            (decision rule, and for a GMM the weights and covariances).
 
     Returns:
         The self-contained habitat model.
@@ -150,4 +153,5 @@ def build_habitat_model(
         spec_payload={f"habitat_model_fitter": spec.to_dict()},
         cohort_fingerprint=fingerprint,
         provenance=provenance,
+        estimator_state=dict(estimator_state or {}),
     )

@@ -991,23 +991,10 @@ class HabitatSpec:
         elif not self._stages_explicit and self.pooling is None:
             has_pool = True
 
-        if has_partition and not has_pool:
-            raise HABITAPIError(
-                "HabitatSpec declares a partition (supervoxelizer) stage but "
-                "no pool stage: per-subject definition on supervoxels is not "
-                "a supported design. Add a pool stage "
-                "(Stage('pool', Spec('pool'))) after the subject-level "
-                "prefix, or remove the partition stage for one_step."
-            )
+        # Partition without pool is one-step on supervoxels: each subject
+        # is clustered on its own supervoxel rows. Cohort-level
+        # preprocessing still has nothing to fit against.
         if self.pooling == "none":
-            if self.supervoxelizer is not None:
-                raise HABITAPIError(
-                    "HabitatSpec.pooling='none' (subject-level habitat "
-                    "definition) does not support a supervoxelizer: "
-                    "per-subject definition on supervoxels is not a supported "
-                    "design. Remove the supervoxelizer (one-step) or declare "
-                    "pooling='cohort' / add a pool stage (two-step)."
-                )
             if self.cohort_feature_preprocessors:
                 raise HABITAPIError(
                     "HabitatSpec.pooling='none' (subject-level habitat "

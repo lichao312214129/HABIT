@@ -19,10 +19,16 @@ from __future__ import annotations
 from typing import Any
 
 import numpy as np
+import pandas as pd
 from pydantic import BaseModel, Field, ConfigDict
 
-from habit.exceptions import CompatibilityError
+from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts.habitat import HabitatMap, HabitatModel, Supervoxelization
+from habit.habitat_model._predict import (
+    assignment_rule,
+    predict_labels,
+    predict_proba_frame,
+)
 from habit.habitat_model.assignment.registry import HabitatAssignerRegistry
 from habit.spec.specs import Spec
 
@@ -34,15 +40,32 @@ __all__ = ["NearestCentroidAssigner", "NearestCentroidAssignerParams"]
 @HabitatAssignerRegistry.register("nearest_centroid")
 class NearestCentroidAssigner:
     """
-    Assign each supervoxel to the habitat of its nearest centroid.
+    Assign habitat labels with the decision rule stored on the fitted model.
 
     The fitted model is bound at construction time -- the ordinary way to
     obtain this assigner is ``model.assigner()``. Prediction then has no way
-    to re-learn anything, because everything it needs is inside the model;
-    this is what enforces train/predict consistency structurally.
+    to re-learn anything, because everything it needs is inside the model.
 
-    Habitat ids are the centroid row indices plus one, so label ``0`` is
-    reserved for background, matching the v0.1 label-image convention.
+    The rule is ``estimator_state["rule"]``:
+
+    * ``"kmeans"`` calls ``sklearn.cluster.KMeans.predict`` on the stored
+      centres. There is no ``predict_proba``.
+    * ``"gmm"`` rebuilds ``sklearn.mixture.GaussianMixture`` from the stored
+      weights, means and covariances and calls ``predict`` and
+      ``predict_proba``.
+    * ``"nearest_centroid"`` labels each row by distance to the stored class
+      centres. ``metric`` is ``euclidean`` (mean), ``manhattan`` (median),
+      or ``cosine`` (mean of L2-normalised rows). There is no
+      ``predict_proba``.
+
+    A model saved before those parameters existed and whose fitter is not
+    GMM is treated as ``"kmeans"`` (Euclidean ``KMeans.predict`` on the
+    stored centres). A GMM archive without weights and covariances raises,
+    because ``GaussianMixture.predict`` cannot be rebuilt.
+
+    Habitat ids are the estimator's 0-based labels plus one, so label ``0``
+    is reserved for background. The same id is painted onto every voxel of
+    a supervoxel via ``label_array``.
 
     Args:
         model: The fitted habitat definition to project.
@@ -66,7 +89,10 @@ class NearestCentroidAssigner:
         """Return the algorithm specification, bound to the model id."""
         return Spec(
             name="nearest_centroid",
-            params={"model_id": self._model.model_id},
+            params={
+                "model_id": self._model.model_id,
+                "rule": assignment_rule(self._model),
+            },
         )
 
     def __call__(self, supervoxel_map: Supervoxelization) -> HabitatMap:
@@ -131,12 +157,17 @@ class NearestCentroidAssigner:
                     f"{unknown} have no feature rows."
                 )
 
-        # Euclidean nearest-centroid assignment; ids are row index + 1 so
-        # that 0 stays available for background.
-        distances = np.linalg.norm(
-            matrix[:, None, :] - self._model.centroids[None, :, :], axis=2
-        )
-        assignments = np.argmin(distances, axis=1).astype(np.int64) + 1
+        # Library predict (or class-centre distance) returns 0-based labels.
+        # Add one so 0 stays available for background.
+        try:
+            assignments = predict_labels(self._model, matrix) + 1
+        except HABITAPIError:
+            raise
+        except Exception as exc:
+            raise HABITAPIError(
+                f"Subject {supervoxel_map.subject_id!r}: habitat assignment "
+                f"failed under rule {assignment_rule(self._model)!r}."
+            ) from exc
 
         lookup = np.zeros(int(unit_ids.max()) + 1, dtype=np.int32)
         lookup[unit_ids.astype(np.int64)] = assignments.astype(np.int32)
@@ -155,5 +186,38 @@ class NearestCentroidAssigner:
             habitat_ids=tuple(range(1, self._model.n_habitats + 1)),
             provenance=provenance,
         )
+
+    def predict_proba(self, supervoxel_map: Supervoxelization) -> pd.DataFrame:
+        """
+        Return per-supervoxel habitat probabilities.
+
+        Only a Gaussian mixture has this. The frame has one row per
+        supervoxel, indexed by supervoxel id, and one column
+        ``habitat_{id}`` per component in the mixture's own order. The hard
+        label on the map is the column with the largest probability, plus
+        the same background convention as :meth:`__call__`.
+
+        Args:
+            supervoxel_map: Supervoxelization of the subject to score.
+
+        Returns:
+            Probability frame aligned with ``supervoxel_map.features``.
+
+        Raises:
+            CompatibilityError: If a required feature column is missing.
+            HABITAPIError: If the model's rule has no ``predict_proba``.
+        """
+        frame = supervoxel_map.features
+        missing = [
+            name for name in self._model.feature_names if name not in frame.columns
+        ]
+        if missing:
+            raise CompatibilityError(
+                f"Subject {supervoxel_map.subject_id!r}: supervoxel features "
+                f"lack the model-required features {missing}; the model "
+                f"expects {list(self._model.feature_names)}."
+            )
+        matrix = frame[list(self._model.feature_names)].to_numpy(dtype=np.float64)
+        return predict_proba_frame(self._model, matrix, frame.index)
 
 

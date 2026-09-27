@@ -123,8 +123,8 @@ def test_sugar_expands_to_recommended_stage_names() -> None:
 
 
 @pytest.mark.unit
-def test_partition_without_pool_is_rejected() -> None:
-    """Illegal sequence must fail with an actionable missing-pool message."""
+def test_partition_without_pool_is_one_step() -> None:
+    """Partition then fit, with no pool, is per-subject clustering on supervoxels."""
     stages = (
         Stage(
             "extract_voxel_features",
@@ -151,9 +151,37 @@ def test_partition_without_pool_is_rejected() -> None:
         ),
         Stage("assign", Spec("nearest_centroid"), role="assign"),
     )
-    spec = HabitatSpec(name="bad", stages=stages)
-    with pytest.raises(HABITAPIError, match="no pool"):
-        spec.validate_dataflow()
+    spec = HabitatSpec(name="supervoxel_one_step", stages=stages)
+    spec.validate_dataflow()
+    resolved = resolve_habitat_stages(spec)
+    assert design_from_stages(resolved) == "one_step"
+    assert [stage.role for stage in resolved] == [
+        "extract_voxel_features",
+        "partition",
+        "fit",
+        "assign",
+    ]
+
+
+@pytest.mark.unit
+def test_two_kmeans_stages_without_pool_split_partition_and_fit() -> None:
+    """The earlier kmeans is the supervoxelizer when a later kmeans fits habitats."""
+    stages = (
+        Stage("extract", Spec("raw", {"modalities": ["T1"]})),
+        Stage("partition", Spec("kmeans", {"n_supervoxels": 4, "n_init": 2})),
+        Stage("features", Spec("mean_voxel_features")),
+        Stage("fit", Spec("kmeans", dict(_FITTER_PARAMS))),
+        Stage("assign", Spec("nearest_centroid")),
+    )
+    resolved = resolve_habitat_stages(HabitatSpec(name="dual_kmeans", stages=stages))
+    assert [stage.role for stage in resolved] == [
+        "extract_voxel_features",
+        "partition",
+        "extract_supervoxel_features",
+        "fit",
+        "assign",
+    ]
+    assert design_from_stages(resolved) == "one_step"
 
 
 @pytest.mark.unit

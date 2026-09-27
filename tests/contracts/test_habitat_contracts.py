@@ -180,7 +180,7 @@ def test_habitat_model_file_is_self_describing(tmp_path: Path) -> None:
         manifest = json.loads(archive.read("manifest.json").decode("utf-8"))
 
     assert manifest["format"] == "habit.habitatmodel"
-    assert manifest["format_version"] == 1
+    assert manifest["format_version"] == 2
     assert "habit_version" in manifest
 
 

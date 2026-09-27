@@ -173,12 +173,13 @@ def _build_habitat_spec(
     design: str,
     *,
     modalities: Sequence[str],
-    n_supervoxels: int = 50,
+    n_supervoxels: Optional[int] = 50,
     n_habitats: Union[int, str] = "auto",
     habitat_features: Optional[Sequence[Union[str, Spec, Mapping[str, object]]]] = None,
     random_seed: Optional[int] = None,
     supervoxel_algorithm: str = "kmeans",
     habitat_fitter_algorithm: str = "kmeans",
+    supervoxel_feature_extractor: Optional[Spec] = None,
     roi: str = "tumor",
 ) -> HabitatSpec:
     """
@@ -187,12 +188,19 @@ def _build_habitat_spec(
     Args:
         design: ``two_step``, ``one_step``, or ``direct_pooling``.
         modalities: Modality names passed to the raw voxel extractor.
-        n_supervoxels: Supervoxel count for the two-step design.
+        n_supervoxels: Supervoxel count for the two-step design, and for
+            one-step when the caller opts into a per-subject partition.
+            ``None`` on one-step keeps voxel clustering.
         n_habitats: Fixed habitat count or ``"auto"``.
         habitat_features: Optional habitat feature families to compute.
         random_seed: Seed applied to every seedable component.
-        supervoxel_algorithm: Registered supervoxelizer / one-step fitter name.
-        habitat_fitter_algorithm: Registered cohort fitter name.
+        supervoxel_algorithm: Registered supervoxelizer name. On one-step
+            this is used only when ``n_supervoxels`` is set; the per-subject
+            habitat fitter is ``habitat_fitter_algorithm``.
+        habitat_fitter_algorithm: Registered habitat-model fitter name.
+        supervoxel_feature_extractor: Optional per-supervoxel description
+            (for example radiomics). Requires ``n_supervoxels`` on one-step.
+            Omit it to cluster the partition's attached means.
         roi: ROI keyword for the raw voxel extractor.
 
     Returns:
@@ -224,15 +232,29 @@ def _build_habitat_spec(
             _named_field_compat=True,
         )
     if design == "one_step":
+        # Default one-step clusters voxels. A count opts into a per-subject
+        # partition; those supervoxels are never pooled across subjects.
+        supervoxelizer = None
+        if n_supervoxels is not None:
+            supervoxelizer = Spec(
+                name=supervoxel_algorithm,
+                params={"n_supervoxels": int(n_supervoxels)},
+            )
+        elif supervoxel_feature_extractor is not None:
+            raise HABITAPIError(
+                "one_step supervoxel features require n_supervoxels; "
+                "without a partition there are no supervoxels to describe."
+            )
         return HabitatSpec(
             name="one_step_habitat",
             voxel_feature_extractor=Spec(
                 name="raw",
                 params={"modalities": list(modalities), "roi": roi},
             ),
-            supervoxelizer=None,
+            supervoxelizer=supervoxelizer,
+            supervoxel_feature_extractor=supervoxel_feature_extractor,
             habitat_model_fitter=Spec(
-                name=supervoxel_algorithm,
+                name=habitat_fitter_algorithm,
                 params=fitter_params,
             ),
             habitat_assigner=Spec(name="nearest_centroid", params={}),
@@ -647,17 +669,32 @@ def one_step_habitat(
     habitat_features: Optional[Sequence[Union[str, Spec, Mapping[str, object]]]] = None,
     random_seed: Optional[int] = None,
     clustering_algorithm: str = "kmeans",
+    n_supervoxels: Optional[int] = None,
+    supervoxel_algorithm: str = "kmeans",
+    supervoxel_feature_extractor: Optional[Spec] = None,
     roi: str = "tumor",
 ) -> Study:
     """
     Declare a one-step habitat study (habitats defined inside each subject).
+
+    Omit ``n_supervoxels`` to cluster each subject's voxels. Pass a count
+    to cut supervoxels inside each subject and cluster those rows. Nothing
+    is pooled, so habitat ids stay private to the subject.
 
     Args:
         modalities: Modality names for the raw voxel extractor.
         n_habitats: Fixed habitat count or ``"auto"``.
         habitat_features: Optional habitat feature families.
         random_seed: Seed for every seedable component.
-        clustering_algorithm: Registered per-subject fitter name.
+        clustering_algorithm: Registered per-subject habitat fitter name.
+        n_supervoxels: Supervoxels per subject. ``None`` keeps voxel
+            clustering (the historical one-step default).
+        supervoxel_algorithm: Registered supervoxelizer used only when
+            ``n_supervoxels`` is set. ``kmeans`` may leave a supervoxel
+            spatially disconnected; pass ``"slic"`` for compact patches.
+        supervoxel_feature_extractor: Optional description of each
+            supervoxel (means, standard deviation, radiomics). Requires
+            ``n_supervoxels``. Omit it to cluster the partition's means.
         roi: ROI keyword for voxel extraction.
 
     Returns:
@@ -667,10 +704,13 @@ def one_step_habitat(
         spec=_build_habitat_spec(
             "one_step",
             modalities=modalities,
+            n_supervoxels=n_supervoxels,
             n_habitats=n_habitats,
             habitat_features=habitat_features,
             random_seed=random_seed,
-            supervoxel_algorithm=clustering_algorithm,
+            supervoxel_algorithm=supervoxel_algorithm,
+            habitat_fitter_algorithm=clustering_algorithm,
+            supervoxel_feature_extractor=supervoxel_feature_extractor,
             roi=roi,
         ),
         design="one_step",

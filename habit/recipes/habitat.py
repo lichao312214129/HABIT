@@ -1405,12 +1405,12 @@ def _one_step(
     """
     Habitats defined inside each subject, independently.
 
-    Each subject's voxels are clustered on their own -- including the
-    habitat-count selection, which is re-run per subject -- so two subjects
-    may end up with different habitat counts and their habitat ids are NOT
-    comparable. This is what v0.1 called ``clustering_mode: one_step``, and
-    the incomparability is inherent to the design rather than a limitation
-    of this implementation.
+    Each subject is clustered on its own -- on voxels, or on supervoxel
+    rows when the spec includes a partition. Habitat-count selection is
+    re-run per subject, so two subjects may end up with different habitat
+    counts and their habitat ids are NOT comparable. This is what v0.1
+    called ``clustering_mode: one_step``, and the incomparability is
+    inherent to the design rather than a limitation of this implementation.
 
     Consequently the returned
     :attr:`~habit.recipes.result.StudyResult.habitat_model` is ``None``:
@@ -1420,9 +1420,10 @@ def _one_step(
 
     Args:
         cohort: Subjects to process.
-        spec: The analysis to run; ``spec.supervoxelizer`` must be ``None``
-            and ``spec.cohort_feature_preprocessors`` must be empty, since
-            nothing crosses subject boundaries in this design.
+        spec: The analysis to run. ``spec.cohort_feature_preprocessors``
+            must be empty, since nothing crosses subject boundaries.
+            ``spec.supervoxelizer`` may be set: each subject is then
+            clustered on its supervoxel rows. Omit it to cluster voxels.
         backend: Optional execution backend. Serial when omitted.
         seed: Optional override of ``spec.random_seed``.
         checkpoint: Optional store enabling per-subject resume; keys scope
@@ -1445,17 +1446,14 @@ def _one_step(
         The study result, entirely in memory.
 
     Raises:
-        HABITAPIError: If the spec declares a supervoxelizer, a
-            cohort-level preprocessing chain, or ``pooling="cohort"`` (a
-            cohort-level dataflow contradicts this design).
+        HABITAPIError: If the spec declares a cohort-level preprocessing
+            chain or ``pooling="cohort"`` (a cohort-level dataflow
+            contradicts this design). A supervoxelizer is allowed: habitats
+            are then fit on that subject's supervoxel rows instead of its
+            voxels. Habitat ids are still private to the subject.
     """
     effective = _effective_spec(spec, seed)
     view = _design_view(effective)
-    if view.supervoxelizer is not None:
-        raise HABITAPIError(
-            "one_step clusters each subject's voxels directly, but this spec "
-            f"declares the supervoxelizer {view.supervoxelizer.name!r}."
-        )
     if view.cohort_feature_preprocessors:
         raise HABITAPIError(
             "one_step defines habitats within each subject, so a cohort-level "

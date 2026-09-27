@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**04:19.732** total execution time for 48 files **from all galleries**:
+**00:36.810** total execution time for 49 files **from all galleries**:
 
 .. container::
 
@@ -32,8 +32,8 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_05_precise_features.py` (``..\..\examples\guide\05_validation_and_reuse\plot_05_precise_features.py``)
-     - 04:19.732
+   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_03_supervoxels_inside_each_subject.py` (``..\..\examples\guide\01_building_habitat_maps\plot_03_supervoxels_inside_each_subject.py``)
+     - 00:36.810
      - 0.0
    * - :ref:`sphx_glr_auto_examples_00_introductory_tutorials_plot_01_two_step.py` (``..\..\examples\guide\00_introductory_tutorials\plot_01_two_step.py``)
      - 00:00.000
@@ -120,6 +120,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_04_match_group.py` (``..\..\examples\guide\05_validation_and_reuse\plot_04_match_group.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_05_precise_features.py` (``..\..\examples\guide\05_validation_and_reuse\plot_05_precise_features.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_05_validation_and_reuse_plot_06_reuse_published_model.py` (``..\..\examples\guide\05_validation_and_reuse\plot_06_reuse_published_model.py``)

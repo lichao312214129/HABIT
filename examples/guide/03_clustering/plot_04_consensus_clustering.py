@@ -26,10 +26,11 @@ That curve stops at ``max_habitats - 1``: the top of the range is never
 selected. This is not Bioconductor ConsensusClusterPlus (no PAC, no
 feature resampling).
 
-The consensus cut labels only the fitted supervoxels. HABIT stores the
-mean feature vector of each consensus group as a centroid, then paints
-the map with nearest-centroid assignment so a later subject can be
-labelled without rebuilding the ``n x n`` matrix.
+The consensus matrix chooses K. HABIT then fits k-means on every training
+supervoxel at that K and paints the map with ``KMeans.predict``, so a
+later subject is labelled in the same feature space without rebuilding
+the ``n x n`` matrix. The consensus-matrix labels stay in the fit report;
+they are not the habitat ids.
 
 **When to use.** When you need a stability argument for K on a few dozen
 to a few hundred supervoxels. Do not point it at a voxel-level matrix:
@@ -172,25 +173,20 @@ fig.savefig("out/consensus_item_stability.png", dpi=150, bbox_inches="tight")
 plt.show()
 
 # %%
-# Supervoxels in the consensus partition
-# --------------------------------------
-# Points are pooled supervoxels. Colours are the consensus labels (shown
-# from 1, matching habitat ids when every cluster is occupied). Crosses are
-# the centroids written into the habitat model.
+# Supervoxels in the fitted partition
+# -----------------------------------
+# Points are pooled supervoxels. Colours are the k-means labels at the
+# consensus-chosen K (shown from 1, matching habitat ids). Crosses are the
+# centres written into the habitat model.
 frames = [one.feature_frame().to_numpy(dtype=float) for one in result.units]
 matrix = np.vstack(frames)
-labels = np.asarray(report["training_labels"], dtype=int)
-label_ids = [int(v) for v in report["consensus_label_ids"]]
-if label_ids == list(range(len(label_ids))):
-    labels = labels + 1
-    centers = np.asarray(result.habitat_model.centroids, dtype=float)
-else:
-    centers = None
+labels = np.asarray(report["habitat_training_labels"], dtype=int) + 1
+centers = np.asarray(result.habitat_model.centroids, dtype=float)
 fig = plot_habitat_clustering_pca_2d(
     matrix,
     labels,
     centers=centers,
-    title="Pooled supervoxels, consensus labels",
+    title="Pooled supervoxels, k-means labels at consensus K",
 )
 fig.savefig("out/consensus_pca.png", dpi=150, bbox_inches="tight")
 plt.show()
@@ -198,7 +194,7 @@ plt.show()
 # %%
 # Habitat map on the image
 # ------------------------
-# Nearest centroid of the consensus groups, on the first training patient.
+# ``KMeans.predict`` of the fitted centres, on the first training patient.
 # This is the map a new subject would receive from the saved model.
 subject = train[0]
 fig = plot_habitat_overlay(
@@ -218,9 +214,10 @@ plt.show()
 #   well above 0.5.
 # * A pick on the last delta point (``max_habitats - 1``) means the range
 #   was too narrow for this rule. Widen ``max_habitats`` and rerun.
-# * The overlay can disagree slightly with the consensus labels: assignment
-#   is Euclidean nearest centroid, and a consensus group need not be a
-#   sphere in feature space. Say which of the two you interpret.
+# * The overlay is the k-means partition at the chosen K. It can disagree
+#   with the consensus-matrix labels in the item-consensus figure: those
+#   labels cluster co-membership, and the habitat ids come from the
+#   subsequent ``KMeans.fit``. Say which of the two you interpret.
 # * For a study, keep ``n_resamples`` at the default 50 or higher, and
 #   record ``describe_methods()`` together with the GPL notice above.
 

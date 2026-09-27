@@ -129,9 +129,10 @@ def _disambiguate(
     Resolve a multi-domain component name using position rules.
 
     Dual-domain ``kmeans`` / ``gmm``:
-    * before an upcoming supervoxel-feature stage (or before pool, no
-      partition yet) → partition (supervoxelizer);
-    * otherwise, before assign / after pool → fitter.
+    * before an upcoming supervoxel-feature stage, before pool, or before
+      a later dual-domain clusterer (the per-subject habitat fit), and no
+      partition yet → partition (supervoxelizer);
+    * otherwise, before assign / after pool / after partition → fitter.
     """
     domain_set = set(domains)
     if domain_set <= {"supervoxelizer", "habitat_model_fitter"} and domain_set == {
@@ -151,8 +152,20 @@ def _disambiguate(
         )
         seen_partition = ROLE_PARTITION in roles_so_far
         seen_pool = ROLE_POOL in roles_so_far
+        # A second kmeans/gmm before assign is the habitat fitter, so the
+        # earlier one is the supervoxel partition. This is how one-step
+        # declares "cut supervoxels, then cluster them inside this subject"
+        # without a pool marker.
+        later_dual_clusterer = any(
+            SupervoxelizerRegistry.get(later_name) is not None
+            and HabitatModelFitterRegistry.get(later_name) is not None
+            for later_name in later_names
+        )
         if not seen_partition and not seen_pool and (
-            has_svx_feat_later or ROLE_POOL in later_roles or POOL_COMPONENT_NAME in later_names
+            has_svx_feat_later
+            or ROLE_POOL in later_roles
+            or POOL_COMPONENT_NAME in later_names
+            or later_dual_clusterer
         ):
             return "supervoxelizer", ROLE_PARTITION
         if seen_pool or seen_partition or ROLE_ASSIGN in later_roles:
@@ -290,15 +303,7 @@ def resolve_habitat_stages(spec: HabitatSpec) -> Tuple[ResolvedStage, ...]:
 
 def _validate_role_sequence(roles: Sequence[str]) -> None:
     """Reject illegal role sequences with actionable messages."""
-    has_partition = ROLE_PARTITION in roles
     has_pool = ROLE_POOL in roles
-    if has_partition and not has_pool:
-        raise HABITAPIError(
-            "Stage sequence includes partition but no pool: per-subject "
-            "definition on supervoxels is not supported. Add "
-            "Stage('pool', Spec('pool')) after the subject-level prefix, or "
-            "remove the partition stage (one_step)."
-        )
     if roles.count(ROLE_POOL) > 1:
         raise HABITAPIError(
             "Stage sequence contains more than one pool marker; the "

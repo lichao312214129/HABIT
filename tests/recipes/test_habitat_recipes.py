@@ -15,11 +15,13 @@
 """
 What each habitat recipe refuses to do.
 
-The three designs are distinguished by which optional pipeline stages they
-use, so a spec meant for one of them is structurally accepted by the others
-and would run to completion producing a *different analysis under the caller's
-chosen name*. Nothing downstream could detect that, which is why the mismatch
-is rejected at the entry point rather than tolerated.
+One-step accepts a supervoxelizer (partition, no pool) and still refuses
+cohort-level preprocessing. The three designs are otherwise distinguished
+by which optional pipeline stages they use, so a spec meant for one of
+them can be structurally accepted by another and would run to completion
+producing a *different analysis under the caller's chosen name*. Nothing
+downstream could detect that, which is why the mismatch is rejected at
+the entry point rather than tolerated.
 """
 
 from __future__ import annotations
@@ -70,12 +72,69 @@ def test_direct_pooling_rejects_a_supervoxelizer() -> None:
 
 
 @pytest.mark.unit
-def test_one_step_rejects_a_supervoxelizer() -> None:
-    """One-step clusters each subject's voxels; a supervoxel stage contradicts it."""
+def test_one_step_with_supervoxels_fits_inside_each_subject() -> None:
+    """One-step may cluster supervoxel rows; the default path still clusters voxels."""
+    import numpy as np
+
     from habit.recipes.study import Study
 
-    with pytest.raises(HABITAPIError, match="one_step clusters each subject"):
-        Study(spec=_spec(), design="one_step").fit(object())  # type: ignore[arg-type]
+    cohort = _tiny_cohort()
+    voxel_level = Study(spec=_runnable_spec(pooling="none"), design="one_step").fit_predict(
+        cohort
+    )
+    supervoxel_level = Study(
+        spec=_runnable_spec(
+            pooling="none",
+            supervoxelizer=Spec(name="kmeans", params={"n_supervoxels": 4, "n_init": 2}),
+        ),
+        design="one_step",
+    ).fit_predict(cohort)
+
+    assert voxel_level.habitat_model is None
+    assert supervoxel_level.habitat_model is None
+    assert supervoxel_level.subject_models
+    assert supervoxel_level.manifest.provenance.produced_by == "recipes.habitat.one_step"
+    voxel_maps = {m.subject_id: np.asarray(m.label_array) for m in voxel_level.habitat_maps}
+    supervoxel_maps = {
+        m.subject_id: np.asarray(m.label_array) for m in supervoxel_level.habitat_maps
+    }
+    assert voxel_maps.keys() == supervoxel_maps.keys()
+    assert any(
+        not np.array_equal(voxel_maps[sid], supervoxel_maps[sid]) for sid in voxel_maps
+    )
+
+
+@pytest.mark.unit
+def test_one_step_habitat_supervoxels_are_opt_in() -> None:
+    """The factory clusters voxels unless n_supervoxels is set."""
+    from habit.recipes import one_step_habitat
+
+    plain = one_step_habitat(modalities=["T1"], n_habitats=2, clustering_algorithm="gmm")
+    assert plain.spec.supervoxelizer is None
+    assert plain.spec.habitat_model_fitter.name == "gmm"
+    assert plain.spec.pooling == "none"
+
+    cut = one_step_habitat(
+        modalities=["T1"],
+        n_habitats=2,
+        n_supervoxels=8,
+        supervoxel_algorithm="slic",
+        clustering_algorithm="gmm",
+        supervoxel_feature_extractor=Spec(name="mean_voxel_features"),
+    )
+    assert cut.spec.supervoxelizer is not None
+    assert cut.spec.supervoxelizer.name == "slic"
+    assert cut.spec.supervoxelizer.params["n_supervoxels"] == 8
+    assert cut.spec.supervoxel_feature_extractor is not None
+    assert cut.spec.supervoxel_feature_extractor.name == "mean_voxel_features"
+    assert cut.spec.habitat_model_fitter.name == "gmm"
+    assert cut.spec.pooling == "none"
+
+    with pytest.raises(HABITAPIError, match="n_supervoxels"):
+        one_step_habitat(
+            modalities=["T1"],
+            supervoxel_feature_extractor=Spec(name="mean_voxel_features"),
+        )
 
 
 @pytest.mark.unit
