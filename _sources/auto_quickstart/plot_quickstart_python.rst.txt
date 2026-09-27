@@ -181,7 +181,7 @@ each tumour is normalized on its own scale, split into 30 supervoxels
 enhancement pattern in every patient. Drop ``pool`` and every subject
 is clustered on its own (one-step); drop ``partition`` and voxels are
 clustered directly (direct pooling). The fitter tries 2 to 10 habitats
-and keeps the elbow.
+and uses the elbow criterion to select the optimal k.
 
 .. GENERATED FROM PYTHON SOURCE LINES 118-157
 
@@ -234,8 +234,8 @@ and keeps the elbow.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:07,  2.55s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:04<00:04,  2.07s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.87s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.78s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.78s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:03,  1.08s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:01<00:01,  1.05it/s]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02<00:00,  1.13it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.17it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.17it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02<00:06,  2.22s/it]    Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03<00:03,  1.96s/it]    Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05<00:01,  1.84s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.82s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07<00:00,  1.82s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01<00:03,  1.16s/it]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:02<00:02,  1.01s/it]    Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02<00:00,  1.08it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.10it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03<00:00,  1.10it/s]
     HabitatModel kmeans-b01ecfd00139f26e
       habitats           : 5
       features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -672,7 +672,7 @@ plus the habitat maps because write_maps=True.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05<00:00,  5.59s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05<00:00,  5.59s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05<00:00,  5.88s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05<00:00,  5.88s/it]
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
 
@@ -702,7 +702,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 31.072 seconds)
+   **Total running time of the script:** (0 minutes 31.356 seconds)
 
 
 .. _sphx_glr_download_auto_quickstart_plot_quickstart_python.py:

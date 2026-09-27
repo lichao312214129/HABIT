@@ -671,10 +671,12 @@ SLIC). Its feature vector is the mean of its voxels. Clustering tens of
 supervoxels per subject is faster and less noisy than clustering every
 voxel.</p>
 <p><strong>Habitat.</strong> A group of voxels (or supervoxels) whose features are alike.
-The <code class="docutils literal notranslate"><span class="pre">fit</span></code> stage learns the habitat definition (for k-means: the number
-of habitats and one centroid per habitat); <code class="docutils literal notranslate"><span class="pre">assign</span></code> gives every voxel
-the id of its nearest centroid. The result is a habitat map: every ROI
-voxel painted with a habitat id 1, 2, 3, …</p>
+The <code class="docutils literal notranslate"><span class="pre">fit</span></code> stage learns the habitat definition. <code class="docutils literal notranslate"><span class="pre">assign</span></code> labels each
+supervoxel with that definition’s own rule: k-means calls
+<code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code>, a Gaussian mixture calls <code class="docutils literal notranslate"><span class="pre">GaussianMixture.predict</span></code>,
+and agglomerative consensus uses distance to class centres. The habitat
+id is painted onto every voxel of the supervoxel. The result is a habitat
+map with ids 1, 2, 3, …</p>
 <p><strong>Habitat features.</strong> Numbers computed from a habitat map, one row per
 patient: volume fractions, MSI (how habitats touch each other), ITH
 score (how fragmented the tumour is), graph metrics, radiomics per

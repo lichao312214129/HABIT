@@ -651,7 +651,13 @@
 <h2>特征、超体素、生境<a class="headerlink" href="#features-supervoxels-habitats" title="Link to this heading">#</a></h2>
 <p><strong>体素特征。</strong> 描述单个体素的数值：各序列强度（ <code class="docutils literal notranslate"><span class="pre">raw</span></code> ），或其周围局部纹理（ <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> ）。 <code class="docutils literal notranslate"><span class="pre">extract</span></code> 阶段每个 ROI 体素一行、每个特征一列。</p>
 <p><strong>超体素。</strong> 受试者内由 <code class="docutils literal notranslate"><span class="pre">partition</span></code> 阶段（k-means 或 SLIC）划分出的、特征相近的邻近体素小块；其特征向量为所含体素的均值。对每个受试者聚类数十个超体素比聚类每个体素更快、噪声更低。</p>
-<p><strong>生境。</strong> 特征相似的体素（或超体素）组。 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 阶段学习生境定义（k-means：生境数与每生境一质心）； <code class="docutils literal notranslate"><span class="pre">assign</span></code> 给每体素最近质心 id。结果为生境图：每 ROI 体素涂生境 id 1、2、3、…</p>
+<p><strong>Habitat.</strong> A group of voxels (or supervoxels) whose features are alike.
+The <code class="docutils literal notranslate"><span class="pre">fit</span></code> stage learns the habitat definition. <code class="docutils literal notranslate"><span class="pre">assign</span></code> labels each
+supervoxel with that definition's own rule: k-means calls
+<code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code>, a Gaussian mixture calls <code class="docutils literal notranslate"><span class="pre">GaussianMixture.predict</span></code>,
+and agglomerative consensus uses distance to class centres. The habitat
+id is painted onto every voxel of the supervoxel. The result is a habitat
+map with ids 1, 2, 3, ...</p>
 <p><strong>生境特征。</strong> 从生境图计算的数值，每名患者一行：体积分数、MSI（生境如何接触）、ITH 分数（肿瘤碎片化程度）、图指标、逐生境放射组学。定义： <a class="reference internal" href="../reference/features/index.html"><span class="doc">特征公式</span></a> 。</p>
 </section>
 <section id="subject-level-and-cohort-level">
@@ -674,7 +680,13 @@
 <p>阶段列表决定设计（ <a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a> ）：</p>
 <ul class="simple">
 <li><p><strong>两步法</strong> —— <code class="docutils literal notranslate"><span class="pre">partition</span></code> 再 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 再 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 。每患者超体素，队列一个模型。生境 id 在各患者中含义相同。此为默认。</p></li>
-<li><p><strong>一步法</strong> ——无 <code class="docutils literal notranslate"><span class="pre">pool</span></code> ：各患者单独聚类。生境 id 不可跨患者比较；使用无标签摘要（ITH 分数、生境数）或先匹配标签（ <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">同一受试者、两次拟合：原型匹配</span></a> ）。</p></li>
+<li><p><strong>One-step</strong> -- no <code class="docutils literal notranslate"><span class="pre">pool</span></code>: each patient is clustered on its own.
+Omit <code class="docutils literal notranslate"><span class="pre">partition</span></code> to cluster voxels. Add <code class="docutils literal notranslate"><span class="pre">partition</span></code> (and, when
+you need more than the mean, a supervoxel-feature stage such as
+<code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code>) to cluster that patient's supervoxels.
+Habitat ids are not comparable across patients; use label-free
+summaries (ITH score, number of habitats) or match labels first
+(<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">同一受试者、两次拟合：原型匹配</span></a>).</p></li>
 <li><p><strong>直接池化</strong> —— 先 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 再 <code class="docutils literal notranslate"><span class="pre">fit</span></code> ，无 <code class="docutils literal notranslate"><span class="pre">partition</span></code> ：所有患者的所有体素一起聚类。编号共享，但矩阵随每个体素增长。</p></li>
 </ul>
 </section>

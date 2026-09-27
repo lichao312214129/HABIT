@@ -45,10 +45,11 @@ That curve stops at ``max_habitats - 1``: the top of the range is never
 selected. This is not Bioconductor ConsensusClusterPlus (no PAC, no
 feature resampling).
 
-The consensus cut labels only the fitted supervoxels. HABIT stores the
-mean feature vector of each consensus group as a centroid, then paints
-the map with nearest-centroid assignment so a later subject can be
-labelled without rebuilding the ``n x n`` matrix.
+The consensus matrix chooses K. HABIT then fits k-means on every training
+supervoxel at that K and paints the map with ``KMeans.predict``, so a
+later subject is labelled in the same feature space without rebuilding
+the ``n x n`` matrix. The consensus-matrix labels stay in the fit report;
+they are not the habitat ids.
 
 **When to use.** When you need a stability argument for K on a few dozen
 to a few hundred supervoxels. Do not point it at a voxel-level matrix:
@@ -59,7 +60,7 @@ each candidate K keeps an ``n x n`` consensus matrix.
    ``habit/third_party/inmoose/`` is GPL-3.0-or-later. HABIT's Apache-2.0
    license does not replace that license.
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-50
+.. GENERATED FROM PYTHON SOURCE LINES 46-51
 
 Fit habitats with consensus clustering
 --------------------------------------
@@ -67,7 +68,7 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed layout.
 The ``fit`` stage is the only one that differs from a k-means two-step run.
 sphinx_gallery_thumbnail_number = 3
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-117
+.. GENERATED FROM PYTHON SOURCE LINES 51-118
 
 .. code-block:: Python
 
@@ -168,9 +169,9 @@ sphinx_gallery_thumbnail_number = 3
 
     Swap DATA / modalities / roi to match your tree. Mask key is often the
     same as one image series (here LAP).
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.32s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.01s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.02s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  4.15it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.01it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  4.01it/s]
-    HabitatModel consensus-5801b87805a70a0d
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.49s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.93s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.93s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  3.99it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.98it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00<00:00,  3.98it/s]
+    HabitatModel consensus-6bc294d3e717e8e3
       habitats           : 2
       features (4)    : pre_contrast, LAP, PVP, delay_3min
       defining cohort    : n=2
@@ -187,14 +188,14 @@ sphinx_gallery_thumbnail_number = 3
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-122
+.. GENERATED FROM PYTHON SOURCE LINES 119-123
 
 Delta(k): where the consensus distribution changes most
 -------------------------------------------------------
 The marked point is ``bestK`` from the vendored rule. Read a flat tail as
 "more clusters do not make the consensus much sharper", not as a p-value.
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-126
+.. GENERATED FROM PYTHON SOURCE LINES 123-127
 
 .. code-block:: Python
 
@@ -214,7 +215,7 @@ The marked point is ``bestK`` from the vendored rule. Read a flat tail as
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 127-132
+.. GENERATED FROM PYTHON SOURCE LINES 128-133
 
 CDF of the consensus index
 --------------------------
@@ -222,7 +223,7 @@ A useful K pushes the CDF toward a step: pairs are either almost always
 together (index near 1) or almost never (index near 0). The thick line is
 the selected K. Diagonal entries are 1, as in the vendored area calculation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-136
+.. GENERATED FROM PYTHON SOURCE LINES 133-137
 
 .. code-block:: Python
 
@@ -242,7 +243,7 @@ the selected K. Diagonal entries are 1, as in the vendored area calculation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 137-142
+.. GENERATED FROM PYTHON SOURCE LINES 138-143
 
 Consensus matrix at the selected K
 ----------------------------------
@@ -250,7 +251,7 @@ Each cell is the fraction of resamples in which the two supervoxels were
 both drawn and placed in the same cluster. Rows are ordered by average
 linkage on ``1 - consensus`` so stable groups form blocks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-146
+.. GENERATED FROM PYTHON SOURCE LINES 143-147
 
 .. code-block:: Python
 
@@ -270,12 +271,12 @@ linkage on ``1 - consensus`` so stable groups form blocks.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 147-149
+.. GENERATED FROM PYTHON SOURCE LINES 148-150
 
 Consensus matrix at every candidate K
 -------------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-153
+.. GENERATED FROM PYTHON SOURCE LINES 150-154
 
 .. code-block:: Python
 
@@ -295,7 +296,7 @@ Consensus matrix at every candidate K
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 154-159
+.. GENERATED FROM PYTHON SOURCE LINES 155-160
 
 Cluster consensus
 -----------------
@@ -303,7 +304,7 @@ For each cluster, the mean consensus index among its member pairs. A bar
 near 1 is a stable habitat; a gap is a singleton, which this
 implementation records as NaN.
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-165
+.. GENERATED FROM PYTHON SOURCE LINES 160-166
 
 .. code-block:: Python
 
@@ -325,14 +326,14 @@ implementation records as NaN.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 166-170
+.. GENERATED FROM PYTHON SOURCE LINES 167-171
 
 Item consensus
 --------------
 How tightly each supervoxel agrees with each cluster at the selected K.
 Rows are sorted by the consensus label.
 
-.. GENERATED FROM PYTHON SOURCE LINES 170-174
+.. GENERATED FROM PYTHON SOURCE LINES 171-175
 
 .. code-block:: Python
 
@@ -352,32 +353,27 @@ Rows are sorted by the consensus label.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 175-180
+.. GENERATED FROM PYTHON SOURCE LINES 176-181
 
-Supervoxels in the consensus partition
---------------------------------------
-Points are pooled supervoxels. Colours are the consensus labels (shown
-from 1, matching habitat ids when every cluster is occupied). Crosses are
-the centroids written into the habitat model.
+Supervoxels in the fitted partition
+-----------------------------------
+Points are pooled supervoxels. Colours are the k-means labels at the
+consensus-chosen K (shown from 1, matching habitat ids). Crosses are the
+centres written into the habitat model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 180-198
+.. GENERATED FROM PYTHON SOURCE LINES 181-194
 
 .. code-block:: Python
 
     frames = [one.feature_frame().to_numpy(dtype=float) for one in result.units]
     matrix = np.vstack(frames)
-    labels = np.asarray(report["training_labels"], dtype=int)
-    label_ids = [int(v) for v in report["consensus_label_ids"]]
-    if label_ids == list(range(len(label_ids))):
-        labels = labels + 1
-        centers = np.asarray(result.habitat_model.centroids, dtype=float)
-    else:
-        centers = None
+    labels = np.asarray(report["habitat_training_labels"], dtype=int) + 1
+    centers = np.asarray(result.habitat_model.centroids, dtype=float)
     fig = plot_habitat_clustering_pca_2d(
         matrix,
         labels,
         centers=centers,
-        title="Pooled supervoxels, consensus labels",
+        title="Pooled supervoxels, k-means labels at consensus K",
     )
     fig.savefig("out/consensus_pca.png", dpi=150, bbox_inches="tight")
     plt.show()
@@ -386,7 +382,7 @@ the centroids written into the habitat model.
 
 
 .. image-sg:: /auto_examples/03_clustering/images/sphx_glr_plot_04_consensus_clustering_007.png
-   :alt: Pooled supervoxels, consensus labels
+   :alt: Pooled supervoxels, k-means labels at consensus K
    :srcset: /auto_examples/03_clustering/images/sphx_glr_plot_04_consensus_clustering_007.png
    :class: sphx-glr-single-img
 
@@ -394,14 +390,14 @@ the centroids written into the habitat model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-203
+.. GENERATED FROM PYTHON SOURCE LINES 195-199
 
 Habitat map on the image
 ------------------------
-Nearest centroid of the consensus groups, on the first training patient.
+``KMeans.predict`` of the fitted centres, on the first training patient.
 This is the map a new subject would receive from the saved model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 203-213
+.. GENERATED FROM PYTHON SOURCE LINES 199-209
 
 .. code-block:: Python
 
@@ -434,7 +430,7 @@ This is the map a new subject would receive from the saved model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 214-226
+.. GENERATED FROM PYTHON SOURCE LINES 210-223
 
 How to read the result
 ----------------------
@@ -443,13 +439,14 @@ How to read the result
   well above 0.5.
 * A pick on the last delta point (``max_habitats - 1``) means the range
   was too narrow for this rule. Widen ``max_habitats`` and rerun.
-* The overlay can disagree slightly with the consensus labels: assignment
-  is Euclidean nearest centroid, and a consensus group need not be a
-  sphere in feature space. Say which of the two you interpret.
+* The overlay is the k-means partition at the chosen K. It can disagree
+  with the consensus-matrix labels in the item-consensus figure: those
+  labels cluster co-membership, and the habitat ids come from the
+  subsequent ``KMeans.fit``. Say which of the two you interpret.
 * For a study, keep ``n_resamples`` at the default 50 or higher, and
   record ``describe_methods()`` together with the GPL notice above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-236
+.. GENERATED FROM PYTHON SOURCE LINES 225-233
 
 Where to go next
 ----------------
@@ -463,7 +460,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 11.757 seconds)
+   **Total running time of the script:** (0 minutes 11.783 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_clustering_plot_04_consensus_clustering.py:

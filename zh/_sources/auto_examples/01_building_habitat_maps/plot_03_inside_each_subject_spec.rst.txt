@@ -220,7 +220,7 @@ pooled training rows, and in this design nothing is pooled.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  20%|██        | 1/5 [00:04<00:16,  4.11s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  40%|████      | 2/5 [00:06<00:09,  3.32s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  60%|██████    | 3/5 [00:09<00:06,  3.01s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  80%|████████  | 4/5 [00:11<00:02,  2.91s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:17<00:00,  3.51s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:17<00:00,  3.51s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/5 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  20%|██        | 1/5 [00:09<00:38,  9.57s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  40%|████      | 2/5 [00:12<00:18,  6.28s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  60%|██████    | 3/5 [00:15<00:10,  5.07s/it]    Cohort.map[_DefineAndLabelWithinSubject]:  80%|████████  | 4/5 [00:18<00:04,  4.51s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:24<00:00,  4.93s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 5/5 [00:24<00:00,  4.93s/it]
     cohort-level model: None
     per-subject models: ['subj001', 'subj002', 'subj003', 'subj004', 'subj005']
 
@@ -521,10 +521,12 @@ How to read the result
 * Five demo patients and no outcomes: these numbers show the workflow,
   not an association with anything clinical.
 
-.. GENERATED FROM PYTHON SOURCE LINES 327-339
+.. GENERATED FROM PYTHON SOURCE LINES 327-341
 
 Where to go next
 ----------------
+* The same design on supervoxels, including texture features:
+  :doc:`/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject`.
 * Habitat ids shared by every patient (two-step):
   :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`.
 * Shared ids without supervoxels:
@@ -539,7 +541,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 58.889 seconds)
+   **Total running time of the script:** (1 minutes 9.712 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_03_inside_each_subject_spec.py:

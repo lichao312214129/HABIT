@@ -882,7 +882,8 @@ computed yet: the objects only hold their settings.</p>
 <a href="../../api/generated/habit.supervoxel.KMeansSupervoxelizer.html#habit.supervoxel.KMeansSupervoxelizer" title="habit.supervoxel.KMeansSupervoxelizer" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">supervoxelizer</span></a> <span class="o">=</span> <a href="../../api/generated/habit.supervoxel.KMeansSupervoxelizer.html#habit.supervoxel.KMeansSupervoxelizer" title="habit.supervoxel.KMeansSupervoxelizer" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-class"><span class="n">KMeansSupervoxelizer</span></a><span class="p">(</span><span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 <a href="../../api/generated/habit.supervoxel.KMeansSupervoxelizer.html#habit.supervoxel.KMeansSupervoxelizer.set_random_state" title="habit.supervoxel.KMeansSupervoxelizer.set_random_state" class="sphx-glr-backref-module-habit-supervoxel sphx-glr-backref-type-py-method"><span class="n">supervoxelizer</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SEED</span></a><span class="p">)</span>
 
-<span class="c1"># fit: one cohort k-means that tries 2..10 habitats and keeps the elbow.</span>
+<span class="c1"># fit: one cohort k-means that tries 2..10 habitats and uses the elbow</span>
+<span class="c1"># criterion to select the optimal k.</span>
 <span class="c1"># n_init=10 restarts every candidate count from 10 random starts. It is</span>
 <span class="c1"># seeded for the same reason as the supervoxelizer.</span>
 <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span><span class="n">min_habitats</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_habitats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -1101,14 +1102,14 @@ check prints True or False.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04&lt;00:04,  4.71s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.33s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.33s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.17s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.81s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.81s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.21s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.08s/it]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.08s/it]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.10s/it]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.02it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.02it/s]
 atomic model: kmeans-3432f3b65bfec11a | Study model: kmeans-3432f3b65bfec11a
 same model id: True
 same number of habitats: True
@@ -1151,8 +1152,8 @@ centroids. Nothing is refitted; no cohort bin edges are applied.</p>
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_02_atomic_two_step_002.png" srcset="../../_images/sphx_glr_plot_02_atomic_two_step_002.png" alt="subj003: habitats from the atomic path, Axis 0 (axial-like) @ 46, Axis 1 (coronal-like) @ 121, Axis 2 (sagittal-like) @ 200" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.48s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.49s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.07s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.07s/it]
 subj003: atomic == Study.predict: True
 F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
@@ -1180,8 +1181,8 @@ the stored bin edges and centroids are applied.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.57s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.57s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.18s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02&lt;00:00,  2.18s/it]
 subj003: atomic == Study.from_model(atomic model): True
 subj003 habitat 1: 0.105 of ROI voxels
 subj003 habitat 2: 0.415 of ROI voxels
@@ -1223,7 +1224,7 @@ from components: <a class="reference internal" href="plot_04_atomic_inside_each_
 <a class="reference internal" href="../07_advanced/plot_06_assign.html"><span class="doc">Assigning habitat labels</span></a>).</p></li>
 <li><p>Every class used here: <a class="reference internal" href="../../api/index.html"><span class="doc">API Reference</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 28.245 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 26.374 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-building-habitat-maps-plot-02-atomic-two-step-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/d6a59b44326f13d06931d4902e5ab736/plot_02_atomic_two_step.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_02_atomic_two_step.ipynb</span></code></a></p>

@@ -1192,15 +1192,9 @@ habitat maps. Pass <code class="docutils literal notranslate"><span class="pre">
 
 <section id="examples-using-habit-viz-plot-partition-triptych">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.viz.plot_partition_triptych</span></code><a class="headerlink" href="#examples-using-habit-viz-plot-partition-triptych" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Including new-patient prediction."><img alt="" src="../../_images/sphx_glr_plot_01_two_step_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/00_introductory_tutorials/plot_01_two_step.html"><span class="doc">两步法生境</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Two-step habitats</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Including new-patient prediction."><img alt="" src="../../_images/sphx_glr_plot_01_two_step_spec_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">用 Spec 的两步法生境</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Two-step habitats with a Spec</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat model always returns a map, even when the definition behind it is poor. Two failure patterns are common and easy to miss if you only read the feature table: a one-block map, where most of a tumour falls into a single habitat (often because the scan is globally brighter or darker than the training scans), and a fragmented map, where habitats break into many tiny specks that no reader would call a region. Both still produce volume fractions, MSI and ITH numbers, so they must be caught by looking and by simple checks."><img alt="" src="../../_images/sphx_glr_plot_07_quality_control_thumb.png" />
-<p><a class="reference internal" href="../../auto_examples/01_building_habitat_maps/plot_07_quality_control.html"><span class="doc">栖息地地图的质量控制</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Quality control of habitat maps</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_01_two_step_spec declares a whole habitat study in one HabitatSpec and runs it with one Study(spec).fit_predict(...) call (serial RunPolicy, continue on subject failure). Behind that call sit a handful of ordinary Python objects: a voxel feature extractor, two preprocessing chains, a supervoxelizer, a habitat model fitter, an assigner and four habitat feature extractors. Each of them is public and can be called on one subject, in memory, without a spec, a YAML file or an output folder."><img alt="" src="../../_images/sphx_glr_plot_02_atomic_two_step_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/01_building_habitat_maps/plot_02_atomic_two_step.html"><span class="doc">由原子组件构建两步法生境</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Two-step habitats from atomic components</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat analysis splits a tumour into sub-regions that behave alike across the input images (here, DCE phases), then describes each tumour by how much of each sub-region it has and how they are arranged."><img alt="" src="../../_images/sphx_glr_plot_quickstart_python_thumb.png" />
 <p><a class="reference internal" href="../../auto_quickstart/plot_quickstart_python.html"><span class="doc">快速开始：Python API</span></a></p>
   <div class="sphx-glr-thumbnail-title">Quickstart: Python API</div>

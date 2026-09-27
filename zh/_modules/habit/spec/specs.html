@@ -512,7 +512,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -526,7 +526,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -582,21 +582,21 @@ window.runMermaid = runMermaid;</script>
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -761,7 +761,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -775,7 +775,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -824,21 +824,21 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -2030,23 +2030,10 @@ window.runMermaid = runMermaid;</script>
         <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages_explicit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">has_pool</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">has_partition</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_pool</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;HabitatSpec declares a partition (supervoxelizer) stage but &quot;</span>
-                <span class="s2">&quot;no pool stage: per-subject definition on supervoxels is not &quot;</span>
-                <span class="s2">&quot;a supported design. Add a pool stage &quot;</span>
-                <span class="s2">&quot;(Stage(&#39;pool&#39;, Spec(&#39;pool&#39;))) after the subject-level &quot;</span>
-                <span class="s2">&quot;prefix, or remove the partition stage for one_step.&quot;</span>
-            <span class="p">)</span>
+        <span class="c1"># Partition without pool is one-step on supervoxels: each subject</span>
+        <span class="c1"># is clustered on its own supervoxel rows. Cohort-level</span>
+        <span class="c1"># preprocessing still has nothing to fit against.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="s2">&quot;HabitatSpec.pooling=&#39;none&#39; (subject-level habitat &quot;</span>
-                    <span class="s2">&quot;definition) does not support a supervoxelizer: &quot;</span>
-                    <span class="s2">&quot;per-subject definition on supervoxels is not a supported &quot;</span>
-                    <span class="s2">&quot;design. Remove the supervoxelizer (one-step) or declare &quot;</span>
-                    <span class="s2">&quot;pooling=&#39;cohort&#39; / add a pool stage (two-step).&quot;</span>
-                <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_feature_preprocessors</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                     <span class="s2">&quot;HabitatSpec.pooling=&#39;none&#39; (subject-level habitat &quot;</span>

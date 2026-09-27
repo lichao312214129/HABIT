@@ -1389,7 +1389,10 @@ no string <code class="docutils literal notranslate"><span class="pre">&quot;aut
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">nearest_centroid</span></code> → <code class="docutils literal notranslate"><span class="pre">NearestCentroidAssigner</span></code> (constructor arg: <code class="docutils literal notranslate"><span class="pre">model</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nearest_centroid</span></code> → <code class="docutils literal notranslate"><span class="pre">NearestCentroidAssigner</span></code> (constructor arg: <code class="docutils literal notranslate"><span class="pre">model</span></code>).
+Hard labels follow the rule stored on the model (<code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code>,
+<code class="docutils literal notranslate"><span class="pre">GaussianMixture.predict</span></code>, or distance to class centres).
+<code class="docutils literal notranslate"><span class="pre">assigner.predict_proba(unit)</span></code> is available for a Gaussian mixture.</p></li>
 </ul>
 </section>
 <section id="habitat-feature-extractors">

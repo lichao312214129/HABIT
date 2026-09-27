@@ -2453,7 +2453,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <h4>habitat_model_fitter<a class="headerlink" href="#habitat-model-fitter" title="Link to this heading">#</a></h4>
 <dl>
 <dt><strong>consensus</strong></dt><dd><p>Learn population habitats by Monti consensus clustering of pooled items.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">n_resamples,</span> <span class="pre">resample_proportion,</span> <span class="pre">inner,</span> <span class="pre">n_init,</span> <span class="pre">max_iter,</span> <span class="pre">max_items</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">n_resamples,</span> <span class="pre">resample_proportion,</span> <span class="pre">inner,</span> <span class="pre">metric,</span> <span class="pre">n_init,</span> <span class="pre">max_iter,</span> <span class="pre">max_items</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;consensus&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;consensus&quot;)</span></code></p>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -2499,19 +2499,24 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inner</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'kmeans'</span></code></p></td>
 <td><p>str</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;agglomerative&quot;</span></code> (scikit-learn ward). This is the class passed into the vendored algorithm for both the resamples and the final cut of <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">consensus_matrix</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;agglomerative&quot;</span></code> (scikit-learn ward). Used both inside each resample and for the final fit on the full training matrix.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metric</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'euclidean'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Distance for the agglomerative final assignment. <code class="docutils literal notranslate"><span class="pre">&quot;euclidean&quot;</span></code> (mean), <code class="docutils literal notranslate"><span class="pre">&quot;manhattan&quot;</span></code> (per-feature median), or <code class="docutils literal notranslate"><span class="pre">&quot;cosine&quot;</span></code> (mean of L2-normalised rows). Inner <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> always assigns with <code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code> and requires <code class="docutils literal notranslate"><span class="pre">metric=&quot;euclidean&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
 <td><p>int</p></td>
 <td><p>K-means restarts when <code class="docutils literal notranslate"><span class="pre">inner</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code>. Ignored by agglomerative clustering.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
 <td><p>int</p></td>
 <td><p>K-means iteration cap when <code class="docutils literal notranslate"><span class="pre">inner</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_items</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_items</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">2000</span></code></p></td>
 <td><p>int</p></td>
 <td><p>Refuse to run when the pooled matrix has more rows than this. Consensus matrices are <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">n</span></code> per candidate <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
@@ -2636,7 +2641,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <section id="habitat-assigner">
 <h4>habitat_assigner<a class="headerlink" href="#habitat-assigner" title="Link to this heading">#</a></h4>
 <dl>
-<dt><strong>nearest_centroid</strong></dt><dd><p>Assign each supervoxel to the habitat of its nearest centroid.
+<dt><strong>nearest_centroid</strong></dt><dd><p>Assign habitat labels with the decision rule stored on the fitted model.
 Required: <code class="docutils literal notranslate"><span class="pre">model</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;nearest_centroid&quot;,</span> <span class="pre">{&quot;model&quot;:</span> <span class="pre">...})</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;nearest_centroid&quot;,</span> <span class="pre">model=...)</span></code></p>

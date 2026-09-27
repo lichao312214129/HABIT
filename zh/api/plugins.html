@@ -2352,7 +2352,10 @@
 <section id="habitat-model-fitter">
 <h4>生境模型拟合器<a class="headerlink" href="#habitat-model-fitter" title="Link to this heading">#</a></h4>
 <dl>
-<dt><strong>consensus</strong></dt><dd><p>对池化项做 Monti 共识聚类以学习群体生境。必填： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">n_resamples,</span> <span class="pre">resample_proportion,</span> <span class="pre">inner,</span> <span class="pre">n_init,</span> <span class="pre">max_iter,</span> <span class="pre">max_items</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;consensus&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;consensus&quot;)</span></code></p>
+<dt><strong>consensus</strong></dt><dd><p>Learn population habitats by Monti consensus clustering of pooled items.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">n_resamples,</span> <span class="pre">resample_proportion,</span> <span class="pre">inner,</span> <span class="pre">metric,</span> <span class="pre">n_init,</span> <span class="pre">max_iter,</span> <span class="pre">max_items</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;consensus&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;consensus&quot;)</span></code></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 18.0%" />
@@ -2396,19 +2399,24 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inner</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'kmeans'</span></code></p></td>
 <td><p>str</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> （默认）或 <code class="docutils literal notranslate"><span class="pre">&quot;agglomerative&quot;</span></code> （scikit-learn ward）。重采样与 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">consensus_matrix</span></code> 最终切割均传入该 vendored 算法。</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;agglomerative&quot;</span></code> (scikit-learn ward). Used both inside each resample and for the final fit on the full training matrix.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metric</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'euclidean'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Distance for the agglomerative final assignment. <code class="docutils literal notranslate"><span class="pre">&quot;euclidean&quot;</span></code> (mean), <code class="docutils literal notranslate"><span class="pre">&quot;manhattan&quot;</span></code> (per-feature median), or <code class="docutils literal notranslate"><span class="pre">&quot;cosine&quot;</span></code> (mean of L2-normalised rows). Inner <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> always assigns with <code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code> and requires <code class="docutils literal notranslate"><span class="pre">metric=&quot;euclidean&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
 <td><p>int</p></td>
 <td><p>当 <code class="docutils literal notranslate"><span class="pre">inner</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> 时的 k-means 重启次数。层次聚类忽略此项。</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">inner</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> 时的 K-means 迭代上限。</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_items</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_items</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">2000</span></code></p></td>
 <td><p>int</p></td>
 <td><p>当池化矩阵行数超过此值时拒绝运行。每个候选 <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">n</span></code> 的共识矩阵为 <code class="docutils literal notranslate"><span class="pre">k</span></code> 。</p></td>
@@ -2527,7 +2535,10 @@
 <section id="habitat-assigner">
 <h4>生境分配器<a class="headerlink" href="#habitat-assigner" title="Link to this heading">#</a></h4>
 <dl>
-<dt><strong>nearest_centroid</strong></dt><dd><p>将每个超体素分配到最近质心的生境。必需： <code class="docutils literal notranslate"><span class="pre">model</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;nearest_centroid&quot;,</span> <span class="pre">{&quot;model&quot;:</span> <span class="pre">...})</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;nearest_centroid&quot;,</span> <span class="pre">model=...)</span></code></p>
+<dt><strong>nearest_centroid</strong></dt><dd><p>Assign habitat labels with the decision rule stored on the fitted model.
+Required: <code class="docutils literal notranslate"><span class="pre">model</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;nearest_centroid&quot;,</span> <span class="pre">{&quot;model&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;nearest_centroid&quot;,</span> <span class="pre">model=...)</span></code></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 18.0%" />

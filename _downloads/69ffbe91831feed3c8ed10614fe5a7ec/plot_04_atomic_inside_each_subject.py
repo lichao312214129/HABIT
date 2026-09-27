@@ -108,9 +108,10 @@ def make_fitter() -> KMeansHabitatModelFitter:
     Build the seeded k-means habitat fitter used by both designs.
 
     Returns:
-        A fitter that tries 2..10 habitats and keeps the elbow. It is
-        seeded because k-means starts from random centres; without the
-        seed a rerun could give a different map.
+        A fitter that tries 2..10 habitats and uses the elbow criterion
+        to select the optimal k. It is seeded because k-means starts
+        from random centres; without the seed a rerun could give a
+        different map.
     """
     fitter = KMeansHabitatModelFitter(min_habitats=2, max_habitats=10, validation="elbow", n_init=10)
     fitter.set_random_state(SEED)

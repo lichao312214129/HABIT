@@ -713,9 +713,16 @@
 <ul class="simple">
 <li><p><strong>two_step（两步法）</strong> — <code class="docutils literal notranslate"><span class="pre">partition</span></code> + <code class="docutils literal notranslate"><span class="pre">pool</span></code></p></li>
 <li><p><strong>direct_pooling</strong> — 仅 <code class="docutils literal notranslate"><span class="pre">pool</span></code> （无 partition）</p></li>
-<li><p><strong>one_step</strong> — 无 partition 与 pool（逐受试者生境）</p></li>
+<li><p><strong>one_step</strong> — no <code class="docutils literal notranslate"><span class="pre">pool</span></code> (per-subject habitats). <code class="docutils literal notranslate"><span class="pre">partition</span></code> is
+optional: omit it to cluster voxels, or include it to cluster that
+subject's supervoxels. Habitat ids are not comparable across subjects.</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 与 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 存在于 <strong>两个</strong> 域（超体素分割器与生境模型拟合器）。放在 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 之前用于划分，或紧挨 <code class="docutils literal notranslate"><span class="pre">assign</span></code> 之前用于拟合生境。</p>
+<p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> and <code class="docutils literal notranslate"><span class="pre">gmm</span></code> exist in <strong>two</strong> domains (supervoxelizer and
+habitat-model fitter). The earlier one, before a supervoxel-feature
+stage or before <code class="docutils literal notranslate"><span class="pre">pool</span></code>, partitions. A later one immediately before
+<code class="docutils literal notranslate"><span class="pre">assign</span></code> fits habitats. With <code class="docutils literal notranslate"><span class="pre">partition</span></code> and no <code class="docutils literal notranslate"><span class="pre">pool</span></code>, both
+steps stay inside each subject
+(<span class="xref std std-doc">/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject</span>).</p>
 </section>
 <section id="python-and-yaml-are-the-same-document">
 <h2>Python 与 YAML 为同一文档<a class="headerlink" href="#python-and-yaml-are-the-same-document" title="Link to this heading">#</a></h2>
@@ -1750,7 +1757,12 @@
 </section>
 <section id="supervoxel-features">
 <h2>4. 超体素特征<a class="headerlink" href="#supervoxel-features" title="Link to this heading">#</a></h2>
-<p><strong>两步法可选。</strong> 本阶段在 <code class="docutils literal notranslate"><span class="pre">partition</span></code> 后描述 <strong>每个超体素</strong> 。它 <strong>不</strong> 替代体素提取：混合 T1/T2 科学通常在第 1 节构建，再在此聚合。</p>
+<p><strong>Optional, after ``partition``.</strong> Two-step and one-step both use this
+stage. It describes <strong>each supervoxel</strong>. It does <strong>not</strong> replace voxel
+extraction: mixed T1/T2 science is usually built in section 1, then
+aggregated here. One-step with a partition and no <code class="docutils literal notranslate"><span class="pre">pool</span></code> clusters
+these rows inside each subject; see
+<span class="xref std std-doc">/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject</span>.</p>
 <p>默认对已构建体素场取平均（ <code class="docutils literal notranslate"><span class="pre">mean_voxel_features</span></code> ）。除非需要不同描述否则省略本阶段；许多两步法 recipe 依赖 partition 附带均值:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;mean_voxel_features&quot;</span><span class="p">))</span>
 </pre></div>
@@ -2064,7 +2076,21 @@
 <section id="fit-habitats">
 <h2>6. 适合的栖息地<a class="headerlink" href="#fit-habitats" title="Link to this heading">#</a></h2>
 <p><strong>Required.</strong> 内置名： <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 、 <code class="docutils literal notranslate"><span class="pre">consensus</span></code> 。学习质心（有 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 为队列级；否则逐受试者）。</p>
-<p><code class="docutils literal notranslate"><span class="pre">consensus</span></code> 运行销售的 InMoose / Sajovic 共识聚类 (<strong>GPL-3.0 或更高版本</strong> ，而非 Apache-2.0；参见 <code class="docutils literal notranslate"><span class="pre">NOTICE</span></code> 和 <code class="docutils literal notranslate"><span class="pre">habit/third_party/inmoose/LICENSE</span></code>) 对合并的条目进行处理，然后将每个共识组的特征向量均值存储为质心。它适用于超级体素或受试者，而非体素级矩阵。已验证的图形： <a class="reference internal" href="../auto_examples/03_clustering/plot_04_consensus_clustering.html"><span class="doc">生境共识聚类</span></a> 。参数： <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">n_resamples</span></code> （默认 50）、 <code class="docutils literal notranslate"><span class="pre">resample_proportion</span></code> （默认 0.5）、 <code class="docutils literal notranslate"><span class="pre">inner</span></code> （ <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 或 <code class="docutils literal notranslate"><span class="pre">agglomerative</span></code> ）、 <code class="docutils literal notranslate"><span class="pre">n_init</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_items</span></code> 。 <code class="docutils literal notranslate"><span class="pre">bestK</span></code> 遵循销售的 CDF 面积规则，从不自行成为 <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> 。</p>
+<p><code class="docutils literal notranslate"><span class="pre">consensus</span></code> runs the vendored InMoose / Sajovic consensus clustering
+(<strong>GPL-3.0-or-later</strong>, not Apache-2.0; see <code class="docutils literal notranslate"><span class="pre">NOTICE</span></code> and
+<code class="docutils literal notranslate"><span class="pre">habit/third_party/inmoose/LICENSE</span></code>) on the pooled items <strong>to choose K</strong>.
+It then fits the inner algorithm on every training row at that K. Inner
+<code class="docutils literal notranslate"><span class="pre">kmeans</span></code> (the default) assigns with <code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code>. Inner
+<code class="docutils literal notranslate"><span class="pre">agglomerative</span></code> has no out-of-sample <code class="docutils literal notranslate"><span class="pre">predict</span></code>; each class is stored
+as a centre and rows are labelled by <code class="docutils literal notranslate"><span class="pre">metric</span></code> (<code class="docutils literal notranslate"><span class="pre">euclidean</span></code> mean,
+<code class="docutils literal notranslate"><span class="pre">manhattan</span></code> median, <code class="docutils literal notranslate"><span class="pre">cosine</span></code> mean of L2-normalised rows). It is for
+supervoxels or subjects, not a voxel-level matrix. Worked figures:
+<a class="reference internal" href="../auto_examples/03_clustering/plot_04_consensus_clustering.html"><span class="doc">生境共识聚类</span></a>.
+Parameters: <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code>, <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code>, <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code>,
+<code class="docutils literal notranslate"><span class="pre">n_resamples</span></code> (default 50), <code class="docutils literal notranslate"><span class="pre">resample_proportion</span></code> (default 0.5),
+<code class="docutils literal notranslate"><span class="pre">inner</span></code> (<code class="docutils literal notranslate"><span class="pre">kmeans</span></code> or <code class="docutils literal notranslate"><span class="pre">agglomerative</span></code>), <code class="docutils literal notranslate"><span class="pre">metric</span></code>, <code class="docutils literal notranslate"><span class="pre">n_init</span></code>,
+<code class="docutils literal notranslate"><span class="pre">max_iter</span></code>, <code class="docutils literal notranslate"><span class="pre">max_items</span></code>. <code class="docutils literal notranslate"><span class="pre">bestK</span></code> follows the vendored CDF-area rule
+and is never <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> itself.</p>
 <p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 与 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 共享参数： <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 、 <code class="docutils literal notranslate"><span class="pre">n_init</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> 。 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 另有 <code class="docutils literal notranslate"><span class="pre">covariance_type</span></code> （ <code class="docutils literal notranslate"><span class="pre">full</span></code> / <code class="docutils literal notranslate"><span class="pre">tied</span></code> / <code class="docutils literal notranslate"><span class="pre">diag</span></code> / <code class="docutils literal notranslate"><span class="pre">spherical</span></code> ）。 <code class="docutils literal notranslate"><span class="pre">consensus</span></code> 无 <code class="docutils literal notranslate"><span class="pre">validation</span></code> ；用 vendored delta(k) 规则选 K。</p>
 <p>省略 <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> （或传 <code class="docutils literal notranslate"><span class="pre">None</span></code> ）以在 <code class="docutils literal notranslate"><span class="pre">min_habitats..max_habitats</span></code> 上由 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 选 K。无 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 字符串。</p>
 <p>允许的 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 值：</p>
@@ -2102,7 +2128,10 @@
 <section id="habitat-model-fitter">
 <h3>生境模型拟合器<a class="headerlink" href="#habitat-model-fitter" title="Link to this heading">#</a></h3>
 <dl>
-<dt><strong>consensus</strong></dt><dd><p>对池化项做 Monti 共识聚类以学习群体生境。必填： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">n_resamples,</span> <span class="pre">resample_proportion,</span> <span class="pre">inner,</span> <span class="pre">n_init,</span> <span class="pre">max_iter,</span> <span class="pre">max_items</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;consensus&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;consensus&quot;)</span></code></p>
+<dt><strong>consensus</strong></dt><dd><p>Learn population habitats by Monti consensus clustering of pooled items.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">n_resamples,</span> <span class="pre">resample_proportion,</span> <span class="pre">inner,</span> <span class="pre">metric,</span> <span class="pre">n_init,</span> <span class="pre">max_iter,</span> <span class="pre">max_items</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;consensus&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;consensus&quot;)</span></code></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 18.0%" />
@@ -2146,19 +2175,24 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inner</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">'kmeans'</span></code></p></td>
 <td><p>str</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> （默认）或 <code class="docutils literal notranslate"><span class="pre">&quot;agglomerative&quot;</span></code> （scikit-learn ward）。重采样与 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">consensus_matrix</span></code> 最终切割均传入该 vendored 算法。</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;agglomerative&quot;</span></code> (scikit-learn ward). Used both inside each resample and for the final fit on the full training matrix.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metric</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'euclidean'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Distance for the agglomerative final assignment. <code class="docutils literal notranslate"><span class="pre">&quot;euclidean&quot;</span></code> (mean), <code class="docutils literal notranslate"><span class="pre">&quot;manhattan&quot;</span></code> (per-feature median), or <code class="docutils literal notranslate"><span class="pre">&quot;cosine&quot;</span></code> (mean of L2-normalised rows). Inner <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> always assigns with <code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code> and requires <code class="docutils literal notranslate"><span class="pre">metric=&quot;euclidean&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
 <td><p>int</p></td>
 <td><p>当 <code class="docutils literal notranslate"><span class="pre">inner</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> 时的 k-means 重启次数。层次聚类忽略此项。</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
 <td><p>int</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">inner</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> 时的 K-means 迭代上限。</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_items</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_items</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">2000</span></code></p></td>
 <td><p>int</p></td>
 <td><p>当池化矩阵行数超过此值时拒绝运行。每个候选 <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">n</span></code> 的共识矩阵为 <code class="docutils literal notranslate"><span class="pre">k</span></code> 。</p></td>
@@ -2277,7 +2311,22 @@
 </section>
 <section id="assign">
 <h2>7. 分配<a class="headerlink" href="#assign" title="Link to this heading">#</a></h2>
-<p><strong>Required.</strong> 将每个单元映射到最近生境质心。内置名为 <code class="docutils literal notranslate"><span class="pre">nearest_centroid</span></code> 。 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 后 <code class="docutils literal notranslate"><span class="pre">model.assigner()</span></code> 为同一对象。</p>
+<p><strong>Required.</strong> The stage name stays <code class="docutils literal notranslate"><span class="pre">nearest_centroid</span></code>. After <code class="docutils literal notranslate"><span class="pre">fit</span></code>,
+<code class="docutils literal notranslate"><span class="pre">model.assigner()</span></code> reads the decision rule stored on the model:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> — <code class="docutils literal notranslate"><span class="pre">sklearn.cluster.KMeans.predict</span></code> on the stored centres.
+No probabilities.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code> — rebuild <code class="docutils literal notranslate"><span class="pre">sklearn.mixture.GaussianMixture</span></code> from the stored
+weights, means and covariances. Hard labels are <code class="docutils literal notranslate"><span class="pre">predict</span></code> (maximum
+posterior). <code class="docutils literal notranslate"><span class="pre">assigner.predict_proba(units)</span></code> is <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>,
+one row per supervoxel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nearest_centroid</span></code> — distance to class centres. Used for agglomerative
+consensus. <code class="docutils literal notranslate"><span class="pre">metric</span></code> is <code class="docutils literal notranslate"><span class="pre">euclidean</span></code>, <code class="docutils literal notranslate"><span class="pre">manhattan</span></code>, or <code class="docutils literal notranslate"><span class="pre">cosine</span></code>.
+No probabilities.</p></li>
+</ul>
+<p>A habitat id is that 0-based label plus one. Every voxel of a supervoxel
+receives the supervoxel's id. A GMM model saved before weights and
+covariances were stored cannot be assigned; refit it.</p>
 <p>Python:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">))</span>
 </pre></div>
@@ -2292,7 +2341,10 @@
 <section id="habitat-assigner">
 <h3>生境分配器<a class="headerlink" href="#habitat-assigner" title="Link to this heading">#</a></h3>
 <dl>
-<dt><strong>nearest_centroid</strong></dt><dd><p>将每个超体素分配到最近质心的生境。必需： <code class="docutils literal notranslate"><span class="pre">model</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;nearest_centroid&quot;,</span> <span class="pre">{&quot;model&quot;:</span> <span class="pre">...})</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;nearest_centroid&quot;,</span> <span class="pre">model=...)</span></code></p>
+<dt><strong>nearest_centroid</strong></dt><dd><p>Assign habitat labels with the decision rule stored on the fitted model.
+Required: <code class="docutils literal notranslate"><span class="pre">model</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;nearest_centroid&quot;,</span> <span class="pre">{&quot;model&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;nearest_centroid&quot;,</span> <span class="pre">model=...)</span></code></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 18.0%" />

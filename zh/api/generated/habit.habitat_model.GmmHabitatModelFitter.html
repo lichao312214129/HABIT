@@ -1168,9 +1168,10 @@ signature, and not how to use it. Please refer to the
 <p>Learn population 生境 by a Gaussian mixture over 池化 特征.</p>
 <p>Probabilistic counterpart of the k-means fitter: habitat membership is a
 posterior distribution, and model selection uses an information
-criterion. The model stores the mixture means as centroids; soft
-assignment can be added by a dedicated assigner without changing the
-model artefact.</p>
+criterion. The model stores the mixture means as <code class="docutils literal notranslate"><span class="pre">centroids</span></code> and the
+weights and covariances in <code class="docutils literal notranslate"><span class="pre">estimator_state</span></code>. Assignment calls
+<code class="docutils literal notranslate"><span class="pre">GaussianMixture.predict</span></code> and <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> on that mixture, not
+Euclidean distance to the means.</p>
 <p>The fitter is <code class="xref py py-class docutils literal notranslate"><span class="pre">Seedable</span></code>; the seed is
 applied to mixture initialisation at fit time.</p>
 <dl class="field-list simple">

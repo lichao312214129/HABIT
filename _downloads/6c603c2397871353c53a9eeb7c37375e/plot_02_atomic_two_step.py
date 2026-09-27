@@ -131,7 +131,8 @@ subject_chain = SubjectPreprocessingChain([Winsorizing(winsor_limits=(0.01, 0.01
 supervoxelizer = KMeansSupervoxelizer(n_supervoxels=30)
 supervoxelizer.set_random_state(SEED)
 
-# fit: one cohort k-means that tries 2..10 habitats and keeps the elbow.
+# fit: one cohort k-means that tries 2..10 habitats and uses the elbow
+# criterion to select the optimal k.
 # n_init=10 restarts every candidate count from 10 random starts. It is
 # seeded for the same reason as the supervoxelizer.
 fitter = KMeansHabitatModelFitter(min_habitats=2, max_habitats=10, validation="elbow", n_init=10)

@@ -1256,13 +1256,15 @@
 <td><p>池化后特征预处理为一等公民</p></td>
 </tr>
 <tr class="row-even"><td><p>一步法</p></td>
-<td><p>既不分区也不池化</p></td>
-<td><p>逐受试者拟合/分配；生境 id 不可跨受试者比较</p></td>
+<td><p>no <code class="docutils literal notranslate"><span class="pre">pool</span></code>; <code class="docutils literal notranslate"><span class="pre">partition</span></code> optional</p></td>
+<td><p>Per-subject fit on voxels, or on supervoxels when <code class="docutils literal notranslate"><span class="pre">partition</span></code> is present. Habitat ids are not comparable across subjects.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>无 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 的分区会被拒绝（ <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.validate_dataflow" title="habit.spec.HabitatSpec.validate_dataflow"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate_dataflow()</span></code></a> ）。</p>
+<p>Partition without <code class="docutils literal notranslate"><span class="pre">pool</span></code> is one-step on supervoxels. Cohort-level
+preprocessing still requires <code class="docutils literal notranslate"><span class="pre">pool</span></code>
+(<a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.validate_dataflow" title="habit.spec.HabitatSpec.validate_dataflow"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate_dataflow()</span></code></a>).</p>
 <p>主入口： <a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a> 。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>

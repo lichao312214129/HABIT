@@ -171,7 +171,7 @@ Each object below is the Python twin of one stage in the spec of
 :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`. Nothing is
 computed yet: the objects only hold their settings.
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-149
+.. GENERATED FROM PYTHON SOURCE LINES 114-150
 
 .. code-block:: Python
 
@@ -195,7 +195,8 @@ computed yet: the objects only hold their settings.
     supervoxelizer = KMeansSupervoxelizer(n_supervoxels=30)
     supervoxelizer.set_random_state(SEED)
 
-    # fit: one cohort k-means that tries 2..10 habitats and keeps the elbow.
+    # fit: one cohort k-means that tries 2..10 habitats and uses the elbow
+    # criterion to select the optimal k.
     # n_init=10 restarts every candidate count from 10 random starts. It is
     # seeded for the same reason as the supervoxelizer.
     fitter = KMeansHabitatModelFitter(min_habitats=2, max_habitats=10, validation="elbow", n_init=10)
@@ -223,7 +224,7 @@ computed yet: the objects only hold their settings.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-160
+.. GENERATED FROM PYTHON SOURCE LINES 151-161
 
 Step 1: per-subject features and supervoxels
 --------------------------------------------
@@ -236,7 +237,7 @@ the preprocessed one and records which step produced it (the
 ``produced_by`` label and the chain's spec fingerprint go into the
 provenance of everything computed afterwards).
 
-.. GENERATED FROM PYTHON SOURCE LINES 160-174
+.. GENERATED FROM PYTHON SOURCE LINES 161-175
 
 .. code-block:: Python
 
@@ -268,7 +269,7 @@ provenance of everything computed afterwards).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 175-180
+.. GENERATED FROM PYTHON SOURCE LINES 176-181
 
 Step 2: pool the subject-normalized supervoxels
 -----------------------------------------------
@@ -276,7 +277,7 @@ Step 2: pool the subject-normalized supervoxels
 supervoxel rows. After per-feature per-subject z-score there is no
 cohort-level binning or cohort z-score by default.
 
-.. GENERATED FROM PYTHON SOURCE LINES 180-184
+.. GENERATED FROM PYTHON SOURCE LINES 181-185
 
 .. code-block:: Python
 
@@ -297,7 +298,7 @@ cohort-level binning or cohort z-score by default.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 185-191
+.. GENERATED FROM PYTHON SOURCE LINES 186-192
 
 Step 3: fit the habitat model and assign labels
 -----------------------------------------------
@@ -306,7 +307,7 @@ the whole training cohort and returns a ``HabitatModel`` (the
 centroids). New patients recompute their own subject z-score, then
 meet these centroids — training mean/std are never applied to them.
 
-.. GENERATED FROM PYTHON SOURCE LINES 191-194
+.. GENERATED FROM PYTHON SOURCE LINES 192-195
 
 .. code-block:: Python
 
@@ -335,7 +336,7 @@ meet these centroids — training mean/std are never applied to them.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 195-211
+.. GENERATED FROM PYTHON SOURCE LINES 196-212
 
 How many habitats (elbow / Kneedle caveat)
 ------------------------------------------
@@ -354,7 +355,7 @@ inertia (HABIT pre-v1.0 elbow); it is not a Thorndike formula. Habitat
 maps below keep the Kneedle K. See
 :doc:`/auto_examples/03_clustering/plot_03_clustering_algorithm`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 211-248
+.. GENERATED FROM PYTHON SOURCE LINES 212-249
 
 .. code-block:: Python
 
@@ -420,7 +421,7 @@ maps below keep the Kneedle K. See
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-254
+.. GENERATED FROM PYTHON SOURCE LINES 250-255
 
 Step 4: the feature table
 -------------------------
@@ -428,7 +429,7 @@ Every habitat feature extractor is called as ``extractor(subject,
 habitat_map)`` and returns a one-row table. ``join`` glues the four
 families side by side; ``concat`` stacks the subjects.
 
-.. GENERATED FROM PYTHON SOURCE LINES 254-264
+.. GENERATED FROM PYTHON SOURCE LINES 255-265
 
 .. code-block:: Python
 
@@ -458,7 +459,7 @@ families side by side; ``concat`` stacks the subjects.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-271
+.. GENERATED FROM PYTHON SOURCE LINES 266-272
 
 Check against Study
 -------------------
@@ -467,7 +468,7 @@ labels must match voxel for voxel and the model id (a digest of the
 fitter settings and the training subjects) must be the same. Each
 check prints True or False.
 
-.. GENERATED FROM PYTHON SOURCE LINES 271-308
+.. GENERATED FROM PYTHON SOURCE LINES 272-309
 
 .. code-block:: Python
 
@@ -516,8 +517,8 @@ check prints True or False.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04<00:04,  4.71s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.33s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06<00:00,  3.33s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.21s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.08s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.08s/it]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02<00:02,  2.17s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.81s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03<00:00,  1.81s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.10s/it]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.02it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.02it/s]
     atomic model: kmeans-3432f3b65bfec11a | Study model: kmeans-3432f3b65bfec11a
     same model id: True
     same number of habitats: True
@@ -528,7 +529,7 @@ check prints True or False.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 309-314
+.. GENERATED FROM PYTHON SOURCE LINES 310-315
 
 Label a new patient with the atomic path
 ----------------------------------------
@@ -536,7 +537,7 @@ A new patient goes through the same per-subject steps (its OWN
 winsorize 1% + z-score, its own 30 supervoxels), then the TRAINING
 centroids. Nothing is refitted; no cohort bin edges are applied.
 
-.. GENERATED FROM PYTHON SOURCE LINES 314-340
+.. GENERATED FROM PYTHON SOURCE LINES 315-341
 
 .. code-block:: Python
 
@@ -579,7 +580,7 @@ centroids. Nothing is refitted; no cohort bin edges are applied.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.48s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.49s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.07s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.07s/it]
     subj003: atomic == Study.predict: True
     F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
       resolved_direction, resolved_spacing = resolve_display_geometry(
@@ -587,7 +588,7 @@ centroids. Nothing is refitted; no cohort bin edges are applied.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 341-349
+.. GENERATED FROM PYTHON SOURCE LINES 342-350
 
 Hand the atomic model to Study
 ------------------------------
@@ -598,7 +599,7 @@ subject-level scaling, how many supervoxels). ``spec=spec`` supplies
 them, so ``Study`` puts the new patient through the same stages before
 the stored bin edges and centroids are applied.
 
-.. GENERATED FROM PYTHON SOURCE LINES 349-360
+.. GENERATED FROM PYTHON SOURCE LINES 350-361
 
 .. code-block:: Python
 
@@ -621,7 +622,7 @@ the stored bin edges and centroids are applied.
 
  .. code-block:: none
 
-    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.57s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.57s/it]
+    Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00<?, ?it/s]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.18s/it]    Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:02<00:00,  2.18s/it]
     subj003: atomic == Study.from_model(atomic model): True
     subj003 habitat 1: 0.105 of ROI voxels
     subj003 habitat 2: 0.415 of ROI voxels
@@ -631,7 +632,7 @@ the stored bin edges and centroids are applied.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 361-379
+.. GENERATED FROM PYTHON SOURCE LINES 362-380
 
 How to read the result
 ----------------------
@@ -652,7 +653,7 @@ The checks show that the components reproduce ``Study`` exactly on
 this data and seed. They say nothing about whether K = 4 is a good
 habitat definition; two patients are a demo, not a cohort.
 
-.. GENERATED FROM PYTHON SOURCE LINES 381-393
+.. GENERATED FROM PYTHON SOURCE LINES 382-394
 
 Where to go next
 ----------------
@@ -670,7 +671,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 28.245 seconds)
+   **Total running time of the script:** (0 minutes 26.374 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_02_atomic_two_step.py:

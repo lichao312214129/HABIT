@@ -833,9 +833,10 @@ components are built once and reused for every subject.</p>
 <span class="sd">    Build the seeded k-means habitat fitter used by both designs.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A fitter that tries 2..10 habitats and keeps the elbow. It is</span>
-<span class="sd">        seeded because k-means starts from random centres; without the</span>
-<span class="sd">        seed a rerun could give a different map.</span>
+<span class="sd">        A fitter that tries 2..10 habitats and uses the elbow criterion</span>
+<span class="sd">        to select the optimal k. It is seeded because k-means starts</span>
+<span class="sd">        from random centres; without the seed a rerun could give a</span>
+<span class="sd">        different map.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span><span class="n">min_habitats</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_habitats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SEED</span></a><span class="p">)</span>
@@ -989,9 +990,9 @@ preprocess_cohort), run with <code class="docutils literal notranslate"><span cl
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.55s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04&lt;00:00,  2.41s/it]
-Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04&lt;00:00,  2.41s/it]
+Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.52s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04&lt;00:00,  2.38s/it]
+Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04&lt;00:00,  2.38s/it]
 per-subject subj002: labels identical = True, model_id equal = True
 per-subject subj003: labels identical = True, model_id equal = True
 per-subject feature table: same = True
@@ -1154,14 +1155,14 @@ feature families as the atomic loop.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.06s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01&lt;00:01,  1.05s/it]
 Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.04s/it]
 Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02&lt;00:00,  1.04s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.62it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.59it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.59it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  1.61it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.64it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01&lt;00:00,  1.64it/s]
 pooled model_id: atomic kmeans-cf751438e76faa67 | Study kmeans-cf751438e76faa67
 pooled model_id equal = True
 pooled subj002: labels identical = True
@@ -1232,7 +1233,7 @@ at a time. It is not a contradiction between the two paths.</p></li>
 <a class="reference internal" href="../07_advanced/plot_08_backends.html"><span class="doc">Atomic components on execution backends</span></a>.</p></li>
 <li><p>Each component with its options: <a class="reference internal" href="../07_advanced/index.html"><span class="doc">Advanced</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 54.185 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 53.786 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-building-habitat-maps-plot-06-atomic-pooled-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/82becffeed8733a869f295cddf09397c/plot_06_atomic_pooled.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_06_atomic_pooled.ipynb</span></code></a></p>

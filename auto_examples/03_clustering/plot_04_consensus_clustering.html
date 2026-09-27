@@ -757,10 +757,11 @@ stay readable; the class default is 50 resamples and K from 2 to 10.
 That curve stops at <code class="docutils literal notranslate"><span class="pre">max_habitats</span> <span class="pre">-</span> <span class="pre">1</span></code>: the top of the range is never
 selected. This is not Bioconductor ConsensusClusterPlus (no PAC, no
 feature resampling).</p>
-<p>The consensus cut labels only the fitted supervoxels. HABIT stores the
-mean feature vector of each consensus group as a centroid, then paints
-the map with nearest-centroid assignment so a later subject can be
-labelled without rebuilding the <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">n</span></code> matrix.</p>
+<p>The consensus matrix chooses K. HABIT then fits k-means on every training
+supervoxel at that K and paints the map with <code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code>, so a
+later subject is labelled in the same feature space without rebuilding
+the <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">n</span></code> matrix. The consensus-matrix labels stay in the fit report;
+they are not the habitat ids.</p>
 <p><strong>When to use.</strong> When you need a stability argument for K on a few dozen
 to a few hundred supervoxels. Do not point it at a voxel-level matrix:
 each candidate K keeps an <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">n</span></code> consensus matrix.</p>
@@ -866,15 +867,15 @@ Swap DATA / modalities / roi to match your tree. Mask key is often the
 same as one image series (here LAP).
 
 Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:04&lt;00:04,  4.32s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.01s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:06&lt;00:00,  3.02s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:02&lt;00:02,  2.49s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.93s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:03&lt;00:00,  1.93s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  4.15it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  4.01it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  4.01it/s]
-HabitatModel consensus-5801b87805a70a0d
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.99it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.98it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  3.98it/s]
+HabitatModel consensus-6bc294d3e717e8e3
   habitats           : 2
   features (4)    : pre_contrast, LAP, PVP, delay_3min
   defining cohort    : n=2
@@ -953,34 +954,29 @@ Rows are sorted by the consensus label.</p>
 </pre></div>
 </div>
 <img src="../../_images/sphx_glr_plot_04_consensus_clustering_006.png" srcset="../../_images/sphx_glr_plot_04_consensus_clustering_006.png" alt="Item consensus" class = "sphx-glr-single-img"/></section>
-<section id="supervoxels-in-the-consensus-partition">
-<h2>Supervoxels in the consensus partition<a class="headerlink" href="#supervoxels-in-the-consensus-partition" title="Link to this heading">#</a></h2>
-<p>Points are pooled supervoxels. Colours are the consensus labels (shown
-from 1, matching habitat ids when every cluster is occupied). Crosses are
-the centroids written into the habitat model.</p>
+<section id="supervoxels-in-the-fitted-partition">
+<h2>Supervoxels in the fitted partition<a class="headerlink" href="#supervoxels-in-the-fitted-partition" title="Link to this heading">#</a></h2>
+<p>Points are pooled supervoxels. Colours are the k-means labels at the
+consensus-chosen K (shown from 1, matching habitat ids). Crosses are the
+centres written into the habitat model.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frames</span></a> <span class="o">=</span> <span class="p">[</span><span class="n">one</span><span class="o">.</span><span class="n">feature_frame</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">one</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">units</span></a><span class="p">]</span>
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">matrix</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.vstack.html#numpy.vstack" title="numpy.vstack" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">vstack</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frames</span></a><span class="p">)</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">report</span></a><span class="p">[</span><span class="s2">&quot;training_labels&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label_ids</span></a> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">report</span></a><span class="p">[</span><span class="s2">&quot;consensus_label_ids&quot;</span><span class="p">]]</span>
-<span class="k">if</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label_ids</span></a> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label_ids</span></a><span class="p">))):</span>
-    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a> <span class="o">+</span> <span class="mi">1</span>
-    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centers</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">centroids</span></a><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centers</span></a> <span class="o">=</span> <span class="kc">None</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">report</span></a><span class="p">[</span><span class="s2">&quot;habitat_training_labels&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centers</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">centroids</span></a><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_clustering_pca_2d.html#habit.viz.plot_habitat_clustering_pca_2d" title="habit.viz.plot_habitat_clustering_pca_2d" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_clustering_pca_2d</span></a><span class="p">(</span>
     <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">matrix</span></a><span class="p">,</span>
     <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">labels</span></a><span class="p">,</span>
     <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centers</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centers</span></a><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Pooled supervoxels, consensus labels&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Pooled supervoxels, k-means labels at consensus K&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/consensus_pca.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_04_consensus_clustering_007.png" srcset="../../_images/sphx_glr_plot_04_consensus_clustering_007.png" alt="Pooled supervoxels, consensus labels" class = "sphx-glr-single-img"/></section>
+<img src="../../_images/sphx_glr_plot_04_consensus_clustering_007.png" srcset="../../_images/sphx_glr_plot_04_consensus_clustering_007.png" alt="Pooled supervoxels, k-means labels at consensus K" class = "sphx-glr-single-img"/></section>
 <section id="habitat-map-on-the-image">
 <h2>Habitat map on the image<a class="headerlink" href="#habitat-map-on-the-image" title="Link to this heading">#</a></h2>
-<p>Nearest centroid of the consensus groups, on the first training patient.
+<p><code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code> of the fitted centres, on the first training patient.
 This is the map a new subject would receive from the saved model.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
@@ -1006,9 +1002,10 @@ matrix shows a few dark blocks, and whose cluster-consensus bars sit
 well above 0.5.</p></li>
 <li><p>A pick on the last delta point (<code class="docutils literal notranslate"><span class="pre">max_habitats</span> <span class="pre">-</span> <span class="pre">1</span></code>) means the range
 was too narrow for this rule. Widen <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> and rerun.</p></li>
-<li><p>The overlay can disagree slightly with the consensus labels: assignment
-is Euclidean nearest centroid, and a consensus group need not be a
-sphere in feature space. Say which of the two you interpret.</p></li>
+<li><p>The overlay is the k-means partition at the chosen K. It can disagree
+with the consensus-matrix labels in the item-consensus figure: those
+labels cluster co-membership, and the habitat ids come from the
+subsequent <code class="docutils literal notranslate"><span class="pre">KMeans.fit</span></code>. Say which of the two you interpret.</p></li>
 <li><p>For a study, keep <code class="docutils literal notranslate"><span class="pre">n_resamples</span></code> at the default 50 or higher, and
 record <code class="docutils literal notranslate"><span class="pre">describe_methods()</span></code> together with the GPL notice above.</p></li>
 </ul>
@@ -1023,7 +1020,7 @@ record <code class="docutils literal notranslate"><span class="pre">describe_met
 <li><p>Saving the centroid model and applying it to another cohort:
 <a class="reference internal" href="../05_validation_and_reuse/plot_01_train_save_predict.html"><span class="doc">Train, save, and predict new patients</span></a>.</p></li>
 </ul>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 11.757 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 11.783 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-03-clustering-plot-04-consensus-clustering-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/045d16e0b0e2e8b14d294fc4bb5bf556/plot_04_consensus_clustering.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_04_consensus_clustering.ipynb</span></code></a></p>
@@ -1093,7 +1090,7 @@ record <code class="docutils literal notranslate"><span class="pre">describe_met
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#consensus-matrix-at-every-candidate-k">Consensus matrix at every candidate K</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cluster-consensus">Cluster consensus</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#item-consensus">Item consensus</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supervoxels-in-the-consensus-partition">Supervoxels in the consensus partition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supervoxels-in-the-fitted-partition">Supervoxels in the fitted partition</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habitat-map-on-the-image">Habitat map on the image</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-read-the-result">How to read the result</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-go-next">Where to go next</a></li>

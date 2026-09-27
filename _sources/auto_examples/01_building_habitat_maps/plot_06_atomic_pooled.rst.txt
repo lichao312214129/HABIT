@@ -76,7 +76,7 @@ Both designs start the same way per subject: raw voxel features, then
 subject-level normalization with that subject's own statistics. The
 components are built once and reused for every subject.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-179
+.. GENERATED FROM PYTHON SOURCE LINES 59-180
 
 .. code-block:: Python
 
@@ -131,9 +131,10 @@ components are built once and reused for every subject.
         Build the seeded k-means habitat fitter used by both designs.
 
         Returns:
-            A fitter that tries 2..10 habitats and keeps the elbow. It is
-            seeded because k-means starts from random centres; without the
-            seed a rerun could give a different map.
+            A fitter that tries 2..10 habitats and uses the elbow criterion
+            to select the optimal k. It is seeded because k-means starts
+            from random centres; without the seed a rerun could give a
+            different map.
         """
         fitter = KMeansHabitatModelFitter(min_habitats=2, max_habitats=10, validation="elbow", n_init=10)
         fitter.set_random_state(SEED)
@@ -235,7 +236,7 @@ components are built once and reused for every subject.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 181-187
+.. GENERATED FROM PYTHON SOURCE LINES 182-188
 
 Per-subject design: the atomic loop
 -----------------------------------
@@ -244,7 +245,7 @@ and no cohort-level chain, because there are no pooled rows to learn
 bin edges from. ``fit`` is called without ``cohort=``: the model is
 not defined by a cohort, only by this one subject's units.
 
-.. GENERATED FROM PYTHON SOURCE LINES 187-203
+.. GENERATED FROM PYTHON SOURCE LINES 188-204
 
 .. code-block:: Python
 
@@ -278,14 +279,14 @@ not defined by a cohort, only by this one subject's units.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 204-208
+.. GENERATED FROM PYTHON SOURCE LINES 205-209
 
 Per-subject design: check against Study
 ---------------------------------------
 The same design declared as a spec (no partition, no pool, no
 preprocess_cohort), run with ``Study`` on the same two patients.
 
-.. GENERATED FROM PYTHON SOURCE LINES 208-235
+.. GENERATED FROM PYTHON SOURCE LINES 209-236
 
 .. code-block:: Python
 
@@ -324,7 +325,7 @@ preprocess_cohort), run with ``Study`` on the same two patients.
 
  .. code-block:: none
 
-    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:02<00:02,  2.55s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.41s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.41s/it]
+    Cohort.map[_DefineAndLabelWithinSubject]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_DefineAndLabelWithinSubject]:  50%|█████     | 1/2 [00:02<00:02,  2.52s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.38s/it]    Cohort.map[_DefineAndLabelWithinSubject]: 100%|██████████| 2/2 [00:04<00:00,  2.38s/it]
     per-subject subj002: labels identical = True, model_id equal = True
     per-subject subj003: labels identical = True, model_id equal = True
     per-subject feature table: same = True
@@ -332,7 +333,7 @@ preprocess_cohort), run with ``Study`` on the same two patients.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 236-251
+.. GENERATED FROM PYTHON SOURCE LINES 237-252
 
 Elbow / Kneedle caveat (first training patient)
 -----------------------------------------------
@@ -350,7 +351,7 @@ elbow (visual elbow, computed) maximizes the second difference of
 inertia (HABIT pre-v1.0 elbow). Each patient's map keeps that patient's
 Kneedle K.
 
-.. GENERATED FROM PYTHON SOURCE LINES 251-305
+.. GENERATED FROM PYTHON SOURCE LINES 252-306
 
 .. code-block:: Python
 
@@ -431,7 +432,7 @@ Kneedle K.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 306-313
+.. GENERATED FROM PYTHON SOURCE LINES 307-314
 
 Pooled-voxel design: the atomic loop
 ------------------------------------
@@ -441,7 +442,7 @@ pooled TRAINING rows, and ONE fitter call defines the habitats for
 the cohort. ``cohort=train`` fingerprints the training patients into
 the model.
 
-.. GENERATED FROM PYTHON SOURCE LINES 313-327
+.. GENERATED FROM PYTHON SOURCE LINES 314-328
 
 .. code-block:: Python
 
@@ -482,14 +483,14 @@ the model.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 328-332
+.. GENERATED FROM PYTHON SOURCE LINES 329-333
 
 Pooled-voxel design: check against Study
 ----------------------------------------
 The spec of the pooled-voxel page (no partition), with the same three
 feature families as the atomic loop.
 
-.. GENERATED FROM PYTHON SOURCE LINES 332-367
+.. GENERATED FROM PYTHON SOURCE LINES 333-368
 
 .. code-block:: Python
 
@@ -536,8 +537,8 @@ feature families as the atomic loop.
 
  .. code-block:: none
 
-    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.06s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]
-    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.62it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.59it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.59it/s]
+    Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:01<00:01,  1.05s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]    Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:02<00:00,  1.04s/it]
+    Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00<?, ?it/s]    Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00<00:00,  1.61it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.64it/s]    Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:01<00:00,  1.64it/s]
     pooled model_id: atomic kmeans-cf751438e76faa67 | Study kmeans-cf751438e76faa67
     pooled model_id equal = True
     pooled subj002: labels identical = True
@@ -548,7 +549,7 @@ feature families as the atomic loop.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 368-373
+.. GENERATED FROM PYTHON SOURCE LINES 369-374
 
 The two designs on one patient
 ------------------------------
@@ -556,7 +557,7 @@ Same patient, same features, two definitions. Left: habitats private
 to this patient. Right: habitats shared with the other training
 patient. The colours are NOT comparable between the two maps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 373-385
+.. GENERATED FROM PYTHON SOURCE LINES 374-386
 
 .. code-block:: Python
 
@@ -605,7 +606,7 @@ patient. The colours are NOT comparable between the two maps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 386-403
+.. GENERATED FROM PYTHON SOURCE LINES 387-404
 
 How to read the result
 ----------------------
@@ -625,7 +626,7 @@ How to read the result
   the rows being clustered differ: two patients together versus one
   at a time. It is not a contradiction between the two paths.
 
-.. GENERATED FROM PYTHON SOURCE LINES 405-415
+.. GENERATED FROM PYTHON SOURCE LINES 406-416
 
 Where to go next
 ----------------
@@ -641,7 +642,7 @@ Where to go next
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 54.185 seconds)
+   **Total running time of the script:** (0 minutes 53.786 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_building_habitat_maps_plot_06_atomic_pooled.py:

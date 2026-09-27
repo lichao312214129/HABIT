@@ -754,7 +754,7 @@ F:\work\habit_project\habit\viz\intensity.py:616: UserWarning: Display geometry 
 </section>
 <section id="build-the-analysis-step-by-step">
 <h2>一步步建立分析<a class="headerlink" href="#build-the-analysis-step-by-step" title="Link to this heading">#</a></h2>
-<p>生境分析是阶段列表。此为两步法：各肿瘤自有尺度归一化，切 30 超体素（ <code class="docutils literal notranslate"><span class="pre">partition</span></code> ），全体超体素合并（ <code class="docutils literal notranslate"><span class="pre">pool</span></code> ）并聚类一次（ <code class="docutils literal notranslate"><span class="pre">fit</span></code> ），故生境 2 在各患者含义相同增强模式。去掉 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 则逐受试者聚类（一步法）；去掉 <code class="docutils literal notranslate"><span class="pre">partition</span></code> 则直接体素聚类（直接池化）。拟合器试 2–10 个生境并保留 elbow。</p>
+<p>生境分析是阶段列表。此为两步法：各肿瘤自有尺度归一化，切 30 超体素（ <code class="docutils literal notranslate"><span class="pre">partition</span></code> ），全体超体素合并（ <code class="docutils literal notranslate"><span class="pre">pool</span></code> ）并聚类一次（ <code class="docutils literal notranslate"><span class="pre">fit</span></code> ），故生境 2 在各患者含义相同增强模式。去掉 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 则逐受试者聚类（一步法）；去掉 <code class="docutils literal notranslate"><span class="pre">partition</span></code> 则直接体素聚类（直接池化）。拟合器在 2 到 10 个生境里尝试，并用 elbow 准则选择最优的 k。</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">spec</span></a> <span class="o">=</span> <a href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;quickstart_two_step&quot;</span><span class="p">,</span>
     <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
@@ -796,18 +796,18 @@ F:\work\habit_project\habit\viz\intensity.py:616: UserWarning: Display geometry 
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:07,  2.55s/it]
-Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:04&lt;00:04,  2.07s/it]
-Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05&lt;00:01,  1.87s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07&lt;00:00,  1.78s/it]
-Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07&lt;00:00,  1.78s/it]
+Cohort.map[_ComputeUnits]:  25%|██▌       | 1/4 [00:02&lt;00:06,  2.22s/it]
+Cohort.map[_ComputeUnits]:  50%|█████     | 2/4 [00:03&lt;00:03,  1.96s/it]
+Cohort.map[_ComputeUnits]:  75%|███████▌  | 3/4 [00:05&lt;00:01,  1.84s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07&lt;00:00,  1.82s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 4/4 [00:07&lt;00:00,  1.82s/it]
 
 Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/4 [00:00&lt;?, ?it/s]
-Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01&lt;00:03,  1.08s/it]
-Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:01&lt;00:01,  1.05it/s]
-Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02&lt;00:00,  1.13it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03&lt;00:00,  1.17it/s]
-Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03&lt;00:00,  1.17it/s]
+Cohort.map[_AssignPrecomputedUnits]:  25%|██▌       | 1/4 [00:01&lt;00:03,  1.16s/it]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 2/4 [00:02&lt;00:02,  1.01s/it]
+Cohort.map[_AssignPrecomputedUnits]:  75%|███████▌  | 3/4 [00:02&lt;00:00,  1.08it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03&lt;00:00,  1.10it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 4/4 [00:03&lt;00:00,  1.10it/s]
 HabitatModel kmeans-b01ecfd00139f26e
   habitats           : 5
   features (4)    : pre_contrast, LAP, PVP, delay_3min
@@ -1050,8 +1050,8 @@ subj004                  130.0               27.0               94.0            
 </pre></div>
 </div>
 <img src="../_images/sphx_glr_plot_quickstart_python_011.png" srcset="../_images/sphx_glr_plot_quickstart_python_011.png" alt="subj005: habitats from the saved model, Axis 0 (axial-like) @ 95, Axis 1 (coronal-like) @ 166, Axis 2 (sagittal-like) @ 106" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_LabelAndDescribe]:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05&lt;00:00,  5.59s/it]
-Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05&lt;00:00,  5.59s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05&lt;00:00,  5.88s/it]
+Cohort.map[_LabelAndDescribe]: 100%|██████████| 1/1 [00:05&lt;00:00,  5.88s/it]
 F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
   resolved_direction, resolved_spacing = resolve_display_geometry(
 </pre></div>
@@ -1071,7 +1071,7 @@ F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geo
 </div>
 </li>
 </ul>
-<p class="sphx-glr-timing"><strong>脚本总运行时间：</strong> （0 分 31.072 秒）</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 31.356 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-quickstart-plot-quickstart-python-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/dadf04e4a1da1b0eb72eece9a50b7c9d/plot_quickstart_python.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_quickstart_python.ipynb</span></code></a></p>

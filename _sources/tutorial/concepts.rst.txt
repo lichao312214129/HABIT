@@ -44,10 +44,12 @@ supervoxels per subject is faster and less noisy than clustering every
 voxel.
 
 **Habitat.** A group of voxels (or supervoxels) whose features are alike.
-The ``fit`` stage learns the habitat definition (for k-means: the number
-of habitats and one centroid per habitat); ``assign`` gives every voxel
-the id of its nearest centroid. The result is a habitat map: every ROI
-voxel painted with a habitat id 1, 2, 3, ...
+The ``fit`` stage learns the habitat definition. ``assign`` labels each
+supervoxel with that definition's own rule: k-means calls
+``KMeans.predict``, a Gaussian mixture calls ``GaussianMixture.predict``,
+and agglomerative consensus uses distance to class centres. The habitat
+id is painted onto every voxel of the supervoxel. The result is a habitat
+map with ids 1, 2, 3, ...
 
 **Habitat features.** Numbers computed from a habitat map, one row per
 patient: volume fractions, MSI (how habitats touch each other), ITH

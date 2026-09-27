@@ -1164,13 +1164,29 @@ signature, and not how to use it. Please refer to the
 <dt class="sig sig-object py" id="habit.habitat_model.NearestCentroidAssigner">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NearestCentroidAssigner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><span class="pre">HabitatModel</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/habitat_model/assignment/nearest_centroid.html#NearestCentroidAssigner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.habitat_model.NearestCentroidAssigner" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Assign each supervoxel to the habitat of its nearest centroid.</p>
+<p>Assign habitat labels with the decision rule stored on the fitted model.</p>
 <p>The fitted model is bound at construction time – the ordinary way to
 obtain this assigner is <code class="docutils literal notranslate"><span class="pre">model.assigner()</span></code>. Prediction then has no way
-to re-learn anything, because everything it needs is inside the model;
-this is what enforces train/predict consistency structurally.</p>
-<p>Habitat ids are the centroid row indices plus one, so label <code class="docutils literal notranslate"><span class="pre">0</span></code> is
-reserved for background, matching the v0.1 label-image convention.</p>
+to re-learn anything, because everything it needs is inside the model.</p>
+<p>The rule is <code class="docutils literal notranslate"><span class="pre">estimator_state[&quot;rule&quot;]</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> calls <code class="docutils literal notranslate"><span class="pre">sklearn.cluster.KMeans.predict</span></code> on the stored
+centres. There is no <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;gmm&quot;</span></code> rebuilds <code class="docutils literal notranslate"><span class="pre">sklearn.mixture.GaussianMixture</span></code> from the stored
+weights, means and covariances and calls <code class="docutils literal notranslate"><span class="pre">predict</span></code> and
+<code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;nearest_centroid&quot;</span></code> labels each row by distance to the stored class
+centres. <code class="docutils literal notranslate"><span class="pre">metric</span></code> is <code class="docutils literal notranslate"><span class="pre">euclidean</span></code> (mean), <code class="docutils literal notranslate"><span class="pre">manhattan</span></code> (median),
+or <code class="docutils literal notranslate"><span class="pre">cosine</span></code> (mean of L2-normalised rows). There is no
+<code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>.</p></li>
+</ul>
+<p>A model saved before those parameters existed and whose fitter is not
+GMM is treated as <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> (Euclidean <code class="docutils literal notranslate"><span class="pre">KMeans.predict</span></code> on the
+stored centres). A GMM archive without weights and covariances raises,
+because <code class="docutils literal notranslate"><span class="pre">GaussianMixture.predict</span></code> cannot be rebuilt.</p>
+<p>Habitat ids are the estimator’s 0-based labels plus one, so label <code class="docutils literal notranslate"><span class="pre">0</span></code>
+is reserved for background. The same id is painted onto every voxel of
+a supervoxel via <code class="docutils literal notranslate"><span class="pre">label_array</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>model</strong> – The fitted habitat definition to project.</p>
@@ -1211,11 +1227,42 @@ reserved for background, matching the v0.1 label-image convention.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.habitat_model.NearestCentroidAssigner.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supervoxel_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.habitat.Supervoxelization"><span class="pre">Supervoxelization</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/habit/habitat_model/assignment/nearest_centroid.html#NearestCentroidAssigner.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.habitat_model.NearestCentroidAssigner.predict_proba" title="Link to this definition">#</a></dt>
+<dd><p>Return per-supervoxel habitat probabilities.</p>
+<p>Only a Gaussian mixture has this. The frame has one row per
+supervoxel, indexed by supervoxel id, and one column
+<code class="docutils literal notranslate"><span class="pre">habitat_{id}</span></code> per component in the mixture’s own order. The hard
+label on the map is the column with the largest probability, plus
+the same background convention as <a class="reference internal" href="#habit.habitat_model.NearestCentroidAssigner.__call__" title="habit.habitat_model.NearestCentroidAssigner.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>supervoxel_map</strong> – Supervoxelization of the subject to score.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability frame aligned with <code class="docutils literal notranslate"><span class="pre">supervoxel_map.features</span></code>.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="habit.exceptions.CompatibilityError.html#habit.exceptions.CompatibilityError" title="habit.exceptions.CompatibilityError"><strong>CompatibilityError</strong></a> – If a required feature column is missing.</p></li>
+<li><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – If the model’s rule has no <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <section id="examples-using-habit-habitat-model-nearestcentroidassigner">
 <h2>Examples using <code class="docutils literal notranslate"><span class="pre">habit.habitat_model.NearestCentroidAssigner</span></code><a class="headerlink" href="#examples-using-habit-habitat-model-nearestcentroidassigner" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step rebuilds the two-step design from HABIT&#x27;s individual components and shows it matches Study. The two other designs use the same components with fewer steps: the per-subject (one-step) design of /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject fits one model per patient on that patient&#x27;s voxels, and the pooled-voxel design of /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels fits one cohort model on every patient&#x27;s voxels. Neither has a supervoxelizer."><img alt="" src="../../_images/sphx_glr_plot_06_atomic_pooled_thumb.png" />
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_01_two_step_spec declares a whole habitat study in one HabitatSpec and runs it with one Study(spec).fit_predict(...) call (serial RunPolicy, continue on subject failure). Behind that call sit a handful of ordinary Python objects: a voxel feature extractor, two preprocessing chains, a supervoxelizer, a habitat model fitter, an assigner and four habitat feature extractors. Each of them is public and can be called on one subject, in memory, without a spec, a YAML file or an output folder."><img alt="" src="../../_images/sphx_glr_plot_02_atomic_two_step_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/01_building_habitat_maps/plot_02_atomic_two_step.html"><span class="doc">Two-step habitats from atomic components</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Two-step habitats from atomic components</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step rebuilds the two-step design from HABIT&#x27;s individual components and shows it matches Study. The two other designs use the same components with fewer steps: the per-subject (one-step) design of /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject fits one model per patient on that patient&#x27;s voxels, and the pooled-voxel design of /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels fits one cohort model on every patient&#x27;s voxels. Neither has a supervoxelizer."><img alt="" src="../../_images/sphx_glr_plot_04_atomic_inside_each_subject_thumb.png" />
+<p><a class="reference internal" href="../../auto_examples/01_building_habitat_maps/plot_04_atomic_inside_each_subject.html"><span class="doc">Habitats inside each subject from atomic components</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Habitats inside each subject from atomic components</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step rebuilds the two-step design from HABIT&#x27;s individual components and shows it matches Study. The two other designs use the same components with fewer steps: the per-subject (one-step) design of /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject fits one model per patient on that patient&#x27;s voxels, and the pooled-voxel design of /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels fits one cohort model on every patient&#x27;s voxels. Neither has a supervoxelizer."><img alt="" src="../../_images/sphx_glr_plot_06_atomic_pooled_thumb.png" />
 <p><a class="reference internal" href="../../auto_examples/01_building_habitat_maps/plot_06_atomic_pooled.html"><span class="doc">Pooled-voxel habitats from atomic components</span></a></p>
   <div class="sphx-glr-thumbnail-title">Pooled-voxel habitats from atomic components</div>
 </div></div><div style="clear:both"></div></section>
@@ -1273,6 +1320,7 @@ reserved for background, matching the v0.1 label-image convention.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#habit.habitat_model.NearestCentroidAssigner.model"><code class="docutils literal notranslate"><span class="pre">NearestCentroidAssigner.model</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#habit.habitat_model.NearestCentroidAssigner.spec"><code class="docutils literal notranslate"><span class="pre">NearestCentroidAssigner.spec</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#habit.habitat_model.NearestCentroidAssigner.__call__"><code class="docutils literal notranslate"><span class="pre">NearestCentroidAssigner.__call__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#habit.habitat_model.NearestCentroidAssigner.predict_proba"><code class="docutils literal notranslate"><span class="pre">NearestCentroidAssigner.predict_proba()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-habit-habitat-model-nearestcentroidassigner">Examples using <code class="docutils literal notranslate"><span class="pre">habit.habitat_model.NearestCentroidAssigner</span></code></a></li>

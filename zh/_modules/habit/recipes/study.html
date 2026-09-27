@@ -512,7 +512,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -526,7 +526,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -582,21 +582,21 @@ window.runMermaid = runMermaid;</script>
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -761,7 +761,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -775,7 +775,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -824,21 +824,21 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -1166,12 +1166,13 @@ window.runMermaid = runMermaid;</script>
     <span class="n">design</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">modalities</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">n_supervoxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="n">n_supervoxels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
     <span class="n">n_habitats</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
     <span class="n">habitat_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">supervoxel_algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
     <span class="n">habitat_fitter_algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+    <span class="n">supervoxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">roi</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tumor&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1180,12 +1181,19 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Args:</span>
 <span class="sd">        design: ``two_step``, ``one_step``, or ``direct_pooling``.</span>
 <span class="sd">        modalities: Modality names passed to the raw voxel extractor.</span>
-<span class="sd">        n_supervoxels: Supervoxel count for the two-step design.</span>
+<span class="sd">        n_supervoxels: Supervoxel count for the two-step design, and for</span>
+<span class="sd">            one-step when the caller opts into a per-subject partition.</span>
+<span class="sd">            ``None`` on one-step keeps voxel clustering.</span>
 <span class="sd">        n_habitats: Fixed habitat count or ``&quot;auto&quot;``.</span>
 <span class="sd">        habitat_features: Optional habitat feature families to compute.</span>
 <span class="sd">        random_seed: Seed applied to every seedable component.</span>
-<span class="sd">        supervoxel_algorithm: Registered supervoxelizer / one-step fitter name.</span>
-<span class="sd">        habitat_fitter_algorithm: Registered cohort fitter name.</span>
+<span class="sd">        supervoxel_algorithm: Registered supervoxelizer name. On one-step</span>
+<span class="sd">            this is used only when ``n_supervoxels`` is set; the per-subject</span>
+<span class="sd">            habitat fitter is ``habitat_fitter_algorithm``.</span>
+<span class="sd">        habitat_fitter_algorithm: Registered habitat-model fitter name.</span>
+<span class="sd">        supervoxel_feature_extractor: Optional per-supervoxel description</span>
+<span class="sd">            (for example radiomics). Requires ``n_supervoxels`` on one-step.</span>
+<span class="sd">            Omit it to cluster the partition&#39;s attached means.</span>
 <span class="sd">        roi: ROI keyword for the raw voxel extractor.</span>
 
 <span class="sd">    Returns:</span>
@@ -1217,15 +1225,29 @@ window.runMermaid = runMermaid;</script>
             <span class="n">_named_field_compat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">design</span> <span class="o">==</span> <span class="s2">&quot;one_step&quot;</span><span class="p">:</span>
+        <span class="c1"># Default one-step clusters voxels. A count opts into a per-subject</span>
+        <span class="c1"># partition; those supervoxels are never pooled across subjects.</span>
+        <span class="n">supervoxelizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">n_supervoxels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">supervoxelizer</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">supervoxel_algorithm</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_supervoxels</span><span class="p">)},</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">supervoxel_feature_extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;one_step supervoxel features require n_supervoxels; &quot;</span>
+                <span class="s2">&quot;without a partition there are no supervoxels to describe.&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">HabitatSpec</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;one_step_habitat&quot;</span><span class="p">,</span>
             <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span>
                 <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">modalities</span><span class="p">),</span> <span class="s2">&quot;roi&quot;</span><span class="p">:</span> <span class="n">roi</span><span class="p">},</span>
             <span class="p">),</span>
-            <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">supervoxelizer</span><span class="p">,</span>
+            <span class="n">supervoxel_feature_extractor</span><span class="o">=</span><span class="n">supervoxel_feature_extractor</span><span class="p">,</span>
             <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">supervoxel_algorithm</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">habitat_fitter_algorithm</span><span class="p">,</span>
                 <span class="n">params</span><span class="o">=</span><span class="n">fitter_params</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}),</span>
@@ -1663,17 +1685,32 @@ window.runMermaid = runMermaid;</script>
     <span class="n">habitat_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">clustering_algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+    <span class="n">n_supervoxels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">supervoxel_algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+    <span class="n">supervoxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">roi</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tumor&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Study</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Declare a one-step habitat study (habitats defined inside each subject).</span>
+
+<span class="sd">    Omit ``n_supervoxels`` to cluster each subject&#39;s voxels. Pass a count</span>
+<span class="sd">    to cut supervoxels inside each subject and cluster those rows. Nothing</span>
+<span class="sd">    is pooled, so habitat ids stay private to the subject.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        modalities: Modality names for the raw voxel extractor.</span>
 <span class="sd">        n_habitats: Fixed habitat count or ``&quot;auto&quot;``.</span>
 <span class="sd">        habitat_features: Optional habitat feature families.</span>
 <span class="sd">        random_seed: Seed for every seedable component.</span>
-<span class="sd">        clustering_algorithm: Registered per-subject fitter name.</span>
+<span class="sd">        clustering_algorithm: Registered per-subject habitat fitter name.</span>
+<span class="sd">        n_supervoxels: Supervoxels per subject. ``None`` keeps voxel</span>
+<span class="sd">            clustering (the historical one-step default).</span>
+<span class="sd">        supervoxel_algorithm: Registered supervoxelizer used only when</span>
+<span class="sd">            ``n_supervoxels`` is set. ``kmeans`` may leave a supervoxel</span>
+<span class="sd">            spatially disconnected; pass ``&quot;slic&quot;`` for compact patches.</span>
+<span class="sd">        supervoxel_feature_extractor: Optional description of each</span>
+<span class="sd">            supervoxel (means, standard deviation, radiomics). Requires</span>
+<span class="sd">            ``n_supervoxels``. Omit it to cluster the partition&#39;s means.</span>
 <span class="sd">        roi: ROI keyword for voxel extraction.</span>
 
 <span class="sd">    Returns:</span>
@@ -1683,10 +1720,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">spec</span><span class="o">=</span><span class="n">_build_habitat_spec</span><span class="p">(</span>
             <span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
             <span class="n">modalities</span><span class="o">=</span><span class="n">modalities</span><span class="p">,</span>
+            <span class="n">n_supervoxels</span><span class="o">=</span><span class="n">n_supervoxels</span><span class="p">,</span>
             <span class="n">n_habitats</span><span class="o">=</span><span class="n">n_habitats</span><span class="p">,</span>
             <span class="n">habitat_features</span><span class="o">=</span><span class="n">habitat_features</span><span class="p">,</span>
             <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
-            <span class="n">supervoxel_algorithm</span><span class="o">=</span><span class="n">clustering_algorithm</span><span class="p">,</span>
+            <span class="n">supervoxel_algorithm</span><span class="o">=</span><span class="n">supervoxel_algorithm</span><span class="p">,</span>
+            <span class="n">habitat_fitter_algorithm</span><span class="o">=</span><span class="n">clustering_algorithm</span><span class="p">,</span>
+            <span class="n">supervoxel_feature_extractor</span><span class="o">=</span><span class="n">supervoxel_feature_extractor</span><span class="p">,</span>
             <span class="n">roi</span><span class="o">=</span><span class="n">roi</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">design</span><span class="o">=</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span>

@@ -36,7 +36,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=a1466298" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c2179bb5" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
@@ -676,6 +676,30 @@ window.runMermaid = runMermaid;</script>
         </li>
 </ul></div>
       
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
     </div>
     
   </div>
@@ -882,6 +906,30 @@ window.runMermaid = runMermaid;</script>
         </li>
 </ul></div>
         
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
       </div>
     
   </div>
@@ -965,11 +1013,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">text ships at ``habit/third_party/inmoose/LICENSE``. HABIT&#39;s Apache-2.0</span>
 <span class="sd">terms do not relicense it. See the repository ``NOTICE``.</span>
 
-<span class="sd">What this fitter returns is still a HABIT :class:`~habit.contracts.habitat.HabitatModel`:</span>
-<span class="sd">consensus labels exist only for the items that were clustered, so each</span>
-<span class="sd">consensus group is summarised by the mean of its feature rows. Those means</span>
-<span class="sd">are the centroids. Unseen subjects are labelled by nearest centroid, the</span>
-<span class="sd">same assignment path as k-means and the Gaussian mixture.</span>
+<span class="sd">The consensus matrix selects K. The habitat definition is then a fresh fit</span>
+<span class="sd">of the inner algorithm on the full training matrix at that K. Inner</span>
+<span class="sd">k-means stores a ``KMeans`` codebook and assigns with ``KMeans.predict``.</span>
+<span class="sd">Inner agglomerative clustering has no out-of-sample ``predict``; each</span>
+<span class="sd">class is replaced by the centre that matches ``metric``, and every row</span>
+<span class="sd">(training and new) is labelled by distance to those centres.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -982,6 +1031,11 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.subject</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cohort</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.habitat_model._base</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_habitat_model</span><span class="p">,</span> <span class="n">pool_supervoxel_features</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.habitat_model._predict</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CENTROID_METRICS</span><span class="p">,</span>
+    <span class="n">assign_to_centers</span><span class="p">,</span>
+    <span class="n">class_centers</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.habitat_model.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatModelFitterRegistry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spec</span>
 
@@ -1100,10 +1154,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    CDF). Their delta curve is indexed on ``k = min_habitats .. max_habitats - 1``;</span>
 <span class="sd">    ``max_habitats`` itself is never chosen by that rule.</span>
 
-<span class="sd">    The consensus cut labels only the fitted items. Each occupied group is</span>
-<span class="sd">    replaced by its mean feature vector so the result is a centroid model</span>
-<span class="sd">    that :class:`~habit.habitat_model.assignment.nearest_centroid.NearestCentroidAssigner`</span>
-<span class="sd">    can apply to a new subject.</span>
+<span class="sd">    The consensus matrix is used only to choose K (``bestK``, or the fixed</span>
+<span class="sd">    ``n_habitats``). A second fit of the inner algorithm on every training</span>
+<span class="sd">    row at that K is the habitat model. Inner ``kmeans`` assigns new rows</span>
+<span class="sd">    with ``KMeans.predict``. Inner ``agglomerative`` has no ``predict`` for</span>
+<span class="sd">    a new row: class centres are stored and rows are labelled by</span>
+<span class="sd">    ``metric`` (Euclidean mean, Manhattan median, or cosine on</span>
+<span class="sd">    L2-normalised rows). The consensus-matrix labels stay in the fit</span>
+<span class="sd">    report; they are not the habitat ids.</span>
 
 <span class="sd">    The consensus step is GPL-3.0-or-later. See the module docstring.</span>
 
@@ -1119,8 +1177,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        resample_proportion: Fraction of items drawn without replacement on</span>
 <span class="sd">            each resample. The vendored default is 0.5.</span>
 <span class="sd">        inner: ``&quot;kmeans&quot;`` (default) or ``&quot;agglomerative&quot;`` (scikit-learn</span>
-<span class="sd">            ward). This is the class passed into the vendored algorithm for</span>
-<span class="sd">            both the resamples and the final cut of ``1 - consensus_matrix``.</span>
+<span class="sd">            ward). Used both inside each resample and for the final fit on</span>
+<span class="sd">            the full training matrix.</span>
+<span class="sd">        metric: Distance for the agglomerative final assignment.</span>
+<span class="sd">            ``&quot;euclidean&quot;`` (mean), ``&quot;manhattan&quot;`` (per-feature median),</span>
+<span class="sd">            or ``&quot;cosine&quot;`` (mean of L2-normalised rows). Inner ``kmeans``</span>
+<span class="sd">            always assigns with ``KMeans.predict`` and requires</span>
+<span class="sd">            ``metric=&quot;euclidean&quot;``.</span>
 <span class="sd">        n_init: K-means restarts when ``inner`` is ``&quot;kmeans&quot;``. Ignored by</span>
 <span class="sd">            agglomerative clustering.</span>
 <span class="sd">        max_iter: K-means iteration cap when ``inner`` is ``&quot;kmeans&quot;``.</span>
@@ -1138,6 +1201,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">n_resamples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
         <span class="n">resample_proportion</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
         <span class="n">inner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+        <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
         <span class="n">n_init</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
         <span class="n">max_items</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">,</span>
@@ -1154,6 +1218,7 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_resamples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_resamples</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resample_proportion</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">resample_proportion</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inner</span> <span class="o">=</span> <span class="n">inner_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_init</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_init</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_iter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_items</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_items</span><span class="p">)</span>
@@ -1191,6 +1256,17 @@ window.runMermaid = runMermaid;</script>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;consensus max_items must be at least 2 (got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_items</span><span class="si">}</span><span class="s2">).&quot;</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CENTROID_METRICS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;consensus metric must be one of </span><span class="si">{</span><span class="n">CENTROID_METRICS</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner</span> <span class="o">==</span> <span class="s2">&quot;kmeans&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">!=</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;consensus inner=&#39;kmeans&#39; assigns with KMeans.predict, which &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;is Euclidean. metric=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="si">!r}</span><span class="s2"> applies only when &quot;</span>
+                <span class="s2">&quot;inner=&#39;agglomerative&#39;.&quot;</span>
+            <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
@@ -1204,6 +1280,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;n_resamples&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_resamples</span><span class="p">,</span>
                 <span class="s2">&quot;resample_proportion&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">resample_proportion</span><span class="p">,</span>
                 <span class="s2">&quot;inner&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner</span><span class="p">,</span>
+                <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span>
                 <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_init</span><span class="p">,</span>
                 <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
                 <span class="s2">&quot;max_items&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_items</span><span class="p">,</span>
@@ -1260,17 +1337,18 @@ window.runMermaid = runMermaid;</script>
         <span class="n">cohort</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Cohort</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatModel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Learn shared habitat centroids from consensus groups of all subjects.</span>
+<span class="sd">        Select K from the consensus matrix, then fit the inner algorithm.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            units: Supervoxelizations in a defined, reproducible order.</span>
 <span class="sd">            cohort: Cohort the units came from, fingerprinted into the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A centroid habitat model. ``preprocessing_state[&quot;consensus&quot;]``</span>
-<span class="sd">            holds the CDF areas, delta curve, per-cluster consensus, the</span>
-<span class="sd">            training-item labels, and (when the item count is small) the</span>
-<span class="sd">            consensus matrices.</span>
+<span class="sd">            A habitat model whose assignment rule is the final inner fit.</span>
+<span class="sd">            ``preprocessing_state[&quot;consensus&quot;]`` holds the CDF areas, delta</span>
+<span class="sd">            curve, per-cluster consensus, the consensus-matrix labels, and</span>
+<span class="sd">            (when the item count is small) the consensus matrices.</span>
+<span class="sd">            ``habitat_training_labels`` are the labels of the final fit.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            HABITAPIError: If there are too many items for an ``n x n``</span>
@@ -1316,9 +1394,9 @@ window.runMermaid = runMermaid;</script>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Consensus clustering returned no occupied cluster at k=</span><span class="si">{</span><span class="n">selected</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">matrix</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">present</span><span class="p">]</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">centroids</span><span class="p">,</span> <span class="n">estimator_state</span><span class="p">,</span> <span class="n">habitat_labels</span><span class="p">,</span> <span class="n">agglomerative_labels</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fit_final_partition</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">selected</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="n">report</span> <span class="o">=</span> <span class="n">_consensus_report</span><span class="p">(</span>
             <span class="n">cc</span><span class="p">,</span>
@@ -1332,6 +1410,11 @@ window.runMermaid = runMermaid;</script>
             <span class="n">n_resamples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_resamples</span><span class="p">,</span>
             <span class="n">resample_proportion</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resample_proportion</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;assignment_rule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">estimator_state</span><span class="p">[</span><span class="s2">&quot;rule&quot;</span><span class="p">]</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;habitat_training_labels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">habitat_labels</span>
+        <span class="k">if</span> <span class="n">agglomerative_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">report</span><span class="p">[</span><span class="s2">&quot;agglomerative_labels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">agglomerative_labels</span>
         <span class="k">return</span> <span class="n">build_habitat_model</span><span class="p">(</span>
             <span class="n">fitter_name</span><span class="o">=</span><span class="s2">&quot;consensus&quot;</span><span class="p">,</span>
             <span class="n">spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
@@ -1341,8 +1424,59 @@ window.runMermaid = runMermaid;</script>
             <span class="n">cohort</span><span class="o">=</span><span class="n">cohort</span><span class="p">,</span>
             <span class="n">random_seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span>
             <span class="n">preprocessing_state</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;consensus&quot;</span><span class="p">:</span> <span class="n">report</span><span class="p">},</span>
+            <span class="n">estimator_state</span><span class="o">=</span><span class="n">estimator_state</span><span class="p">,</span>
         <span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_final_partition</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">n_habitats</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit the inner algorithm on every training row at the chosen K.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            matrix: Pooled feature rows, one per supervoxel.</span>
+<span class="sd">            n_habitats: K selected by the consensus matrix or fixed by the</span>
+<span class="sd">                caller.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``(centroids, estimator_state, habitat_labels, agglomerative_labels)``.</span>
+<span class="sd">            ``agglomerative_labels`` is ``None`` when the inner algorithm is</span>
+<span class="sd">            k-means. Habitat labels are 0-based and match ``predict`` on</span>
+<span class="sd">            these same rows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner</span> <span class="o">==</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeans</span>
+
+            <span class="n">estimator</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span>
+                <span class="n">n_clusters</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">n_habitats</span><span class="p">),</span>
+                <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span>
+                <span class="n">n_init</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_init</span><span class="p">,</span>
+                <span class="n">max_iter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+            <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">cluster_centers_</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">habitat_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">labels_</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;rule&quot;</span><span class="p">:</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">},</span> <span class="n">habitat_labels</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgglomerativeClustering</span>
+
+        <span class="c1"># Ward labels the training rows only. sklearn has no predict for a</span>
+        <span class="c1"># new row, so the published definition is the class centres.</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">AgglomerativeClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">n_habitats</span><span class="p">))</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">matrix</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">centroids</span> <span class="o">=</span> <span class="n">class_centers</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">partition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">)</span>
+        <span class="n">habitat_labels</span> <span class="o">=</span> <span class="n">assign_to_centers</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">centroids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">centroids</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;rule&quot;</span><span class="p">:</span> <span class="s2">&quot;nearest_centroid&quot;</span><span class="p">,</span> <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">},</span>
+            <span class="n">habitat_labels</span><span class="p">,</span>
+            <span class="n">partition</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 
