@@ -160,7 +160,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -174,7 +174,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -230,21 +230,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -411,7 +411,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -425,7 +425,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -474,21 +474,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -668,18 +668,18 @@
   <section id="msi-features">
 <h1>MSI 特征<a class="headerlink" href="#msi-features" title="Link to this heading">#</a></h1>
 <section id="output">
-<h2>Output<a class="headerlink" href="#output" title="Link to this heading">#</a></h2>
+<h2>输出<a class="headerlink" href="#output" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">msi_features.csv</span></code></p>
 </section>
 <section id="definition">
-<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
-<p><strong>多区域空间相互作用（MSI）</strong> 矩阵由生境标签图（瘤内分区图）导出。基于多区域图，MSI 矩阵刻画并量化 <strong>瘤内空间异质性</strong> （Wu 等， <em>Radiology</em> 2018）。对 ROI 包围盒（外扩一圈零体素边界）内每个体素探测面邻接邻居并将标签对加入 <span class="math notranslate nohighlight">\(M\)</span> 。周围组织作为独立区域（行/列 0 = 背景）。<span class="math notranslate nohighlight">\(M\)</span> 对角元为各子区连通规模，非对角元为不同子区交界规模。矩阵尺寸 <span class="math notranslate nohighlight">\((K{+}1)  imes(K{+}1)\)</span> ， <em>K</em> = 配置 <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> （非每图自动计数）。一阶特征为 <span class="math notranslate nohighlight">\(M\)</span> 的原始或归一化计数；四个二阶统计特征（ <code class="docutils literal notranslate"><span class="pre">contrast</span></code> 、 <code class="docutils literal notranslate"><span class="pre">homogeneity</span></code> 、 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> 、 <code class="docutils literal notranslate"><span class="pre">energy</span></code> ）在归一化矩阵 <span class="math notranslate nohighlight">\(P\)</span> 上计算。</p>
+<h2>定义<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
+<p><strong>多区域空间相互作用（MSI）</strong> 矩阵由生境标签图（瘤内分区图）导出。基于多区域图，MSI 矩阵刻画并量化 <strong>瘤内空间异质性</strong> （Wu 等， <em>Radiology</em> 2018）。对 ROI 包围盒（外扩一圈零体素边界）内每个体素探测面邻接邻居并将标签对加入 <span class="math notranslate nohighlight">\(M\)</span> 。周围组织作为独立区域（行/列 0 = 背景）。 <span class="math notranslate nohighlight">\(M\)</span> 对角元为各子区连通规模，非对角元为不同子区交界规模。矩阵尺寸 <span class="math notranslate nohighlight">\((K{+}1) imes(K{+}1)\)</span> ， <em>K</em> = 配置 <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> （非每图自动计数）。一阶特征为 <span class="math notranslate nohighlight">\(M\)</span> 的原始或归一化计数；四个二阶统计特征（ <code class="docutils literal notranslate"><span class="pre">contrast</span></code> 、 <code class="docutils literal notranslate"><span class="pre">homogeneity</span></code> 、 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> 、 <code class="docutils literal notranslate"><span class="pre">energy</span></code> ）在归一化矩阵 <span class="math notranslate nohighlight">\(P\)</span> 上计算。</p>
 </section>
 <section id="formula">
-<h2>Formula<a class="headerlink" href="#formula" title="Link to this heading">#</a></h2>
-<p>HABIT uses 6-connectivity (face-adjacent neighbors only). The loop covers every 体素 inside the padded bounding box (including background 体素 within the box). For each 体素 <span class="math notranslate nohighlight">\(mathbf{x}\)</span> and face-neighbor <span class="math notranslate nohighlight">\(mathbf{x}'\)</span>:</p>
+<h2>公式<a class="headerlink" href="#formula" title="Link to this heading">#</a></h2>
+<p>HABIT 使用 6-连通（仅面邻接邻居）。循环覆盖填充包围盒内的每一个体素（包括盒内的背景体素）。对每个体素 <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> 及其面邻居 <span class="math notranslate nohighlight">\(\mathbf{x}'\)</span> ：</p>
 <div class="math notranslate nohighlight">
-\[M_{i,j} \mathrel{+}= 1 \quad \text{when } L(\mathbf{x})=i,\ L(\mathbf{x}')=j\]</div>
+\[M_{i,j} \mathrel{+}= 1 \quad \text{当 } L(\mathbf{x})=i,\ L(\mathbf{x}')=j\]</div>
 <p><span class="math notranslate nohighlight">\(M\)</span> 尺寸为 <span class="math notranslate nohighlight">\((K{+}1)    imes(K{+}1)\)</span> （行/列 0 = 背景）。归一化：</p>
 <div class="math notranslate nohighlight">
 \[D = sum_{i ge 1} sum_{j le i} M_{ij}, quad P = M / D\]</div>
@@ -689,7 +689,7 @@
 \mathrm{homogeneity} &amp;= \sum_{i,j} \frac{P_{ij}}{1+(i-j)^2} \\
 \mathrm{energy} &amp;= \sum_{i,j} P_{ij}^2 \\
 \mathrm{correlation} &amp;= \frac{\sum_{i,j} i j P_{ij} - \mu_x \mu_y}{\sigma_x \sigma_y}\end{split}\]</div>
-<p>If <span class="math notranslate nohighlight">\(sigma_x\)</span> or <span class="math notranslate nohighlight">\(sigma_y\)</span> is zero, <code class="docutils literal notranslate"><span class="pre">correlation</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1.0</span></code>. If <span class="math notranslate nohighlight">\(D=0\)</span> (no countable pairs after excluding background row/column from the denominator), <span class="math notranslate nohighlight">\(P\)</span> is all zeros and second-order 特征 are zero.</p>
+<p>若 <span class="math notranslate nohighlight">\(\sigma_x\)</span> 或 <span class="math notranslate nohighlight">\(\sigma_y\)</span> 为零，则 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">1.0</span></code> 。若 <span class="math notranslate nohighlight">\(D=0\)</span> （从分母排除背景行/列后无可计数的对），则 <span class="math notranslate nohighlight">\(P\)</span> 全为零，二阶特征亦为零。</p>
 </section>
 <section id="output-columns">
 <h2>输出列<a class="headerlink" href="#output-columns" title="Link to this heading">#</a></h2>
@@ -700,7 +700,7 @@
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>列模式</p></th>
-<th class="head"><p>Description</p></th>
+<th class="head"><p>描述</p></th>
 </tr>
 </thead>
 <tbody>
@@ -718,11 +718,11 @@
 </div>
 </section>
 <section id="implementation">
-<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
+<h2>实现<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_extraction/habitat_features/msi_features.py</span></code></p>
 </section>
 <section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<h2>参考文献<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <p>Wu J et al., <em>Radiology</em> 2018 (<a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/29714680/">PubMed</a> · <a class="reference external" href="https://doi.org/10.1148/radiol.2018172462">DOI</a>)。</p>
 </section>
 </section>
@@ -774,12 +774,12 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output">Output</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">Definition</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formula">Formula</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output">输出</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">定义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formula">公式</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-columns">输出列</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">实现</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">参考文献</a></li>
 </ul>
   </nav></div>
 

@@ -160,7 +160,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -174,7 +174,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -230,21 +230,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -407,7 +407,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -421,7 +421,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -470,21 +470,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -662,7 +662,7 @@
                   
   <section id="feature-extraction-configuration">
 <h1>特征提取配置<a class="headerlink" href="#feature-extraction-configuration" title="Link to this heading">#</a></h1>
-<p>This section documents <strong>feature extraction</strong> configuration. CLI: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span> <span class="pre">-c</span> <span class="pre">&lt;yaml&gt;</span></code>. Demo example: <code class="docutils literal notranslate"><span class="pre">config/feature_extraction/config_extract_features_demo.yaml</span></code>.</p>
+<p>本节说明 <strong>特征提取</strong> 配置。CLI： <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span> <span class="pre">-c</span> <span class="pre">&lt;yaml&gt;</span></code> 。演示示例： <code class="docutils literal notranslate"><span class="pre">config/feature_extraction/config_extract_features_demo.yaml</span></code> 。</p>
 <p><strong>示例配置文件：</strong></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params_file_of_non_habitat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./parameter.yaml</span>
 <span class="nt">params_file_of_habitat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./parameter_habitat.yaml</span>
@@ -702,17 +702,17 @@
 <ul class="simple">
 <li><p><strong>Type</strong> ：string</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">null</span></code> (bundled <code class="docutils literal notranslate"><span class="pre">roi</span></code> preset → <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter.yaml</span></code>)</p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">null</span></code> （内置 <code class="docutils literal notranslate"><span class="pre">roi</span></code> 预设 → <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter.yaml</span></code> ）</p></li>
 <li><p><strong>Description</strong> ：PyRadiomics 参数文件，用于 raw 图像传统 / each_habitat 放射组学</p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">./parameter.yaml</span></code></p></li>
+<li><p><strong>示例</strong> ： <code class="docutils literal notranslate"><span class="pre">./parameter.yaml</span></code></p></li>
 </ul>
 <p><strong>params_file_of_habitat</strong> ：从生境图提取特征的参数文件</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：string</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">null</span></code> (bundled <code class="docutils literal notranslate"><span class="pre">habitat</span></code> preset → <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter_habitat.yaml</span></code>)</p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">null</span></code> （内置 <code class="docutils literal notranslate"><span class="pre">habitat</span></code> 预设 → <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter_habitat.yaml</span></code> ）</p></li>
 <li><p><strong>Description</strong> ：whole_habitat 在标签图上的 PyRadiomics 参数文件</p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">./parameter_habitat.yaml</span></code></p></li>
+<li><p><strong>示例</strong> ： <code class="docutils literal notranslate"><span class="pre">./parameter_habitat.yaml</span></code></p></li>
 </ul>
 <p><strong>raw_img_folder</strong> ：原始图像的根目录</p>
 <ul class="simple">
@@ -749,15 +749,15 @@
 <li><p><strong>Required</strong> ：否</p></li>
 <li><p><strong>默认</strong>: <code class="docutils literal notranslate"><span class="pre">4</span></code> （特征提取配置的内置默认值）</p></li>
 <li><p><strong>Description</strong> ：并行进程数。 <code class="docutils literal notranslate"><span class="pre">n_processes</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> 时，从 Python 调用 extract recipe 的 Windows 脚本须用 <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code> （与生境 <a class="reference internal" href="../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a> 相同 spawn 规则；见 <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a> ）。</p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">3</span></code></p></li>
+<li><p><strong>示例</strong> ： <code class="docutils literal notranslate"><span class="pre">3</span></code></p></li>
 </ul>
 <p><strong>habitat_pattern</strong> ：生境文件 glob 模式</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：string</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">'*_habitats.nrrd'</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">'*_habitats.nrrd'</span></code></p></li>
 <li><p><strong>Description</strong> ：匹配生境图文件的模式；支持通配符（ <code class="docutils literal notranslate"><span class="pre">*</span></code> ）</p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code></p></li>
+<li><p><strong>示例</strong> ： <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code></p></li>
 </ul>
 <p><strong>feature_types</strong> ：特征类型列表</p>
 <ul class="simple">
@@ -766,7 +766,7 @@
 <li><p><strong>默认</strong> ：无（必需；至少一项）</p></li>
 <li><p><strong>Description</strong> ：不在列表中的类型不提取</p></li>
 <li><p><strong>Allowed values</strong> ： <code class="docutils literal notranslate"><span class="pre">volume</span></code> 、 <code class="docutils literal notranslate"><span class="pre">msi</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ith_score</span></code> 、 <code class="docutils literal notranslate"><span class="pre">non_radiomics</span></code> 、 <code class="docutils literal notranslate"><span class="pre">graph</span></code> 、 <code class="docutils literal notranslate"><span class="pre">traditional</span></code> 、 <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> 、 <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code></p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">[volume,</span> <span class="pre">msi,</span> <span class="pre">ith_score,</span> <span class="pre">non_radiomics,</span> <span class="pre">graph]</span></code> (the shipped default light set; add heavy 放射组学 when needed)</p></li>
+<li><p><strong>示例</strong> ： <code class="docutils literal notranslate"><span class="pre">[volume,</span> <span class="pre">msi,</span> <span class="pre">ith_score,</span> <span class="pre">non_radiomics,</span> <span class="pre">graph]</span></code> （随附的默认轻量集合；需要时再加重型放射组学）</p></li>
 <li><p><strong>各类含义与参考</strong> ：见 <a class="reference internal" href="../reference/features/index.html"><span class="doc">特征公式</span></a></p></li>
 </ul>
 <p><strong>graph</strong> ：内置图拓扑族的可选顶层模块</p>
@@ -781,32 +781,32 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">5.0</span></code>, 体素-index units) — used by <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">min_distance</span></code>. With default 8-体素 cubes, face-adjacent cubes connect; one empty lattice cell (closest-体素 distance about 8) stays disconnected.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code> （ <code class="docutils literal notranslate"><span class="pre">corner</span></code> ：2D 8 连通 / 3D 26 连通； <code class="docutils literal notranslate"><span class="pre">face</span></code> = 4/6 仍可用）/ <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels</span></code> （ <code class="docutils literal notranslate"><span class="pre">10</span></code> ）— 供 <code class="docutils literal notranslate"><span class="pre">adjacency</span></code> 使用。两区域相邻且接触体素数 &gt;= 10 时有边，在绘制的生境标签上测量（默认 <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> 为 <code class="docutils literal notranslate"><span class="pre">0</span></code> ）。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">edge_weight</span></code> ： <code class="docutils literal notranslate"><span class="pre">none</span></code> | <code class="docutils literal notranslate"><span class="pre">distance</span></code> | <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code> | <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), <code class="docutils literal notranslate"><span class="pre">connectivity</span></code> (default <code class="docutils literal notranslate"><span class="pre">full</span></code>: 8-conn in 2D / 26-conn in 3D; <code class="docutils literal notranslate"><span class="pre">face</span></code> = 4/6 remains available)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code> （ <code class="docutils literal notranslate"><span class="pre">1</span></code> ）、 <code class="docutils literal notranslate"><span class="pre">connectivity</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">full</span></code> ：二维 8 连通 / 三维 26 连通； <code class="docutils literal notranslate"><span class="pre">face</span></code> = 4/6 仍可用）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">node_method</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code> ； <code class="docutils literal notranslate"><span class="pre">component</span></code> 为连通分量节点）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> （ <code class="docutils literal notranslate"><span class="pre">0</span></code> 关闭； <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code> 在连边前收缩生境）， <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> （ <code class="docutils literal notranslate"><span class="pre">1000</span></code> ；仅 <code class="docutils literal notranslate"><span class="pre">component</span></code> ）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code> （ <code class="docutils literal notranslate"><span class="pre">8</span></code> 体素，非毫米）， <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> （ <code class="docutils literal notranslate"><span class="pre">0.2</span></code> ）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code> （ <code class="docutils literal notranslate"><span class="pre">true</span></code> ）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> （ <code class="docutils literal notranslate"><span class="pre">true</span></code> ；设 <code class="docutils literal notranslate"><span class="pre">false</span></code> 省略）、 <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> （ <code class="docutils literal notranslate"><span class="pre">10</span></code> ）</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> （ <code class="docutils literal notranslate"><span class="pre">analytic</span></code> ）：一列 <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> 。 <code class="docutils literal notranslate"><span class="pre">analytic</span></code> 为 Humphries <em>S</em> 对 Erdős–Rényi 图（同 <em>n</em> 、 <em>m</em> ；闭式 <span class="math notranslate nohighlight">\(C_{rand}\)</span> 、<span class="math notranslate nohighlight">\(L_{rand}\)</span> ）。 <code class="docutils literal notranslate"><span class="pre">config</span></code> 为 configuration 模型； <code class="docutils literal notranslate"><span class="pre">rewire</span></code> 为 Maslov–Sneppen（NetworkX <code class="docutils literal notranslate"><span class="pre">sigma</span></code> ）。后两者 <strong>替换</strong> 解析值为保度 ensemble（ <code class="docutils literal notranslate"><span class="pre">small_world_nrand</span></code> / <code class="docutils literal notranslate"><span class="pre">small_world_niter</span></code> ，默认 <code class="docutils literal notranslate"><span class="pre">100</span></code> ）。见 <a class="reference internal" href="../reference/features/graph.html"><span class="doc">图拓扑特征</span></a> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> （ <code class="docutils literal notranslate"><span class="pre">analytic</span></code> ）：一列 <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> 。 <code class="docutils literal notranslate"><span class="pre">analytic</span></code> 为 Humphries <em>S</em> 对 Erdős–Rényi 图（同 <em>n</em> 、 <em>m</em> ；闭式 <span class="math notranslate nohighlight">\(C_{rand}\)</span> 、 <span class="math notranslate nohighlight">\(L_{rand}\)</span> ）。 <code class="docutils literal notranslate"><span class="pre">config</span></code> 为 configuration 模型； <code class="docutils literal notranslate"><span class="pre">rewire</span></code> 为 Maslov–Sneppen（NetworkX <code class="docutils literal notranslate"><span class="pre">sigma</span></code> ）。后两者 <strong>替换</strong> 解析值为保度 ensemble（ <code class="docutils literal notranslate"><span class="pre">small_world_nrand</span></code> / <code class="docutils literal notranslate"><span class="pre">small_world_niter</span></code> ，默认 <code class="docutils literal notranslate"><span class="pre">100</span></code> ）。见 <a class="reference internal" href="../reference/features/graph.html"><span class="doc">图拓扑特征</span></a> 。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rich_club_q</span></code> （ <code class="docutils literal notranslate"><span class="pre">100</span></code> ）： <code class="docutils literal notranslate"><span class="pre">rewire</span></code> 的混合下限；解析 rich-club 用一张配置模型图</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">graph_null_device</span></code> (<code class="docutils literal notranslate"><span class="pre">auto</span></code>)</p></li>
 </ul>
 </li>
 <li><p><strong>可视化字段</strong> （配方 hook；不属于提取器 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> ）：</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code> (<code class="docutils literal notranslate"><span class="pre">false</span></code>) → writes <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/visualizations/graph/</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code> （ <code class="docutils literal notranslate"><span class="pre">false</span></code> ）→ 写入 <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/visualizations/graph/</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_format</span></code> ： <code class="docutils literal notranslate"><span class="pre">png</span></code> | <code class="docutils literal notranslate"><span class="pre">pdf</span></code> | <code class="docutils literal notranslate"><span class="pre">both</span></code> （默认）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_dpi</span></code> （ <code class="docutils literal notranslate"><span class="pre">600</span></code> ）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_show_background</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_show_grid</span></code> （ <code class="docutils literal notranslate"><span class="pre">true</span></code> ）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_block_size</span></code> （ <code class="docutils literal notranslate"><span class="pre">null</span></code> → 提取 <code class="docutils literal notranslate"><span class="pre">block_size</span></code> ，默认 8 体素）</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">visualization_grid_linestyle</span></code> (<code class="docutils literal notranslate"><span class="pre">--</span></code> dashed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualization_grid_linestyle</span></code> （ <code class="docutils literal notranslate"><span class="pre">--</span></code> 虚线）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_save_3d</span></code> （ <code class="docutils literal notranslate"><span class="pre">true</span></code> ；3D 需要 napari）</p></li>
 </ul>
 </li>
 <li><p><strong>旧版密钥</strong> <code class="docutils literal notranslate"><span class="pre">enabled</span></code> / <code class="docutils literal notranslate"><span class="pre">n_workers</span></code> ：已接受，已忽略（激活为 <code class="docutils literal notranslate"><span class="pre">feature_types</span></code> ；数字在主进程中顺序运行）</p></li>
-<li><p><strong>Output CSV</strong>: <code class="docutils literal notranslate"><span class="pre">habitat_graph_features.csv</span></code></p></li>
-<li><p><strong>Reference</strong> ：<a class="reference internal" href="../reference/features/graph.html"><span class="doc">图拓扑特征</span></a></p></li>
+<li><p><strong>输出 CSV</strong> ： <code class="docutils literal notranslate"><span class="pre">habitat_graph_features.csv</span></code></p></li>
+<li><p><strong>Reference</strong> ： <a class="reference internal" href="../reference/features/graph.html"><span class="doc">图拓扑特征</span></a></p></li>
 </ul>
 <p><strong>n_habitats</strong> ：生境数量</p>
 <ul class="simple">

@@ -157,7 +157,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -171,7 +171,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -227,21 +227,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -640,14 +640,14 @@
 <h1>辅助命令<a class="headerlink" href="#auxiliary-commands" title="Link to this heading">#</a></h1>
 <p>独立工具。运行 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code> 查看全部标志。</p>
 <section id="habit-dicom-info">
-<h2>habit dicom-info<a class="headerlink" href="#habit-dicom-info" title="Link to this heading">#</a></h2>
+<h2>DICOM 信息（habit dicom-info）<a class="headerlink" href="#habit-dicom-info" title="Link to this heading">#</a></h2>
 <p>将 DICOM 元数据导出为 CSV / Excel。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>dicom-info<span class="w"> </span>-i<span class="w"> </span>./demo_data/dicom<span class="w"> </span>-o<span class="w"> </span>info.csv
 </pre></div>
 </div>
 </section>
 <section id="habit-icc">
-<h2>habit icc<a class="headerlink" href="#habit-icc" title="Link to this heading">#</a></h2>
+<h2>组内相关系数（habit icc）<a class="headerlink" href="#habit-icc" title="Link to this heading">#</a></h2>
 <p>特征可重复性的组内相关系数（ICC）。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>icc<span class="w"> </span>--config<span class="w"> </span>config/auxiliary/config_icc_demo.yaml
 </pre></div>
@@ -655,14 +655,14 @@
 <p>见 <a class="reference internal" href="../configuration/auxiliary.html"><span class="doc">辅助工具与数据配置</span></a> · 演练 <a class="reference internal" href="../how_to/auxiliary_tools.html"><span class="doc">辅助工具</span></a> 。</p>
 </section>
 <section id="habit-merge-csv">
-<h2>habit merge-csv<a class="headerlink" href="#habit-merge-csv" title="Link to this heading">#</a></h2>
+<h2>合并 CSV（habit merge-csv）<a class="headerlink" href="#habit-merge-csv" title="Link to this heading">#</a></h2>
 <p>按索引列合并 CSV / Excel 文件。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>merge-csv<span class="w"> </span>file1.csv<span class="w"> </span>file2.csv<span class="w"> </span>-o<span class="w"> </span>merged.csv<span class="w"> </span>--index-col<span class="w"> </span>PatientID
 </pre></div>
 </div>
 </section>
 <section id="habit-dice">
-<h2>habit dice<a class="headerlink" href="#habit-dice" title="Link to this heading">#</a></h2>
+<h2>Dice 系数（habit dice）<a class="headerlink" href="#habit-dice" title="Link to this heading">#</a></h2>
 <p>两掩膜集之间的 Dice 系数。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>dice<span class="w"> </span>--input1<span class="w"> </span>dir1<span class="w"> </span>--input2<span class="w"> </span>dir2<span class="w"> </span>--output<span class="w"> </span>dice_results.csv
 </pre></div>
@@ -699,10 +699,10 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habit-dicom-info">habit dicom-info</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habit-icc">habit icc</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habit-merge-csv">habit merge-csv</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habit-dice">habit dice</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habit-dicom-info">DICOM 信息（habit dicom-info）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habit-icc">组内相关系数（habit icc）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habit-merge-csv">合并 CSV（habit merge-csv）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habit-dice">Dice 系数（habit dice）</a></li>
 </ul>
   </nav></div>
 

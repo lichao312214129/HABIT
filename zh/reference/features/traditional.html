@@ -160,7 +160,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -174,7 +174,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -230,21 +230,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -411,7 +411,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -425,7 +425,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -474,21 +474,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -668,18 +668,16 @@
   <section id="traditional-radiomics">
 <h1>传统放射组学<a class="headerlink" href="#traditional-radiomics" title="Link to this heading">#</a></h1>
 <p><strong>Config</strong> ： <code class="docutils literal notranslate"><span class="pre">feature_types</span></code> 含 <code class="docutils literal notranslate"><span class="pre">traditional</span></code></p>
-<p><strong>Output</strong>: <code class="docutils literal notranslate"><span class="pre">raw_image_radiomics.csv</span></code></p>
+<p><strong>输出</strong> ： <code class="docutils literal notranslate"><span class="pre">raw_image_radiomics.csv</span></code></p>
 <section id="definition">
-<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
+<h2>定义<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
 <p>从肿瘤 ROI 内各 <strong>预处理后图像模态</strong> 提取 PyRadiomics 特征。ROI 为从生境标签图导出的 <strong>二值掩膜</strong> （标签 <span class="math notranslate nohighlight">\(ge 1\)</span> 体素 → 前景）；不用解剖 <code class="docutils literal notranslate"><span class="pre">masks/</span></code> 文件。否则忽略生境标签——特征反映 raw（多 delay）图像上瘤内信号与纹理。</p>
 </section>
 <section id="implementation">
-<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
+<h2>实现<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Parameter file: <code class="docutils literal notranslate"><span class="pre">params_file_of_non_habitat</span></code> (optional; bundled <code class="docutils literal notranslate"><span class="pre">roi</span></code> preset
-→ <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter.yaml</span></code> when omitted)</p></li>
-<li><p>Code: <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py</span></code>
-(<code class="docutils literal notranslate"><span class="pre">TraditionalRadiomicsPlugin</span></code>) → <code class="docutils literal notranslate"><span class="pre">habitat_radiomics.py</span></code></p></li>
+<li><p>参数文件： <code class="docutils literal notranslate"><span class="pre">params_file_of_non_habitat</span></code> （可选；省略时使用捆绑的 <code class="docutils literal notranslate"><span class="pre">roi</span></code> 预设 → <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter.yaml</span></code> ）</p></li>
+<li><p>代码： <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py</span></code> （ <code class="docutils literal notranslate"><span class="pre">TraditionalRadiomicsPlugin</span></code> ）→ <code class="docutils literal notranslate"><span class="pre">habitat_radiomics.py</span></code></p></li>
 </ul>
 </section>
 <section id="output-columns">
@@ -691,14 +689,14 @@
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>列模式</p></th>
-<th class="head"><p>Description</p></th>
+<th class="head"><p>描述</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{pyradiomics_feature}_of_{modality}</span></code></p></td>
 <td><p>One column per PyRadiomics 特征 × image 模态 under the 受试者 folder</p></td>
 </tr>
-<tr class="row-odd"><td><p>(excluded)</p></td>
+<tr class="row-odd"><td><p>（排除）</p></td>
 <td><p>名称含 <code class="docutils literal notranslate"><span class="pre">diagnostic</span></code> 的列在导出前丢弃</p></td>
 </tr>
 </tbody>
@@ -711,36 +709,22 @@
 <section id="pyradiomics-alignment">
 <h3>PyRadiomics 对齐<a class="headerlink" href="#pyradiomics-alignment" title="Link to this heading">#</a></h3>
 <p><strong>ROI 级放射组学、体素级放射组学与 3-D shape 均与 PyRadiomics 3.1</strong> <code class="docutils literal notranslate"><span class="pre">FeatureExtractor.execute()</span></code> 在相同图像、掩膜、标签与设置（ <code class="docutils literal notranslate"><span class="pre">binWidth</span></code> 、 <code class="docutils literal notranslate"><span class="pre">voxelArrayShift</span></code> 、distances 等）上一致。</p>
-<p><strong>ROI-level</strong> (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> / <code class="docutils literal notranslate"><span class="pre">traditional</span></code>, <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code>,
-<code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code>, <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> with default
-<code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code>): first-order, GLCM, GLRLM, GLSZM, GLDM, NGTDM.
-<code class="docutils literal notranslate"><span class="pre">traditional</span></code> / <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> call <code class="docutils literal notranslate"><span class="pre">execute()</span></code> directly.
-<code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> and default <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> use the native C
-path with per-label bins; vs <code class="docutils literal notranslate"><span class="pre">execute()</span></code> they agree to about
-<code class="docutils literal notranslate"><span class="pre">1e-10</span></code> relative (Energy / TotalEnergy at floating-point ULP).</p>
+<p><strong>ROI 级</strong> （ <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> / <code class="docutils literal notranslate"><span class="pre">traditional</span></code> 、 <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> 、 <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> 、默认 <code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code> 的 <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> ）：一阶、GLCM、GLRLM、GLSZM、GLDM、NGTDM。 <code class="docutils literal notranslate"><span class="pre">traditional</span></code> / <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> 直接调用 <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 。 <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> 与默认 <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 使用按标签分箱的原生 C 路径；相对 <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 约在相对误差 <code class="docutils literal notranslate"><span class="pre">1e-10</span></code> 内一致（Energy / TotalEnergy 在浮点 ULP 量级）。</p>
 <p><strong>Shape</strong> （仅 ROI）：PyRadiomics <code class="docutils literal notranslate"><span class="pre">original_shape_*</span></code> / <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 的 <code class="docutils literal notranslate"><span class="pre">computeShape</span></code> 。Shape 为整 ROI 网格量；无逐体素 shape 图。</p>
-<p><strong>体素-level</strong> (<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code>): first-order and texture via <code class="docutils literal notranslate"><span class="pre">execute(...,</span> <span class="pre">voxelBased=True)</span></code>. The CPU path <strong>is</strong> that extractor (pre-crop does not change values). Torch / CUDA uses the same formulas; texture vs CPU sits at about <span class="math notranslate nohighlight">\(10^{-15}\)</span>, first-order percentiles at about <span class="math notranslate nohighlight">\(10^{-8}\)</span> (quantile algorithm). Set <code class="docutils literal notranslate"><span class="pre">torch_dtype:</span> <span class="pre">float64</span></code> for the closest CPU match.</p>
-<p>Gates: <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_supervoxel_native_parity.py</span></code>,
-<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code>,
-<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_*_gpu_parity.py</span></code>.</p>
-<p>These are <strong>not</strong> Py放射组学 and must not be compared to <code class="docutils literal notranslate"><span class="pre">execute()</span></code>: <code class="docutils literal notranslate"><span class="pre">graph</span></code>, <code class="docutils literal notranslate"><span class="pre">msi</span></code>, <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>, <code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code>, and 超体素 <code class="docutils literal notranslate"><span class="pre">mean</span></code> / <code class="docutils literal notranslate"><span class="pre">std</span></code> / <code class="docutils literal notranslate"><span class="pre">percentile</span></code>.</p>
+<p><strong>体素级</strong> （ <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> ）：经 <code class="docutils literal notranslate"><span class="pre">execute(...,</span> <span class="pre">voxelBased=True)</span></code> 计算一阶与纹理。CPU 路径 <strong>就是</strong> 该提取器（预裁剪不改变数值）。Torch / CUDA 使用相同公式；纹理相对 CPU 约在 <span class="math notranslate nohighlight">\(10^{-15}\)</span> ，一阶百分位数约在 <span class="math notranslate nohighlight">\(10^{-8}\)</span> （分位数算法差异）。设 <code class="docutils literal notranslate"><span class="pre">torch_dtype:</span> <span class="pre">float64</span></code> 可最接近 CPU 结果。</p>
+<p>门禁： <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_supervoxel_native_parity.py</span></code> 、 <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code> 、 <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_*_gpu_parity.py</span></code> 。</p>
+<p>以下 <strong>不是</strong> PyRadiomics，且不得与 <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 对照： <code class="docutils literal notranslate"><span class="pre">graph</span></code> 、 <code class="docutils literal notranslate"><span class="pre">msi</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ith_score</span></code> 、 <code class="docutils literal notranslate"><span class="pre">volume</span></code> 、 <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code> ，以及超体素 <code class="docutils literal notranslate"><span class="pre">mean</span></code> / <code class="docutils literal notranslate"><span class="pre">std</span></code> / <code class="docutils literal notranslate"><span class="pre">percentile</span></code> 。</p>
 <p><code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 与 <code class="docutils literal notranslate"><span class="pre">union_bin=true</span></code> 是不同离散化（union 掩膜上单一共享灰度）。 <code class="docutils literal notranslate"><span class="pre">JointAverage</span></code> / <code class="docutils literal notranslate"><span class="pre">Autocorrelation</span></code> / <code class="docutils literal notranslate"><span class="pre">HighGrayLevel*</span></code> 不会与逐 ROI <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 一致；此为预期，非公式 bug。</p>
 <p>两种约定须与 IBSI 手册对照阅读，而非与之对立：</p>
 <ul class="simple">
 <li><p><strong>Kurtosis</strong> 为 Pearson 峰度。IBSI 报告 <em>超额</em> 峰度（Fisher，正态 = 0）。HABIT / PyRadiomics = IBSI + 3。</p></li>
-<li><p>HABIT does <strong>not</strong> extract IBSI families it does not implement: GLDZM, local-intensity peak, intensity-volume histogram, Moran's I, or Geary's C. Deprecated Py放射组学 shape names (Compactness 1/2, Spherical disproportion) are not computed.</p></li>
+<li><p>HABIT <strong>不会</strong> 提取其未实现的 IBSI 族：GLDZM、局部强度峰、强度-体积直方图、Moran's I 或 Geary's C。已弃用的 PyRadiomics 形状名称（Compactness 1/2、Spherical disproportion）也不计算。</p></li>
 </ul>
 </section>
 <section id="ibsi-1-phase-1-digital-phantom">
 <h3>IBSI-1 Phase 1 数字体膜<a class="headerlink" href="#ibsi-1-phase-1-digital-phantom" title="Link to this heading">#</a></h3>
 <p>表用官方 IBSI 数字体膜（5×4×4 体素，2 mm 各向同性，74 体素 ROI；强度含 1、3、4、6、9）来自 <a class="reference external" href="https://ibsi.readthedocs.io/en/latest/03_Image_features.html">theibsi/data_sets &lt;https://github.com/theibsi/data_sets/tree/master/ibsi_1_digital_phantom&gt;`_（CC-BY-4.0）及 IBSI 手册 **dig. phantom / 3-D averaged** 参考值（`Image features</a>）。设置对齐 Phase 1：无插值， <code class="docutils literal notranslate"><span class="pre">binWidth=1</span></code> ， <code class="docutils literal notranslate"><span class="pre">symmetricalGLCM=True</span></code> ， <code class="docutils literal notranslate"><span class="pre">distances=[1]</span></code> ，NGLDM <span class="math notranslate nohighlight">\(alpha=0\)</span> ， <code class="docutils literal notranslate"><span class="pre">voxelArrayShift=0</span></code> 。</p>
-<p><code class="docutils literal notranslate"><span class="pre">HABIT</span></code> is the native C + CPU-formula value when that family is in the
-fast path; shape is the PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute</span></code> value used by
-<code class="docutils literal notranslate"><span class="pre">traditional_radiomics</span></code>. HABIT and PyRadiomics columns match. Remaining
-gaps versus the published IBSI figures are the Kurtosis convention
-(above) or the few significant digits in the IBSI manual (for example
-<code class="docutils literal notranslate"><span class="pre">556</span></code> vs <code class="docutils literal notranslate"><span class="pre">556.333</span></code>). A regression test loads the same NIfTI pair:
-<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">HABIT</span></code> 是该特征族走快速路径时的原生 C + CPU 公式值；形状特征是 <code class="docutils literal notranslate"><span class="pre">traditional_radiomics</span></code> 所用的 PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute</span></code> 值。HABIT 与 PyRadiomics 列一致。相对已发表 IBSI 数值的剩余差距来自 Kurtosis 约定（见上）或 IBSI 手册中的有效位数（例如 <code class="docutils literal notranslate"><span class="pre">556</span></code> 对 <code class="docutils literal notranslate"><span class="pre">556.333</span></code> ）。回归测试加载同一对 NIfTI： <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code> 。</p>
 <div class="pst-scrollable-table-container"><table class="table" id="id1">
 <caption><span class="caption-text">IBSI-1 Phase 1 数字体膜（3-D averaged 纹理）</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
 <colgroup>
@@ -753,13 +737,13 @@ gaps versus the published IBSI figures are the Kurtosis convention
 <col style="width: 21.8%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Family</p></th>
-<th class="head"><p>Feature</p></th>
+<tr class="row-odd"><th class="head"><p>特征族</p></th>
+<th class="head"><p>特征</p></th>
 <th class="head"><p>IBSI ID</p></th>
 <th class="head"><p>IBSI</p></th>
 <th class="head"><p>HABIT</p></th>
 <th class="head"><p>PyRadiomics</p></th>
-<th class="head"><p>Note</p></th>
+<th class="head"><p>说明</p></th>
 </tr>
 </thead>
 <tbody>
@@ -1113,7 +1097,7 @@ gaps versus the published IBSI figures are the Kurtosis convention
 <td><p>145</p></td>
 <td><p>144.7033814</p></td>
 <td><p>144.7033814</p></td>
-<td><p>IBSI rounded</p></td>
+<td><p>IBSI 圆整值</p></td>
 </tr>
 <tr class="row-even"><td><p>glcm</p></td>
 <td><p>Imc1</p></td>
@@ -1305,7 +1289,7 @@ gaps versus the published IBSI figures are the Kurtosis convention
 <td><p>503</p></td>
 <td><p>502.7944444</p></td>
 <td><p>502.7944444</p></td>
-<td><p>IBSI rounded</p></td>
+<td><p>IBSI 圆整值</p></td>
 </tr>
 <tr class="row-even"><td><p>glszm</p></td>
 <td><p>LargeAreaHighGrayLevelEmphasis</p></td>
@@ -1313,7 +1297,7 @@ gaps versus the published IBSI figures are the Kurtosis convention
 <td><p>1490</p></td>
 <td><p>1494.6</p></td>
 <td><p>1494.6</p></td>
-<td><p>IBSI rounded</p></td>
+<td><p>IBSI 圆整值</p></td>
 </tr>
 <tr class="row-odd"><td><p>glszm</p></td>
 <td><p>GrayLevelNonUniformity</p></td>
@@ -1473,7 +1457,7 @@ gaps versus the published IBSI figures are the Kurtosis convention
 <td><p>102</p></td>
 <td><p>102.4508258</p></td>
 <td><p>102.4508258</p></td>
-<td><p>IBSI rounded</p></td>
+<td><p>IBSI 圆整值</p></td>
 </tr>
 <tr class="row-odd"><td><p>gldm</p></td>
 <td><p>LargeDependenceHighGrayLevelEmphasis</p></td>
@@ -1578,8 +1562,8 @@ gaps versus the published IBSI figures are the Kurtosis convention
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">Definition</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">定义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">实现</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-columns">输出列</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-definitions">特征定义</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyradiomics-alignment">PyRadiomics 对齐</a></li>

@@ -57,8 +57,8 @@
     <link rel="canonical" href="https://lichao312214129.github.io/HABIT/user_guide/building_habitat_maps.html" />
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
-    <link rel="next" title="Features" href="features.html" />
-    <link rel="prev" title="Introduction" href="introduction.html" />
+    <link rel="next" title="特征" href="features.html" />
+    <link rel="prev" title="引言" href="introduction.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="zh-CN"/>
   <meta name="docsearch:version" content="3.0.0" />
@@ -159,7 +159,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -173,7 +173,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -229,21 +229,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -597,9 +597,9 @@
      aria-label="章节导航">
   <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">引言</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">构建生境图</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">特征</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quantifying_habitats.html">量化栖息地</a></li>
 <li class="toctree-l1"><a class="reference internal" href="manipulating_images.html">图像操作</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_blocks.html">构建块</a></li>
@@ -672,12 +672,9 @@
 </section>
 <section id="choosing-the-number-of-habitats">
 <h2>选择生境数量<a class="headerlink" href="#choosing-the-number-of-habitats" title="Link to this heading">#</a></h2>
-<p>When <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> is omitted, k-means tries every candidate in
-<code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> … <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> and keeps the count preferred by
-<code class="docutils literal notranslate"><span class="pre">validation</span></code> (schema default <code class="docutils literal notranslate"><span class="pre">elbow</span></code>). Report the rule and the
-random seed with the results.</p>
+<p>省略 <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> 时，k-means 会尝试 <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> … <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> 中的每一个候选，并保留 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 所偏好的个数（schema 默认 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> ）。报告结果时请同时写明选用规则与随机种子。</p>
 <p>HABIT 验证 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 与 <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 为同一规则。在 k-means 惯性（簇内平方和）上运行 <code class="docutils literal notranslate"><span class="pre">KneeLocator</span></code> ，曲线 convex、方向 decreasing（Satopaa, Albrecht, Irwin, and Raghavan, 2011, <em>Finding a &quot;Kneedle&quot; in a Haystack</em>, IEEE ICDCS Workshops）。简述：将 <code class="docutils literal notranslate"><span class="pre">k</span></code> 与 inertia 归一化到单位正方形，连接首尾点作弦，取离弦最远的 <code class="docutils literal notranslate"><span class="pre">k</span></code> ；平滑曲线常使该 knee 位于肉眼弯折点右侧。</p>
-<p>聚类文献中 <em>elbow</em> 通常指观察簇内离散度随 <code class="docutils literal notranslate"><span class="pre">k</span></code> 变化并选择额外簇不再有帮助之处（Thorndike RL，1953， <em>Who belongs in the family?</em> ，Psychometrika 18(4):267–276，作为早期表述）。 <strong>不要</strong> 声称 Thorndike 发表过二阶差分公式。</p>
+<p>在聚类文献中， <em>elbow</em> 通常指观察簇内离散度随 <code class="docutils literal notranslate"><span class="pre">k</span></code> 的变化，并选择额外簇不再有帮助的拐点（Thorndike RL, 1953, <em>Who belongs in the family?</em>, Psychometrika 18(4):267–276，即该早期表述）。 <strong>不要</strong> 声称 Thorndike 发表过二阶差分公式。</p>
 <p>HABIT 亦文档化 <strong>离散曲率肘部</strong> （视觉肘部、可计算）：最大化 inertia 二阶差的 <code class="docutils literal notranslate"><span class="pre">k</span></code> （ <code class="docutils literal notranslate"><span class="pre">argmax(diff2)</span> <span class="pre">+</span> <span class="pre">1</span></code> 进入候选列表）。这是 HABIT 在 v1.0 前 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 用的规则。标注为 <em>离散曲率肘部</em> ，非「Thorndike 公式」。</p>
 <p><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.kernels.cluster_selection</span></code> 中其他 k-means 准则 — 最大化： <code class="docutils literal notranslate"><span class="pre">silhouette</span></code> 、 <code class="docutils literal notranslate"><span class="pre">calinski_harabasz</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gap</span></code> ；最小化： <code class="docutils literal notranslate"><span class="pre">davies_bouldin</span></code> ；拐点： <code class="docutils literal notranslate"><span class="pre">elbow</span></code> / <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> / <code class="docutils literal notranslate"><span class="pre">inertia</span></code> 。GMM 还支持最小化 <code class="docutils literal notranslate"><span class="pre">bic</span></code> / <code class="docutils literal notranslate"><span class="pre">aic</span></code> 与 <code class="docutils literal notranslate"><span class="pre">bic_elbow</span></code> （Prior 2024 BIC 斜率规则）。同一曲线上准则可不一致；图库页 <a class="reference internal" href="../auto_examples/03_clustering/plot_03_clustering_algorithm.html"><span class="doc">聚类算法与生境数</span></a> 打印对照表并在 inertia 面板标 Kneedle <code class="docutils literal notranslate"><span class="pre">k</span></code> 与离散曲率 <code class="docutils literal notranslate"><span class="pre">k</span></code> 。</p>
 </section>
@@ -699,7 +696,7 @@ random seed with the results.</p>
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">上一页</p>
-        <p class="prev-next-title">Introduction</p>
+        <p class="prev-next-title">引言</p>
       </div>
     </a>
     <a class="right-next"
@@ -707,7 +704,7 @@ random seed with the results.</p>
        title="下一页">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">下一页</p>
-        <p class="prev-next-title">Features</p>
+        <p class="prev-next-title">特征</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

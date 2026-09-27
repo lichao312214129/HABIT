@@ -159,7 +159,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -173,7 +173,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -229,21 +229,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -667,7 +667,7 @@
 <h1>生境分割配置<a class="headerlink" href="#habitat-segmentation-configuration" title="Link to this heading">#</a></h1>
 <section id="habitat-analysis-configuration-parameters">
 <h2>生境分析配置参数<a class="headerlink" href="#habitat-analysis-configuration-parameters" title="Link to this heading">#</a></h2>
-<p>This section covers <strong>habitat analysis</strong> configuration. CLI: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">-c</span> <span class="pre">&lt;yaml&gt;</span></code>. Demo training: <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step.yaml</span></code>; prediction: <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_predict.yaml</span></code>; SLIC supervoxel example: <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_supervoxel_slic.yaml</span></code> (parameter details in <strong>&quot;habitat_segmentation.supervoxel — SLIC Superpixel Configuration&quot;</strong> below).</p>
+<p>本节介绍 <strong>生境分析</strong> 配置。CLI： <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">-c</span> <span class="pre">&lt;yaml&gt;</span></code> 。演示训练： <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step.yaml</span></code> ；预测： <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_predict.yaml</span></code> ；SLIC 超体素示例： <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_supervoxel_slic.yaml</span></code> （参数细节见下方 <strong>&quot;habitat_segmentation.supervoxel — SLIC Superpixel Configuration&quot;</strong> ）。</p>
 <p><strong>示例配置文件：</strong></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">run_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train</span>
 <span class="nt">pipeline_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./results/habitat_pipeline.pkl</span>
@@ -765,7 +765,7 @@
 <li><p><strong>Type</strong> ：string</p></li>
 <li><p><strong>Required</strong> ：yes</p></li>
 <li><p><strong>Default</strong> ：无（必填）</p></li>
-<li><p><strong>Description</strong>: <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> may be a directory <strong>or</strong> a manifest YAML (e.g. <code class="docutils literal notranslate"><span class="pre">file_habitat.yaml</span></code>, or <code class="docutils literal notranslate"><span class="pre">file_habitat_registered_single_roi.yaml</span></code> when modalities are already co-registered and each subject has one ROI). Never a bare <code class="docutils literal notranslate"><span class="pre">.nii.gz</span></code>. <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> is the default parent directory for results and checkpoints. See <a class="reference internal" href="../auto_examples/06_manipulating_images/index.html"><span class="doc">图像操作</span></a>.</p></li>
+<li><p><strong>说明</strong> ： <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> 可以是目录， <strong>或</strong> 清单 YAML（例如 <code class="docutils literal notranslate"><span class="pre">file_habitat.yaml</span></code> ；当各模态已共配准且每位受试者只有一个 ROI 时，可用 <code class="docutils literal notranslate"><span class="pre">file_habitat_registered_single_roi.yaml</span></code> ）。绝不能是裸的 <code class="docutils literal notranslate"><span class="pre">.nii.gz</span></code> 。 <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> 是结果与检查点的默认父目录。参见 <a class="reference internal" href="../auto_examples/06_manipulating_images/index.html"><span class="doc">图像操作</span></a> 。</p></li>
 </ul>
 <p><strong>feature_construction</strong> ：特征提取设置</p>
 <ul class="simple">
@@ -777,7 +777,7 @@
 <p><strong>本工作流 YAML 字段命名</strong> （避免混淆 <code class="docutils literal notranslate"><span class="pre">method</span></code> / <code class="docutils literal notranslate"><span class="pre">methods</span></code> / <code class="docutils literal notranslate"><span class="pre">algorithm</span></code> ）：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">feature_construction.*.method</span></code> （单数）：一条 <strong>函数表达式</strong> 字符串（ <code class="docutils literal notranslate"><span class="pre">concat(voxel_radiomics(T2))</span></code> ）。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">preprocessing_for_*</span> <span class="pre">.methods</span></code> (plural): an <strong>ordered list</strong> of preprocessing steps; each item has its own <code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">winsorize</span></code> step type.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">preprocessing_for_*</span> <span class="pre">.methods</span></code> （复数）：预处理步骤的 <strong>有序列表</strong> ；每一项都有各自的 <code class="docutils literal notranslate"><span class="pre">method:</span> <span class="pre">winsorize</span></code> 步骤类型。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">habitat_segmentation.supervoxel.algorithm</span></code> ：超体素划分算法（ <code class="docutils literal notranslate"><span class="pre">slic</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> ）。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">habitat_segmentation.habitat.algorithm</span></code> ：队列生境模型拟合器（ <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> ）。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">habitat_cluster_selection_method</span></code> / <code class="docutils literal notranslate"><span class="pre">selection_method</span></code> ：聚类数量验证指标（ <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 、 <code class="docutils literal notranslate"><span class="pre">silhouette</span></code> ，…）。</p></li>
@@ -795,10 +795,10 @@
 <li><p>按模态提取时（ <code class="docutils literal notranslate"><span class="pre">raw</span></code> 、 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 、 <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 等）， <strong>即使单模态</strong> 也须用 <code class="docutils literal notranslate"><span class="pre">concat(...)</span></code> 等外层 combiner 包裹；内层表达式为每模态子表达式；外层跨模态合并结果。</p></li>
 <li><p>括号内逗号分隔 token 为 <strong>参数名占位符</strong> 或 <strong>图像模态名</strong> （匹配 <code class="docutils literal notranslate"><span class="pre">images/&lt;subject&gt;/&lt;modality&gt;/</span></code> 子目录）， <strong>非</strong> Python 关键字参数；实际路径与数值放在兄弟 <code class="docutils literal notranslate"><span class="pre">params</span></code> dict。</p></li>
 <li><p><strong>绑定规则</strong> ：参数仅当其名出现在 <code class="docutils literal notranslate"><span class="pre">F</span></code> 括号内才绑定到函数 <code class="docutils literal notranslate"><span class="pre">F(...)</span></code> （模态名除外）。 <code class="docutils literal notranslate"><span class="pre">params</span></code> 中未出现在任何函数括号内的键会触发弃用警告。</p></li>
-<li><p><strong>Defaults</strong>: optional parameters omitted from both parentheses and <code class="docutils literal notranslate"><span class="pre">params</span></code> receive built-in defaults from each method's <code class="docutils literal notranslate"><span class="pre">method_param_spec</span></code> (see extractor classes under <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_analysis/clustering_features/</span></code>).</p></li>
-<li><p><a href="#id1"><span class="problematic" id="id2">**</span></a>Bundled <code class="docutils literal notranslate"><span class="pre">params_file</span></code> ** ： <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> / <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 的 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 可选。省略时 HABIT 使用 <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/</span></code> 内置预设（CT R3B12 体素预设；超体素全集预设）。运行时记录解析后的绝对路径。</p></li>
+<li><p><strong>默认值</strong> ：圆括号与 <code class="docutils literal notranslate"><span class="pre">params</span></code> 中均未给出的可选参数，会采用各方法 <code class="docutils literal notranslate"><span class="pre">method_param_spec</span></code> 的内置默认（见 <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_analysis/clustering_features/</span></code> 下的提取器类）。</p></li>
+<li><p><strong>内置 ``params_file``</strong>：<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> / <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 的 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 可选。省略时 HABIT 使用 <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/</span></code> 内置预设（CT R3B12 体素预设；超体素全集预设）。运行时记录解析后的绝对路径。</p></li>
 <li><p>推荐最简形式： <code class="docutils literal notranslate"><span class="pre">concat(voxel_radiomics(T2))</span></code> 与 <code class="docutils literal notranslate"><span class="pre">params:</span> <span class="pre">{}</span></code> — 使用捆绑 CT R3B12 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kernel_radius:</span> <span class="pre">3</span></code> 、 <code class="docutils literal notranslate"><span class="pre">voxel_batch:</span> <span class="pre">1000</span></code> 、 <code class="docutils literal notranslate"><span class="pre">use_torch_radiomics:</span> <span class="pre">auto</span></code> 。仅覆盖时在括号中列名（如 <code class="docutils literal notranslate"><span class="pre">concat(voxel_radiomics(T2,</span> <span class="pre">kernel_radius))</span></code> 与 <code class="docutils literal notranslate"><span class="pre">kernel_radius:</span> <span class="pre">1</span></code> 用于 MRI）。</p></li>
-<li><p><strong>严格引号形式（v1 特征树）</strong> ： when the expression contains <strong>quoted</strong> 模态 strings, it is parsed by the strict v1 parser (<a class="reference internal" href="../api/generated/habit.spec.parse_feature_expression.html#habit.spec.parse_feature_expression" title="habit.spec.parse_feature_expression"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse_feature_expression()</span></code></a>) into a 特征 Spec tree instead of the permissive v0.1 mini-language. Rules: 模态 are quoted (<code class="docutils literal notranslate"><span class="pre">raw(&quot;T1&quot;)</span></code>), parameters are explicit <code class="docutils literal notranslate"><span class="pre">key=value</span></code> (<code class="docutils literal notranslate"><span class="pre">local_entropy(&quot;T2&quot;,</span> <span class="pre">kernel_size=5)</span></code>), combiner children are nested calls (a bare quoted string among children is an implicit <code class="docutils literal notranslate"><span class="pre">raw</span></code> leaf), and <code class="docutils literal notranslate"><span class="pre">as_=&quot;label&quot;</span></code> renames a single-column node's output. Ambiguous input fails loudly instead of being guessed. Available combiners: <code class="docutils literal notranslate"><span class="pre">concat</span></code>, <code class="docutils literal notranslate"><span class="pre">weighted_concat</span></code> (<code class="docutils literal notranslate"><span class="pre">weights=[...]</span></code>), <code class="docutils literal notranslate"><span class="pre">average</span></code>, <code class="docutils literal notranslate"><span class="pre">ratio</span></code> / <code class="docutils literal notranslate"><span class="pre">difference</span></code> (two children), <code class="docutils literal notranslate"><span class="pre">kinetic</span></code>, <code class="docutils literal notranslate"><span class="pre">expression</span></code>. Example: <code class="docutils literal notranslate"><span class="pre">concat(raw(&quot;LAP&quot;),</span> <span class="pre">ratio(raw(&quot;LAP&quot;),</span> <span class="pre">raw(&quot;PVP&quot;),</span> <span class="pre">as_=&quot;lap_over_pvp&quot;))</span></code>.</p></li>
+<li><p><strong>严格引号形式（v1 特征树）</strong> ：当表达式含 <strong>带引号</strong> 的模态字符串时，由严格 v1 解析器（ <a class="reference internal" href="../api/generated/habit.spec.parse_feature_expression.html#habit.spec.parse_feature_expression" title="habit.spec.parse_feature_expression"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse_feature_expression()</span></code></a> ）解析为特征 Spec 树，而非宽松的 v0.1 迷你语言。规则：模态加引号（ <code class="docutils literal notranslate"><span class="pre">raw(&quot;T1&quot;)</span></code> ），参数为显式 <code class="docutils literal notranslate"><span class="pre">key=value</span></code> （ <code class="docutils literal notranslate"><span class="pre">local_entropy(&quot;T2&quot;,</span> <span class="pre">kernel_size=5)</span></code> ），组合器子项为嵌套调用（子项中的裸引号字符串是隐式 <code class="docutils literal notranslate"><span class="pre">raw</span></code> 叶节点）， <code class="docutils literal notranslate"><span class="pre">as_=&quot;label&quot;</span></code> 重命名单列节点的输出。歧义输入会明确失败，而非猜测。可用组合器： <code class="docutils literal notranslate"><span class="pre">concat</span></code> 、 <code class="docutils literal notranslate"><span class="pre">weighted_concat</span></code> （ <code class="docutils literal notranslate"><span class="pre">weights=[...]</span></code> ）、 <code class="docutils literal notranslate"><span class="pre">average</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ratio</span></code> / <code class="docutils literal notranslate"><span class="pre">difference</span></code> （两个子项）、 <code class="docutils literal notranslate"><span class="pre">kinetic</span></code> 、 <code class="docutils literal notranslate"><span class="pre">expression</span></code> 。示例： <code class="docutils literal notranslate"><span class="pre">concat(raw(&quot;LAP&quot;),</span> <span class="pre">ratio(raw(&quot;LAP&quot;),</span> <span class="pre">raw(&quot;PVP&quot;),</span> <span class="pre">as_=&quot;lap_over_pvp&quot;))</span></code> 。</p></li>
 </ul>
 </li>
 </ul>
@@ -807,7 +807,7 @@
 <ul>
 <li><p><strong>类型</strong> ：字典</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">{}</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">{}</span></code></p></li>
 <li><p><strong>说明</strong> ：传给 <code class="docutils literal notranslate"><span class="pre">method</span></code> 所引用提取器的键值对（例如 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 的 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 可能位于 <code class="docutils literal notranslate"><span class="pre">params</span></code> ，取决于解析器行为）。无额外参数时可省略整个 <code class="docutils literal notranslate"><span class="pre">params</span></code> 块（默认为空 dict）。</p></li>
 <li><p><strong>可用的方法和参数</strong> ：</p></li>
 </ul>
@@ -833,7 +833,7 @@
 <blockquote>
 <div><ul class="simple">
 <li><p><strong>描述</strong> ：提取动力学特征（注入/洗出斜率等）</p></li>
-<li><p><strong>Parameters</strong>:</p>
+<li><p><strong>参数</strong> ：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">timestamps</span></code> （str，required）：时间戳文件路径</p></li>
 <li><p>接受多个 <code class="docutils literal notranslate"><span class="pre">raw(image_name)</span></code> 表达式</p></li>
@@ -853,7 +853,7 @@
 <blockquote>
 <div><ul class="simple">
 <li><p><strong>Description</strong> ：计算局部熵（局部纹理复杂度）</p></li>
-<li><p><strong>Parameters</strong>:</p>
+<li><p><strong>参数</strong> ：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">kernel_size</span></code> （整数，默认值： <code class="docutils literal notranslate"><span class="pre">3</span></code> ）：本地邻域大小</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bins</span></code> （int，默认 <code class="docutils literal notranslate"><span class="pre">32</span></code> ）：直方图 bin 数</p></li>
@@ -867,13 +867,13 @@
 <div><blockquote>
 <div><ul class="simple">
 <li><p><strong>Description</strong> ：提取体素级放射组学特征</p></li>
-<li><p><strong>Parameters</strong>:</p>
+<li><p><strong>参数</strong> ：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code> （str，可选）：PyRadiomics 参数文件路径；省略则用 bundled CT R3B12 预设</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> （int，默认 CT R3B12 捆绑预设 <code class="docutils literal notranslate"><span class="pre">3</span></code> ； <code class="docutils literal notranslate"><span class="pre">1</span></code> = 3×3×3， <code class="docutils literal notranslate"><span class="pre">3</span></code> = 7×7×7）：局部邻域半径</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">voxel_batch</span></code> （int，默认 <code class="docutils literal notranslate"><span class="pre">1000</span></code> ）：体素 batch； <code class="docutils literal notranslate"><span class="pre">-1</span></code> 一次处理全部 ROI 体素（原生 PyRadiomics，无 batch）。正值限内存（GPU 或大 ROI 建议 <code class="docutils literal notranslate"><span class="pre">512</span></code> – <code class="docutils literal notranslate"><span class="pre">1000</span></code> ）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code> （str，默认 <code class="docutils literal notranslate"><span class="pre">auto</span></code> ）： <code class="docutils literal notranslate"><span class="pre">auto</span></code> 在已装 torch 且 CUDA 可用时用 TorchRadiomics，否则 CPU PyRadiomics； <code class="docutils literal notranslate"><span class="pre">true</span></code> 强制 torch； <code class="docutils literal notranslate"><span class="pre">false</span></code> 始终 CPU</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code> (str, default: <code class="docutils literal notranslate"><span class="pre">auto</span></code>): when Torch放射组学 is on, <code class="docutils literal notranslate"><span class="pre">auto</span></code> builds GLCM/GLDM/GLRLM/GLSZM/NGTDM on GPU (<code class="docutils literal notranslate"><span class="pre">habit.kernels.radiomics.gpumatrices</span></code>); <code class="docutils literal notranslate"><span class="pre">false</span></code> keeps the Py放射组学 <code class="docutils literal notranslate"><span class="pre">cMatrices</span></code> C extension (same counts). Upstream pytorch放射组学 always uses C for this step. See <a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">体素纹理特征图</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code> （str，默认： <code class="docutils literal notranslate"><span class="pre">auto</span></code> ）：启用 TorchRadiomics 时， <code class="docutils literal notranslate"><span class="pre">auto</span></code> 在 GPU 上构建 GLCM/GLDM/GLRLM/GLSZM/NGTDM（ <code class="docutils literal notranslate"><span class="pre">habit.kernels.radiomics.gpumatrices</span></code> ）； <code class="docutils literal notranslate"><span class="pre">false</span></code> 保留 PyRadiomics <code class="docutils literal notranslate"><span class="pre">cMatrices</span></code> C 扩展（计数相同）。上游 pytorchradiomics 此步始终使用 C。见 <a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">体素纹理特征图</span></a> 。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">class_progress</span></code> （bool，默认 <code class="docutils literal notranslate"><span class="pre">false</span></code> ）： <code class="docutils literal notranslate"><span class="pre">true</span></code> 时对每个 PyRadiomics 类（firstorder、glcm 等）打印并 tqdm。默认安静； <code class="docutils literal notranslate"><span class="pre">Cohort.map</span></code> 仍报告受试者。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">torch_device</span></code> （str，default： <code class="docutils literal notranslate"><span class="pre">auto</span></code> ）： <code class="docutils literal notranslate"><span class="pre">torch_gpus</span></code> 未设时的单 GPU 设备</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">torch_gpus</span></code> （list/int/str）：允许的 GPU 索引，如 <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2]</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;0,1,2&quot;</span></code> ；设置时覆盖 <code class="docutils literal notranslate"><span class="pre">torch_device</span></code></p></li>
@@ -881,20 +881,8 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code> （str，默认 <code class="docutils literal notranslate"><span class="pre">float32</span></code> ）：Torch 计算 dtype（ <code class="docutils literal notranslate"><span class="pre">float32</span></code> 或 <code class="docutils literal notranslate"><span class="pre">float64</span></code> ； <code class="docutils literal notranslate"><span class="pre">float64</span></code> 更接近 CPU PyRadiomics）</p></li>
 </ul>
 </li>
-<li><p><strong>Voxel GLCM note</strong>: Use <code class="docutils literal notranslate"><span class="pre">config/radiomics/params_voxel_radiomics.yaml</span></code> (explicit list of 21 stable GLCM features).
-If <code class="docutils literal notranslate"><span class="pre">params_file</span></code> lists only <code class="docutils literal notranslate"><span class="pre">glcm:</span></code> without feature names, PyRadiomics computes all 24 GLCM features; in
-small neighborhoods with many uniform voxels, GLCM degenerates to 1×1 matrices and <strong>MCC / Imc1 / Imc2</strong>
-feature values or mutual information can crash or produce NaN on CUDA/MKL. HABIT auto-replaces with the
-21 stable features and logs a warning when GLCM is unrestricted; if features are explicitly listed in
-<code class="docutils literal notranslate"><span class="pre">params_file</span></code>, user configuration is respected.</p></li>
-<li><p><strong>CT voxel texture (R3B12)</strong>: Literature recommends <code class="docutils literal notranslate"><span class="pre">kernel_radius:</span> <span class="pre">3</span></code> and <code class="docutils literal notranslate"><span class="pre">binWidth:</span> <span class="pre">12</span></code> HU
-(R3B12 configuration; better repeatability and robustness to kernel/binning than R1B25).
-Omit <code class="docutils literal notranslate"><span class="pre">params_file</span></code> to use bundled <code class="docutils literal notranslate"><span class="pre">params_voxel_radiomics.yaml</span></code>; <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> defaults to 3.
-Reference: Prior O, et al. <em>Radiol Artif Intell</em>. 2024;6(2):e230118. <a class="reference external" href="https://doi.org/10.1148/ryai.230118">https://doi.org/10.1148/ryai.230118</a>
-The simulated-retest perturbation used to <em>define</em> those precise features
-is <a class="reference internal" href="../api/generated/habit.precision.prior2024_retest_perturbation.html#habit.precision.prior2024_retest_perturbation" title="habit.precision.prior2024_retest_perturbation"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code></a> (MIRP 1.2.0
-Appendix S2: noise + 0.5-voxel translation fraction + 0.5° z-rotation).
-See <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_05_precise_features.html"><span class="doc">在扰动下精确特征与所有纹理</span></a>.</p></li>
+<li><p><strong>体素 GLCM 说明</strong> ：使用 <code class="docutils literal notranslate"><span class="pre">config/radiomics/params_voxel_radiomics.yaml</span></code> （显式列出 21 个稳定 GLCM 特征）。若 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 仅列出 <code class="docutils literal notranslate"><span class="pre">glcm:</span></code> 而无特征名，PyRadiomics 会计算全部 24 个 GLCM 特征；在均匀体素很多的小邻域中，GLCM 会退化成 1×1 矩阵， <strong>MCC / Imc1 / Imc2</strong> 特征值或互信息可能在 CUDA/MKL 上崩溃或产生 NaN。当 GLCM 未受限时，HABIT 会自动替换为 21 个稳定特征并记录警告；若 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 中显式列出了特征，则尊重用户配置。</p></li>
+<li><p><strong>CT 体素纹理（R3B12）</strong> ：文献建议 <code class="docutils literal notranslate"><span class="pre">kernel_radius:</span> <span class="pre">3</span></code> 与 <code class="docutils literal notranslate"><span class="pre">binWidth:</span> <span class="pre">12</span></code> HU（R3B12 配置；相对 R1B25，对核/分箱的可重复性与稳健性更好）。省略 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 即使用内置 <code class="docutils literal notranslate"><span class="pre">params_voxel_radiomics.yaml</span></code> ； <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> 默认为 3。参考文献：Prior O, et al. <em>Radiol Artif Intell</em>. 2024;6(2):e230118. <a class="reference external" href="https://doi.org/10.1148/ryai.230118">https://doi.org/10.1148/ryai.230118</a> 用于 <em>定义</em> 那些精确特征的模拟重测扰动是 <a class="reference internal" href="../api/generated/habit.precision.prior2024_retest_perturbation.html#habit.precision.prior2024_retest_perturbation" title="habit.precision.prior2024_retest_perturbation"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code></a> （MIRP 1.2.0 附录 S2：噪声 + 0.5 体素平移比例 + 0.5° z 轴旋转）。参见 <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_05_precise_features.html"><span class="doc">在扰动下精确特征与所有纹理</span></a> 。</p></li>
 <li><p><strong>Example</strong> ： <code class="docutils literal notranslate"><span class="pre">concat(voxel_radiomics(T2))</span></code> 且 <code class="docutils literal notranslate"><span class="pre">params:</span> <span class="pre">{}</span></code> （CT R3B12 默认）；覆盖示例： <code class="docutils literal notranslate"><span class="pre">concat(voxel_radiomics(T2,</span> <span class="pre">kernel_radius))</span></code> 且在 <code class="docutils literal notranslate"><span class="pre">kernel_radius:</span> <span class="pre">1</span></code> 中 <code class="docutils literal notranslate"><span class="pre">params</span></code></p></li>
 </ul>
 </div></blockquote>
@@ -931,7 +919,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <ul>
 <li><p><strong>类型</strong> ：字典</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">{}</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">{}</span></code></p></li>
 <li><p><strong>Description</strong> ：所有提取器共享参数。 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 专用键（ <code class="docutils literal notranslate"><span class="pre">voxel_batch</span></code> 、 <code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code> 等）属于 <code class="docutils literal notranslate"><span class="pre">params</span></code> ， <strong>不必</strong> 出现在 <code class="docutils literal notranslate"><span class="pre">method</span></code> 表达式字符串；表达式未列出的键自动合并转发。</p></li>
 <li><p><strong>Common parameters</strong> ：</p>
 <ul>
@@ -960,9 +948,9 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <ul>
 <li><p><strong>Type</strong> ：string</p></li>
 <li><p><strong>Required</strong> ：否（已配置 <code class="docutils literal notranslate"><span class="pre">supervoxel_level</span></code> 时）</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">*_supervoxel.nrrd</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">*_supervoxel.nrrd</span></code></p></li>
 <li><p><strong>说明</strong> ： Matches existing 超体素 segmentation files (from two_step mode).</p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">&quot;*_supervoxel.nrrd&quot;</span></code></p></li>
+<li><p><strong>示例</strong> ： <code class="docutils literal notranslate"><span class="pre">&quot;*_supervoxel.nrrd&quot;</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">method</span></code> ：特征聚合/提取方法</p>
@@ -1003,17 +991,17 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <li><p><strong>参数</strong> （在 <code class="docutils literal notranslate"><span class="pre">feature_construction.supervoxel_level.params</span></code> ；可继承 <code class="docutils literal notranslate"><span class="pre">voxel_level.params</span></code> 的 torch 键）：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code> （str，optional）：PyRadiomics 参数 YAML；省略则用 bundled 全集预设</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">supervoxel_batch</span></code> (int): batch group size, default <code class="docutils literal notranslate"><span class="pre">64</span></code> (not kernel radius)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">supervoxel_batch</span></code> （int）：批组大小，默认 <code class="docutils literal notranslate"><span class="pre">64</span></code> （不是核半径）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">supervoxel_union_bbox_crop</span></code> （bool）：裁剪到并集 bbox，默认 <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">union_bin</span></code> （bool）：逐标签 bin（默认 <code class="docutils literal notranslate"><span class="pre">false</span></code> ， <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 科学）或单一 union 掩膜 bin（ <code class="docutils literal notranslate"><span class="pre">true</span></code> ）</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext</span></code> (str | bool): <code class="docutils literal notranslate"><span class="pre">auto</span></code> / <code class="docutils literal notranslate"><span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code>, default <code class="docutils literal notranslate"><span class="pre">auto</span></code>; must be in <code class="docutils literal notranslate"><span class="pre">supervoxel_level.params</span></code> (not in <code class="docutils literal notranslate"><span class="pre">params_file</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext</span></code> （str | bool）： <code class="docutils literal notranslate"><span class="pre">auto</span></code> / <code class="docutils literal notranslate"><span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code> ，默认 <code class="docutils literal notranslate"><span class="pre">auto</span></code> ；必须写在 <code class="docutils literal notranslate"><span class="pre">supervoxel_level.params</span></code> 中（不能写在 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 里）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code> （str）： <code class="docutils literal notranslate"><span class="pre">auto</span></code> / <code class="docutils literal notranslate"><span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">torch_gpus</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_gpu_count</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_device</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code> ：与体素级相同</p></li>
 </ul>
 </li>
 <li><p><strong>注意</strong> ： <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> 仅用于 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> ； <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 不使用</p></li>
 <li><p><strong>Use case</strong> ：不经 <code class="docutils literal notranslate"><span class="pre">voxel_level</span></code> 特征，直接从超体素区域做纹理放射组学</p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">concat(supervoxel_radiomics(T2))</span></code> with <code class="docutils literal notranslate"><span class="pre">params:</span> <span class="pre">{}</span></code> (bundled preset)</p></li>
+<li><p><strong>示例</strong> ： <code class="docutils literal notranslate"><span class="pre">concat(supervoxel_radiomics(T2))</span></code> 且 <code class="docutils literal notranslate"><span class="pre">params:</span> <span class="pre">{}</span></code> （内置预设）</p></li>
 </ul>
 </div></blockquote>
 <ul>
@@ -1048,11 +1036,11 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 </ul>
 </div></blockquote>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">params</span></code>: Parameters</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">params</span></code> ：参数</p>
 <ul>
 <li><p><strong>类型</strong> ：字典</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">{}</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">{}</span></code></p></li>
 <li><p><strong>Description</strong> ：提取器参数。无参方法如 <code class="docutils literal notranslate"><span class="pre">params</span></code> 可省略 <code class="docutils literal notranslate"><span class="pre">mean_voxel_features()</span></code> 。常见 <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 键： <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 、 <code class="docutils literal notranslate"><span class="pre">supervoxel_batch</span></code> 、 <code class="docutils literal notranslate"><span class="pre">supervoxel_union_bbox_crop</span></code> 、 <code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext</span></code> 、 <code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code> 、 <code class="docutils literal notranslate"><span class="pre">torch_gpus</span></code> 、 <code class="docutils literal notranslate"><span class="pre">torch_gpu_count</span></code> 、 <code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code> （torch 键可继承 <code class="docutils literal notranslate"><span class="pre">voxel_level.params</span></code> ）。</p></li>
 </ul>
 </li>
@@ -1063,7 +1051,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <ul>
 <li><p><strong>Type</strong> ：list</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></li>
 <li><p><strong>Description</strong> ：按受试者预处理特征以减少受试者内离群与尺度差。由 <code class="docutils literal notranslate"><span class="pre">PreprocessingMethodFactory</span></code> 调度，DataFrame 入出（见下文“生境特征预处理实现与扩展”）。</p></li>
 <li><p><strong>Note</strong> ： <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 与 <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> 受试者级不得用删列方法（ <code class="docutils literal notranslate"><span class="pre">variance_filter</span></code> 、 <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> ），否则拼接后列不一致； <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 校验拒绝。 <code class="docutils literal notranslate"><span class="pre">one_step</span></code> 可在受试者级用删列（逐受试者聚类）。</p></li>
 <li><p><strong>支持的方法与参数</strong> ：</p></li>
@@ -1080,7 +1068,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <p><strong>minmax（min-max normalization）</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">global_normalize</span></code> (bool, default: <code class="docutils literal notranslate"><span class="pre">false</span></code>): global normalization</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_normalize</span></code> （bool，默认： <code class="docutils literal notranslate"><span class="pre">false</span></code> ）：全局归一化</p></li>
 </ul>
 </div></blockquote>
 <p><strong>zscore（Z-score 标准化）</strong> ：</p>
@@ -1092,8 +1080,8 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <p><strong>robust（robust standardization）</strong> ：</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">global_normalize</span></code> (bool, default: <code class="docutils literal notranslate"><span class="pre">false</span></code>): global normalization</p></li>
-<li><p>Scales using interquartile range (IQR); robust to outliers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_normalize</span></code> （bool，默认： <code class="docutils literal notranslate"><span class="pre">false</span></code> ）：全局归一化</p></li>
+<li><p>使用四分位距（IQR）缩放；对异常值稳健</p></li>
 </ul>
 </div></blockquote>
 <p><strong>log (log transform)</strong> ：</p>
@@ -1114,13 +1102,13 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <blockquote>
 <div><blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">corr_threshold</span></code> (float, default: <code class="docutils literal notranslate"><span class="pre">0.95</span></code>): drop redundant 特征 when the absolute correlation exceeds the threshold</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">corr_threshold</span></code> （float，默认： <code class="docutils literal notranslate"><span class="pre">0.95</span></code> ）：当绝对相关超过阈值时丢弃冗余特征</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">corr_method</span></code> （str，默认 <code class="docutils literal notranslate"><span class="pre">spearman</span></code> ）： <code class="docutils literal notranslate"><span class="pre">pearson</span></code> / <code class="docutils literal notranslate"><span class="pre">spearman</span></code> / <code class="docutils literal notranslate"><span class="pre">kendall</span></code></p></li>
 <li><p>注意：丢弃特征列</p></li>
 </ul>
 </div></blockquote>
 <ul>
-<li><p><strong>Examples</strong>:</p>
+<li><p><strong>示例</strong> ：</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Winsorize then normalize</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">winsorize</span>
 <span class="w">  </span><span class="nt">winsor_limits</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.05</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.05</span><span class="p p-Indicator">]</span>
@@ -1142,7 +1130,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <ul>
 <li><p><strong>Type</strong> ：list</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></li>
 <li><p><strong>说明</strong> ：在队列级预处理特征；常用于离散化以稳定聚类。</p></li>
 <li><p><strong>Applicable modes</strong> ：仅 <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 与 <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> ； <code class="docutils literal notranslate"><span class="pre">one_step</span></code> 流水线无 group 步——配置的 group 预处理无效。</p></li>
 <li><p><strong>支持的方法与参数</strong> ：</p></li>
@@ -1167,13 +1155,13 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">winsor_limits</span></code> （列表，默认： <code class="docutils literal notranslate"><span class="pre">[0.05,</span> <span class="pre">0.05]</span></code> ）：下尾和上尾截断分数</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">global_normalize</span></code> (bool, default: <code class="docutils literal notranslate"><span class="pre">false</span></code>): global normalization</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_normalize</span></code> （bool，默认： <code class="docutils literal notranslate"><span class="pre">false</span></code> ）：全局归一化</p></li>
 </ul>
 </div></blockquote>
 <p><strong>minmax / zscore / robust / log</strong> ：</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Same as <code class="docutils literal notranslate"><span class="pre">preprocessing_for_subject_level</span></code>, applied after group aggregation</p></li>
+<li><p>与 <code class="docutils literal notranslate"><span class="pre">preprocessing_for_subject_level</span></code> 相同，在组级聚合之后应用</p></li>
 </ul>
 </div></blockquote>
 <p><strong>variance_filter / correlation_filter（建议在群体级）</strong> ：</p>
@@ -1187,7 +1175,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 </ul>
 </div></blockquote>
 <ul>
-<li><p><strong>Examples</strong>:</p>
+<li><p><strong>示例</strong> ：</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uniform binning (recommended for habitat analysis)</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binning</span>
 <span class="w">  </span><span class="nt">n_bins</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
@@ -1204,7 +1192,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 </li>
 </ul>
 </div></blockquote>
-<p><strong>YAML structure essentials</strong></p>
+<p><strong>YAML 结构要点</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">preprocessing_for_*_level</span></code> 必须包含一个 <strong>单一的</strong> <code class="docutils literal notranslate"><span class="pre">methods:</span></code> 键，其值为 <strong>列表</strong> ；不要重复 <code class="docutils literal notranslate"><span class="pre">methods:</span></code> 或将列表项放在 <code class="docutils literal notranslate"><span class="pre">methods:</span></code> 块之外：</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Correct</span>
 <span class="nt">preprocessing_for_group_level</span><span class="p">:</span>
@@ -1222,7 +1210,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">variance_filter</span>
 </pre></div>
 </div>
-<p><strong>Preprocessing activation matrix by clustering_mode</strong></p>
+<p><strong>按 clustering_mode 划分的预处理激活矩阵</strong></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 28.9%" />
@@ -1232,26 +1220,26 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>预处理块</p></th>
-<th class="head"><p>one_step</p></th>
-<th class="head"><p>two_step</p></th>
+<th class="head"><p>一步法</p></th>
+<th class="head"><p>两步法</p></th>
 <th class="head"><p>direct_pooling</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">preprocessing_for_subject_level</span></code></p></td>
-<td><p>active</p></td>
+<td><p>启用</p></td>
 <td><p>active（禁止 <code class="docutils literal notranslate"><span class="pre">variance_filter</span></code> / <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> ）</p></td>
-<td><p>active</p></td>
+<td><p>启用</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">preprocessing_for_group_level</span></code></p></td>
-<td><p><strong>inactive</strong></p></td>
+<td><p><strong>未启用</strong></p></td>
 <td><p>active（Stage 2 群体级）</p></td>
 <td><p>active (after 池化, group level)</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><strong>Recommended pipeline (train → predict reuse)</strong></p>
+<p><strong>推荐流水线（训练 → 预测复用）</strong></p>
 <ul class="simple">
 <li><p><strong>two_step / direct_pooling（训练）</strong> ：受试者级 <code class="docutils literal notranslate"><span class="pre">winsorize</span></code> + <code class="docutils literal notranslate"><span class="pre">minmax</span></code> （或 <code class="docutils literal notranslate"><span class="pre">zscore</span></code> ）→ 组级 <code class="docutils literal notranslate"><span class="pre">binning</span></code> （离散化助聚类）→ 可选 <code class="docutils literal notranslate"><span class="pre">variance_filter</span></code> / <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> （删列； <code class="docutils literal notranslate"><span class="pre">fit</span></code> 缓存训练列集）。</p></li>
 <li><p><strong>two_step / direct_pooling（predict）</strong> ： <code class="docutils literal notranslate"><span class="pre">methods</span></code> 顺序与训练相同； <code class="docutils literal notranslate"><span class="pre">PreprocessingState</span></code> 从 <code class="docutils literal notranslate"><span class="pre">habitat_pipeline.pkl</span></code> 加载— <strong>勿改</strong> 删列方法的阈值以免列不匹配。</p></li>
@@ -1259,13 +1247,13 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 </ul>
 <p><strong>生境特征预处理实现与扩展</strong></p>
 <ul class="simple">
-<li><p><strong>统一接口</strong> ： Built-in and custom methods implement <code class="docutils literal notranslate"><span class="pre">BaseFeaturePreprocessing</span></code>, registered via <code class="docutils literal notranslate"><span class="pre">&#64;PreprocessingMethodFactory.register</span></code>.</p></li>
+<li><p><strong>统一接口</strong> ：内置与自定义方法均实现 <code class="docutils literal notranslate"><span class="pre">BaseFeaturePreprocessing</span></code> ，并通过 <code class="docutils literal notranslate"><span class="pre">&#64;PreprocessingMethodFactory.register</span></code> 注册。</p></li>
 <li><p><strong>Execution path</strong> ： <code class="docutils literal notranslate"><span class="pre">preprocessing_for_subject_level</span></code> → 无状态受试者级 <code class="docutils literal notranslate"><span class="pre">apply_stateless_preprocessing</span></code> ； <code class="docutils literal notranslate"><span class="pre">preprocessing_for_group_level</span></code> → <code class="docutils literal notranslate"><span class="pre">PreprocessingState.fit/transform</span></code> （训练缓存 <code class="docutils literal notranslate"><span class="pre">baseline</span></code> 与逐步 <code class="docutils literal notranslate"><span class="pre">step_states</span></code> ；预测复用）。</p></li>
 <li><p><strong>删列方法</strong> ： <code class="docutils literal notranslate"><span class="pre">variance_filter</span></code> 、 <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> 设 <code class="docutils literal notranslate"><span class="pre">changes_columns=True</span></code> ； <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 禁止在受试者级使用（见上文说明）。</p></li>
 <li><p><strong>添加方法</strong> ：</p>
 <ol class="arabic simple">
-<li><p>See <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_analysis/feature_preprocessing/custom_preprocessing_template.py</span></code></p></li>
-<li><p>Register the method name in <code class="docutils literal notranslate"><span class="pre">habit/schemas/workflows/habitat.py</span></code> (<code class="docutils literal notranslate"><span class="pre">PreprocessingMethod.method</span></code> Literal) or rely on schema extension hooks documented in <a class="reference internal" href="../customization/index.html"><span class="doc">扩展 HABIT</span></a></p></li>
+<li><p>参见 <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_analysis/feature_preprocessing/custom_preprocessing_template.py</span></code></p></li>
+<li><p>在 <code class="docutils literal notranslate"><span class="pre">habit/schemas/workflows/habitat.py</span></code> （ <code class="docutils literal notranslate"><span class="pre">PreprocessingMethod.method</span></code> Literal）中注册方法名，或使用 <a class="reference internal" href="../customization/index.html"><span class="doc">扩展 HABIT</span></a> 中记载的 schema 扩展钩子</p></li>
 <li><p>若删列，更新 <code class="docutils literal notranslate"><span class="pre">DROPPING_PREPROCESSING_METHODS</span></code></p></li>
 <li><p>确保模块导入以运行注册装饰器</p></li>
 </ol>
@@ -1276,7 +1264,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <ul class="simple">
 <li><p><strong>类型</strong> ：object</p></li>
 <li><p><strong>Required</strong> ： <code class="docutils literal notranslate"><span class="pre">train</span></code> 必填； <code class="docutils literal notranslate"><span class="pre">predict</span></code> 建议（至少 <code class="docutils literal notranslate"><span class="pre">clustering_mode</span></code> ）</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">null</span></code> (if fully omitted, Pydantic uses <code class="docutils literal notranslate"><span class="pre">HabitatSegmentationConfig</span></code> default sub-blocks; see table below)</p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">null</span></code> （若完全省略，Pydantic 使用 <code class="docutils literal notranslate"><span class="pre">HabitatSegmentationConfig</span></code> 的默认子块；见表）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">clustering_mode</span></code>: 聚类 strategy</p>
 <ul>
 <li><p><strong>Type</strong> ：string</p></li>
@@ -1307,10 +1295,10 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <ul class="simple">
 <li><p><strong>Type</strong> ：string</p></li>
 <li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">kmeans</span></code></p></li>
-<li><p><strong>Allowed values</strong> (aligned with <code class="docutils literal notranslate"><span class="pre">SupervoxelClusteringConfig</span></code>):</p>
+<li><p><strong>允许值</strong> （与 <code class="docutils literal notranslate"><span class="pre">SupervoxelClusteringConfig</span></code> 对齐）：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> ：K-means；仅按特征向量聚类—超体素可能在空间上分散。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code>: Gaussian mixture; underlying default <code class="docutils literal notranslate"><span class="pre">covariance_type='full'</span></code>; <code class="docutils literal notranslate"><span class="pre">SupervoxelClusteringConfig</span></code> <strong>does not</strong> expose this field—YAML may ignore it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code> ：高斯混合；底层默认 <code class="docutils literal notranslate"><span class="pre">covariance_type='full'</span></code> ； <code class="docutils literal notranslate"><span class="pre">SupervoxelClusteringConfig</span></code> <strong>不</strong> 暴露该字段——YAML 中写了也可能被忽略。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">slic</span></code> ：SLIC 超像素；联合多通道特征与 3D 坐标得到空间紧凑超体素。 <strong>专用参数</strong> （ <code class="docutils literal notranslate"><span class="pre">compactness</span></code> / <code class="docutils literal notranslate"><span class="pre">sigma</span></code> / <code class="docutils literal notranslate"><span class="pre">enforce_connectivity</span></code> 及调参）见下文 <a class="reference internal" href="#habitat-slic-config"><span class="std std-ref">habitat_segmentation.supervoxel — SLIC 超像素配置</span></a> 。</p></li>
 </ul>
 </li>
@@ -1319,8 +1307,8 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <li><p><code class="docutils literal notranslate"><span class="pre">n_clusters</span></code> ：超体素数量（或 SLIC <code class="docutils literal notranslate"><span class="pre">n_segments</span></code> ）</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">50</span></code></p></li>
-<li><p><strong>Description</strong>:</p>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">50</span></code></p></li>
+<li><p><strong>说明</strong> ：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">two_step</span></code> ：每受试者固定超体素数；须小于 ROI 体素数。典型 <strong>30–100</strong> ；小 ROI <strong>20–30</strong> 。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">one_step</span></code> 且 <code class="docutils literal notranslate"><span class="pre">fixed_n_clusters</span></code> 为空：自动 k 搜索上界（见 <code class="docutils literal notranslate"><span class="pre">one_step_settings.max_clusters</span></code> ），非最终固定值。</p></li>
@@ -1337,14 +1325,14 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <li><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code> ：最大迭代</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">300</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">300</span></code></p></li>
 <li><p><strong>描述</strong> ： <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> / <code class="docutils literal notranslate"><span class="pre">gmm</span></code> ：sklearn 最大迭代次数； <code class="docutils literal notranslate"><span class="pre">slic</span></code> 不同—参见 <a class="reference internal" href="#habitat-slic-config"><span class="std std-ref">habitat_segmentation.supervoxel — SLIC 超像素配置</span></a> 。</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code> ：初始化次数</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
 <li><p><strong>说明</strong> ： <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> / <code class="docutils literal notranslate"><span class="pre">gmm</span></code>: sklearn <code class="docutils literal notranslate"><span class="pre">n_init</span></code>; <code class="docutils literal notranslate"><span class="pre">slic</span></code>: only in <code class="docutils literal notranslate"><span class="pre">one_step</span></code> auto k—see <a class="reference internal" href="#habitat-slic-config"><span class="std std-ref">habitat_segmentation.supervoxel — SLIC 超像素配置</span></a>.</p></li>
 </ul>
 </li>
@@ -1364,15 +1352,14 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <section id="habitat-segmentation-supervoxel-slic-superpixel-configuration">
 <span id="habitat-slic-config"></span><h3>habitat_segmentation.supervoxel — SLIC 超像素配置<a class="headerlink" href="#habitat-segmentation-supervoxel-slic-superpixel-configuration" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">habitat_segmentation.supervoxel.algorithm:</span> <span class="pre">slic</span></code> 时，habit 在 ROI 内调用 <code class="docutils literal notranslate"><span class="pre">skimage.segmentation.slic</span></code> ，将 <strong>多通道体素特征</strong> （末维为特征通道）与 <strong>3D 空间坐标</strong> 联合分为 <code class="docutils literal notranslate"><span class="pre">n_clusters</span></code> 超体素。各向异性 <code class="docutils literal notranslate"><span class="pre">spacing</span></code> <strong>自动</strong> 从掩膜 NIfTI 头读取— <strong>无需</strong> YAML。</p>
-<p><strong>Use cases</strong></p>
+<p><strong>适用场景</strong></p>
 <ul class="simple">
 <li><p>推荐用于 <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 阶段 1：超体素空间连贯且局部，不同于纯特征空间 K-Means 超体素。</p></li>
-<li><p>SLIC partitions local anatomical subregions; 队列 生境 are subsequently discovered by 聚类 池化 超体素 特征 vectors.</p></li>
-<li><p>High-dimensional <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 特征 incur much higher compute and memory than <code class="docutils literal notranslate"><span class="pre">raw</span></code> / <code class="docutils literal notranslate"><span class="pre">mean_voxel_features</span></code> (builds <code class="docutils literal notranslate"><span class="pre">[Z,</span> <span class="pre">Y,</span> <span class="pre">X,</span> <span class="pre">n_features]</span></code> 特征 volume in ROI bbox).</p></li>
+<li><p>SLIC 划分局部解剖亚区；随后通过对池化超体素特征向量聚类发现队列生境。</p></li>
+<li><p>高维 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 特征比 <code class="docutils literal notranslate"><span class="pre">raw</span></code> / <code class="docutils literal notranslate"><span class="pre">mean_voxel_features</span></code> 消耗更多计算与内存（在 ROI 包围盒内构建 <code class="docutils literal notranslate"><span class="pre">[Z,</span> <span class="pre">Y,</span> <span class="pre">X,</span> <span class="pre">n_features]</span></code> 特征体）。</p></li>
 </ul>
-<p><strong>YAML path</strong>: keys under <code class="docutils literal notranslate"><span class="pre">habitat_segmentation.supervoxel</span></code>; repo template
-<code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_supervoxel_slic.yaml</span></code>.</p>
-<p><strong>Parameter reference</strong></p>
+<p><strong>YAML 路径</strong> ：键位于 <code class="docutils literal notranslate"><span class="pre">habitat_segmentation.supervoxel</span></code> 下；仓库模板为 <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_supervoxel_slic.yaml</span></code> 。</p>
+<p><strong>参数参考</strong></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">n_clusters</span></code> ：目标超体素数（ <code class="docutils literal notranslate"><span class="pre">n_segments</span></code> ）</p>
 <ul>
@@ -1383,9 +1370,9 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <li><p><code class="docutils literal notranslate"><span class="pre">compactness</span></code> ：特征相似与空间紧凑的平衡</p>
 <ul>
 <li><p><strong>Type</strong> ：float</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">0.1</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">0.1</span></code></p></li>
 <li><p><strong>Description</strong> ：传给 <code class="docutils literal notranslate"><span class="pre">skimage.segmentation.slic</span></code> 。SLIC 前特征通常 winsorize/minmax 归一化，故 <strong>0.1</strong> 是合理起点（与 RGB 上常见大 compactness 尺度不同）。</p></li>
-<li><p><strong>Tuning</strong>:</p>
+<li><p><strong>调参</strong> ：</p>
 <ul>
 <li><p><strong>增大</strong> （ <code class="docutils literal notranslate"><span class="pre">0.15</span></code> – <code class="docutils literal notranslate"><span class="pre">0.3</span></code> ）：更强空间分组、更平滑边界、更少碎片。</p></li>
 <li><p><strong>减少</strong> (<code class="docutils literal notranslate"><span class="pre">0.05</span></code>)：更紧密地跟随特征差异；边界跟踪强度/纹理变化，但可能会碎片化。</p></li>
@@ -1398,9 +1385,9 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <li><p><strong>Type</strong> ：float</p></li>
 <li><p><strong>Default</strong> ： <code class="docutils literal notranslate"><span class="pre">0.0</span></code> （无平滑）</p></li>
 <li><p><strong>Description</strong> ：分割前在 ROI 内 <strong>多通道特征体积</strong> 上高斯平滑；单位为 <strong>体素</strong> （各向异性时 auto <code class="docutils literal notranslate"><span class="pre">spacing</span></code> ）。抑制体素/纹理特征高频噪声； <strong>不</strong> 替代 <code class="docutils literal notranslate"><span class="pre">preprocessing_for_subject_level</span></code> 中 winsorize 等。</p></li>
-<li><p><strong>Tuning</strong>:</p>
+<li><p><strong>调参</strong> ：</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code>: sharpest boundaries; use when preprocessing is already strong.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code> ：边界最锐；在预处理已经较强时使用。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">0.3</span></code> – <code class="docutils literal notranslate"><span class="pre">0.5</span></code> ：轻度去噪； <strong>体素放射组学</strong> 可先试（如 <code class="docutils literal notranslate"><span class="pre">0.5</span></code> ）。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">1.0</span></code> ：可能模糊真实小结构—通常不推荐。</p></li>
 </ul>
@@ -1424,7 +1411,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <li><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code> ：初始化次数</p>
 <ul>
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
 <li><p><strong>Description</strong> ： <strong>仅</strong> 用于 <code class="docutils literal notranslate"><span class="pre">find_optimal_clusters</span></code> 下 <code class="docutils literal notranslate"><span class="pre">one_step</span></code> 内嵌 KMeans；对 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 中 SLIC <code class="docutils literal notranslate"><span class="pre">two_step</span></code> <strong>无效果</strong> 。</p></li>
 </ul>
 </li>
@@ -1442,9 +1429,9 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <col style="width: 40.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Algorithm</p></th>
-<th class="head"><p>Advantages</p></th>
-<th class="head"><p>Caveats</p></th>
+<tr class="row-odd"><th class="head"><p>算法</p></th>
+<th class="head"><p>优点</p></th>
+<th class="head"><p>注意事项</p></th>
 </tr>
 </thead>
 <tbody>
@@ -1478,14 +1465,14 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <li><p><code class="docutils literal notranslate"><span class="pre">min_clusters</span></code> ：最小聚类数</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">2</span></code></p></li>
 <li><p><strong>Description</strong> ：自动选择下界</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_clusters</span></code> ：最大簇数</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
 <li><p><strong>描述</strong> ：自动选择的上限</p></li>
 </ul>
 </li>
@@ -1517,7 +1504,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <div class="admonition warning">
 <p class="admonition-title">警告</p>
 <p><strong>v1.0 破坏性变更</strong> ： <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 与 <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 现为同一规则。HABIT <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 在 k-means inertia 上运行 <code class="docutils literal notranslate"><span class="pre">KneeLocator</span></code> （曲线 convex、方向 decreasing）— Satopaa, Albrecht, Irwin, and Raghavan（2011， <em>Finding a &quot;Kneedle&quot; in a Haystack</em> ，IEEE ICDCS Workshops）：将 <code class="docutils literal notranslate"><span class="pre">k</span></code> 与 inertia 归一化到单位正方形，从首点到末点作弦，取离弦最远的 <code class="docutils literal notranslate"><span class="pre">k</span></code> 。平滑曲线常使 knee 位于人眼拐点右侧。</p>
-<p>聚类文献中， <em>elbow</em> 通常指检查簇内离散度随 <code class="docutils literal notranslate"><span class="pre">k</span></code> 的变化（Thorndike RL, 1953, <em>Who belongs in the family?</em>, Psychometrika 18(4):267–276）。Thorndike <strong>未</strong> 发表二阶差分公式。至 v0.1.x，HABIT <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 使用 <strong>离散曲率肘部</strong> （可视肘部，计算）：inertia 二阶差的 <code class="docutils literal notranslate"><span class="pre">argmax</span></code> 。这既非 Thorndike 引文，也非今日默认。 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 与 <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 现均解析为 <code class="xref py py-func docutils literal notranslate"><span class="pre">habit.kernels.cluster_selection.knee_index()</span></code> ，故 v0.1 写 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 的配置仍有效但可能选不同簇数。须复现已发表生境数的研究应设 <code class="docutils literal notranslate"><span class="pre">fixed_n_clusters</span></code> 为该数。见 <a class="reference internal" href="../user_guide/building_habitat_maps.html"><span class="doc">构建生境图</span></a> 与 <a class="reference internal" href="../auto_examples/03_clustering/plot_03_clustering_algorithm.html"><span class="doc">聚类算法与生境数</span></a> 。</p>
+<p>在聚类文献中， <em>elbow</em> 通常指观察簇内离散度随 <code class="docutils literal notranslate"><span class="pre">k</span></code> 的变化（Thorndike RL, 1953, <em>Who belongs in the family?</em> ，Psychometrika 18(4):267–276）。Thorndike <strong>并未</strong> 发表二阶差分公式。直到 v0.1.x，HABIT 的 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 使用 <strong>离散曲率肘部</strong> （视觉肘部、计算得到）：对惯性二阶差分取 <code class="docutils literal notranslate"><span class="pre">argmax</span></code> 。那不是 Thorndike 引用，也不是今日默认。 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 与 <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 现都解析到 <code class="xref py py-func docutils literal notranslate"><span class="pre">habit.kernels.cluster_selection.knee_index()</span></code> ，因此写有 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 的 v0.1 配置仍有效，但可能选出不同的聚类数。必须复现已发表生境数的研究应将该数设为 <code class="docutils literal notranslate"><span class="pre">fixed_n_clusters</span></code> 。参见 <a class="reference internal" href="../user_guide/building_habitat_maps.html"><span class="doc">构建生境图</span></a> 与 <a class="reference internal" href="../auto_examples/03_clustering/plot_03_clustering_algorithm.html"><span class="doc">聚类算法与生境数</span></a> 。</p>
 </div>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">plot_validation_curves</span></code> ：绘制验证曲线</p>
@@ -1537,7 +1524,7 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <li><p><strong>允许值</strong> ：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> ：K-means 聚类</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code>: Gaussian mixture model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code> ：高斯混合模型</p></li>
 </ul>
 </li>
 </ul>
@@ -1546,26 +1533,25 @@ See <a class="reference internal" href="../auto_examples/05_validation_and_reuse
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
 <li><p><strong>Description</strong> ：自动选择生境数的上界。推荐：5–10。</p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p><strong>示例</strong> ： <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_clusters</span></code> ：最少栖息地数量</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">2</span></code></p></li>
 <li><p><strong>Description</strong> ：自动选择生境数时的下界。</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">habitat_cluster_selection_method</span></code>: Auto-selection metrics</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">habitat_cluster_selection_method</span></code> ：自动选择指标</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：列表或字符串</p></li>
 <li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">elbow</span></code> （YAML 可使用字符串或单元素列表）</p></li>
 <li><p><strong>Allowed values and meaning</strong> ：</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">elbow</span></code> / <code class="docutils literal notranslate"><span class="pre">kneedle</span></code>: knee of the inertia curve (the same rule since
-v1.0; see the warning under <code class="docutils literal notranslate"><span class="pre">selection_method</span></code> above)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">elbow</span></code> / <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> ：惯性曲线的膝点（自 v1.0 起同一规则；见上文 <code class="docutils literal notranslate"><span class="pre">selection_method</span></code> 下的警告）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">inertia</span></code> ：簇内 SS（kmeans 越低越好；内部用 Kneedle）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">silhouette</span></code> ：轮廓系数（-1 到 1；越近 1 越好）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">calinski_harabasz</span></code> ：Calinski-Harabasz（越高越好）</p></li>
@@ -1596,13 +1582,13 @@ v1.0; see the warning under <code class="docutils literal notranslate"><span cla
 <li><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code> ：最大迭代</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">300</span></code> (both <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> and <code class="docutils literal notranslate"><span class="pre">gmm</span></code> in <code class="docutils literal notranslate"><span class="pre">HabitatClusteringConfig</span></code>)</p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">300</span></code> （ <code class="docutils literal notranslate"><span class="pre">HabitatClusteringConfig</span></code> 中 <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 与 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 皆然）</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code> ：初始化次数</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">10</span></code> (both <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> and <code class="docutils literal notranslate"><span class="pre">gmm</span></code>)</p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">10</span></code> （ <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 与 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 皆如此）</p></li>
 </ul>
 </li>
 <li><p><strong>Full examples</strong> ：</p>
@@ -1629,11 +1615,11 @@ v1.0; see the warning under <code class="docutils literal notranslate"><span cla
 <li><p><strong>类型</strong> ：字典</p></li>
 <li><p><strong>Required</strong> ：否</p></li>
 <li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">false</span></code></p></li>
-<li><p><strong>Description</strong>:</p>
+<li><p><strong>说明</strong> ：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">postprocess_supervoxel</span></code> applies to 超体素 label maps (mainly two_step stage).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">postprocess_habitat</span></code> applies to final 生境 label maps (one_step/two_step/direct_池化).</p></li>
-<li><p>v1 路径这些设置落在 <code class="docutils literal notranslate"><span class="pre">HabitatSpec.postprocess_*</span></code> ，在 <a class="reference internal" href="../api/generated/habit.pipeline.SubjectPipeline.html#habit.pipeline.SubjectPipeline" title="habit.pipeline.SubjectPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a> 内运行（超体素化后 / 生境分配后、特征提取前）。<a class="reference internal" href="../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter" title="habit.adapters.writers.DirectoryResultWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">DirectoryResultWriter</span></code></a> 写入已清理内存图，不重跑清理。</p></li>
+<li><p>v1 路径这些设置落在 <code class="docutils literal notranslate"><span class="pre">HabitatSpec.postprocess_*</span></code> ，在 <a class="reference internal" href="../api/generated/habit.pipeline.SubjectPipeline.html#habit.pipeline.SubjectPipeline" title="habit.pipeline.SubjectPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a> 内运行（超体素化后 / 生境分配后、特征提取前）。 <a class="reference internal" href="../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter" title="habit.adapters.writers.DirectoryResultWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">DirectoryResultWriter</span></code></a> 写入已清理内存图，不重跑清理。</p></li>
 <li><p>当前实现用 SimpleITK 快速路径：按标签去除小连通分量，再按最近 seed 标签重分配。</p></li>
 <li><p>在保持 ROI 体素覆盖的同时减少碎片化。</p></li>
 </ul>
@@ -1641,13 +1627,13 @@ v1.0; see the warning under <code class="docutils literal notranslate"><span cla
 <li><p><strong>子参数</strong> （与 <code class="docutils literal notranslate"><span class="pre">ConnectedComponentPostprocessConfig</span></code> 对齐）：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code> （布尔值，默认： <code class="docutils literal notranslate"><span class="pre">false</span></code> ）</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">min_component_size</span></code> (int, default: <code class="docutils literal notranslate"><span class="pre">30</span></code>, ≥1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_component_size</span></code> （int，默认： <code class="docutils literal notranslate"><span class="pre">30</span></code> ，≥1）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">connectivity</span></code> （1 / 2 / 3）：6/18/26 邻域</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">reassign_method</span></code> ：目前仅 <code class="docutils literal notranslate"><span class="pre">neighbor_vote</span></code> （占位）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_iterations</span></code> （整数，默认 <code class="docutils literal notranslate"><span class="pre">3</span></code> ，≥1）：清理迭代上限</p></li>
 </ul>
 </li>
-<li><p><strong>Example</strong>:</p>
+<li><p><strong>示例</strong> ：</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">habitat_segmentation</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">postprocess_supervoxel</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
@@ -1675,17 +1661,8 @@ v1.0; see the warning under <code class="docutils literal notranslate"><span cla
 </section>
 <section id="habitat-stage-1-parallelism-and-checkpoint-resume-top-level-field-reference">
 <h3>生境 Stage-1 并行与检查点恢复（顶层字段参考）<a class="headerlink" href="#habitat-stage-1-parallelism-and-checkpoint-resume-top-level-field-reference" title="Link to this heading">#</a></h3>
-<p>These fields sit at the <strong>top level</strong> of a <strong>v0.1</strong> 生境 YAML (same level as <code class="docutils literal notranslate"><span class="pre">data_dir</span></code>). Both <code class="docutils literal notranslate"><span class="pre">train</span></code> and <code class="docutils literal notranslate"><span class="pre">predict</span></code> use <code class="docutils literal notranslate"><span class="pre">processes</span></code>, checkpoint paths, and <code class="docutils literal notranslate"><span class="pre">resume</span></code> where applicable (predict checkpoints default to <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/.habitat_predict_checkpoint</span></code>). CLI: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--resume</span></code>.</p>
-<p><strong>Dual track (v0.1 top-level vs v1 ``policy:``).</strong> A native v1 document
-(<code class="docutils literal notranslate"><span class="pre">version:</span> <span class="pre">&quot;1.0&quot;</span></code>) puts the same knobs under a top-level <code class="docutils literal notranslate"><span class="pre">policy:</span></code> block
-using <a class="reference internal" href="../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> field names (<code class="docutils literal notranslate"><span class="pre">workers</span></code>,
-<code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code>, <code class="docutils literal notranslate"><span class="pre">parallel_mode</span></code>, …). A v0.1 document keeps the
-<code class="docutils literal notranslate"><span class="pre">individual_*</span></code> / <code class="docutils literal notranslate"><span class="pre">processes</span></code> names at the top level; the CLI and
-<a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a> translate them into <code class="docutils literal notranslate"><span class="pre">policy</span></code> via
-<a class="reference internal" href="../api/generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.legacy.LegacyConfigAdapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></a> before building the backend.
-Full rename table and defaults: <a class="reference internal" href="../api/spec.html"><span class="doc">Spec、RunPolicy 和 YAML 同构</span></a> (<code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code> YAML
-mapping) and <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a>. Annotated v1 example:
-<code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_v1.yaml</span></code>.</p>
+<p>这些字段位于 <strong>v0.1</strong> 生境 YAML 的 <strong>顶层</strong> （与 <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> 同级）。 <code class="docutils literal notranslate"><span class="pre">train</span></code> 与 <code class="docutils literal notranslate"><span class="pre">predict</span></code> 在适用处都使用 <code class="docutils literal notranslate"><span class="pre">processes</span></code> 、检查点路径与 <code class="docutils literal notranslate"><span class="pre">resume</span></code> （predict 检查点默认 <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/.habitat_predict_checkpoint</span></code> ）。CLI： <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--resume</span></code> 。</p>
+<p><strong>双轨（v0.1 顶层 vs v1 ``policy:`` ）。</strong> 原生 v1 文档（ <code class="docutils literal notranslate"><span class="pre">version:</span> <span class="pre">&quot;1.0&quot;</span></code> ）把相同旋钮放在顶层 <code class="docutils literal notranslate"><span class="pre">policy:</span></code> 块下，字段名采用 <a class="reference internal" href="../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> （ <code class="docutils literal notranslate"><span class="pre">workers</span></code> 、 <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> 、 <code class="docutils literal notranslate"><span class="pre">parallel_mode</span></code> 等）。v0.1 文档则在顶层保留 <code class="docutils literal notranslate"><span class="pre">individual_*</span></code> / <code class="docutils literal notranslate"><span class="pre">processes</span></code> 名称；CLI 与 <a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a> 在构建后端前经 <a class="reference internal" href="../api/generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.legacy.LegacyConfigAdapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></a> 将其译入 <code class="docutils literal notranslate"><span class="pre">policy</span></code> 。完整重命名表与默认值： <a class="reference internal" href="../api/spec.html"><span class="doc">Spec、RunPolicy 和 YAML 同构</span></a> （ <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code> YAML 映射）与 <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a> 。带注释的 v1 示例： <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_v1.yaml</span></code> 。</p>
 <p><strong>v1 后端选择（CLI / 配方实况）。</strong> 转换后 <code class="docutils literal notranslate"><span class="pre">cmd_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">yaml_runner</span></code> 调用 <a class="reference internal" href="../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy"><code class="xref py py-func docutils literal notranslate"><span class="pre">backend_from_policy()</span></code></a> ：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code> → <a class="reference internal" href="../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a> （进程后端）</p></li>
@@ -1719,11 +1696,11 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <col style="width: 36.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Type</p></th>
+<tr class="row-odd"><th class="head"><p>字段</p></th>
+<th class="head"><p>类型</p></th>
 <th class="head"><p>Default</p></th>
 <th class="head"><p>config_hash</p></th>
-<th class="head"><p>Summary</p></th>
+<th class="head"><p>摘要</p></th>
 </tr>
 </thead>
 <tbody>
@@ -1761,7 +1738,7 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <td><p>str</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">continue</span></code></p></td>
 <td><p>no</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">continue</span></code> log failure and proceed; <code class="docutils literal notranslate"><span class="pre">fail_fast</span></code> abort on first failure (Serial + ProcessPool)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">continue</span></code> ：记录失败并继续； <code class="docutils literal notranslate"><span class="pre">fail_fast</span></code> ：遇首个失败即中止（Serial + ProcessPool）</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oom_backoff</span></code></p></td>
 <td><p>bool</p></td>
@@ -1833,7 +1810,7 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <td><p>bool</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
 <td><p>no</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> raises <code class="docutils literal notranslate"><span class="pre">CompatibilityError</span></code> on fingerprint / legacy-layout mismatch</p></td>
+<td><p>为 <code class="docutils literal notranslate"><span class="pre">true</span></code> 时，在指纹 / 旧版布局不匹配时抛出 <code class="docutils literal notranslate"><span class="pre">CompatibilityError</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1851,7 +1828,7 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <li><p><strong>说明</strong> ： When <code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code> uses CUDA (<code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">auto</span></code> with CUDA detected):</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">true</span></code> ：有效 worker <code class="docutils literal notranslate"><span class="pre">min(processes,</span> <span class="pre">len(torch_gpus))</span></code> ，每槽一 GPU（ <code class="docutils literal notranslate"><span class="pre">gpu_slot_index</span></code> ），减少 VRAM 争用；</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">false</span></code> (default): full <code class="docutils literal notranslate"><span class="pre">processes</span></code>; workers share GPUs via <code class="docutils literal notranslate"><span class="pre">gpu_slot_index</span> <span class="pre">%</span> <span class="pre">len(torch_gpus)</span></code> —good for &quot;single GPU, many CPU&quot; parallel non-GPU steps, but GPU 放射组学 may OOM on same card.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">false</span></code> （默认）：完整 <code class="docutils literal notranslate"><span class="pre">processes</span></code> ；工作进程通过 <code class="docutils literal notranslate"><span class="pre">gpu_slot_index</span> <span class="pre">%</span> <span class="pre">len(torch_gpus)</span></code> 共享 GPU——适合「单 GPU、多 CPU」的并行非 GPU 步骤，但同卡上的 GPU 放射组学可能 OOM。</p></li>
 </ul>
 </li>
 <li><p><strong>Not in config_hash</strong> ；恢复时可改。</p></li>
@@ -1861,18 +1838,18 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <ul class="simple">
 <li><p><strong>类型</strong> ：float / int（秒）或 <code class="docutils literal notranslate"><span class="pre">null</span></code></p></li>
 <li><p><strong>Default</strong> ： <code class="docutils literal notranslate"><span class="pre">900</span></code> （15 分钟）；YAML 省略即用默认。</p></li>
-<li><p><strong>说明</strong> ： On timeout, skip 受试者 (record failure) and continue; <code class="docutils literal notranslate"><span class="pre">null</span></code> disables per-受试者 timeout. Child processes may still run in background until they exit. <strong>v1 path</strong>: only applied when <code class="docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code> is selected (<code class="docutils literal notranslate"><span class="pre">processes</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> and translated <code class="docutils literal notranslate"><span class="pre">backend:</span> <span class="pre">process</span></code>); ignored under <code class="docutils literal notranslate"><span class="pre">SerialBackend</span></code>.</p></li>
+<li><p><strong>说明</strong> ：超时时跳过该受试者（记录失败）并继续； <code class="docutils literal notranslate"><span class="pre">null</span></code> 禁用每受试者超时。子进程可能仍在后台运行直至退出。 <strong>v1 路径</strong> ：仅在选用 <code class="docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code> 时生效（ <code class="docutils literal notranslate"><span class="pre">processes</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> 且已翻译为 <code class="docutils literal notranslate"><span class="pre">backend:</span> <span class="pre">process</span></code> ）；在 <code class="docutils literal notranslate"><span class="pre">SerialBackend</span></code> 下忽略。</p></li>
 </ul>
 <p><strong>individual_subject_graceful_shutdown_sec</strong> （生境分析顶层）：超时后 kill 前的宽限期</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：float（秒）</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">15</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">15</span></code></p></li>
 <li><p><strong>说明</strong> ： <code class="docutils literal notranslate"><span class="pre">individual_subject_timeout_sec</span></code> 后父进程调用 <code class="docutils literal notranslate"><span class="pre">terminate()</span></code> ，等待若干秒后对子进程 <code class="docutils literal notranslate"><span class="pre">kill()</span></code> 。仅 ProcessPoolBackend（SerialBackend 忽略）。</p></li>
 </ul>
 <p><strong>individual_subject_spawn_timeout_sec</strong> （生境分析顶层）：Spawn 阶段墙钟上限</p>
 <ul class="simple">
 <li><p><strong>类型</strong> ：float / int（秒）或 <code class="docutils literal notranslate"><span class="pre">null</span></code></p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">120</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">120</span></code></p></li>
 <li><p><strong>Description</strong> ：从派发到受试者处理开始的 cap；超时则标记失败并继续—避免父进程在 spawn/import 上永久阻塞。 <code class="docutils literal notranslate"><span class="pre">null</span></code> = 无 spawn 时限。仅 ProcessPoolBackend（SerialBackend 忽略）。</p></li>
 </ul>
 <p><strong>on_subject_failure</strong> （生境分析顶层）：并行逐受试者 Stage 1 失败策略</p>
@@ -1886,32 +1863,32 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 </ul>
 </li>
 </ul>
-<p>Python API 对应：<a class="reference internal" href="../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> / <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a> 。软失败模式（几何、批量 <code class="docutils literal notranslate"><span class="pre">fail_fast</span></code> 、 <code class="docutils literal notranslate"><span class="pre">Cohort.map</span></code> 聚合）：<a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
+<p>Python API 对应： <a class="reference internal" href="../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> / <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a> 。软失败模式（几何、批量 <code class="docutils literal notranslate"><span class="pre">fail_fast</span></code> 、 <code class="docutils literal notranslate"><span class="pre">Cohort.map</span></code> 聚合）： <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
 <p><strong>oom_backoff</strong> （栖息地分析顶层）：在内存错误后减少并行性</p>
 <ul class="simple">
 <li><p><strong>类型</strong> ：布尔</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">true</span></code> (built-in default); repo <code class="docutils literal notranslate"><span class="pre">config/habitat/*.yaml</span></code> examples often use <code class="docutils literal notranslate"><span class="pre">false</span></code>—tune for your RAM</p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">true</span></code> （内置默认）；仓库 <code class="docutils literal notranslate"><span class="pre">config/habitat/*.yaml</span></code> 示例常用 <code class="docutils literal notranslate"><span class="pre">false</span></code> ——请按内存调整</p></li>
 <li><p><strong>Description</strong> ： <code class="docutils literal notranslate"><span class="pre">true</span></code> 时，孤立子进程 <code class="docutils literal notranslate"><span class="pre">MemoryError</span></code> 将待处理受试者 worker 数减 <code class="docutils literal notranslate"><span class="pre">oom_reduce_workers_by</span></code> （最少 1）。 <strong>不处理</strong> 原生崩溃（如 Windows 退出 <code class="docutils literal notranslate"><span class="pre">3221225477</span></code> / <code class="docutils literal notranslate"><span class="pre">0xC0000005</span></code> ）。仅 ProcessPoolBackend（SerialBackend 忽略）。</p></li>
 </ul>
 <p><strong>oom_reduce_workers_by</strong> （生境分析顶层）：每次 OOM 移除的 worker 数</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">1</span></code></p></li>
 <li><p><strong>Description</strong> ：仅当 <code class="docutils literal notranslate"><span class="pre">oom_backoff:</span> <span class="pre">true</span></code> 且 ProcessPoolBackend 激活时。</p></li>
 </ul>
 <p><strong>resume</strong> （生境分析顶层）：Stage 1 检查点 resume</p>
 <ul class="simple">
 <li><p><strong>类型</strong> ：布尔</p></li>
 <li><p><strong>Default</strong> ： <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-<li><p><strong>Description</strong>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, reuse checkpointed 受试者 successes. On the <strong>v1</strong> CLI/recipe path the store is <a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> under <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code> (default <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/.habitat_checkpoint</span></code> for train, <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/.habitat_predict_checkpoint</span></code> for predict); cache keys embed the spec fingerprint. 受试者 recorded as failed are <strong>not auto-retried on next</strong> <code class="docutils literal notranslate"><span class="pre">resume</span></code> unless <code class="docutils literal notranslate"><span class="pre">retry_failed_subjects:</span> <span class="pre">true</span></code> or listed in <code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code>. <strong>Within the same</strong> ProcessPool run, <code class="docutils literal notranslate"><span class="pre">individual_subject_auto_retry_rounds</span></code> retries failures by default. Applies to both <code class="docutils literal notranslate"><span class="pre">train</span></code> and <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p></li>
+<li><p><strong>说明</strong> ：为 <code class="docutils literal notranslate"><span class="pre">true</span></code> 时，复用已检查点记录的受试者成功结果。在 <strong>v1</strong> CLI/配方路径上，存储为 <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code> 下的 <a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> （训练默认 <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/.habitat_checkpoint</span></code> ，预测默认 <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/.habitat_predict_checkpoint</span></code> ）；缓存键嵌入 spec 指纹。记为失败的受试者在下次 <code class="docutils literal notranslate"><span class="pre">resume</span></code> 时 <strong>不会自动重试</strong> ，除非 <code class="docutils literal notranslate"><span class="pre">retry_failed_subjects:</span> <span class="pre">true</span></code> 或列在 <code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code> 中。 <strong>同一次</strong> ProcessPool 运行内， <code class="docutils literal notranslate"><span class="pre">individual_subject_auto_retry_rounds</span></code> 默认会重试失败。适用于 <code class="docutils literal notranslate"><span class="pre">train</span></code> 与 <code class="docutils literal notranslate"><span class="pre">predict</span></code> 。</p></li>
 <li><p><strong>CLI</strong> ： <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--resume</span></code> 等价 <code class="docutils literal notranslate"><span class="pre">resume:</span> <span class="pre">true</span></code> 。</p></li>
-<li><p><strong>另见</strong> ：本页 checkpoint / <code class="docutils literal notranslate"><span class="pre">resume</span></code> 字段；<a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a> 。</p></li>
+<li><p><strong>另见</strong> ：本页 checkpoint / <code class="docutils literal notranslate"><span class="pre">resume</span></code> 字段； <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a> 。</p></li>
 </ul>
 <p><strong>strict_checkpoint_hash</strong> （生境分析顶层）：检查点 hash 不匹配策略</p>
 <ul class="simple">
 <li><p><strong>类型</strong> ：布尔</p></li>
 <li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
-<li><p><strong>Description</strong>:</p>
+<li><p><strong>说明</strong> ：</p>
 <ul>
 <li><p><strong>v0.1 Stage-1 引擎</strong> （遗留）： <code class="docutils literal notranslate"><span class="pre">resume:</span> <span class="pre">true</span></code> 时， <code class="docutils literal notranslate"><span class="pre">true</span></code> 在 <code class="docutils literal notranslate"><span class="pre">CheckpointConfigHashError</span></code> <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> / <code class="docutils literal notranslate"><span class="pre">config_hash</span></code> 不匹配时抛 <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> ； <code class="docutils literal notranslate"><span class="pre">false</span></code> 警告并丢弃检查点重新运行。仅 Stage-2 哈希迁移的遗留场景仍可能 resume。</p></li>
 <li><p><strong>v1 CLI / recipe 路径</strong> （ <code class="docutils literal notranslate"><span class="pre">cmd_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">yaml_runner</span></code> ）：旧 v0.1 <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> / <code class="docutils literal notranslate"><span class="pre">subjects/</span></code> 树打开时自动迁移（见下），然后 resume 继续。 <code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash=True</span></code> 时磁盘 <code class="docutils literal notranslate"><span class="pre">run_fingerprint.json</span></code> 与当前 spec 指纹不符或 legacy manifest 损坏/不可读则抛 <a class="reference internal" href="../api/generated/habit.exceptions.CompatibilityError.html#habit.exceptions.CompatibilityError" title="habit.exceptions.CompatibilityError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompatibilityError</span></code></a> 。 <code class="docutils literal notranslate"><span class="pre">strict=False</span></code> 时指纹不符仅警告且不可达（缓存键亦嵌入指纹）。</p></li>
@@ -1923,12 +1900,12 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <ul class="simple">
 <li><p><strong>Type</strong> ：string 或 <code class="docutils literal notranslate"><span class="pre">null</span></code></p></li>
 <li><p><strong>Default</strong> ： <code class="docutils literal notranslate"><span class="pre">null</span></code> （ <code class="docutils literal notranslate"><span class="pre">train</span></code> → <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/.habitat_checkpoint</span></code> ； <code class="docutils literal notranslate"><span class="pre">predict</span></code> → <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/.habitat_predict_checkpoint</span></code> ）</p></li>
-<li><p><strong>说明</strong> ： Must match previous run for resume; may differ from <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> when set explicitly.</p></li>
+<li><p><strong>说明</strong> ：为支持 resume，必须与上次运行一致；显式设置时可以与 <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> 不同。</p></li>
 </ul>
 <p><strong>force_rerun_subjects</strong> （生境分析顶层）：强制重跑的受试者 ID</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：字符串列表</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></li>
 <li><p><strong>Description</strong> ： <code class="docutils literal notranslate"><span class="pre">resume:</span> <span class="pre">true</span></code> 时仍重处理列表内受试者（从 completed/failed 移除并重跑）。</p></li>
 </ul>
 <p><strong>retry_failed_subjects</strong> （生境分析顶层）：从检查点重跑全部失败受试者</p>
@@ -1940,8 +1917,8 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <p><strong>individual_subject_auto_retry_rounds</strong> （生境分析顶层）：运行内对失败受试者自动重试轮数</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">2</span></code></p></li>
-<li><p><strong>说明</strong> ： After first Stage 1 parallel pass, if failed 受试者 remain, rerun up to this many rounds in the same process (failed only). <code class="docutils literal notranslate"><span class="pre">0</span></code> disables. Unlike <code class="docutils literal notranslate"><span class="pre">retry_failed_subjects</span></code> (next <strong>resume</strong> only), this applies in the <strong>current</strong> <code class="docutils literal notranslate"><span class="pre">get-habitat</span></code> call when ProcessPoolBackend is active. With <code class="docutils literal notranslate"><span class="pre">on_subject_failure:</span> <span class="pre">fail_fast</span></code>, error only after all retry rounds exhausted. <strong>Ignored</strong> under SerialBackend (<code class="docutils literal notranslate"><span class="pre">processes</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code> on the v1 path).</p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>说明</strong> ：在第一轮 Stage 1 并行通过后，若仍有失败受试者，则在同一进程中最多再跑这么多轮（仅失败者）。 <code class="docutils literal notranslate"><span class="pre">0</span></code> 表示禁用。与 <code class="docutils literal notranslate"><span class="pre">retry_failed_subjects</span></code> （仅下一轮 <strong>resume</strong> ）不同，当 ProcessPoolBackend 激活时，它作用于 <strong>当前</strong> <code class="docutils literal notranslate"><span class="pre">get-habitat</span></code> 调用。若 <code class="docutils literal notranslate"><span class="pre">on_subject_failure:</span> <span class="pre">fail_fast</span></code> ，仅在所有重试轮次用尽后才报错。在 SerialBackend 下 <strong>被忽略</strong> （v1 路径上 <code class="docutils literal notranslate"><span class="pre">processes</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code> ）。</p></li>
 </ul>
 <p><strong>individual_subject_parallel_mode</strong> （生境分析顶层）：Stage 1 并行执行策略</p>
 <ul>
@@ -1958,13 +1935,13 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <p><strong>persistent_worker_max_consecutive_failures</strong> （生境分析顶层）：持久 worker 重启阈值</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">1</span></code></p></li>
 <li><p><strong>Description</strong> ：映射到 <code class="docutils literal notranslate"><span class="pre">RunPolicy.persistent_worker_max_consecutive_failures</span></code> 。 <code class="docutils literal notranslate"><span class="pre">parallel_mode:</span> <span class="pre">persistent</span></code> 下，连续致命类失败达此次数后重启 worker 槽。</p></li>
 </ul>
 <p><strong>persistent_worker_recycle_after_tasks</strong> （生境分析顶层）：周期性持久 worker 回收</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">0</span></code></p></li>
 <li><p><strong>Description</strong> ：映射 <code class="docutils literal notranslate"><span class="pre">RunPolicy.persistent_worker_recycle_after_tasks</span></code> 。 <code class="docutils literal notranslate"><span class="pre">parallel_mode:</span> <span class="pre">persistent</span></code> 下，成功任务达此数后重启 worker（ <code class="docutils literal notranslate"><span class="pre">0</span></code> 禁用）。</p></li>
 </ul>
 <p><strong>clear_checkpoint_on_success</strong> （生境分析顶层）：train 成功后删除检查点</p>
@@ -1975,22 +1952,18 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 </ul>
 <p><strong>config_hash 与恢复兼容性</strong></p>
 <ul class="simple">
-<li><p><strong>v1 path</strong> ：<a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> 键嵌入 <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 指纹，存储写入 <code class="docutils literal notranslate"><span class="pre">run_fingerprint.json</span></code> 。更改科学旋钮产生新键。 <code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash:</span> <span class="pre">true</span></code> 时不兼容指纹抛出 <a class="reference internal" href="../api/generated/habit.exceptions.CompatibilityError.html#habit.exceptions.CompatibilityError" title="habit.exceptions.CompatibilityError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompatibilityError</span></code></a> 。可读 v0.1 布局自动迁移（不拒绝）。仅调度旋钮（ <code class="docutils literal notranslate"><span class="pre">processes</span></code> 、timeouts、OOM 等）在指纹外。</p></li>
+<li><p><strong>v1 path</strong> ： <a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> 键嵌入 <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 指纹，存储写入 <code class="docutils literal notranslate"><span class="pre">run_fingerprint.json</span></code> 。更改科学旋钮产生新键。 <code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash:</span> <span class="pre">true</span></code> 时不兼容指纹抛出 <a class="reference internal" href="../api/generated/habit.exceptions.CompatibilityError.html#habit.exceptions.CompatibilityError" title="habit.exceptions.CompatibilityError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompatibilityError</span></code></a> 。可读 v0.1 布局自动迁移（不拒绝）。仅调度旋钮（ <code class="docutils literal notranslate"><span class="pre">processes</span></code> 、timeouts、OOM 等）在指纹外。</p></li>
 <li><p><strong>v0.1 Stage-1 engine</strong> （旧 <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> 布局）：</p>
 <ul>
 <li><p><strong>In hash</strong> （阶段 1 每受试者；变更清检查点）： <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> 、 <code class="docutils literal notranslate"><span class="pre">feature_construction.voxel_level</span></code> / <code class="docutils literal notranslate"><span class="pre">preprocessing_for_subject_level</span></code> / <code class="docutils literal notranslate"><span class="pre">supervoxel_level</span></code> 、 <code class="docutils literal notranslate"><span class="pre">habitat_segmentation.clustering_mode</span></code> 、每受试者聚类块（ <code class="docutils literal notranslate"><span class="pre">two_step</span></code> → <code class="docutils literal notranslate"><span class="pre">supervoxel</span></code> ； <code class="docutils literal notranslate"><span class="pre">one_step</span></code> → <code class="docutils literal notranslate"><span class="pre">supervoxel</span></code> + <code class="docutils literal notranslate"><span class="pre">habitat</span></code> ）。</p></li>
-<li><p><strong>Not in hash</strong> (may <code class="docutils literal notranslate"><span class="pre">resume:</span> <span class="pre">true</span></code>): <code class="docutils literal notranslate"><span class="pre">preprocessing_for_group_level</span></code>,
-group <code class="docutils literal notranslate"><span class="pre">habitat.*</span></code> for <code class="docutils literal notranslate"><span class="pre">two_step</span></code>/<code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code>, <code class="docutils literal notranslate"><span class="pre">processes</span></code>,
-<code class="docutils literal notranslate"><span class="pre">cap_processes_to_gpu_pool</span></code>, <code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash</span></code>, timeout / OOM /
-retry / parallel-mode knobs, <code class="docutils literal notranslate"><span class="pre">persistent_worker_*</span></code>, <code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code>,
-<code class="docutils literal notranslate"><span class="pre">out_dir</span></code>, plot/save switches, etc.</p></li>
+<li><p><strong>不参与哈希</strong> （可 <code class="docutils literal notranslate"><span class="pre">resume:</span> <span class="pre">true</span></code> ）： <code class="docutils literal notranslate"><span class="pre">preprocessing_for_group_level</span></code> 、 <code class="docutils literal notranslate"><span class="pre">two_step</span></code>/<code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> 的 group <code class="docutils literal notranslate"><span class="pre">habitat.*</span></code> 、 <code class="docutils literal notranslate"><span class="pre">processes</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cap_processes_to_gpu_pool</span></code> 、 <code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash</span></code> 、超时 / OOM / 重试 / 并行模式旋钮、 <code class="docutils literal notranslate"><span class="pre">persistent_worker_*</span></code> 、 <code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code> 、 <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> 、绘图/保存开关等。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> 还存 <code class="docutils literal notranslate"><span class="pre">individual_config_hash</span></code> ；仅全哈希的遗留 manifest 在仅 Stage-2 变更时迁移哈希并保留 pkls。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">resume:</span> <span class="pre">true</span></code> 启动且 hash 不匹配：默认（ <code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash:</span> <span class="pre">false</span></code> ）警告并删检查点； <code class="docutils literal notranslate"><span class="pre">true</span></code> 抛 <code class="docutils literal notranslate"><span class="pre">CheckpointConfigHashError</span></code> 。</p></li>
 </ul>
 </li>
 </ul>
-<p><strong>Checkpoint directory layout</strong></p>
-<p>v0.1 Stage-1 布局（遗留）。v1 CLI/配方路径上这些标记触发自动迁移（<a class="reference internal" href="../api/generated/habit.execution.migrate_v01_checkpoint_if_needed.html#habit.execution.migrate_v01_checkpoint_if_needed" title="habit.execution.migrate_v01_checkpoint_if_needed"><code class="xref py py-func docutils literal notranslate"><span class="pre">migrate_v01_checkpoint_if_needed()</span></code></a> ），写入 v1 存储项、将树归档到 <code class="docutils literal notranslate"><span class="pre">.v01_legacy_archive/</span></code> 并记录科学上可/不可复用内容:</p>
+<p><strong>检查点目录布局</strong></p>
+<p>v0.1 Stage-1 布局（遗留）。v1 CLI/配方路径上这些标记触发自动迁移（ <a class="reference internal" href="../api/generated/habit.execution.migrate_v01_checkpoint_if_needed.html#habit.execution.migrate_v01_checkpoint_if_needed" title="habit.execution.migrate_v01_checkpoint_if_needed"><code class="xref py py-func docutils literal notranslate"><span class="pre">migrate_v01_checkpoint_if_needed()</span></code></a> ），写入 v1 存储项、将树归档到 <code class="docutils literal notranslate"><span class="pre">.v01_legacy_archive/</span></code> 并记录科学上可/不可复用内容:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;checkpoint_dir&gt;/
 ├── manifest.json      # completed_subjects, failed_subjects, config_hash, individual_config_hash, stage
 └── subjects/
@@ -2008,15 +1981,15 @@ retry / parallel-mode knobs, <code class="docutils literal notranslate"><span cl
 <ul class="simple">
 <li><p><strong>类型</strong> ：布尔</p></li>
 <li><p><strong>Default</strong> ： <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-<li><p><strong>Description</strong>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, writes <code class="docutils literal notranslate"><span class="pre">habitats.parquet</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code> per <code class="docutils literal notranslate"><span class="pre">habitats_results_format</span></code>.</p></li>
+<li><p><strong>说明</strong> ：为 <code class="docutils literal notranslate"><span class="pre">true</span></code> 时，按 <code class="docutils literal notranslate"><span class="pre">habitats_results_format</span></code> 写入 <code class="docutils literal notranslate"><span class="pre">habitats.parquet</span></code> （默认）或 <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code> 。</p></li>
 </ul>
 <p><strong>生境_results_format</strong>: 生境 results table file format</p>
 <ul>
 <li><p><strong>Type</strong> ：string</p></li>
 <li><p><strong>Default</strong> ： <code class="docutils literal notranslate"><span class="pre">parquet</span></code></p></li>
 <li><p><strong>允许值</strong> ： <code class="docutils literal notranslate"><span class="pre">parquet</span></code> 、 <code class="docutils literal notranslate"><span class="pre">csv</span></code></p></li>
-<li><p><strong>Description</strong>: <code class="docutils literal notranslate"><span class="pre">parquet</span></code> smaller and faster—good for large <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> voxel tables; <code class="docutils literal notranslate"><span class="pre">csv</span></code> opens in Excel. Output filename is <code class="docutils literal notranslate"><span class="pre">habitats.parquet</span></code> or <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code>.</p></li>
-<li><p><strong>Example</strong>:</p>
+<li><p><strong>说明</strong> ： <code class="docutils literal notranslate"><span class="pre">parquet</span></code> 更小更快——适合大型 <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> 体素表； <code class="docutils literal notranslate"><span class="pre">csv</span></code> 可在 Excel 中打开。输出文件名为 <code class="docutils literal notranslate"><span class="pre">habitats.parquet</span></code> 或 <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code> 。</p></li>
+<li><p><strong>示例</strong> ：</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">save_results_csv</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">habitats_results_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">parquet</span>
 </pre></div>
@@ -2026,7 +1999,7 @@ retry / parallel-mode knobs, <code class="docutils literal notranslate"><span cl
 <p><strong>random_state</strong> （生境分析顶层）</p>
 <ul class="simple">
 <li><p><strong>Type</strong> ：integer</p></li>
-<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">42</span></code></p></li>
+<li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">42</span></code></p></li>
 </ul>
 <p><strong>on_geometry_mismatch</strong> （生境分析顶层，可选）</p>
 <ul>
@@ -2034,7 +2007,7 @@ retry / parallel-mode knobs, <code class="docutils literal notranslate"><span cl
 <li><p><strong>默认</strong> ： <code class="docutils literal notranslate"><span class="pre">resample_mask</span></code></p></li>
 <li><p><strong>允许值</strong> ： <code class="docutils literal notranslate"><span class="pre">resample_mask</span></code> 、 <code class="docutils literal notranslate"><span class="pre">strict</span></code></p></li>
 <li><p><strong>说明</strong> ：当 ROI 掩膜与参考图像在体素网格元数据（origin / direction / spacing / size）上不一致时，HABIT 默认在 Stage-1 前将掩膜对齐到图像网格：同 shape 数组保留体素并采用图像头；不同 shape 用最近邻重采样。设 <code class="docutils literal notranslate"><span class="pre">strict</span></code> 则抛 <code class="docutils literal notranslate"><span class="pre">GeometryError</span></code> （可选）。原生 v1 文档中同一键可在 <code class="docutils literal notranslate"><span class="pre">spec:</span></code> 下作为 <code class="docutils literal notranslate"><span class="pre">HabitatSpec.on_geometry_mismatch</span></code> 。</p></li>
-<li><p><strong>Example</strong>:</p>
+<li><p><strong>示例</strong> ：</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">on_geometry_mismatch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">strict</span>
 </pre></div>
 </div>
@@ -2050,23 +2023,23 @@ retry / parallel-mode knobs, <code class="docutils literal notranslate"><span cl
 <li><p><strong>Contents</strong> ：joblib 序列化的已拟合 <code class="docutils literal notranslate"><span class="pre">HabitatPipeline</span></code> （group 聚类模型、 <code class="docutils literal notranslate"><span class="pre">PreprocessingState</span></code> 、config 等）。</p></li>
 <li><p><strong>Auto slimming on save</strong> （ <code class="docutils literal notranslate"><span class="pre">HabitatPipeline.save()</span></code> 调用 <code class="docutils literal notranslate"><span class="pre">prepare_pipeline_for_save</span></code> ）：</p>
 <ul>
-<li><p>Removes training <code class="docutils literal notranslate"><span class="pre">labels_</span></code> (prediction needs centers/model params only)</p></li>
+<li><p>移除训练用的 <code class="docutils literal notranslate"><span class="pre">labels_</span></code> （预测只需中心点/模型参数）</p></li>
 <li><p><strong>Does not write</strong> <code class="docutils literal notranslate"><span class="pre">mask_info_cache</span></code> (NRRD write loads 掩膜 from <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> on demand via <code class="docutils literal notranslate"><span class="pre">FeatureService.load_mask_info</span></code>)</p></li>
 <li><p>不写 <code class="docutils literal notranslate"><span class="pre">_train_checkpoint</span></code> （检查点仍在 <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code> ）</p></li>
 </ul>
 </li>
-<li><p><strong>Size</strong>:</p>
+<li><p><strong>大小</strong> ：</p>
 <ul>
 <li><p>不再因 <code class="docutils literal notranslate"><span class="pre">save_images:</span> <span class="pre">true</span></code> 膨胀：掩膜体与 pkl 解耦； <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> 大队列通常 <strong>数十至数百 MB</strong> （主要随特征维与模型参数而非受试者数）</p></li>
 <li><p>嵌入 <code class="docutils literal notranslate"><span class="pre">mask_array</span></code> 的旧 pkls 需 <strong>重新训练并保存</strong> 以缩小</p></li>
 </ul>
 </li>
 </ul>
-<p><strong>save_images</strong>: Save image outputs from the run (<code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>, etc.)</p>
+<p><strong>save_images</strong> ：保存本次运行的图像输出（ <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> 等）</p>
 <ul class="simple">
 <li><p><strong>类型</strong> ：布尔</p></li>
 <li><p><strong>Default</strong> ： <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-<li><p><strong>Description</strong>: Maps to <code class="docutils literal notranslate"><span class="pre">HabitatAnalysisConfig.save_images</span></code>. When <code class="docutils literal notranslate"><span class="pre">true</span></code>, train/predict write habitat label maps; masks load from <code class="docutils literal notranslate"><span class="pre">config.data_dir</span></code> at write time—<strong>not</strong> stored in <code class="docutils literal notranslate"><span class="pre">habitat_pipeline.pkl</span></code>. When <code class="docutils literal notranslate"><span class="pre">false</span></code>, downstream analysis via <code class="docutils literal notranslate"><span class="pre">habitats.parquet</span></code> / <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code> without NRRD output.</p></li>
+<li><p><strong>说明</strong> ：映射到 <code class="docutils literal notranslate"><span class="pre">HabitatAnalysisConfig.save_images</span></code> 。为 <code class="docutils literal notranslate"><span class="pre">true</span></code> 时，train/predict 写出生境标签图；掩膜在写出时从 <code class="docutils literal notranslate"><span class="pre">config.data_dir</span></code> 加载——<strong>不会</strong> 存入 <code class="docutils literal notranslate"><span class="pre">habitat_pipeline.pkl</span></code> 。为 <code class="docutils literal notranslate"><span class="pre">false</span></code> 时，下游分析经由 <code class="docutils literal notranslate"><span class="pre">habitats.parquet</span></code> / <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code> ，无 NRRD 输出。</p></li>
 </ul>
 <p><strong>verbose</strong> ：详细运行日志</p>
 <ul class="simple">

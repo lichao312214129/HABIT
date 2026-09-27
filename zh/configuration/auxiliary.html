@@ -159,7 +159,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -173,7 +173,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -229,21 +229,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -690,7 +690,7 @@
 <ul class="simple">
 <li><p><strong>类型</strong> ：布尔</p></li>
 <li><p><strong>Default</strong> ： <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-<li><p><strong>Description</strong>:</p>
+<li><p><strong>说明</strong> ：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">true</span></code> ：自动读取目录中第一个文件（如转换后的 NIfTI 等）。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">false</span></code> ：保持目录路径不变（适用于需要整个文件夹的任务，如 dcm2nii）。</p></li>
@@ -702,7 +702,7 @@
 <li><p><strong>类型</strong> ：字典</p></li>
 <li><p><strong>Required</strong> ：yes</p></li>
 <li><p><strong>Default</strong> ：无（必填）</p></li>
-<li><p><strong>说明</strong> ： nested dict; first level is 受试者 ID, second level is image type (key).</p></li>
+<li><p><strong>说明</strong> ：嵌套字典；第一层为受试者 ID，第二层为图像类型（键）。</p></li>
 </ul>
 <p><strong>masks</strong> ：掩膜数据路径</p>
 <ul class="simple">
@@ -714,7 +714,7 @@
 </section>
 <section id="icc-analysis-configuration-habit-icc">
 <h2>ICC 分析配置（ <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code> ）<a class="headerlink" href="#icc-analysis-configuration-habit-icc" title="Link to this heading">#</a></h2>
-<p>Corresponds to <code class="docutils literal notranslate"><span class="pre">habit.schemas.workflows.icc.ICCConfig</span></code>. Example: <code class="docutils literal notranslate"><span class="pre">config/auxiliary/config_icc_demo.yaml</span></code>.</p>
+<p>对应 <code class="docutils literal notranslate"><span class="pre">habit.schemas.workflows.icc.ICCConfig</span></code> 。示例： <code class="docutils literal notranslate"><span class="pre">config/auxiliary/config_icc_demo.yaml</span></code> 。</p>
 <p><strong>input</strong> （必需）</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">type</span></code> ： <code class="docutils literal notranslate"><span class="pre">files</span></code> 或 <code class="docutils literal notranslate"><span class="pre">directories</span></code></p></li>
@@ -731,36 +731,35 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">selected_features</span></code>: limit 特征 columns for ICC; <code class="docutils literal notranslate"><span class="pre">null</span></code> means all</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">full_results</span></code> （bool，默认 <code class="docutils literal notranslate"><span class="pre">false</span></code> ）：是否输出完整细节</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">processes</span></code> （int，可选）：并行进程数</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">debug</span></code> (bool, default <code class="docutils literal notranslate"><span class="pre">false</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">debug</span></code> （bool，默认 <code class="docutils literal notranslate"><span class="pre">false</span></code> ）</p></li>
 </ul>
 </section>
 <section id="traditional-radiomics-cli-configuration-habit-radiomics">
 <h2>传统放射组学 CLI 配置（ <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> ）<a class="headerlink" href="#traditional-radiomics-cli-configuration-habit-radiomics" title="Link to this heading">#</a></h2>
-<p>Moved to <a class="reference internal" href="radiomics.html"><span class="doc">传统放射组学配置</span></a>. Example:
-<code class="docutils literal notranslate"><span class="pre">config/radiomics/config_traditional_radiomics.yaml</span></code>.</p>
+<p>已移至 <a class="reference internal" href="radiomics.html"><span class="doc">传统放射组学配置</span></a> 。示例： <code class="docutils literal notranslate"><span class="pre">config/radiomics/config_traditional_radiomics.yaml</span></code> 。</p>
 </section>
 <section id="repository-configuration-template-index">
 <h2>仓库配置模板索引<a class="headerlink" href="#repository-configuration-template-index" title="Link to this heading">#</a></h2>
-<p>场景目录：<a class="reference internal" href="recipe_catalog.html"><span class="doc">YAML 配置文件</span></a> 。 <code class="docutils literal notranslate"><span class="pre">config/</span></code> 按功能组织；直接复制修改模板：</p>
+<p>场景目录： <a class="reference internal" href="recipe_catalog.html"><span class="doc">YAML 配置文件</span></a> 。 <code class="docutils literal notranslate"><span class="pre">config/</span></code> 按功能组织；直接复制修改模板：</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Path</p></th>
-<th class="head"><p>Purpose</p></th>
+<tr class="row-odd"><th class="head"><p>路径</p></th>
+<th class="head"><p>用途</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">config/preprocessing/</span></code></p></td>
-<td><p>Image preprocessing and <code class="docutils literal notranslate"><span class="pre">files_preprocessing.yaml</span></code> subject lists</p></td>
+<td><p>图像预处理与 <code class="docutils literal notranslate"><span class="pre">files_preprocessing.yaml</span></code> 受试者列表</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">config/dicom_sort/</span></code></p></td>
 <td><p>仅 DICOM 排序（ <code class="docutils literal notranslate"><span class="pre">sort-dicom</span></code> ）</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">config/habitat/</span></code></p></td>
-<td><p>Habitat train/predict (two_step / one_step / direct_pooling) and <code class="docutils literal notranslate"><span class="pre">file_habitat.yaml</span></code></p></td>
+<td><p>生境训练/预测（两步法 / 一步法 / 直接池化）与 <code class="docutils literal notranslate"><span class="pre">file_habitat.yaml</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">config/feature_extraction/</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> 生境特征提取</p></td>
@@ -794,16 +793,16 @@
 </div>
 </section>
 <section id="faq">
-<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">#</a></h2>
+<h2>常见问题<a class="headerlink" href="#faq" title="Link to this heading">#</a></h2>
 <p><strong>Q1：如何创建配置文件？</strong></p>
-<p>A: You can:</p>
+<p>答：你可以：</p>
 <ol class="arabic simple">
 <li><p>从 <code class="docutils literal notranslate"><span class="pre">config/</span></code> 复制示例 YAML（见 <a class="reference internal" href="recipe_catalog.html"><span class="doc">YAML 配置文件</span></a> ）并编辑路径</p></li>
 <li><p>请参阅对应配置页的字段说明</p></li>
 <li><p>仅在需要时从零写 YAML（易漏必填字段）</p></li>
 </ol>
 <p><strong>Q2：如何调试配置文件？</strong></p>
-<p>A: You can:</p>
+<p>答：你可以：</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">debug</span></code> 模式启用详细日志</p></li>
 <li><p>检查 YAML 语法</p></li>
@@ -865,7 +864,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#traditional-radiomics-cli-configuration-habit-radiomics">传统放射组学 CLI 配置（ <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> ）</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-configuration-template-index">仓库配置模板索引</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-validation">配置文件验证</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">FAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">常见问题</a></li>
 </ul>
   </nav></div>
 

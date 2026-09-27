@@ -159,7 +159,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -173,7 +173,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -229,21 +229,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -666,10 +666,8 @@
   <section id="traditional-radiomics-configuration">
 <h1>传统放射组学配置<a class="headerlink" href="#traditional-radiomics-configuration" title="Link to this heading">#</a></h1>
 <p>本页文档化 <strong>传统整 ROI 放射组学</strong> 工作流（ <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> ）。与 <a class="reference internal" href="habitat.html"><span class="doc">生境分割配置</span></a> 下配置的体素/超体素生境放射组学分开。</p>
-<p>Demo: <code class="docutils literal notranslate"><span class="pre">config/radiomics/config_traditional_radiomics.yaml</span></code>.
-PyRadiomics parameter presets live beside it (for example <code class="docutils literal notranslate"><span class="pre">parameter.yaml</span></code>)
-and as bundled defaults under <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/</span></code>.</p>
-<p>命令用法：<a class="reference internal" href="../how_to/radiomics.html"><span class="doc">传统放射组学</span></a> 。</p>
+<p>演示： <code class="docutils literal notranslate"><span class="pre">config/radiomics/config_traditional_radiomics.yaml</span></code> 。PyRadiomics 参数预设与其同目录（例如 <code class="docutils literal notranslate"><span class="pre">parameter.yaml</span></code> ），并作为捆绑默认项位于 <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/</span></code> 。</p>
+<p>命令用法： <a class="reference internal" href="../how_to/radiomics.html"><span class="doc">传统放射组学</span></a> 。</p>
 <p><strong>配置示例：</strong></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># params_file optional: omit to use the bundled ROI preset</span>
@@ -699,7 +697,7 @@ and as bundled defaults under <code class="docutils literal notranslate"><span c
 </pre></div>
 </div>
 <section id="paths">
-<h2><code class="docutils literal notranslate"><span class="pre">paths</span></code><a class="headerlink" href="#paths" title="Link to this heading">#</a></h2>
+<h2>路径（ <code class="docutils literal notranslate"><span class="pre">paths</span></code> ）<a class="headerlink" href="#paths" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">images_folder</span></code> （ <strong>required</strong> ）：包含 <code class="docutils literal notranslate"><span class="pre">images/</span></code> 与 <code class="docutils literal notranslate"><span class="pre">masks/</span></code> 且 <code class="docutils literal notranslate"><span class="pre">&lt;subject&gt;/&lt;modality&gt;/</span></code> 布局匹配的根</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">out_dir</span></code> （ <strong>必需</strong> ）：特征表输出目录</p></li>
@@ -707,7 +705,7 @@ and as bundled defaults under <code class="docutils literal notranslate"><span c
 </ul>
 </section>
 <section id="processing">
-<h2><code class="docutils literal notranslate"><span class="pre">processing</span></code><a class="headerlink" href="#processing" title="Link to this heading">#</a></h2>
+<h2>处理（ <code class="docutils literal notranslate"><span class="pre">processing</span></code> ）<a class="headerlink" href="#processing" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">n_processes</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">2</span></code> ）</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">save_every_n_files</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">5</span></code> ）：每 N 文件 flush 中间结果</p></li>
@@ -716,16 +714,16 @@ and as bundled defaults under <code class="docutils literal notranslate"><span c
 </ul>
 </section>
 <section id="export">
-<h2><code class="docutils literal notranslate"><span class="pre">export</span></code><a class="headerlink" href="#export" title="Link to this heading">#</a></h2>
+<h2>导出（ <code class="docutils literal notranslate"><span class="pre">export</span></code> ）<a class="headerlink" href="#export" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">export_by_image_type</span></code> ：每种方式写一张表</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">export_combined</span></code>: also write a wide combined table</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export_combined</span></code> ：同时写出宽表合并结果</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">export_format</span></code> ： <code class="docutils literal notranslate"><span class="pre">csv</span></code> | <code class="docutils literal notranslate"><span class="pre">json</span></code> | <code class="docutils literal notranslate"><span class="pre">pickle</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">add_timestamp</span></code> ：在输出文件名追加时间戳</p></li>
 </ul>
 </section>
 <section id="logging">
-<h2><code class="docutils literal notranslate"><span class="pre">logging</span></code><a class="headerlink" href="#logging" title="Link to this heading">#</a></h2>
+<h2>日志（ <code class="docutils literal notranslate"><span class="pre">logging</span></code> ）<a class="headerlink" href="#logging" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">level</span></code> ： <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> / <code class="docutils literal notranslate"><span class="pre">INFO</span></code> / …</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">console_output</span></code> 、 <code class="docutils literal notranslate"><span class="pre">file_output</span></code></p></li>
@@ -737,10 +735,7 @@ and as bundled defaults under <code class="docutils literal notranslate"><span c
 </section>
 <section id="pyradiomics-parameter-yaml">
 <h2>PyRadiomics 参数 YAML<a class="headerlink" href="#pyradiomics-parameter-yaml" title="Link to this heading">#</a></h2>
-<p>Files such as <code class="docutils literal notranslate"><span class="pre">config/radiomics/parameter.yaml</span></code> follow the upstream
-PyRadiomics schema (<code class="docutils literal notranslate"><span class="pre">imageType</span></code>, <code class="docutils literal notranslate"><span class="pre">featureClass</span></code>, <code class="docutils literal notranslate"><span class="pre">setting</span></code>). Habitat
-voxel / supervoxel presets are documented under <a class="reference internal" href="habitat.html"><span class="doc">生境分割配置</span></a> and shipped in
-<code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/</span></code>.</p>
+<p>诸如 <code class="docutils literal notranslate"><span class="pre">config/radiomics/parameter.yaml</span></code> 的文件遵循上游 PyRadiomics schema（ <code class="docutils literal notranslate"><span class="pre">imageType</span></code> 、 <code class="docutils literal notranslate"><span class="pre">featureClass</span></code> 、 <code class="docutils literal notranslate"><span class="pre">setting</span></code> ）。生境体素 / 超体素预设见 <a class="reference internal" href="habitat.html"><span class="doc">生境分割配置</span></a> ，并随 <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/</span></code> 一并发布。</p>
 </section>
 </section>
 
@@ -791,10 +786,10 @@ voxel / supervoxel presets are documented under <a class="reference internal" hr
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paths"><code class="docutils literal notranslate"><span class="pre">paths</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#processing"><code class="docutils literal notranslate"><span class="pre">processing</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export"><code class="docutils literal notranslate"><span class="pre">export</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging"><code class="docutils literal notranslate"><span class="pre">logging</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paths">路径（ <code class="docutils literal notranslate"><span class="pre">paths</span></code> ）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#processing">处理（ <code class="docutils literal notranslate"><span class="pre">processing</span></code> ）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export">导出（ <code class="docutils literal notranslate"><span class="pre">export</span></code> ）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging">日志（ <code class="docutils literal notranslate"><span class="pre">logging</span></code> ）</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backward-compatible-flat-keys">向后兼容的扁平键</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyradiomics-parameter-yaml">PyRadiomics 参数 YAML</a></li>
 </ul>

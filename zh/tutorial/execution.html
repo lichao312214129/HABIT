@@ -157,7 +157,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -171,7 +171,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -227,21 +227,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -638,8 +638,8 @@
                   
   <section id="parallel-execution-and-fault-tolerance">
 <h1>并行执行与容错<a class="headerlink" href="#parallel-execution-and-fault-tolerance" title="Link to this heading">#</a></h1>
-<p><a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 声明 <strong>算什么</strong> 。<a class="reference internal" href="../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> （及执行后端）声明 <strong>如何</strong> 调度受试者。若 <code class="docutils literal notranslate"><span class="pre">random_seed</span></code> 固定，串行 ↔ 进程池切换不会改变科学数值。</p>
-<p>本页为集成章。逐旋钮参考：<a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a> 。可运行演示：<a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
+<p><a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 声明 <strong>算什么</strong> 。 <a class="reference internal" href="../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> （及执行后端）声明 <strong>如何</strong> 调度受试者。若 <code class="docutils literal notranslate"><span class="pre">random_seed</span></code> 固定，串行 ↔ 进程池切换不会改变科学数值。</p>
+<p>本页为集成章。逐旋钮参考： <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a> 。可运行演示： <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
 <p>初学者可在队列变慢或单受试者导致运行崩溃前忽略本页。快速开始已用小进程池（ <code class="docutils literal notranslate"><span class="pre">workers=2</span></code> ）。</p>
 <section id="pick-a-backend">
 <h2>选择后端<a class="headerlink" href="#pick-a-backend" title="Link to this heading">#</a></h2>
@@ -648,17 +648,15 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">policy.backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code> <strong>或</strong> <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> <strong>或</strong> <code class="docutils literal notranslate"><span class="pre">parallel_mode</span> <span class="pre">==</span> <span class="pre">&quot;isolated&quot;</span></code> 时用 <a class="reference internal" href="../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a></p></li>
 <li><p>否则 <a class="reference internal" href="../api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend" title="habit.execution.SerialBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SerialBackend</span></code></a></p></li>
 </ul>
-<p>A positive <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> alone does <strong>not</strong> force spawn (the
-default is <code class="docutils literal notranslate"><span class="pre">900.0</span></code>). Timeout isolation still needs <code class="docutils literal notranslate"><span class="pre">backend=&quot;process&quot;</span></code>
-or <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code>.</p>
+<p>仅设置正的 <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> <strong>并不会</strong> 强制 spawn（默认为 <code class="docutils literal notranslate"><span class="pre">900.0</span></code> ）。超时隔离仍需 <code class="docutils literal notranslate"><span class="pre">backend=&quot;process&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code> 。</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 28.0%" />
 <col style="width: 72.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Use</p></th>
-<th class="head"><p>Policy</p></th>
+<tr class="row-odd"><th class="head"><p>用途</p></th>
+<th class="head"><p>策略</p></th>
 </tr>
 </thead>
 <tbody>
@@ -729,13 +727,13 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;fail_fast&quot;</span></code> —— 首个受试者异常即抛出</p></li>
 </ul>
 <p><a class="reference internal" href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort.map" title="habit.contracts.Cohort.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">map()</span></code></a> 在任槽位失败时仍抛出 <a class="reference internal" href="../api/generated/habit.exceptions.ProcessingError.html#habit.exceptions.ProcessingError" title="habit.exceptions.ProcessingError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingError</span></code></a> ， <strong>即使</strong> 后端用了 <code class="docutils literal notranslate"><span class="pre">continue</span></code> 。Recipes / CLI 传 <code class="docutils literal notranslate"><span class="pre">raise_on_failure=False</span></code> 以便部分队列完成。直接 <code class="docutils literal notranslate"><span class="pre">backend.map</span></code> 则异常留在 <code class="docutils literal notranslate"><span class="pre">slot.error</span></code> 。</p>
-<p>两者，在一项有一名未完成受试者的研究上：<a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
+<p>两者，在一项有一名未完成受试者的研究上： <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
 <p>Per-受试者 wall-clock cap: <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> (ProcessPool only). Expiry raises <code class="docutils literal notranslate"><span class="pre">SubjectTimeoutError</span></code>.</p>
 <p>运行中对不稳定受试者的重试： <code class="docutils literal notranslate"><span class="pre">auto_retry_rounds</span></code> （ProcessPool）。发生致命 <code class="docutils literal notranslate"><span class="pre">MemoryError</span></code> 后， <code class="docutils literal notranslate"><span class="pre">oom_backoff=True</span></code> 会减少 <code class="docutils literal notranslate"><span class="pre">workers</span></code> 。</p>
 </section>
 <section id="resume-and-checkpoints">
 <h2>恢复与检查点<a class="headerlink" href="#resume-and-checkpoints" title="Link to this heading">#</a></h2>
-<p>附加 <a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> 使第二次运行跳过已记录成功的受试者：<a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
+<p>附加 <a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> 使第二次运行跳过已记录成功的受试者： <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
 <p>已记录 <strong>failures</strong> 除非 <code class="docutils literal notranslate"><span class="pre">retry_failed_subjects=True</span></code> 否则跳过。用 <code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code> 强制若干 ID。</p>
 <p>生境配方/CLI 路径上，缓存键嵌入 spec 指纹。在不换新存储的情况下更改提取器或预处理阶段会像对 <strong>错误</strong> 定义的缓存命中——应视为新运行。</p>
 </section>
@@ -745,22 +743,22 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <ul class="simple">
 <li><p><strong>GeometryPolicy</strong> —— 图像与掩膜网格（ <code class="docutils literal notranslate"><span class="pre">STRICT</span></code> / <code class="docutils literal notranslate"><span class="pre">RESAMPLE_MASK</span></code> / …）</p></li>
 <li><p><strong>extract_batch(fail_fast=)</strong> — 对成对样本做特征提取</p></li>
-<li><p><strong>load_plugins(strict=)</strong> — missing third-party plugins</p></li>
-<li><p><strong>HabitatModel.load</strong> — 拒绝非 <code class="docutils literal notranslate"><span class="pre">habit.habitatmodel</span></code> 文件（<a class="reference internal" href="../api/generated/habit.exceptions.CompatibilityError.html#habit.exceptions.CompatibilityError" title="habit.exceptions.CompatibilityError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompatibilityError</span></code></a> ）</p></li>
+<li><p><strong>load_plugins(strict=)</strong> — 缺失的第三方插件</p></li>
+<li><p><strong>HabitatModel.load</strong> — 拒绝非 <code class="docutils literal notranslate"><span class="pre">habit.habitatmodel</span></code> 文件（ <a class="reference internal" href="../api/generated/habit.exceptions.CompatibilityError.html#habit.exceptions.CompatibilityError" title="habit.exceptions.CompatibilityError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompatibilityError</span></code></a> ）</p></li>
 </ul>
-<p>演练：<a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
+<p>演练： <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
 </section>
 <section id="yaml">
-<h2>YAML<a class="headerlink" href="#yaml" title="Link to this heading">#</a></h2>
-<p>原生 v1 文档使用顶层 <code class="docutils literal notranslate"><span class="pre">policy:</span></code> 块（ <code class="docutils literal notranslate"><span class="pre">workers</span></code> 、 <code class="docutils literal notranslate"><span class="pre">backend</span></code> 、 <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> 等）。旧 YAML 在文档顶层保留相同旋钮（ <code class="docutils literal notranslate"><span class="pre">processes</span></code> 、 <code class="docutils literal notranslate"><span class="pre">individual_subject_timeout_sec</span></code> 等）。字段重命名表：<a class="reference internal" href="../api/spec.html"><span class="doc">Spec、RunPolicy 和 YAML 同构</span></a> 。完整生境参考：<a class="reference internal" href="../configuration/habitat.html"><span class="doc">生境分割配置</span></a> 。</p>
+<h2>YAML 配置<a class="headerlink" href="#yaml" title="Link to this heading">#</a></h2>
+<p>原生 v1 文档使用顶层 <code class="docutils literal notranslate"><span class="pre">policy:</span></code> 块（ <code class="docutils literal notranslate"><span class="pre">workers</span></code> 、 <code class="docutils literal notranslate"><span class="pre">backend</span></code> 、 <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> 等）。旧 YAML 在文档顶层保留相同旋钮（ <code class="docutils literal notranslate"><span class="pre">processes</span></code> 、 <code class="docutils literal notranslate"><span class="pre">individual_subject_timeout_sec</span></code> 等）。字段重命名表： <a class="reference internal" href="../api/spec.html"><span class="doc">Spec、RunPolicy 和 YAML 同构</span></a> 。完整生境参考： <a class="reference internal" href="../configuration/habitat.html"><span class="doc">生境分割配置</span></a> 。</p>
 </section>
 <section id="next">
-<h2>Next<a class="headerlink" href="#next" title="Link to this heading">#</a></h2>
+<h2>下一节<a class="headerlink" href="#next" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>生境核心：<a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a></p></li>
-<li><p>嵌入算子：<a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_02_atomic_two_step.html"><span class="doc">由原子组件构建两步法生境</span></a></p></li>
-<li><p>API reference: <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a></p></li>
-<li><p>演示：<a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a></p></li>
+<li><p>生境核心： <a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a></p></li>
+<li><p>嵌入算子： <a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_02_atomic_two_step.html"><span class="doc">由原子组件构建两步法生境</span></a></p></li>
+<li><p>API 参考： <a class="reference internal" href="../api/execution.html"><span class="doc">执行后端</span></a></p></li>
+<li><p>演示： <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a></p></li>
 </ul>
 </section>
 </section>
@@ -798,8 +796,8 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#failure-policy">失败策略</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resume-and-checkpoints">恢复与检查点</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-soft-failure-knobs">其他软失败旋钮</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#yaml">YAML</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next">Next</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#yaml">YAML 配置</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next">下一节</a></li>
 </ul>
   </nav></div>
 

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Architecture &#8212; HABIT Documentation</title>
+    <title>架构 &#8212; HABIT Documentation</title>
   
   
   
@@ -415,7 +415,7 @@ window.runMermaid = runMermaid;</script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
     <link rel="next" title="扩展 HABIT" href="../customization/index.html" />
-    <link rel="prev" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="参与贡献" href="contributing.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="zh-CN"/>
   <meta name="docsearch:version" content="3.0.0" />
@@ -516,7 +516,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -530,7 +530,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -586,21 +586,21 @@ window.runMermaid = runMermaid;</script>
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="#">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -767,7 +767,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -781,7 +781,7 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -830,21 +830,21 @@ window.runMermaid = runMermaid;</script>
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -992,7 +992,7 @@ window.runMermaid = runMermaid;</script>
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Architecture</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">架构</span></li>
   </ul>
 </nav>
 </div>
@@ -1010,21 +1010,21 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <section id="architecture">
-<h1>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">#</a></h1>
+<h1>架构<a class="headerlink" href="#architecture" title="Link to this heading">#</a></h1>
 <p>自 v1.0.0 起 HABIT 为 <strong>API-first</strong> ：Python API 即产品，CLI 与 YAML 配置为其薄壳。代码库组织为六层，L0 底至 L5 顶。层只能向下 import，使数值核心无 I/O、配置解析不进算法。</p>
 <p>按以下顺序阅读公开的开发者文档：</p>
 <ol class="arabic simple">
 <li><p><strong>本页</strong> — 分层、公开 API 边界、不变量。</p></li>
-<li><p><a class="reference internal" href="contributing.html"><span class="doc">Contributing</span></a> — environment, tests, and pull requests.</p></li>
+<li><p><a class="reference internal" href="contributing.html"><span class="doc">参与贡献</span></a> — 环境、测试与拉取请求。</p></li>
 <li><p><a class="reference internal" href="../customization/index.html"><span class="doc">扩展 HABIT</span></a> — 注册表和入口点插件。</p></li>
 </ol>
 <section id="design-principles">
 <h2>设计原则<a class="headerlink" href="#design-principles" title="Link to this heading">#</a></h2>
 <ol class="arabic simple">
 <li><p><strong>API first</strong> ：每项研究为 <a class="reference internal" href="../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code></a> （ <code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">=</span> <span class="pre">recipes.Study(spec=spec).fit_predict(cohort)</span></code> 且 <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> ）；YAML 与 CLI 为同一调用的投影。生境工厂（ <code class="docutils literal notranslate"><span class="pre">two_step_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling_habitat</span></code> ）返回带声明设计的 Study。</p></li>
-<li><p><strong>Typed specifications</strong> ：分析声明为不可变、带指纹的 spec 对象（<a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 、<a class="reference internal" href="../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a> ），而非松散字典。</p></li>
+<li><p><strong>Typed specifications</strong> ：分析声明为不可变、带指纹的 spec 对象（ <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 、 <a class="reference internal" href="../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a> ），而非松散字典。</p></li>
 <li><p><strong>注册表模式</strong> ：算法按名称注册，而非硬编码进工作流逻辑。</p></li>
-<li><p><strong>Unified contracts</strong> ：数据以类型化契约在层间传递（<a class="reference internal" href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> 、<a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a> 、<a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> 等）。</p></li>
+<li><p><strong>Unified contracts</strong> ：数据以类型化契约在层间传递（ <a class="reference internal" href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> 、 <a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a> 、 <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> 等）。</p></li>
 <li><p><strong>惰性导入</strong> ：可选且体积大的依赖仅在需要时加载。</p></li>
 </ol>
 </section>
@@ -1048,14 +1048,11 @@ window.runMermaid = runMermaid;</script>
   L2 --&gt; L1
   L1 --&gt; L0
     </pre><p>栈旁支持包： <code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code> （spec 对象与 v0.1→v1 转换器）、 <code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code> （并行后端与检查点）、 <code class="docutils literal notranslate"><span class="pre">habit/datasets/</span></code> （合成数据）、 <code class="docutils literal notranslate"><span class="pre">habit/plugins/</span></code> （组件发现）、 <code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code> （v0.1 YAML schema）、 <code class="docutils literal notranslate"><span class="pre">habit/compat/</span></code> （v0.1 引擎，保留 YAML parity 与旧文件）。</p>
-<p>Public Python symbols are listed under <a class="reference internal" href="../api/index.html"><span class="doc">API 参考</span></a>. A third party
-should be able to call <code class="docutils literal notranslate"><span class="pre">op(subject)</span></code> or <code class="docutils literal notranslate"><span class="pre">Study(spec).fit_predict(cohort)</span></code>
-without HABIT's directory layout. If <code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> and <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code>
-were deleted, the scientific capability would still be callable.</p>
+<p>公开 Python 符号列于 <a class="reference internal" href="../api/index.html"><span class="doc">API 参考</span></a> 。第三方应能调用 <code class="docutils literal notranslate"><span class="pre">op(subject)</span></code> 或 <code class="docutils literal notranslate"><span class="pre">Study(spec).fit_predict(cohort)</span></code> ，而无须接受 HABIT 的目录布局。即便删除 <code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> 与 <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code> ，科学能力仍可调用。</p>
 </section>
 <section id="two-execution-paths">
 <h2>两条执行路径<a class="headerlink" href="#two-execution-paths" title="Link to this heading">#</a></h2>
-<p><strong>The v1 path (specs and recipes).</strong> Python callers build a spec, assemble a 队列 or 特征 table through the contracts/adapters, and call a recipe. The recipe wires domain components from the L3 registries into a pipeline, runs it through an execution backend, and returns a typed result with a <a class="reference internal" href="../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest" title="habit.contracts.RunManifest"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunManifest</span></code></a> for provenance:</p>
+<p><strong>v1 路径（specs 与 recipes）。</strong> Python 调用方构建 spec，经 contracts/adapters 组装队列或特征表，再调用 recipe。recipe 从 L3 注册表接线领域组件为流水线，经执行后端运行，并返回带 <a class="reference internal" href="../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest" title="habit.contracts.RunManifest"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunManifest</span></code></a> 溯源的类型化结果：</p>
 <pre  class="mermaid">
         flowchart TD
   S[&quot;HabitatSpec / MLSpec&lt;br/&gt;(immutable, fingerprinted)&quot;] --&gt; R[&quot;habit.recipes.*&quot;]
@@ -1071,26 +1068,23 @@ were deleted, the scientific capability would still be callable.</p>
   TR --&gt; REC[&quot;habit.recipes.*&lt;br/&gt;(same as the Python path)&quot;]
   SC -.-&gt;|&quot;extract / radiomics /&lt;br/&gt;legacy pickles&quot;| CF[&quot;compat configurators&lt;br/&gt;MLConfigurator etc.&quot;]
   CF --&gt; ORC[&quot;compat orchestrators&lt;br/&gt;BatchProcessor · HabitatAnalysis&lt;br/&gt;KFoldWorkflow&quot;]
-    </pre><p>Maintainer notes for the YAML loader, PathResolver, and compat engine
-tours live in the repository at <code class="docutils literal notranslate"><span class="pre">developer/sphinx_archive/</span></code>
-(<code class="docutils literal notranslate"><span class="pre">configuration_system.rst</span></code>, <code class="docutils literal notranslate"><span class="pre">request_lifecycle.rst</span></code>,
-<code class="docutils literal notranslate"><span class="pre">subsystems.rst</span></code>).</p>
+    </pre><p>YAML 加载器、PathResolver 与 compat 引擎导览的维护者说明位于仓库 <code class="docutils literal notranslate"><span class="pre">developer/sphinx_archive/</span></code> （ <code class="docutils literal notranslate"><span class="pre">configuration_system.rst</span></code> 、 <code class="docutils literal notranslate"><span class="pre">request_lifecycle.rst</span></code> 、 <code class="docutils literal notranslate"><span class="pre">subsystems.rst</span></code> ）。</p>
 </section>
 <section id="key-components">
 <h2>关键组件<a class="headerlink" href="#key-components" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><strong>Specs</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code> ）将分析声明为数据。spec 不可变、可序列化、可指纹化，保存的模型始终知道产生它的分析。</p></li>
 <li><p><strong>Recipes</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/recipes/</span></code> ）是标准研究设计。是多数用户与全部 entry point 唯一需要的编排。</p></li>
-<li><p><strong>契约</strong> (<code class="docutils literal notranslate"><span class="pre">habit/contracts/</span></code>) are the typed data model; every layer speaks in these objects.</p></li>
+<li><p><strong>Contracts</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/contracts/</span></code> ）是带类型的数据模型；每一层都用这些对象交流。</p></li>
 <li><p><strong>Domain registries</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/domain/</span></code> ）将 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;kmeans&quot;,</span> <span class="pre">{...})</span></code> 组件引用映射到实现。</p></li>
 <li><p><strong>Execution backends</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code> ）运行受试者并行工作并为中断队列提供检查点。</p></li>
 <li><p><strong>Compat engines</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code> ）是 v1 前实现（ <code class="docutils literal notranslate"><span class="pre">BatchProcessor</span></code> 、 <code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code> 、 <code class="docutils literal notranslate"><span class="pre">HoldoutWorkflow</span></code>/<code class="docutils literal notranslate"><span class="pre">KFoldWorkflow</span></code> ）。YAML  parity 工作流仍完全支持，但不再是架构重心。</p></li>
 </ul>
 </section>
 <section id="subsystems">
-<h2>Subsystems<a class="headerlink" href="#subsystems" title="Link to this heading">#</a></h2>
+<h2>子系统<a class="headerlink" href="#subsystems" title="Link to this heading">#</a></h2>
 <p><strong>Habitat analysis</strong> 支持三种策略 — <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 、 <code class="docutils literal notranslate"><span class="pre">one_step</span></code> 、 <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> — 作为同一领域组件上的 v1 配方实现。拟合状态以自描述 <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> 归档持久化以供可复现预测。</p>
-<p><strong>预处理</strong> and <strong>tabular machine learning</strong> are supporting shells: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code> calls <a class="reference internal" href="../api/generated/habit.recipes.preprocess_images.html#habit.recipes.preprocess_images" title="habit.recipes.preprocess_images"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.preprocess_images()</span></code></a>; <a class="reference internal" href="../api/generated/habit.recipes.train_model.html#habit.recipes.train_model" title="habit.recipes.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">train_model()</span></code></a> / <a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate()</span></code></a> / <a class="reference internal" href="../api/generated/habit.recipes.predict_model.html#habit.recipes.predict_model" title="habit.recipes.predict_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_model()</span></code></a> run a <a class="reference internal" href="../api/generated/habit.pipeline.TablePipeline.html#habit.pipeline.TablePipeline" title="habit.pipeline.TablePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">TablePipeline</span></code></a>. Compat engines under <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code> remain for YAML parity. Those trees are frozen for product work; 生境分析 is the extension surface.</p>
+<p><strong>预处理</strong> 与 <strong>表格机器学习</strong> 是支撑外壳： <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code> 调用 <a class="reference internal" href="../api/generated/habit.recipes.preprocess_images.html#habit.recipes.preprocess_images" title="habit.recipes.preprocess_images"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.preprocess_images()</span></code></a> ； <a class="reference internal" href="../api/generated/habit.recipes.train_model.html#habit.recipes.train_model" title="habit.recipes.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">train_model()</span></code></a> / <a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate()</span></code></a> / <a class="reference internal" href="../api/generated/habit.recipes.predict_model.html#habit.recipes.predict_model" title="habit.recipes.predict_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_model()</span></code></a> 运行 <a class="reference internal" href="../api/generated/habit.pipeline.TablePipeline.html#habit.pipeline.TablePipeline" title="habit.pipeline.TablePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">TablePipeline</span></code></a> 。 <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code> 下的兼容引擎仍服务于 YAML 对等。这些树在产品工作上已冻结；生境分析才是扩展面。</p>
 </section>
 <section id="cli-to-core-mapping">
 <h2>CLI 到核心映射<a class="headerlink" href="#cli-to-core-mapping" title="Link to this heading">#</a></h2>
@@ -1103,8 +1097,8 @@ tours live in the repository at <code class="docutils literal notranslate"><span
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>CLI 命令</p></th>
-<th class="head"><p>Configuration</p></th>
-<th class="head"><p>v1 entry point</p></th>
+<th class="head"><p>配置</p></th>
+<th class="head"><p>v1 入口点</p></th>
 </tr>
 </thead>
 <tbody>
@@ -1142,41 +1136,41 @@ tours live in the repository at <code class="docutils literal notranslate"><span
 </section>
 <section id="design-philosophy">
 <h2>设计哲学<a class="headerlink" href="#design-philosophy" title="Link to this heading">#</a></h2>
-<p>成像论文需要 <strong>可重复</strong> 且 <strong>可复现</strong> 的生境图。体素强度依赖扫描仪与预处理；聚类依赖 <span class="math notranslate nohighlight">\(k\)</span> 与特征向量；单个体素掩膜偏移可改写放射组学图。HABIT 不能消除该物理。它使改变生境图的选择 <strong>显式、有类型并随结果携带</strong> （<a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> 、<a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> 、<a class="reference internal" href="../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.describe_methods" title="habit.contracts.RunManifest.describe_methods"><code class="xref py py-meth docutils literal notranslate"><span class="pre">describe_methods()</span></code></a> ）。单元测试通过不等于多中心复现。</p>
-<p>产品答案是可复制进 notebook 或另一流水线的 <strong>库 API</strong> 。CLI 与 YAML 是该 API 的壳，非第二套科学栈。默认（k-means 生境数：inertia <strong>elbow</strong> ，<span class="math notranslate nohighlight">\(kin[2,10]\)</span> ）是起始协议，非声称默认对每个肿瘤最优。</p>
+<p>成像论文需要 <strong>可重复</strong> 且 <strong>可复现</strong> 的生境图。体素强度依赖扫描仪与预处理；聚类依赖 <span class="math notranslate nohighlight">\(k\)</span> 与特征向量；单个体素掩膜偏移可改写放射组学图。HABIT 不能消除该物理。它使改变生境图的选择 <strong>显式、有类型并随结果携带</strong> （ <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> 、 <a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> 、 <a class="reference internal" href="../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.describe_methods" title="habit.contracts.RunManifest.describe_methods"><code class="xref py py-meth docutils literal notranslate"><span class="pre">describe_methods()</span></code></a> ）。单元测试通过不等于多中心复现。</p>
+<p>产品答案是可复制进 notebook 或另一流水线的 <strong>库 API</strong> 。CLI 与 YAML 是该 API 的壳，非第二套科学栈。默认（k-means 生境数：inertia <strong>elbow</strong> ， <span class="math notranslate nohighlight">\(kin[2,10]\)</span> ）是起始协议，非声称默认对每个肿瘤最优。</p>
 <p>由此产生五个工程支柱：</p>
 <ol class="arabic simple">
 <li><p><strong>Configuration is an interface</strong> ，非一层 — YAML 与 Python 经 <a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> 共享语义。</p></li>
 <li><p><strong>Schemas fail fast</strong> — Pydantic 在计算前验证；严格处 <code class="docutils literal notranslate"><span class="pre">extra='forbid'</span></code> 。</p></li>
 <li><p><strong>Registry 解耦算法</strong> ——按名切换实现。</p></li>
-<li><p><strong>Train and predict share a contract</strong> — inference reuses fitted state, including 队列级 preprocessing on <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a>.</p></li>
+<li><p><strong>训练与预测共享同一契约</strong> —— 推理复用已拟合状态，包括 <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> 上的队列级预处理。</p></li>
 <li><p><strong>Commands stay thin</strong> — L5 委托 <code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code> 。</p></li>
 </ol>
 </section>
 <section id="habitat-and-api-glossary">
 <h2>生境与 API 术语表<a class="headerlink" href="#habitat-and-api-glossary" title="Link to this heading">#</a></h2>
-<p>任务级生境 walkthrough 在生境指南（<a class="reference internal" href="../auto_examples/index.html"><span class="doc">Examples</span></a> ）。下表为本章使用的 <strong>开发者</strong> 词汇。</p>
+<p>任务级生境 walkthrough 在生境指南（ <a class="reference internal" href="../auto_examples/index.html"><span class="doc">示例</span></a> ）。下表为本章使用的 <strong>开发者</strong> 词汇。</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 25.0%" />
 <col style="width: 75.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Term</p></th>
+<tr class="row-odd"><th class="head"><p>术语</p></th>
 <th class="head"><p>Meaning</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><strong>Voxel feature</strong></p></td>
+<tr class="row-even"><td><p><strong>体素特征</strong></p></td>
 <td><p>聚类读取的逐体素向量（强度、动力学、局部放射组学等）。</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Supervoxel</strong></p></td>
+<tr class="row-odd"><td><p><strong>超体素</strong></p></td>
 <td><p>单受试者内相似体素局部组； <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 策略的中间产物。</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>Habitat</strong></p></td>
-<td><p>An image-phenotype region inside a 肿瘤, stored as an integer label image.</p></td>
+<tr class="row-even"><td><p><strong>生境</strong></p></td>
+<td><p>肿瘤内的影像表型区域，以整数标签图像存储。</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Habitat feature</strong></p></td>
+<tr class="row-odd"><td><p><strong>生境特征</strong></p></td>
 <td><p>生境图存在后的下游量（体积、MSI、ITH、放射组学、图指标等）。</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>聚类模式</strong></p></td>
@@ -1192,25 +1186,25 @@ tours live in the repository at <code class="docutils literal notranslate"><span
 <col style="width: 30.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Role</p></th>
-<th class="head"><p>Responsibility</p></th>
+<tr class="row-odd"><th class="head"><p>角色</p></th>
+<th class="head"><p>职责</p></th>
 <th class="head"><p>代表符号</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><strong>Spec</strong></p></td>
+<tr class="row-even"><td><p><strong>规格</strong></p></td>
 <td><p>将分析声明为不可变的、带指纹的数据。</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> 、 <code class="docutils literal notranslate"><span class="pre">MLSpec</span></code> 、 <code class="docutils literal notranslate"><span class="pre">Spec</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Recipe</strong></p></td>
-<td><p>Assembles domain components, executes, returns a typed result.</p></td>
+<tr class="row-odd"><td><p><strong>配方</strong></p></td>
+<td><p>组装领域组件、执行，并返回带类型的结果。</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">recipes.Study(...).fit_predict</span></code> 、 <code class="docutils literal notranslate"><span class="pre">recipes.train_model</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><strong>Contract</strong></p></td>
+<tr class="row-even"><td><p><strong>契约</strong></p></td>
 <td><p>在层间传递的类型化对象。</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Subject</span></code> 、 <code class="docutils literal notranslate"><span class="pre">Cohort</span></code> 、 <code class="docutils literal notranslate"><span class="pre">FeatureTable</span></code> 、 <code class="docutils literal notranslate"><span class="pre">HabitatModel</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Pipeline</strong></p></td>
+<tr class="row-odd"><td><p><strong>流水线</strong></p></td>
 <td><p>配方构建的可执行对象；拟合状态在此。</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code> 、 <code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></p></td>
 </tr>
@@ -1218,8 +1212,8 @@ tours live in the repository at <code class="docutils literal notranslate"><span
 <td><p>L1 适配器；唯一读文件之处。</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">DirectoryDataSource</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Component registry</strong></p></td>
-<td><p>Maps <code class="docutils literal notranslate"><span class="pre">Spec(&quot;name&quot;,</span> <span class="pre">params)</span></code> to implementations.</p></td>
+<tr class="row-odd"><td><p><strong>组件注册表</strong></p></td>
+<td><p>将 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;name&quot;,</span> <span class="pre">params)</span></code> 映射到具体实现。</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">VoxelFeatureExtractorRegistry</span></code>, <code class="docutils literal notranslate"><span class="pre">ComponentRegistry</span></code></p></td>
 </tr>
 </tbody>
@@ -1228,9 +1222,8 @@ tours live in the repository at <code class="docutils literal notranslate"><span
 <p>v0.1 YAML 路径上 <strong>Configurator</strong> 组装、 <strong>Orchestrator</strong> 执行、 <strong>Factory</strong> 解析名称。这些角色仍描述 <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code> 。v1 路径上 recipe 兼三职，由 spec 驱动。</p>
 </section>
 <section id="invariants">
-<h2>Invariants<a class="headerlink" href="#invariants" title="Link to this heading">#</a></h2>
-<p>These rules must not be broken. Most are checked by
-<code class="docutils literal notranslate"><span class="pre">tests/test_architecture_contracts.py</span></code>.</p>
+<h2>不变量<a class="headerlink" href="#invariants" title="Link to this heading">#</a></h2>
+<p>这些规则不可违反。多数由 <code class="docutils literal notranslate"><span class="pre">tests/test_architecture_contracts.py</span></code> 检查。</p>
 <div class="admonition important">
 <p class="admonition-title">重要</p>
 <p>提交变更前运行架构契约测试:</p>
@@ -1245,32 +1238,31 @@ tours live in the repository at <code class="docutils literal notranslate"><span
 <col style="width: 70.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Invariant</p></th>
-<th class="head"><p>Rationale</p></th>
+<tr class="row-odd"><th class="head"><p>不变量</p></th>
+<th class="head"><p>设计理由</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><strong>防止数据泄露</strong></p></td>
-<td><p>特征 selection, scaling, and resampling must be inside one sklearn Pipeline and fitted only on training folds.</p></td>
+<td><p>特征选择、缩放与重采样必须放在同一个 sklearn Pipeline 内，且仅在训练折上拟合。</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Train/predict symmetry</strong></p></td>
+<tr class="row-odd"><td><p><strong>训练/预测对称性</strong></p></td>
 <td><p>predict 须复用 fit 学到的聚类中心、缩放参数、所选特征等状态。</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>Controlled randomness</strong></p></td>
+<tr class="row-even"><td><p><strong>受控随机性</strong></p></td>
 <td><p>每一个随机步骤都必须接受并传递一个随机种子，以便可以重现相同的配置。</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><strong>Configuration</strong></p>
+<p><strong>配置</strong></p>
 <ul class="simple">
 <li><p>根配置模型在需严格验证处用 <code class="docutils literal notranslate"><span class="pre">extra='forbid'</span></code> 。新字段须在 schema 中声明。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code> 是 schema 定义的真相源。兼容模块可再导出 schema 但不得定义重复。</p></li>
 <li><p>可配置 <code class="docutils literal notranslate"><span class="pre">params</span></code> 的组件须定义并注册 Pydantic 参数模型（v0.1 YAML）或在组件构造函数上暴露（v1 <code class="docutils literal notranslate"><span class="pre">Registry.create</span></code> ）。</p></li>
-<li><p>v1 spec objects (<code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code>) are immutable and fingerprinted; a fitted
-model must always be traceable to the exact spec that produced it.</p></li>
+<li><p>v1 的 spec 对象（ <code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code> ）不可变且带指纹；拟合得到的模型必须始终能追溯到产生它的那份精确 spec。</p></li>
 </ul>
-<p><strong>Registry contracts</strong></p>
+<p><strong>注册表契约</strong></p>
 <p>所有注册表必须：</p>
 <ul class="simple">
 <li><p>继承相应 <code class="docutils literal notranslate"><span class="pre">_BaseRegistry</span></code> 子类；</p></li>
@@ -1279,17 +1271,15 @@ model must always be traceable to the exact spec that produced it.</p></li>
 <li><p>从 <code class="docutils literal notranslate"><span class="pre">available()</span></code> 返回一个列表。</p></li>
 </ul>
 <p>类工厂另提供 <code class="docutils literal notranslate"><span class="pre">create()</span></code> 。可调用注册表提供其可调用入口访问器。</p>
-<p><strong>Orchestrator contracts</strong></p>
+<p><strong>编排器契约</strong></p>
 <p>每个顶层编排器须暴露 <code class="docutils literal notranslate"><span class="pre">ORCHESTRATOR_CONTRACT</span></code> 声明的终端方法。批处理器与工作流通常暴露 <code class="docutils literal notranslate"><span class="pre">run()</span></code> ；生境分析暴露 <code class="docutils literal notranslate"><span class="pre">fit()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">predict()</span></code> 。</p>
 <p><strong>工程惯例</strong></p>
 <ul class="simple">
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">habit/utils/progress_utils.py</span></code> for all progress bars.</p></li>
+<li><p>所有进度条统一使用 <code class="docutils literal notranslate"><span class="pre">habit/utils/progress_utils.py</span></code> 。</p></li>
 <li><p>可复用跨子系统工具放在 <code class="docutils literal notranslate"><span class="pre">habit/utils/</span></code> 。</p></li>
 <li><p>图内生成的文字必须为英文。</p></li>
 <li><p>在命令或工厂方法内部懒加载导入重量级可选依赖。</p></li>
-<li><p>Keep business logic out of the command layer: commands are L5 wiring that
-delegate to <code class="docutils literal notranslate"><span class="pre">habit/recipes/</span></code>; v0.1 engine logic lives in
-<code class="docutils literal notranslate"><span class="pre">compat/engines/*/run.py</span></code>.</p></li>
+<li><p>不要把业务逻辑放进命令层：命令是委托给 <code class="docutils literal notranslate"><span class="pre">habit/recipes/</span></code> 的 L5 接线；v0.1 引擎逻辑位于 <code class="docutils literal notranslate"><span class="pre">compat/engines/*/run.py</span></code> 。</p></li>
 <li><p>遵守层方向：L0 kernel 保持纯函数（无 I/O、状态、日志），且不得向上 import。</p></li>
 <li><p>显式标注函数输入输出，代码注释用英文。</p></li>
 </ul>
@@ -1302,8 +1292,8 @@ delegate to <code class="docutils literal notranslate"><span class="pre">habit/r
 <col style="width: 72.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Path</p></th>
-<th class="head"><p>Responsibility</p></th>
+<tr class="row-odd"><th class="head"><p>路径</p></th>
+<th class="head"><p>职责</p></th>
 </tr>
 </thead>
 <tbody>
@@ -1332,14 +1322,13 @@ delegate to <code class="docutils literal notranslate"><span class="pre">habit/r
 <td><p>并行后端与检查点。</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/plugins/</span></code></p></td>
-<td><p>Entry-point discovery (<code class="docutils literal notranslate"><span class="pre">list_plugins</span></code>).</p></td>
+<td><p>入口点发现（ <code class="docutils literal notranslate"><span class="pre">list_plugins</span></code> ）。</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/</span></code></p></td>
 <td><p>冻结的 v0.1 引擎（YAML 一致）。</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tests/</span></code></p></td>
-<td><p>Pytest; architecture contracts in
-<code class="docutils literal notranslate"><span class="pre">tests/test_architecture_contracts.py</span></code>.</p></td>
+<td><p>Pytest；架构契约见 <code class="docutils literal notranslate"><span class="pre">tests/test_architecture_contracts.py</span></code> 。</p></td>
 </tr>
 </tbody>
 </table>
@@ -1351,7 +1340,7 @@ delegate to <code class="docutils literal notranslate"><span class="pre">habit/r
 <col style="width: 60.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Goal</p></th>
+<tr class="row-odd"><th class="head"><p>目标</p></th>
 <th class="head"><p>起点</p></th>
 </tr>
 </thead>
@@ -1363,7 +1352,7 @@ delegate to <code class="docutils literal notranslate"><span class="pre">habit/r
 <td><p><code class="docutils literal notranslate"><span class="pre">habit/recipes/habitat.py</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>更改 CLI 接线</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/commands/cmd_*.py</span></code> (keep commands thin)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/commands/cmd_*.py</span></code> （保持命令层精简）</p></td>
 </tr>
 <tr class="row-odd"><td><p>修改数值核</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">habit/kernels/</span></code> （Spec 不变则定义不变）</p></td>
@@ -1374,12 +1363,12 @@ delegate to <code class="docutils literal notranslate"><span class="pre">habit/r
 <p>更长包图（utils 清单、compat 引擎目录、ML 起点）归档于 <code class="docutils literal notranslate"><span class="pre">developer/sphinx_archive/repo_layout.rst</span></code> 。</p>
 </section>
 <section id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<h2>另见<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="contributing.html"><span class="doc">Contributing</span></a> —— 环境、测试、Pull Request。</p></li>
+<li><p><a class="reference internal" href="contributing.html"><span class="doc">参与贡献</span></a> —— 环境、测试、Pull Request。</p></li>
 <li><p><a class="reference internal" href="../customization/index.html"><span class="doc">扩展 HABIT</span></a> — 生境注册表插件。</p></li>
 <li><p><a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> —— 内置 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 名称。</p></li>
-<li><p><a class="reference internal" href="../reference/upstream_libraries.html"><span class="doc">上游依赖与文档链接</span></a> — third-party library notes.</p></li>
+<li><p><a class="reference internal" href="../reference/upstream_libraries.html"><span class="doc">上游依赖与文档链接</span></a> — 第三方库说明。</p></li>
 </ul>
 </section>
 </section>
@@ -1400,7 +1389,7 @@ delegate to <code class="docutils literal notranslate"><span class="pre">habit/r
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">上一页</p>
-        <p class="prev-next-title">Contributing</p>
+        <p class="prev-next-title">参与贡献</p>
       </div>
     </a>
     <a class="right-next"
@@ -1435,13 +1424,13 @@ delegate to <code class="docutils literal notranslate"><span class="pre">habit/r
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-six-layers">六层架构</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-execution-paths">两条执行路径</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-components">关键组件</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subsystems">Subsystems</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subsystems">子系统</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-to-core-mapping">CLI 到核心映射</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-philosophy">设计哲学</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habitat-and-api-glossary">生境与 API 术语表</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#invariants">Invariants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#invariants">不变量</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-look-in-the-repo">在仓库中何处查找</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">另见</a></li>
 </ul>
   </nav></div>
 

@@ -157,7 +157,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -171,7 +171,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -227,21 +227,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -406,7 +406,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -420,7 +420,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -469,21 +469,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -634,12 +634,8 @@
                   
   <section id="habitat-segmentation-cli-yaml">
 <h1>生境分割（CLI / YAML）<a class="headerlink" href="#habitat-segmentation-cli-yaml" title="Link to this heading">#</a></h1>
-<p>Bookmark for <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code>. Python walk-throughs:
-<a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">用 Spec 的两步法生境</span></a>, <a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_02_inside_each_subject.html"><span class="doc">生境 inside each 受试者</span></a>,
-<a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_03_pooled_voxels.html"><span class="doc">由池化体素得到的生境</span></a>. Atomic <code class="docutils literal notranslate"><span class="pre">op(subject)</span></code>:
-<a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_02_atomic_two_step.html"><span class="doc">由原子组件构建两步法生境</span></a>. Strategy table:
-<a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a>.</p>
-<p>开始之前：<a class="reference internal" href="before_you_start.html"><span class="doc">开始之前</span></a> 。数据布局：<a class="reference internal" href="../auto_examples/06_manipulating_images/index.html"><span class="doc">图像操作</span></a> 。演示树:</p>
+<p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> 的书签。Python 逐步讲解： <a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">用 Spec 的两步法生境</span></a> 、 <a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_02_inside_each_subject.html"><span class="doc">生境 inside each 受试者</span></a> 、 <a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_03_pooled_voxels.html"><span class="doc">由池化体素得到的生境</span></a> 。原子 <code class="docutils literal notranslate"><span class="pre">op(subject)</span></code> ： <a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_02_atomic_two_step.html"><span class="doc">由原子组件构建两步法生境</span></a> 。策略表： <a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a> 。</p>
+<p>开始之前： <a class="reference internal" href="before_you_start.html"><span class="doc">开始之前</span></a> 。数据布局： <a class="reference internal" href="../auto_examples/06_manipulating_images/index.html"><span class="doc">图像操作</span></a> 。演示树:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span>
 </pre></div>
 </div>
@@ -654,9 +650,8 @@
 <span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_direct_pooling</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p>复制 YAML 时的 ★ 字段： <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">data.source</span></code> 、 <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> 及 <code class="docutils literal notranslate"><span class="pre">feature_construction</span></code> 中的模态名。Schema：<a class="reference internal" href="../configuration/habitat.html"><span class="doc">生境分割配置</span></a> 。 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 名：<a class="reference internal" href="habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> 。</p>
-<p>Success: <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> under <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>. Next CLI step:
-<a class="reference internal" href="extract_features.html"><span class="doc">之后：用于统计 / ML 的生境特征</span></a>.</p>
+<p>复制 YAML 时的 ★ 字段： <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">data.source</span></code> 、 <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> 及 <code class="docutils literal notranslate"><span class="pre">feature_construction</span></code> 中的模态名。Schema： <a class="reference internal" href="../configuration/habitat.html"><span class="doc">生境分割配置</span></a> 。 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 名： <a class="reference internal" href="habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> 。</p>
+<p>成功： <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> 下出现 <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> 。下一步 CLI： <a class="reference internal" href="extract_features.html"><span class="doc">之后：用于统计 / ML 的生境特征</span></a> 。</p>
 </section>
 
 

@@ -160,7 +160,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -174,7 +174,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -230,21 +230,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -411,7 +411,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -425,7 +425,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -474,21 +474,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -668,15 +668,15 @@
   <section id="non-radiomics-morphology">
 <h1>Non-放射组学 Morphology<a class="headerlink" href="#non-radiomics-morphology" title="Link to this heading">#</a></h1>
 <section id="output">
-<h2>Output<a class="headerlink" href="#output" title="Link to this heading">#</a></h2>
+<h2>输出<a class="headerlink" href="#output" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">habitat_basic_features.csv</span></code></p>
 </section>
 <section id="definition">
-<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
+<h2>定义<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
 <p>由生境标签图 <code class="docutils literal notranslate"><span class="pre">L(mathbf{x})</span></code> （体素标签；0 = 背景）衍生的形态统计。不使用 PyRadiomics 强度特征。</p>
 </section>
 <section id="formula">
-<h2>Formula<a class="headerlink" href="#formula" title="Link to this heading">#</a></h2>
+<h2>公式<a class="headerlink" href="#formula" title="Link to this heading">#</a></h2>
 <div class="math notranslate nohighlight">
 \[\begin{split}N_h &amp;= \text{count of distinct labels } k &gt; 0 \quad (\text{num_habitats}) \\
 V_{\mathrm{tumor}} &amp;= \sum_{\mathbf{x}:\, L(\mathbf{x}) \neq 0} 1 \\
@@ -684,10 +684,7 @@ V_k &amp;= \sum_{\mathbf{x}:\, L(\mathbf{x}) = k} 1 \\
 \text{volume_ratio}_k &amp;= V_k / V_{\mathrm{tumor}} \\
 \text{num_regions}_k &amp;= \text{face-connected components with label } k\end{split}\]</div>
 <p>连通分量使用 SimpleITK <code class="docutils literal notranslate"><span class="pre">ConnectedComponent</span></code> 与 <code class="docutils literal notranslate"><span class="pre">SetFullyConnected(False)</span></code> （3D 6 连通）。</p>
-<p>The exported CSV uses fixed column indices <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">…</span> <span class="pre">K</span></code> where <em>K</em> = <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> from
-config (or auto-detected <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code>), not necessarily the distinct labels
-present in each subject's map. Per-subject <code class="docutils literal notranslate"><span class="pre">num_habitats</span></code> counts distinct labels
-in that map and may differ from <em>K</em>.</p>
+<p>导出的 CSV 使用固定列索引 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">…</span> <span class="pre">K</span></code> ，其中 <em>K</em> = 配置中的 <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> （或自动检测的 <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code> ），不一定等于每名受试者图中出现的不同标签。受试者级 <code class="docutils literal notranslate"><span class="pre">num_habitats</span></code> 统计该图中的不同标签数，可能与 <em>K</em> 不同。</p>
 </section>
 <section id="output-columns">
 <h2>输出列<a class="headerlink" href="#output-columns" title="Link to this heading">#</a></h2>
@@ -697,8 +694,8 @@ in that map and may differ from <em>K</em>.</p>
 <col style="width: 72.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Column</p></th>
-<th class="head"><p>Description</p></th>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>描述</p></th>
 </tr>
 </thead>
 <tbody>
@@ -716,7 +713,7 @@ in that map and may differ from <em>K</em>.</p>
 </div>
 </section>
 <section id="implementation">
-<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
+<h2>实现<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_extraction/habitat_features/basic_features.py</span></code></p>
 </section>
 </section>
@@ -768,11 +765,11 @@ in that map and may differ from <em>K</em>.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output">Output</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">Definition</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formula">Formula</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output">输出</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">定义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formula">公式</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-columns">输出列</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">实现</a></li>
 </ul>
   </nav></div>
 

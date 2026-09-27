@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Concepts &#8212; HABIT Documentation</title>
+    <title>概念 &#8212; HABIT Documentation</title>
   
   
   
@@ -157,7 +157,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -171,7 +171,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -227,21 +227,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -619,7 +619,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Concepts</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">概念</span></li>
   </ul>
 </nav>
 </div>
@@ -637,28 +637,28 @@
                 <article class="bd-article">
                   
   <section id="concepts">
-<h1>Concepts<a class="headerlink" href="#concepts" title="Link to this heading">#</a></h1>
+<h1>概念<a class="headerlink" href="#concepts" title="Link to this heading">#</a></h1>
 <p><strong>背景。</strong> 生境分析有独立的小型术语表。指南页面会使用这些词而不再长篇定义，故本页集中收录。</p>
-<p><strong>目的。</strong> 读完后应能读任意阶段列表（<a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> ）并说明各阶段做什么、哪些统计从哪些患者学习、保存模型含什么。</p>
-<p><strong>何时使用。</strong> Read it once before <a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a>, and come back when a Guide page links a term here.</p>
+<p><strong>目的。</strong> 读完后应能读任意阶段列表（ <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> ）并说明各阶段做什么、哪些统计从哪些患者学习、保存模型含什么。</p>
+<p><strong>适用场景。</strong> 在阅读 <a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a> 之前先通读一遍，之后若某篇指南链到此处术语再回来查阅。</p>
 <section id="images-and-regions">
 <h2>图像与区域<a class="headerlink" href="#images-and-regions" title="Link to this heading">#</a></h2>
 <p><strong>体素。</strong> 图像的三维像素。HABIT 仅分析 ROI 内体素。</p>
 <p><strong>ROI / 掩膜。</strong> 感兴趣区，通常为整瘤，与图像同网格的整数掩膜（0 = 背景）。演示中掩膜键为 <code class="docutils literal notranslate"><span class="pre">LAP</span></code> ，即勾画所用序列。</p>
-<p><strong>模态 / 序列。</strong> One input image of a 受试者, for example a DCE phase (<code class="docutils literal notranslate"><span class="pre">pre_contrast</span></code>, <code class="docutils literal notranslate"><span class="pre">LAP</span></code>, <code class="docutils literal notranslate"><span class="pre">PVP</span></code>, <code class="docutils literal notranslate"><span class="pre">delay_3min</span></code>). All series of a 受试者 must share one 体素 grid with the 掩膜; that is image preprocessing (<a class="reference internal" href="../how_to/preprocess.html"><span class="doc">之前：图像预处理</span></a>), which happens before 生境分析.</p>
+<p><strong>模态 / 序列。</strong> 受试者的一幅输入图像，例如一个 DCE 期相（ <code class="docutils literal notranslate"><span class="pre">pre_contrast</span></code> 、 <code class="docutils literal notranslate"><span class="pre">LAP</span></code> 、 <code class="docutils literal notranslate"><span class="pre">PVP</span></code> 、 <code class="docutils literal notranslate"><span class="pre">delay_3min</span></code> ）。同一受试者的所有序列必须与掩膜共享同一体素网格；这属于图像预处理（ <a class="reference internal" href="../how_to/preprocess.html"><span class="doc">之前：图像预处理</span></a> ），发生在生境分析之前。</p>
 </section>
 <section id="features-supervoxels-habitats">
 <h2>特征、超体素、生境<a class="headerlink" href="#features-supervoxels-habitats" title="Link to this heading">#</a></h2>
 <p><strong>体素特征。</strong> 描述单个体素的数值：各序列强度（ <code class="docutils literal notranslate"><span class="pre">raw</span></code> ），或其周围局部纹理（ <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> ）。 <code class="docutils literal notranslate"><span class="pre">extract</span></code> 阶段每个 ROI 体素一行、每个特征一列。</p>
 <p><strong>超体素。</strong> 受试者内由 <code class="docutils literal notranslate"><span class="pre">partition</span></code> 阶段（k-means 或 SLIC）划分出的、特征相近的邻近体素小块；其特征向量为所含体素的均值。对每个受试者聚类数十个超体素比聚类每个体素更快、噪声更低。</p>
 <p><strong>生境。</strong> 特征相似的体素（或超体素）组。 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 阶段学习生境定义（k-means：生境数与每生境一质心）； <code class="docutils literal notranslate"><span class="pre">assign</span></code> 给每体素最近质心 id。结果为生境图：每 ROI 体素涂生境 id 1、2、3、…</p>
-<p><strong>生境特征。</strong> 从生境图计算的数值，每名患者一行：体积分数、MSI（生境如何接触）、ITH 分数（肿瘤碎片化程度）、图指标、逐生境放射组学。定义：<a class="reference internal" href="../reference/features/index.html"><span class="doc">特征公式</span></a> 。</p>
+<p><strong>生境特征。</strong> 从生境图计算的数值，每名患者一行：体积分数、MSI（生境如何接触）、ITH 分数（肿瘤碎片化程度）、图指标、逐生境放射组学。定义： <a class="reference internal" href="../reference/features/index.html"><span class="doc">特征公式</span></a> 。</p>
 </section>
 <section id="subject-level-and-cohort-level">
 <h2>受试者级与队列级<a class="headerlink" href="#subject-level-and-cohort-level" title="Link to this heading">#</a></h2>
 <p>每一步要么是 <strong>受试者级</strong> （一次只看一名患者），要么是 <strong>队列级</strong> （看到全部训练患者池化行）。 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 阶段为分界。</p>
 <ul class="simple">
-<li><p><strong>受试者-level</strong> stages run before <code class="docutils literal notranslate"><span class="pre">pool</span></code>: <code class="docutils literal notranslate"><span class="pre">extract</span></code>, a <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> stage placed before <code class="docutils literal notranslate"><span class="pre">pool</span></code>, and <code class="docutils literal notranslate"><span class="pre">partition</span></code>. They use only that 患者's own data, store no state, and cannot leak information from one 患者 into another. A new 患者 goes through them exactly like a training 患者.</p></li>
+<li><p><strong>受试者级</strong> 阶段在 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 之前运行： <code class="docutils literal notranslate"><span class="pre">extract</span></code> 、置于 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 之前的 <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> 阶段，以及 <code class="docutils literal notranslate"><span class="pre">partition</span></code> 。它们仅使用该患者自身数据、不存储状态，且不会把一名患者的信息泄漏到另一名。新患者经历它们的方式与训练患者完全相同。</p></li>
 <li><p>在 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 之后运行 <strong>队列级</strong> 阶段： <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> 之后的 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 与 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 。它们在训练患者上学习一次；其状态（例如分箱边界与质心）保存在模型内，并在新患者上 <strong>原样</strong> 复用，从不在新患者上重新拟合。</p></li>
 </ul>
 <p>同一组件名可在两侧。阶段列表中的位置决定是哪一个。</p>
@@ -671,30 +671,30 @@
 </section>
 <section id="three-habitat-designs">
 <h2>三种生境设计<a class="headerlink" href="#three-habitat-designs" title="Link to this heading">#</a></h2>
-<p>阶段列表决定设计（<a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a> ）：</p>
+<p>阶段列表决定设计（ <a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a> ）：</p>
 <ul class="simple">
 <li><p><strong>两步法</strong> —— <code class="docutils literal notranslate"><span class="pre">partition</span></code> 再 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 再 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 。每患者超体素，队列一个模型。生境 id 在各患者中含义相同。此为默认。</p></li>
-<li><p><strong>一步法</strong> ——无 <code class="docutils literal notranslate"><span class="pre">pool</span></code> ：各患者单独聚类。生境 id 不可跨患者比较；使用无标签摘要（ITH 分数、生境数）或先匹配标签（<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">同一受试者、两次拟合：原型匹配</span></a> ）。</p></li>
-<li><p><strong>直接池化</strong> -- <code class="docutils literal notranslate"><span class="pre">pool</span></code> then <code class="docutils literal notranslate"><span class="pre">fit</span></code> with no <code class="docutils literal notranslate"><span class="pre">partition</span></code>: every 体素 of every 患者 is clustered together. Shared ids, but the matrix grows with every 体素.</p></li>
+<li><p><strong>一步法</strong> ——无 <code class="docutils literal notranslate"><span class="pre">pool</span></code> ：各患者单独聚类。生境 id 不可跨患者比较；使用无标签摘要（ITH 分数、生境数）或先匹配标签（ <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_02_match_same_subject.html"><span class="doc">同一受试者、两次拟合：原型匹配</span></a> ）。</p></li>
+<li><p><strong>直接池化</strong> —— 先 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 再 <code class="docutils literal notranslate"><span class="pre">fit</span></code> ，无 <code class="docutils literal notranslate"><span class="pre">partition</span></code> ：所有患者的所有体素一起聚类。编号共享，但矩阵随每个体素增长。</p></li>
 </ul>
 </section>
 <section id="declaring-an-analysis">
 <h2>声明一项分析<a class="headerlink" href="#declaring-an-analysis" title="Link to this heading">#</a></h2>
 <p><strong>Spec。</strong> 注册组件名加其参数，例如 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;kmeans&quot;,</span> <span class="pre">{&quot;n_supervoxels&quot;:</span> <span class="pre">30})</span></code> 。可往返 YAML 并有指纹，结果可精确说明由何产生。</p>
 <p><strong>阶段。</strong> 分析中的一步： <code class="docutils literal notranslate"><span class="pre">Stage(&quot;partition&quot;,</span> <span class="pre">Spec(...))</span></code> 。第一个参数是您选择的标签；HABIT 根据组件及其位置推断角色（extract、preprocess、partition、pool、fit、assign、quantify）。</p>
-<p><strong>HabitatSpec。</strong> 阶段有序列表加 <code class="docutils literal notranslate"><span class="pre">random_seed</span></code> ：整项研究定义。<a class="reference internal" href="../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code></a> 运行它（训练队列 <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> ，新患者 <code class="docutils literal notranslate"><span class="pre">predict</span></code> ）。YAML 的 <code class="docutils literal notranslate"><span class="pre">spec:</span></code> 块是同一对象。</p>
-<p><strong>.habitatmodel.</strong> 已保存的生境定义：质心、拟合的队列级预处理状态、完整阶段列表、定义队列的指纹与软件版本。<a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.load" title="habit.contracts.HabitatModel.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">HabitatModel.load()</span></code></a> 读回并为新患者贴标签而不重拟合（<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_01_train_save_predict.html"><span class="doc">训练、保存并预测新患者</span></a> ）。</p>
-<p><strong>Methods 段落。</strong> <code class="docutils literal notranslate"><span class="pre">result.manifest.describe_methods()</span></code> 根据实际运行起草稿件 methods 段（<a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_01_train_save_predict.html"><span class="doc">训练、保存并预测新患者</span></a> ）。</p>
+<p><strong>HabitatSpec。</strong> 阶段有序列表加 <code class="docutils literal notranslate"><span class="pre">random_seed</span></code> ：整项研究定义。 <a class="reference internal" href="../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code></a> 运行它（训练队列 <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> ，新患者 <code class="docutils literal notranslate"><span class="pre">predict</span></code> ）。YAML 的 <code class="docutils literal notranslate"><span class="pre">spec:</span></code> 块是同一对象。</p>
+<p><strong>.habitatmodel.</strong> 已保存的生境定义：质心、拟合的队列级预处理状态、完整阶段列表、定义队列的指纹与软件版本。 <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.load" title="habit.contracts.HabitatModel.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">HabitatModel.load()</span></code></a> 读回并为新患者贴标签而不重拟合（ <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_01_train_save_predict.html"><span class="doc">训练、保存并预测新患者</span></a> ）。</p>
+<p><strong>Methods 段落。</strong> <code class="docutils literal notranslate"><span class="pre">result.manifest.describe_methods()</span></code> 根据实际运行起草稿件 methods 段（ <a class="reference internal" href="../auto_examples/05_validation_and_reuse/plot_01_train_save_predict.html"><span class="doc">训练、保存并预测新患者</span></a> ）。</p>
 </section>
 <section id="running-a-cohort">
 <h2>运行队列<a class="headerlink" href="#running-a-cohort" title="Link to this heading">#</a></h2>
-<p><strong>后端。</strong> What schedules the 受试者: serial (one after another in this process) or a pool of worker processes. Changing the backend changes speed, never the 生境 labels.</p>
+<p><strong>后端。</strong> 如何调度受试者：串行（在本进程中逐个）或工作进程池。更换后端只改变速度，不会改变生境标签。</p>
 <p><strong>RunPolicy。</strong> 一次运行的设置：backend、workers、单受试者失败时行为（ <code class="docutils literal notranslate"><span class="pre">on_subject_failure</span></code> ）、单受试者超时。</p>
-<p><strong>检查点。</strong> 已完成受试者结果写盘（<a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> ），中断运行可恢复而无需重算。</p>
-<p>示例：<a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 与 <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
+<p><strong>检查点。</strong> 已完成受试者结果写盘（ <a class="reference internal" href="../api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore" title="habit.execution.CheckpointStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a> ），中断运行可恢复而无需重算。</p>
+<p>示例： <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 与 <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
 </section>
 <section id="next">
-<h2>Next<a class="headerlink" href="#next" title="Link to this heading">#</a></h2>
+<h2>下一节<a class="headerlink" href="#next" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="../auto_quickstart/plot_quickstart_python.html"><span class="doc">快速开始：Python API</span></a> ，然后 <a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a> 。</p>
 </section>
 </section>
@@ -735,7 +735,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#three-habitat-designs">三种生境设计</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#declaring-an-analysis">声明一项分析</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-cohort">运行队列</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next">Next</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next">下一节</a></li>
 </ul>
   </nav></div>
 

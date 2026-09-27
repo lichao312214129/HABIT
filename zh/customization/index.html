@@ -58,7 +58,7 @@
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
     <link rel="next" title="引用与致谢" href="../acknowledgments.html" />
-    <link rel="prev" title="Architecture" href="../development/architecture.html" />
+    <link rel="prev" title="架构" href="../development/architecture.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="zh-CN"/>
   <meta name="docsearch:version" content="3.0.0" />
@@ -159,7 +159,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -173,7 +173,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -229,21 +229,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -655,7 +655,7 @@
   <section id="extending-habit">
 <h1>扩展 HABIT<a class="headerlink" href="#extending-habit" title="Link to this heading">#</a></h1>
 <p>此页面是 <strong>v1 生境 插件</strong> 路径：实现一个协议，注册它，可选地将其作为入口点发布。第三方不应需要分叉 HABIT。</p>
-<p>内置 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 名称与构造参数见 <a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> 。发现 API 见 <a class="reference internal" href="../api/plugins.html"><span class="doc">插件 introspection API</span></a> 。无插件的算术公式用内置 <code class="docutils literal notranslate"><span class="pre">expression</span></code> 体素提取器（<a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a> ）。</p>
+<p>内置 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 名称与构造参数见 <a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> 。发现 API 见 <a class="reference internal" href="../api/plugins.html"><span class="doc">插件 introspection API</span></a> 。无插件的算术公式用内置 <code class="docutils literal notranslate"><span class="pre">expression</span></code> 体素提取器（ <a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a> ）。</p>
 <section id="v1-registry-and-entry-points">
 <h2>v1 注册表与 entry points<a class="headerlink" href="#v1-registry-and-entry-points" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -668,7 +668,7 @@
 <ul class="simple">
 <li><p><strong>Voxel feature extractors</strong> ： <code class="docutils literal notranslate"><span class="pre">VoxelFeatureExtractorRegistry</span></code></p></li>
 <li><p><strong>超体素化器 / 超体素特征</strong></p></li>
-<li><p><strong>Habitat model fitters / assigners / habitat feature extractors</strong></p></li>
+<li><p><strong>生境模型拟合器 / 分配器 / 生境特征提取器</strong></p></li>
 </ul>
 <p>每个插件适用三契约：</p>
 <ol class="arabic simple">
@@ -678,10 +678,7 @@
 </ol>
 <div class="admonition important">
 <p class="admonition-title">重要</p>
-<p>Registration decorators run only when the Python module is imported.
-External plugins must be imported (or loaded via <code class="docutils literal notranslate"><span class="pre">load_plugins()</span></code>)
-before the workflow starts. For in-tree development, import the module
-from the corresponding subpackage <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>.</p>
+<p>注册装饰器仅在导入该 Python 模块时运行。外部插件必须在工作流开始前被导入（或经 <code class="docutils literal notranslate"><span class="pre">load_plugins()</span></code> 加载）。树内开发时，从对应子包的 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> 导入该模块。</p>
 </div>
 </section>
 <section id="v1-custom-voxel-feature-extractors">
@@ -784,9 +781,8 @@ from the corresponding subpackage <code class="docutils literal notranslate"><sp
 <span class="n">load_plugins</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a> for a runnable demo covering both
-<code class="docutils literal notranslate"><span class="pre">expression</span></code> and a custom plugin, and <a class="reference internal" href="../api/plugins.html"><span class="doc">插件 introspection API</span></a> for discovery.</p>
-<p>Other 生境 domains follow the same pattern: implement the protocol, register on the matching registry, reference the name from <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>. Catalogs and constructor signatures: <a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a>.</p>
+<p>可运行演示见 <a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a> （涵盖 <code class="docutils literal notranslate"><span class="pre">expression</span></code> 与自定义插件），发现机制见 <a class="reference internal" href="../api/plugins.html"><span class="doc">插件 introspection API</span></a> 。</p>
+<p>其他生境域遵循同一模式：实现协议、在对应注册表上注册，再从 <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 按名称引用。目录与构造器签名见 <a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> 。</p>
 </section>
 <section id="extension-principles">
 <h2>扩展原则<a class="headerlink" href="#extension-principles" title="Link to this heading">#</a></h2>
@@ -797,18 +793,14 @@ from the corresponding subpackage <code class="docutils literal notranslate"><sp
 </section>
 <section id="image-preprocessing-and-tabular-ml">
 <h2>图像预处理与表格 ML<a class="headerlink" href="#image-preprocessing-and-tabular-ml" title="Link to this heading">#</a></h2>
-<p>Image-preprocessing steps and tabular-ML models / selectors are <strong>not</strong>
-the public extension story. Those v0.1 factory tours
-(<code class="docutils literal notranslate"><span class="pre">PreprocessorFactory</span></code>, <code class="docutils literal notranslate"><span class="pre">ModelFactory</span></code>, <code class="docutils literal notranslate"><span class="pre">SelectorRegistry</span></code>, …) are
-frozen. Maintainers who still need them should read the archived pages in
-the repository:</p>
+<p>图像预处理步骤与表格机器学习模型 / 选择器 <strong>不是</strong> 公开扩展路径。那些 v0.1 工厂导览（ <code class="docutils literal notranslate"><span class="pre">PreprocessorFactory</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ModelFactory</span></code> 、 <code class="docutils literal notranslate"><span class="pre">SelectorRegistry</span></code> 等）已冻结。仍需使用它们的维护者应阅读仓库中的归档页面：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">developer/sphinx_archive/extension_points.rst</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">developer/sphinx_archive/customization_index.rst</span></code></p></li>
 </ul>
 </section>
 <section id="faq">
-<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">#</a></h2>
+<h2>常见问题<a class="headerlink" href="#faq" title="Link to this heading">#</a></h2>
 <p><strong>如何调试自定义组件？</strong> 启用日志，对合成 <code class="docutils literal notranslate"><span class="pre">Subject</span></code> 写单元测试，并在接入 <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> 前直接调用插件。</p>
 <p><strong>如何共享自定义组件？</strong> 发布带 <code class="docutils literal notranslate"><span class="pre">habit.&lt;domain&gt;</span></code> entry point 的小包，或上游贡献并附测试。</p>
 <p><strong>如何处理额外依赖？</strong> 文档说明；非核心栈放在插件 extras，而非 HABIT 必需依赖。</p>
@@ -816,11 +808,11 @@ the repository:</p>
 <section id="next-steps">
 <h2>下一步<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../development/architecture.html"><span class="doc">Architecture</span></a> — 分层与不变量</p></li>
-<li><p><a class="reference internal" href="../development/contributing.html"><span class="doc">Contributing</span></a> — 测试和拉取请求</p></li>
-<li><p><a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> — built-in component catalog</p></li>
+<li><p><a class="reference internal" href="../development/architecture.html"><span class="doc">架构</span></a> — 分层与不变量</p></li>
+<li><p><a class="reference internal" href="../development/contributing.html"><span class="doc">参与贡献</span></a> — 测试和拉取请求</p></li>
+<li><p><a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> — 内置组件目录</p></li>
 <li><p><a class="reference internal" href="../api/plugins.html"><span class="doc">插件 introspection API</span></a> — <code class="docutils literal notranslate"><span class="pre">list_plugins</span></code> / <code class="docutils literal notranslate"><span class="pre">load_plugins</span></code></p></li>
-<li><p><a class="reference internal" href="../reference/upstream_libraries.html"><span class="doc">上游依赖与文档链接</span></a> — third-party library notes</p></li>
+<li><p><a class="reference internal" href="../reference/upstream_libraries.html"><span class="doc">上游依赖与文档链接</span></a> — 第三方库说明</p></li>
 </ul>
 </section>
 </section>
@@ -841,7 +833,7 @@ the repository:</p>
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">上一页</p>
-        <p class="prev-next-title">Architecture</p>
+        <p class="prev-next-title">架构</p>
       </div>
     </a>
     <a class="right-next"
@@ -876,7 +868,7 @@ the repository:</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-custom-voxel-feature-extractors">v1 自定义体素特征提取器</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extension-principles">扩展原则</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#image-preprocessing-and-tabular-ml">图像预处理与表格 ML</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">FAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">常见问题</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">下一步</a></li>
 </ul>
   </nav></div>

@@ -57,7 +57,7 @@
     <link rel="canonical" href="https://lichao312214129.github.io/HABIT/auto_quickstart/plot_quickstart_yaml.html" />
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
-    <link rel="next" title="Installation" href="../tutorial/installation.html" />
+    <link rel="next" title="安装" href="../tutorial/installation.html" />
     <link rel="prev" title="快速开始：Python API" href="plot_quickstart_python.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="zh-CN"/>
@@ -159,7 +159,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -173,7 +173,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -229,21 +229,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -654,8 +654,7 @@
                   
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">备注</p>
-<p><a class="reference internal" href="#sphx-glr-download-auto-quickstart-plot-quickstart-yaml-py"><span class="std std-ref">Go to the end</span></a>
-to download the full example code.</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-quickstart-plot-quickstart-yaml-py"><span class="std std-ref">Go to the end</span></a> 以下载完整示例代码。</p>
 </div>
 <section class="sphx-glr-example-title" id="quickstart-yaml-and-cli">
 <span id="sphx-glr-auto-quickstart-plot-quickstart-yaml-py"></span><h1>快速开始：YAML 与 CLI<a class="headerlink" href="#quickstart-yaml-and-cli" title="Link to this heading">#</a></h1>
@@ -663,18 +662,11 @@ to download the full example code.</p>
 <p><strong>目的。</strong> 从 YAML 获得两步法生境图及 volume-fraction / MSI / ITH / graph 表，外加一张生境叠加图。最后一节用 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> 运行随附 quickstart 配置。</p>
 <p><strong>关键词。</strong></p>
 <ul class="simple">
-<li><p><strong>YAML 配置</strong> -- a text file whose <code class="docutils literal notranslate"><span class="pre">spec:</span></code> block is a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> (<code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>, <code class="docutils literal notranslate"><span class="pre">stages</span></code>), and whose <code class="docutils literal notranslate"><span class="pre">data:</span></code> / <code class="docutils literal notranslate"><span class="pre">output:</span></code> blocks say where to read 受试者 and write results.</p></li>
+<li><p><strong>YAML 配置</strong> —— 文本文件，其 <code class="docutils literal notranslate"><span class="pre">spec:</span></code> 块是 <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> （ <code class="docutils literal notranslate"><span class="pre">name</span></code> 、 <code class="docutils literal notranslate"><span class="pre">random_seed</span></code> 、 <code class="docutils literal notranslate"><span class="pre">stages</span></code> ）， <code class="docutils literal notranslate"><span class="pre">data:</span></code> / <code class="docutils literal notranslate"><span class="pre">output:</span></code> 块指明从何处读取受试者、向何处写出结果。</p></li>
 <li><p><strong>Stage / Spec / HabitatSpec</strong> —— 见 <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">快速开始：Python API</span></a> ；每个 YAML 阶段条目为一个 <code class="docutils literal notranslate"><span class="pre">Stage</span></code> ，其 <code class="docutils literal notranslate"><span class="pre">component</span></code> 为 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 。</p></li>
-<li><p><strong>subject-level / cohort-level preprocessing</strong> — <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> 前的 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 逐患者缩放； <code class="docutils literal notranslate"><span class="pre">pool</span></code> 后在训练队列学习并保存在模型中（<a class="reference internal" href="../tutorial/concepts.html"><span class="doc">Concepts</span></a> ）。</p></li>
+<li><p><strong>subject-level / cohort-level preprocessing</strong> — <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> 前的 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 逐患者缩放； <code class="docutils literal notranslate"><span class="pre">pool</span></code> 后在训练队列学习并保存在模型中（ <a class="reference internal" href="../tutorial/concepts.html"><span class="doc">概念</span></a> ）。</p></li>
 </ul>
-<p>The same analysis as <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">快速开始：Python API</span></a>, written as a YAML
-file: same stages, same seed, fitted on the same four subjects. It gives
-the same habitat maps and feature values as the Python page, and as
-<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> with <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_quickstart_v1.yaml</span></code>
-(last section of this page). <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">&lt;file&gt;</span></code> runs
-a file like this from the shell; <a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.run_from_yaml()</span></code></a> is the
-Python call behind that command. The <code class="docutils literal notranslate"><span class="pre">spec.stages</span></code> list is the stage
-list of the Python page, one entry per stage.</p>
+<p>与 <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">快速开始：Python API</span></a> 相同的分析，写成 YAML 文件：相同阶段、相同种子，在相同四位受试者上拟合。它给出与 Python 页相同的生境图与特征值，也与使用 <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_quickstart_v1.yaml</span></code> 的 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> 一致（见本页最后一节）。 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">&lt;file&gt;</span></code> 可从 shell 运行此类文件； <a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.run_from_yaml()</span></code></a> 是该命令背后的 Python 调用。 <code class="docutils literal notranslate"><span class="pre">spec.stages</span></code> 列表即 Python 页的阶段列表，每阶段一条。</p>
 <p>将 <code class="docutils literal notranslate"><span class="pre">DATA</span></code> 改为预处理根目录， <code class="docutils literal notranslate"><span class="pre">SUBJECTS</span></code> 改为受试者文件夹， <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> 改为序列名。YAML 加载器两点细节：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">data.source</span></code> 为文件夹（其下所有受试者）或列出受试者与文件的 <strong>manifest</strong> YAML。manifest 即此处选择四名训练受试者的方式；第五演示受试者为 Python 页的新患者。</p></li>
@@ -880,39 +872,31 @@ subj004                      0.178                      0.169                   
 </section>
 <section id="the-same-analysis-from-the-shell">
 <h2>在 shell 中运行相同分析<a class="headerlink" href="#the-same-analysis-from-the-shell" title="Link to this heading">#</a></h2>
-<p>不需要 Python： <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> （参见 <a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> ），然后在 conda 终端中，从你拥有的文件夹中：</p>
+<p>不需要 Python： <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> （参见 <a class="reference internal" href="../tutorial/installation.html"><span class="doc">安装</span></a> ），然后在 conda 终端中，从你拥有的文件夹中：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
 <span class="n">habit</span> <span class="n">fetch</span><span class="o">-</span><span class="n">demo</span> <span class="o">--</span><span class="n">work</span><span class="o">-</span><span class="nb">dir</span> <span class="o">.</span>
 <span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_quickstart_v1</span><span class="o">.</span><span class="n">yaml</span>
 <span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_quickstart_v1</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">copy-demo-config</span></code> writes <code class="docutils literal notranslate"><span class="pre">config/</span></code>; <code class="docutils literal notranslate"><span class="pre">fetch-demo</span></code> downloads the
-demo pack once (about 473 MB, cached under <code class="docutils literal notranslate"><span class="pre">~/.habit_data</span></code>) and links
-it as <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code>. <code class="docutils literal notranslate"><span class="pre">config_habitat_quickstart_v1.yaml</span></code>
-holds the stage list above, fitted on <code class="docutils literal notranslate"><span class="pre">subj001</span></code> to <code class="docutils literal notranslate"><span class="pre">subj004</span></code>; it
-gives the same habitat maps (voxel by voxel) and the same feature values
-as this page and the Python page. The maps, <code class="docutils literal notranslate"><span class="pre">habitat_features.csv</span></code>
-(including the graph columns) and <code class="docutils literal notranslate"><span class="pre">habitat_model.habitatmodel</span></code> land in
-<code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_quickstart/</span></code>. Look at one map without
-opening a window:</p>
+<p><code class="docutils literal notranslate"><span class="pre">copy-demo-config</span></code> 写出 <code class="docutils literal notranslate"><span class="pre">config/</span></code> ； <code class="docutils literal notranslate"><span class="pre">fetch-demo</span></code> 下载一次演示包（约 473 MB，缓存在 <code class="docutils literal notranslate"><span class="pre">~/.habit_data</span></code> ），并链接为 <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> 。 <code class="docutils literal notranslate"><span class="pre">config_habitat_quickstart_v1.yaml</span></code> 含上述阶段列表，在 <code class="docutils literal notranslate"><span class="pre">subj001</span></code> 至 <code class="docutils literal notranslate"><span class="pre">subj004</span></code> 上拟合；它给出与本页及 Python 页相同的生境图（逐体素）与相同特征值。生境图、 <code class="docutils literal notranslate"><span class="pre">habitat_features.csv</span></code> （含图列）与 <code class="docutils literal notranslate"><span class="pre">habitat_model.habitatmodel</span></code> 落在 <code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_quickstart/</span></code> 。无需开窗口即可查看一张图：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">view</span> <span class="o">--</span><span class="n">backend</span> <span class="n">matplotlib</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">LAP</span><span class="o">/</span><span class="n">WATER__WATER__Ax_Dyn_LAVA_Flex</span><span class="o">+</span><span class="n">C_Series0009</span><span class="o">.</span><span class="n">nrrd</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_quickstart</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span> <span class="o">-</span><span class="n">o</span> <span class="n">quickstart_cli_view</span><span class="o">.</span><span class="n">png</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="nb">open</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/quickstart_cli_view.png"><img alt="subj001 habitat map from config_habitat_quickstart_v1.yaml on the LAP image" src="../_images/quickstart_cli_view.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="../_images/quickstart_cli_view.png"><img alt="在 LAP 图像上由 config_habitat_quickstart_v1.yaml 得到的 subj001 生境图" src="../_images/quickstart_cli_view.png" style="width: 100%;" />
 </a>
 <figcaption>
 <p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">subj001</span></code> 生境由 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> 写出，由上 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code> 命令绘制。</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>无 <code class="docutils literal notranslate"><span class="pre">--backend</span> <span class="pre">matplotlib</span></code> 时，已安装 napari 则 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code> 打开 napari。全部命令与选项：<a class="reference internal" href="../reference/cli.html"><span class="doc">命令参考</span></a> ；全部 YAML 字段：<a class="reference internal" href="../configuration/index.html"><span class="doc">CLI 与 YAML</span></a> 。</p>
+<p>无 <code class="docutils literal notranslate"><span class="pre">--backend</span> <span class="pre">matplotlib</span></code> 时，已安装 napari 则 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code> 打开 napari。全部命令与选项： <a class="reference internal" href="../reference/cli.html"><span class="doc">命令参考</span></a> ；全部 YAML 字段： <a class="reference internal" href="../configuration/index.html"><span class="doc">CLI 与 YAML</span></a> 。</p>
 </section>
 <section id="where-to-go-next">
 <h2>接下来去哪里<a class="headerlink" href="#where-to-go-next" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>The Python page with every result explained, including the 生境 graph network: <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">快速开始：Python API</span></a>.</p></li>
-<li><p>完整分析，每页一场景：<a class="reference internal" href="../auto_examples/01_building_habitat_maps/index.html"><span class="doc">构建生境图</span></a> 。</p></li>
+<li><p>用 Python 讲解每一项结果（含生境图网络）的页面： <a class="reference internal" href="plot_quickstart_python.html"><span class="doc">快速开始：Python API</span></a> 。</p></li>
+<li><p>完整分析，每页一场景： <a class="reference internal" href="../auto_examples/01_building_habitat_maps/index.html"><span class="doc">构建生境图</span></a> 。</p></li>
 </ul>
 <p class="sphx-glr-timing"><strong>脚本的总运行时间：</strong> （0 分 9.993 秒）</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-quickstart-plot-quickstart-yaml-py">
@@ -954,7 +938,7 @@ opening a window:</p>
        title="下一页">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">下一页</p>
-        <p class="prev-next-title">Installation</p>
+        <p class="prev-next-title">安装</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

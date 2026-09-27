@@ -157,7 +157,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -171,7 +171,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -227,21 +227,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -410,7 +410,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -424,7 +424,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -473,21 +473,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -639,10 +639,10 @@
   <section id="before-you-start">
 <h1>开始之前<a class="headerlink" href="#before-you-start" title="Link to this heading">#</a></h1>
 <p>先执行一次此操作，然后每个 CLI 书签都是复制 → 编辑 ★ → 运行。 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> 之后 <strong>不</strong> 需要 git clone。</p>
-<p>生境分析是核心（指南：<a class="reference internal" href="../auto_examples/index.html"><span class="doc">Examples</span></a> ）。以下步骤仅配置终端、 <code class="docutils literal notranslate"><span class="pre">config/</span></code> 与演示影像包。</p>
+<p>生境分析是核心（指南： <a class="reference internal" href="../auto_examples/index.html"><span class="doc">示例</span></a> ）。以下步骤仅配置终端、 <code class="docutils literal notranslate"><span class="pre">config/</span></code> 与演示影像包。</p>
 <section id="terminal-env">
 <h2>1. 终端与环境<a class="headerlink" href="#terminal-env" title="Link to this heading">#</a></h2>
-<p>先打开 <strong>conda</strong> 终端。Windows：开始（Win10 常左下；Win11 常中下）→ <strong>Anaconda3</strong> → <strong>Anaconda Prompt</strong> ，或搜索 <code class="docutils literal notranslate"><span class="pre">Anaconda</span> <span class="pre">Prompt</span></code> — 不要用普通 CMD/PowerShell。细节与截图：<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> 。</p>
+<p>先打开 <strong>conda</strong> 终端。Windows：开始（Win10 常左下；Win11 常中下）→ <strong>Anaconda3</strong> → <strong>Anaconda Prompt</strong> ，或搜索 <code class="docutils literal notranslate"><span class="pre">Anaconda</span> <span class="pre">Prompt</span></code> — 不要用普通 CMD/PowerShell。细节与截图： <a class="reference internal" href="../tutorial/installation.html"><span class="doc">安装</span></a> 。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>          <span class="c1"># prompt must show (habit)</span>
 <span class="n">habit</span> <span class="o">--</span><span class="n">version</span>
 </pre></div>
@@ -650,8 +650,7 @@
 </section>
 <section id="work-directory-demo-configs">
 <h2>2. 工作目录 + demo 配置<a class="headerlink" href="#work-directory-demo-configs" title="Link to this heading">#</a></h2>
-<p>Pick any folder you own as <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code>. Materialize the bundled demo
-YAML tree (shipped inside the wheel; not <code class="docutils literal notranslate"><span class="pre">demo_data</span></code>):</p>
+<p>任选你拥有的文件夹作为 <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code> 。展开捆绑的演示 YAML 树（随 wheel 附带；不是 <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> ）:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>        <span class="c1"># Windows — use your path</span>
 <span class="n">cd</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>
 <span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
@@ -690,8 +689,8 @@ YAML tree (shipped inside the wheel; not <code class="docutils literal notransla
 </ul>
 <p><strong>表格 ML</strong> （ <code class="docutils literal notranslate"><span class="pre">ml_data.zip</span></code> ，可选）：</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://pan.baidu.com/s/1qOmZJ3uDgkDKHpHGVRpcEA?pwd=atnp">Download ml_data.zip</a> — extract code: atnp</p></li>
-<li><p>Extract to <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">breast_cancer_dataset.csv</span></code>)</p></li>
+<li><p><a class="reference external" href="https://pan.baidu.com/s/1qOmZJ3uDgkDKHpHGVRpcEA?pwd=atnp">Download ml_data.zip</a> — 提取码： atnp</p></li>
+<li><p>解压到 <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/</span></code> （例如 <code class="docutils literal notranslate"><span class="pre">breast_cancer_dataset.csv</span></code> ）</p></li>
 <li><p>若 zip 顶层为 <code class="docutils literal notranslate"><span class="pre">ml_data/</span></code> ，解压到 <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code></p></li>
 </ul>
 </section>
@@ -699,8 +698,7 @@ YAML tree (shipped inside the wheel; not <code class="docutils literal notransla
 <h2>4. YAML 中的路径<a class="headerlink" href="#paths-in-yaml" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>多数随附配置：相对路径自 <strong>YAML 文件目录</strong> 解析（故 <code class="docutils literal notranslate"><span class="pre">../../demo_data/...</span></code> ）。</p></li>
-<li><p>Documents with <code class="docutils literal notranslate"><span class="pre">version:</span> <span class="pre">'1.0'</span></code> / <code class="docutils literal notranslate"><span class="pre">*_v1.yaml</span></code>: paths as written; run
-from <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code> or use absolute paths.</p></li>
+<li><p>带 <code class="docutils literal notranslate"><span class="pre">version:</span> <span class="pre">'1.0'</span></code> / <code class="docutils literal notranslate"><span class="pre">*_v1.yaml</span></code> 的文档：路径按所写使用；从 <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code> 运行或使用绝对路径。</p></li>
 <li><p>优先 <code class="docutils literal notranslate"><span class="pre">D:/data/...</span></code> ；路径含空格时才加引号。</p></li>
 </ul>
 </section>
@@ -714,7 +712,7 @@ from <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&g
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p>接下来：<a class="reference internal" href="../auto_examples/06_manipulating_images/index.html"><span class="doc">图像操作</span></a> — 选择目录，松散的 NIfTI、SimpleITK 或 NumPy。每个图库脚本中都会出现相同的 <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> 旋钮。DICOM 是 <a class="reference internal" href="preprocess.html"><span class="doc">之前：图像预处理</span></a> ，而不是加载路径。</p>
+<p>接下来： <a class="reference internal" href="../auto_examples/06_manipulating_images/index.html"><span class="doc">图像操作</span></a> — 选择目录，松散的 NIfTI、SimpleITK 或 NumPy。每个图库脚本中都会出现相同的 <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> 旋钮。DICOM 是 <a class="reference internal" href="preprocess.html"><span class="doc">之前：图像预处理</span></a> ，而不是加载路径。</p>
 </section>
 </section>
 

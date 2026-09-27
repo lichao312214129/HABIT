@@ -158,7 +158,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -172,7 +172,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -228,21 +228,21 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -411,7 +411,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../tutorial/installation.html">
-    Installation
+    安装
   </a>
 </li>
 
@@ -425,7 +425,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../auto_examples/index.html">
-    Examples
+    示例
   </a>
 </li>
 
@@ -474,21 +474,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/glossary.html">
-    Glossary
+    术语表
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/contributing.html">
-    Contributing
+    参与贡献
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/architecture.html">
-    Architecture
+    架构
   </a>
 </li>
 
@@ -641,12 +641,12 @@
 <h1>之前：图像预处理<a class="headerlink" href="#before-image-preprocessing" title="Link to this heading">#</a></h1>
 <div class="admonition note">
 <p class="admonition-title">备注</p>
-<p>支持性集成，非生境核心。生境分析要求受试者各序列与 ROI 掩膜在同一体素网格（配准 / 重采样），本页为此准备。演示包已预处理——生境图：<a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">用 Spec 的两步法生境</span></a> 。聚类强度归一化是生境阶段而非图像步骤：见 <a class="reference internal" href="../tutorial/concepts.html"><span class="doc">Concepts</span></a> 。</p>
+<p>支持性集成，非生境核心。生境分析要求受试者各序列与 ROI 掩膜在同一体素网格（配准 / 重采样），本页为此准备。演示包已预处理——生境图： <a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">用 Spec 的两步法生境</span></a> 。聚类强度归一化是生境阶段而非图像步骤：见 <a class="reference internal" href="../tutorial/concepts.html"><span class="doc">概念</span></a> 。</p>
 </div>
 <p>目标：将图像（或 DICOM）转为预处理 <code class="docutils literal notranslate"><span class="pre">images/</span></code> + <code class="docutils literal notranslate"><span class="pre">masks/</span></code> 树。</p>
-<p><strong>首次演示运行：</strong> skip this page — the demo pack already has <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/</span></code>. Go to <a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">用 Spec 的两步法生境</span></a>.</p>
+<p><strong>首次演示运行：</strong> 可跳过本页——演示包已含 <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/</span></code> 。请前往 <a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">用 Spec 的两步法生境</span></a> 。</p>
 <section id="run">
-<h2>Run<a class="headerlink" href="#run" title="Link to this heading">#</a></h2>
+<h2>运行<a class="headerlink" href="#run" title="Link to this heading">#</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">preprocessing</span><span class="o">/</span><span class="n">config_preprocessing_demo</span><span class="o">.</span><span class="n">yaml</span>
 <span class="n">habit</span> <span class="n">preprocess</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">preprocessing</span><span class="o">/</span><span class="n">config_preprocessing_demo</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
@@ -665,7 +665,7 @@
 <h2>你的数据<a class="headerlink" href="#your-data" title="Link to this heading">#</a></h2>
 <p>在复制的 YAML 中编辑 ★： <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> （文件夹或路径列表 YAML）、 <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> 与模态名。然后 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">check-config</span></code> + <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code> 。</p>
 <p>成功： <code class="docutils literal notranslate"><span class="pre">out_dir/processed_images/images/&lt;subject&gt;/&lt;modality&gt;/</span></code> 含 NIfTI。</p>
-<p>解剖 | 处理后强度。图由图像预处理 gallery 生成（<a class="reference internal" href="#"><span class="doc">之前：图像预处理</span></a> ）。复现:</p>
+<p>解剖 | 处理后强度。图由图像预处理 gallery 生成（ <a class="reference internal" href="#"><span class="doc">之前：图像预处理</span></a> ）。复现:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">image_preprocessing_demo</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
@@ -750,7 +750,7 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">preprocess</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">preprocessing</span><span class="o">/</span><span class="n">config_preprocessing_dcm2nii_demo</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p>下一步：<a class="reference internal" href="segment_habitat.html"><span class="doc">生境分割（CLI / YAML）</span></a> 。</p>
+<p>下一步： <a class="reference internal" href="segment_habitat.html"><span class="doc">生境分割（CLI / YAML）</span></a> 。</p>
 </section>
 </section>
 
@@ -783,7 +783,7 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run">Run</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run">运行</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#your-data">你的数据</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#atomic-python-same-steps-no-yaml">原子 Python（相同步骤，无 YAML）</a></li>
 </ul>
