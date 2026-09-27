@@ -125,8 +125,9 @@ Spec pages declare the analysis; atomic pages rebuild it from
 components and check voxel agreement. Then QC and cleaning.
 
 Order: two-step Spec, two-step atomic, inside-each-subject Spec,
-supervoxels inside each subject, inside-each-subject atomic, pooled
-Spec, pooled atomic, quality control, cleaning.
+supervoxels inside each subject, supervoxels inside each subject from
+components, inside-each-subject atomic, pooled Spec, pooled atomic,
+quality control, cleaning.
 
 
 .. raw:: html
@@ -193,7 +194,7 @@ Spec, pooled atomic, quality control, cleaning.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Background. One-step habitats are fit separately in every patient, so the habitat ids are not shared. The voxel form of that design clusters every ROI voxel. Cutting the tumour into supervoxels first makes each habitat a whole patch, and the rows that are clustered can be texture features instead of the mean intensity.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. One-step habitats are fit separately in every patient, so the habitat ids are not shared. Cutting each tumour into supervoxels first makes a habitat a group of patches. Those patches can be described by the mean of the voxel features, or by texture measured on the original images.">
 
 .. only:: html
 
@@ -205,6 +206,23 @@ Spec, pooled atomic, quality control, cleaning.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Supervoxels inside each subject</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. plot_03_supervoxels_inside_each_subject declares this analysis as a HabitatSpec. The same objects exist one step at a time: a voxel extractor, a subject-level normaliser, a supervoxelizer, a supervoxel-feature extractor, a habitat fitter and an assigner.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_03_supervoxels_inside_each_subject_atomic_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_03_supervoxels_inside_each_subject_atomic`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Supervoxels inside each subject, from components</div>
     </div>
 
 

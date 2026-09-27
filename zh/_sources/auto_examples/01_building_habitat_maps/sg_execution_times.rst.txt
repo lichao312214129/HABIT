@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:36.810** total execution time for 9 files **from auto_examples\01_building_habitat_maps**:
+**03:50.710** total execution time for 10 files **from auto_examples\01_building_habitat_maps**:
 
 .. container::
 
@@ -32,8 +32,11 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_03_supervoxels_inside_each_subject_atomic.py` (``plot_03_supervoxels_inside_each_subject_atomic.py``)
+     - 02:22.569
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_03_supervoxels_inside_each_subject.py` (``plot_03_supervoxels_inside_each_subject.py``)
-     - 00:36.810
+     - 01:28.141
      - 0.0
    * - :ref:`sphx_glr_auto_examples_01_building_habitat_maps_plot_01_two_step_spec.py` (``plot_01_two_step_spec.py``)
      - 00:00.000
